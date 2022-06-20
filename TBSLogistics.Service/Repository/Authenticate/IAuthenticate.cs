@@ -11,5 +11,9 @@ namespace TBSLogistics.Service.Repository.Authenticate
     public interface IAuthenticate
     {
         Task<BoolActionResult> checkUser(LoginRequest request);
+
+        Task<bool> Logout();
+
+        Task<BoolActionResult> SaveToken(int UserId,string token, DateTime dateTime);
     }
 }

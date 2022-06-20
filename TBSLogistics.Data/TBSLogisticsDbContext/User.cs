@@ -19,6 +19,7 @@ namespace TBSLogistics.Data.TBSLogisticsDbContext
         public int Status { get; set; }
 
         public virtual NguoiDung IdNavigation { get; set; }
+        public virtual Token Token { get; set; }
         public virtual ICollection<UserHasPermission> UserHasPermissions { get; set; }
         public virtual ICollection<UserHasRole> UserHasRoles { get; set; }
     }

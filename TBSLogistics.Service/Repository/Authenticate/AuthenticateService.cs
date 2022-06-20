@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using TBSLogistics.Data.TBSLogisticsDbContext;
 using TBSLogistics.Model.CommonModel;
 using TBSLogistics.Model.Model.LoginModel;
+using TBSLogistics.Model.TempModel;
 
 namespace TBSLogistics.Service.Repository.Authenticate
 {
@@ -22,8 +23,6 @@ namespace TBSLogistics.Service.Repository.Authenticate
 
         public async Task<BoolActionResult> checkUser(LoginRequest request)
         {
-
-
             var checkUser = await _context.Users.Where(x => x.UserName == request.Username && x.PassWord == GetMD5(request.Password)).FirstOrDefaultAsync();
 
             if (checkUser == null)
@@ -32,6 +31,8 @@ namespace TBSLogistics.Service.Repository.Authenticate
             }
             else
             {
+                TempData.UserID = checkUser.Id;
+
                 var getPermission = await _context.UserHasPermissions.Where(x => x.UserId == checkUser.Id).Select(x => x.PermissionId).ToListAsync();
                 var getUserRolePermission = await _context.RoleHasPermissions.Where(x => x.RoleId == _context.UserHasRoles
                 .Where(y => y.UserId == checkUser.Id).Select(y => y.RoleId).FirstOrDefault()).Select(x => x.PermissionId).ToListAsync();
@@ -40,6 +41,54 @@ namespace TBSLogistics.Service.Repository.Authenticate
                 permission = string.Join(':', getUserRolePermission);
 
                 return new BoolActionResult { isSuccess = true, Message = "Đăng nhập thành công!", DataReturn = permission };
+            }
+        }
+
+        public async Task<bool> Logout()
+        {
+            var getToken = await _context.Tokens.Where(x => x.UserId == TempData.UserID).FirstOrDefaultAsync();
+
+            _context.Tokens.Remove(getToken);
+            await _context.SaveChangesAsync();
+
+            return true;
+           
+        }
+
+        public async Task<BoolActionResult> SaveToken(int UserId, string token, DateTime dateTime)
+        {
+            var checkTokenUser = await _context.Tokens.Where(x => x.UserId == UserId).FirstOrDefaultAsync();
+
+            if (checkTokenUser == null)
+            {
+                await _context.AddAsync(new Token()
+                {
+                    UserId = UserId,
+                    TokenCode = token,
+                    TimeOut = dateTime
+                });
+            }
+            else
+            {
+                _context.Tokens.Remove(checkTokenUser);
+
+                await _context.AddAsync(new Token()
+                {
+                    UserId = UserId,
+                    TokenCode = token,
+                    TimeOut = dateTime
+                });
+            }
+
+            var result = await _context.SaveChangesAsync();
+
+            if (result > 0)
+            {
+                return new BoolActionResult { isSuccess = true, Message = "OK" };
+            }
+            else
+            {
+                return new BoolActionResult { isSuccess = false, Message = "Error" };
             }
         }
 

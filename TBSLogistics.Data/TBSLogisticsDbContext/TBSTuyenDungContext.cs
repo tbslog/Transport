@@ -37,6 +37,7 @@ namespace TBSLogistics.Data.TBSLogisticsDbContext
         public virtual DbSet<Permission> Permissions { get; set; }
         public virtual DbSet<Role> Roles { get; set; }
         public virtual DbSet<RoleHasPermission> RoleHasPermissions { get; set; }
+        public virtual DbSet<Token> Tokens { get; set; }
         public virtual DbSet<TuyendungDanhGiaUv> TuyendungDanhGiaUvs { get; set; }
         public virtual DbSet<TuyendungDiaChiUngVien> TuyendungDiaChiUngViens { get; set; }
         public virtual DbSet<TuyendungKetQuaDanhGium> TuyendungKetQuaDanhGia { get; set; }
@@ -837,6 +838,27 @@ namespace TBSLogistics.Data.TBSLogisticsDbContext
                     .HasForeignKey(d => d.RoleId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Role_Has_Permission_Role");
+            });
+
+            modelBuilder.Entity<Token>(entity =>
+            {
+                entity.HasKey(e => e.UserId);
+
+                entity.ToTable("Token");
+
+                entity.Property(e => e.UserId)
+                    .ValueGeneratedNever()
+                    .HasColumnName("UserID");
+
+                entity.Property(e => e.TokenCode)
+                    .IsRequired()
+                    .HasMaxLength(550);
+
+                entity.HasOne(d => d.User)
+                    .WithOne(p => p.Token)
+                    .HasForeignKey<Token>(d => d.UserId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Token_User");
             });
 
             modelBuilder.Entity<TuyendungDanhGiaUv>(entity =>
