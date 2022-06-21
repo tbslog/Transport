@@ -53,7 +53,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
                 var signIn = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
                 var token = new JwtSecurityToken(_configuration["Jwt:Issuer"], _configuration["Jwt:Audience"], claims, expires: DateTime.Now.AddHours(3), signingCredentials: signIn);
 
-                var SaveToken = await _authenticate.SaveToken(TempData.UserID, new JwtSecurityTokenHandler().WriteToken(token), DateTime.Now.AddHours(3));
+                await _authenticate.SaveToken(TempData.UserID, new JwtSecurityTokenHandler().WriteToken(token), DateTime.Now.AddHours(3));
 
                 return Ok(new JwtSecurityTokenHandler().WriteToken(token));
             }
