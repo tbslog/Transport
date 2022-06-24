@@ -9,4 +9,8 @@
     <ProjectReference Include="..\TBSLogistics.Model\TBSLogistics.Model.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Repository\PermissionManage\" />
+  </ItemGroup>
+
 </Project>

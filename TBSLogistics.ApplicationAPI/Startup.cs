@@ -45,8 +45,6 @@ namespace TBSLogistics.ApplicationAPI
                 };
             });
 
-        
-
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddTransient<IAuthenticate, AuthenticateService>();
 
