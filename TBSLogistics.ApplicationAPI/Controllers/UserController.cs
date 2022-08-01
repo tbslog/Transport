@@ -1,9 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using Newtonsoft.Json;
 using System.Threading.Tasks;
+using TBSLogistics.Model.Model.UserModel;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -16,9 +15,18 @@ namespace TBSLogistics.ApplicationAPI.Controllers
     {
         // GET: api/<UserController>
         [HttpGet]
-        public IEnumerable<string> Get()
+        public async Task<IActionResult> Get()
         {
-            return new string[] { "value1", "value2" };
+            string html = "<div class='col-md-6'><form method='post' id='frmUser'>" +
+                "<label>Name</label><input class='form-control' type='text' id ='Name' /> <br>" +
+                "<label>Address</label><input class='form-control' type='text'  id ='Address' /> <br>" +
+                "<label>Email</label><input class='form-control' type='text'  id ='Email' /> <br>" +
+                "<label>Phone</label><input class='form-control' type='number'  id ='Phone' /> <br>" +
+                "<button class='btn btn-primary' type='button' id='btnSubmit' >submit</button>" +
+            "</form>";
+
+            var Js = JsonConvert.SerializeObject(html);
+            return new JsonResult(Js);
         }
 
         // GET api/<UserController>/5
@@ -30,8 +38,15 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         // POST api/<UserController>
         [HttpPost]
-        public void Post([FromBody] string value)
+        public async Task<IActionResult> Post(string value)
         {
+            var json = JsonConvert.DeserializeObject<UserRequest>(value);
+
+            json.Name = "haile";
+            json.Address = "TBS";
+            json.Email = "haile@gmail.com";
+
+            return new JsonResult(json);
         }
 
         // PUT api/<UserController>/5

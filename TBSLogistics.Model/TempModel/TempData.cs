@@ -9,5 +9,6 @@ namespace TBSLogistics.Model.TempModel
     public class TempData
     {
         public static int UserID { get; set; }
+        public static List<int> Permission { get; set; }
     }
 }

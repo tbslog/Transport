@@ -33,14 +33,17 @@ namespace TBSLogistics.Service.Repository.Authenticate
             {
                 TempData.UserID = checkUser.Id;
 
-                var getPermission = await _context.UserHasPermissions.Where(x => x.UserId == checkUser.Id).Select(x => x.PermissionId).ToListAsync();
-                var getUserRolePermission = await _context.RoleHasPermissions.Where(x => x.RoleId == _context.UserHasRoles
-                .Where(y => y.UserId == checkUser.Id).Select(y => y.RoleId).FirstOrDefault()).Select(x => x.PermissionId).ToListAsync();
+                var getListPermission = from role in _context.Roles
+                                        join rolepermission in _context.RoleHasPermissions
+                                        on role.Id equals rolepermission.RoleId
+                                        join userhasrole in _context.UserHasRoles
+                                        on role.Id equals userhasrole.RoleId
+                                        where userhasrole.UserId == checkUser.Id
+                                        select rolepermission.PermissionId;
 
-                string permission = string.Join(':', getPermission);
-                permission = string.Join(':', getUserRolePermission);
+                TempData.Permission = await getListPermission.ToListAsync();
 
-                return new BoolActionResult { isSuccess = true, Message = "Đăng nhập thành công!", DataReturn = permission };
+                return new BoolActionResult { isSuccess = true, Message = "Đăng nhập thành công!"};
             }
         }
 
@@ -52,7 +55,6 @@ namespace TBSLogistics.Service.Repository.Authenticate
             await _context.SaveChangesAsync();
 
             return true;
-           
         }
 
         public async Task<BoolActionResult> SaveToken(int UserId, string token, DateTime dateTime)

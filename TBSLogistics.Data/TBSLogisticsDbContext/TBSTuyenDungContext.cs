@@ -36,9 +36,7 @@ namespace TBSLogistics.Data.TBSLogisticsDbContext
                  .AddJsonFile("appsettings.json")
                  .Build();
 
-                var connectionString = configuration.GetConnectionString("SQLCnn");
-
-                optionsBuilder.UseSqlServer(connectionString);
+                optionsBuilder.UseSqlServer(configuration.GetConnectionString("SQLCnn"));
             }
         }
 

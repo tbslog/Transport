@@ -13,7 +13,7 @@ namespace TBSLogistics.Service.Repository.RolesManage
 {
     public class RoleService : IRole
     {
-        private TBSTuyenDungContext _context;
+        private readonly TBSTuyenDungContext _context;
 
         public RoleService(TBSTuyenDungContext context)
         {

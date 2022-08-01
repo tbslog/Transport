@@ -8,14 +8,21 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System;
+using System.Reflection;
 using System.Text;
 using TBSLogistics.Data.TBSLogisticsDbContext;
+using TBSLogistics.Data.TMS;
+using TBSLogistics.Service.Repository.AddressManage;
 using TBSLogistics.Service.Repository.Authenticate;
+using TBSLogistics.Service.Repository.Common;
+using TBSLogistics.Service.Repository.CustommerManage;
 
 namespace TBSLogistics.ApplicationAPI
 {
     public class Startup
     {
+        readonly string apiCorsPolicy = "ApiCorsPolicy";
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -26,10 +33,26 @@ namespace TBSLogistics.ApplicationAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors(options =>
+            {
+                options.AddPolicy(name: apiCorsPolicy,
+                builder =>
+                {
+                    //builder.WithOrigins("file:///C:/Users/ad/Desktop/test.html")
+                    builder.AllowAnyOrigin()
+                    .AllowAnyHeader()
+                    .AllowAnyMethod();
+                    //.AllowCredentials();
+                    //.WithMethods("OPTIONS", "GET");
+                });
+            });
+
             services.AddDbContext<TBSTuyenDungContext>(options =>
             options.UseSqlServer(Configuration["SQLCnn"]));
+            services.AddDbContext<TMSContext>(options =>
+            options.UseSqlServer(Configuration["DBVanTai"]));
 
-            services.AddControllers();
+            services.AddControllersWithViews();
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(option =>
             {
@@ -45,8 +68,12 @@ namespace TBSLogistics.ApplicationAPI
                 };
             });
 
+
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddTransient<ICommon, CommonService>();
             services.AddTransient<IAuthenticate, AuthenticateService>();
+            services.AddTransient<IAddress, AddressService>();
+            services.AddTransient<ICustomer, CustomerService>();
 
             services.AddSwaggerGen(option =>
             {
@@ -88,7 +115,7 @@ namespace TBSLogistics.ApplicationAPI
             }
 
             app.UseHttpsRedirection();
-
+            app.UseCors(apiCorsPolicy);
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
