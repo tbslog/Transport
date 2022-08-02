@@ -7,15 +7,19 @@ using System.Threading.Tasks;
 using TBSLogistics.Data.TMS;
 using TBSLogistics.Model.CommonModel;
 using TBSLogistics.Model.Model.AddressModel;
+using TBSLogistics.Model.TempModel;
+using TBSLogistics.Service.Repository.Common;
 
 namespace TBSLogistics.Service.Repository.AddressManage
 {
     public class AddressService : IAddress
     {
         private readonly TMSContext _VanChuyenContext;
+        private readonly ICommon _common;
 
-        public AddressService(TMSContext vanChuyenContext)
+        public AddressService(TMSContext vanChuyenContext, ICommon common)
         {
+            _common = common;
             _VanChuyenContext = vanChuyenContext;
         }
 
@@ -53,6 +57,7 @@ namespace TBSLogistics.Service.Repository.AddressManage
 
                 if (result > 0)
                 {
+                    await _common.Log("AddressManage", "UserId: " + TempData.UserID + " create new Address with name: " + request.TenDiaDiem);
                     return new BoolActionResult { isSuccess = true, Message = "Tạo mới địa điểm thành công" };
                 }
                 else
@@ -62,6 +67,7 @@ namespace TBSLogistics.Service.Repository.AddressManage
             }
             catch (Exception ex)
             {
+                await _common.Log("AddressManage", "UserId: " + TempData.UserID + " create new Address with ERRORS: " + ex.ToString());
                 return new BoolActionResult { isSuccess = false, Message = ex.ToString(), DataReturn = "Exception" };
             }
         }
@@ -147,16 +153,17 @@ namespace TBSLogistics.Service.Repository.AddressManage
 
                 if (result > 0)
                 {
+                    await _common.Log("AddressManage", "UserId: " + TempData.UserID + " edit Address with name: " + request.TenDiaDiem);
                     return new BoolActionResult { isSuccess = true, Message = "Cập nhật địa điểm thành công" };
                 }
                 else
                 {
                     return new BoolActionResult { isSuccess = false, Message = "Cập nhật địa điểm thất bại" };
                 }
-
             }
             catch (Exception ex)
             {
+                await _common.Log("AddressManage", "UserId: " + TempData.UserID + " edit Address with ERRORS: " + ex.ToString());
                 return new BoolActionResult { isSuccess = false, Message = ex.ToString(), DataReturn = "Exception" };
             }
         }

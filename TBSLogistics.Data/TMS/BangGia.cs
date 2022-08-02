@@ -7,12 +7,8 @@ namespace TBSLogistics.Data.TMS
 {
     public partial class BangGia
     {
-        public BangGia()
-        {
-            KhachHangs = new HashSet<KhachHang>();
-        }
-
         public string MaBangGia { get; set; }
+        public string MaKh { get; set; }
         public string MaCungDuong { get; set; }
         public string MaLoaiPhuongTien { get; set; }
         public decimal GiaVnd { get; set; }
@@ -21,8 +17,10 @@ namespace TBSLogistics.Data.TMS
         public int SoLuong { get; set; }
         public string MaLoaiHangHoa { get; set; }
         public string MaPtvc { get; set; }
+        public DateTime UpdateTime { get; set; }
+        public DateTime Createdtime { get; set; }
 
         public virtual CungDuong MaCungDuongNavigation { get; set; }
-        public virtual ICollection<KhachHang> KhachHangs { get; set; }
+        public virtual KhachHang MaKhNavigation { get; set; }
     }
 }

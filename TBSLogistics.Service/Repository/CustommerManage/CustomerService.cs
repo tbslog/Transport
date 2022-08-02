@@ -7,16 +7,20 @@ using System.Threading.Tasks;
 using TBSLogistics.Data.TMS;
 using TBSLogistics.Model.CommonModel;
 using TBSLogistics.Model.Model.CustommerModel;
+using TBSLogistics.Model.TempModel;
+using TBSLogistics.Service.Repository.Common;
 
 namespace TBSLogistics.Service.Repository.CustommerManage
 {
     public class CustomerService : ICustomer
     {
         private readonly TMSContext _TMSContext;
+        private readonly ICommon _common;
 
-        public CustomerService(TMSContext TMSContext)
+        public CustomerService(TMSContext TMSContext, ICommon common)
         {
             _TMSContext = TMSContext;
+            _common = common;
         }
 
         public async Task<BoolActionResult> CreateCustomer(CreateCustomerRequest request)
@@ -38,7 +42,6 @@ namespace TBSLogistics.Service.Repository.CustommerManage
                     Sdt = request.Sdt,
                     Email = request.Email,
                     MaDiaDiem = request.MaDiaDiem,
-                    MaBangGia = request.MaBangGia,
                     Createdtime = DateTime.Now,
                     UpdateTime = DateTime.Now
                 });
@@ -47,6 +50,7 @@ namespace TBSLogistics.Service.Repository.CustommerManage
 
                 if (result > 0)
                 {
+                    await _common.Log("CustommerManage", "UserId: " + TempData.UserID + " create new custommer with Id: " + request.MaKh);
                     return new BoolActionResult { isSuccess = true, Message = "Tạo mới khách hàng thành công!" };
                 }
                 else
@@ -56,6 +60,7 @@ namespace TBSLogistics.Service.Repository.CustommerManage
             }
             catch (Exception ex)
             {
+                await _common.Log("CustommerManage", "UserId: " + TempData.UserID + " create new custommer has ERROR: " + ex.ToString());
                 return new BoolActionResult { isSuccess = false, Message = ex.ToString(), DataReturn = "Exception" };
             }
         }
@@ -76,7 +81,6 @@ namespace TBSLogistics.Service.Repository.CustommerManage
                 GetCustommer.Sdt = request.Sdt;
                 GetCustommer.Email = request.Email;
                 GetCustommer.MaDiaDiem = request.MaDiaDiem;
-                GetCustommer.MaBangGia = request.MaBangGia;
                 GetCustommer.Createdtime = DateTime.Now;
 
                 _TMSContext.Update(GetCustommer);
@@ -85,6 +89,7 @@ namespace TBSLogistics.Service.Repository.CustommerManage
 
                 if (result > 0)
                 {
+                    await _common.Log("CustommerManage", "UserId: " + TempData.UserID + " Edit custommer with Id: " + CustomerId);
                     return new BoolActionResult { isSuccess = true, Message = "Cập nhật khách hàng thành công!" };
                 }
                 else
@@ -94,6 +99,7 @@ namespace TBSLogistics.Service.Repository.CustommerManage
             }
             catch (Exception ex)
             {
+                await _common.Log("CustommerManage", "UserId: " + TempData.UserID + " Edit custommer with ERROR: " + ex.ToString());
                 return new BoolActionResult { isSuccess = false, Message = ex.ToString(), DataReturn = "Exception" };
             }
 
@@ -109,7 +115,6 @@ namespace TBSLogistics.Service.Repository.CustommerManage
                 Sdt = x.Sdt,
                 Email = x.Email,
                 MaDiaDiem = x.MaDiaDiem,
-                MaBangGia = x.MaBangGia
             }).FirstOrDefaultAsync();
 
             return getCustommer;
@@ -125,7 +130,6 @@ namespace TBSLogistics.Service.Repository.CustommerManage
                 Sdt = x.Sdt,
                 Email = x.Email,
                 MaDiaDiem = x.MaDiaDiem,
-                MaBangGia = x.MaBangGia
             }).ToListAsync();
 
             return getListCustommer;

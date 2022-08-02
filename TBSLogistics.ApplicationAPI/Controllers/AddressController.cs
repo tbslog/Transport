@@ -1,30 +1,24 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using TBSLogistics.Model.Model.AddressModel;
 using TBSLogistics.Service.Repository.AddressManage;
-using TBSLogistics.Service.Repository.Common;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace TBSLogistics.ApplicationAPI.Controllers
 {
-
     [Route("api/[controller]")]
     [ApiController]
     public class AddressController : ControllerBase
     {
         private readonly IAddress _address;
-        private readonly ICommon _common;
 
-        public AddressController(IAddress address,ICommon common)
+        public AddressController(IAddress address)
         {
             _address = address;
-            _common = common;
         }
 
         [HttpPost]
@@ -80,9 +74,6 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         public async Task<IActionResult> ListProvinces()
         {
             var list = await _address.GetProvinces();
-
-            var log = _common.Log("AddressManage", "Get list province");
-
             return Ok(list);
         }
 
@@ -94,7 +85,6 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             return Ok(list);
         }
 
-
         [HttpGet]
         [Route("[action]")]
         public async Task<IActionResult> ListWards(int DistrictId)
@@ -102,7 +92,6 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             var list = await _address.GetWards(DistrictId);
             return Ok(list);
         }
-
 
         [HttpPost]
         [Route("[action]")]
@@ -132,6 +121,5 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             var add = await _address.CreateWard(wardModels);
             return new JsonResult("OK");
         }
-
     }
 }

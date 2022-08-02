@@ -17,6 +17,10 @@ using TBSLogistics.Service.Repository.AddressManage;
 using TBSLogistics.Service.Repository.Authenticate;
 using TBSLogistics.Service.Repository.Common;
 using TBSLogistics.Service.Repository.CustommerManage;
+using TBSLogistics.Service.Repository.DriverManage;
+using TBSLogistics.Service.Repository.PricelistManage;
+using TBSLogistics.Service.Repository.SupplierManage;
+using TBSLogistics.Service.Repository.VehicleManage;
 
 namespace TBSLogistics.ApplicationAPI
 {
@@ -68,12 +72,15 @@ namespace TBSLogistics.ApplicationAPI
                 };
             });
 
-
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddTransient<ICommon, CommonService>();
             services.AddTransient<IAuthenticate, AuthenticateService>();
             services.AddTransient<IAddress, AddressService>();
             services.AddTransient<ICustomer, CustomerService>();
+            services.AddTransient<IPriceList, PriceListService>();
+            services.AddTransient<ISupplier, SupplierService>();
+            services.AddTransient<IDriver, DriverService>();
+            services.AddTransient<IVehicle, VehicleService>();
 
             services.AddSwaggerGen(option =>
             {

@@ -9,6 +9,7 @@ namespace TBSLogistics.Data.TMS
     {
         public KhachHang()
         {
+            BangGia = new HashSet<BangGia>();
             DoiTacs = new HashSet<DoiTac>();
             HopDongVaPhuLucs = new HashSet<HopDongVaPhuLuc>();
             VanDons = new HashSet<VanDon>();
@@ -20,11 +21,10 @@ namespace TBSLogistics.Data.TMS
         public string Sdt { get; set; }
         public string Email { get; set; }
         public int MaDiaDiem { get; set; }
-        public string MaBangGia { get; set; }
         public DateTime Createdtime { get; set; }
         public DateTime UpdateTime { get; set; }
 
-        public virtual BangGium MaBangGiaNavigation { get; set; }
+        public virtual ICollection<BangGia> BangGia { get; set; }
         public virtual ICollection<DoiTac> DoiTacs { get; set; }
         public virtual ICollection<HopDongVaPhuLuc> HopDongVaPhuLucs { get; set; }
         public virtual ICollection<VanDon> VanDons { get; set; }

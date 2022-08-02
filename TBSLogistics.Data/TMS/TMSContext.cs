@@ -18,7 +18,7 @@ namespace TBSLogistics.Data.TMS
         }
 
         public virtual DbSet<BangGiaDacBiet> BangGiaDacBiets { get; set; }
-        public virtual DbSet<BangGium> BangGia { get; set; }
+        public virtual DbSet<BangGia> BangGia { get; set; }
         public virtual DbSet<BangQuyDoi> BangQuyDois { get; set; }
         public virtual DbSet<CungDuong> CungDuongs { get; set; }
         public virtual DbSet<DiaDiem> DiaDiems { get; set; }
@@ -33,6 +33,7 @@ namespace TBSLogistics.Data.TMS
         public virtual DbSet<LoaiPhuongTien> LoaiPhuongTiens { get; set; }
         public virtual DbSet<LoaiRomooc> LoaiRomoocs { get; set; }
         public virtual DbSet<LoaiThungHang> LoaiThungHangs { get; set; }
+        public virtual DbSet<Log> Logs { get; set; }
         public virtual DbSet<NhaCungCap> NhaCungCaps { get; set; }
         public virtual DbSet<NhaPhanPhoi> NhaPhanPhois { get; set; }
         public virtual DbSet<PhuPhi> PhuPhis { get; set; }
@@ -79,7 +80,7 @@ namespace TBSLogistics.Data.TMS
                     .HasColumnName("TenBangGiaDB");
             });
 
-            modelBuilder.Entity<BangGium>(entity =>
+            modelBuilder.Entity<BangGia>(entity =>
             {
                 entity.HasKey(e => e.MaBangGia)
                     .HasName("PK_ThongTin_BangGia");
@@ -107,6 +108,12 @@ namespace TBSLogistics.Data.TMS
                     .IsUnicode(false)
                     .HasColumnName("MaDVT");
 
+                entity.Property(e => e.MaKh)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("MaKH");
+
                 entity.Property(e => e.MaLoaiHangHoa)
                     .IsRequired()
                     .HasMaxLength(50)
@@ -128,6 +135,12 @@ namespace TBSLogistics.Data.TMS
                     .HasForeignKey(d => d.MaCungDuong)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_ThongTin_BangGia_ThongTin_CungDuong");
+
+                entity.HasOne(d => d.MaKhNavigation)
+                    .WithMany(p => p.BangGia)
+                    .HasForeignKey(d => d.MaKh)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_BangGia_KhachHang");
             });
 
             modelBuilder.Entity<BangQuyDoi>(entity =>
@@ -392,11 +405,6 @@ namespace TBSLogistics.Data.TMS
                     .HasMaxLength(50)
                     .IsUnicode(false);
 
-                entity.Property(e => e.MaBangGia)
-                    .IsRequired()
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
-
                 entity.Property(e => e.MaSoThue)
                     .IsRequired()
                     .HasMaxLength(50)
@@ -412,12 +420,6 @@ namespace TBSLogistics.Data.TMS
                     .IsRequired()
                     .HasMaxLength(50)
                     .HasColumnName("TenKH");
-
-                entity.HasOne(d => d.MaBangGiaNavigation)
-                    .WithMany(p => p.KhachHangs)
-                    .HasForeignKey(d => d.MaBangGia)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_KhachHang_BangGia");
             });
 
             modelBuilder.Entity<LoaiDiaDiem>(entity =>
@@ -514,6 +516,26 @@ namespace TBSLogistics.Data.TMS
                 entity.Property(e => e.TenLoaiThungHang)
                     .IsRequired()
                     .HasMaxLength(50);
+            });
+
+            modelBuilder.Entity<Log>(entity =>
+            {
+                entity.HasNoKey();
+
+                entity.ToTable("Log");
+
+                entity.Property(e => e.Id)
+                    .ValueGeneratedOnAdd()
+                    .HasColumnName("ID");
+
+                entity.Property(e => e.Message)
+                    .IsRequired()
+                    .HasColumnType("text");
+
+                entity.Property(e => e.ModuleName)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
             });
 
             modelBuilder.Entity<NhaCungCap>(entity =>

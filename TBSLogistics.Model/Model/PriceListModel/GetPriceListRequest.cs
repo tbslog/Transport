@@ -9,6 +9,7 @@ namespace TBSLogistics.Model.Model.PriceListModel
    public class GetPriceListRequest
     {
         public string MaBangGia { get; set; }
+        public string MaKh { get; set; }
         public string MaCungDuong { get; set; }
         public string MaLoaiPhuongTien { get; set; }
         public decimal GiaVnd { get; set; }
