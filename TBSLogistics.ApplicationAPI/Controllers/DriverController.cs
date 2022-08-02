@@ -37,7 +37,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpPut]
         [Route("[action]")]
         public async Task<IActionResult> EditDriver(string driverId, EditDriverRequest request)
         {

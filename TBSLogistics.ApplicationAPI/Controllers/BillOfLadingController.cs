@@ -38,7 +38,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpPut]
         [Route("[action]")]
         public async Task<IActionResult> EditBillOfLading(string billOfLadingId, EditBillOfLadingRequest request)
         {

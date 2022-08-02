@@ -34,7 +34,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpPut]
         [Route("[action]")]
         public async Task<IActionResult> EditSupplier(string SupplierId, UpdateSupplierRequest request)
         {

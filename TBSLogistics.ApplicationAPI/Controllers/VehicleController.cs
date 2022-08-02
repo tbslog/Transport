@@ -37,7 +37,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpPut]
         [Route("[action]")]
         public async Task<IActionResult> EditVehicle(string vehicleId, EditVehicleRequest request)
         {
