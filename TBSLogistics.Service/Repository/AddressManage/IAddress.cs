@@ -5,7 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using TBSLogistics.Data.TMS;
 using TBSLogistics.Model.CommonModel;
+using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.AddressModel;
+using TBSLogistics.Model.Wrappers;
 
 namespace TBSLogistics.Service.Repository.AddressManage
 {
@@ -21,10 +23,9 @@ namespace TBSLogistics.Service.Repository.AddressManage
 
         Task<List<XaPhuong>> GetWards(int IdDistricts);
 
-        Task<List<DiaDiem>> GetListAddress();
+        Task<PagedResponseCustom<AddressModel>> GetListAddress(PaginationFilter filter);
 
         Task<DiaDiem> GetAddressById(int IdAddress);
-
 
         Task<BoolActionResult> CreateProvince(int matinh,string tentinh,string phanloai);
         Task<BoolActionResult> CreateDistricts(int mahuyen,string tenhuyen,string phanloai,int parentcode);

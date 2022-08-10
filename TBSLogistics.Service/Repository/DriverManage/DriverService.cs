@@ -5,8 +5,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using TBSLogistics.Data.TMS;
 using TBSLogistics.Model.CommonModel;
+using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.DriverModel;
 using TBSLogistics.Model.TempModel;
+using TBSLogistics.Model.Wrappers;
 using TBSLogistics.Service.Repository.Common;
 
 namespace TBSLogistics.Service.Repository.DriverManage
@@ -216,25 +218,55 @@ namespace TBSLogistics.Service.Repository.DriverManage
             return driver;
         }
 
-        public async Task<List<GetDriverRequest>> GetListDriver()
+        public async Task<PagedResponseCustom<ListDriverRequest>> getListDriver(PaginationFilter filter)
         {
-            var driver = await _context.TaiXes.Select(x => new GetDriverRequest()
+            try
             {
-                MaTaiXe = x.MaTaiXe,
-                Cccd = x.Cccd,
-                HoVaTen = x.HoVaTen,
-                SoDienThoai = x.SoDienThoai,
-                NgaySinh = x.NgaySinh,
-                GhiChu = x.GhiChu,
-                MaNhaThau = x.MaNhaThau,
-                LoaiXe = x.LoaiXe,
-                PhanLoaiTaiXe = x.PhanLoaiTaiXe,
-                TrangThai = x.TrangThai,
-                Createdtime = x.Createdtime,
-                UpdateTime = x.UpdateTime,
-            }).ToListAsync();
+                var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
+                var getData = from driver in _context.TaiXes
+                              orderby driver.Createdtime descending
+                              select new { driver };
 
-            return driver;
+                if (!string.IsNullOrEmpty(filter.Keyword))
+                {
+                    getData = getData.Where(x => x.driver.MaTaiXe.ToLower().Contains(filter.Keyword.ToLower()));
+                }
+
+                if (!string.IsNullOrEmpty(filter.fromDate.ToString()) && !string.IsNullOrEmpty(filter.toDate.ToString()))
+                {
+                    getData = getData.Where(x => x.driver.Createdtime.Date >= filter.fromDate.Date && x.driver.Createdtime <= filter.toDate.Date);
+                }
+
+                var totalRecords = await getData.CountAsync();
+
+                var pagedData = await getData.Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new ListDriverRequest()
+                {
+                    MaTaiXe = x.driver.MaTaiXe,
+                    Cccd = x.driver.Cccd,
+                    HoVaTen = x.driver.HoVaTen,
+                    SoDienThoai = x.driver.SoDienThoai,
+                    NgaySinh = x.driver.NgaySinh,
+                    GhiChu = x.driver.GhiChu,
+                    MaNhaThau = x.driver.MaNhaThau,
+                    LoaiXe = x.driver.LoaiXe,
+                    PhanLoaiTaiXe = x.driver.PhanLoaiTaiXe,
+                    TrangThai = x.driver.TrangThai,
+                    UpdateTime = x.driver.UpdateTime,
+                    Createdtime = x.driver.Createdtime,
+                }).ToListAsync();
+
+                return new PagedResponseCustom<ListDriverRequest>()
+                {
+                    paginationFilter = validFilter,
+                    totalCount = totalRecords,
+                    dataResponse = pagedData
+                };
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
     }
 }

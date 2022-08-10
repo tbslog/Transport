@@ -3,7 +3,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using TBSLogistics.Model.Filter;
+using TBSLogistics.Model.Model.CustomerModel;
 using TBSLogistics.Model.Model.CustommerModel;
+using TBSLogistics.Service.Helpers;
+using TBSLogistics.Service.Panigation;
 using TBSLogistics.Service.Repository.Common;
 using TBSLogistics.Service.Repository.CustommerManage;
 
@@ -16,10 +20,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
     public class CustommerController : ControllerBase
     {
         private ICustomer _customer;
+        private IUriService _uriService;
 
-        public CustommerController(ICustomer customer)
+        public CustommerController(ICustomer customer, IUriService uriService)
         {
             _customer = customer;
+            _uriService = uriService;
         }
 
         [HttpPost]
@@ -56,10 +62,13 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<IActionResult> GetListCustommer()
+        public async Task<IActionResult> GetListCustommer([FromQuery] PaginationFilter filter)
         {
-            var list = await _customer.GetListCustomer();
-            return Ok(list);
+            var route = Request.Path.Value;
+            var pagedData = await _customer.getListCustommer(filter);
+
+            var pagedReponse = PaginationHelper.CreatePagedReponse<ListCustommerRequest>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _uriService, route);
+            return Ok(pagedReponse);
         }
 
         [HttpGet]

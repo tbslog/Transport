@@ -3,7 +3,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.DriverModel;
+using TBSLogistics.Service.Helpers;
+using TBSLogistics.Service.Panigation;
 using TBSLogistics.Service.Repository.DriverManage;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -15,10 +18,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
     public class DriverController : ControllerBase
     {
         private readonly IDriver _driver;
+        private readonly IUriService _uriService;
 
-        public DriverController(IDriver driver)
+        public DriverController(IDriver driver,IUriService uriService)
         {
             _driver = driver;
+            _uriService = uriService;
         }
 
         [HttpPost]
@@ -93,13 +98,16 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             return Ok(driver);
         }
 
-
         [HttpGet]
         [Route("[action]")]
-        public async Task<IActionResult> GetListDriver()
+        public async Task<IActionResult> GetListDriver([FromQuery] PaginationFilter filter)
         {
-            var driver = await _driver.GetListDriver();
-            return Ok(driver);
+            var route = Request.Path.Value;
+            var pagedData = await _driver.getListDriver(filter);
+
+            var pagedReponse = PaginationHelper.CreatePagedReponse<ListDriverRequest>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _uriService, route);
+            return Ok(pagedReponse);
+
         }
 
     }

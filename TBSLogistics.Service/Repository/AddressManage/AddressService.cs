@@ -6,8 +6,12 @@ using System.Text;
 using System.Threading.Tasks;
 using TBSLogistics.Data.TMS;
 using TBSLogistics.Model.CommonModel;
+using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.AddressModel;
 using TBSLogistics.Model.TempModel;
+using TBSLogistics.Model.Wrappers;
+using TBSLogistics.Service.Helpers;
+using TBSLogistics.Service.Panigation;
 using TBSLogistics.Service.Repository.Common;
 
 namespace TBSLogistics.Service.Repository.AddressManage
@@ -181,10 +185,52 @@ namespace TBSLogistics.Service.Repository.AddressManage
             return ListDistricts;
         }
 
-        public async Task<List<DiaDiem>> GetListAddress()
+        public async Task<PagedResponseCustom<AddressModel>> GetListAddress(PaginationFilter filter)
         {
-            var listAddress = await _VanChuyenContext.DiaDiems.ToListAsync();
-            return listAddress;
+            try
+            {
+                var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
+
+                var getData = from ar in _VanChuyenContext.DiaDiems
+                              orderby ar.CreatedTime descending
+                              select new { ar };
+
+                if (!string.IsNullOrEmpty(filter.Keyword))
+                {
+                    getData = getData.Where(x => x.ar.TenDiaDiem.ToLower().Contains(filter.Keyword.ToLower()));
+                }
+
+                if(!string.IsNullOrEmpty(filter.fromDate.ToString()) && !string.IsNullOrEmpty(filter.toDate.ToString()))
+                {
+                    getData = getData.Where(x => x.ar.CreatedTime.Date >= filter.fromDate.Date && x.ar.CreatedTime <= filter.toDate.Date);
+                }
+
+                var totalRecords = await getData.CountAsync();
+
+                var pagedData = await getData.Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new AddressModel()
+                {
+                    MaDiaDiem = x.ar.MaDiaDiem,
+                    TenDiaDiem = x.ar.TenDiaDiem,
+                    DiaChiDayDu = x.ar.DiaChiDayDu,
+                    MaGps = x.ar.MaGps,
+                    MaLoaiDiaDiem = x.ar.MaLoaiDiaDiem,
+                    CreatedTime = x.ar.CreatedTime,
+                    UpdatedTime = x.ar.UpdatedTime,
+                }).ToListAsync();
+
+                return new PagedResponseCustom<AddressModel>()
+                {
+                    paginationFilter = validFilter,
+                    totalCount = totalRecords,
+                    dataResponse = pagedData
+                };
+            }
+            catch (Exception ex)
+            {
+                return new PagedResponseCustom<AddressModel>();
+            }
+
+
         }
 
         public async Task<List<TinhThanh>> GetProvinces()

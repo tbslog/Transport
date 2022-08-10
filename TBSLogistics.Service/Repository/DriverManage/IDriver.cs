@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using TBSLogistics.Model.CommonModel;
+using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.DriverModel;
+using TBSLogistics.Model.Wrappers;
 
 namespace TBSLogistics.Service.Repository.DriverManage
 {
@@ -15,7 +17,7 @@ namespace TBSLogistics.Service.Repository.DriverManage
 
         Task<GetDriverRequest> GetDriverByCardId(string cccd);
 
-        Task<List<GetDriverRequest>> GetListDriver();
+        Task<PagedResponseCustom<ListDriverRequest>> getListDriver(PaginationFilter filter);
 
         Task<List<GetDriverRequest>> GetListByType(string driverType);
 

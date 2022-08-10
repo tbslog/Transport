@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.SupplierModel;
+using TBSLogistics.Service.Helpers;
+using TBSLogistics.Service.Panigation;
 using TBSLogistics.Service.Repository.SupplierManage;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -12,9 +15,11 @@ namespace TBSLogistics.ApplicationAPI.Controllers
     public class SupplierController : ControllerBase
     {
         private readonly ISupplier _supplier;
+        private readonly IUriService _uriService;
 
-        public SupplierController(ISupplier supplier)
+        public SupplierController(ISupplier supplier,IUriService uriService)
         {
+            _uriService = uriService;
             _supplier = supplier;
         }
 
@@ -60,10 +65,13 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<IActionResult> GetListSupplier()
+        public async Task<IActionResult> GetListSupplier([FromQuery] PaginationFilter filter)
         {
-            var list = await _supplier.GetListSupplier();
-            return Ok(list);
+            var route = Request.Path.Value;
+            var pagedData = await _supplier.getListSupplier(filter);
+
+            var pagedReponse = PaginationHelper.CreatePagedReponse<ListSupplierRequest>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _uriService, route);
+            return Ok(pagedReponse);
         }
     }
 }

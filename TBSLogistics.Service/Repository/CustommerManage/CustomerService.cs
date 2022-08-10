@@ -6,8 +6,11 @@ using System.Text;
 using System.Threading.Tasks;
 using TBSLogistics.Data.TMS;
 using TBSLogistics.Model.CommonModel;
+using TBSLogistics.Model.Filter;
+using TBSLogistics.Model.Model.CustomerModel;
 using TBSLogistics.Model.Model.CustommerModel;
 using TBSLogistics.Model.TempModel;
+using TBSLogistics.Model.Wrappers;
 using TBSLogistics.Service.Repository.Common;
 
 namespace TBSLogistics.Service.Repository.CustommerManage
@@ -133,6 +136,57 @@ namespace TBSLogistics.Service.Repository.CustommerManage
             }).ToListAsync();
 
             return getListCustommer;
+        }
+
+        public async Task<PagedResponseCustom<ListCustommerRequest>> getListCustommer(PaginationFilter filter)
+        {
+            try
+            {
+                var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
+
+                var listData = from cus in _TMSContext.KhachHangs
+                               join address in _TMSContext.DiaDiems
+                               on cus.MaDiaDiem equals address.MaDiaDiem
+                               orderby cus.Createdtime descending
+                               select new { cus, address };
+
+                if (!string.IsNullOrEmpty(filter.Keyword))
+                {
+                    listData = listData.Where(x => x.cus.MaKh.Contains(filter.Keyword));
+                }
+
+                if (!string.IsNullOrEmpty(filter.fromDate.ToString()) && !string.IsNullOrEmpty(filter.toDate.ToString()))
+                {
+                    listData = listData.Where(x => x.cus.Createdtime.Date >= filter.fromDate.Date && x.cus.Createdtime.Date <= filter.toDate.Date);
+                }
+
+
+                var totalCount = await listData.CountAsync();
+
+                var pagedData = await listData.Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new ListCustommerRequest()
+                {
+                    MaKh = x.cus.MaKh,
+                    TenKh = x.cus.TenKh,
+                    MaSoThue = x.cus.MaSoThue,
+                    Sdt = x.cus.Sdt,
+                    Email = x.cus.Email,
+                    MaDiaDiem = x.cus.MaDiaDiem,
+                    DiaDiem = x.address.DiaChiDayDu,
+                    Createdtime = x.cus.Createdtime,
+                    UpdateTime = x.cus.UpdateTime,
+                }).ToListAsync();
+
+                return new PagedResponseCustom<ListCustommerRequest>()
+                {
+                    dataResponse = pagedData,
+                    totalCount = totalCount,
+                    paginationFilter = validFilter
+                };
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
         }
     }
 }

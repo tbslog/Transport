@@ -4,7 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TBSLogistics.Model.CommonModel;
+using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.VehicleModel;
+using TBSLogistics.Model.Wrappers;
 
 namespace TBSLogistics.Service.Repository.VehicleManage
 {
@@ -15,5 +17,7 @@ namespace TBSLogistics.Service.Repository.VehicleManage
 
         Task<GetVehicleRequest> GetVehicleById(string vehicleId);
         Task<List<GetVehicleRequest>> GetListVehicle();
+
+        Task<PagedResponseCustom<ListVehicleRequest>> getListVehicle(PaginationFilter filter);
     }
 }

@@ -2,8 +2,13 @@
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using TBSLogistics.Data.TMS;
+using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.AddressModel;
+using TBSLogistics.Service.Helpers;
+using TBSLogistics.Service.Panigation;
 using TBSLogistics.Service.Repository.AddressManage;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -15,10 +20,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
     public class AddressController : ControllerBase
     {
         private readonly IAddress _address;
+        private readonly IUriService _uriService;
 
-        public AddressController(IAddress address)
+        public AddressController(IAddress address,IUriService uriService)
         {
             _address = address;
+            _uriService = uriService;
         }
 
         [HttpPost]
@@ -63,10 +70,13 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<IActionResult> ListAddress()
+        public async Task<IActionResult> ListAddress([FromQuery] PaginationFilter filter)
         {
-            var list = await _address.GetListAddress();
-            return Ok(list);
+            var route = Request.Path.Value;
+            var pagedData = await _address.GetListAddress(filter);
+
+            var pagedReponse = PaginationHelper.CreatePagedReponse<AddressModel>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _uriService, route);
+            return Ok(pagedReponse);
         }
 
         [HttpGet]
@@ -74,6 +84,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         public async Task<IActionResult> ListProvinces()
         {
             var list = await _address.GetProvinces();
+
             return Ok(list);
         }
 
@@ -93,33 +104,33 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             return Ok(list);
         }
 
-        [HttpPost]
-        [Route("[action]")]
-        [AllowAnonymous]
-        public async Task<IActionResult> CreateProvince(int matinh, string tentinh, string phanloai)
-        {
-            var add = await _address.CreateProvince(matinh, tentinh, phanloai);
-            return Ok();
-        }
+        //[HttpPost]
+        //[Route("[action]")]
+        //[AllowAnonymous]
+        //public async Task<IActionResult> CreateProvince(int matinh, string tentinh, string phanloai)
+        //{
+        //    var add = await _address.CreateProvince(matinh, tentinh, phanloai);
+        //    return Ok();
+        //}
 
-        [HttpPost]
-        [Route("[action]")]
-        [AllowAnonymous]
-        public async Task<IActionResult> CreateDistricts(int mahuyen, string tenhuyen, string phanloai, int parentcode)
-        {
-            var add = await _address.CreateDistricts(mahuyen, tenhuyen, phanloai, parentcode);
-            return Ok();
-        }
+        //[HttpPost]
+        //[Route("[action]")]
+        //[AllowAnonymous]
+        //public async Task<IActionResult> CreateDistricts(int mahuyen, string tenhuyen, string phanloai, int parentcode)
+        //{
+        //    var add = await _address.CreateDistricts(mahuyen, tenhuyen, phanloai, parentcode);
+        //    return Ok();
+        //}
 
-        [HttpPost]
-        [Route("[action]")]
-        [AllowAnonymous]
-        public async Task<JsonResult> CreateWard(string jsonResult)
-        {
-            List<WardModel> wardModels = JsonConvert.DeserializeObject<List<WardModel>>(jsonResult);
+        //[HttpPost]
+        //[Route("[action]")]
+        //[AllowAnonymous]
+        //public async Task<JsonResult> CreateWard(string jsonResult)
+        //{
+        //    List<WardModel> wardModels = JsonConvert.DeserializeObject<List<WardModel>>(jsonResult);
 
-            var add = await _address.CreateWard(wardModels);
-            return new JsonResult("OK");
-        }
+        //    var add = await _address.CreateWard(wardModels);
+        //    return new JsonResult("OK");
+        //}
     }
 }

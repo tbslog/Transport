@@ -6,8 +6,10 @@ using System.Text;
 using System.Threading.Tasks;
 using TBSLogistics.Data.TMS;
 using TBSLogistics.Model.CommonModel;
+using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.SupplierModel;
 using TBSLogistics.Model.TempModel;
+using TBSLogistics.Model.Wrappers;
 using TBSLogistics.Service.Repository.Common;
 
 namespace TBSLogistics.Service.Repository.SupplierManage
@@ -111,24 +113,59 @@ namespace TBSLogistics.Service.Repository.SupplierManage
             }
         }
 
-        public async Task<List<GetSupplierRequest>> GetListSupplier()
+        public async Task<PagedResponseCustom<ListSupplierRequest>> getListSupplier(PaginationFilter filter)
         {
-            var ListSupplier = await _context.NhaCungCaps.Select(x => new GetSupplierRequest()
+            try
             {
-                MaNhaCungCap = x.MaNhaCungCap,
-                TenNhaCungCap = x.TenNhaCungCap,
-                Sdt = x.Sdt,
-                Email = x.Email,
-                LoaiDichVu = x.LoaiDichVu,
-                MaSoThue = x.MaSoThue,
-                MaDiaDiem = x.MaDiaDiem,
-                LoaiNhaCungCap = x.LoaiNhaCungCap,
-                MaHopDong = x.MaHopDong,
-                UpdateTime = x.UpdateTime,
-                Createdtime = x.Createdtime,
-            }).ToListAsync();
+                var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
 
-            return ListSupplier;
+                var listData = from sup in _context.NhaCungCaps
+                               join address in _context.DiaDiems
+                               on sup.MaDiaDiem equals address.MaDiaDiem
+                               orderby sup.Createdtime descending
+                               select new { sup, address };
+
+                if (!string.IsNullOrEmpty(filter.Keyword))
+                {
+                    listData = listData.Where(x => x.sup.MaNhaCungCap.Contains(filter.Keyword));
+                }
+
+                if (!string.IsNullOrEmpty(filter.fromDate.ToString()) && !string.IsNullOrEmpty(filter.toDate.ToString()))
+                {
+                    listData = listData.Where(x => x.sup.Createdtime.Date >= filter.fromDate.Date && x.sup.Createdtime.Date <= filter.toDate.Date);
+                }
+
+
+                var totalCount = await listData.CountAsync();
+
+                var pagedData = await listData.Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new ListSupplierRequest()
+                {
+                    MaNhaCungCap = x.sup.MaNhaCungCap,
+                    TenNhaCungCap = x.sup.TenNhaCungCap,
+                    Sdt = x.sup.Sdt,
+                    Email = x.sup.Email,
+                    LoaiDichVu = x.sup.LoaiDichVu,
+                    MaSoThue = x.sup.MaSoThue,
+                    MaDiaDiem = x.sup.MaDiaDiem,
+                    DiaDiem = x.address.DiaChiDayDu,
+                    LoaiNhaCungCap = x.sup.LoaiNhaCungCap,
+                    MaHopDong = x.sup.MaHopDong,
+                    UpdateTime = x.sup.UpdateTime,
+                    Createdtime = x.sup.Createdtime,
+                }).ToListAsync();
+
+                return new PagedResponseCustom<ListSupplierRequest>()
+                {
+                    dataResponse = pagedData,
+                    totalCount = totalCount,
+                    paginationFilter = validFilter
+                };
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
 
         public async Task<GetSupplierRequest> GetSupplierById(string SupplierId)

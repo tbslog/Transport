@@ -3,7 +3,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.VehicleModel;
+using TBSLogistics.Service.Helpers;
+using TBSLogistics.Service.Panigation;
 using TBSLogistics.Service.Repository.VehicleManage;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -15,9 +18,11 @@ namespace TBSLogistics.ApplicationAPI.Controllers
     public class VehicleController : ControllerBase
     {
         private readonly IVehicle _vehicle;
+        private readonly IUriService _uriService;
 
-        public VehicleController(IVehicle vehicle)
+        public VehicleController(IVehicle vehicle,IUriService uriService)
         {
+            _uriService = uriService;
             _vehicle = vehicle;
         }
 
@@ -64,10 +69,13 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<IActionResult> GetListVehicle()
+        public async Task<IActionResult> GetListVehicle([FromQuery] PaginationFilter filter)
         {
-            var list = await _vehicle.GetListVehicle();
-            return Ok(list);
+            var route = Request.Path.Value;
+            var pagedData = await _vehicle.getListVehicle(filter);
+
+            var pagedReponse = PaginationHelper.CreatePagedReponse<ListVehicleRequest>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _uriService, route);
+            return Ok(pagedReponse);
         }
 
     }
