@@ -122,7 +122,7 @@ const CustommerPage = () => {
                     data-toggle="modal"
                     data-target="#modal-xl"
                   >
-                    Tạo mới Khách hàng
+                    <i className="fas fa-plus-circle"></i>
                   </button>
                 </div>
               </div>

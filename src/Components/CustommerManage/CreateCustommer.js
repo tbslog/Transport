@@ -1,17 +1,24 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { useForm } from "react-hook-form";
 
 const CreateCustommer = () => {
   const [IsLoading, SetIsLoading] = useState(true);
-  const [CusId, SetCusId] = useState("");
-  const [CusName, SetCusName] = useState("");
-  const [MST, SetMST] = useState("");
-  const [SDT, SetSDT] = useState("");
-  const [GPS, SetGPS] = useState("");
-  const [Address, SetAddress] = useState("");
-  const [Province, SetProvince] = useState("");
-  const [District, SetDistrict] = useState("");
-  const [Ward, SetWard] = useState("");
+
+  const [submitValue, setSubmitValue] = useState({});
+  const {
+    register,
+    reset,
+    formState: { errors },
+    handleSubmit,
+  } = useForm({
+    mode: "onChange",
+  });
+
+  const onSubmit = (data) => {
+    console.log(JSON.stringify(data));
+    setSubmitValue(data);
+  };
 
   const [ListProvince, SetListProvince] = useState([]);
   const [ListDistrict, SetListDistrict] = useState([]);
@@ -19,6 +26,11 @@ const CreateCustommer = () => {
 
   useEffect(() => {
     SetIsLoading(true);
+
+    reset({
+      data: "test",
+    });
+
     SetListProvince([]);
     SetListDistrict([]);
     SetListWard([]);
@@ -34,7 +46,7 @@ const CreateCustommer = () => {
 
     getlistProvince();
     SetIsLoading(false);
-  }, []);
+  }, [reset]);
 
   const HandleChangeProvince = (val) => {
     try {
@@ -45,7 +57,6 @@ const CreateCustommer = () => {
         SetListWard([]);
         return;
       }
-      SetProvince(val);
       async function getListDistrict() {
         const listDistrict = await axios.get(
           `http://localhost:8088/api/address/ListDistricts?ProvinceId=${val}`
@@ -69,7 +80,6 @@ const CreateCustommer = () => {
         SetListWard([]);
         return;
       }
-      SetDistrict(val);
       async function GetListWard() {
         const listWard = await axios.get(
           `http://localhost:8088/api/address/ListWards?DistrictId=${val}`
@@ -94,7 +104,7 @@ const CreateCustommer = () => {
           <div>{IsLoading === true && <div>Loading...</div>}</div>
         </div>
 
-        <form>
+        <form onSubmit={handleSubmit(onSubmit)}>
           <div className="card-body">
             <div className="form-group">
               <label htmlFor="MaKH">Mã khách hàng</label>
@@ -103,8 +113,21 @@ const CreateCustommer = () => {
                 className="form-control"
                 id="MaKH"
                 placeholder="Nhập mã khách hàng"
-                onChange={(e) => SetCusId(e.target.value)}
+                {...register("MaKH", {
+                  required: "Không được để trống",
+                  maxLength: {
+                    value: 50,
+                    message: "Không được vượt quá 50 ký tự",
+                  },
+                  minLength: {
+                    value: 10,
+                    message: "Không được ít hơn 10 ký tự",
+                  },
+                })}
               />
+              {errors.MaKH && (
+                <span className="text-danger">{errors.MaKH.message}</span>
+              )}
             </div>
             <div className="form-group">
               <label htmlFor="TenKH">Tên khách hàng</label>
@@ -113,8 +136,21 @@ const CreateCustommer = () => {
                 className="form-control"
                 id="TenKH"
                 placeholder="Nhập tên khách hàng"
-                onChange={(e) => SetCusName(e.target.value)}
+                {...register("TenKH", {
+                  required: "Không được để trống",
+                  maxLength: {
+                    value: 50,
+                    message: "Không được vượt quá 50 ký tự",
+                  },
+                  minLength: {
+                    value: 5,
+                    message: "Không được ít hơn 10 ký tự",
+                  },
+                })}
               />
+              {errors.TenKH && (
+                <span className="text-danger">{errors.TenKH.message}</span>
+              )}
             </div>
             <div className="form-group">
               <label htmlFor="MST">Mã số thuế</label>
@@ -123,8 +159,21 @@ const CreateCustommer = () => {
                 className="form-control"
                 id="MST"
                 placeholder="Nhập mã số thuế"
-                onChange={(e) => SetMST(e.target.value)}
+                {...register("MST", {
+                  required: "Không được để trống",
+                  maxLength: {
+                    value: 50,
+                    message: "Không được vượt quá 50 ký tự",
+                  },
+                  minLength: {
+                    value: 5,
+                    message: "Không được ít hơn 10 ký tự",
+                  },
+                })}
               />
+              {errors.MST && (
+                <span className="text-danger">{errors.MST.message}</span>
+              )}
             </div>
             <div className="form-group">
               <label htmlFor="SDT">Số điện thoại</label>
@@ -133,8 +182,25 @@ const CreateCustommer = () => {
                 className="form-control"
                 id="SDT"
                 placeholder="Nhập số điện thoại"
-                onChange={(e) => SetSDT(e.target.value)}
+                {...register("SDT", {
+                  required: "Không được để trống",
+                  maxLength: {
+                    value: 50,
+                    message: "Không được vượt quá 50 ký tự",
+                  },
+                  minLength: {
+                    value: 5,
+                    message: "Không được ít hơn 10 ký tự",
+                  },
+                  pattern: {
+                    message: "Không phải số điện thoại",
+                    value: /\S+@\S+\.\S+/,
+                  },
+                })}
               />
+              {errors.SDT && (
+                <span className="text-danger">{errors.SDT.message}</span>
+              )}
             </div>
             <div className="form-group">
               <label htmlFor="GPS">Mã GPS</label>
@@ -143,8 +209,21 @@ const CreateCustommer = () => {
                 className="form-control"
                 id="GPS"
                 placeholder="Nhập mã GPS"
-                onChange={(e) => SetGPS(e.target.value)}
+                {...register("GPS", {
+                  required: "Không được để trống",
+                  maxLength: {
+                    value: 50,
+                    message: "Không được vượt quá 50 ký tự",
+                  },
+                  minLength: {
+                    value: 5,
+                    message: "Không được ít hơn 10 ký tự",
+                  },
+                })}
               />
+              {errors.GPS && (
+                <span className="text-danger">{errors.GPS.message}</span>
+              )}
             </div>
             <div className="row">
               <div className="col-sm">
@@ -155,8 +234,21 @@ const CreateCustommer = () => {
                     className="form-control"
                     id="Sonha"
                     placeholder="Nhập số nhà"
-                    onChange={(e) => SetAddress(e.target.value)}
+                    {...register("SoNha", {
+                      required: "Không được để trống",
+                      maxLength: {
+                        value: 50,
+                        message: "Không được vượt quá 50 ký tự",
+                      },
+                      minLength: {
+                        value: 5,
+                        message: "Không được ít hơn 10 ký tự",
+                      },
+                    })}
                   />
+                  {errors.SoNha && (
+                    <span className="text-danger">{errors.SoNha.message}</span>
+                  )}
                 </div>
               </div>
               <div className="col-sm">
@@ -165,7 +257,10 @@ const CreateCustommer = () => {
                   <select
                     className="form-control"
                     id="inputGroupSelect01"
-                    onChange={(e) => HandleChangeProvince(e.target.value)}
+                    {...register("MaTinh", {
+                      required: "Không được để trống",
+                      onChange: (e) => HandleChangeProvince(e.target.value),
+                    })}
                   >
                     <option selected value="">
                       Chọn tỉnh...
@@ -180,6 +275,9 @@ const CreateCustommer = () => {
                         );
                       })}
                   </select>
+                  {errors.maTinh && (
+                    <span className="text-danger">{errors.maTinh.message}</span>
+                  )}
                 </div>
               </div>
               <div className="col-sm">
@@ -188,7 +286,10 @@ const CreateCustommer = () => {
                   <select
                     className="form-control"
                     id="inputGroupSelect01"
-                    onChange={(e) => HandleOnchangeDistrict(e.target.value)}
+                    {...register("MaHuyen", {
+                      required: "Không được để trống",
+                      onChange: (e) => HandleOnchangeDistrict(e.target.value),
+                    })}
                   >
                     {ListDistrict &&
                       ListDistrict.length > 0 &&
@@ -200,6 +301,11 @@ const CreateCustommer = () => {
                         );
                       })}
                   </select>
+                  {errors.MaHuyen && (
+                    <span className="text-danger">
+                      {errors.MaHuyen.message}
+                    </span>
+                  )}
                 </div>
               </div>
               <div className="col-sm">
@@ -208,7 +314,9 @@ const CreateCustommer = () => {
                   <select
                     className="form-control"
                     id="inputGroupSelect01"
-                    onChange={(e) => SetWard(e.target.value)}
+                    {...register("MaPhuong", {
+                      required: "Không được để trống",
+                    })}
                   >
                     {ListWard &&
                       ListWard.length > 0 &&
@@ -220,13 +328,18 @@ const CreateCustommer = () => {
                         );
                       })}
                   </select>
+                  {errors.MaPhuong && (
+                    <span className="text-danger">
+                      {errors.MaPhuong.message}
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
           </div>
           <div className="card-footer">
             <button type="submit" className="btn btn-primary">
-              Submit
+              Thêm mới
             </button>
           </div>
         </form>
