@@ -25,11 +25,8 @@ const CreateCustommer = () => {
   const [ListWard, SetListWard] = useState([]);
 
   useEffect(() => {
+    reset();
     SetIsLoading(true);
-
-    reset({
-      data: "test",
-    });
 
     SetListProvince([]);
     SetListDistrict([]);
@@ -46,7 +43,7 @@ const CreateCustommer = () => {
 
     getlistProvince();
     SetIsLoading(false);
-  }, [reset]);
+  }, []);
 
   const HandleChangeProvince = (val) => {
     try {
@@ -291,6 +288,9 @@ const CreateCustommer = () => {
                       onChange: (e) => HandleOnchangeDistrict(e.target.value),
                     })}
                   >
+                    <option selected value="">
+                      Chọn Huyện...
+                    </option>
                     {ListDistrict &&
                       ListDistrict.length > 0 &&
                       ListDistrict.map((val) => {
@@ -318,6 +318,9 @@ const CreateCustommer = () => {
                       required: "Không được để trống",
                     })}
                   >
+                    <option selected value="">
+                      Chọn phường
+                    </option>
                     {ListWard &&
                       ListWard.length > 0 &&
                       ListWard.map((val) => {
@@ -338,9 +341,22 @@ const CreateCustommer = () => {
             </div>
           </div>
           <div className="card-footer">
-            <button type="submit" className="btn btn-primary">
-              Thêm mới
-            </button>
+            <div>
+              <button
+                type="button"
+                onClick={() => reset()}
+                className="btn btn-warning"
+              >
+                Làm mới
+              </button>
+              <button
+                type="submit"
+                className="btn btn-primary"
+                style={{ float: "right" }}
+              >
+                Thêm mới
+              </button>
+            </div>
           </div>
         </form>
       </div>

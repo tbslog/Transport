@@ -148,7 +148,10 @@ const CustommerPage = () => {
           <div className="card-footer">Footer</div>
         </div>
         <div className="modal fade " id="modal-xl" data-backdrop="static">
-          <div className="modal-dialog modal-dialog-scrollable modal-xl ">
+          <div
+            className="modal-dialog modal-dialog-scrollable"
+            style={{ maxWidth: "88%" }}
+          >
             <div className="modal-content">
               <div className="modal-header">
                 <button
