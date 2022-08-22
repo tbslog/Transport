@@ -132,7 +132,7 @@ namespace TBSLogistics.Service.Repository.SupplierManage
 
                 if (!string.IsNullOrEmpty(filter.fromDate.ToString()) && !string.IsNullOrEmpty(filter.toDate.ToString()))
                 {
-                    listData = listData.Where(x => x.sup.Createdtime.Date >= filter.fromDate.Date && x.sup.Createdtime.Date <= filter.toDate.Date);
+                    listData = listData.Where(x => x.sup.Createdtime.Date >= filter.fromDate && x.sup.Createdtime.Date <= filter.toDate);
                 }
 
 

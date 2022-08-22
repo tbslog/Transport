@@ -185,7 +185,26 @@ namespace TBSLogistics.Service.Repository.AddressManage
             return ListDistricts;
         }
 
-        public async Task<PagedResponseCustom<AddressModel>> GetListAddress(PaginationFilter filter)
+        public async Task<string> GetFullAddress(string address, int provinceId, int districtId, int wardId)
+        {
+            try
+            {
+                var getProvinceName = await _VanChuyenContext.TinhThanhs.Where(x => x.MaTinh == provinceId).Select(x => x.TenTinh).FirstOrDefaultAsync();
+                var getDistrictName = await _VanChuyenContext.QuanHuyens.Where(x => x.MaHuyen == districtId).Select(x => x.TenHuyen).FirstOrDefaultAsync();
+                var getWardName = await _VanChuyenContext.XaPhuongs.Where(x => x.MaPhuong == wardId).Select(x => x.TenPhuong).FirstOrDefaultAsync();
+
+                var fullAddress = address +", "+ getWardName +", "+ getDistrictName +", "+ getProvinceName;
+
+                return fullAddress;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public async Task<PagedResponseCustom<GetAddressModel>> GetListAddress(PaginationFilter filter)
         {
             try
             {
@@ -202,12 +221,12 @@ namespace TBSLogistics.Service.Repository.AddressManage
 
                 if(!string.IsNullOrEmpty(filter.fromDate.ToString()) && !string.IsNullOrEmpty(filter.toDate.ToString()))
                 {
-                    getData = getData.Where(x => x.ar.CreatedTime.Date >= filter.fromDate.Date && x.ar.CreatedTime <= filter.toDate.Date);
+                    getData = getData.Where(x => x.ar.CreatedTime.Date >= filter.fromDate && x.ar.CreatedTime <= filter.toDate);
                 }
 
                 var totalRecords = await getData.CountAsync();
 
-                var pagedData = await getData.Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new AddressModel()
+                var pagedData = await getData.Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new GetAddressModel()
                 {
                     MaDiaDiem = x.ar.MaDiaDiem,
                     TenDiaDiem = x.ar.TenDiaDiem,
@@ -218,7 +237,7 @@ namespace TBSLogistics.Service.Repository.AddressManage
                     UpdatedTime = x.ar.UpdatedTime,
                 }).ToListAsync();
 
-                return new PagedResponseCustom<AddressModel>()
+                return new PagedResponseCustom<GetAddressModel>()
                 {
                     paginationFilter = validFilter,
                     totalCount = totalRecords,
@@ -227,7 +246,7 @@ namespace TBSLogistics.Service.Repository.AddressManage
             }
             catch (Exception ex)
             {
-                return new PagedResponseCustom<AddressModel>();
+                return new PagedResponseCustom<GetAddressModel>();
             }
 
 

@@ -16,7 +16,6 @@ namespace TBSLogistics.Service.Repository.VehicleManage
         Task<BoolActionResult> EditVehicle(string vehicleId,EditVehicleRequest request);
 
         Task<GetVehicleRequest> GetVehicleById(string vehicleId);
-        Task<List<GetVehicleRequest>> GetListVehicle();
 
         Task<PagedResponseCustom<ListVehicleRequest>> getListVehicle(PaginationFilter filter);
     }

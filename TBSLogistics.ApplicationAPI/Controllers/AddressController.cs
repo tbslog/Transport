@@ -75,7 +75,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             var route = Request.Path.Value;
             var pagedData = await _address.GetListAddress(filter);
 
-            var pagedReponse = PaginationHelper.CreatePagedReponse<AddressModel>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _uriService, route);
+            var pagedReponse = PaginationHelper.CreatePagedReponse<GetAddressModel>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _uriService, route);
             return Ok(pagedReponse);
         }
 

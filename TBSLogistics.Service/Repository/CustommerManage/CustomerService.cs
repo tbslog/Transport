@@ -7,10 +7,12 @@ using System.Threading.Tasks;
 using TBSLogistics.Data.TMS;
 using TBSLogistics.Model.CommonModel;
 using TBSLogistics.Model.Filter;
+using TBSLogistics.Model.Model.AddressModel;
 using TBSLogistics.Model.Model.CustomerModel;
 using TBSLogistics.Model.Model.CustommerModel;
 using TBSLogistics.Model.TempModel;
 using TBSLogistics.Model.Wrappers;
+using TBSLogistics.Service.Repository.AddressManage;
 using TBSLogistics.Service.Repository.Common;
 
 namespace TBSLogistics.Service.Repository.CustommerManage
@@ -19,9 +21,11 @@ namespace TBSLogistics.Service.Repository.CustommerManage
     {
         private readonly TMSContext _TMSContext;
         private readonly ICommon _common;
+        private readonly IAddress _address;
 
-        public CustomerService(TMSContext TMSContext, ICommon common)
+        public CustomerService(TMSContext TMSContext, ICommon common, IAddress address)
         {
+            _address = address;
             _TMSContext = TMSContext;
             _common = common;
         }
@@ -37,6 +41,25 @@ namespace TBSLogistics.Service.Repository.CustommerManage
                     return new BoolActionResult { isSuccess = false, Message = "Khách hàng này đã tồn tại" };
                 }
 
+                string fullAddress = await _address.GetFullAddress(request.Address.SoNha, request.Address.MaTinh, request.Address.MaHuyen, request.Address.MaHuyen);
+
+                var addAddress = await _TMSContext.AddAsync(new DiaDiem()
+                {
+                    TenDiaDiem = request.TenKh,
+                    MaQuocGia = request.Address.MaQuocGia,
+                    MaTinh = request.Address.MaTinh,
+                    MaHuyen = request.Address.MaHuyen,
+                    MaPhuong = request.Address.MaPhuong,
+                    SoNha = request.Address.SoNha,
+                    DiaChiDayDu = fullAddress,
+                    MaGps = request.Address.MaGps,
+                    MaLoaiDiaDiem = request.Address.MaLoaiDiaDiem,
+                    CreatedTime = DateTime.Now,
+                    UpdatedTime = DateTime.Now
+                });
+
+                await _TMSContext.SaveChangesAsync();
+
                 await _TMSContext.AddAsync(new KhachHang()
                 {
                     MaKh = request.MaKh,
@@ -44,7 +67,7 @@ namespace TBSLogistics.Service.Repository.CustommerManage
                     MaSoThue = request.MaSoThue,
                     Sdt = request.Sdt,
                     Email = request.Email,
-                    MaDiaDiem = request.MaDiaDiem,
+                    MaDiaDiem = addAddress.Entity.MaDiaDiem,
                     Createdtime = DateTime.Now,
                     UpdateTime = DateTime.Now
                 });
@@ -79,11 +102,24 @@ namespace TBSLogistics.Service.Repository.CustommerManage
                     return new BoolActionResult { isSuccess = false, Message = "Khách hàng không tồn tại" };
                 }
 
+                var getAddress = await _TMSContext.DiaDiems.Where(x => x.MaDiaDiem == GetCustommer.MaDiaDiem).FirstOrDefaultAsync();
+
+                getAddress.TenDiaDiem = request.Address.TenDiaDiem;
+                getAddress.MaQuocGia = request.Address.MaQuocGia;
+                getAddress.MaTinh = request.Address.MaTinh;
+                getAddress.MaHuyen = request.Address.MaHuyen;
+                getAddress.MaPhuong = request.Address.MaPhuong;
+                getAddress.SoNha = request.Address.SoNha;
+                getAddress.DiaChiDayDu = request.Address.DiaChiDayDu;
+                getAddress.MaGps = request.Address.MaGps;
+                getAddress.MaLoaiDiaDiem = request.Address.MaLoaiDiaDiem;
+                getAddress.UpdatedTime = DateTime.Now;
+
+
                 GetCustommer.TenKh = request.TenKh;
                 GetCustommer.MaSoThue = request.MaSoThue;
                 GetCustommer.Sdt = request.Sdt;
                 GetCustommer.Email = request.Email;
-                GetCustommer.MaDiaDiem = request.MaDiaDiem;
                 GetCustommer.Createdtime = DateTime.Now;
 
                 _TMSContext.Update(GetCustommer);
@@ -105,37 +141,40 @@ namespace TBSLogistics.Service.Repository.CustommerManage
                 await _common.Log("CustommerManage", "UserId: " + TempData.UserID + " Edit custommer with ERROR: " + ex.ToString());
                 return new BoolActionResult { isSuccess = false, Message = ex.ToString(), DataReturn = "Exception" };
             }
-
         }
 
         public async Task<GetCustomerRequest> GetCustomerById(string CustomerId)
         {
-            var getCustommer = await _TMSContext.KhachHangs.Where(x => x.MaKh == CustomerId).Select(x => new GetCustomerRequest()
+            var getCustommer = from cus in _TMSContext.KhachHangs
+                               join address in _TMSContext.DiaDiems
+                               on cus.MaDiaDiem equals address.MaDiaDiem
+                               where cus.MaKh == CustomerId
+                               select new { cus, address };
+
+
+            return await getCustommer.Select(x => new GetCustomerRequest()
             {
-                MaKh = x.MaKh,
-                TenKh = x.TenKh,
-                MaSoThue = x.MaSoThue,
-                Sdt = x.Sdt,
-                Email = x.Email,
-                MaDiaDiem = x.MaDiaDiem,
+                MaKh = x.cus.MaKh,
+                TenKh = x.cus.TenKh,
+                Email = x.cus.Email,
+                MaSoThue = x.cus.MaSoThue,
+                Sdt = x.cus.Sdt,
+                address = new GetAddressModel()
+                {
+                    MaDiaDiem = x.address.MaDiaDiem,
+                    DiaChiDayDu = x.address.DiaChiDayDu,
+                    MaLoaiDiaDiem = x.address.MaLoaiDiaDiem,
+                    TenDiaDiem = x.address.TenDiaDiem,
+                    MaGps = x.address.MaGps,
+                    sonha = x.address.SoNha,
+                    mahuyen = x.address.MaHuyen,
+                    maphuong = x.address.MaPhuong,
+                    maquocgia = x.address.MaQuocGia,
+                    matinh = x.address.MaTinh,
+                    CreatedTime = x.address.CreatedTime,
+                    UpdatedTime = x.address.UpdatedTime
+                }
             }).FirstOrDefaultAsync();
-
-            return getCustommer;
-        }
-
-        public async Task<List<GetCustomerRequest>> GetListCustomer()
-        {
-            var getListCustommer = await _TMSContext.KhachHangs.Select(x => new GetCustomerRequest()
-            {
-                MaKh = x.MaKh,
-                TenKh = x.TenKh,
-                MaSoThue = x.MaSoThue,
-                Sdt = x.Sdt,
-                Email = x.Email,
-                MaDiaDiem = x.MaDiaDiem,
-            }).ToListAsync();
-
-            return getListCustommer;
         }
 
         public async Task<PagedResponseCustom<ListCustommerRequest>> getListCustommer(PaginationFilter filter)
@@ -157,7 +196,7 @@ namespace TBSLogistics.Service.Repository.CustommerManage
 
                 if (!string.IsNullOrEmpty(filter.fromDate.ToString()) && !string.IsNullOrEmpty(filter.toDate.ToString()))
                 {
-                    listData = listData.Where(x => x.cus.Createdtime.Date >= filter.fromDate.Date && x.cus.Createdtime.Date <= filter.toDate.Date);
+                    listData = listData.Where(x => x.cus.Createdtime.Date >= filter.fromDate && x.cus.Createdtime.Date <= filter.toDate);
                 }
 
 

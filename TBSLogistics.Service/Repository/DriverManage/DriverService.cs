@@ -234,7 +234,7 @@ namespace TBSLogistics.Service.Repository.DriverManage
 
                 if (!string.IsNullOrEmpty(filter.fromDate.ToString()) && !string.IsNullOrEmpty(filter.toDate.ToString()))
                 {
-                    getData = getData.Where(x => x.driver.Createdtime.Date >= filter.fromDate.Date && x.driver.Createdtime <= filter.toDate.Date);
+                    getData = getData.Where(x => x.driver.Createdtime.Date >= filter.fromDate && x.driver.Createdtime <= filter.toDate);
                 }
 
                 var totalRecords = await getData.CountAsync();

@@ -23,9 +23,11 @@ namespace TBSLogistics.Service.Repository.AddressManage
 
         Task<List<XaPhuong>> GetWards(int IdDistricts);
 
-        Task<PagedResponseCustom<AddressModel>> GetListAddress(PaginationFilter filter);
+        Task<PagedResponseCustom<GetAddressModel>> GetListAddress(PaginationFilter filter);
 
         Task<DiaDiem> GetAddressById(int IdAddress);
+
+        Task<string> GetFullAddress(string address, int provinceId, int districtId, int wardId);
 
         Task<BoolActionResult> CreateProvince(int matinh,string tentinh,string phanloai);
         Task<BoolActionResult> CreateDistricts(int mahuyen,string tenhuyen,string phanloai,int parentcode);

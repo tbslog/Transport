@@ -16,7 +16,6 @@ namespace TBSLogistics.Service.Repository.CustommerManage
         Task<BoolActionResult> CreateCustomer(CreateCustomerRequest request);
         Task<BoolActionResult> EditCustomer(string CustomerId, EditCustomerRequest request);
         Task<GetCustomerRequest> GetCustomerById(string CustomerId);
-        Task<List<GetCustomerRequest>> GetListCustomer();
 
         Task<PagedResponseCustom<ListCustommerRequest>> getListCustommer(PaginationFilter filter);
 

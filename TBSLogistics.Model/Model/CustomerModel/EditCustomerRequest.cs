@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TBSLogistics.Model.Model.AddressModel;
 
 namespace TBSLogistics.Model.Model.CustommerModel
 {
@@ -12,7 +13,6 @@ namespace TBSLogistics.Model.Model.CustommerModel
         public string MaSoThue { get; set; }
         public string Sdt { get; set; }
         public string Email { get; set; }
-        public int MaDiaDiem { get; set; }
-        public string MaBangGia { get; set; }
+        public UpdateAddressRequest Address { get; set; }
     }
 }

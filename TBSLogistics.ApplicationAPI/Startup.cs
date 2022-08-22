@@ -8,8 +8,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using System;
-using System.Reflection;
 using System.Text;
 using TBSLogistics.Data.TBSLogisticsDbContext;
 using TBSLogistics.Data.TMS;
@@ -28,7 +26,8 @@ namespace TBSLogistics.ApplicationAPI
 {
     public class Startup
     {
-        readonly string apiCorsPolicy = "ApiCorsPolicy";
+        private readonly string apiCorsPolicy = "ApiCorsPolicy";
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -39,18 +38,12 @@ namespace TBSLogistics.ApplicationAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddCors(options =>
+            services.AddCors(option =>
             {
-                options.AddPolicy(name: apiCorsPolicy,
-                builder =>
-                {
-                    //builder.WithOrigins("file:///C:/Users/ad/Desktop/test.html")
-                    builder.AllowAnyOrigin()
-                    .AllowAnyHeader()
-                    .AllowAnyMethod();
-                    //.AllowCredentials();
-                    //.WithMethods("OPTIONS", "GET");
-                });
+                option.AddPolicy(name: apiCorsPolicy, policy =>
+                 {
+                     policy.WithOrigins("http://localhost:3000").AllowAnyMethod().AllowAnyHeader();
+                 });
             });
 
             services.AddDbContext<TBSTuyenDungContext>(options =>
@@ -106,20 +99,6 @@ namespace TBSLogistics.ApplicationAPI
                     BearerFormat = "JWT",
                     Scheme = "Bearer"
                 });
-                option.AddSecurityRequirement(new OpenApiSecurityRequirement
-                {
-                    {
-                        new OpenApiSecurityScheme
-                        {
-                            Reference = new OpenApiReference
-                            {
-                                Type=ReferenceType.SecurityScheme,
-                                Id="Bearer"
-                            }
-                        },
-                        new string[]{}
-                    }
-                });
             });
         }
 
@@ -134,8 +113,8 @@ namespace TBSLogistics.ApplicationAPI
             }
 
             app.UseHttpsRedirection();
-            app.UseCors(apiCorsPolicy);
             app.UseRouting();
+            app.UseCors(apiCorsPolicy);
             app.UseAuthentication();
             app.UseAuthorization();
 

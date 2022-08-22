@@ -122,31 +122,6 @@ namespace TBSLogistics.Service.Repository.VehicleManage
             }
         }
 
-        public async Task<List<GetVehicleRequest>> GetListVehicle()
-        {
-            var list = await _context.XeVanChuyens.Select(x => new GetVehicleRequest()
-            {
-                MaSoXe = x.MaSoXe,
-                MaNhaCungCap = x.MaNhaCungCap,
-                MaLoaiPhuongTien = x.MaLoaiPhuongTien,
-                MaTaiXeMacDinh = x.MaTaiXeMacDinh,
-                TrongTaiToiThieu = x.TrongTaiToiThieu,
-                TrongTaiToiDa = x.TrongTaiToiDa,
-                MaGps = x.MaGps,
-                MaGpsmobile = x.MaGpsmobile,
-                LoaiVanHanh = x.LoaiVanHanh,
-                MaTaiSan = x.MaTaiSan,
-                ThoiGianKhauHao = x.ThoiGianKhauHao,
-                NgayHoatDong = x.NgayHoatDong,
-                PhanLoaiXeVanChuyen = x.PhanLoaiXeVanChuyen,
-                TrangThai = x.TrangThai,
-                UpdateTime = x.UpdateTime,
-                Createdtime = x.Createdtime,
-            }).ToListAsync();
-
-            return list;
-        }
-
         public async Task<PagedResponseCustom<ListVehicleRequest>> getListVehicle(PaginationFilter filter)
         {
             try
@@ -164,7 +139,7 @@ namespace TBSLogistics.Service.Repository.VehicleManage
 
                 if (!string.IsNullOrEmpty(filter.fromDate.ToString()) && !string.IsNullOrEmpty(filter.toDate.ToString()))
                 {
-                    listData = listData.Where(x => x.vehicle.Createdtime.Date >= filter.fromDate.Date && x.vehicle.Createdtime.Date <= filter.toDate.Date);
+                    listData = listData.Where(x => x.vehicle.Createdtime.Date >= filter.fromDate && x.vehicle.Createdtime.Date <= filter.toDate);
                 }
 
                 var totalCount = await listData.CountAsync();
