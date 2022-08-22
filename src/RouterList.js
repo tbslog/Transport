@@ -1,7 +1,7 @@
 import AddressPage from "./Components/AddressManage/AddressPage";
 import CustommerPage from "./Components/CustommerManage/CustommerPage";
 import DriverPage from "./Components/DriverManage/DriverPage";
-import HomePage from "./Components/HomePage";
+import HomePage from "./Components/Home/HomePage";
 
 let routerList = [
   {

@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import Header from "../src/views/Header/Header";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import { getRouterList } from "./RouterList";
-import HomePage from "./Components/HomePage";
+import HomePage from "./Components/Home/HomePage";
 import AddressPage from "./Components/AddressManage/AddressPage";
 import DriverPage from "./Components/DriverManage/DriverPage";
 import CustommerPage from "./Components/CustommerManage/CustommerPage";
@@ -11,7 +11,7 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <BrowserRouter>
+        <>
           <Header />
           <div className="content-wrapper">
             <div className="content">
@@ -25,16 +25,10 @@ function App() {
               </div>
             </div>
           </div>
-        </BrowserRouter>
+        </>
       </header>
     </div>
   );
 }
 
 export default App;
-
-<div className="content-wrapper">
-  <div className="content">
-    <div className="container"></div>
-  </div>
-</div>;

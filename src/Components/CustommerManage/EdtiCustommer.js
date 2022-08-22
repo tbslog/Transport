@@ -1,96 +1,142 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import axios from "axios";
-import { useForm } from "react-hook-form";
+import { set, useForm } from "react-hook-form";
 
-const CreateCustommer = (props) => {
+const EditCustommer = (props) => {
   const [IsLoading, SetIsLoading] = useState(true);
   const {
     register,
-    reset,
+    setValue,
     formState: { errors },
     handleSubmit,
   } = useForm({
     mode: "onChange",
   });
 
-  const onSubmit = async (data, e) => {
+  const [ListProvince, SetListProvince] = useState([]);
+  const [ListDistrict, SetListDistrict] = useState([]);
+  const [ListWard, SetListWard] = useState([]);
+  const [DataForm, SetDataForm] = useState({});
+
+  const onSubmit = async (data) => {
     SetIsLoading(true);
+
     await axios
-      .post("http://localhost:8088/api/Custommer/CreateCustommer", {
-        maKh: data.MaKH,
-        tenKh: data.TenKH,
-        maSoThue: data.MST,
-        sdt: data.SDT,
-        email: data.Email,
-        address: {
-          tenDiaDiem: "",
-          maQuocGia: 1,
-          maTinh: data.MaTinh,
-          maHuyen: data.MaHuyen,
-          maPhuong: data.MaPhuong,
-          soNha: data.SoNha,
-          diaChiDayDu: "",
-          maGps: data.GPS,
-          maLoaiDiaDiem: "1",
+      .put(
+        `http://localhost:8088/api/Custommer/EdtiCustommer?CustommerId=${data.MaKH}`,
+        {
+          maKh: data.MaKH,
+          tenKh: data.TenKH,
+          maSoThue: data.MST,
+          sdt: data.SDT,
+          email: data.Email,
+          address: {
+            tenDiaDiem: "",
+            maQuocGia: 1,
+            maTinh: parseInt(data.MaTinh),
+            maHuyen: parseInt(data.MaHuyen),
+            maPhuong: parseInt(data.MaPhuong),
+            soNha: data.SoNha,
+            diaChiDayDu: "",
+            maGps: data.GPS,
+            maLoaiDiaDiem: "1",
+          },
         },
-      })
+        {
+          accept: "*/*",
+          "Content-Type": "application/json",
+        }
+      )
       .then(
         (response) => {
           console.log("log >>>>>", response.data);
           props.getListUser(1);
-          reset();
         },
         (error) => {
           console.log("log Error >>>>>", error.response.data);
         }
       );
+
     SetIsLoading(false);
   };
 
-  const [ListProvince, SetListProvince] = useState([]);
-  const [ListDistrict, SetListDistrict] = useState([]);
-  const [ListWard, SetListWard] = useState([]);
-
   useEffect(() => {
+    if (props && props.selectIdClick && props.Address) {
+      SetDataForm(props.selectIdClick);
+      setValue("MaKH", props.selectIdClick.maKh);
+      setValue("MST", props.selectIdClick.maSoThue);
+      setValue("SDT", props.selectIdClick.sdt);
+      setValue("TenKH", props.selectIdClick.tenKh);
+      setValue("Email", props.selectIdClick.email);
+      setValue("GPS", props.Address.maGps);
+      setValue("SoNha", props.Address.sonha);
+      setValue("MaTinh", props.Address.matinh);
+
+      async function getAddress() {
+        await LoadDistrict(props.Address.matinh);
+        await LoadWard(props.Address.mahuyen);
+        setValue("MaHuyen", props.Address.mahuyen);
+        setValue("MaPhuong", props.Address.maphuong);
+      }
+      getAddress();
+    }
+  }, [props.selectIdClick, props.Address]);
+
+  useEffect(async () => {
     SetIsLoading(true);
 
     SetListProvince([]);
     SetListDistrict([]);
     SetListWard([]);
-    async function getlistProvince() {
-      const listProvince = await axios.get(
-        "http://localhost:8088/api/address/ListProvinces"
-      );
 
-      if (listProvince && listProvince.data && listProvince.data.length > 0) {
-        SetListProvince(listProvince.data);
-      }
+    const listProvince = await axios.get(
+      "http://localhost:8088/api/address/ListProvinces"
+    );
+
+    if (listProvince && listProvince.data && listProvince.data.length > 0) {
+      SetListProvince(listProvince.data);
     }
 
-    getlistProvince();
+    if (props && props.selectIdClick) {
+      SetDataForm(props.selectIdClick);
+    }
     SetIsLoading(false);
   }, []);
 
+  const LoadDistrict = async (val) => {
+    const listDistrict = await axios.get(
+      `http://localhost:8088/api/address/ListDistricts?ProvinceId=${val}`
+    );
+    if (listDistrict && listDistrict.data && listDistrict.data.length > 0) {
+      SetListDistrict(listDistrict.data);
+    } else {
+      SetListDistrict([]);
+    }
+  };
+
+  const LoadWard = async (val) => {
+    const listWard = await axios.get(
+      `http://localhost:8088/api/address/ListWards?DistrictId=${val}`
+    );
+
+    if (listWard && listWard.data && listWard.data.length > 0) {
+      SetListWard(listWard.data);
+    } else {
+      SetListWard([]);
+    }
+  };
+
   const HandleChangeProvince = (val) => {
     try {
+      SetListDistrict([]);
+      SetListWard([]);
       SetIsLoading(true);
-
       if (val === undefined || val === "") {
         SetListDistrict([]);
         SetListWard([]);
         return;
       }
-      async function getListDistrict() {
-        const listDistrict = await axios.get(
-          `http://localhost:8088/api/address/ListDistricts?ProvinceId=${val}`
-        );
-        if (listDistrict && listDistrict.data && listDistrict.data.length > 0) {
-          SetListDistrict(listDistrict.data);
-        } else {
-          SetListDistrict([]);
-        }
-      }
-      getListDistrict();
+      LoadDistrict(val);
       SetIsLoading(false);
     } catch (error) {}
   };
@@ -103,27 +149,15 @@ const CreateCustommer = (props) => {
         SetListWard([]);
         return;
       }
-      async function GetListWard() {
-        const listWard = await axios.get(
-          `http://localhost:8088/api/address/ListWards?DistrictId=${val}`
-        );
-
-        if (listWard && listWard.data && listWard.data.length > 0) {
-          SetListWard(listWard.data);
-        } else {
-          SetListWard([]);
-        }
-      }
-      GetListWard();
+      LoadWard(val);
       SetIsLoading(false);
     } catch (error) {}
   };
-
   return (
     <>
       <div className="card card-primary">
         <div className="card-header">
-          <h3 className="card-title">Form Thêm Mới Khách Hàng</h3>
+          <h3 className="card-title">Form Cập nhật Khách Hàng</h3>
         </div>
         <div>{IsLoading === true && <div>Loading...</div>}</div>
 
@@ -392,18 +426,11 @@ const CreateCustommer = (props) => {
             <div className="card-footer">
               <div>
                 <button
-                  type="button"
-                  onClick={() => reset()}
-                  className="btn btn-warning"
-                >
-                  Làm mới
-                </button>
-                <button
                   type="submit"
                   className="btn btn-primary"
                   style={{ float: "right" }}
                 >
-                  Thêm mới
+                  Cập nhật
                 </button>
               </div>
             </div>
@@ -414,4 +441,4 @@ const CreateCustommer = (props) => {
   );
 };
 
-export default CreateCustommer;
+export default EditCustommer;
