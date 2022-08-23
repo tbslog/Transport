@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useForm } from "react-hook-form";
+import "../../Css/UploadFile.scss";
+import { toast } from "react-toastify";
 
 const CreateCustommer = (props) => {
   const [IsLoading, SetIsLoading] = useState(true);
@@ -36,12 +38,12 @@ const CreateCustommer = (props) => {
       })
       .then(
         (response) => {
-          console.log("log >>>>>", response.data);
           props.getListUser(1);
           reset();
+          toast.success(response.data);
         },
         (error) => {
-          console.log("log Error >>>>>", error.response.data);
+          toast.success(error.response.data);
         }
       );
     SetIsLoading(false);
@@ -133,6 +135,7 @@ const CreateCustommer = (props) => {
               <div className="form-group">
                 <label htmlFor="MaKH">Mã khách hàng</label>
                 <input
+                  autoComplete="false"
                   type="text"
                   className="form-control"
                   id="MaKH"

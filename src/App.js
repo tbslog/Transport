@@ -6,6 +6,8 @@ import HomePage from "./Components/Home/HomePage";
 import AddressPage from "./Components/AddressManage/AddressPage";
 import DriverPage from "./Components/DriverManage/DriverPage";
 import CustommerPage from "./Components/CustommerManage/CustommerPage";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   return (
@@ -13,6 +15,7 @@ function App() {
       <header className="App-header">
         <>
           <Header />
+          <ToastContainer />
           <div className="content-wrapper">
             <div className="content">
               <div className="container" style={{ maxWidth: "100%" }}>

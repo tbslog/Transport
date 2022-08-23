@@ -5,6 +5,8 @@ import CreateCustommer from "./CreateCustommer";
 import moment from "moment";
 import EditCustommer from "./EdtiCustommer";
 import { Modal } from "bootstrap";
+import { toast } from "react-toastify";
+import FileExcelImport from "../../ExcelFile/CustommerModule/AddnewCus.xlsx";
 
 const CustommerPage = () => {
   const [data, setData] = useState([]);
@@ -99,8 +101,6 @@ const CustommerPage = () => {
     const response = await axios.get(
       `http://localhost:8088/api/Custommer/GetListCustommer?PageNumber=${page}&PageSize=${perPage}`
     );
-
-    console.log(response.data.totalRecords);
     setData(response.data.data);
     setTotalRows(response.data.totalRecords);
     setLoading(false);
@@ -149,6 +149,32 @@ const CustommerPage = () => {
     setLoading(false);
   }, []);
 
+  const handleExcelImportClick = async (e) => {
+    setLoading(true);
+    var file = e.target.files[0];
+    e.target.value = null;
+
+    await axios
+      .post(
+        "http://localhost:8088/api/Custommer/ReadFileExcel",
+        { formFile: file },
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      )
+      .then(
+        (response) => {
+          console.log("log >>>>>", response.data);
+          toast.success(response.data);
+        },
+        (error) => {
+          console.log("log Error >>>>>", error.response.data);
+          toast.error(error.response.data);
+        }
+      );
+    setLoading(false);
+  };
+
   return (
     <>
       <section className="content-header">
@@ -182,13 +208,23 @@ const CustommerPage = () => {
                   >
                     <i className="fas fa-plus-circle"></i>
                   </button>
-
-                  <button className="btn btn-sm btn-default mx-1" type="button">
+                  <a
+                    href={FileExcelImport}
+                    download="Template Thêm mới Khách hàng.xlsx"
+                    className="btn btn-sm btn-default mx-1"
+                  >
                     <i className="fas fa-file-export"></i>
-                  </button>
-                  <button className="btn btn-sm btn-default mx-1" type="button">
-                    <i className="fas fa-upload"></i>
-                  </button>
+                  </a>
+                  <div className="upload-btn-wrapper">
+                    <button className="btn btn-sm btn-default mx-1">
+                      <i className="fas fa-upload"></i>
+                    </button>
+                    <input
+                      type="file"
+                      name="myfile"
+                      onChange={(e) => handleExcelImportClick(e)}
+                    />
+                  </div>
                 </div>
                 <div className="col-sm-3"></div>
               </div>

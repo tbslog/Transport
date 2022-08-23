@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import axios from "axios";
 import { set, useForm } from "react-hook-form";
+import { toast } from "react-toastify";
 
 const EditCustommer = (props) => {
   const [IsLoading, SetIsLoading] = useState(true);
@@ -49,11 +50,11 @@ const EditCustommer = (props) => {
       )
       .then(
         (response) => {
-          console.log("log >>>>>", response.data);
           props.getListUser(1);
+          toast.success(response.data);
         },
         (error) => {
-          console.log("log Error >>>>>", error.response.data);
+          toast.success(error.response.data);
         }
       );
 
@@ -169,6 +170,7 @@ const EditCustommer = (props) => {
                 <input
                   type="text"
                   className="form-control"
+                  readOnly
                   id="MaKH"
                   placeholder="Nhập mã khách hàng"
                   {...register("MaKH", {
