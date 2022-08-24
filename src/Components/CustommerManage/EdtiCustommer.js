@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
-import { set, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 
 const EditCustommer = (props) => {
@@ -10,6 +10,7 @@ const EditCustommer = (props) => {
     setValue,
     formState: { errors },
     handleSubmit,
+    reset,
   } = useForm({
     mode: "onChange",
   });
@@ -62,7 +63,14 @@ const EditCustommer = (props) => {
   };
 
   useEffect(() => {
-    if (props && props.selectIdClick && props.Address) {
+    reset();
+    if (
+      props &&
+      props.selectIdClick &&
+      props.Address &&
+      Object.keys(props.Address).length > 0 &&
+      Object.keys(props.selectIdClick).length > 0
+    ) {
       SetDataForm(props.selectIdClick);
       setValue("MaKH", props.selectIdClick.maKh);
       setValue("MST", props.selectIdClick.maSoThue);
@@ -71,11 +79,11 @@ const EditCustommer = (props) => {
       setValue("Email", props.selectIdClick.email);
       setValue("GPS", props.Address.maGps);
       setValue("SoNha", props.Address.sonha);
-      setValue("MaTinh", props.Address.matinh);
 
       async function getAddress() {
         await LoadDistrict(props.Address.matinh);
         await LoadWard(props.Address.mahuyen);
+        setValue("MaTinh", props.Address.matinh);
         setValue("MaHuyen", props.Address.mahuyen);
         setValue("MaPhuong", props.Address.maphuong);
       }
@@ -83,20 +91,24 @@ const EditCustommer = (props) => {
     }
   }, [props.selectIdClick, props.Address]);
 
-  useEffect(async () => {
+  useEffect(() => {
     SetIsLoading(true);
 
     SetListProvince([]);
     SetListDistrict([]);
     SetListWard([]);
 
-    const listProvince = await axios.get(
-      "http://localhost:8088/api/address/ListProvinces"
-    );
+    async function getProvince() {
+      const listProvince = await axios.get(
+        "http://localhost:8088/api/address/ListProvinces"
+      );
 
-    if (listProvince && listProvince.data && listProvince.data.length > 0) {
-      SetListProvince(listProvince.data);
+      if (listProvince && listProvince.data && listProvince.data.length > 0) {
+        SetListProvince(listProvince.data);
+      }
     }
+
+    getProvince();
 
     if (props && props.selectIdClick) {
       SetDataForm(props.selectIdClick);
@@ -131,6 +143,8 @@ const EditCustommer = (props) => {
     try {
       SetListDistrict([]);
       SetListWard([]);
+      setValue("MaHuyen", "");
+      setValue("MaPhuong", "");
       SetIsLoading(true);
       if (val === undefined || val === "") {
         SetListDistrict([]);

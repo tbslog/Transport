@@ -13,6 +13,7 @@ const CustommerPage = () => {
   const [loading, setLoading] = useState(false);
   const [totalRows, setTotalRows] = useState(0);
   const [perPage, setPerPage] = useState(10);
+  const [keySearch, setKeySearch] = useState("");
 
   const [ShowModal, SetShowModal] = useState("");
   const [modal, setModal] = useState(null);
@@ -38,20 +39,20 @@ const CustommerPage = () => {
       button: true,
     },
     {
-      name: "MaKH",
+      name: "Mã khách hàng",
       selector: (row) => row.maKh,
       sortable: true,
     },
     {
-      name: "Tên KH",
+      name: "Tên khách hàng",
       selector: (row) => row.tenKh,
     },
     {
-      name: "MST",
+      name: "Mã số thuế",
       selector: (row) => row.maSoThue,
     },
     {
-      name: "SĐT",
+      name: "Số điện thoại",
       selector: (row) => row.sdt,
     },
     {
@@ -99,9 +100,9 @@ const CustommerPage = () => {
     setLoading(true);
 
     const response = await axios.get(
-      `http://localhost:8088/api/Custommer/GetListCustommer?PageNumber=${page}&PageSize=${perPage}`
+      `http://localhost:8088/api/Custommer/GetListCustommer?PageNumber=${page}&PageSize=${perPage}&KeyWord=${keySearch}`
     );
-    setData(response.data.data);
+    formatTable(response.data.data);
     setTotalRows(response.data.totalRecords);
     setLoading(false);
   };
@@ -114,10 +115,10 @@ const CustommerPage = () => {
     setLoading(true);
 
     const response = await axios.get(
-      `http://localhost:8088/api/Custommer/GetListCustommer?PageNumber=${page}&PageSize=${newPerPage}`
+      `http://localhost:8088/api/Custommer/GetListCustommer?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}`
     );
 
-    setData(response.data.data);
+    formatTable(response.data.data);
     setPerPage(newPerPage);
     setLoading(false);
   };
@@ -132,22 +133,22 @@ const CustommerPage = () => {
       var res = await axios.get(
         `http://localhost:8088/api/Custommer/GetListCustommer?PageNumber=1&PageSize=10`
       );
-
       let data = res && res.data ? res.data.data : [];
-
-      data.map((val) => {
-        val.createdtime = moment(val.createdtime).format(
-          " HH:mm:ss DD/MM/YYYY"
-        );
-        val.updateTime = moment(val.updateTime).format(" HH:mm:ss DD/MM/YYYY");
-      });
+      formatTable(data);
       setTotalRows(res.data.totalRecords);
-      setData(data);
     };
 
     getData();
     setLoading(false);
   }, []);
+
+  function formatTable(data) {
+    data.map((val) => {
+      val.createdtime = moment(val.createdtime).format(" HH:mm:ss DD/MM/YYYY");
+      val.updateTime = moment(val.updateTime).format(" HH:mm:ss DD/MM/YYYY");
+    });
+    setData(data);
+  }
 
   const handleExcelImportClick = async (e) => {
     setLoading(true);
@@ -173,6 +174,15 @@ const CustommerPage = () => {
         }
       );
     setLoading(false);
+  };
+
+  const handleSearchClick = async () => {
+    await fetchUsers(1);
+  };
+
+  const handleRefeshDataClick = async () => {
+    setKeySearch("");
+    await fetchUsers(1);
   };
 
   return (
@@ -208,25 +218,35 @@ const CustommerPage = () => {
                   >
                     <i className="fas fa-plus-circle"></i>
                   </button>
-                  <a
-                    href={FileExcelImport}
-                    download="Template Thêm mới Khách hàng.xlsx"
-                    className="btn btn-sm btn-default mx-1"
-                  >
-                    <i className="fas fa-file-export"></i>
-                  </a>
-                  <div className="upload-btn-wrapper">
-                    <button className="btn btn-sm btn-default mx-1">
-                      <i className="fas fa-upload"></i>
-                    </button>
-                    <input
-                      type="file"
-                      name="myfile"
-                      onChange={(e) => handleExcelImportClick(e)}
-                    />
-                  </div>
                 </div>
                 <div className="col-sm-3"></div>
+                <div className="col-sm-3"></div>
+                <div className="col-sm-3 ">
+                  <div className="input-group input-group-sm">
+                    <input
+                      type="text"
+                      className="form-control"
+                      value={keySearch}
+                      onChange={(e) => setKeySearch(e.target.value)}
+                    />
+                    <span className="input-group-append">
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-default"
+                        onClick={() => handleSearchClick()}
+                      >
+                        <i className="fas fa-search"></i>
+                      </button>
+                    </span>
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-default mx-2"
+                      onClick={() => handleRefeshDataClick()}
+                    >
+                      <i className="fas fa-sync-alt"></i>
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -247,7 +267,29 @@ const CustommerPage = () => {
               />
             </div>
           </div>
-          <div className="card-footer">Footer</div>
+          <div className="card-footer">
+            <div className="row">
+              <div className="col-sm-3">
+                <a
+                  href={FileExcelImport}
+                  download="Template Thêm mới Khách hàng.xlsx"
+                  className="btn btn-sm btn-default mx-1"
+                >
+                  <i className="fas fa-file-export"></i>
+                </a>
+                <div className="upload-btn-wrapper">
+                  <button className="btn btn-sm btn-default mx-1">
+                    <i className="fas fa-upload"></i>
+                  </button>
+                  <input
+                    type="file"
+                    name="myfile"
+                    onChange={(e) => handleExcelImportClick(e)}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
         <div
           className="modal fade "
