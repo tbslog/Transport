@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useForm } from "react-hook-form";
-import { toast } from "react-toastify";
+import { ToastSuccess, ToastError, ToastWarning } from "../Common/FuncToast";
 
 const EditCustommer = (props) => {
   const [IsLoading, SetIsLoading] = useState(true);
@@ -51,10 +51,10 @@ const EditCustommer = (props) => {
       .then(
         (response) => {
           props.getListUser(1);
-          toast.success(response.data);
+          ToastSuccess(response.data);
         },
         (error) => {
-          toast.success(error.response.data);
+          ToastError(error.response.data);
         }
       );
 

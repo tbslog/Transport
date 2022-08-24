@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { useForm } from "react-hook-form";
 import "../../Css/UploadFile.scss";
-import { toast } from "react-toastify";
+import { ToastSuccess, ToastError, ToastWarning } from "../Common/FuncToast";
 
 const CreateCustommer = (props) => {
   const [IsLoading, SetIsLoading] = useState(true);
@@ -40,10 +40,10 @@ const CreateCustommer = (props) => {
         (response) => {
           props.getListUser(1);
           reset();
-          toast.success(response.data);
+          ToastSuccess(response.data);
         },
         (error) => {
-          toast.success(error.response.data);
+          ToastError(error.response.data);
         }
       );
     SetIsLoading(false);
