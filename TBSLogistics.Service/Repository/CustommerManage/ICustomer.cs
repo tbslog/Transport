@@ -1,7 +1,9 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using TBSLogistics.Model.CommonModel;
 using TBSLogistics.Model.Filter;
@@ -18,6 +20,8 @@ namespace TBSLogistics.Service.Repository.CustommerManage
         Task<GetCustomerRequest> GetCustomerById(string CustomerId);
 
         Task<PagedResponseCustom<ListCustommerRequest>> getListCustommer(PaginationFilter filter);
+
+        Task<BoolActionResult> ReadExcelFile(IFormFile formFile, CancellationToken cancellationToken);
 
     }
 }

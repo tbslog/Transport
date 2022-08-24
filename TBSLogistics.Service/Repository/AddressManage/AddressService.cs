@@ -189,17 +189,22 @@ namespace TBSLogistics.Service.Repository.AddressManage
         {
             try
             {
-                var getProvinceName = await _VanChuyenContext.TinhThanhs.Where(x => x.MaTinh == provinceId).Select(x => x.TenTinh).FirstOrDefaultAsync();
-                var getDistrictName = await _VanChuyenContext.QuanHuyens.Where(x => x.MaHuyen == districtId).Select(x => x.TenHuyen).FirstOrDefaultAsync();
-                var getWardName = await _VanChuyenContext.XaPhuongs.Where(x => x.MaPhuong == wardId).Select(x => x.TenPhuong).FirstOrDefaultAsync();
+                var getProvinceName = await _VanChuyenContext.TinhThanhs.Where(x => x.MaTinh == provinceId).Select(x => new { x.TenTinh, x.MaTinh }).FirstOrDefaultAsync();
+                var getDistrictName = await _VanChuyenContext.QuanHuyens.Where(x => x.MaHuyen == districtId && x.ParentCode == getProvinceName.MaTinh).Select(x => new { x.TenHuyen, x.MaHuyen }).FirstOrDefaultAsync();
+                var getWardName = await _VanChuyenContext.XaPhuongs.Where(x => x.MaPhuong == wardId && x.ParentCode == getDistrictName.MaHuyen).Select(x => x.TenPhuong).FirstOrDefaultAsync();
 
-                var fullAddress = address +", "+ getWardName +", "+ getDistrictName +", "+ getProvinceName;
+                if (getProvinceName == null || getDistrictName == null || getWardName == null)
+                {
+                    return "";
+                }
+
+                var fullAddress = address + ", " + getWardName + ", " + getDistrictName.TenHuyen + ", " + getProvinceName.TenTinh;
 
                 return fullAddress;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                return "";
                 throw;
             }
         }
@@ -219,7 +224,7 @@ namespace TBSLogistics.Service.Repository.AddressManage
                     getData = getData.Where(x => x.ar.TenDiaDiem.ToLower().Contains(filter.Keyword.ToLower()));
                 }
 
-                if(!string.IsNullOrEmpty(filter.fromDate.ToString()) && !string.IsNullOrEmpty(filter.toDate.ToString()))
+                if (!string.IsNullOrEmpty(filter.fromDate.ToString()) && !string.IsNullOrEmpty(filter.toDate.ToString()))
                 {
                     getData = getData.Where(x => x.ar.CreatedTime.Date >= filter.fromDate && x.ar.CreatedTime <= filter.toDate);
                 }

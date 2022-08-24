@@ -1,7 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.CustomerModel;
@@ -77,6 +81,22 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         {
             var Custommer = await _customer.GetCustomerById(CustommerId);
             return Ok(Custommer);
+        }
+
+        [HttpPost]
+        [Route("[action]")]
+        public async Task<IActionResult> ReadFileExcel(IFormFile formFile, CancellationToken cancellationToken)
+        {
+            var ImportExcel = await _customer.ReadExcelFile(formFile, cancellationToken);
+
+            if (ImportExcel.isSuccess == true)
+            {
+                return Ok(ImportExcel.Message);
+            }
+            else
+            {
+                return BadRequest(ImportExcel.DataReturn + " --- " + ImportExcel.Message);
+            }
         }
     }
 }
