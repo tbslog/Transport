@@ -5,7 +5,7 @@ import CreateCustommer from "./CreateCustommer";
 import moment from "moment";
 import EditCustommer from "./EdtiCustommer";
 import { Modal } from "bootstrap";
-import { toast } from "react-toastify";
+import { ToastSuccess, ToastError, ToastWarning } from "../Common/FuncToast";
 import FileExcelImport from "../../ExcelFile/CustommerModule/AddnewCus.xlsx";
 
 const CustommerPage = () => {
@@ -99,7 +99,7 @@ const CustommerPage = () => {
   const fetchUsers = async (page, KeyWord = "") => {
     setLoading(true);
 
-    if (KeyWord != "") {
+    if (KeyWord !== "") {
       KeyWord = keySearch;
     }
 
@@ -169,20 +169,20 @@ const CustommerPage = () => {
       )
       .then(
         (response) => {
-          console.log("log >>>>>", response.data);
-          toast.success(response.data);
+          ToastSuccess(response.data);
+          return;
         },
         (error) => {
-          console.log("log Error >>>>>", error.response.data);
-          toast.error(error.response.data);
+          ToastError(error.response.data);
+          return;
         }
       );
     setLoading(false);
   };
 
   const handleSearchClick = async () => {
-    if (keySearch == "") {
-      toast.warning("Vui lòng  nhập thông tin tìm kiếm");
+    if (keySearch === "") {
+      ToastWarning("Vui lòng  nhập thông tin tìm kiếm");
       return;
     }
     await fetchUsers(1, keySearch);

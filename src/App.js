@@ -15,7 +15,7 @@ function App() {
       <header className="App-header">
         <>
           <Header />
-          <ToastContainer />
+          <ToastContainer style={{ width: "auto", height: "auto" }} />
           <div className="content-wrapper">
             <div className="content">
               <div className="container" style={{ maxWidth: "100%" }}>
