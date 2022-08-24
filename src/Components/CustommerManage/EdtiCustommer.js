@@ -18,7 +18,6 @@ const EditCustommer = (props) => {
   const [ListProvince, SetListProvince] = useState([]);
   const [ListDistrict, SetListDistrict] = useState([]);
   const [ListWard, SetListWard] = useState([]);
-  const [DataForm, SetDataForm] = useState({});
 
   const onSubmit = async (data) => {
     SetIsLoading(true);
@@ -27,7 +26,7 @@ const EditCustommer = (props) => {
       .put(
         `http://localhost:8088/api/Custommer/EdtiCustommer?CustommerId=${data.MaKH}`,
         {
-          maKh: data.MaKH,
+          maKh: data.MaKH.toUpperCase(),
           tenKh: data.TenKH,
           maSoThue: data.MST,
           sdt: data.SDT,
@@ -71,7 +70,6 @@ const EditCustommer = (props) => {
       Object.keys(props.Address).length > 0 &&
       Object.keys(props.selectIdClick).length > 0
     ) {
-      SetDataForm(props.selectIdClick);
       setValue("MaKH", props.selectIdClick.maKh);
       setValue("MST", props.selectIdClick.maSoThue);
       setValue("SDT", props.selectIdClick.sdt);
@@ -109,10 +107,6 @@ const EditCustommer = (props) => {
     }
 
     getProvince();
-
-    if (props && props.selectIdClick) {
-      SetDataForm(props.selectIdClick);
-    }
     SetIsLoading(false);
   }, []);
 
@@ -177,25 +171,31 @@ const EditCustommer = (props) => {
         <div>{IsLoading === true && <div>Loading...</div>}</div>
 
         {IsLoading === false && (
-          <form onSubmit={handleSubmit(onSubmit)}>
+          <form onSubmit={handleSubmit(onSubmit)} autocomplete="off">
             <div className="card-body">
               <div className="form-group">
                 <label htmlFor="MaKH">Mã khách hàng</label>
                 <input
+                  autoComplete="false"
                   type="text"
                   className="form-control"
-                  readOnly
                   id="MaKH"
+                  readOnly
                   placeholder="Nhập mã khách hàng"
                   {...register("MaKH", {
                     required: "Không được để trống",
                     maxLength: {
-                      value: 50,
-                      message: "Không được vượt quá 50 ký tự",
+                      value: 8,
+                      message: "Không được vượt quá 8 ký tự",
                     },
                     minLength: {
-                      value: 10,
-                      message: "Không được ít hơn 10 ký tự",
+                      value: 8,
+                      message: "Không được ít hơn 8 ký tự",
+                    },
+                    pattern: {
+                      value:
+                        /^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9]+(?<![_.])$/,
+                      message: "Không được chứa ký tự đặc biệt",
                     },
                   })}
                 />
@@ -217,8 +217,13 @@ const EditCustommer = (props) => {
                       message: "Không được vượt quá 50 ký tự",
                     },
                     minLength: {
-                      value: 5,
-                      message: "Không được ít hơn 10 ký tự",
+                      value: 1,
+                      message: "Không được ít hơn 1 ký tự",
+                    },
+                    pattern: {
+                      value:
+                        /^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9 aAàÀảẢãÃáÁạẠăĂằẰẳẲẵẴắẮặẶâÂầẦẩẨẫẪấẤậẬbBcCdDđĐeEèÈẻẺẽẼéÉẹẸêÊềỀểỂễỄếẾệỆ fFgGhHiIìÌỉỈĩĨíÍịỊjJkKlLmMnNoOòÒỏỎõÕóÓọỌôÔồỒổỔỗỖốỐộỘơƠờỜởỞỡỠớỚợỢpPqQrRsStTu UùÙủỦũŨúÚụỤưƯừỪửỬữỮứỨựỰvVwWxXyYỳỲỷỶỹỸýÝỵỴzZ]+(?<![_.])$/,
+                      message: "Tên khách hàng không được chứa ký tự đặc biệt",
                     },
                   })}
                 />
@@ -244,8 +249,7 @@ const EditCustommer = (props) => {
                       message: "Không được ít hơn 3 ký tự",
                     },
                     pattern: {
-                      value:
-                        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+                      value: /^([\w\.\-]+)@([\w\-]+)((\.(\w){2,3})+)$/,
                       message: "Không phải Email",
                     },
                   })}
@@ -268,8 +272,12 @@ const EditCustommer = (props) => {
                       message: "Không được vượt quá 50 ký tự",
                     },
                     minLength: {
-                      value: 5,
-                      message: "Không được ít hơn 10 ký tự",
+                      value: 1,
+                      message: "Không được ít hơn 1 ký tự",
+                    },
+                    pattern: {
+                      value: /^(?![_.])(?![_.])(?!.*[_.]{2})[0-9]+(?<![_.])$/,
+                      message: "Mã số thuế chỉ được chứa ký tự là số",
                     },
                   })}
                 />
@@ -280,7 +288,7 @@ const EditCustommer = (props) => {
               <div className="form-group">
                 <label htmlFor="SDT">Số điện thoại</label>
                 <input
-                  type="number"
+                  type="text"
                   className="form-control"
                   id="SDT"
                   placeholder="Nhập số điện thoại"
@@ -288,11 +296,15 @@ const EditCustommer = (props) => {
                     required: "Không được để trống",
                     maxLength: {
                       value: 50,
-                      message: "Không được vượt quá 12 ký tự",
+                      message: "Không được vượt quá 20 ký tự",
                     },
                     minLength: {
-                      value: 5,
+                      value: 10,
                       message: "Không được ít hơn 10 ký tự",
+                    },
+                    pattern: {
+                      value: /^(?![_.])(?![_.])(?!.*[_.]{2})[0-9]+(?<![_.])$/,
+                      message: "Số điện thoại chỉ được chứa ký tự là số",
                     },
                   })}
                 />
@@ -314,8 +326,8 @@ const EditCustommer = (props) => {
                       message: "Không được vượt quá 50 ký tự",
                     },
                     minLength: {
-                      value: 5,
-                      message: "Không được ít hơn 10 ký tự",
+                      value: 1,
+                      message: "Không được ít hơn 1 ký tự",
                     },
                   })}
                 />
@@ -335,12 +347,12 @@ const EditCustommer = (props) => {
                       {...register("SoNha", {
                         required: "Không được để trống",
                         maxLength: {
-                          value: 50,
-                          message: "Không được vượt quá 50 ký tự",
+                          value: 100,
+                          message: "Không được vượt quá 100 ký tự",
                         },
                         minLength: {
-                          value: 5,
-                          message: "Không được ít hơn 10 ký tự",
+                          value: 1,
+                          message: "Không được ít hơn 1 ký tự",
                         },
                       })}
                     />

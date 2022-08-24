@@ -19,7 +19,7 @@ const CreateCustommer = (props) => {
     SetIsLoading(true);
     await axios
       .post("http://localhost:8088/api/Custommer/CreateCustommer", {
-        maKh: data.MaKH,
+        maKh: data.MaKH.toUpperCase(),
         tenKh: data.TenKH,
         maSoThue: data.MST,
         sdt: data.SDT,
@@ -130,7 +130,7 @@ const CreateCustommer = (props) => {
         <div>{IsLoading === true && <div>Loading...</div>}</div>
 
         {IsLoading === false && (
-          <form onSubmit={handleSubmit(onSubmit)}>
+          <form onSubmit={handleSubmit(onSubmit)} autocomplete="off">
             <div className="card-body">
               <div className="form-group">
                 <label htmlFor="MaKH">Mã khách hàng</label>
@@ -143,12 +143,17 @@ const CreateCustommer = (props) => {
                   {...register("MaKH", {
                     required: "Không được để trống",
                     maxLength: {
-                      value: 50,
-                      message: "Không được vượt quá 50 ký tự",
+                      value: 8,
+                      message: "Không được vượt quá 8 ký tự",
                     },
                     minLength: {
-                      value: 10,
-                      message: "Không được ít hơn 10 ký tự",
+                      value: 8,
+                      message: "Không được ít hơn 8 ký tự",
+                    },
+                    pattern: {
+                      value:
+                        /^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9]+(?<![_.])$/,
+                      message: "Không được chứa ký tự đặc biệt",
                     },
                   })}
                 />
@@ -170,8 +175,13 @@ const CreateCustommer = (props) => {
                       message: "Không được vượt quá 50 ký tự",
                     },
                     minLength: {
-                      value: 5,
-                      message: "Không được ít hơn 10 ký tự",
+                      value: 1,
+                      message: "Không được ít hơn 1 ký tự",
+                    },
+                    pattern: {
+                      value:
+                        /^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9 aAàÀảẢãÃáÁạẠăĂằẰẳẲẵẴắẮặẶâÂầẦẩẨẫẪấẤậẬbBcCdDđĐeEèÈẻẺẽẼéÉẹẸêÊềỀểỂễỄếẾệỆ fFgGhHiIìÌỉỈĩĨíÍịỊjJkKlLmMnNoOòÒỏỎõÕóÓọỌôÔồỒổỔỗỖốỐộỘơƠờỜởỞỡỠớỚợỢpPqQrRsStTu UùÙủỦũŨúÚụỤưƯừỪửỬữỮứỨựỰvVwWxXyYỳỲỷỶỹỸýÝỵỴzZ]+(?<![_.])$/,
+                      message: "Tên khách hàng không được chứa ký tự đặc biệt",
                     },
                   })}
                 />
@@ -197,8 +207,7 @@ const CreateCustommer = (props) => {
                       message: "Không được ít hơn 3 ký tự",
                     },
                     pattern: {
-                      value:
-                        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+                      value: /^([\w\.\-]+)@([\w\-]+)((\.(\w){2,3})+)$/,
                       message: "Không phải Email",
                     },
                   })}
@@ -221,8 +230,12 @@ const CreateCustommer = (props) => {
                       message: "Không được vượt quá 50 ký tự",
                     },
                     minLength: {
-                      value: 5,
-                      message: "Không được ít hơn 10 ký tự",
+                      value: 1,
+                      message: "Không được ít hơn 1 ký tự",
+                    },
+                    pattern: {
+                      value: /^(?![_.])(?![_.])(?!.*[_.]{2})[0-9]+(?<![_.])$/,
+                      message: "Mã số thuế chỉ được chứa ký tự là số",
                     },
                   })}
                 />
@@ -241,11 +254,15 @@ const CreateCustommer = (props) => {
                     required: "Không được để trống",
                     maxLength: {
                       value: 50,
-                      message: "Không được vượt quá 12 ký tự",
+                      message: "Không được vượt quá 20 ký tự",
                     },
                     minLength: {
-                      value: 5,
+                      value: 10,
                       message: "Không được ít hơn 10 ký tự",
+                    },
+                    pattern: {
+                      value: /^(?![_.])(?![_.])(?!.*[_.]{2})[0-9]+(?<![_.])$/,
+                      message: "Số điện thoại chỉ được chứa ký tự là số",
                     },
                   })}
                 />
@@ -267,8 +284,8 @@ const CreateCustommer = (props) => {
                       message: "Không được vượt quá 50 ký tự",
                     },
                     minLength: {
-                      value: 5,
-                      message: "Không được ít hơn 10 ký tự",
+                      value: 1,
+                      message: "Không được ít hơn 1 ký tự",
                     },
                   })}
                 />
@@ -288,12 +305,12 @@ const CreateCustommer = (props) => {
                       {...register("SoNha", {
                         required: "Không được để trống",
                         maxLength: {
-                          value: 50,
-                          message: "Không được vượt quá 50 ký tự",
+                          value: 100,
+                          message: "Không được vượt quá 100 ký tự",
                         },
                         minLength: {
-                          value: 5,
-                          message: "Không được ít hơn 10 ký tự",
+                          value: 1,
+                          message: "Không được ít hơn 1 ký tự",
                         },
                       })}
                     />

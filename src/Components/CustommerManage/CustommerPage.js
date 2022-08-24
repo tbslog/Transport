@@ -96,11 +96,15 @@ const CustommerPage = () => {
     getDataCus();
   };
 
-  const fetchUsers = async (page) => {
+  const fetchUsers = async (page, KeyWord = "") => {
     setLoading(true);
 
+    if (KeyWord != "") {
+      KeyWord = keySearch;
+    }
+
     const response = await axios.get(
-      `http://localhost:8088/api/Custommer/GetListCustommer?PageNumber=${page}&PageSize=${perPage}&KeyWord=${keySearch}`
+      `http://localhost:8088/api/Custommer/GetListCustommer?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}`
     );
     formatTable(response.data.data);
     setTotalRows(response.data.totalRecords);
@@ -177,7 +181,11 @@ const CustommerPage = () => {
   };
 
   const handleSearchClick = async () => {
-    await fetchUsers(1);
+    if (keySearch == "") {
+      toast.warning("Vui lòng  nhập thông tin tìm kiếm");
+      return;
+    }
+    await fetchUsers(1, keySearch);
   };
 
   const handleRefeshDataClick = async () => {
@@ -227,6 +235,7 @@ const CustommerPage = () => {
                       type="text"
                       className="form-control"
                       value={keySearch}
+                      autocomplete="off"
                       onChange={(e) => setKeySearch(e.target.value)}
                     />
                     <span className="input-group-append">
