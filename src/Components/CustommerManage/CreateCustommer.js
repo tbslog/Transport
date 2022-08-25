@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import { getData, postData } from "../Common/FuncAxios";
 import { useForm } from "react-hook-form";
 import "../../Css/UploadFile.scss";
-import { ToastSuccess, ToastError, ToastWarning } from "../Common/FuncToast";
 
 const CreateCustommer = (props) => {
   const [IsLoading, SetIsLoading] = useState(true);
@@ -17,8 +16,10 @@ const CreateCustommer = (props) => {
 
   const onSubmit = async (data, e) => {
     SetIsLoading(true);
-    await axios
-      .post("http://localhost:8088/api/Custommer/CreateCustommer", {
+
+    const post = await postData(
+      "http://localhost:8088/api/Custommer/CreateCustommer",
+      {
         maKh: data.MaKH.toUpperCase(),
         tenKh: data.TenKH,
         maSoThue: data.MST,
@@ -35,17 +36,14 @@ const CreateCustommer = (props) => {
           maGps: data.GPS,
           maLoaiDiaDiem: "1",
         },
-      })
-      .then(
-        (response) => {
-          props.getListUser(1);
-          reset();
-          ToastSuccess(response.data);
-        },
-        (error) => {
-          ToastError(error.response.data);
-        }
-      );
+      }
+    );
+
+    if (post === 1) {
+      props.getListUser(1);
+      reset();
+    }
+
     SetIsLoading(false);
   };
 
@@ -59,17 +57,17 @@ const CreateCustommer = (props) => {
     SetListProvince([]);
     SetListDistrict([]);
     SetListWard([]);
-    async function getlistProvince() {
-      const listProvince = await axios.get(
+
+    (async () => {
+      const getlistProvince = await getData(
         "http://localhost:8088/api/address/ListProvinces"
       );
 
-      if (listProvince && listProvince.data && listProvince.data.length > 0) {
-        SetListProvince(listProvince.data);
+      if (getlistProvince && getlistProvince.length > 0) {
+        SetListProvince(getlistProvince);
       }
-    }
+    })();
 
-    getlistProvince();
     SetIsLoading(false);
   }, []);
 
@@ -82,17 +80,19 @@ const CreateCustommer = (props) => {
         SetListWard([]);
         return;
       }
-      async function getListDistrict() {
-        const listDistrict = await axios.get(
+
+      (async () => {
+        const listDistrict = await getData(
           `http://localhost:8088/api/address/ListDistricts?ProvinceId=${val}`
         );
-        if (listDistrict && listDistrict.data && listDistrict.data.length > 0) {
-          SetListDistrict(listDistrict.data);
+
+        if (listDistrict && listDistrict.length > 0) {
+          SetListDistrict(listDistrict);
         } else {
           SetListDistrict([]);
         }
-      }
-      getListDistrict();
+      })();
+
       SetIsLoading(false);
     } catch (error) {}
   };
@@ -105,18 +105,18 @@ const CreateCustommer = (props) => {
         SetListWard([]);
         return;
       }
-      async function GetListWard() {
-        const listWard = await axios.get(
+
+      (async () => {
+        const listWard = await getData(
           `http://localhost:8088/api/address/ListWards?DistrictId=${val}`
         );
-
-        if (listWard && listWard.data && listWard.data.length > 0) {
-          SetListWard(listWard.data);
+        if (listWard && listWard.length > 0) {
+          SetListWard(listWard);
         } else {
           SetListWard([]);
         }
-      }
-      GetListWard();
+      })();
+
       SetIsLoading(false);
     } catch (error) {}
   };
@@ -130,7 +130,7 @@ const CreateCustommer = (props) => {
         <div>{IsLoading === true && <div>Loading...</div>}</div>
 
         {IsLoading === false && (
-          <form onSubmit={handleSubmit(onSubmit)} autocomplete="off">
+          <form onSubmit={handleSubmit(onSubmit)}>
             <div className="card-body">
               <div className="form-group">
                 <label htmlFor="MaKH">Mã khách hàng</label>

@@ -1,11 +1,11 @@
 import { useMemo, useState, useEffect, useCallback, useRef } from "react";
-import axios from "axios";
+import { getData, postData } from "../Common/FuncAxios";
 import DataTable from "react-data-table-component";
 import CreateCustommer from "./CreateCustommer";
 import moment from "moment";
 import EditCustommer from "./EdtiCustommer";
 import { Modal } from "bootstrap";
-import { ToastSuccess, ToastError, ToastWarning } from "../Common/FuncToast";
+import { ToastWarning } from "../Common/FuncToast";
 import FileExcelImport from "../../ExcelFile/CustommerModule/AddnewCus.xlsx";
 
 const CustommerPage = () => {
@@ -72,7 +72,10 @@ const CustommerPage = () => {
   ]);
 
   const showModalForm = () => {
-    const modal = new Modal(parseExceptionModal.current, { keyboard: false });
+    const modal = new Modal(parseExceptionModal.current, {
+      keyboard: false,
+      backdrop: "static",
+    });
     setModal(modal);
     modal.show();
   };
@@ -81,48 +84,43 @@ const CustommerPage = () => {
     setSelectedRows(state.selectedRows);
   }, []);
 
-  const handleEditButtonClick = (val) => {
+  const handleEditButtonClick = async (val) => {
     showModalForm();
-
-    async function getDataCus() {
-      const Custommer = await axios.get(
-        `http://localhost:8088/api/Custommer/GetCustommerById?CustommerId=${val.maKh}`
-      );
-
-      const dataRes = Custommer && Custommer.data ? Custommer.data : {};
-      setSelectIdClick(dataRes);
-      SetAddress(dataRes.address);
-    }
-    getDataCus();
+    const dataCus = await getData(
+      `http://localhost:8088/api/Custommer/GetCustommerById?CustommerId=${val.maKh}`
+    );
+    setSelectIdClick(dataCus);
+    SetAddress(dataCus.address);
   };
 
-  const fetchUsers = async (page, KeyWord = "") => {
+  const fetchData = async (page, KeyWord = "") => {
     setLoading(true);
 
     if (KeyWord !== "") {
       KeyWord = keySearch;
     }
 
-    const response = await axios.get(
+    const dataCus = await getData(
       `http://localhost:8088/api/Custommer/GetListCustommer?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}`
     );
-    formatTable(response.data.data);
-    setTotalRows(response.data.totalRecords);
+
+    formatTable(dataCus.data);
+    setTotalRows(dataCus.totalRecords);
     setLoading(false);
   };
 
   const handlePageChange = async (page) => {
-    await fetchUsers(page);
+    await fetchData(page);
   };
 
   const handlePerRowsChange = async (newPerPage, page) => {
     setLoading(true);
 
-    const response = await axios.get(
+    const dataCus = await getData(
       `http://localhost:8088/api/Custommer/GetListCustommer?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}`
     );
 
-    formatTable(response.data.data);
+    formatTable(dataCus.data);
     setPerPage(newPerPage);
     setLoading(false);
   };
@@ -133,16 +131,16 @@ const CustommerPage = () => {
 
   useEffect(() => {
     setLoading(true);
-    const getData = async () => {
-      var res = await axios.get(
+
+    (async () => {
+      let dataCus = await getData(
         `http://localhost:8088/api/Custommer/GetListCustommer?PageNumber=1&PageSize=10`
       );
-      let data = res && res.data ? res.data.data : [];
-      formatTable(data);
-      setTotalRows(res.data.totalRecords);
-    };
 
-    getData();
+      formatTable(dataCus.data);
+      setTotalRows(dataCus.totalRecords);
+    })();
+
     setLoading(false);
   }, []);
 
@@ -159,24 +157,13 @@ const CustommerPage = () => {
     var file = e.target.files[0];
     e.target.value = null;
 
-    await axios
-      .post(
-        "http://localhost:8088/api/Custommer/ReadFileExcel",
-        { formFile: file },
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        }
-      )
-      .then(
-        (response) => {
-          ToastSuccess(response.data);
-          return;
-        },
-        (error) => {
-          ToastError(error.response.data);
-          return;
-        }
-      );
+    const importExcelCus = await postData(
+      "http://localhost:8088/api/Custommer/ReadFileExcel",
+      { formFile: file },
+      {
+        headers: { "Content-Type": "multipart/form-data" },
+      }
+    );
     setLoading(false);
   };
 
@@ -185,12 +172,12 @@ const CustommerPage = () => {
       ToastWarning("Vui lòng  nhập thông tin tìm kiếm");
       return;
     }
-    await fetchUsers(1, keySearch);
+    await fetchData(1, keySearch);
   };
 
   const handleRefeshDataClick = async () => {
     setKeySearch("");
-    await fetchUsers(1);
+    await fetchData(1);
   };
 
   return (
@@ -235,7 +222,6 @@ const CustommerPage = () => {
                       type="text"
                       className="form-control"
                       value={keySearch}
-                      autocomplete="off"
                       onChange={(e) => setKeySearch(e.target.value)}
                     />
                     <span className="input-group-append">
@@ -301,11 +287,12 @@ const CustommerPage = () => {
           </div>
         </div>
         <div
-          className="modal fade "
+          className="modal fade"
           id="modal-xl"
           data-backdrop="static"
           ref={parseExceptionModal}
           aria-labelledby="parseExceptionModal"
+          backdrop="static"
         >
           <div
             className="modal-dialog modal-dialog-scrollable"
@@ -329,11 +316,11 @@ const CustommerPage = () => {
                     <EditCustommer
                       selectIdClick={selectIdClick}
                       Address={Address}
-                      getListUser={fetchUsers}
+                      getListUser={fetchData}
                     />
                   )}
                   {ShowModal === "Create" && (
-                    <CreateCustommer getListUser={fetchUsers} />
+                    <CreateCustommer getListUser={fetchData} />
                   )}
                 </>
               </div>

@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import { getData, putData } from "../Common/FuncAxios";
 import { useForm } from "react-hook-form";
-import { ToastSuccess, ToastError, ToastWarning } from "../Common/FuncToast";
 
 const EditCustommer = (props) => {
   const [IsLoading, SetIsLoading] = useState(true);
@@ -22,41 +21,35 @@ const EditCustommer = (props) => {
   const onSubmit = async (data) => {
     SetIsLoading(true);
 
-    await axios
-      .put(
-        `http://localhost:8088/api/Custommer/EdtiCustommer?CustommerId=${data.MaKH}`,
-        {
-          maKh: data.MaKH.toUpperCase(),
-          tenKh: data.TenKH,
-          maSoThue: data.MST,
-          sdt: data.SDT,
-          email: data.Email,
-          address: {
-            tenDiaDiem: "",
-            maQuocGia: 1,
-            maTinh: parseInt(data.MaTinh),
-            maHuyen: parseInt(data.MaHuyen),
-            maPhuong: parseInt(data.MaPhuong),
-            soNha: data.SoNha,
-            diaChiDayDu: "",
-            maGps: data.GPS,
-            maLoaiDiaDiem: "1",
-          },
+    const put = await putData(
+      `http://localhost:8088/api/Custommer/EdtiCustommer?CustommerId=${data.MaKH}`,
+      {
+        maKh: data.MaKH.toUpperCase(),
+        tenKh: data.TenKH,
+        maSoThue: data.MST,
+        sdt: data.SDT,
+        email: data.Email,
+        address: {
+          tenDiaDiem: "",
+          maQuocGia: 1,
+          maTinh: parseInt(data.MaTinh),
+          maHuyen: parseInt(data.MaHuyen),
+          maPhuong: parseInt(data.MaPhuong),
+          soNha: data.SoNha,
+          diaChiDayDu: "",
+          maGps: data.GPS,
+          maLoaiDiaDiem: "1",
         },
-        {
-          accept: "*/*",
-          "Content-Type": "application/json",
-        }
-      )
-      .then(
-        (response) => {
-          props.getListUser(1);
-          ToastSuccess(response.data);
-        },
-        (error) => {
-          ToastError(error.response.data);
-        }
-      );
+      },
+      {
+        accept: "*/*",
+        "Content-Type": "application/json",
+      }
+    );
+
+    if (put === 1) {
+      props.getListUser(1);
+    }
 
     SetIsLoading(false);
   };
@@ -96,41 +89,43 @@ const EditCustommer = (props) => {
     SetListDistrict([]);
     SetListWard([]);
 
-    async function getProvince() {
-      const listProvince = await axios.get(
+    (async () => {
+      const listProvince = await getData(
         "http://localhost:8088/api/address/ListProvinces"
       );
-
-      if (listProvince && listProvince.data && listProvince.data.length > 0) {
-        SetListProvince(listProvince.data);
+      if (listProvince && listProvince.length > 0) {
+        SetListProvince(listProvince);
       }
-    }
+    })();
 
-    getProvince();
     SetIsLoading(false);
   }, []);
 
   const LoadDistrict = async (val) => {
-    const listDistrict = await axios.get(
-      `http://localhost:8088/api/address/ListDistricts?ProvinceId=${val}`
-    );
-    if (listDistrict && listDistrict.data && listDistrict.data.length > 0) {
-      SetListDistrict(listDistrict.data);
-    } else {
-      SetListDistrict([]);
-    }
+    (async () => {
+      const listDistrict = await getData(
+        `http://localhost:8088/api/address/ListDistricts?ProvinceId=${val}`
+      );
+      if (listDistrict && listDistrict.length > 0) {
+        SetListDistrict(listDistrict);
+      } else {
+        SetListDistrict([]);
+      }
+    })();
   };
 
   const LoadWard = async (val) => {
-    const listWard = await axios.get(
-      `http://localhost:8088/api/address/ListWards?DistrictId=${val}`
-    );
+    (async () => {
+      const listWard = await getData(
+        `http://localhost:8088/api/address/ListWards?DistrictId=${val}`
+      );
 
-    if (listWard && listWard.data && listWard.data.length > 0) {
-      SetListWard(listWard.data);
-    } else {
-      SetListWard([]);
-    }
+      if (listWard && listWard.length > 0) {
+        SetListWard(listWard);
+      } else {
+        SetListWard([]);
+      }
+    })();
   };
 
   const HandleChangeProvince = (val) => {
@@ -171,7 +166,7 @@ const EditCustommer = (props) => {
         <div>{IsLoading === true && <div>Loading...</div>}</div>
 
         {IsLoading === false && (
-          <form onSubmit={handleSubmit(onSubmit)} autocomplete="off">
+          <form onSubmit={handleSubmit(onSubmit)}>
             <div className="card-body">
               <div className="form-group">
                 <label htmlFor="MaKH">Mã khách hàng</label>
