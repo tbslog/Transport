@@ -1,12 +1,15 @@
 import { useState, useEffect } from "react";
 import { getData, putData } from "../Common/FuncAxios";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
+import { ToastWarning } from "../Common/FuncToast";
+import Select from "react-select";
 
 const EditCustommer = (props) => {
   const [IsLoading, SetIsLoading] = useState(true);
   const {
     register,
     setValue,
+    control,
     formState: { errors },
     handleSubmit,
     reset,
@@ -72,11 +75,9 @@ const EditCustommer = (props) => {
       setValue("SoNha", props.Address.sonha);
 
       async function getAddress() {
+        await LoadProvince(props.Address.matinh);
         await LoadDistrict(props.Address.matinh);
         await LoadWard(props.Address.mahuyen);
-        setValue("MaTinh", props.Address.matinh);
-        setValue("MaHuyen", props.Address.mahuyen);
-        setValue("MaPhuong", props.Address.maphuong);
       }
       getAddress();
     }
@@ -89,17 +90,32 @@ const EditCustommer = (props) => {
     SetListDistrict([]);
     SetListWard([]);
 
+    SetIsLoading(false);
+  }, []);
+
+  const LoadProvince = async (val) => {
     (async () => {
       const listProvince = await getData(
         "http://localhost:8088/api/address/ListProvinces"
       );
       if (listProvince && listProvince.length > 0) {
-        SetListProvince(listProvince);
+        var obj = [];
+        obj.push({ value: "", label: "Chọn Tỉnh" });
+        listProvince.map((val) => {
+          obj.push({
+            value: val.maTinh,
+            label: val.maTinh + " - " + val.tenTinh,
+          });
+        });
+
+        SetListProvince(obj);
+        setValue(
+          "MaTinh",
+          obj.find((x) => x.value === val)
+        );
       }
     })();
-
-    SetIsLoading(false);
-  }, []);
+  };
 
   const LoadDistrict = async (val) => {
     (async () => {
@@ -107,7 +123,20 @@ const EditCustommer = (props) => {
         `http://localhost:8088/api/address/ListDistricts?ProvinceId=${val}`
       );
       if (listDistrict && listDistrict.length > 0) {
-        SetListDistrict(listDistrict);
+        var obj = [];
+        obj.push({ value: "", label: "Chọn Huyện" });
+        listDistrict.map((val) => {
+          obj.push({
+            value: val.maHuyen,
+            label: val.maHuyen + " - " + val.tenHuyen,
+          });
+        });
+
+        SetListDistrict(obj);
+        setValue(
+          "MaHuyen",
+          obj.find((x) => x.value === val)
+        );
       } else {
         SetListDistrict([]);
       }
@@ -121,7 +150,20 @@ const EditCustommer = (props) => {
       );
 
       if (listWard && listWard.length > 0) {
-        SetListWard(listWard);
+        var obj = [];
+        obj.push({ value: "", label: "Chọn Huyện" });
+        listWard.map((val) => {
+          obj.push({
+            value: val.maPhuong,
+            label: val.maPhuong + " - " + val.tenPhuong,
+          });
+        });
+
+        SetListWard(obj);
+        setValue(
+          "MaPhuong",
+          obj.find((x) => x.value === val)
+        );
       } else {
         SetListWard([]);
       }
@@ -130,17 +172,19 @@ const EditCustommer = (props) => {
 
   const HandleChangeProvince = (val) => {
     try {
-      SetListDistrict([]);
-      SetListWard([]);
-      setValue("MaHuyen", "");
-      setValue("MaPhuong", "");
-      SetIsLoading(true);
       if (val === undefined || val === "") {
-        SetListDistrict([]);
-        SetListWard([]);
         return;
       }
-      LoadDistrict(val);
+      SetListDistrict([]);
+      SetListWard([]);
+      setValue("MaHuyen", { value: "", label: "Chọn Huyện" });
+      setValue("MaPhuong", { value: "", label: "Chọn Phường" });
+      SetIsLoading(true);
+      if (val.value === undefined || val.value === "") {
+        ToastWarning("Có lỗi phát sinh, vui lòng ấn F5");
+        return;
+      }
+      LoadDistrict(val.value);
       SetIsLoading(false);
     } catch (error) {}
   };
@@ -150,10 +194,9 @@ const EditCustommer = (props) => {
       SetIsLoading(true);
 
       if (val === undefined || val === "") {
-        SetListWard([]);
         return;
       }
-      LoadWard(val);
+      LoadWard(val.value);
       SetIsLoading(false);
     } catch (error) {}
   };
@@ -361,28 +404,24 @@ const EditCustommer = (props) => {
                 <div className="col-sm">
                   <div className="form-group">
                     <label htmlFor="Tinh">Tỉnh</label>
-                    <select
-                      className="form-control"
-                      id="inputGroupSelect01"
-                      {...register("MaTinh", {
-                        required: "Không được để trống",
-                        onChange: (e) => HandleChangeProvince(e.target.value),
-                      })}
-                    >
-                      <option value="">Chọn tỉnh...</option>
-                      {ListProvince &&
-                        ListProvince.length > 0 &&
-                        ListProvince.map((val) => {
-                          return (
-                            <option key={val.maTinh} value={val.maTinh}>
-                              {val.maTinh} - {val.tenTinh}
-                            </option>
-                          );
-                        })}
-                    </select>
-                    {errors.maTinh && (
+                    <Controller
+                      name="MaTinh"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          classNamePrefix={"form-control"}
+                          value={field.value}
+                          options={ListProvince}
+                          onChange={(field) => HandleChangeProvince(field)}
+                          defaultValue={{ value: "", label: "Chọn Tỉnh" }}
+                        />
+                      )}
+                      rules={{ required: "không được để trống" }}
+                    />
+                    {errors.MaTinh && (
                       <span className="text-danger">
-                        {errors.maTinh.message}
+                        {errors.MaTinh.message}
                       </span>
                     )}
                   </div>
@@ -390,25 +429,21 @@ const EditCustommer = (props) => {
                 <div className="col-sm">
                   <div className="form-group">
                     <label htmlFor="SDT">Huyện</label>
-                    <select
-                      className="form-control"
-                      id="inputGroupSelect01"
-                      {...register("MaHuyen", {
-                        required: "Không được để trống",
-                        onChange: (e) => HandleOnchangeDistrict(e.target.value),
-                      })}
-                    >
-                      <option value="">Chọn Huyện...</option>
-                      {ListDistrict &&
-                        ListDistrict.length > 0 &&
-                        ListDistrict.map((val) => {
-                          return (
-                            <option key={val.maHuyen} value={val.maHuyen}>
-                              {val.maHuyen} - {val.tenHuyen}
-                            </option>
-                          );
-                        })}
-                    </select>
+                    <Controller
+                      name="MaHuyen"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          classNamePrefix={"form-control"}
+                          value={field.value}
+                          options={ListDistrict}
+                          onChange={(field) => HandleOnchangeDistrict(field)}
+                          defaultValue={{ value: "", label: "Chọn Huyện" }}
+                        />
+                      )}
+                      rules={{ required: "không được để trống" }}
+                    />
                     {errors.MaHuyen && (
                       <span className="text-danger">
                         {errors.MaHuyen.message}
@@ -419,24 +454,20 @@ const EditCustommer = (props) => {
                 <div className="col-sm">
                   <div className="form-group">
                     <label htmlFor="SDT">Phường</label>
-                    <select
-                      className="form-control"
-                      id="inputGroupSelect01"
-                      {...register("MaPhuong", {
-                        required: "Không được để trống",
-                      })}
-                    >
-                      <option value="">Chọn phường</option>
-                      {ListWard &&
-                        ListWard.length > 0 &&
-                        ListWard.map((val) => {
-                          return (
-                            <option key={val.maPhuong} value={val.maPhuong}>
-                              {val.maPhuong} - {val.tenPhuong}
-                            </option>
-                          );
-                        })}
-                    </select>
+                    <Controller
+                      name="MaPhuong"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          classNamePrefix={"form-control"}
+                          value={field.value}
+                          options={ListWard}
+                          defaultValue={{ value: "", label: "Chọn Phường" }}
+                        />
+                      )}
+                      rules={{ required: "không được để trống" }}
+                    />
                     {errors.MaPhuong && (
                       <span className="text-danger">
                         {errors.MaPhuong.message}

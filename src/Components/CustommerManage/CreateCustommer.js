@@ -1,13 +1,16 @@
 import { useState, useEffect } from "react";
 import { getData, postData } from "../Common/FuncAxios";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import "../../Css/UploadFile.scss";
+import Select from "react-select";
 
 const CreateCustommer = (props) => {
   const [IsLoading, SetIsLoading] = useState(true);
   const {
     register,
     reset,
+    setValue,
+    control,
     formState: { errors },
     handleSubmit,
   } = useForm({
@@ -28,9 +31,9 @@ const CreateCustommer = (props) => {
         address: {
           tenDiaDiem: "",
           maQuocGia: 1,
-          maTinh: data.MaTinh,
-          maHuyen: data.MaHuyen,
-          maPhuong: data.MaPhuong,
+          maTinh: data.MaTinh.value,
+          maHuyen: data.MaHuyen.value,
+          maPhuong: data.MaPhuong.value,
           soNha: data.SoNha,
           diaChiDayDu: "",
           maGps: data.GPS,
@@ -38,7 +41,7 @@ const CreateCustommer = (props) => {
         },
       }
     );
-
+    console.log(data);
     if (post === 1) {
       props.getListUser(1);
       reset();
@@ -64,7 +67,16 @@ const CreateCustommer = (props) => {
       );
 
       if (getlistProvince && getlistProvince.length > 0) {
-        SetListProvince(getlistProvince);
+        var obj = [];
+        obj.push({ value: "", label: "Chọn Tỉnh" });
+        getlistProvince.map((val) => {
+          obj.push({
+            value: val.maTinh,
+            label: val.maTinh + " - " + val.tenTinh,
+          });
+        });
+
+        SetListProvince(obj);
       }
     })();
 
@@ -75,24 +87,40 @@ const CreateCustommer = (props) => {
     try {
       SetIsLoading(true);
 
-      if (val === undefined || val === "") {
+      setValue("MaHuyen", { value: "", label: "Chọn Huyện" });
+      setValue("MaPhuong", { value: "", label: "Chọn Phường" });
+      if (val.value === undefined || val.value === "" || val === "") {
         SetListDistrict([]);
         SetListWard([]);
+        SetIsLoading(false);
         return;
       }
 
       (async () => {
         const listDistrict = await getData(
-          `http://localhost:8088/api/address/ListDistricts?ProvinceId=${val}`
+          `http://localhost:8088/api/address/ListDistricts?ProvinceId=${val.value}`
         );
 
         if (listDistrict && listDistrict.length > 0) {
-          SetListDistrict(listDistrict);
+          var obj = [];
+          obj.push({ value: "", label: "Chọn Huyện" });
+          listDistrict.map((val) => {
+            obj.push({
+              value: val.maHuyen,
+              label: val.maHuyen + " - " + val.tenHuyen,
+            });
+          });
+
+          SetListDistrict(obj);
+          setValue("MaTinh", val);
         } else {
           SetListDistrict([]);
+          SetListWard([]);
         }
       })();
 
+      SetListDistrict([]);
+      SetListWard([]);
       SetIsLoading(false);
     } catch (error) {}
   };
@@ -101,17 +129,27 @@ const CreateCustommer = (props) => {
     try {
       SetIsLoading(true);
 
-      if (val === undefined || val === "") {
+      if (val.value === undefined || val.value === "") {
         SetListWard([]);
         return;
       }
 
       (async () => {
         const listWard = await getData(
-          `http://localhost:8088/api/address/ListWards?DistrictId=${val}`
+          `http://localhost:8088/api/address/ListWards?DistrictId=${val.value}`
         );
         if (listWard && listWard.length > 0) {
-          SetListWard(listWard);
+          var obj = [];
+          obj.push({ value: "", label: "Chọn Phường" });
+          listWard.map((val) => {
+            obj.push({
+              value: val.maPhuong,
+              label: val.maPhuong + " - " + val.tenPhuong,
+            });
+          });
+
+          setValue("MaHuyen", val);
+          SetListWard(obj);
         } else {
           SetListWard([]);
         }
@@ -119,6 +157,13 @@ const CreateCustommer = (props) => {
 
       SetIsLoading(false);
     } catch (error) {}
+  };
+
+  const handleResetClick = () => {
+    reset();
+    setValue("MaTinh", { value: "", label: "Chọn Tỉnh" });
+    setValue("MaHuyen", { value: "", label: "Chọn Huyện" });
+    setValue("MaPhuong", { value: "", label: "Chọn Phường" });
   };
 
   return (
@@ -324,28 +369,24 @@ const CreateCustommer = (props) => {
                 <div className="col-sm">
                   <div className="form-group">
                     <label htmlFor="Tinh">Tỉnh</label>
-                    <select
-                      className="form-control"
-                      id="inputGroupSelect01"
-                      {...register("MaTinh", {
-                        required: "Không được để trống",
-                        onChange: (e) => HandleChangeProvince(e.target.value),
-                      })}
-                    >
-                      <option value="">Chọn tỉnh...</option>
-                      {ListProvince &&
-                        ListProvince.length > 0 &&
-                        ListProvince.map((val) => {
-                          return (
-                            <option key={val.maTinh} value={val.maTinh}>
-                              {val.maTinh} - {val.tenTinh}
-                            </option>
-                          );
-                        })}
-                    </select>
-                    {errors.maTinh && (
+                    <Controller
+                      name="MaTinh"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          classNamePrefix={"form-control"}
+                          value={field.value}
+                          options={ListProvince}
+                          onChange={(field) => HandleChangeProvince(field)}
+                          defaultValue={{ value: "", label: "Chọn Tỉnh" }}
+                        />
+                      )}
+                      rules={{ required: "không được để trống" }}
+                    />
+                    {errors.MaTinh && (
                       <span className="text-danger">
-                        {errors.maTinh.message}
+                        {errors.MaTinh.message}
                       </span>
                     )}
                   </div>
@@ -353,25 +394,21 @@ const CreateCustommer = (props) => {
                 <div className="col-sm">
                   <div className="form-group">
                     <label htmlFor="SDT">Huyện</label>
-                    <select
-                      className="form-control"
-                      id="inputGroupSelect01"
-                      {...register("MaHuyen", {
-                        required: "Không được để trống",
-                        onChange: (e) => HandleOnchangeDistrict(e.target.value),
-                      })}
-                    >
-                      <option value="">Chọn Huyện...</option>
-                      {ListDistrict &&
-                        ListDistrict.length > 0 &&
-                        ListDistrict.map((val) => {
-                          return (
-                            <option key={val.maHuyen} value={val.maHuyen}>
-                              {val.maHuyen} - {val.tenHuyen}
-                            </option>
-                          );
-                        })}
-                    </select>
+                    <Controller
+                      name="MaHuyen"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          classNamePrefix={"form-control"}
+                          value={field.value}
+                          options={ListDistrict}
+                          onChange={(field) => HandleOnchangeDistrict(field)}
+                          defaultValue={{ value: "", label: "Chọn Huyện" }}
+                        />
+                      )}
+                      rules={{ required: "không được để trống" }}
+                    />
                     {errors.MaHuyen && (
                       <span className="text-danger">
                         {errors.MaHuyen.message}
@@ -382,24 +419,20 @@ const CreateCustommer = (props) => {
                 <div className="col-sm">
                   <div className="form-group">
                     <label htmlFor="SDT">Phường</label>
-                    <select
-                      className="form-control"
-                      id="inputGroupSelect01"
-                      {...register("MaPhuong", {
-                        required: "Không được để trống",
-                      })}
-                    >
-                      <option value="">Chọn phường</option>
-                      {ListWard &&
-                        ListWard.length > 0 &&
-                        ListWard.map((val) => {
-                          return (
-                            <option key={val.maPhuong} value={val.maPhuong}>
-                              {val.maPhuong} - {val.tenPhuong}
-                            </option>
-                          );
-                        })}
-                    </select>
+                    <Controller
+                      name="MaPhuong"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          classNamePrefix={"form-control"}
+                          value={field.value}
+                          options={ListWard}
+                          defaultValue={{ value: "", label: "Chọn Phường" }}
+                        />
+                      )}
+                      rules={{ required: "không được để trống" }}
+                    />
                     {errors.MaPhuong && (
                       <span className="text-danger">
                         {errors.MaPhuong.message}
@@ -407,13 +440,16 @@ const CreateCustommer = (props) => {
                     )}
                   </div>
                 </div>
+                <div className="col-sm">
+                  <div className="form-group"></div>
+                </div>
               </div>
             </div>
             <div className="card-footer">
               <div>
                 <button
                   type="button"
-                  onClick={() => reset()}
+                  onClick={() => handleResetClick()}
                   className="btn btn-warning"
                 >
                   Làm mới
