@@ -19,6 +19,7 @@ using TBSLogistics.Service.Repository.Common;
 using TBSLogistics.Service.Repository.CustommerManage;
 using TBSLogistics.Service.Repository.DriverManage;
 using TBSLogistics.Service.Repository.PricelistManage;
+using TBSLogistics.Service.Repository.RoadManage;
 using TBSLogistics.Service.Repository.SupplierManage;
 using TBSLogistics.Service.Repository.VehicleManage;
 
@@ -86,6 +87,7 @@ namespace TBSLogistics.ApplicationAPI
             services.AddTransient<IDriver, DriverService>();
             services.AddTransient<IVehicle, VehicleService>();
             services.AddTransient<IBillOfLading, BillOfLadingService>();
+            services.AddTransient<IRoad, RoadService>();
 
             services.AddSwaggerGen(option =>
             {

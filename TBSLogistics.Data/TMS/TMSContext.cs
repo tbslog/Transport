@@ -99,7 +99,7 @@ namespace TBSLogistics.Data.TMS
 
                 entity.Property(e => e.MaCungDuong)
                     .IsRequired()
-                    .HasMaxLength(50)
+                    .HasMaxLength(10)
                     .IsUnicode(false);
 
                 entity.Property(e => e.MaDvt)
@@ -178,20 +178,8 @@ namespace TBSLogistics.Data.TMS
                 entity.ToTable("CungDuong");
 
                 entity.Property(e => e.MaCungDuong)
-                    .HasMaxLength(50)
+                    .HasMaxLength(10)
                     .IsUnicode(false);
-
-                entity.Property(e => e.DiemCuoi)
-                    .IsRequired()
-                    .HasMaxLength(50);
-
-                entity.Property(e => e.DiemDau)
-                    .IsRequired()
-                    .HasMaxLength(50);
-
-                entity.Property(e => e.DiemLayRong)
-                    .IsRequired()
-                    .HasMaxLength(50);
 
                 entity.Property(e => e.GhiChu)
                     .IsRequired()
@@ -199,7 +187,7 @@ namespace TBSLogistics.Data.TMS
 
                 entity.Property(e => e.MaHopDong)
                     .IsRequired()
-                    .HasMaxLength(50)
+                    .HasMaxLength(10)
                     .IsUnicode(false);
 
                 entity.Property(e => e.TenCungDuong)
@@ -637,7 +625,7 @@ namespace TBSLogistics.Data.TMS
 
                 entity.Property(e => e.MaCungDuong)
                     .IsRequired()
-                    .HasMaxLength(50)
+                    .HasMaxLength(10)
                     .IsUnicode(false);
 
                 entity.Property(e => e.MaLoaiHangHoa)

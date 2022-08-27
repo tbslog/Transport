@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using TBSLogistics.Data.TMS;
 using TBSLogistics.Model.Filter;
@@ -22,7 +24,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         private readonly IAddress _address;
         private readonly IUriService _uriService;
 
-        public AddressController(IAddress address,IUriService uriService)
+        public AddressController(IAddress address, IUriService uriService)
         {
             _address = address;
             _uriService = uriService;
@@ -81,6 +83,31 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpGet]
         [Route("[action]")]
+        public async Task<IActionResult> GetListTypeAddress()
+        {
+            var list = await _address.GetListTypeAddress();
+
+            return Ok(list);
+        }
+
+        [HttpPost]
+        [Route("[action]")]
+        public async Task<IActionResult> ReadFileExcel(IFormFile formFile, CancellationToken cancellationToken)
+        {
+            var ImportExcel = await _address.ReadExcelFile(formFile, cancellationToken);
+
+            if (ImportExcel.isSuccess == true)
+            {
+                return Ok(ImportExcel.Message);
+            }
+            else
+            {
+                return BadRequest(ImportExcel.DataReturn + " --- " + ImportExcel.Message);
+            }
+        }
+
+        [HttpGet]
+        [Route("[action]")]
         public async Task<IActionResult> ListProvinces()
         {
             var list = await _address.GetProvinces();
@@ -101,6 +128,15 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         public async Task<IActionResult> ListWards(int DistrictId)
         {
             var list = await _address.GetWards(DistrictId);
+            return Ok(list);
+        }
+
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetListAddress()
+        {
+            var list = await _address.GetListAddress();
+
             return Ok(list);
         }
 

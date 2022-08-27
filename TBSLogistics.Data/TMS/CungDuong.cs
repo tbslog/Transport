@@ -17,9 +17,9 @@ namespace TBSLogistics.Data.TMS
         public string TenCungDuong { get; set; }
         public string MaHopDong { get; set; }
         public double Km { get; set; }
-        public string DiemDau { get; set; }
-        public string DiemCuoi { get; set; }
-        public string DiemLayRong { get; set; }
+        public int DiemDau { get; set; }
+        public int DiemCuoi { get; set; }
+        public int DiemLayRong { get; set; }
         public string GhiChu { get; set; }
         public DateTime UpdateTime { get; set; }
         public DateTime Createdtime { get; set; }

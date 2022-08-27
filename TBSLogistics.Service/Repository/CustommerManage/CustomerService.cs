@@ -180,14 +180,8 @@ namespace TBSLogistics.Service.Repository.CustommerManage
                 {
                     MaDiaDiem = x.address.MaDiaDiem,
                     DiaChiDayDu = x.address.DiaChiDayDu,
-                    MaLoaiDiaDiem = x.address.MaLoaiDiaDiem,
                     TenDiaDiem = x.address.TenDiaDiem,
                     MaGps = x.address.MaGps,
-                    sonha = x.address.SoNha,
-                    mahuyen = x.address.MaHuyen,
-                    maphuong = x.address.MaPhuong,
-                    maquocgia = x.address.MaQuocGia,
-                    matinh = x.address.MaTinh,
                     CreatedTime = x.address.CreatedTime,
                     UpdatedTime = x.address.UpdatedTime
                 }
@@ -411,69 +405,68 @@ namespace TBSLogistics.Service.Repository.CustommerManage
         {
             string ErrorValidate = "";
 
-
             if (MaKh.Length != 8)
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã khách hàng phải dài 8 ký tự \r\n";
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã khách hàng phải dài 8 ký tự \r\n" + System.Environment.NewLine;
             }
             if (!Regex.IsMatch(MaKh, "^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9]+(?<![_.])$", RegexOptions.IgnoreCase))
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã khách hàng không được chứa ký tự đặc biệt \r\n";
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã khách hàng không được chứa ký tự đặc biệt \r\n" + System.Environment.NewLine;
             }
 
             if (TenKh.Length > 50 || TenKh.Length == 0)
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Tên khách hàng không được rỗng hoặc nhiều hơn 50 ký tự \r\n";
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Tên khách hàng không được rỗng hoặc nhiều hơn 50 ký tự \r\n" + System.Environment.NewLine;
             }
 
             if (!Regex.IsMatch(TenKh, "^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9 aAàÀảẢãÃáÁạẠăĂằẰẳẲẵẴắẮặẶâÂầẦẩẨẫẪấẤậẬbBcCdDđĐeEèÈẻẺẽẼéÉẹẸêÊềỀểỂễỄếẾệỆ fFgGhHiIìÌỉỈĩĨíÍịỊjJkKlLmMnNoOòÒỏỎõÕóÓọỌôÔồỒổỔỗỖốỐộỘơƠờỜởỞỡỠớỚợỢpPqQrRsStTu UùÙủỦũŨúÚụỤưƯừỪửỬữỮứỨựỰvVwWxXyYỳỲỷỶỹỸýÝỵỴzZ]+(?<![_.])$", RegexOptions.IgnoreCase))
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Tên khách hàng không được chứa ký tự đặc biệt \r\n";
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Tên khách hàng không được chứa ký tự đặc biệt \r\n" + System.Environment.NewLine;
             }
 
             if (MaSoThue.Length == 0 || MaSoThue.Length > 50)
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã số thuế không được rỗng hoặc nhiều hơn 50 ký tự \r\n";
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã số thuế không được rỗng hoặc nhiều hơn 50 ký tự \r\n" + System.Environment.NewLine;
             }
 
             if (!Regex.IsMatch(MaSoThue, "^(?![_.])(?![_.])(?!.*[_.]{2})[0-9]+(?<![_.])$", RegexOptions.IgnoreCase))
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã số thuế chỉ được chứa ký tự là số \r\n";
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã số thuế chỉ được chứa ký tự là số \r\n" + System.Environment.NewLine;
             }
 
             if (Sdt.Length == 0 || Sdt.Length > 20)
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + "- Số điện thoại không được rỗng hoặc nhiều hơn 20 ký tự \r\n";
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + "- Số điện thoại không được rỗng hoặc nhiều hơn 20 ký tự \r\n" + System.Environment.NewLine;
             }
 
             if (!Regex.IsMatch(Sdt, "^(?![ _.])(?![_.])(?!.*[_.]{2})[0-9 ]+(?<![_. ])$", RegexOptions.IgnoreCase))
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Số điện thoại chỉ được chứa ký tự là số \r\n";
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Số điện thoại chỉ được chứa ký tự là số \r\n" + System.Environment.NewLine;
             }
 
             if (Email.Length == 0 || Email.Length > 50)
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Địa chỉ Email không được rỗng hoặc nhiều hơn 50 ký tự";
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Địa chỉ Email không được rỗng hoặc nhiều hơn 50 ký tự" + System.Environment.NewLine;
             }
 
             if (!Regex.IsMatch(Email, @"^([\w\.\-]+)@([\w\-]+)((\.(\w){2,3})+)$", RegexOptions.IgnoreCase))
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Địa chỉ Email không đúng";
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Địa chỉ Email không đúng" + System.Environment.NewLine;
             }
 
             if (SoNha.Length == 0 || SoNha.Length > 100)
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Số nhà không được rỗng hoặc nhiều hơn 100 ký tự \r\n";
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Số nhà không được rỗng hoặc nhiều hơn 100 ký tự \r\n" + System.Environment.NewLine;
             }
 
             if (MaGps.Length == 0 || MaGps.Length > 50)
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã GPS không được rỗng hoặc nhiều hơn 50 ký tự \r\n";
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã GPS không được rỗng hoặc nhiều hơn 50 ký tự \r\n" + System.Environment.NewLine;
             }
 
             if (FullAddress == "")
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã tỉnh, mã huyện, mã phường không khớp, vui lòng kiểm tra lại \r\n";
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã tỉnh, mã huyện, mã phường không khớp, vui lòng kiểm tra lại \r\n" + System.Environment.NewLine;
             }
 
             return ErrorValidate;
