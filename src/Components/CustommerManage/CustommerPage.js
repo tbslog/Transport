@@ -270,7 +270,7 @@ const CustommerPage = () => {
                   download="Template Thêm mới Khách hàng.xlsx"
                   className="btn btn-sm btn-default mx-1"
                 >
-                  <i className="fas fa-file-export"></i>
+                  <i className="fas fa-download"></i>
                 </a>
                 <div className="upload-btn-wrapper">
                   <button className="btn btn-sm btn-default mx-1">

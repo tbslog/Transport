@@ -8,6 +8,7 @@ import DriverPage from "./Components/DriverManage/DriverPage";
 import CustommerPage from "./Components/CustommerManage/CustommerPage";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import RoadPage from "./Components/RoadManage/RoadPage";
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
                   <Route path="/custommer" element={<CustommerPage />} />
                   <Route path="/address" element={<AddressPage />} />
                   <Route path="/driver" element={<DriverPage />} />
+                  <Route path="/road" element={<RoadPage />} />
                 </Routes>
               </div>
             </div>

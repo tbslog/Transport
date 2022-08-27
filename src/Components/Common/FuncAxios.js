@@ -23,6 +23,24 @@ const postData = async (url, data, header = null) => {
   return isSuccess;
 };
 
+const postFile = async (url, data) => {
+  var isSuccess = 0;
+
+  await axios
+    .post(url, data, {
+      headers: { "Content-Type": "multipart/form-data" },
+    })
+    .then((response) => {
+      ToastSuccess(`${response.data}`);
+      return (isSuccess = 1);
+    })
+    .catch((error) => {
+      ToastError(`${error.response.data}`);
+      return (isSuccess = 0);
+    });
+  return isSuccess;
+};
+
 const putData = async (url, data, header = null) => {
   var isSuccess = 0;
   await axios
@@ -54,4 +72,4 @@ const deleteData = async (url) => {
   return isSuccess;
 };
 
-export { getData, postData, putData, deleteData };
+export { getData, postData, putData, deleteData, postFile };

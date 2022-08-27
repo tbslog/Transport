@@ -2,6 +2,7 @@ import AddressPage from "./Components/AddressManage/AddressPage";
 import CustommerPage from "./Components/CustommerManage/CustommerPage";
 import DriverPage from "./Components/DriverManage/DriverPage";
 import HomePage from "./Components/Home/HomePage";
+import RoadPage from "./Components/RoadManage/RoadPage";
 
 let routerList = [
   {
@@ -11,7 +12,7 @@ let routerList = [
     exact: false,
     child: [
       {
-        name: "Thông tin chung",
+        name: "Địa điểm",
         pathName: "/address",
         path: "address",
         element: <AddressPage />,
@@ -23,22 +24,6 @@ let routerList = [
         pathName: "/custommer",
         path: "custommer",
         element: <CustommerPage />,
-        exact: true,
-        child: [],
-      },
-      {
-        name: "Đối tác",
-        pathName: "/address",
-        path: "address",
-        element: <AddressPage />,
-        exact: true,
-        child: [],
-      },
-      {
-        name: "Nhà phân phối",
-        pathName: "/address",
-        path: "address",
-        element: <AddressPage />,
         exact: true,
         child: [],
       },
@@ -117,9 +102,9 @@ let routerList = [
       },
       {
         name: "Cung Đường",
-        pathName: "/driver",
-        path: "driver",
-        element: <DriverPage />,
+        pathName: "/road",
+        path: "road",
+        element: <RoadPage />,
         exact: true,
         child: [],
       },

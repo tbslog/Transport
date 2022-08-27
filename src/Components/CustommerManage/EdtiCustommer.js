@@ -12,7 +12,6 @@ const EditCustommer = (props) => {
     control,
     formState: { errors },
     handleSubmit,
-    reset,
   } = useForm({
     mode: "onChange",
   });
@@ -35,9 +34,9 @@ const EditCustommer = (props) => {
         address: {
           tenDiaDiem: "",
           maQuocGia: 1,
-          maTinh: parseInt(data.MaTinh),
-          maHuyen: parseInt(data.MaHuyen),
-          maPhuong: parseInt(data.MaPhuong),
+          maTinh: parseInt(data.MaTinh.value),
+          maHuyen: parseInt(data.MaHuyen.value),
+          maPhuong: parseInt(data.MaPhuong.value),
           soNha: data.SoNha,
           diaChiDayDu: "",
           maGps: data.GPS,
@@ -58,7 +57,6 @@ const EditCustommer = (props) => {
   };
 
   useEffect(() => {
-    reset();
     if (
       props &&
       props.selectIdClick &&
@@ -74,12 +72,9 @@ const EditCustommer = (props) => {
       setValue("GPS", props.Address.maGps);
       setValue("SoNha", props.Address.sonha);
 
-      async function getAddress() {
-        await LoadProvince(props.Address.matinh);
-        await LoadDistrict(props.Address.matinh);
-        await LoadWard(props.Address.mahuyen);
-      }
-      getAddress();
+      LoadProvince(props.Address.matinh);
+      LoadDistrict(props.Address.matinh, props.Address.mahuyen);
+      LoadWard(props.Address.mahuyen, props.Address.maphuong);
     }
   }, [props.selectIdClick, props.Address]);
 
@@ -93,7 +88,7 @@ const EditCustommer = (props) => {
     SetIsLoading(false);
   }, []);
 
-  const LoadProvince = async (val) => {
+  const LoadProvince = async (tinh) => {
     (async () => {
       const listProvince = await getData(
         "http://localhost:8088/api/address/ListProvinces"
@@ -107,20 +102,19 @@ const EditCustommer = (props) => {
             label: val.maTinh + " - " + val.tenTinh,
           });
         });
-
         SetListProvince(obj);
         setValue(
           "MaTinh",
-          obj.find((x) => x.value === val)
+          obj.filter((x) => x.value === tinh)
         );
       }
     })();
   };
 
-  const LoadDistrict = async (val) => {
+  const LoadDistrict = async (tinh, huyen) => {
     (async () => {
       const listDistrict = await getData(
-        `http://localhost:8088/api/address/ListDistricts?ProvinceId=${val}`
+        `http://localhost:8088/api/address/ListDistricts?ProvinceId=${tinh}`
       );
       if (listDistrict && listDistrict.length > 0) {
         var obj = [];
@@ -131,11 +125,11 @@ const EditCustommer = (props) => {
             label: val.maHuyen + " - " + val.tenHuyen,
           });
         });
-
         SetListDistrict(obj);
+
         setValue(
           "MaHuyen",
-          obj.find((x) => x.value === val)
+          obj.filter((x) => x.value === huyen)
         );
       } else {
         SetListDistrict([]);
@@ -143,15 +137,15 @@ const EditCustommer = (props) => {
     })();
   };
 
-  const LoadWard = async (val) => {
+  const LoadWard = async (huyen, phuong) => {
     (async () => {
       const listWard = await getData(
-        `http://localhost:8088/api/address/ListWards?DistrictId=${val}`
+        `http://localhost:8088/api/address/ListWards?DistrictId=${huyen}`
       );
 
       if (listWard && listWard.length > 0) {
         var obj = [];
-        obj.push({ value: "", label: "Chọn Huyện" });
+        obj.push({ value: "", label: "Chọn Phường" });
         listWard.map((val) => {
           obj.push({
             value: val.maPhuong,
@@ -162,7 +156,7 @@ const EditCustommer = (props) => {
         SetListWard(obj);
         setValue(
           "MaPhuong",
-          obj.find((x) => x.value === val)
+          obj.filter((x) => x.value === phuong)
         );
       } else {
         SetListWard([]);
@@ -172,31 +166,29 @@ const EditCustommer = (props) => {
 
   const HandleChangeProvince = (val) => {
     try {
-      if (val === undefined || val === "") {
-        return;
-      }
-      SetListDistrict([]);
-      SetListWard([]);
       setValue("MaHuyen", { value: "", label: "Chọn Huyện" });
       setValue("MaPhuong", { value: "", label: "Chọn Phường" });
-      SetIsLoading(true);
+      SetListDistrict([]);
+      SetListWard([]);
       if (val.value === undefined || val.value === "") {
-        ToastWarning("Có lỗi phát sinh, vui lòng ấn F5");
         return;
       }
-      LoadDistrict(val.value);
+
+      SetIsLoading(true);
+      setValue("MaTinh", val);
+      LoadDistrict(val.value, "");
       SetIsLoading(false);
     } catch (error) {}
   };
 
   const HandleOnchangeDistrict = (val) => {
     try {
-      SetIsLoading(true);
-
-      if (val === undefined || val === "") {
+      if (val.value === undefined || val.value === "") {
         return;
       }
-      LoadWard(val.value);
+      SetIsLoading(true);
+      LoadWard(val.value, "");
+      setValue("MaHuyen", val);
       SetIsLoading(false);
     } catch (error) {}
   };

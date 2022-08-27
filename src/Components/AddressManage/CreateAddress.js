@@ -1,10 +1,9 @@
 import { useState, useEffect } from "react";
 import { getData, postData } from "../Common/FuncAxios";
 import { useForm, Controller } from "react-hook-form";
-import "../../Css/UploadFile.scss";
 import Select from "react-select";
 
-const CreateCustommer = (props) => {
+const CreateAddress = (props) => {
   const [IsLoading, SetIsLoading] = useState(true);
   const {
     register,
@@ -17,41 +16,45 @@ const CreateCustommer = (props) => {
     mode: "onChange",
   });
 
+  const [ListTypeAddress, SetListTypeAddress] = useState([]);
   const [ListProvince, SetListProvince] = useState([]);
   const [ListDistrict, SetListDistrict] = useState([]);
   const [ListWard, SetListWard] = useState([]);
 
-  const onSubmit = async (data, e) => {
-    SetIsLoading(true);
-
-    const post = await postData(
-      "http://localhost:8088/api/Custommer/CreateCustommer",
-      {
-        maKh: data.MaKH.toUpperCase(),
-        tenKh: data.TenKH,
-        maSoThue: data.MST,
-        sdt: data.SDT,
-        email: data.Email,
-        address: {
-          tenDiaDiem: "",
-          maQuocGia: 1,
-          maTinh: data.MaTinh.value,
-          maHuyen: data.MaHuyen.value,
-          maPhuong: data.MaPhuong.value,
-          soNha: data.SoNha,
-          diaChiDayDu: "",
-          maGps: data.GPS,
-          maLoaiDiaDiem: "1",
-        },
-      }
-    );
-    console.log(data);
-    if (post === 1) {
-      props.getListUser(1);
-      reset();
-    }
-
-    SetIsLoading(false);
+  const Validate = {
+    TenDiaDiem: {
+      required: "Không được để trống",
+      maxLength: {
+        value: 50,
+        message: "Không được vượt quá 50 ký tự",
+      },
+      minLength: {
+        value: 1,
+        message: "Không được ít hơn 1 ký tự",
+      },
+    },
+    MaGPS: {
+      required: "Không được để trống",
+      maxLength: {
+        value: 50,
+        message: "Không được vượt quá 50 ký tự",
+      },
+      minLength: {
+        value: 1,
+        message: "Không được ít hơn 1 ký tự",
+      },
+    },
+    SoNha: {
+      required: "Không được để trống",
+      maxLength: {
+        value: 100,
+        message: "Không được vượt quá 100 ký tự",
+      },
+      minLength: {
+        value: 1,
+        message: "Không được ít hơn 1 ký tự",
+      },
+    },
   };
 
   useEffect(() => {
@@ -62,12 +65,31 @@ const CreateCustommer = (props) => {
     SetListWard([]);
 
     (async () => {
+      const getListTypeAddress = await getData(
+        "http://localhost:8088/api/address/GetListTypeAddress"
+      );
+
+      if (getListTypeAddress && getListTypeAddress.length > 0) {
+        let obj = [];
+        obj.push({
+          value: "",
+          label: "Chọn Loại địa điểm",
+        });
+        getListTypeAddress.map((val) => {
+          obj.push({
+            value: val.maLoaiDiaDiem,
+            label: val.maLoaiDiaDiem + " - " + val.tenLoaiDiaDiem,
+          });
+        });
+        SetListTypeAddress(obj);
+      }
+
       const getlistProvince = await getData(
         "http://localhost:8088/api/address/ListProvinces"
       );
 
       if (getlistProvince && getlistProvince.length > 0) {
-        var obj = [];
+        let obj = [];
         obj.push({ value: "", label: "Chọn Tỉnh" });
         getlistProvince.map((val) => {
           obj.push({
@@ -161,16 +183,41 @@ const CreateCustommer = (props) => {
 
   const handleResetClick = () => {
     reset();
+    setValue("MaLoaiDiaDiem", { value: "", label: "Chọn Loại địa điểm" });
     setValue("MaTinh", { value: "", label: "Chọn Tỉnh" });
     setValue("MaHuyen", { value: "", label: "Chọn Huyện" });
     setValue("MaPhuong", { value: "", label: "Chọn Phường" });
+  };
+
+  const onSubmit = async (data, e) => {
+    SetIsLoading(true);
+
+    const post = await postData(
+      "http://localhost:8088/api/Address/CreateAddress",
+      {
+        tenDiaDiem: data.TenDiaDiem,
+        maQuocGia: 1,
+        maTinh: data.MaTinh.value,
+        maHuyen: data.MaHuyen.value,
+        maPhuong: data.MaPhuong.value,
+        soNha: data.SoNha,
+        diaChiDayDu: "",
+        maGps: data.GPS,
+        maLoaiDiaDiem: "1",
+      }
+    );
+    if (post === 1) {
+      props.getListAddress(1);
+      handleResetClick();
+    }
+    SetIsLoading(false);
   };
 
   return (
     <>
       <div className="card card-primary">
         <div className="card-header">
-          <h3 className="card-title">Form Thêm Mới Khách Hàng</h3>
+          <h3 className="card-title">Form Thêm Mới Địa Điểm</h3>
         </div>
         <div>{IsLoading === true && <div>Loading...</div>}</div>
 
@@ -178,141 +225,18 @@ const CreateCustommer = (props) => {
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="card-body">
               <div className="form-group">
-                <label htmlFor="MaKH">Mã khách hàng</label>
-                <input
-                  autoComplete="false"
-                  type="text"
-                  className="form-control"
-                  id="MaKH"
-                  placeholder="Nhập mã khách hàng"
-                  {...register("MaKH", {
-                    required: "Không được để trống",
-                    maxLength: {
-                      value: 8,
-                      message: "Không được vượt quá 8 ký tự",
-                    },
-                    minLength: {
-                      value: 8,
-                      message: "Không được ít hơn 8 ký tự",
-                    },
-                    pattern: {
-                      value:
-                        /^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9]+(?<![_.])$/,
-                      message: "Không được chứa ký tự đặc biệt",
-                    },
-                  })}
-                />
-                {errors.MaKH && (
-                  <span className="text-danger">{errors.MaKH.message}</span>
-                )}
-              </div>
-              <div className="form-group">
-                <label htmlFor="TenKH">Tên khách hàng</label>
+                <label htmlFor="TenDiaDiem">Tên địa điểm</label>
                 <input
                   type="text"
                   className="form-control"
-                  id="TenKH"
-                  placeholder="Nhập tên khách hàng"
-                  {...register("TenKH", {
-                    required: "Không được để trống",
-                    maxLength: {
-                      value: 50,
-                      message: "Không được vượt quá 50 ký tự",
-                    },
-                    minLength: {
-                      value: 1,
-                      message: "Không được ít hơn 1 ký tự",
-                    },
-                    pattern: {
-                      value:
-                        /^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9 aAàÀảẢãÃáÁạẠăĂằẰẳẲẵẴắẮặẶâÂầẦẩẨẫẪấẤậẬbBcCdDđĐeEèÈẻẺẽẼéÉẹẸêÊềỀểỂễỄếẾệỆ fFgGhHiIìÌỉỈĩĨíÍịỊjJkKlLmMnNoOòÒỏỎõÕóÓọỌôÔồỒổỔỗỖốỐộỘơƠờỜởỞỡỠớỚợỢpPqQrRsStTu UùÙủỦũŨúÚụỤưƯừỪửỬữỮứỨựỰvVwWxXyYỳỲỷỶỹỸýÝỵỴzZ]+(?<![_.])$/,
-                      message: "Tên khách hàng không được chứa ký tự đặc biệt",
-                    },
-                  })}
+                  id="TenDiaDiem"
+                  placeholder="Nhập tên địa điểm"
+                  {...register("TenDiaDiem", Validate.MaGPS)}
                 />
-                {errors.TenKH && (
-                  <span className="text-danger">{errors.TenKH.message}</span>
-                )}
-              </div>
-              <div className="form-group">
-                <label htmlFor="Email">Địa chỉ Email</label>
-                <input
-                  type="text "
-                  className="form-control"
-                  id="Email"
-                  placeholder="Nhập địa chỉ Email"
-                  {...register("Email", {
-                    required: "Không được để trống",
-                    maxLength: {
-                      value: 100,
-                      message: "Không được vượt quá 100 ký tự",
-                    },
-                    minLength: {
-                      value: 3,
-                      message: "Không được ít hơn 3 ký tự",
-                    },
-                    pattern: {
-                      value: /^([\w\.\-]+)@([\w\-]+)((\.(\w){2,3})+)$/,
-                      message: "Không phải Email",
-                    },
-                  })}
-                />
-                {errors.Email && (
-                  <span className="text-danger">{errors.Email.message}</span>
-                )}
-              </div>
-              <div className="form-group">
-                <label htmlFor="MST">Mã số thuế</label>
-                <input
-                  type="text "
-                  className="form-control"
-                  id="MST"
-                  placeholder="Nhập mã số thuế"
-                  {...register("MST", {
-                    required: "Không được để trống",
-                    maxLength: {
-                      value: 50,
-                      message: "Không được vượt quá 50 ký tự",
-                    },
-                    minLength: {
-                      value: 1,
-                      message: "Không được ít hơn 1 ký tự",
-                    },
-                    pattern: {
-                      value: /^(?![_.])(?![_.])(?!.*[_.]{2})[0-9]+(?<![_.])$/,
-                      message: "Mã số thuế chỉ được chứa ký tự là số",
-                    },
-                  })}
-                />
-                {errors.MST && (
-                  <span className="text-danger">{errors.MST.message}</span>
-                )}
-              </div>
-              <div className="form-group">
-                <label htmlFor="SDT">Số điện thoại</label>
-                <input
-                  type="number"
-                  className="form-control"
-                  id="SDT"
-                  placeholder="Nhập số điện thoại"
-                  {...register("SDT", {
-                    required: "Không được để trống",
-                    maxLength: {
-                      value: 50,
-                      message: "Không được vượt quá 20 ký tự",
-                    },
-                    minLength: {
-                      value: 10,
-                      message: "Không được ít hơn 10 ký tự",
-                    },
-                    pattern: {
-                      value: /^(?![_.])(?![_.])(?!.*[_.]{2})[0-9]+(?<![_.])$/,
-                      message: "Số điện thoại chỉ được chứa ký tự là số",
-                    },
-                  })}
-                />
-                {errors.SDT && (
-                  <span className="text-danger">{errors.SDT.message}</span>
+                {errors.TenDiaDiem && (
+                  <span className="text-danger">
+                    {errors.TenDiaDiem.message}
+                  </span>
                 )}
               </div>
               <div className="form-group">
@@ -322,46 +246,49 @@ const CreateCustommer = (props) => {
                   className="form-control"
                   id="GPS"
                   placeholder="Nhập mã GPS"
-                  {...register("GPS", {
-                    required: "Không được để trống",
-                    maxLength: {
-                      value: 50,
-                      message: "Không được vượt quá 50 ký tự",
-                    },
-                    minLength: {
-                      value: 1,
-                      message: "Không được ít hơn 1 ký tự",
-                    },
-                  })}
+                  {...register("GPS", Validate.MaGPS)}
                 />
                 {errors.GPS && (
                   <span className="text-danger">{errors.GPS.message}</span>
                 )}
               </div>
+              <div className="form-group">
+                <label htmlFor="Sonha">Số nhà</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="Sonha"
+                  placeholder="Nhập số nhà"
+                  {...register("SoNha", Validate.SoNha)}
+                />
+                {errors.SoNha && (
+                  <span className="text-danger">{errors.SoNha.message}</span>
+                )}
+              </div>
               <div className="row">
                 <div className="col-sm">
                   <div className="form-group">
-                    <label htmlFor="Sonha">Số nhà</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      id="Sonha"
-                      placeholder="Nhập số nhà"
-                      {...register("SoNha", {
-                        required: "Không được để trống",
-                        maxLength: {
-                          value: 100,
-                          message: "Không được vượt quá 100 ký tự",
-                        },
-                        minLength: {
-                          value: 1,
-                          message: "Không được ít hơn 1 ký tự",
-                        },
-                      })}
+                    <label htmlFor="Tinh">Loại địa điểm</label>
+                    <Controller
+                      name="MaLoaiDiaDiem"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          classNamePrefix={"form-control"}
+                          value={field.value}
+                          options={ListTypeAddress}
+                          defaultValue={{
+                            value: "",
+                            label: "Chọn Loại địa điểm",
+                          }}
+                        />
+                      )}
+                      rules={{ required: "không được để trống" }}
                     />
-                    {errors.SoNha && (
+                    {errors.MaLoaiDiaDiem && (
                       <span className="text-danger">
-                        {errors.SoNha.message}
+                        {errors.MaLoaiDiaDiem.message}
                       </span>
                     )}
                   </div>
@@ -467,4 +394,4 @@ const CreateCustommer = (props) => {
   );
 };
 
-export default CreateCustommer;
+export default CreateAddress;
