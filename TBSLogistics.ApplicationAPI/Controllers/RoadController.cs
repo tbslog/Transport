@@ -30,6 +30,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         }
 
         [HttpPost]
+        [Route("[action]")]
         public async Task<IActionResult> CreateRoad(CreateRoadRequest request)
         {
             var create = await _road.CreateRoad(request);

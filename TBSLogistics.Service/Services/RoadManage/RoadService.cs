@@ -335,46 +335,57 @@ namespace TBSLogistics.Service.Repository.RoadManage
 
             if (MaCungDuong.Length != 10)
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã cung đường phải dài 10 ký tự \r\n" ;
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã cung đường phải dài 10 ký tự \r\n";
             }
             if (!Regex.IsMatch(MaCungDuong, "^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9]+(?<![_.])$", RegexOptions.IgnoreCase))
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã cung đường không được chứa ký tự đặc biệt \r\n" ;
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã cung đường không được chứa ký tự đặc biệt \r\n";
             }
 
             if (TenCungDuong.Length > 50 || TenCungDuong.Length == 0)
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Tên cung đường không được rỗng hoặc nhiều hơn 50 ký tự \r\n" ;
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Tên cung đường không được rỗng hoặc nhiều hơn 50 ký tự \r\n";
             }
 
             if (!Regex.IsMatch(TenCungDuong, "^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9 aAàÀảẢãÃáÁạẠăĂằẰẳẲẵẴắẮặẶâÂầẦẩẨẫẪấẤậẬbBcCdDđĐeEèÈẻẺẽẼéÉẹẸêÊềỀểỂễỄếẾệỆ fFgGhHiIìÌỉỈĩĨíÍịỊjJkKlLmMnNoOòÒỏỎõÕóÓọỌôÔồỒổỔỗỖốỐộỘơƠờỜởỞỡỠớỚợỢpPqQrRsStTu UùÙủỦũŨúÚụỤưƯừỪửỬữỮứỨựỰvVwWxXyYỳỲỷỶỹỸýÝỵỴzZ]+(?<![_.])$", RegexOptions.IgnoreCase))
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Tên cung đường không được chứa ký tự đặc biệt \r\n" ;
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Tên cung đường không được chứa ký tự đặc biệt \r\n";
             }
 
             if (MaHopDong.Length != 10)
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã hợp đồng phải dài 10 ký tự \r\n" ;
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã hợp đồng phải dài 10 ký tự \r\n";
             }
             if (!Regex.IsMatch(MaHopDong, "^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9]+(?<![_.])$", RegexOptions.IgnoreCase))
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã hợp đồng không được chứa ký tự đặc biệt \r\n" ;
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã hợp đồng không được chứa ký tự đặc biệt \r\n";
             }
 
-            if(SoKM < 1)
+            if (SoKM < 1)
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Số KM không được nhỏ hơn 1 \r\n" ;
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Số KM không được nhỏ hơn 1 \r\n";
             }
 
-            var checkAddress = await _context.DiaDiems.Where(x => x.MaDiaDiem == DiemCuoi || x.MaDiaDiem == DiemDau || x.MaDiaDiem == DiemLayRong).ToListAsync();
+            var checkDC = await _context.DiaDiems.Where(x => x.MaDiaDiem == DiemCuoi).FirstOrDefaultAsync();
+            var checkDLR = await _context.DiaDiems.Where(x => x.MaDiaDiem == DiemLayRong).FirstOrDefaultAsync();
+            var checkDD = await _context.DiaDiems.Where(x => x.MaDiaDiem == DiemDau).FirstOrDefaultAsync();
 
-            if(checkAddress.Count != 3)
+            if (checkDLR == null)
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã địa điểm không đúng, vui lòng xem lại \r\n" ;
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã điểm lấy rỗng không đúng, vui lòng xem lại \r\n";
             }
 
-            return  ErrorValidate;
+            if (checkDD == null)
+            {
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã điểm đầu không đúng, vui lòng xem lại \r\n";
+            }
+
+            if (checkDC == null)
+            {
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã điểm cuối không đúng, vui lòng xem lại \r\n";
+            }
+
+            return ErrorValidate;
         }
-
     }
 }

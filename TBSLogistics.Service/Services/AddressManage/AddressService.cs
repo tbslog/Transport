@@ -63,23 +63,6 @@ namespace TBSLogistics.Service.Repository.AddressManage
             return new BoolActionResult { isSuccess = true, Message = "OK" };
         }
 
-        public async Task<BoolActionResult> CreateWard(List<WardModel> request)
-        {
-            var model = request.Select(x => new XaPhuong()
-            {
-                MaPhuong = x.maphuong,
-                PhanLoai = x.phanloai,
-                TenPhuong = x.tenphuong,
-                ParentCode = x.parentcode
-            });
-
-            await _VanChuyenContext.XaPhuongs.AddRangeAsync(model);
-
-            await _VanChuyenContext.SaveChangesAsync();
-
-            return new BoolActionResult { isSuccess = true, Message = "OK" };
-        }
-
         public async Task<BoolActionResult> CreateAddress(CreateAddressRequest request)
         {
             try
@@ -498,7 +481,6 @@ namespace TBSLogistics.Service.Repository.AddressManage
             }
             catch (Exception)
             {
-
                 throw;
             }
         }

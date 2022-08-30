@@ -41,6 +41,6 @@ namespace TBSLogistics.Service.Repository.AddressManage
 
         Task<BoolActionResult> CreateProvince(int matinh,string tentinh,string phanloai);
         Task<BoolActionResult> CreateDistricts(int mahuyen,string tenhuyen,string phanloai,int parentcode);
-        Task<BoolActionResult> CreateWard(List<WardModel> request);
+      
     }
 }
