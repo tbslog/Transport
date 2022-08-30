@@ -5,22 +5,16 @@ using System.Collections.Generic;
 
 namespace TBSLogistics.Data.TMS
 {
-    public partial class BangGia
+    public partial class SanPhamDichVu
     {
-        public string MaBangGia { get; set; }
-        public string MaKh { get; set; }
-        public string MaCungDuong { get; set; }
+        public string MaSpdv { get; set; }
         public string MaLoaiPhuongTien { get; set; }
-        public decimal GiaVnd { get; set; }
-        public decimal GiaUsd { get; set; }
+        public decimal DonGia { get; set; }
         public string MaDvt { get; set; }
         public int SoLuong { get; set; }
         public string MaLoaiHangHoa { get; set; }
         public string MaPtvc { get; set; }
         public DateTime UpdatedTime { get; set; }
         public DateTime CreatedTime { get; set; }
-
-        public virtual CungDuong MaCungDuongNavigation { get; set; }
-        public virtual KhachHang MaKhNavigation { get; set; }
     }
 }

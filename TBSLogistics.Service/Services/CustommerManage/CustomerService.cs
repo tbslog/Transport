@@ -74,8 +74,8 @@ namespace TBSLogistics.Service.Repository.CustommerManage
                     Sdt = request.Sdt,
                     Email = request.Email,
                     MaDiaDiem = addAddress.Entity.MaDiaDiem,
-                    Createdtime = DateTime.Now,
-                    UpdateTime = DateTime.Now
+                    CreatedTime = DateTime.Now,
+                    UpdatedTime = DateTime.Now
                 });
 
                 var result = await _TMSContext.SaveChangesAsync();
@@ -133,7 +133,7 @@ namespace TBSLogistics.Service.Repository.CustommerManage
                 GetCustommer.MaSoThue = request.MaSoThue;
                 GetCustommer.Sdt = request.Sdt;
                 GetCustommer.Email = request.Email;
-                GetCustommer.Createdtime = DateTime.Now;
+                GetCustommer.CreatedTime = DateTime.Now;
 
                 _TMSContext.Update(GetCustommer);
 
@@ -197,7 +197,7 @@ namespace TBSLogistics.Service.Repository.CustommerManage
                 var listData = from cus in _TMSContext.KhachHangs
                                join address in _TMSContext.DiaDiems
                                on cus.MaDiaDiem equals address.MaDiaDiem
-                               orderby cus.Createdtime descending
+                               orderby cus.CreatedTime descending
                                select new { cus, address };
 
                 if (!string.IsNullOrEmpty(filter.Keyword))
@@ -207,7 +207,7 @@ namespace TBSLogistics.Service.Repository.CustommerManage
 
                 if (!string.IsNullOrEmpty(filter.fromDate.ToString()) && !string.IsNullOrEmpty(filter.toDate.ToString()))
                 {
-                    listData = listData.Where(x => x.cus.Createdtime.Date >= filter.fromDate && x.cus.Createdtime.Date <= filter.toDate);
+                    listData = listData.Where(x => x.cus.CreatedTime.Date >= filter.fromDate && x.cus.CreatedTime.Date <= filter.toDate);
                 }
 
                 var totalCount = await listData.CountAsync();
@@ -221,8 +221,8 @@ namespace TBSLogistics.Service.Repository.CustommerManage
                     Email = x.cus.Email,
                     MaDiaDiem = x.cus.MaDiaDiem,
                     DiaDiem = x.address.DiaChiDayDu,
-                    Createdtime = x.cus.Createdtime,
-                    UpdateTime = x.cus.UpdateTime,
+                    Createdtime = x.cus.CreatedTime,
+                    UpdateTime = x.cus.UpdatedTime,
                 }).ToListAsync();
 
                 return new PagedResponseCustom<ListCustommerRequest>()
@@ -369,8 +369,8 @@ namespace TBSLogistics.Service.Repository.CustommerManage
                             Sdt = item.Sdt,
                             Email = item.Email,
                             MaDiaDiem = addAddress.Entity.MaDiaDiem,
-                            Createdtime = DateTime.Now,
-                            UpdateTime = DateTime.Now
+                            CreatedTime = DateTime.Now,
+                            UpdatedTime = DateTime.Now
                         });
 
                         await _TMSContext.SaveChangesAsync();

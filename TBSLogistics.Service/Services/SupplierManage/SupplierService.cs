@@ -47,8 +47,8 @@ namespace TBSLogistics.Service.Repository.SupplierManage
                     MaDiaDiem = request.MaDiaDiem,
                     LoaiNhaCungCap = request.LoaiNhaCungCap,
                     MaHopDong = request.MaHopDong,
-                    Createdtime = DateTime.Now,
-                    UpdateTime = DateTime.Now
+                    CreatedTime = DateTime.Now,
+                    UpdatedTime = DateTime.Now
                 });
 
                 var result = await _context.SaveChangesAsync();
@@ -90,7 +90,7 @@ namespace TBSLogistics.Service.Repository.SupplierManage
                 getSupplier.MaDiaDiem = request.MaDiaDiem;
                 getSupplier.LoaiNhaCungCap = request.LoaiNhaCungCap;
                 getSupplier.MaHopDong = request.MaHopDong;
-                getSupplier.UpdateTime = DateTime.Now;
+                getSupplier.UpdatedTime = DateTime.Now;
 
                 _context.Update(getSupplier);
 
@@ -122,7 +122,7 @@ namespace TBSLogistics.Service.Repository.SupplierManage
                 var listData = from sup in _context.NhaCungCaps
                                join address in _context.DiaDiems
                                on sup.MaDiaDiem equals address.MaDiaDiem
-                               orderby sup.Createdtime descending
+                               orderby sup.CreatedTime descending
                                select new { sup, address };
 
                 if (!string.IsNullOrEmpty(filter.Keyword))
@@ -132,7 +132,7 @@ namespace TBSLogistics.Service.Repository.SupplierManage
 
                 if (!string.IsNullOrEmpty(filter.fromDate.ToString()) && !string.IsNullOrEmpty(filter.toDate.ToString()))
                 {
-                    listData = listData.Where(x => x.sup.Createdtime.Date >= filter.fromDate && x.sup.Createdtime.Date <= filter.toDate);
+                    listData = listData.Where(x => x.sup.CreatedTime.Date >= filter.fromDate && x.sup.CreatedTime.Date <= filter.toDate);
                 }
 
 
@@ -150,8 +150,8 @@ namespace TBSLogistics.Service.Repository.SupplierManage
                     DiaDiem = x.address.DiaChiDayDu,
                     LoaiNhaCungCap = x.sup.LoaiNhaCungCap,
                     MaHopDong = x.sup.MaHopDong,
-                    UpdateTime = x.sup.UpdateTime,
-                    Createdtime = x.sup.Createdtime,
+                    UpdateTime = x.sup.UpdatedTime,
+                    Createdtime = x.sup.CreatedTime,
                 }).ToListAsync();
 
                 return new PagedResponseCustom<ListSupplierRequest>()
@@ -181,8 +181,8 @@ namespace TBSLogistics.Service.Repository.SupplierManage
                 MaDiaDiem = x.MaDiaDiem,
                 LoaiNhaCungCap = x.LoaiNhaCungCap,
                 MaHopDong = x.MaHopDong,
-                UpdateTime = x.UpdateTime,
-                Createdtime = x.Createdtime,
+                UpdateTime = x.UpdatedTime,
+                Createdtime = x.CreatedTime,
             }).FirstOrDefaultAsync();
 
             return getSupplier;

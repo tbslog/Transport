@@ -19,8 +19,6 @@ namespace TBSLogistics.Service.Repository.DriverManage
 
         Task<PagedResponseCustom<ListDriverRequest>> getListDriver(PaginationFilter filter);
 
-        Task<List<GetDriverRequest>> GetListByType(string driverType);
-
         Task<List<GetDriverRequest>> GetListByVehicleType(string vehicleType);
 
         Task<List<GetDriverRequest>> GetListByStatus(string status);

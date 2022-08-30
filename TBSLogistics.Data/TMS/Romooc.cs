@@ -17,8 +17,8 @@ namespace TBSLogistics.Data.TMS
         public string SoGuRomooc { get; set; }
         public string ThongSoKyThuat { get; set; }
         public string MaLoaiRomooc { get; set; }
-        public DateTime UpdateTime { get; set; }
-        public DateTime Createdtime { get; set; }
+        public DateTime UpdatedTime { get; set; }
+        public DateTime CreatedTime { get; set; }
 
         public virtual LoaiRomooc MaLoaiRomoocNavigation { get; set; }
         public virtual ICollection<VanDon> VanDons { get; set; }

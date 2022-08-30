@@ -5,9 +5,9 @@ using System.Collections.Generic;
 
 namespace TBSLogistics.Data.TMS
 {
-    public partial class QuocGium
+    public partial class QuocGia
     {
-        public QuocGium()
+        public QuocGia()
         {
             DiaDiems = new HashSet<DiaDiem>();
         }

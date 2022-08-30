@@ -24,7 +24,7 @@ namespace TBSLogistics.Data.TMS
         public bool? PhuPhi { get; set; }
         public bool? PhanLoaiPhuLuc { get; set; }
         public string TrangThai { get; set; }
-        public DateTime UpdateTime { get; set; }
+        public DateTime UpdatedTime { get; set; }
         public DateTime Createdtime { get; set; }
 
         public virtual KhachHang MaKhNavigation { get; set; }

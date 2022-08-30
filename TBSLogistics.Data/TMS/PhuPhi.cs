@@ -17,8 +17,8 @@ namespace TBSLogistics.Data.TMS
         public string MaCungDuong { get; set; }
         public string MaLoaiHangHoa { get; set; }
         public string MaPtvc { get; set; }
-        public DateTime UpdateTime { get; set; }
-        public DateTime Createdtime { get; set; }
+        public DateTime UpdatedTime { get; set; }
+        public DateTime CreatedTime { get; set; }
 
         public virtual CungDuong MaCungDuongNavigation { get; set; }
     }

@@ -23,7 +23,7 @@ namespace TBSLogistics.Data.TMS
         public virtual QuanHuyen MaHuyenNavigation { get; set; }
         public virtual LoaiDiaDiem MaLoaiDiaDiemNavigation { get; set; }
         public virtual XaPhuong MaPhuongNavigation { get; set; }
-        public virtual QuocGium MaQuocGiaNavigation { get; set; }
+        public virtual QuocGia MaQuocGiaNavigation { get; set; }
         public virtual TinhThanh MaTinhNavigation { get; set; }
     }
 }

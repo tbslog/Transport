@@ -14,8 +14,8 @@ namespace TBSLogistics.Data.TMS
 
         public string MaLoaiRomooc { get; set; }
         public string TenLoaiRomooc { get; set; }
-        public DateTime UpdateTime { get; set; }
-        public DateTime Createdtime { get; set; }
+        public DateTime UpdatedTime { get; set; }
+        public DateTime CreatedTime { get; set; }
 
         public virtual ICollection<Romooc> Romoocs { get; set; }
     }

@@ -45,8 +45,8 @@ namespace TBSLogistics.Service.Repository.PricelistManage
                     SoLuong = request.SoLuong,
                     MaLoaiHangHoa = request.MaLoaiHangHoa,
                     MaPtvc = request.MaPtvc,
-                    UpdateTime = DateTime.Now,
-                    Createdtime = DateTime.Now
+                    UpdatedTime = DateTime.Now,
+                    CreatedTime = DateTime.Now
                 });
 
                 var result = await _context.SaveChangesAsync();
@@ -88,7 +88,7 @@ namespace TBSLogistics.Service.Repository.PricelistManage
                 getPriceList.SoLuong = request.SoLuong;
                 getPriceList.MaLoaiHangHoa = request.MaLoaiHangHoa;
                 getPriceList.MaPtvc = request.MaPtvc;
-                getPriceList.UpdateTime = DateTime.Now;
+                getPriceList.UpdatedTime = DateTime.Now;
 
                 _context.BangGia.Update(getPriceList);
 

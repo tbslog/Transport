@@ -83,8 +83,8 @@ namespace TBSLogistics.Service.Repository.RoadManage
                     DiemCuoi = request.DiemCuoi,
                     DiemLayRong = request.DiemLayRong,
                     GhiChu = request.GhiChu,
-                    UpdateTime = DateTime.Now,
-                    Createdtime = DateTime.Now
+                    UpdatedTime = DateTime.Now,
+                    CreatedTime = DateTime.Now
                 });
 
                 var result = await _context.SaveChangesAsync();
@@ -123,7 +123,7 @@ namespace TBSLogistics.Service.Repository.RoadManage
                 checkExists.DiemCuoi = request.DiemCuoi;
                 checkExists.DiemLayRong = request.DiemLayRong;
                 checkExists.GhiChu = request.GhiChu;
-                checkExists.UpdateTime = DateTime.Now;
+                checkExists.UpdatedTime = DateTime.Now;
 
                 _context.CungDuongs.Update(checkExists);
 
@@ -166,7 +166,7 @@ namespace TBSLogistics.Service.Repository.RoadManage
 
                 if (!string.IsNullOrEmpty(filter.fromDate.ToString()) && !string.IsNullOrEmpty(filter.toDate.ToString()))
                 {
-                    getData = getData.Where(x => x.cungduong.Createdtime.Date >= filter.fromDate && x.cungduong.Createdtime <= filter.toDate);
+                    getData = getData.Where(x => x.cungduong.CreatedTime.Date >= filter.fromDate && x.cungduong.CreatedTime <= filter.toDate);
                 }
 
                 var totalRecords = await getData.CountAsync();

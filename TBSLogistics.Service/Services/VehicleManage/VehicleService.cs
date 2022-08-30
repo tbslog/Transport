@@ -50,10 +50,9 @@ namespace TBSLogistics.Service.Repository.VehicleManage
                     MaTaiSan = request.MaTaiSan,
                     ThoiGianKhauHao = request.ThoiGianKhauHao,
                     NgayHoatDong = request.NgayHoatDong,
-                    PhanLoaiXeVanChuyen = request.PhanLoaiXeVanChuyen,
                     TrangThai = request.TrangThai,
-                    UpdateTime = DateTime.Now,
-                    Createdtime = DateTime.Now,
+                    UpdatedTime = DateTime.Now,
+                    CreatedTime = DateTime.Now,
                 });
 
                 var result = await _context.SaveChangesAsync();
@@ -97,9 +96,8 @@ namespace TBSLogistics.Service.Repository.VehicleManage
                 getVehicle.MaTaiSan = request.MaTaiSan;
                 getVehicle.ThoiGianKhauHao = request.ThoiGianKhauHao;
                 getVehicle.NgayHoatDong = request.NgayHoatDong;
-                getVehicle.PhanLoaiXeVanChuyen = request.PhanLoaiXeVanChuyen;
                 getVehicle.TrangThai = request.TrangThai;
-                getVehicle.UpdateTime = DateTime.Now;
+                getVehicle.UpdatedTime = DateTime.Now;
 
                 _context.Update(getVehicle);
 
@@ -129,7 +127,7 @@ namespace TBSLogistics.Service.Repository.VehicleManage
                 var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
 
                 var listData = from vehicle in _context.XeVanChuyens
-                               orderby vehicle.Createdtime descending
+                               orderby vehicle.CreatedTime descending
                                select new { vehicle };
 
                 if (!string.IsNullOrEmpty(filter.Keyword))
@@ -139,7 +137,7 @@ namespace TBSLogistics.Service.Repository.VehicleManage
 
                 if (!string.IsNullOrEmpty(filter.fromDate.ToString()) && !string.IsNullOrEmpty(filter.toDate.ToString()))
                 {
-                    listData = listData.Where(x => x.vehicle.Createdtime.Date >= filter.fromDate && x.vehicle.Createdtime.Date <= filter.toDate);
+                    listData = listData.Where(x => x.vehicle.CreatedTime.Date >= filter.fromDate && x.vehicle.CreatedTime.Date <= filter.toDate);
                 }
 
                 var totalCount = await listData.CountAsync();
@@ -158,10 +156,9 @@ namespace TBSLogistics.Service.Repository.VehicleManage
                     MaTaiSan = x.vehicle.MaTaiSan,
                     ThoiGianKhauHao = x.vehicle.ThoiGianKhauHao,
                     NgayHoatDong = x.vehicle.NgayHoatDong,
-                    PhanLoaiXeVanChuyen = x.vehicle.PhanLoaiXeVanChuyen,
                     TrangThai = x.vehicle.TrangThai,
-                    UpdateTime = x.vehicle.UpdateTime,
-                    Createdtime = x.vehicle.Createdtime,
+                    UpdateTime = x.vehicle.UpdatedTime,
+                    Createdtime = x.vehicle.CreatedTime,
                 }).ToListAsync();
 
                 return new PagedResponseCustom<ListVehicleRequest>()
@@ -193,10 +190,9 @@ namespace TBSLogistics.Service.Repository.VehicleManage
                 MaTaiSan = x.MaTaiSan,
                 ThoiGianKhauHao = x.ThoiGianKhauHao,
                 NgayHoatDong = x.NgayHoatDong,
-                PhanLoaiXeVanChuyen = x.PhanLoaiXeVanChuyen,
                 TrangThai = x.TrangThai,
-                UpdateTime = x.UpdateTime,
-                Createdtime = x.Createdtime,
+                UpdateTime = x.UpdatedTime,
+                Createdtime = x.CreatedTime,
             }).FirstOrDefaultAsync();
 
             return vehicle;

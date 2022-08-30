@@ -44,11 +44,11 @@ namespace TBSLogistics.Service.Repository.DriverManage
                     NgaySinh = request.NgaySinh,
                     GhiChu = request.GhiChu,
                     MaNhaThau = request.MaNhaThau,
+                    TaiXeTbs = request.TaiXeTBS,
                     LoaiXe = request.LoaiXe,
-                    PhanLoaiTaiXe = request.PhanLoaiTaiXe,
                     TrangThai = request.TrangThai,
-                    Createdtime = DateTime.Now,
-                    UpdateTime = DateTime.Now
+                    CreatedTime = DateTime.Now,
+                    UpdatedTime = DateTime.Now
                 });
 
                 var result = await _context.SaveChangesAsync();
@@ -88,9 +88,8 @@ namespace TBSLogistics.Service.Repository.DriverManage
                 getDriver.GhiChu = request.GhiChu;
                 getDriver.MaNhaThau = request.MaNhaThau;
                 getDriver.LoaiXe = request.LoaiXe;
-                getDriver.PhanLoaiTaiXe = request.PhanLoaiTaiXe;
                 getDriver.TrangThai = request.TrangThai;
-                getDriver.UpdateTime = DateTime.Now;
+                getDriver.UpdatedTime = DateTime.Now;
 
                 _context.Update(getDriver);
 
@@ -125,10 +124,10 @@ namespace TBSLogistics.Service.Repository.DriverManage
                 GhiChu = x.GhiChu,
                 MaNhaThau = x.MaNhaThau,
                 LoaiXe = x.LoaiXe,
-                PhanLoaiTaiXe = x.PhanLoaiTaiXe,
+                    TaiXeTBSL = x.TaiXeTbs,
                 TrangThai = x.TrangThai,
-                Createdtime = x.Createdtime,
-                UpdateTime = x.UpdateTime,
+                Createdtime = x.CreatedTime,
+                UpdateTime = x.UpdatedTime,
             }).FirstOrDefaultAsync();
 
             return driver;
@@ -146,10 +145,10 @@ namespace TBSLogistics.Service.Repository.DriverManage
                 GhiChu = x.GhiChu,
                 MaNhaThau = x.MaNhaThau,
                 LoaiXe = x.LoaiXe,
-                PhanLoaiTaiXe = x.PhanLoaiTaiXe,
+                TaiXeTBSL = x.TaiXeTbs,
                 TrangThai = x.TrangThai,
-                Createdtime = x.Createdtime,
-                UpdateTime = x.UpdateTime,
+                Createdtime = x.CreatedTime,
+                UpdateTime = x.UpdatedTime,
             }).FirstOrDefaultAsync();
 
             return driver;
@@ -167,31 +166,10 @@ namespace TBSLogistics.Service.Repository.DriverManage
                 GhiChu = x.GhiChu,
                 MaNhaThau = x.MaNhaThau,
                 LoaiXe = x.LoaiXe,
-                PhanLoaiTaiXe = x.PhanLoaiTaiXe,
+                TaiXeTBSL = x.TaiXeTbs,
                 TrangThai = x.TrangThai,
-                Createdtime = x.Createdtime,
-                UpdateTime = x.UpdateTime,
-            }).ToListAsync();
-
-            return driver;
-        }
-
-        public async Task<List<GetDriverRequest>> GetListByType(string driverType)
-        {
-            var driver = await _context.TaiXes.Where(x => x.PhanLoaiTaiXe == driverType).Select(x => new GetDriverRequest()
-            {
-                MaTaiXe = x.MaTaiXe,
-                Cccd = x.Cccd,
-                HoVaTen = x.HoVaTen,
-                SoDienThoai = x.SoDienThoai,
-                NgaySinh = x.NgaySinh,
-                GhiChu = x.GhiChu,
-                MaNhaThau = x.MaNhaThau,
-                LoaiXe = x.LoaiXe,
-                PhanLoaiTaiXe = x.PhanLoaiTaiXe,
-                TrangThai = x.TrangThai,
-                Createdtime = x.Createdtime,
-                UpdateTime = x.UpdateTime,
+                Createdtime = x.CreatedTime,
+                UpdateTime = x.UpdatedTime,
             }).ToListAsync();
 
             return driver;
@@ -209,10 +187,10 @@ namespace TBSLogistics.Service.Repository.DriverManage
                 GhiChu = x.GhiChu,
                 MaNhaThau = x.MaNhaThau,
                 LoaiXe = x.LoaiXe,
-                PhanLoaiTaiXe = x.PhanLoaiTaiXe,
+                TaiXeTBSL = x.TaiXeTbs,
                 TrangThai = x.TrangThai,
-                Createdtime = x.Createdtime,
-                UpdateTime = x.UpdateTime,
+                Createdtime = x.CreatedTime,
+                UpdateTime = x.UpdatedTime,
             }).ToListAsync();
 
             return driver;
@@ -224,7 +202,7 @@ namespace TBSLogistics.Service.Repository.DriverManage
             {
                 var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
                 var getData = from driver in _context.TaiXes
-                              orderby driver.Createdtime descending
+                              orderby driver.CreatedTime descending
                               select new { driver };
 
                 if (!string.IsNullOrEmpty(filter.Keyword))
@@ -234,7 +212,7 @@ namespace TBSLogistics.Service.Repository.DriverManage
 
                 if (!string.IsNullOrEmpty(filter.fromDate.ToString()) && !string.IsNullOrEmpty(filter.toDate.ToString()))
                 {
-                    getData = getData.Where(x => x.driver.Createdtime.Date >= filter.fromDate && x.driver.Createdtime <= filter.toDate);
+                    getData = getData.Where(x => x.driver.CreatedTime.Date >= filter.fromDate && x.driver.CreatedTime <= filter.toDate);
                 }
 
                 var totalRecords = await getData.CountAsync();
@@ -249,10 +227,10 @@ namespace TBSLogistics.Service.Repository.DriverManage
                     GhiChu = x.driver.GhiChu,
                     MaNhaThau = x.driver.MaNhaThau,
                     LoaiXe = x.driver.LoaiXe,
-                    PhanLoaiTaiXe = x.driver.PhanLoaiTaiXe,
+                    TaiXeTBSL = x.driver.TaiXeTbs,
                     TrangThai = x.driver.TrangThai,
-                    UpdateTime = x.driver.UpdateTime,
-                    Createdtime = x.driver.Createdtime,
+                    UpdateTime = x.driver.UpdatedTime,
+                    Createdtime = x.driver.CreatedTime,
                 }).ToListAsync();
 
                 return new PagedResponseCustom<ListDriverRequest>()

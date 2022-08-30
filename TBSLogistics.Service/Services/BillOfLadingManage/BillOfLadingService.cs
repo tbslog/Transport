@@ -70,8 +70,8 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
                     CangDich = request.CangDich,
                     TrangThaiDonHang = request.TrangThaiDonHang,
                     NgayTaoDon = DateTime.Now,
-                    UpdateTime = DateTime.Now,
-                    Createdtime = DateTime.Now,
+                    UpdatedTime = DateTime.Now,
+                    CreatedTime = DateTime.Now,
                 });
 
                 var result = await _context.SaveChangesAsync();
@@ -134,7 +134,7 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
                 getBillOfLading.CangChuyenTai = request.CangChuyenTai;
                 getBillOfLading.CangDich = request.CangDich;
                 getBillOfLading.TrangThaiDonHang = request.TrangThaiDonHang;
-                getBillOfLading.UpdateTime = DateTime.Now;
+                getBillOfLading.UpdatedTime = DateTime.Now;
 
                 _context.Update(getBillOfLading);
 
@@ -194,8 +194,8 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
                 CangDich = x.CangDich,
                 TrangThaiDonHang = x.TrangThaiDonHang,
                 NgayTaoDon = x.NgayTaoDon,
-                UpdateTime = x.UpdateTime,
-                Createdtime = x.Createdtime,
+                UpdateTime = x.UpdatedTime,
+                Createdtime = x.CreatedTime,
             }).FirstOrDefaultAsync();
 
             return getBillOfLading;

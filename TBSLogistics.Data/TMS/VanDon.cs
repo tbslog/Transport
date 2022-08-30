@@ -40,8 +40,8 @@ namespace TBSLogistics.Data.TMS
         public string CangDich { get; set; }
         public string TrangThaiDonHang { get; set; }
         public DateTime NgayTaoDon { get; set; }
-        public DateTime UpdateTime { get; set; }
-        public DateTime Createdtime { get; set; }
+        public DateTime UpdatedTime { get; set; }
+        public DateTime CreatedTime { get; set; }
 
         public virtual KhachHang MaKhNavigation { get; set; }
         public virtual Romooc MaRomoocNavigation { get; set; }

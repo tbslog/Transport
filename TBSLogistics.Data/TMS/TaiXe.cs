@@ -21,10 +21,10 @@ namespace TBSLogistics.Data.TMS
         public string GhiChu { get; set; }
         public string MaNhaThau { get; set; }
         public string LoaiXe { get; set; }
-        public string PhanLoaiTaiXe { get; set; }
+        public bool TaiXeTbs { get; set; }
         public string TrangThai { get; set; }
-        public DateTime UpdateTime { get; set; }
-        public DateTime Createdtime { get; set; }
+        public DateTime UpdatedTime { get; set; }
+        public DateTime CreatedTime { get; set; }
 
         public virtual ICollection<VanDon> VanDons { get; set; }
         public virtual ICollection<XeVanChuyen> XeVanChuyens { get; set; }
