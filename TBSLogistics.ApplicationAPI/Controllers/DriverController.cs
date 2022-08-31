@@ -18,9 +18,9 @@ namespace TBSLogistics.ApplicationAPI.Controllers
     public class DriverController : ControllerBase
     {
         private readonly IDriver _driver;
-        private readonly IUriService _uriService;
+        private readonly IPaginationService _uriService;
 
-        public DriverController(IDriver driver,IUriService uriService)
+        public DriverController(IDriver driver,IPaginationService uriService)
         {
             _driver = driver;
             _uriService = uriService;
@@ -86,8 +86,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> GetListByType(string driverType)
         {
-            var driver = await _driver.GetListByType(driverType);
-            return Ok(driver);
+            return Ok();
         }
 
         [HttpGet]

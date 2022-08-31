@@ -18,9 +18,9 @@ namespace TBSLogistics.ApplicationAPI.Controllers
     public class VehicleController : ControllerBase
     {
         private readonly IVehicle _vehicle;
-        private readonly IUriService _uriService;
+        private readonly IPaginationService _uriService;
 
-        public VehicleController(IVehicle vehicle,IUriService uriService)
+        public VehicleController(IVehicle vehicle,IPaginationService uriService)
         {
             _uriService = uriService;
             _vehicle = vehicle;

@@ -15,9 +15,9 @@ namespace TBSLogistics.ApplicationAPI.Controllers
     public class SupplierController : ControllerBase
     {
         private readonly ISupplier _supplier;
-        private readonly IUriService _uriService;
+        private readonly IPaginationService _uriService;
 
-        public SupplierController(ISupplier supplier,IUriService uriService)
+        public SupplierController(ISupplier supplier,IPaginationService uriService)
         {
             _uriService = uriService;
             _supplier = supplier;

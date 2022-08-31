@@ -22,9 +22,9 @@ namespace TBSLogistics.ApplicationAPI.Controllers
     public class AddressController : ControllerBase
     {
         private readonly IAddress _address;
-        private readonly IUriService _uriService;
+        private readonly IPaginationService _uriService;
 
-        public AddressController(IAddress address, IUriService uriService)
+        public AddressController(IAddress address, IPaginationService uriService)
         {
             _address = address;
             _uriService = uriService;

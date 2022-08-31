@@ -21,9 +21,9 @@ namespace TBSLogistics.ApplicationAPI.Controllers
     {
 
         private readonly IRoad _road;
-        private IUriService _uriService;
+        private IPaginationService _uriService;
 
-        public RoadController(IRoad road, IUriService uriService)
+        public RoadController(IRoad road, IPaginationService uriService)
         {
             _road = road;
             _uriService = uriService;

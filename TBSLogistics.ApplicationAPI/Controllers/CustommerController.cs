@@ -24,9 +24,9 @@ namespace TBSLogistics.ApplicationAPI.Controllers
     public class CustommerController : ControllerBase
     {
         private ICustomer _customer;
-        private IUriService _uriService;
+        private IPaginationService _uriService;
 
-        public CustommerController(ICustomer customer, IUriService uriService)
+        public CustommerController(ICustomer customer, IPaginationService uriService)
         {
             _customer = customer;
             _uriService = uriService;

@@ -179,6 +179,10 @@ namespace TBSLogistics.Service.Repository.CustommerManage
                 address = new GetAddressModel()
                 {
                     MaDiaDiem = x.address.MaDiaDiem,
+                    MaHuyen = x.address.MaHuyen,
+                    MaPhuong = x.address.MaPhuong,
+                    MaTinh = x.address.MaTinh,
+                    SoNha = x.address.SoNha,
                     DiaChiDayDu = x.address.DiaChiDayDu,
                     TenDiaDiem = x.address.TenDiaDiem,
                     MaGps = x.address.MaGps,

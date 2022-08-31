@@ -8,10 +8,10 @@ using TBSLogistics.Model.Filter;
 
 namespace TBSLogistics.Service.Panigation
 {
-    public class UriService : IUriService
+    public class PaginationService : IPaginationService
     {
         private readonly string _baseUri;
-        public UriService(string baseUri)
+        public PaginationService(string baseUri)
         {
             _baseUri = baseUri;
         }

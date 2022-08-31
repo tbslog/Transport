@@ -26,7 +26,7 @@ namespace TBSLogistics.Service.Repository.Common
             {
                 if (string.IsNullOrWhiteSpace(_environment.WebRootPath))
                 {
-                    _environment.WebRootPath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Log");
+                    _environment.WebRootPath = Path.Combine(Directory.GetCurrentDirectory(), "Log");
                 }
 
                 string dirPath = _environment.WebRootPath;
