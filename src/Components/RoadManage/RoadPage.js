@@ -38,23 +38,32 @@ const RoadPage = () => {
       button: true,
     },
     {
+      name: "Mã Cung Đường",
+      selector: (row) => row.maCungDuong,
+    },
+    {
       name: "Tên Địa Điểm",
-      selector: (row) => row.tenDiaDiem,
+      selector: (row) => row.tenCungDuong,
     },
     {
-      name: "Loại địa điểm",
-      selector: (row) => row.loaiDiaDiem,
+      name: "Số KM",
+      selector: (row) => row.km,
     },
     {
-      name: "Địa chỉ",
-      selector: (row) => row.diaChiDayDu,
+      name: "Điểm Lấy Rỗng",
+      selector: (row) => row.diemLayRong,
     },
     {
-      name: "Mã GPS",
-      selector: (row) => row.maGps,
+      name: "Điểm Đầu",
+      selector: (row) => row.diemDau,
     },
     {
-      name: "Thời gian cập nhật",
+      name: "Điểm Cuối",
+      selector: (row) => row.diemCuoi,
+      sortable: true,
+    },
+    {
+      name: "Thời Gian cập nhật",
       selector: (row) => row.updatedtime,
       sortable: true,
     },
@@ -80,10 +89,11 @@ const RoadPage = () => {
 
   const handleEditButtonClick = async (val) => {
     showModalForm();
-    const dataAddress = await getData(
-      `http://localhost:8088/api/Road/GetById?id=${val.MaCungDuong}`
+    const dataRoad = await getData(
+      `http://localhost:8088/api/Road/GetById?id=${val.maCungDuong}`
     );
-    setSelectIdClick(dataAddress);
+
+    setSelectIdClick(dataRoad);
   };
 
   const fetchData = async (page, KeyWord = "") => {
@@ -129,7 +139,6 @@ const RoadPage = () => {
       let dataCus = await getData(
         `http://localhost:8088/api/Road/GetListRoad?PageNumber=1&PageSize=10`
       );
-
       formatTable(dataCus.data);
       setTotalRows(dataCus.totalRecords);
     })();

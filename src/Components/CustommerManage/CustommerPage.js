@@ -25,8 +25,10 @@ const CustommerPage = () => {
 
   const columns = useMemo(() => [
     {
+      name: "Cập nhật",
       cell: (val) => (
         <button
+          title="Cập nhật"
           onClick={() => handleEditButtonClick(val, SetShowModal("Edit"))}
           type="button"
           className="btn btn-sm btn-default"
@@ -38,6 +40,25 @@ const CustommerPage = () => {
       allowOverflow: true,
       button: true,
     },
+    {
+      name: "Lập HĐ",
+      cell: (val) => (
+        <button
+          title="Lập Hợp Đồng"
+          onClick={() =>
+            handleCreateContract(val, SetShowModal("CreateContract"))
+          }
+          type="button"
+          className="btn btn-sm btn-default"
+        >
+          <i className="fas fa-file-contract"></i>
+        </button>
+      ),
+      ignoreRowClick: true,
+      allowOverflow: true,
+      button: true,
+    },
+
     {
       name: "Mã khách hàng",
       selector: (row) => row.maKh,
@@ -84,12 +105,17 @@ const CustommerPage = () => {
     setSelectedRows(state.selectedRows);
   }, []);
 
+  const handleCreateContract = async (val) => {
+    showModalForm();
+  };
+
   const handleEditButtonClick = async (val) => {
     showModalForm();
     const dataCus = await getData(
       `http://localhost:8088/api/Custommer/GetCustommerById?CustommerId=${val.maKh}`
     );
     setSelectIdClick(dataCus);
+
     SetAddress(dataCus.address);
   };
 
@@ -207,6 +233,7 @@ const CustommerPage = () => {
               <div className="row">
                 <div className="col-sm-3">
                   <button
+                    title="Thêm mới"
                     type="button"
                     className="btn btn-sm btn-default mx-1"
                     onClick={() => showModalForm(SetShowModal("Create"))}
@@ -266,6 +293,7 @@ const CustommerPage = () => {
             <div className="row">
               <div className="col-sm-3">
                 <a
+                  title="Tải Template Excel"
                   href={FileExcelImport}
                   download="Template Thêm mới Khách hàng.xlsx"
                   className="btn btn-sm btn-default mx-1"
@@ -273,7 +301,10 @@ const CustommerPage = () => {
                   <i className="fas fa-download"></i>
                 </a>
                 <div className="upload-btn-wrapper">
-                  <button className="btn btn-sm btn-default mx-1">
+                  <button
+                    className="btn btn-sm btn-default mx-1"
+                    title="Upload file Excel"
+                  >
                     <i className="fas fa-upload"></i>
                   </button>
                   <input

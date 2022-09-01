@@ -34,9 +34,9 @@ const EditCustommer = (props) => {
         address: {
           tenDiaDiem: "",
           maQuocGia: 1,
-          maTinh: parseInt(data.MaTinh.value),
-          maHuyen: parseInt(data.MaHuyen.value),
-          maPhuong: parseInt(data.MaPhuong.value),
+          maTinh: data.MaTinh[0].value,
+          maHuyen: data.MaHuyen[0].value,
+          maPhuong: data.MaPhuong[0].value,
           soNha: data.SoNha,
           diaChiDayDu: "",
           maGps: data.GPS,
@@ -70,11 +70,11 @@ const EditCustommer = (props) => {
       setValue("TenKH", props.selectIdClick.tenKh);
       setValue("Email", props.selectIdClick.email);
       setValue("GPS", props.Address.maGps);
-      setValue("SoNha", props.Address.sonha);
+      setValue("SoNha", props.Address.soNha);
 
-      LoadProvince(props.Address.matinh);
-      LoadDistrict(props.Address.matinh, props.Address.mahuyen);
-      LoadWard(props.Address.mahuyen, props.Address.maphuong);
+      LoadProvince(props.Address.maTinh);
+      LoadDistrict(props.Address.maTinh, props.Address.maHuyen);
+      LoadWard(props.Address.maHuyen, props.Address.maPhuong);
     }
   }, [props.selectIdClick, props.Address]);
 

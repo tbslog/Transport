@@ -65,17 +65,7 @@ const AddRoad = (props) => {
         message: "Không được chứa ký tự đặc biệt",
       },
     },
-    SoNha: {
-      required: "Không được để trống",
-      maxLength: {
-        value: 100,
-        message: "Không được vượt quá 100 ký tự",
-      },
-      minLength: {
-        value: 1,
-        message: "Không được ít hơn 1 ký tự",
-      },
-    },
+
     SoKM: {
       required: "Không được để trống",
       maxLength: {
@@ -103,7 +93,6 @@ const AddRoad = (props) => {
       );
 
       if (getlistAddress && getlistAddress.length > 0) {
-        console.log(getlistAddress);
         var obj = [];
         obj.push({ value: "", label: "-- Chọn --" });
         getlistAddress.map((val) => {
@@ -130,24 +119,19 @@ const AddRoad = (props) => {
 
   const onSubmit = async (data, e) => {
     SetIsLoading(true);
+    const post = await postData("http://localhost:8088/api/Road/CreateRoad", {
+      maCungDuong: data.MaCungDuong,
+      tenCungDuong: data.TenCungDuong,
+      maHopDong: data.MaHopDong,
+      km: data.SoKM,
+      diemDau: data.DiemDau.value,
+      diemCuoi: data.DiemCuoi.value,
+      diemLayRong: data.DiemLayRong.value,
+      ghiChu: data.GhiChu,
+    });
 
-    const post = await postData(
-      "http://localhost:8088/api/Custommer/CreateCustommer",
-      {
-        tenDiaDiem: "",
-        maQuocGia: 1,
-        maTinh: data.MaTinh.value,
-        maHuyen: data.MaHuyen.value,
-        maPhuong: data.MaPhuong.value,
-        soNha: data.SoNha,
-        diaChiDayDu: "",
-        maGps: data.GPS,
-        maLoaiDiaDiem: "1",
-      }
-    );
-    console.log(data);
     if (post === 1) {
-      props.getListUser(1);
+      props.getListRoad(1);
       reset();
     }
 
@@ -158,7 +142,7 @@ const AddRoad = (props) => {
     <>
       <div className="card card-primary">
         <div className="card-header">
-          <h3 className="card-title">Form Thêm Mới Khách HàngCung Đường</h3>
+          <h3 className="card-title">Form Thêm Mới Cung Đường</h3>
         </div>
         <div>{IsLoading === true && <div>Loading...</div>}</div>
 
