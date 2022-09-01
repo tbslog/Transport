@@ -22,7 +22,5 @@ namespace TBSLogistics.Service.Panigation
             modifiedUri = QueryHelpers.AddQueryString(modifiedUri, "pageSize", filter.PageSize.ToString());
             return new Uri(modifiedUri);
         }
-
-
     }
 }
