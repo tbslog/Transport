@@ -24,7 +24,7 @@ const EditCustommer = (props) => {
     SetIsLoading(true);
 
     const put = await putData(
-      `http://localhost:8088/api/Custommer/EdtiCustommer?CustommerId=${data.MaKH}`,
+      `Custommer/EdtiCustommer?CustommerId=${data.MaKH}`,
       {
         maKh: data.MaKH.toUpperCase(),
         tenKh: data.TenKH,
@@ -90,9 +90,7 @@ const EditCustommer = (props) => {
 
   const LoadProvince = async (tinh) => {
     (async () => {
-      const listProvince = await getData(
-        "http://localhost:8088/api/address/ListProvinces"
-      );
+      const listProvince = await getData("address/ListProvinces");
       if (listProvince && listProvince.length > 0) {
         var obj = [];
         obj.push({ value: "", label: "Chọn Tỉnh" });
@@ -114,7 +112,7 @@ const EditCustommer = (props) => {
   const LoadDistrict = async (tinh, huyen) => {
     (async () => {
       const listDistrict = await getData(
-        `http://localhost:8088/api/address/ListDistricts?ProvinceId=${tinh}`
+        `address/ListDistricts?ProvinceId=${tinh}`
       );
       if (listDistrict && listDistrict.length > 0) {
         var obj = [];
@@ -139,9 +137,7 @@ const EditCustommer = (props) => {
 
   const LoadWard = async (huyen, phuong) => {
     (async () => {
-      const listWard = await getData(
-        `http://localhost:8088/api/address/ListWards?DistrictId=${huyen}`
-      );
+      const listWard = await getData(`address/ListWards?DistrictId=${huyen}`);
 
       if (listWard && listWard.length > 0) {
         var obj = [];

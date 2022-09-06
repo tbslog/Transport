@@ -6,7 +6,7 @@ import moment from "moment";
 import EditCustommer from "./EdtiCustommer";
 import { Modal } from "bootstrap";
 import { ToastWarning } from "../Common/FuncToast";
-import FileExcelImport from "../../ExcelFile/CustommerModule/AddnewCus.xlsx";
+import FileExcelImport from "../../ExcelFile/CustommerTemplate/AddnewCus.xlsx";
 
 const CustommerPage = () => {
   const [data, setData] = useState([]);
@@ -112,7 +112,7 @@ const CustommerPage = () => {
   const handleEditButtonClick = async (val) => {
     showModalForm();
     const dataCus = await getData(
-      `http://localhost:8088/api/Custommer/GetCustommerById?CustommerId=${val.maKh}`
+      `Custommer/GetCustommerById?CustommerId=${val.maKh}`
     );
     setSelectIdClick(dataCus);
 
@@ -127,7 +127,7 @@ const CustommerPage = () => {
     }
 
     const dataCus = await getData(
-      `http://localhost:8088/api/Custommer/GetListCustommer?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}`
+      `Custommer/GetListCustommer?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}`
     );
 
     formatTable(dataCus.data);
@@ -143,7 +143,7 @@ const CustommerPage = () => {
     setLoading(true);
 
     const dataCus = await getData(
-      `http://localhost:8088/api/Custommer/GetListCustommer?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}`
+      `Custommer/GetListCustommer?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}`
     );
 
     formatTable(dataCus.data);
@@ -160,7 +160,7 @@ const CustommerPage = () => {
 
     (async () => {
       let dataCus = await getData(
-        `http://localhost:8088/api/Custommer/GetListCustommer?PageNumber=1&PageSize=10`
+        `Custommer/GetListCustommer?PageNumber=1&PageSize=10`
       );
 
       formatTable(dataCus.data);
@@ -184,7 +184,7 @@ const CustommerPage = () => {
     e.target.value = null;
 
     const importExcelCus = await postData(
-      "http://localhost:8088/api/Custommer/ReadFileExcel",
+      "Custommer/ReadFileExcel",
       { formFile: file },
       {
         headers: { "Content-Type": "multipart/form-data" },

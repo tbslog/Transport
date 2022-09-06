@@ -6,7 +6,7 @@ import { Modal } from "bootstrap";
 import { ToastWarning } from "../Common/FuncToast";
 import CreateAddress from "./CreateAddress";
 import EditAddress from "./EditAddress";
-import FileExcelImport from "../../ExcelFile/AddressModule/AddNewAddress.xlsx";
+import FileExcelImport from "../../ExcelFile/AddressTemplate/AddNewAddress.xlsx";
 
 const AddressPage = () => {
   const [data, setData] = useState([]);
@@ -81,7 +81,7 @@ const AddressPage = () => {
   const handleEditButtonClick = async (val) => {
     showModalForm();
     const dataAddress = await getData(
-      `http://localhost:8088/api/Address/GetAddressById?AddressId=${val.maDiaDiem}`
+      `Address/GetAddressById?AddressId=${val.maDiaDiem}`
     );
     setSelectIdClick(dataAddress);
   };
@@ -94,7 +94,7 @@ const AddressPage = () => {
     }
 
     const dataCus = await getData(
-      `http://localhost:8088/api/Address/ListAddress?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}`
+      `Address/ListAddress?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}`
     );
 
     formatTable(dataCus.data);
@@ -110,7 +110,7 @@ const AddressPage = () => {
     setLoading(true);
 
     const dataCus = await getData(
-      `http://localhost:8088/api/Address/ListAddress?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}`
+      `Address/ListAddress?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}`
     );
 
     formatTable(dataCus.data);
@@ -127,7 +127,7 @@ const AddressPage = () => {
 
     (async () => {
       let dataCus = await getData(
-        `http://localhost:8088/api/Address/ListAddress?PageNumber=1&PageSize=10`
+        `Address/ListAddress?PageNumber=1&PageSize=10`
       );
 
       formatTable(dataCus.data);
@@ -150,10 +150,9 @@ const AddressPage = () => {
     var file = e.target.files[0];
     e.target.value = null;
 
-    const importExcelCus = postFile(
-      "http://localhost:8088/api/Address/ReadFileExcel",
-      { formFile: file }
-    );
+    const importExcelCus = postFile("Address/ReadFileExcel", {
+      formFile: file,
+    });
     setLoading(false);
   };
 

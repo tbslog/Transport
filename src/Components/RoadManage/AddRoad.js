@@ -88,9 +88,7 @@ const AddRoad = (props) => {
     SetIsLoading(true);
 
     (async () => {
-      const getlistAddress = await getData(
-        "http://localhost:8088/api/address/GetListAddress"
-      );
+      const getlistAddress = await getData("address/GetListAddress");
 
       if (getlistAddress && getlistAddress.length > 0) {
         var obj = [];
@@ -119,7 +117,7 @@ const AddRoad = (props) => {
 
   const onSubmit = async (data, e) => {
     SetIsLoading(true);
-    const post = await postData("http://localhost:8088/api/Road/CreateRoad", {
+    const post = await postData("Road/CreateRoad", {
       maCungDuong: data.MaCungDuong,
       tenCungDuong: data.TenCungDuong,
       maHopDong: data.MaHopDong,

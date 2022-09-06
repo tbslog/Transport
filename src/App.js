@@ -7,8 +7,11 @@ import AddressPage from "./Components/AddressManage/AddressPage";
 import DriverPage from "./Components/DriverManage/DriverPage";
 import CustommerPage from "./Components/CustommerManage/CustommerPage";
 import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import RoadPage from "./Components/RoadManage/RoadPage";
+import ContractPage from "./Components/ContractManage/ContractPage";
+
+import "react-toastify/dist/ReactToastify.css";
+import "react-datepicker/dist/react-datepicker.css";
 
 function App() {
   return (
@@ -26,6 +29,7 @@ function App() {
                   <Route path="/address" element={<AddressPage />} />
                   <Route path="/driver" element={<DriverPage />} />
                   <Route path="/road" element={<RoadPage />} />
+                  <Route path="/contract" element={<ContractPage />} />
                 </Routes>
               </div>
             </div>

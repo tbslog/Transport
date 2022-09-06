@@ -3,6 +3,7 @@ import CustommerPage from "./Components/CustommerManage/CustommerPage";
 import DriverPage from "./Components/DriverManage/DriverPage";
 import HomePage from "./Components/Home/HomePage";
 import RoadPage from "./Components/RoadManage/RoadPage";
+import ContractPage from "./Components/ContractManage/ContractPage";
 
 let routerList = [
   {
@@ -94,9 +95,9 @@ let routerList = [
       },
       {
         name: "Hợp đồng & phụ lục",
-        pathName: "/driver",
-        path: "driver",
-        element: <DriverPage />,
+        pathName: "/Contract",
+        path: "contract",
+        element: <ContractPage />,
         exact: true,
         child: [],
       },

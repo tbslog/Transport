@@ -4,11 +4,11 @@ import DataTable from "react-data-table-component";
 import moment from "moment";
 import { Modal } from "bootstrap";
 import { ToastWarning } from "../Common/FuncToast";
-import AddRoad from "./AddRoad";
-import EditRoad from "./EditRoad";
-import ExcelAddNewRoad from "../../ExcelFile/RoadTemplate/AddNewRoad.xlsx";
+import AddContract from "./AddContract";
+import EditContract from "./EditContract";
+import DatePicker from "react-datepicker";
 
-const RoadPage = () => {
+const ContractPage = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [totalRows, setTotalRows] = useState(0);
@@ -22,8 +22,12 @@ const RoadPage = () => {
   const [selectedRows, setSelectedRows] = useState([]);
   const [selectIdClick, setSelectIdClick] = useState({});
 
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
+
   const columns = useMemo(() => [
     {
+      name: "Cập nhật",
       cell: (val) => (
         <button
           onClick={() => handleEditButtonClick(val, SetShowModal("Edit"))}
@@ -38,38 +42,68 @@ const RoadPage = () => {
       button: true,
     },
     {
-      name: "Mã Cung Đường",
-      selector: (row) => row.maCungDuong,
+      name: "Chi Tiết",
+      cell: (val) => (
+        <button onClick="" type="button" className="btn btn-sm btn-default">
+          <i className="fas fa-file-contract"></i>
+        </button>
+      ),
+      ignoreRowClick: true,
+      allowOverflow: true,
+      button: true,
     },
     {
-      name: "Tên Địa Điểm",
-      selector: (row) => row.tenCungDuong,
+      name: "Bảng Giá",
+      cell: (val) => (
+        <button
+          onClick={() => handleEditButtonClick(val, SetShowModal("Edit"))}
+          type="button"
+          className="btn btn-sm btn-default"
+        >
+          <i className="fas fa-money-check-alt"></i>
+        </button>
+      ),
+      ignoreRowClick: true,
+      allowOverflow: true,
+      button: true,
     },
     {
-      name: "Số KM",
-      selector: (row) => row.km,
+      name: "Mã Hợp Đồng",
+      selector: (row) => row.maHopDong,
     },
     {
-      name: "Điểm Lấy Rỗng",
-      selector: (row) => row.diemLayRong,
+      name: "Tên Hợp Đồng",
+      selector: (row) => row.tenHienThi,
     },
     {
-      name: "Điểm Đầu",
-      selector: (row) => row.diemDau,
-    },
-    {
-      name: "Điểm Cuối",
-      selector: (row) => row.diemCuoi,
+      name: "Phân Loại",
+      selector: (row) => row.phanLoaiHopDong,
       sortable: true,
     },
     {
-      name: "Thời Gian cập nhật",
-      selector: (row) => row.updatedtime,
+      name: "Mã Khách Hàng",
+      selector: (row) => row.maKh,
+    },
+    {
+      name: "Tên Khách Hàng",
+      selector: (row) => row.tenKH,
+    },
+    {
+      name: "Mã Bảng Giá",
+      selector: (row) => row.maBangGia,
+    },
+    {
+      name: "Trạng thái",
+      selector: (row) => row.trangThai,
+    },
+    {
+      name: "Thời Gian Bắt Đầu",
+      selector: (row) => row.thoiGianBatDau,
       sortable: true,
     },
     {
-      name: "Thời Gian tạo mới",
-      selector: (row) => row.createdtime,
+      name: "Thời Gian Kết Thúc",
+      selector: (row) => row.thoiGianKetThuc,
       sortable: true,
     },
   ]);
@@ -94,7 +128,7 @@ const RoadPage = () => {
     setSelectIdClick(dataRoad);
   };
 
-  const fetchData = async (page, KeyWord = "") => {
+  const fetchData = async (page, KeyWord = "", fromDate = "", toDate = "") => {
     setLoading(true);
 
     if (KeyWord !== "") {
@@ -102,7 +136,7 @@ const RoadPage = () => {
     }
 
     const dataCus = await getData(
-      `Road/GetListRoad?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}`
+      `Contract/GetListContract?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}&fromDate=${fromDate}&toDate=${toDate}`
     );
 
     formatTable(dataCus.data);
@@ -118,7 +152,7 @@ const RoadPage = () => {
     setLoading(true);
 
     const dataCus = await getData(
-      `Road/GetListRoad?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}`
+      `Contract/GetListContract?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}`
     );
 
     formatTable(dataCus.data);
@@ -134,9 +168,7 @@ const RoadPage = () => {
     setLoading(true);
 
     (async () => {
-      let dataCus = await getData(`Road/GetListRoad?PageNumber=1&PageSize=10`);
-      formatTable(dataCus.data);
-      setTotalRows(dataCus.totalRecords);
+      await fetchData(1);
     })();
 
     setLoading(false);
@@ -144,31 +176,38 @@ const RoadPage = () => {
 
   function formatTable(data) {
     data.map((val) => {
-      val.createdtime = moment(val.createdtime).format(" HH:mm:ss DD/MM/YYYY");
-      val.updatedtime = moment(val.updatedtime).format(" HH:mm:ss DD/MM/YYYY");
+      val.thoiGianBatDau = moment(val.thoiGianBatDau).format(" DD/MM/YYYY");
+      val.thoiGianKetThuc = moment(val.thoiGianKetThuc).format(" DD/MM/YYYY");
+
+      val.maBangGia = val.maBangGia === null ? "Empty" : val.maBangGia;
     });
     setData(data);
   }
+
+  const handleSearchClick = async () => {
+    await fetchData(
+      1,
+      keySearch,
+      moment(fromDate).format("YYYY-MM-DD"),
+      moment(toDate).format("YYYY-MM-DD")
+    );
+  };
 
   const handleExcelImportClick = (e) => {
     setLoading(true);
     var file = e.target.files[0];
     e.target.value = null;
 
-    const importExcelCus = postFile("Road/ReadFileExcel", { formFile: file });
+    const importExcelCus = postFile("Contract/ReadFileExcel", {
+      formFile: file,
+    });
     setLoading(false);
-  };
-
-  const handleSearchClick = async () => {
-    if (keySearch === "") {
-      ToastWarning("Vui lòng nhập thông tin tìm kiếm");
-      return;
-    }
-    await fetchData(1, keySearch);
   };
 
   const handleRefeshDataClick = async () => {
     setKeySearch("");
+    setFromDate("");
+    setToDate("");
     await fetchData(1);
   };
 
@@ -178,7 +217,7 @@ const RoadPage = () => {
         <div className="container-fluid">
           <div className="row mb-2">
             <div className="col-sm-6">
-              <h1>Quản lý cung đường</h1>
+              <h1>Quản lý hợp đồng</h1>
             </div>
             {/* <div className="col-sm-6">
               <ol className="breadcrumb float-sm-right">
@@ -206,11 +245,39 @@ const RoadPage = () => {
                     <i className="fas fa-plus-circle"></i>
                   </button>
                 </div>
-                <div className="col-sm-3"></div>
-                <div className="col-sm-3"></div>
+                <div className="col-sm-3">
+                  <div className="row"></div>
+                </div>
+                <div className="col-sm-3">
+                  <div className="row">
+                    <div className="col col-sm">
+                      <div className="input-group input-group-sm">
+                        <DatePicker
+                          selected={fromDate}
+                          onChange={(date) => setFromDate(date)}
+                          dateFormat="dd/MM/yyyy"
+                          className="form-control form-control-sm"
+                          placeholderText="Từ ngày"
+                        />
+                      </div>
+                    </div>
+                    <div className="col-sm">
+                      <div className="input-group input-group-sm">
+                        <DatePicker
+                          selected={toDate}
+                          onChange={(date) => setToDate(date)}
+                          dateFormat="dd/MM/yyyy"
+                          className="form-control form-control-sm"
+                          placeholderText="Đến Ngày"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
                 <div className="col-sm-3 ">
                   <div className="input-group input-group-sm">
                     <input
+                      placeholder="Tìm kiếm"
                       type="text"
                       className="form-control"
                       value={keySearch}
@@ -240,7 +307,7 @@ const RoadPage = () => {
           <div className="card-body">
             <div className="container-datatable" style={{ height: "50vm" }}>
               <DataTable
-                title="Danh sách cung đường"
+                title="Danh sách hợp đồng"
                 columns={columns}
                 data={data}
                 progressPending={loading}
@@ -258,7 +325,7 @@ const RoadPage = () => {
             <div className="row">
               <div className="col-sm-3">
                 <a
-                  href={ExcelAddNewRoad}
+                  href=""
                   download="Template Thêm mới cung đường.xlsx"
                   className="btn btn-sm btn-default mx-1"
                 >
@@ -305,13 +372,13 @@ const RoadPage = () => {
               <div className="modal-body">
                 <>
                   {ShowModal === "Edit" && (
-                    <EditRoad
+                    <EditContract
                       selectIdClick={selectIdClick}
-                      getListRoad={fetchData}
+                      getListContract={fetchData}
                     />
                   )}
                   {ShowModal === "Create" && (
-                    <AddRoad getListRoad={fetchData} />
+                    <AddContract getListContract={fetchData} />
                   )}
                 </>
               </div>
@@ -323,4 +390,4 @@ const RoadPage = () => {
   );
 };
 
-export default RoadPage;
+export default ContractPage;

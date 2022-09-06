@@ -112,9 +112,7 @@ const EditRoad = (props) => {
   useEffect(() => {
     SetIsLoading(true);
     (async () => {
-      const getlistAddress = await getData(
-        "http://localhost:8088/api/address/GetListAddress"
-      );
+      const getlistAddress = await getData("address/GetListAddress");
 
       if (getlistAddress && getlistAddress.length > 0) {
         var obj = [];
@@ -158,18 +156,15 @@ const EditRoad = (props) => {
   const onSubmit = async (data, e) => {
     SetIsLoading(true);
 
-    const post = await putData(
-      `http://localhost:8088/api/Road/UpdateRoad?id=${data.MaCungDuong}`,
-      {
-        tenCungDuong: data.TenCungDuong,
-        maHopDong: data.MaHopDong,
-        km: data.SoKM,
-        diemDau: data.DiemDau[0].value,
-        diemCuoi: data.DiemCuoi[0].value,
-        diemLayRong: data.DiemLayRong[0].value,
-        ghiChu: data.GhiChu,
-      }
-    );
+    const post = await putData(`Road/UpdateRoad?id=${data.MaCungDuong}`, {
+      tenCungDuong: data.TenCungDuong,
+      maHopDong: data.MaHopDong,
+      km: data.SoKM,
+      diemDau: data.DiemDau[0].value,
+      diemCuoi: data.DiemCuoi[0].value,
+      diemLayRong: data.DiemLayRong[0].value,
+      ghiChu: data.GhiChu,
+    });
 
     if (post === 1) {
       props.getListRoad(1);

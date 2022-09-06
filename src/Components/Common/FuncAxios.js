@@ -1,8 +1,10 @@
 import axios from "axios";
 import { ToastSuccess, ToastError, ToastWarning } from "../Common/FuncToast";
 
+const Host = "http://localhost:8088/api/";
+
 const getData = async (url) => {
-  const get = await axios.get(url);
+  const get = await axios.get(Host + url);
   var data = get.data;
   return data;
 };
@@ -10,7 +12,7 @@ const getData = async (url) => {
 const postData = async (url, data, header = null) => {
   var isSuccess = 0;
   await axios
-    .post(url, data, header)
+    .post(Host + url, data, header)
     .then((response) => {
       ToastSuccess(`${response.data}`);
       return (isSuccess = 1);
@@ -27,7 +29,7 @@ const postFile = async (url, data) => {
   var isSuccess = 0;
 
   await axios
-    .post(url, data, {
+    .post(Host + url, data, {
       headers: { "Content-Type": "multipart/form-data" },
     })
     .then((response) => {
@@ -44,7 +46,7 @@ const postFile = async (url, data) => {
 const putData = async (url, data, header = null) => {
   var isSuccess = 0;
   await axios
-    .put(url, data, header)
+    .put(Host + url, data, header)
     .then((response) => {
       ToastSuccess(`${response.data}`);
       return (isSuccess = 1);
@@ -59,7 +61,7 @@ const putData = async (url, data, header = null) => {
 
 const deleteData = async (url) => {
   var isSuccess = 0;
-  axios.delete(url).then(
+  axios.delete(Host + url).then(
     (response) => {
       ToastSuccess(`${response.data}`);
       return (isSuccess = 1);

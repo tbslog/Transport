@@ -24,27 +24,24 @@ const CreateCustommer = (props) => {
   const onSubmit = async (data, e) => {
     SetIsLoading(true);
 
-    const post = await postData(
-      "http://localhost:8088/api/Custommer/CreateCustommer",
-      {
-        maKh: data.MaKH.toUpperCase(),
-        tenKh: data.TenKH,
-        maSoThue: data.MST,
-        sdt: data.SDT,
-        email: data.Email,
-        address: {
-          tenDiaDiem: "",
-          maQuocGia: 1,
-          maTinh: data.MaTinh.value,
-          maHuyen: data.MaHuyen.value,
-          maPhuong: data.MaPhuong.value,
-          soNha: data.SoNha,
-          diaChiDayDu: "",
-          maGps: data.GPS,
-          maLoaiDiaDiem: "1",
-        },
-      }
-    );
+    const post = await postData("Custommer/CreateCustommer", {
+      maKh: data.MaKH.toUpperCase(),
+      tenKh: data.TenKH,
+      maSoThue: data.MST,
+      sdt: data.SDT,
+      email: data.Email,
+      address: {
+        tenDiaDiem: "",
+        maQuocGia: 1,
+        maTinh: data.MaTinh.value,
+        maHuyen: data.MaHuyen.value,
+        maPhuong: data.MaPhuong.value,
+        soNha: data.SoNha,
+        diaChiDayDu: "",
+        maGps: data.GPS,
+        maLoaiDiaDiem: "1",
+      },
+    });
     console.log(data);
     if (post === 1) {
       props.getListUser(1);
@@ -62,9 +59,7 @@ const CreateCustommer = (props) => {
     SetListWard([]);
 
     (async () => {
-      const getlistProvince = await getData(
-        "http://localhost:8088/api/address/ListProvinces"
-      );
+      const getlistProvince = await getData("address/ListProvinces");
 
       if (getlistProvince && getlistProvince.length > 0) {
         var obj = [];
@@ -98,7 +93,7 @@ const CreateCustommer = (props) => {
 
       (async () => {
         const listDistrict = await getData(
-          `http://localhost:8088/api/address/ListDistricts?ProvinceId=${val.value}`
+          `address/ListDistricts?ProvinceId=${val.value}`
         );
 
         if (listDistrict && listDistrict.length > 0) {
@@ -136,7 +131,7 @@ const CreateCustommer = (props) => {
 
       (async () => {
         const listWard = await getData(
-          `http://localhost:8088/api/address/ListWards?DistrictId=${val.value}`
+          `address/ListWards?DistrictId=${val.value}`
         );
         if (listWard && listWard.length > 0) {
           var obj = [];
