@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using TBSLogistics.Data.TMS;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -12,25 +14,52 @@ namespace TBSLogistics.ApplicationAPI.Controllers
     [ApiController]
     public class CommonController : ControllerBase
     {
+        private readonly TMSContext _tMSContext;
+
+        public CommonController(TMSContext tMSContext)
+        {
+            _tMSContext = tMSContext;
+        }
+
         [HttpGet]
         [Route("[action]")]
         public async Task<IActionResult> GetListVehicleType()
         {
-            return Ok();
+            var list = await _tMSContext.LoaiPhuongTien.ToListAsync();
+            return Ok(list);
         }
 
         [HttpGet]
         [Route("[action]")]
         public async Task<IActionResult> GetListDVT()
         {
-            return Ok();
+            var list = await _tMSContext.DonViTinh.ToListAsync();
+            return Ok(list);
         }
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<IActionResult> GetListProductType()
+        public async Task<IActionResult> GetListGoodsType()
         {
-            return Ok();
+            var list = await _tMSContext.LoaiHangHoa.ToListAsync();
+            return Ok(list);
         }
+
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetListContractType()
+        {
+            var list = await _tMSContext.LoaiHopDong.ToListAsync();
+            return Ok(list);
+        }
+
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetListTransportType()
+        {
+            var list = await _tMSContext.PhuongThucVanChuyen.ToListAsync();
+            return Ok(list);
+        }
+
     }
 }

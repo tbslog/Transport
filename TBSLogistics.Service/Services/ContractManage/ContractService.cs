@@ -3,7 +3,6 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using TBSLogistics.Data.TMS;
 using TBSLogistics.Model.CommonModel;
@@ -11,7 +10,6 @@ using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.ContractModel;
 using TBSLogistics.Model.TempModel;
 using TBSLogistics.Model.Wrappers;
-using TBSLogistics.Service.Repository.Common;
 
 namespace TBSLogistics.Service.Services.ContractManage
 {
@@ -65,7 +63,6 @@ namespace TBSLogistics.Service.Services.ContractManage
                 {
                     return new BoolActionResult { isSuccess = false, Message = "Tạo mới hợp đồng thất bại!" };
                 }
-
             }
             catch (Exception ex)
             {
@@ -78,7 +75,7 @@ namespace TBSLogistics.Service.Services.ContractManage
         {
             try
             {
-                var checkExists = await _TMSContext.HopDongVaPhuLuc.Where(x => x.MaHopDong == id || request.TenHienThi == request.TenHienThi).FirstOrDefaultAsync();
+                var checkExists = await _TMSContext.HopDongVaPhuLuc.Where(x => x.MaHopDong == id || x.TenHienThi == request.TenHienThi).FirstOrDefaultAsync();
 
                 if (checkExists == null)
                 {
@@ -140,7 +137,6 @@ namespace TBSLogistics.Service.Services.ContractManage
             }
             catch (Exception ex)
             {
-
                 throw;
             }
         }
@@ -176,7 +172,6 @@ namespace TBSLogistics.Service.Services.ContractManage
 
                     );
                 }
-
 
                 if (!string.IsNullOrEmpty(filter.fromDate.ToString()) && !string.IsNullOrEmpty(filter.toDate.ToString()))
                 {
