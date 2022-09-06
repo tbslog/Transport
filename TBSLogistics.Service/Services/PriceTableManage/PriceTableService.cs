@@ -11,18 +11,18 @@ using TBSLogistics.Service.Repository.Common;
 
 namespace TBSLogistics.Service.Repository.PricelistManage
 {
-    public class PriceListService : IPriceList
+    public class PriceTableService : IPriceTable
     {
         private readonly TMSContext _context;
         private readonly ICommon _common;
 
-        public PriceListService(TMSContext context, ICommon common)
+        public PriceTableService(TMSContext context, ICommon common)
         {
             _context = context;
             _common = common;
         }
 
-        public async Task<BoolActionResult> CreatePriceList(CreatePriceListRequest request)
+        public async Task<BoolActionResult> CreatePriceTable(CreatePriceListRequest request)
         {
             try
             {
@@ -68,7 +68,7 @@ namespace TBSLogistics.Service.Repository.PricelistManage
             }
         }
 
-        public async Task<BoolActionResult> EditPriceList(string PriceListId, UpdatePriceListRequest request)
+        public async Task<BoolActionResult> EditPriceTable(string PriceListId, UpdatePriceListRequest request)
         {
             try
             {
@@ -111,7 +111,7 @@ namespace TBSLogistics.Service.Repository.PricelistManage
             }
         }
 
-        public async Task<List<GetPriceListRequest>> GetListPriceList()
+        public async Task<List<GetPriceListRequest>> GetListPriceTable()
         {
             var list = await _context.BangGia.Select(x => new GetPriceListRequest()
             {
@@ -130,7 +130,7 @@ namespace TBSLogistics.Service.Repository.PricelistManage
             return list;
         }
 
-        public async Task<List<GetPriceListRequest>> GetListPriceListByCusId(string CustomerId)
+        public async Task<List<GetPriceListRequest>> GetListPriceTableByCusId(string CustomerId)
         {
             var list = await _context.BangGia.Where(x => x.MaKh == CustomerId).Select(x => new GetPriceListRequest()
             {
@@ -149,7 +149,7 @@ namespace TBSLogistics.Service.Repository.PricelistManage
             return list;
         }
 
-        public async Task<GetPriceListRequest> GetPriceListById(string PriceListId)
+        public async Task<GetPriceListRequest> GetPriceTableById(string PriceListId)
         {
             var PriceList = await _context.BangGia.Where(x => x.MaBangGia == PriceListId).Select(x => new GetPriceListRequest()
             {

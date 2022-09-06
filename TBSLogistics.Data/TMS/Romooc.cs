@@ -9,7 +9,7 @@ namespace TBSLogistics.Data.TMS
     {
         public Romooc()
         {
-            VanDons = new HashSet<VanDon>();
+            VanDon = new HashSet<VanDon>();
         }
 
         public string MaRomooc { get; set; }
@@ -21,6 +21,6 @@ namespace TBSLogistics.Data.TMS
         public DateTime CreatedTime { get; set; }
 
         public virtual LoaiRomooc MaLoaiRomoocNavigation { get; set; }
-        public virtual ICollection<VanDon> VanDons { get; set; }
+        public virtual ICollection<VanDon> VanDon { get; set; }
     }
 }

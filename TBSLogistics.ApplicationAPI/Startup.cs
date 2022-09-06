@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
@@ -22,6 +23,7 @@ using TBSLogistics.Service.Repository.PricelistManage;
 using TBSLogistics.Service.Repository.RoadManage;
 using TBSLogistics.Service.Repository.SupplierManage;
 using TBSLogistics.Service.Repository.VehicleManage;
+using TBSLogistics.Service.Services.ContractManage;
 
 namespace TBSLogistics.ApplicationAPI
 {
@@ -77,17 +79,19 @@ namespace TBSLogistics.ApplicationAPI
                 };
             });
 
+            services.AddSingleton(sp => sp.GetRequiredService<ILoggerFactory>().CreateLogger("DefaultLogger"));
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddTransient<ICommon, CommonService>();
             services.AddTransient<IAuthenticate, AuthenticateService>();
             services.AddTransient<IAddress, AddressService>();
             services.AddTransient<ICustomer, CustomerService>();
-            services.AddTransient<IPriceList, PriceListService>();
+            services.AddTransient<IPriceTable, PriceTableService>();
             services.AddTransient<ISupplier, SupplierService>();
             services.AddTransient<IDriver, DriverService>();
             services.AddTransient<IVehicle, VehicleService>();
             services.AddTransient<IBillOfLading, BillOfLadingService>();
             services.AddTransient<IRoad, RoadService>();
+            services.AddTransient<IContract, ContractService>();
 
             services.AddSwaggerGen(option =>
             {

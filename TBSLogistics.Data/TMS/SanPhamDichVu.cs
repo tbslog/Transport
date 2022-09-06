@@ -8,6 +8,7 @@ namespace TBSLogistics.Data.TMS
     public partial class SanPhamDichVu
     {
         public string MaSpdv { get; set; }
+        public string MaCungDuong { get; set; }
         public string MaLoaiPhuongTien { get; set; }
         public decimal DonGia { get; set; }
         public string MaDvt { get; set; }
@@ -16,5 +17,7 @@ namespace TBSLogistics.Data.TMS
         public string MaPtvc { get; set; }
         public DateTime UpdatedTime { get; set; }
         public DateTime CreatedTime { get; set; }
+
+        public virtual CungDuong MaCungDuongNavigation { get; set; }
     }
 }

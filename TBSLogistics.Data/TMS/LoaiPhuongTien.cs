@@ -9,5 +9,6 @@ namespace TBSLogistics.Data.TMS
     {
         public string MaLoaiPhuongTien { get; set; }
         public string TenLoaiPhuongTien { get; set; }
+        public string PhanLoai { get; set; }
     }
 }

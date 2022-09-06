@@ -12,20 +12,20 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class PriceListController : ControllerBase
+    public class PriceTableController : ControllerBase
     {
-        private readonly IPriceList _PriceList;
+        private readonly IPriceTable _priceTable;
 
-        public PriceListController(IPriceList priceList)
+        public PriceTableController(IPriceTable priceTable)
         {
-            _PriceList = priceList;
+            _priceTable = priceTable;
         }
 
         [HttpPost]
         [Route("[action]")]
-        public async Task<IActionResult> CreatePriceList(CreatePriceListRequest request)
+        public async Task<IActionResult> CreatePriceTable(CreatePriceListRequest request)
         {
-            var create = await _PriceList.CreatePriceList(request);
+            var create = await _priceTable.CreatePriceTable(request);
 
             if (create.isSuccess == true)
             {
@@ -39,9 +39,9 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpPut]
         [Route("[action]")]
-        public async Task<IActionResult> EditPriceList(string PriceListId, UpdatePriceListRequest request)
+        public async Task<IActionResult> EditPriceTable(string PriceListId, UpdatePriceListRequest request)
         {
-            var update = await _PriceList.EditPriceList(PriceListId, request);
+            var update = await _priceTable.EditPriceTable(PriceListId, request);
 
             if (update.isSuccess == true)
             {
@@ -55,25 +55,25 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<IActionResult> GetPriceListById(string PriceListId)
+        public async Task<IActionResult> GetPriceTableById(string PriceListId)
         {
-            var list = await _PriceList.GetPriceListById(PriceListId);
+            var list = await _priceTable.GetPriceTableById(PriceListId);
             return Ok(list);
         }
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<IActionResult> GetListPriceList()
+        public async Task<IActionResult> GetListPriceTable()
         {
-            var PriceList = await _PriceList.GetListPriceList();
+            var PriceList = await _priceTable.GetListPriceTable();
             return Ok(PriceList);
         }
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<IActionResult> GetListPriceListByCusId(string CustomerId)
+        public async Task<IActionResult> GetListPriceTableByCusId(string CustomerId)
         {
-            var list = await _PriceList.GetListPriceListByCusId(CustomerId);
+            var list = await _priceTable.GetListPriceTableByCusId(CustomerId);
             return Ok(list);
         }
     }

@@ -29,7 +29,7 @@ namespace TBSLogistics.Service.Repository.SupplierManage
         {
             try
             {
-                var checkExists = await _context.NhaCungCaps.Where(x => x.MaNhaCungCap == request.MaNhaCungCap).FirstOrDefaultAsync();
+                var checkExists = await _context.NhaCungCap.Where(x => x.MaNhaCungCap == request.MaNhaCungCap).FirstOrDefaultAsync();
 
                 if (checkExists != null)
                 {
@@ -75,7 +75,7 @@ namespace TBSLogistics.Service.Repository.SupplierManage
         {
             try
             {
-                var getSupplier = await _context.NhaCungCaps.Where(x => x.MaNhaCungCap == SupplierId).FirstOrDefaultAsync();
+                var getSupplier = await _context.NhaCungCap.Where(x => x.MaNhaCungCap == SupplierId).FirstOrDefaultAsync();
 
                 if (getSupplier == null)
                 {
@@ -119,8 +119,8 @@ namespace TBSLogistics.Service.Repository.SupplierManage
             {
                 var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
 
-                var listData = from sup in _context.NhaCungCaps
-                               join address in _context.DiaDiems
+                var listData = from sup in _context.NhaCungCap
+                               join address in _context.DiaDiem
                                on sup.MaDiaDiem equals address.MaDiaDiem
                                orderby sup.CreatedTime descending
                                select new { sup, address };
@@ -170,7 +170,7 @@ namespace TBSLogistics.Service.Repository.SupplierManage
 
         public async Task<GetSupplierRequest> GetSupplierById(string SupplierId)
         {
-            var getSupplier = await _context.NhaCungCaps.Where(x => x.MaNhaCungCap == SupplierId).Select(x => new GetSupplierRequest()
+            var getSupplier = await _context.NhaCungCap.Where(x => x.MaNhaCungCap == SupplierId).Select(x => new GetSupplierRequest()
             {
                 MaNhaCungCap = x.MaNhaCungCap,
                 TenNhaCungCap = x.TenNhaCungCap,

@@ -9,7 +9,7 @@ namespace TBSLogistics.Data.TMS
     {
         public QuanHuyen()
         {
-            DiaDiems = new HashSet<DiaDiem>();
+            DiaDiem = new HashSet<DiaDiem>();
         }
 
         public int MaHuyen { get; set; }
@@ -17,6 +17,6 @@ namespace TBSLogistics.Data.TMS
         public string PhanLoai { get; set; }
         public int ParentCode { get; set; }
 
-        public virtual ICollection<DiaDiem> DiaDiems { get; set; }
+        public virtual ICollection<DiaDiem> DiaDiem { get; set; }
     }
 }

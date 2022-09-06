@@ -67,7 +67,7 @@ namespace TBSLogistics.Service.Repository.AddressManage
         {
             try
             {
-                var checkExists = await _VanChuyenContext.DiaDiems.Where(x => x.TenDiaDiem == request.TenDiaDiem).FirstOrDefaultAsync();
+                var checkExists = await _VanChuyenContext.DiaDiem.Where(x => x.TenDiaDiem == request.TenDiaDiem).FirstOrDefaultAsync();
 
                 if (checkExists != null)
                 {
@@ -120,7 +120,7 @@ namespace TBSLogistics.Service.Repository.AddressManage
         {
             try
             {
-                var getAddress = await _VanChuyenContext.DiaDiems.Where(x => x.MaDiaDiem == id).FirstOrDefaultAsync();
+                var getAddress = await _VanChuyenContext.DiaDiem.Where(x => x.MaDiaDiem == id).FirstOrDefaultAsync();
 
                 if (getAddress == null)
                 {
@@ -174,7 +174,7 @@ namespace TBSLogistics.Service.Repository.AddressManage
 
         public async Task<GetAddressModel> GetAddressById(int IdAddress)
         {
-            var getAddress = await _VanChuyenContext.DiaDiems.Where(x => x.MaDiaDiem == IdAddress).FirstOrDefaultAsync();
+            var getAddress = await _VanChuyenContext.DiaDiem.Where(x => x.MaDiaDiem == IdAddress).FirstOrDefaultAsync();
 
             return new GetAddressModel()
             {
@@ -191,7 +191,7 @@ namespace TBSLogistics.Service.Repository.AddressManage
 
         public async Task<List<QuanHuyen>> GetDistricts(int IdProvince)
         {
-            var ListDistricts = await _VanChuyenContext.QuanHuyens.Where(x => x.ParentCode == IdProvince).ToListAsync();
+            var ListDistricts = await _VanChuyenContext.QuanHuyen.Where(x => x.ParentCode == IdProvince).ToListAsync();
             return ListDistricts;
         }
 
@@ -199,9 +199,9 @@ namespace TBSLogistics.Service.Repository.AddressManage
         {
             try
             {
-                var getProvinceName = await _VanChuyenContext.TinhThanhs.Where(x => x.MaTinh == provinceId).Select(x => new { x.TenTinh, x.MaTinh }).FirstOrDefaultAsync();
-                var getDistrictName = await _VanChuyenContext.QuanHuyens.Where(x => x.MaHuyen == districtId && x.ParentCode == getProvinceName.MaTinh).Select(x => new { x.TenHuyen, x.MaHuyen }).FirstOrDefaultAsync();
-                var getWardName = await _VanChuyenContext.XaPhuongs.Where(x => x.MaPhuong == wardId && x.ParentCode == getDistrictName.MaHuyen).Select(x => x.TenPhuong).FirstOrDefaultAsync();
+                var getProvinceName = await _VanChuyenContext.TinhThanh.Where(x => x.MaTinh == provinceId).Select(x => new { x.TenTinh, x.MaTinh }).FirstOrDefaultAsync();
+                var getDistrictName = await _VanChuyenContext.QuanHuyen.Where(x => x.MaHuyen == districtId && x.ParentCode == getProvinceName.MaTinh).Select(x => new { x.TenHuyen, x.MaHuyen }).FirstOrDefaultAsync();
+                var getWardName = await _VanChuyenContext.XaPhuong.Where(x => x.MaPhuong == wardId && x.ParentCode == getDistrictName.MaHuyen).Select(x => x.TenPhuong).FirstOrDefaultAsync();
 
                 if (getProvinceName == null || getDistrictName == null || getWardName == null)
                 {
@@ -225,8 +225,8 @@ namespace TBSLogistics.Service.Repository.AddressManage
             {
                 var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
 
-                var getData = from ar in _VanChuyenContext.DiaDiems
-                              join loaiDiaDiem in _VanChuyenContext.LoaiDiaDiems
+                var getData = from ar in _VanChuyenContext.DiaDiem
+                              join loaiDiaDiem in _VanChuyenContext.LoaiDiaDiem
                               on ar.MaLoaiDiaDiem equals loaiDiaDiem.MaLoaiDiaDiem
                               orderby ar.CreatedTime descending
                               select new { ar, loaiDiaDiem };
@@ -269,19 +269,19 @@ namespace TBSLogistics.Service.Repository.AddressManage
 
         public async Task<List<TinhThanh>> GetProvinces()
         {
-            var ListProvinces = await _VanChuyenContext.TinhThanhs.ToListAsync();
+            var ListProvinces = await _VanChuyenContext.TinhThanh.ToListAsync();
             return ListProvinces;
         }
 
         public async Task<List<XaPhuong>> GetWards(int IdDistricts)
         {
-            var ListWards = await _VanChuyenContext.XaPhuongs.Where(x => x.ParentCode == IdDistricts).ToListAsync();
+            var ListWards = await _VanChuyenContext.XaPhuong.Where(x => x.ParentCode == IdDistricts).ToListAsync();
             return ListWards;
         }
 
         public async Task<List<ListTypeAddress>> GetListTypeAddress()
         {
-            var list = await _VanChuyenContext.LoaiDiaDiems.ToListAsync();
+            var list = await _VanChuyenContext.LoaiDiaDiem.ToListAsync();
 
             return list.Select(x => new ListTypeAddress()
             {
@@ -379,7 +379,7 @@ namespace TBSLogistics.Service.Repository.AddressManage
 
                 foreach (var item in list)
                 {
-                    var checkExists = await _VanChuyenContext.DiaDiems.Where(x => x.TenDiaDiem.ToLower() == item.TenDiaDiem.ToLower()).FirstOrDefaultAsync();
+                    var checkExists = await _VanChuyenContext.DiaDiem.Where(x => x.TenDiaDiem.ToLower() == item.TenDiaDiem.ToLower()).FirstOrDefaultAsync();
                     ErrorInsert += 1;
                     if (checkExists == null)
                     {
@@ -430,7 +430,7 @@ namespace TBSLogistics.Service.Repository.AddressManage
         {
             string ErrorValidate = "";
 
-            var CheckMaLoai = await _VanChuyenContext.LoaiDiaDiems.Where(x => x.MaLoaiDiaDiem == MaLoaiDiaDiem).FirstOrDefaultAsync();
+            var CheckMaLoai = await _VanChuyenContext.LoaiDiaDiem.Where(x => x.MaLoaiDiaDiem == MaLoaiDiaDiem).FirstOrDefaultAsync();
 
             if (CheckMaLoai == null)
             {
@@ -469,7 +469,7 @@ namespace TBSLogistics.Service.Repository.AddressManage
         {
             try
             {
-                var list = await _VanChuyenContext.DiaDiems.Select(x => new GetListAddress()
+                var list = await _VanChuyenContext.DiaDiem.Select(x => new GetListAddress()
                 {
                     MaDiaDiem = x.MaDiaDiem,
                     TenDiaDiem = x.TenDiaDiem,

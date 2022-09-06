@@ -38,7 +38,7 @@ namespace TBSLogistics.Service.Repository.CustommerManage
         {
             try
             {
-                var checkExists = await _TMSContext.KhachHangs.Where(x => x.MaKh == request.MaKh || x.TenKh == request.TenKh).FirstOrDefaultAsync();
+                var checkExists = await _TMSContext.KhachHang.Where(x => x.MaKh == request.MaKh || x.TenKh == request.TenKh).FirstOrDefaultAsync();
 
                 if (checkExists != null)
                 {
@@ -47,7 +47,12 @@ namespace TBSLogistics.Service.Repository.CustommerManage
 
                 string fullAddress = await _address.GetFullAddress(request.Address.SoNha, request.Address.MaTinh, request.Address.MaHuyen, request.Address.MaPhuong);
 
-                string ErrorValidate = ValiateCustommer(request.MaKh, request.TenKh, request.MaSoThue, request.Sdt, request.Email, request.Address.SoNha, request.Address.MaGps, fullAddress);
+                string ErrorValidate = ValiateCustommer(request.MaKh, request.TenKh, request.MaSoThue, request.Sdt, request.Email, request.Address.SoNha, request.Address.MaGps, request.LoaiKH, request.NhomKH, fullAddress);
+
+                if(ErrorValidate != "")
+                {
+                    return new BoolActionResult { isSuccess = false, Message = ErrorValidate };
+                }
 
                 var addAddress = await _TMSContext.AddAsync(new DiaDiem()
                 {
@@ -73,6 +78,8 @@ namespace TBSLogistics.Service.Repository.CustommerManage
                     MaSoThue = request.MaSoThue,
                     Sdt = request.Sdt,
                     Email = request.Email,
+                    LoaiKh = request.LoaiKH,
+                    NhomKh = request.NhomKH,
                     MaDiaDiem = addAddress.Entity.MaDiaDiem,
                     CreatedTime = DateTime.Now,
                     UpdatedTime = DateTime.Now
@@ -106,17 +113,17 @@ namespace TBSLogistics.Service.Repository.CustommerManage
         {
             try
             {
-                var GetCustommer = await _TMSContext.KhachHangs.Where(x => x.MaKh == CustomerId).FirstOrDefaultAsync();
+                var GetCustommer = await _TMSContext.KhachHang.Where(x => x.MaKh == CustomerId).FirstOrDefaultAsync();
 
                 if (GetCustommer == null)
                 {
                     return new BoolActionResult { isSuccess = false, Message = "Khách hàng không tồn tại" };
                 }
 
-                var getAddress = await _TMSContext.DiaDiems.Where(x => x.MaDiaDiem == GetCustommer.MaDiaDiem).FirstOrDefaultAsync();
+                var getAddress = await _TMSContext.DiaDiem.Where(x => x.MaDiaDiem == GetCustommer.MaDiaDiem).FirstOrDefaultAsync();
 
                 string FullAddress = await _address.GetFullAddress(request.Address.SoNha, request.Address.MaTinh, request.Address.MaHuyen, request.Address.MaPhuong);
-                string ErrorValidate = ValiateCustommer(CustomerId, request.TenKh, request.MaSoThue, request.Sdt, request.Email, request.Address.SoNha, request.Address.MaGps, FullAddress);
+                string ErrorValidate = ValiateCustommer(CustomerId, request.TenKh, request.MaSoThue, request.Sdt, request.Email, request.Address.SoNha, request.Address.MaGps, request.LoaiKH, request.NhomKH, FullAddress);
 
                 getAddress.TenDiaDiem = request.Address.TenDiaDiem;
                 getAddress.MaQuocGia = request.Address.MaQuocGia;
@@ -134,6 +141,8 @@ namespace TBSLogistics.Service.Repository.CustommerManage
                 GetCustommer.Sdt = request.Sdt;
                 GetCustommer.Email = request.Email;
                 GetCustommer.CreatedTime = DateTime.Now;
+                GetCustommer.LoaiKh = request.LoaiKH;
+                GetCustommer.NhomKh = request.NhomKH;
 
                 _TMSContext.Update(GetCustommer);
 
@@ -163,8 +172,8 @@ namespace TBSLogistics.Service.Repository.CustommerManage
 
         public async Task<GetCustomerRequest> GetCustomerById(string CustomerId)
         {
-            var getCustommer = from cus in _TMSContext.KhachHangs
-                               join address in _TMSContext.DiaDiems
+            var getCustommer = from cus in _TMSContext.KhachHang
+                               join address in _TMSContext.DiaDiem
                                on cus.MaDiaDiem equals address.MaDiaDiem
                                where cus.MaKh == CustomerId
                                select new { cus, address };
@@ -198,8 +207,8 @@ namespace TBSLogistics.Service.Repository.CustommerManage
             {
                 var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
 
-                var listData = from cus in _TMSContext.KhachHangs
-                               join address in _TMSContext.DiaDiems
+                var listData = from cus in _TMSContext.KhachHang
+                               join address in _TMSContext.DiaDiem
                                on cus.MaDiaDiem equals address.MaDiaDiem
                                orderby cus.CreatedTime descending
                                select new { cus, address };
@@ -220,6 +229,8 @@ namespace TBSLogistics.Service.Repository.CustommerManage
                 {
                     MaKh = x.cus.MaKh,
                     TenKh = x.cus.TenKh,
+                    NhomKH = x.cus.NhomKh,
+                    LoaiKH = x.cus.LoaiKh,
                     MaSoThue = x.cus.MaSoThue,
                     Sdt = x.cus.Sdt,
                     Email = x.cus.Email,
@@ -304,6 +315,8 @@ namespace TBSLogistics.Service.Repository.CustommerManage
                             string Email = worksheet.Cells[row, 5].Value.ToString().Trim();
                             string SoNha = worksheet.Cells[row, 6].Value.ToString().Trim();
                             string MaGps = worksheet.Cells[row, 10].Value.ToString().Trim();
+                            string NhomKH = worksheet.Cells[row, 11].Value.ToString().Trim();
+                            string LoaiKH = worksheet.Cells[row, 12].Value.ToString().Trim();
 
                             int MaTinh = int.Parse(worksheet.Cells[row, 7].Value.ToString().Trim());
                             int MaHuyen = int.Parse(worksheet.Cells[row, 8].Value.ToString().Trim());
@@ -311,7 +324,7 @@ namespace TBSLogistics.Service.Repository.CustommerManage
 
                             var FullAddress = await _address.GetFullAddress(SoNha, MaTinh, MaHuyen, MaPhuong);
 
-                            ErrorValidate = ValiateCustommer(MaKh, TenKh, MaSoThue, Sdt, Email, SoNha, MaGps, FullAddress, ErrorRow.ToString());
+                            ErrorValidate = ValiateCustommer(MaKh, TenKh, MaSoThue, Sdt, Email, SoNha, MaGps, LoaiKH, NhomKH, FullAddress, ErrorRow.ToString());
 
                             if (ErrorValidate == "")
                             {
@@ -322,6 +335,8 @@ namespace TBSLogistics.Service.Repository.CustommerManage
                                     MaSoThue = MaSoThue,
                                     Sdt = Sdt,
                                     Email = Email,
+                                    NhomKH = NhomKH,
+                                    LoaiKH = LoaiKH,
                                     Address = new CreateAddressRequest
                                     {
                                         TenDiaDiem = TenKh,
@@ -344,7 +359,7 @@ namespace TBSLogistics.Service.Repository.CustommerManage
 
                 foreach (var item in list)
                 {
-                    var checkExists = await _TMSContext.KhachHangs.Where(x => x.MaKh == item.MaKh).FirstOrDefaultAsync();
+                    var checkExists = await _TMSContext.KhachHang.Where(x => x.MaKh == item.MaKh).FirstOrDefaultAsync();
                     ErrorInsert += 1;
                     if (checkExists == null)
                     {
@@ -372,6 +387,8 @@ namespace TBSLogistics.Service.Repository.CustommerManage
                             MaSoThue = item.MaSoThue,
                             Sdt = item.Sdt,
                             Email = item.Email,
+                            NhomKh = item.NhomKH,
+                            LoaiKh = item.LoaiKH,
                             MaDiaDiem = addAddress.Entity.MaDiaDiem,
                             CreatedTime = DateTime.Now,
                             UpdatedTime = DateTime.Now
@@ -405,7 +422,7 @@ namespace TBSLogistics.Service.Repository.CustommerManage
             }
         }
 
-        private string ValiateCustommer(string MaKh, string TenKh, string MaSoThue, string Sdt, string Email, string SoNha, string MaGps, string FullAddress, string ErrorRow = "")
+        private string ValiateCustommer(string MaKh, string TenKh, string MaSoThue, string Sdt, string Email, string SoNha, string MaGps, string LoaiKH, string NhomKH, string FullAddress, string ErrorRow = "")
         {
             string ErrorValidate = "";
 
@@ -426,6 +443,27 @@ namespace TBSLogistics.Service.Repository.CustommerManage
             if (!Regex.IsMatch(TenKh, "^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9 aAàÀảẢãÃáÁạẠăĂằẰẳẲẵẴắẮặẶâÂầẦẩẨẫẪấẤậẬbBcCdDđĐeEèÈẻẺẽẼéÉẹẸêÊềỀểỂễỄếẾệỆ fFgGhHiIìÌỉỈĩĨíÍịỊjJkKlLmMnNoOòÒỏỎõÕóÓọỌôÔồỒổỔỗỖốỐộỘơƠờỜởỞỡỠớỚợỢpPqQrRsStTu UùÙủỦũŨúÚụỤưƯừỪửỬữỮứỨựỰvVwWxXyYỳỲỷỶỹỸýÝỵỴzZ]+(?<![_.])$", RegexOptions.IgnoreCase))
             {
                 ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Tên khách hàng không được chứa ký tự đặc biệt \r\n" + System.Environment.NewLine;
+            }
+
+            if (NhomKH.Length > 10 || NhomKH.Length == 0)
+            {
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Nhóm khách hàng không được rỗng hoặc nhiều hơn 10 ký tự \r\n" + System.Environment.NewLine;
+            }
+
+            if (!Regex.IsMatch(NhomKH, "^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9 aAàÀảẢãÃáÁạẠăĂằẰẳẲẵẴắẮặẶâÂầẦẩẨẫẪấẤậẬbBcCdDđĐeEèÈẻẺẽẼéÉẹẸêÊềỀểỂễỄếẾệỆ fFgGhHiIìÌỉỈĩĨíÍịỊjJkKlLmMnNoOòÒỏỎõÕóÓọỌôÔồỒổỔỗỖốỐộỘơƠờỜởỞỡỠớỚợỢpPqQrRsStTu UùÙủỦũŨúÚụỤưƯừỪửỬữỮứỨựỰvVwWxXyYỳỲỷỶỹỸýÝỵỴzZ]+(?<![_.])$", RegexOptions.IgnoreCase))
+            {
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Nhóm khách hàng không được chứa ký tự đặc biệt \r\n" + System.Environment.NewLine;
+            }
+
+
+            if (LoaiKH.Length > 10 || LoaiKH.Length == 0)
+            {
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Loại khách hàng không được rỗng hoặc nhiều hơn 10 ký tự \r\n" + System.Environment.NewLine;
+            }
+
+            if (!Regex.IsMatch(LoaiKH, "^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9 aAàÀảẢãÃáÁạẠăĂằẰẳẲẵẴắẮặẶâÂầẦẩẨẫẪấẤậẬbBcCdDđĐeEèÈẻẺẽẼéÉẹẸêÊềỀểỂễỄếẾệỆ fFgGhHiIìÌỉỈĩĨíÍịỊjJkKlLmMnNoOòÒỏỎõÕóÓọỌôÔồỒổỔỗỖốỐộỘơƠờỜởỞỡỠớỚợỢpPqQrRsStTu UùÙủỦũŨúÚụỤưƯừỪửỬữỮứỨựỰvVwWxXyYỳỲỷỶỹỸýÝỵỴzZ]+(?<![_.])$", RegexOptions.IgnoreCase))
+            {
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Loại khách hàng không được chứa ký tự đặc biệt \r\n" + System.Environment.NewLine;
             }
 
             if (MaSoThue.Length == 0 || MaSoThue.Length > 50)

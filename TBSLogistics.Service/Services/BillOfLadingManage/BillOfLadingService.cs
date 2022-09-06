@@ -28,14 +28,14 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
         {
             try
             {
-                var checkExists = await _context.VanDons.Where(x => x.MaVanDon == request.MaVanDon).FirstOrDefaultAsync();
+                var checkExists = await _context.VanDon.Where(x => x.MaVanDon == request.MaVanDon).FirstOrDefaultAsync();
 
                 if (checkExists != null)
                 {
                     return new BoolActionResult { isSuccess = false, Message = "Mã vận đơn này đã tồn tại" };
                 }
 
-                await _context.VanDons.AddAsync(new VanDon()
+                await _context.VanDon.AddAsync(new VanDon()
                 {
                     MaVanDon = request.MaVanDon,
                     NgayNhapHang = request.NgayNhapHang,
@@ -97,7 +97,7 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
         {
             try
             {
-                var getBillOfLading = await _context.VanDons.Where(x => x.MaVanDon == billOfLadingId).FirstOrDefaultAsync();
+                var getBillOfLading = await _context.VanDon.Where(x => x.MaVanDon == billOfLadingId).FirstOrDefaultAsync();
 
                 if (getBillOfLading == null)
                 {
@@ -159,7 +159,7 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
 
         public async Task<GetBillOfLadingRequest> GetBillOfLadingById(string billOfLadingId)
         {
-            var getBillOfLading = await _context.VanDons.Where(x => x.MaVanDon == billOfLadingId).Select(x => new GetBillOfLadingRequest()
+            var getBillOfLading = await _context.VanDon.Where(x => x.MaVanDon == billOfLadingId).Select(x => new GetBillOfLadingRequest()
             {
                 MaVanDon = x.MaVanDon,
                 NgayNhapHang = x.NgayNhapHang,

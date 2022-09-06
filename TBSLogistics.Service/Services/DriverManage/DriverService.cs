@@ -28,14 +28,14 @@ namespace TBSLogistics.Service.Repository.DriverManage
         {
             try
             {
-                var checkExists = await _context.TaiXes.Where(x => x.MaTaiXe == request.MaTaiXe || x.Cccd == request.Cccd).FirstOrDefaultAsync();
+                var checkExists = await _context.TaiXe.Where(x => x.MaTaiXe == request.MaTaiXe || x.Cccd == request.Cccd).FirstOrDefaultAsync();
 
                 if (checkExists != null)
                 {
                     return new BoolActionResult { isSuccess = false, Message = "Tài xế đã tồn tại" };
                 }
 
-                await _context.TaiXes.AddAsync(new TaiXe()
+                await _context.TaiXe.AddAsync(new TaiXe()
                 {
                     MaTaiXe = request.MaTaiXe,
                     Cccd = request.Cccd,
@@ -74,7 +74,7 @@ namespace TBSLogistics.Service.Repository.DriverManage
         {
             try
             {
-                var getDriver = await _context.TaiXes.Where(x => x.MaTaiXe == driverId).FirstOrDefaultAsync();
+                var getDriver = await _context.TaiXe.Where(x => x.MaTaiXe == driverId).FirstOrDefaultAsync();
 
                 if (getDriver == null)
                 {
@@ -114,7 +114,7 @@ namespace TBSLogistics.Service.Repository.DriverManage
 
         public async Task<GetDriverRequest> GetDriverByCardId(string cccd)
         {
-            var driver = await _context.TaiXes.Where(x => x.Cccd == cccd).Select(x => new GetDriverRequest()
+            var driver = await _context.TaiXe.Where(x => x.Cccd == cccd).Select(x => new GetDriverRequest()
             {
                 MaTaiXe = x.MaTaiXe,
                 Cccd = x.Cccd,
@@ -135,7 +135,7 @@ namespace TBSLogistics.Service.Repository.DriverManage
 
         public async Task<GetDriverRequest> GetDriverById(string driverId)
         {
-            var driver = await _context.TaiXes.Where(x => x.MaTaiXe == driverId).Select(x => new GetDriverRequest()
+            var driver = await _context.TaiXe.Where(x => x.MaTaiXe == driverId).Select(x => new GetDriverRequest()
             {
                 MaTaiXe = x.MaTaiXe,
                 Cccd = x.Cccd,
@@ -156,7 +156,7 @@ namespace TBSLogistics.Service.Repository.DriverManage
 
         public async Task<List<GetDriverRequest>> GetListByStatus(string status)
         {
-            var driver = await _context.TaiXes.Where(x => x.TrangThai == status).Select(x => new GetDriverRequest()
+            var driver = await _context.TaiXe.Where(x => x.TrangThai == status).Select(x => new GetDriverRequest()
             {
                 MaTaiXe = x.MaTaiXe,
                 Cccd = x.Cccd,
@@ -177,7 +177,7 @@ namespace TBSLogistics.Service.Repository.DriverManage
 
         public async Task<List<GetDriverRequest>> GetListByVehicleType(string vehicleType)
         {
-            var driver = await _context.TaiXes.Where(x => x.LoaiXe == vehicleType).Select(x => new GetDriverRequest()
+            var driver = await _context.TaiXe.Where(x => x.LoaiXe == vehicleType).Select(x => new GetDriverRequest()
             {
                 MaTaiXe = x.MaTaiXe,
                 Cccd = x.Cccd,
@@ -201,7 +201,7 @@ namespace TBSLogistics.Service.Repository.DriverManage
             try
             {
                 var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
-                var getData = from driver in _context.TaiXes
+                var getData = from driver in _context.TaiXe
                               orderby driver.CreatedTime descending
                               select new { driver };
 

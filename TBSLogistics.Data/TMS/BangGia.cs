@@ -8,6 +8,7 @@ namespace TBSLogistics.Data.TMS
     public partial class BangGia
     {
         public string MaBangGia { get; set; }
+        public string MaHopDong { get; set; }
         public string MaKh { get; set; }
         public string MaCungDuong { get; set; }
         public string MaLoaiPhuongTien { get; set; }
@@ -17,10 +18,12 @@ namespace TBSLogistics.Data.TMS
         public int SoLuong { get; set; }
         public string MaLoaiHangHoa { get; set; }
         public string MaPtvc { get; set; }
+        public DateTime NgayApDung { get; set; }
         public DateTime UpdatedTime { get; set; }
         public DateTime CreatedTime { get; set; }
 
         public virtual CungDuong MaCungDuongNavigation { get; set; }
+        public virtual HopDongVaPhuLuc MaHopDongNavigation { get; set; }
         public virtual KhachHang MaKhNavigation { get; set; }
     }
 }

@@ -29,14 +29,14 @@ namespace TBSLogistics.Service.Repository.VehicleManage
         {
             try
             {
-                var checkExists = await _context.XeVanChuyens.Where(x => x.MaSoXe == request.MaSoXe).FirstOrDefaultAsync();
+                var checkExists = await _context.XeVanChuyen.Where(x => x.MaSoXe == request.MaSoXe).FirstOrDefaultAsync();
 
                 if (checkExists != null)
                 {
                     return new BoolActionResult { isSuccess = false, Message = "Xe này đã tồn tại trong dữ liệu" };
                 }
 
-                await _context.XeVanChuyens.AddAsync(new XeVanChuyen()
+                await _context.XeVanChuyen.AddAsync(new XeVanChuyen()
                 {
                     MaSoXe = request.MaSoXe,
                     MaNhaCungCap = request.MaNhaCungCap,
@@ -78,7 +78,7 @@ namespace TBSLogistics.Service.Repository.VehicleManage
         {
             try
             {
-                var getVehicle = await _context.XeVanChuyens.Where(x => x.MaSoXe == vehicleId).FirstOrDefaultAsync();
+                var getVehicle = await _context.XeVanChuyen.Where(x => x.MaSoXe == vehicleId).FirstOrDefaultAsync();
 
                 if (getVehicle == null)
                 {
@@ -126,7 +126,7 @@ namespace TBSLogistics.Service.Repository.VehicleManage
             {
                 var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
 
-                var listData = from vehicle in _context.XeVanChuyens
+                var listData = from vehicle in _context.XeVanChuyen
                                orderby vehicle.CreatedTime descending
                                select new { vehicle };
 
@@ -176,7 +176,7 @@ namespace TBSLogistics.Service.Repository.VehicleManage
 
         public async Task<GetVehicleRequest> GetVehicleById(string vehicleId)
         {
-            var vehicle = await _context.XeVanChuyens.Where(x => x.MaSoXe == vehicleId).Select(x => new GetVehicleRequest()
+            var vehicle = await _context.XeVanChuyen.Where(x => x.MaSoXe == vehicleId).Select(x => new GetVehicleRequest()
             {
                 MaSoXe = x.MaSoXe,
                 MaNhaCungCap = x.MaNhaCungCap,

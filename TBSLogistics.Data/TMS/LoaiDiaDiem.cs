@@ -9,12 +9,12 @@ namespace TBSLogistics.Data.TMS
     {
         public LoaiDiaDiem()
         {
-            DiaDiems = new HashSet<DiaDiem>();
+            DiaDiem = new HashSet<DiaDiem>();
         }
 
         public string MaLoaiDiaDiem { get; set; }
         public string TenPhanLoaiDiaDiem { get; set; }
 
-        public virtual ICollection<DiaDiem> DiaDiems { get; set; }
+        public virtual ICollection<DiaDiem> DiaDiem { get; set; }
     }
 }

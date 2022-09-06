@@ -9,8 +9,8 @@ namespace TBSLogistics.Data.TMS
     {
         public TaiXe()
         {
-            VanDons = new HashSet<VanDon>();
-            XeVanChuyens = new HashSet<XeVanChuyen>();
+            VanDon = new HashSet<VanDon>();
+            XeVanChuyen = new HashSet<XeVanChuyen>();
         }
 
         public string MaTaiXe { get; set; }
@@ -26,7 +26,7 @@ namespace TBSLogistics.Data.TMS
         public DateTime UpdatedTime { get; set; }
         public DateTime CreatedTime { get; set; }
 
-        public virtual ICollection<VanDon> VanDons { get; set; }
-        public virtual ICollection<XeVanChuyen> XeVanChuyens { get; set; }
+        public virtual ICollection<VanDon> VanDon { get; set; }
+        public virtual ICollection<XeVanChuyen> XeVanChuyen { get; set; }
     }
 }

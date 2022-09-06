@@ -9,7 +9,7 @@ namespace TBSLogistics.Data.TMS
     {
         public NhaCungCap()
         {
-            XeVanChuyens = new HashSet<XeVanChuyen>();
+            XeVanChuyen = new HashSet<XeVanChuyen>();
         }
 
         public string MaNhaCungCap { get; set; }
@@ -25,6 +25,6 @@ namespace TBSLogistics.Data.TMS
         public DateTime CreatedTime { get; set; }
 
         public virtual HopDongVaPhuLuc MaHopDongNavigation { get; set; }
-        public virtual ICollection<XeVanChuyen> XeVanChuyens { get; set; }
+        public virtual ICollection<XeVanChuyen> XeVanChuyen { get; set; }
     }
 }

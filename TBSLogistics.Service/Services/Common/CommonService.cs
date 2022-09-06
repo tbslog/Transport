@@ -43,7 +43,7 @@ namespace TBSLogistics.Service.Repository.Common
 
         private async Task LogDB(string Name, string LogMessage)
         {
-            await _context.Logs.AddAsync(new Log()
+            await _context.Log.AddAsync(new Log()
             {
                 ModuleName = Name,
                 Message = LogMessage,

@@ -35,7 +35,7 @@ namespace TBSLogistics.Service.Repository.RoadManage
         {
             try
             {
-                var getById = await _context.CungDuongs.Where(x => x.MaCungDuong == MaCungDuong).FirstOrDefaultAsync();
+                var getById = await _context.CungDuong.Where(x => x.MaCungDuong == MaCungDuong).FirstOrDefaultAsync();
 
                 if (getById != null)
                 {
@@ -66,7 +66,7 @@ namespace TBSLogistics.Service.Repository.RoadManage
         {
             try
             {
-                var checkExists = await _context.CungDuongs.Where(x => x.MaCungDuong == request.MaCungDuong).FirstOrDefaultAsync();
+                var checkExists = await _context.CungDuong.Where(x => x.MaCungDuong == request.MaCungDuong).FirstOrDefaultAsync();
 
                 if (checkExists != null)
                 {
@@ -110,7 +110,7 @@ namespace TBSLogistics.Service.Repository.RoadManage
         {
             try
             {
-                var checkExists = await _context.CungDuongs.Where(x => x.MaCungDuong == MaCungDuong).FirstOrDefaultAsync();
+                var checkExists = await _context.CungDuong.Where(x => x.MaCungDuong == MaCungDuong).FirstOrDefaultAsync();
 
                 if (checkExists == null)
                 {
@@ -125,7 +125,7 @@ namespace TBSLogistics.Service.Repository.RoadManage
                 checkExists.GhiChu = request.GhiChu;
                 checkExists.UpdatedTime = DateTime.Now;
 
-                _context.CungDuongs.Update(checkExists);
+                _context.CungDuong.Update(checkExists);
 
 
                 var result = await _context.SaveChangesAsync();
@@ -151,11 +151,11 @@ namespace TBSLogistics.Service.Repository.RoadManage
             {
                 var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
 
-                var getData = from cungduong in _context.CungDuongs
+                var getData = from cungduong in _context.CungDuong
                               select new { cungduong };
 
-                var getAddress = from diadiem in _context.DiaDiems
-                                 join phanloaidd in _context.LoaiDiaDiems
+                var getAddress = from diadiem in _context.DiaDiem
+                                 join phanloaidd in _context.LoaiDiaDiem
                                  on diadiem.MaLoaiDiaDiem equals phanloaidd.MaLoaiDiaDiem
                                  select new { diadiem, phanloaidd };
 
@@ -285,7 +285,7 @@ namespace TBSLogistics.Service.Repository.RoadManage
 
                 foreach (var item in list)
                 {
-                    var checkExists = await _context.CungDuongs.Where(x => x.MaCungDuong == item.MaCungDuong).FirstOrDefaultAsync();
+                    var checkExists = await _context.CungDuong.Where(x => x.MaCungDuong == item.MaCungDuong).FirstOrDefaultAsync();
                     ErrorInsert += 1;
                     if (checkExists == null)
                     {
@@ -366,9 +366,9 @@ namespace TBSLogistics.Service.Repository.RoadManage
                 ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Số KM không được nhỏ hơn 1 \r\n";
             }
 
-            var checkDC = await _context.DiaDiems.Where(x => x.MaDiaDiem == DiemCuoi).FirstOrDefaultAsync();
-            var checkDLR = await _context.DiaDiems.Where(x => x.MaDiaDiem == DiemLayRong).FirstOrDefaultAsync();
-            var checkDD = await _context.DiaDiems.Where(x => x.MaDiaDiem == DiemDau).FirstOrDefaultAsync();
+            var checkDC = await _context.DiaDiem.Where(x => x.MaDiaDiem == DiemCuoi).FirstOrDefaultAsync();
+            var checkDLR = await _context.DiaDiem.Where(x => x.MaDiaDiem == DiemLayRong).FirstOrDefaultAsync();
+            var checkDD = await _context.DiaDiem.Where(x => x.MaDiaDiem == DiemDau).FirstOrDefaultAsync();
 
             if (checkDLR == null)
             {
