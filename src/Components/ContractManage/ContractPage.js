@@ -47,7 +47,11 @@ const ContractPage = () => {
     {
       name: "Chi Tiết",
       cell: (val) => (
-        <button onClick="" type="button" className="btn btn-sm btn-default">
+        <button
+          onClick={() => handleOnclickDetail()}
+          type="button"
+          className="btn btn-sm btn-default"
+        >
           <i className="fas fa-file-contract"></i>
         </button>
       ),
@@ -131,6 +135,8 @@ const ContractPage = () => {
     setSelectIdClick(dataRoad);
   };
 
+  const handleOnclickDetail = async () => {};
+
   const fetchData = async (
     page,
     KeyWord = "",
@@ -147,7 +153,6 @@ const ContractPage = () => {
     const dataCus = await getData(
       `Contract/GetListContract?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}&fromDate=${fromDate}&toDate=${toDate}&contractType=${contractType}`
     );
-    console.log(dataCus.data);
     formatTable(dataCus.data);
     setTotalRows(dataCus.totalRecords);
     setLoading(false);
