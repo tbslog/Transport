@@ -16,6 +16,10 @@ const EditCustommer = (props) => {
     mode: "onChange",
   });
 
+  const [listStatus, setListStatus] = useState([]);
+  const [listCustomerGroup, setListCustomerGroup] = useState([]);
+  const [listCustomerType, setListCustomerType] = useState([]);
+
   const [ListProvince, SetListProvince] = useState([]);
   const [ListDistrict, SetListDistrict] = useState([]);
   const [ListWard, SetListWard] = useState([]);
@@ -31,6 +35,9 @@ const EditCustommer = (props) => {
         maSoThue: data.MST,
         sdt: data.SDT,
         email: data.Email,
+        trangThai: data.TrangThai,
+        nhomKh: data.NhomKH,
+        loaiKh: data.LoaiKH,
         address: {
           tenDiaDiem: "",
           maQuocGia: 1,
@@ -61,6 +68,8 @@ const EditCustommer = (props) => {
       props &&
       props.selectIdClick &&
       props.Address &&
+      props.listCusGroup &&
+      props.listCusType &&
       Object.keys(props.Address).length > 0 &&
       Object.keys(props.selectIdClick).length > 0
     ) {
@@ -71,15 +80,33 @@ const EditCustommer = (props) => {
       setValue("Email", props.selectIdClick.email);
       setValue("GPS", props.Address.maGps);
       setValue("SoNha", props.Address.soNha);
+      setValue("LoaiKH", props.selectIdClick.loaiKH);
+      setValue("NhomKH", props.selectIdClick.nhomKH);
+      setValue("TrangThai", props.selectIdClick.trangThai);
 
       LoadProvince(props.Address.maTinh);
       LoadDistrict(props.Address.maTinh, props.Address.maHuyen);
       LoadWard(props.Address.maHuyen, props.Address.maPhuong);
     }
-  }, [props.selectIdClick, props.Address]);
+  }, [
+    props.selectIdClick,
+    props.Address,
+    props.listCusGroup,
+    props.listCusType,
+  ]);
 
   useEffect(() => {
     SetIsLoading(true);
+
+    (async () => {
+      const getListStatus = await getData(
+        "Common/GetListStatus?statusType=common"
+      );
+      setListStatus(getListStatus);
+    })();
+
+    setListCustomerGroup(props.listCusGroup);
+    setListCustomerType(props.listCusType);
 
     SetListProvince([]);
     SetListDistrict([]);
@@ -361,6 +388,50 @@ const EditCustommer = (props) => {
                   <span className="text-danger">{errors.GPS.message}</span>
                 )}
               </div>
+              <div className="form-group">
+                <label htmlFor="NhomKH">Nhóm khách hàng</label>
+                <select
+                  className="form-control"
+                  {...register("NhomKH", {
+                    required: "Không được để trống",
+                  })}
+                >
+                  <option value="">Chọn Nhóm khách hàng</option>
+                  {listCustomerGroup &&
+                    listCustomerGroup.map((val) => {
+                      return (
+                        <option value={val.maNhomKh} key={val.maNhomKh}>
+                          {val.tenNhomKh}
+                        </option>
+                      );
+                    })}
+                </select>
+                {errors.NhomKH && (
+                  <span className="text-danger">{errors.NhomKH.message}</span>
+                )}
+              </div>
+              <div className="form-group">
+                <label htmlFor="LoaiKH">Phân Loại khách hàng</label>
+                <select
+                  className="form-control"
+                  {...register("LoaiKH", {
+                    required: "Không được để trống",
+                  })}
+                >
+                  <option value="">Chọn Phân Loại khách hàng</option>
+                  {listCustomerType &&
+                    listCustomerType.map((val) => {
+                      return (
+                        <option value={val.maLoaiKh} key={val.maLoaiKh}>
+                          {val.tenLoaiKh}
+                        </option>
+                      );
+                    })}
+                </select>
+                {errors.LoaiKH && (
+                  <span className="text-danger">{errors.LoaiKH.message}</span>
+                )}
+              </div>
               <div className="row">
                 <div className="col-sm">
                   <div className="form-group">
@@ -463,6 +534,30 @@ const EditCustommer = (props) => {
                     )}
                   </div>
                 </div>
+              </div>
+              <div className="form-group">
+                <label htmlFor="TrangThai">Trạng thái</label>
+                <select
+                  className="form-control"
+                  {...register("TrangThai", {
+                    required: "Không được để trống",
+                  })}
+                >
+                  <option value="">Chọn trạng thái</option>
+                  {listStatus &&
+                    listStatus.map((val) => {
+                      return (
+                        <option value={val.maTrangThai} key={val.maTrangThai}>
+                          {val.tenTrangThai}
+                        </option>
+                      );
+                    })}
+                </select>
+                {errors.TrangThai && (
+                  <span className="text-danger">
+                    {errors.TrangThai.message}
+                  </span>
+                )}
               </div>
             </div>
             <div className="card-footer">

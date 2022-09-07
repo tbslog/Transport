@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { getData, postData } from "../Common/FuncAxios";
 import { useForm, Controller } from "react-hook-form";
+import DatePicker from "react-datepicker";
+import moment from "moment";
 import Select from "react-select";
 
 const AddContract = (props) => {
@@ -8,7 +10,6 @@ const AddContract = (props) => {
   const {
     register,
     reset,
-    setValue,
     control,
     formState: { errors },
     handleSubmit,
@@ -23,11 +24,6 @@ const AddContract = (props) => {
         value: 10,
         message: "Không được vượt quá 10 ký tự",
       },
-      minLength: {
-        value: 10,
-        message: "Không được ít hơn 10 ký tự",
-      },
-
       pattern: {
         value:
           /^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9 aAàÀảẢãÃáÁạẠăĂằẰẳẲẵẴắẮặẶâÂầẦẩẨẫẪấẤậẬbBcCdDđĐeEèÈẻẺẽẼéÉẹẸêÊềỀểỂễỄếẾệỆ fFgGhHiIìÌỉỈĩĨíÍịỊjJkKlLmMnNoOòÒỏỎõÕóÓọỌôÔồỒổỔỗỖốỐộỘơƠờỜởỞỡỠớỚợỢpPqQrRsStTu UùÙủỦũŨúÚụỤưƯừỪửỬữỮứỨựỰvVwWxXyYỳỲỷỶỹỸýÝỵỴzZ]+(?<![_.])$/,
@@ -52,12 +48,12 @@ const AddContract = (props) => {
     MaKh: {
       required: "Không được để trống",
       maxLength: {
-        value: 10,
-        message: "Không được vượt quá 10 ký tự",
+        value: 8,
+        message: "Không được vượt quá 8 ký tự",
       },
       minLength: {
-        value: 10,
-        message: "Không được ít hơn 10 ký tự",
+        value: 8,
+        message: "Không được ít hơn 8 ký tự",
       },
       pattern: {
         value:
@@ -67,22 +63,8 @@ const AddContract = (props) => {
     },
     PhanLoaiHopDong: {
       required: "Không được để trống",
-      maxLength: {
-        value: 10,
-        message: "Không được vượt quá 10 ký tự",
-      },
-      minLength: {
-        value: 1,
-        message: "Không được ít hơn 1 ký tự",
-      },
-      pattern: {
-        value:
-          /^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9 aAàÀảẢãÃáÁạẠăĂằẰẳẲẵẴắẮặẶâÂầẦẩẨẫẪấẤậẬbBcCdDđĐeEèÈẻẺẽẼéÉẹẸêÊềỀểỂễỄếẾệỆ fFgGhHiIìÌỉỈĩĨíÍịỊjJkKlLmMnNoOòÒỏỎõÕóÓọỌôÔồỒổỔỗỖốỐộỘơƠờỜởỞỡỠớỚợỢpPqQrRsStTu UùÙủỦũŨúÚụỤưƯừỪửỬữỮứỨựỰvVwWxXyYỳỲỷỶỹỸýÝỵỴzZ]+(?<![_.])$/,
-        message: "Không được chứa ký tự đặc biệt",
-      },
     },
     SoHopDongCha: {
-      required: "Không được để trống",
       maxLength: {
         value: 10,
         message: "Không được vượt quá 10 ký tự",
@@ -97,7 +79,7 @@ const AddContract = (props) => {
         message: "Không được chứa ký tự đặc biệt",
       },
     },
-    ThoiGianBatDau: {
+    NgayBatDau: {
       required: "Không được để trống",
       maxLength: {
         value: 10,
@@ -113,7 +95,7 @@ const AddContract = (props) => {
         message: "Không phải định dạng ngày",
       },
     },
-    ThoiGianKetThuc: {
+    NgayKetThuc: {
       required: "Không được để trống",
       maxLength: {
         value: 10,
@@ -129,32 +111,36 @@ const AddContract = (props) => {
         message: "Không phải định dạng ngày",
       },
     },
-    MaPtvc: {},
-    TrangThai: {},
+    PTVC: {
+      required: "Không được để trống",
+    },
+    TrangThai: {
+      required: "Không được để trống",
+    },
   };
 
-  const [listContractType, setListContractType] = useEffect([]);
+  const [listContractType, setListContractType] = useState([]);
+  const [listTransportType, setListTransportType] = useState([]);
+  const [listStatusType, setListStatusType] = useState([]);
+
+  useEffect(() => {
+    if (props && props.listContractType) {
+      setListContractType(props.listContractType);
+    }
+  }, [props.listContractType]);
 
   useEffect(() => {
     SetIsLoading(true);
 
-    // (async () => {
-    //   const getlistAddress = await getData("address/GetListAddress");
+    (async () => {
+      const getListTransportType = await getData("Common/GetListTransportType");
+      setListTransportType(getListTransportType);
 
-    //   if (getlistAddress && getlistAddress.length > 0) {
-    //     var obj = [];
-    //     obj.push({ value: "", label: "-- Chọn --" });
-    //     getlistAddress.map((val) => {
-    //       obj.push({
-    //         value: val.maDiaDiem,
-    //         label:
-    //           val.maDiaDiem + " - " + val.tenDiaDiem + " --- " + val.diaChi,
-    //       });
-    //     });
-
-    //     SetListAddress(obj);
-    //   }
-    // })();
+      const getListStatusType = await getData(
+        `Common/GetListStatus?statusType=common`
+      );
+      setListStatusType(getListStatusType);
+    })();
 
     SetIsLoading(false);
   }, []);
@@ -163,8 +149,27 @@ const AddContract = (props) => {
     reset();
   };
 
-  const onSubmit = async (data, e) => {
+  const onSubmit = async (data) => {
     SetIsLoading(true);
+
+    var create = await postData("Contract/CreateContract", {
+      maHopDong: data.MaHopDong,
+      soHopDongCha: data.SoHopDongCha,
+      tenHienThi: data.TenHopDong,
+      maKh: data.MaKh,
+      maPtvc: data.PTVC,
+      phanLoaiHopDong: data.PhanLoaiHopDong,
+      thoiGianBatDau: data.NgayBatDau,
+      thoiGianKetThuc: data.NgayKetThuc,
+      ghiChu: data.GhiChu,
+      phuPhi: null,
+      trangThai: data.TrangThai,
+    });
+
+    if (create === 1) {
+      props.getListContract(1);
+      reset();
+    }
 
     SetIsLoading(false);
   };
@@ -225,26 +230,109 @@ const AddContract = (props) => {
                 )}
               </div>
               <div className="form-group">
-                <label htmlFor="PhanLoaiHopDong">Phân Loại Hợp Đồng</label>
-                <Controller
-                  name="PhanLoaiHopDong"
-                  control={control}
-                  render={({ field }) => (
-                    <Select
-                      {...field}
-                      classNamePrefix={"form-control"}
-                      value={field.value}
-                      options={listContractType}
-                      defaultValue={{ value: "", label: "-- Chọn --" }}
-                    />
-                  )}
-                  rules={{ required: "không được để trống" }}
+                <label htmlFor="SoHopDongCha">Số hợp đồng cha</label>
+                <input
+                  autoComplete="false"
+                  type="text"
+                  className="form-control"
+                  id="SoHopDongCha"
+                  placeholder="Nhập Số hợp đồng cha (bỏ trống nếu là hợp đồng chính)"
+                  {...register("SoHopDongCha", Validate.SoHopDongCha)}
                 />
+                {errors.SoHopDongCha && (
+                  <span className="text-danger">
+                    {errors.SoHopDongCha.message}
+                  </span>
+                )}
+              </div>
+              <div className="form-group">
+                <label htmlFor="PhanLoaiHopDong">Phân Loại Hợp Đồng</label>
+                <select
+                  className="form-control"
+                  {...register("PhanLoaiHopDong", Validate.PhanLoaiHopDong)}
+                >
+                  <option value="">Chọn phân loại HĐ</option>
+                  {listContractType &&
+                    listContractType.map((val) => {
+                      return (
+                        <option value={val.maLoaiHopDong}>
+                          {val.tenLoaiHopDong}
+                        </option>
+                      );
+                    })}
+                </select>
                 {errors.PhanLoaiHopDong && (
                   <span className="text-danger">
                     {errors.PhanLoaiHopDong.message}
                   </span>
                 )}
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="PTVC">Phương thức vận chuyển</label>
+                <select
+                  className="form-control"
+                  {...register("PTVC", Validate.PTVC)}
+                >
+                  <option value="">Chọn phương thức vận chuyển</option>
+                  {listTransportType &&
+                    listTransportType.map((val) => {
+                      return <option value={val.maPtvc}>{val.tenPtvc}</option>;
+                    })}
+                </select>
+                {errors.PTVC && (
+                  <span className="text-danger">{errors.PTVC.message}</span>
+                )}
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="NgayBatDau">Ngày bắt đầu</label>
+                <div className="input-group ">
+                  <Controller
+                    control={control}
+                    name="NgayBatDau"
+                    render={({ field }) => (
+                      <DatePicker
+                        className="form-control"
+                        dateFormat="dd/MM/yyyy"
+                        placeholderText="Chọn ngày bắt đầu"
+                        onChange={(date) => field.onChange(date)}
+                        selected={field.value}
+                      />
+                    )}
+                    rules={Validate.NgayBatDau}
+                  />
+                  {errors.NgayBatDau && (
+                    <span className="text-danger">
+                      {errors.NgayBatDau.message}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="NgayKetThuc">Ngày kết thúc</label>
+                <div className="input-group ">
+                  <Controller
+                    control={control}
+                    name="NgayKetThuc"
+                    render={({ field }) => (
+                      <DatePicker
+                        className="form-control"
+                        dateFormat="dd/MM/yyyy"
+                        placeholderText="Chọn ngày bắt đầu"
+                        onChange={(date) => field.onChange(date)}
+                        selected={field.value}
+                      />
+                    )}
+                    rules={Validate.NgayKetThuc}
+                  />
+                  {errors.NgayKetThuc && (
+                    <span className="text-danger">
+                      {errors.NgayKetThuc.message}
+                    </span>
+                  )}
+                </div>
               </div>
 
               <div className="form-group">
@@ -258,6 +346,29 @@ const AddContract = (props) => {
                 />
                 {errors.GhiChu && (
                   <span className="text-danger">{errors.GhiChu.message}</span>
+                )}
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="TrangThai">Trạng thái</label>
+                <select
+                  className="form-control"
+                  {...register("TrangThai", Validate.TrangThai)}
+                >
+                  <option value="">Chọn trạng thái</option>
+                  {listStatusType &&
+                    listStatusType.map((val) => {
+                      return (
+                        <option value={val.maTrangThai} key={val.maTrangThai}>
+                          {val.tenTrangThai}
+                        </option>
+                      );
+                    })}
+                </select>
+                {errors.TrangThai && (
+                  <span className="text-danger">
+                    {errors.TrangThai.message}
+                  </span>
                 )}
               </div>
             </div>

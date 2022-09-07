@@ -23,6 +23,9 @@ const CustommerPage = () => {
   const [selectIdClick, setSelectIdClick] = useState({});
   const [Address, SetAddress] = useState({});
 
+  const [listCustomerGroup, setListCustomerGroup] = useState([]);
+  const [listCustomerType, setListCustomerType] = useState([]);
+
   const columns = useMemo(() => [
     {
       name: "Cập nhật",
@@ -159,6 +162,12 @@ const CustommerPage = () => {
     setLoading(true);
 
     (async () => {
+      let getListCustommerGroup = await getData(`Common/GetListCustommerGroup`);
+      setListCustomerGroup(getListCustommerGroup);
+
+      let getListCustommerType = await getData(`Common/GetListCustommerType`);
+      setListCustomerType(getListCustommerType);
+
       let dataCus = await getData(
         `Custommer/GetListCustommer?PageNumber=1&PageSize=10`
       );
@@ -348,10 +357,16 @@ const CustommerPage = () => {
                       selectIdClick={selectIdClick}
                       Address={Address}
                       getListUser={fetchData}
+                      listCusGroup={listCustomerGroup}
+                      listCusType={listCustomerType}
                     />
                   )}
                   {ShowModal === "Create" && (
-                    <CreateCustommer getListUser={fetchData} />
+                    <CreateCustommer
+                      getListUser={fetchData}
+                      listCusGroup={listCustomerGroup}
+                      listCusType={listCustomerType}
+                    />
                   )}
                 </>
               </div>

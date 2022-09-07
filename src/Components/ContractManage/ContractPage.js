@@ -25,6 +25,9 @@ const ContractPage = () => {
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
 
+  const [listContractType, setListContractType] = useState([]);
+  const [contractType, setContractType] = useState("");
+
   const columns = useMemo(() => [
     {
       name: "Cập nhật",
@@ -128,7 +131,13 @@ const ContractPage = () => {
     setSelectIdClick(dataRoad);
   };
 
-  const fetchData = async (page, KeyWord = "", fromDate = "", toDate = "") => {
+  const fetchData = async (
+    page,
+    KeyWord = "",
+    fromDate = "",
+    toDate = "",
+    contractType = ""
+  ) => {
     setLoading(true);
 
     if (KeyWord !== "") {
@@ -136,9 +145,9 @@ const ContractPage = () => {
     }
 
     const dataCus = await getData(
-      `Contract/GetListContract?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}&fromDate=${fromDate}&toDate=${toDate}`
+      `Contract/GetListContract?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}&fromDate=${fromDate}&toDate=${toDate}&contractType=${contractType}`
     );
-
+    console.log(dataCus.data);
     formatTable(dataCus.data);
     setTotalRows(dataCus.totalRecords);
     setLoading(false);
@@ -169,6 +178,8 @@ const ContractPage = () => {
 
     (async () => {
       await fetchData(1);
+      const getListContractType = await getData(`Common/GetListContractType`);
+      setListContractType(getListContractType);
     })();
 
     setLoading(false);
@@ -184,12 +195,24 @@ const ContractPage = () => {
     setData(data);
   }
 
-  const handleSearchClick = async () => {
-    await fetchData(
+  const handleSearchClick = () => {
+    fetchData(
       1,
       keySearch,
-      moment(fromDate).format("YYYY-MM-DD"),
-      moment(toDate).format("YYYY-MM-DD")
+      fromDate === "" ? "" : moment(fromDate).format("YYYY-MM-DD"),
+      toDate === "" ? "" : moment(toDate).format("YYYY-MM-DD"),
+      contractType
+    );
+  };
+
+  const handleOnChangeContractType = (val) => {
+    setContractType(val);
+    fetchData(
+      1,
+      keySearch,
+      fromDate === "" ? "" : moment(fromDate).format("YYYY-MM-DD"),
+      toDate === "" ? "" : moment(toDate).format("YYYY-MM-DD"),
+      val
     );
   };
 
@@ -204,11 +227,12 @@ const ContractPage = () => {
     setLoading(false);
   };
 
-  const handleRefeshDataClick = async () => {
+  const handleRefeshDataClick = () => {
+    setContractType("");
     setKeySearch("");
     setFromDate("");
     setToDate("");
-    await fetchData(1);
+    fetchData(1);
   };
 
   return (
@@ -246,7 +270,33 @@ const ContractPage = () => {
                   </button>
                 </div>
                 <div className="col-sm-3">
-                  <div className="row"></div>
+                  <div className="row">
+                    <div className="col col-sm"></div>
+                    <div className="col col-sm">
+                      <div className="input-group input-group-sm">
+                        <select
+                          className="form-control form-control-sm"
+                          onChange={(e) =>
+                            handleOnChangeContractType(e.target.value)
+                          }
+                          value={contractType}
+                        >
+                          <option value="">Phân loại HĐ</option>
+                          {listContractType &&
+                            listContractType.map((val) => {
+                              return (
+                                <option
+                                  value={val.maLoaiHopDong}
+                                  key={val.maLoaiHopDong}
+                                >
+                                  {val.tenLoaiHopDong}
+                                </option>
+                              );
+                            })}
+                        </select>
+                      </div>
+                    </div>
+                  </div>
                 </div>
                 <div className="col-sm-3">
                   <div className="row">
@@ -258,6 +308,7 @@ const ContractPage = () => {
                           dateFormat="dd/MM/yyyy"
                           className="form-control form-control-sm"
                           placeholderText="Từ ngày"
+                          value={fromDate}
                         />
                       </div>
                     </div>
@@ -269,6 +320,7 @@ const ContractPage = () => {
                           dateFormat="dd/MM/yyyy"
                           className="form-control form-control-sm"
                           placeholderText="Đến Ngày"
+                          value={toDate}
                         />
                       </div>
                     </div>
@@ -378,7 +430,10 @@ const ContractPage = () => {
                     />
                   )}
                   {ShowModal === "Create" && (
-                    <AddContract getListContract={fetchData} />
+                    <AddContract
+                      getListContract={fetchData}
+                      listContractType={listContractType}
+                    />
                   )}
                 </>
               </div>

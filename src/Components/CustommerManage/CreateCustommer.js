@@ -17,6 +17,10 @@ const CreateCustommer = (props) => {
     mode: "onChange",
   });
 
+  const [listStatusType, setListStatusType] = useState([]);
+  const [listCustomerGroup, setListCustomerGroup] = useState([]);
+  const [listCustomerType, setListCustomerType] = useState([]);
+
   const [ListProvince, SetListProvince] = useState([]);
   const [ListDistrict, SetListDistrict] = useState([]);
   const [ListWard, SetListWard] = useState([]);
@@ -30,6 +34,9 @@ const CreateCustommer = (props) => {
       maSoThue: data.MST,
       sdt: data.SDT,
       email: data.Email,
+      trangThai: data.TrangThai,
+      nhomKh: data.NhomKH,
+      loaiKh: data.LoaiKH,
       address: {
         tenDiaDiem: "",
         maQuocGia: 1,
@@ -52,6 +59,13 @@ const CreateCustommer = (props) => {
   };
 
   useEffect(() => {
+    if (props.listCusGroup && props.listCusType) {
+      setListCustomerGroup(props.listCusGroup);
+      setListCustomerType(props.listCusType);
+    }
+  }, [props.listCusGroup, props.listCusType]);
+
+  useEffect(() => {
     SetIsLoading(true);
 
     SetListProvince([]);
@@ -59,6 +73,10 @@ const CreateCustommer = (props) => {
     SetListWard([]);
 
     (async () => {
+      const getListStatusType = await getData(
+        `Common/GetListStatus?statusType=common`
+      );
+      setListStatusType(getListStatusType);
       const getlistProvince = await getData("address/ListProvinces");
 
       if (getlistProvince && getlistProvince.length > 0) {
@@ -333,6 +351,50 @@ const CreateCustommer = (props) => {
                   <span className="text-danger">{errors.GPS.message}</span>
                 )}
               </div>
+              <div className="form-group">
+                <label htmlFor="NhomKH">Nhóm khách hàng</label>
+                <select
+                  className="form-control"
+                  {...register("NhomKH", {
+                    required: "Không được để trống",
+                  })}
+                >
+                  <option value="">Chọn Nhóm khách hàng</option>
+                  {listCustomerGroup &&
+                    listCustomerGroup.map((val) => {
+                      return (
+                        <option value={val.maNhomKh} key={val.maNhomKh}>
+                          {val.tenNhomKh}
+                        </option>
+                      );
+                    })}
+                </select>
+                {errors.NhomKH && (
+                  <span className="text-danger">{errors.NhomKH.message}</span>
+                )}
+              </div>
+              <div className="form-group">
+                <label htmlFor="LoaiKH">Phân Loại khách hàng</label>
+                <select
+                  className="form-control"
+                  {...register("LoaiKH", {
+                    required: "Không được để trống",
+                  })}
+                >
+                  <option value="">Chọn Phân Loại khách hàng</option>
+                  {listCustomerType &&
+                    listCustomerType.map((val) => {
+                      return (
+                        <option value={val.maLoaiKh} key={val.maLoaiKh}>
+                          {val.tenLoaiKh}
+                        </option>
+                      );
+                    })}
+                </select>
+                {errors.LoaiKH && (
+                  <span className="text-danger">{errors.LoaiKH.message}</span>
+                )}
+              </div>
               <div className="row">
                 <div className="col-sm">
                   <div className="form-group">
@@ -435,6 +497,30 @@ const CreateCustommer = (props) => {
                     )}
                   </div>
                 </div>
+              </div>
+              <div className="form-group">
+                <label htmlFor="TrangThai">Trạng thái</label>
+                <select
+                  className="form-control"
+                  {...register("TrangThai", {
+                    required: "Không được để trống",
+                  })}
+                >
+                  <option value="">Chọn trạng thái</option>
+                  {listStatusType &&
+                    listStatusType.map((val) => {
+                      return (
+                        <option value={val.maTrangThai} key={val.maTrangThai}>
+                          {val.tenTrangThai}
+                        </option>
+                      );
+                    })}
+                </select>
+                {errors.TrangThai && (
+                  <span className="text-danger">
+                    {errors.TrangThai.message}
+                  </span>
+                )}
               </div>
             </div>
             <div className="card-footer">
