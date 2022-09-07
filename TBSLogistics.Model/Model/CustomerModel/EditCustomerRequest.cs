@@ -15,6 +15,7 @@ namespace TBSLogistics.Model.Model.CustommerModel
         public string Email { get; set; }
         public string LoaiKH { get; set; }
         public string NhomKH { get; set; }
+        public int TrangThai { get; set; }
         public UpdateAddressRequest Address { get; set; }
     }
 }

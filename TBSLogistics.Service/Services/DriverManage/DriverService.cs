@@ -154,7 +154,7 @@ namespace TBSLogistics.Service.Repository.DriverManage
             return driver;
         }
 
-        public async Task<List<GetDriverRequest>> GetListByStatus(string status)
+        public async Task<List<GetDriverRequest>> GetListByStatus(int status)
         {
             var driver = await _context.TaiXe.Where(x => x.TrangThai == status).Select(x => new GetDriverRequest()
             {

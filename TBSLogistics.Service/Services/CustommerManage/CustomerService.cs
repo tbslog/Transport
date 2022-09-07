@@ -49,7 +49,7 @@ namespace TBSLogistics.Service.Repository.CustommerManage
 
                 string ErrorValidate = ValiateCustommer(request.MaKh, request.TenKh, request.MaSoThue, request.Sdt, request.Email, request.Address.SoNha, request.Address.MaGps, request.LoaiKH, request.NhomKH, fullAddress);
 
-                if(ErrorValidate != "")
+                if (ErrorValidate != "")
                 {
                     return new BoolActionResult { isSuccess = false, Message = ErrorValidate };
                 }
@@ -78,9 +78,10 @@ namespace TBSLogistics.Service.Repository.CustommerManage
                     MaSoThue = request.MaSoThue,
                     Sdt = request.Sdt,
                     Email = request.Email,
-                    LoaiKh = request.LoaiKH,
-                    NhomKh = request.NhomKH,
+                    MaLoaiKh = request.LoaiKH,
+                    MaNhomKh = request.NhomKH,
                     MaDiaDiem = addAddress.Entity.MaDiaDiem,
+                    TrangThai = request.TrangThai,
                     CreatedTime = DateTime.Now,
                     UpdatedTime = DateTime.Now
                 });
@@ -141,8 +142,9 @@ namespace TBSLogistics.Service.Repository.CustommerManage
                 GetCustommer.Sdt = request.Sdt;
                 GetCustommer.Email = request.Email;
                 GetCustommer.CreatedTime = DateTime.Now;
-                GetCustommer.LoaiKh = request.LoaiKH;
-                GetCustommer.NhomKh = request.NhomKH;
+                GetCustommer.MaLoaiKh = request.LoaiKH;
+                GetCustommer.MaNhomKh = request.NhomKH;
+                GetCustommer.TrangThai = request.TrangThai;
 
                 _TMSContext.Update(GetCustommer);
 
@@ -185,6 +187,9 @@ namespace TBSLogistics.Service.Repository.CustommerManage
                 Email = x.cus.Email,
                 MaSoThue = x.cus.MaSoThue,
                 Sdt = x.cus.Sdt,
+                TrangThai = x.cus.TrangThai,
+                NhomKH = x.cus.MaNhomKh,
+                LoaiKH = x.cus.MaLoaiKh,
                 address = new GetAddressModel()
                 {
                     MaDiaDiem = x.address.MaDiaDiem,
@@ -218,6 +223,16 @@ namespace TBSLogistics.Service.Repository.CustommerManage
                     listData = listData.Where(x => x.cus.MaKh.Contains(filter.Keyword));
                 }
 
+                if (!string.IsNullOrEmpty(filter.custommerType))
+                {
+                    listData = listData.Where(x => x.cus.MaLoaiKh == filter.custommerType);
+                }
+
+                if (!string.IsNullOrEmpty(filter.custommerGroup))
+                {
+                    listData = listData.Where(x => x.cus.MaNhomKh == filter.custommerGroup);
+                }
+
                 if (!string.IsNullOrEmpty(filter.fromDate.ToString()) && !string.IsNullOrEmpty(filter.toDate.ToString()))
                 {
                     listData = listData.Where(x => x.cus.CreatedTime.Date >= filter.fromDate && x.cus.CreatedTime.Date <= filter.toDate);
@@ -229,11 +244,12 @@ namespace TBSLogistics.Service.Repository.CustommerManage
                 {
                     MaKh = x.cus.MaKh,
                     TenKh = x.cus.TenKh,
-                    NhomKH = x.cus.NhomKh,
-                    LoaiKH = x.cus.LoaiKh,
+                    NhomKH = x.cus.MaNhomKh,
+                    LoaiKH = x.cus.MaLoaiKh,
                     MaSoThue = x.cus.MaSoThue,
                     Sdt = x.cus.Sdt,
                     Email = x.cus.Email,
+                    TrangThai = x.cus.TrangThai,
                     MaDiaDiem = x.cus.MaDiaDiem,
                     DiaDiem = x.address.DiaChiDayDu,
                     Createdtime = x.cus.CreatedTime,
@@ -387,8 +403,8 @@ namespace TBSLogistics.Service.Repository.CustommerManage
                             MaSoThue = item.MaSoThue,
                             Sdt = item.Sdt,
                             Email = item.Email,
-                            NhomKh = item.NhomKH,
-                            LoaiKh = item.LoaiKH,
+                            MaNhomKh = item.NhomKH,
+                            MaLoaiKh = item.LoaiKH,
                             MaDiaDiem = addAddress.Entity.MaDiaDiem,
                             CreatedTime = DateTime.Now,
                             UpdatedTime = DateTime.Now

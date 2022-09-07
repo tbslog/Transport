@@ -39,7 +39,7 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
         public string Tau { get; set; }
         public string CangChuyenTai { get; set; }
         public string CangDich { get; set; }
-        public string TrangThaiDonHang { get; set; }
+        public int TrangThai { get; set; }
         public DateTime NgayTaoDon { get; set; }
         public DateTime UpdateTime { get; set; }
         public DateTime Createdtime { get; set; }

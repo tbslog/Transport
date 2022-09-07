@@ -38,7 +38,7 @@ namespace TBSLogistics.Data.TMS
         public string Tau { get; set; }
         public string CangChuyenTai { get; set; }
         public string CangDich { get; set; }
-        public string TrangThaiDonHang { get; set; }
+        public int TrangThai { get; set; }
         public DateTime NgayTaoDon { get; set; }
         public DateTime UpdatedTime { get; set; }
         public DateTime CreatedTime { get; set; }

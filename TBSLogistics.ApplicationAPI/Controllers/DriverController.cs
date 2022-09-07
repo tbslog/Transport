@@ -76,7 +76,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<IActionResult> getListDriverByStatus(string status)
+        public async Task<IActionResult> getListDriverByStatus(int status)
         {
             var driver = await _driver.GetListByStatus(status);
             return Ok(driver);

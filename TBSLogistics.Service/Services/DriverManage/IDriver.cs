@@ -21,6 +21,6 @@ namespace TBSLogistics.Service.Repository.DriverManage
 
         Task<List<GetDriverRequest>> GetListByVehicleType(string vehicleType);
 
-        Task<List<GetDriverRequest>> GetListByStatus(string status);
+        Task<List<GetDriverRequest>> GetListByStatus(int status);
     }
 }

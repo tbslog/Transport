@@ -17,6 +17,7 @@ namespace TBSLogistics.Model.Model.CustomerModel
         public string Email { get; set; }
         public int MaDiaDiem { get; set; }
         public string DiaDiem { get; set; }
+        public int TrangThai { get; set; }
         public DateTime Createdtime { get; set; }
         public DateTime UpdateTime { get; set; }
     }

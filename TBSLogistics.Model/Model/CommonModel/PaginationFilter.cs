@@ -8,9 +8,15 @@ namespace TBSLogistics.Model.Filter
 {
     public class PaginationFilter
     {
+        public string contractType { get; set; }
+
+        public string custommerType { get; set; }
+        public string custommerGroup { get; set; }
+
+
         public string Keyword { get; set; }
-        public DateTime fromDate { get; set; }
-        public DateTime toDate { get; set; }
+        public DateTime? fromDate { get; set; }
+        public DateTime? toDate { get; set; }
 
         public int PageNumber { get; set; }
         public int PageSize { get; set; }

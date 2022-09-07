@@ -19,6 +19,7 @@ namespace TBSLogistics.Data.TMS
         public string MaLoaiHangHoa { get; set; }
         public string MaPtvc { get; set; }
         public DateTime NgayApDung { get; set; }
+        public int TrangThai { get; set; }
         public DateTime UpdatedTime { get; set; }
         public DateTime CreatedTime { get; set; }
 

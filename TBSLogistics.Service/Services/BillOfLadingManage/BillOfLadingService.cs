@@ -68,7 +68,7 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
                     Tau = request.Tau,
                     CangChuyenTai = request.CangChuyenTai,
                     CangDich = request.CangDich,
-                    TrangThaiDonHang = request.TrangThaiDonHang,
+                    TrangThai = request.TrangThai,
                     NgayTaoDon = DateTime.Now,
                     UpdatedTime = DateTime.Now,
                     CreatedTime = DateTime.Now,
@@ -133,7 +133,7 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
                 getBillOfLading.Tau = request.Tau;
                 getBillOfLading.CangChuyenTai = request.CangChuyenTai;
                 getBillOfLading.CangDich = request.CangDich;
-                getBillOfLading.TrangThaiDonHang = request.TrangThaiDonHang;
+                getBillOfLading.TrangThai = request.TrangThai;
                 getBillOfLading.UpdatedTime = DateTime.Now;
 
                 _context.Update(getBillOfLading);
@@ -192,7 +192,7 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
                 Tau = x.Tau,
                 CangChuyenTai = x.CangChuyenTai,
                 CangDich = x.CangDich,
-                TrangThaiDonHang = x.TrangThaiDonHang,
+                TrangThai = x.TrangThai,
                 NgayTaoDon = x.NgayTaoDon,
                 UpdateTime = x.UpdatedTime,
                 Createdtime = x.CreatedTime,

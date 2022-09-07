@@ -78,7 +78,7 @@ namespace TBSLogistics.Service.Services.ContractManage
         {
             try
             {
-                var checkExists = await _TMSContext.HopDongVaPhuLuc.Where(x => x.MaHopDong == id || request.TenHienThi == request.TenHienThi).FirstOrDefaultAsync();
+                var checkExists = await _TMSContext.HopDongVaPhuLuc.Where(x => x.MaHopDong == id || x.TenHienThi == request.TenHienThi).FirstOrDefaultAsync();
 
                 if (checkExists == null)
                 {
@@ -158,7 +158,7 @@ namespace TBSLogistics.Service.Services.ContractManage
                                on contract.MaHopDong equals pricetable.MaHopDong
                                into cp
                                from contractPriceTbl in cp.DefaultIfEmpty()
-                               where contract.SoHopDongCha == null
+                               where contract.SoHopDongCha == ""
                                orderby contract.UpdatedTime descending
                                select new
                                {
@@ -177,8 +177,13 @@ namespace TBSLogistics.Service.Services.ContractManage
                     );
                 }
 
+                if (!string.IsNullOrEmpty(filter.contractType))
+                {
+                    listData = listData.Where(x => x.contract.MaLoaiHopDong == filter.contractType);
+                }
 
-                if (!string.IsNullOrEmpty(filter.fromDate.ToString()) && !string.IsNullOrEmpty(filter.toDate.ToString()))
+
+                if (!string.IsNullOrEmpty(filter.fromDate.ToString().Trim()) && !string.IsNullOrEmpty(filter.toDate.ToString().Trim()))
                 {
                     listData = listData.Where(x => x.contract.UpdatedTime >= filter.fromDate && x.contract.UpdatedTime <= filter.toDate);
                 }

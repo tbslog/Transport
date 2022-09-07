@@ -17,7 +17,7 @@ namespace TBSLogistics.Model.Model.DriverModel
         public string MaNhaThau { get; set; }
         public string LoaiXe { get; set; }
         public bool TaiXeTBSL { get; set; }
-        public string TrangThai { get; set; }
+        public int? TrangThai { get; set; }
         public DateTime UpdateTime { get; set; }
         public DateTime Createdtime { get; set; }
     }

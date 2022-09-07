@@ -16,6 +16,6 @@ namespace TBSLogistics.Model.Model.DriverModel
         public string MaNhaThau { get; set; }
         public string LoaiXe { get; set; }
         public string PhanLoaiTaiXe { get; set; }
-        public string TrangThai { get; set; }
+        public int? TrangThai { get; set; }
     }
 }

@@ -24,7 +24,7 @@ namespace TBSLogistics.Data.TMS
         public string MaTaiSan { get; set; }
         public int? ThoiGianKhauHao { get; set; }
         public DateTime? NgayHoatDong { get; set; }
-        public string TrangThai { get; set; }
+        public int TrangThai { get; set; }
         public DateTime UpdatedTime { get; set; }
         public DateTime CreatedTime { get; set; }
 
