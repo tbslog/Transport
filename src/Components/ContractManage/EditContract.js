@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
-import { getData, postData } from "../Common/FuncAxios";
+import { getData, putData } from "../Common/FuncAxios";
 import { useForm, Controller } from "react-hook-form";
 import DatePicker from "react-datepicker";
 
-const AddContract = (props) => {
+const EditContract = (props) => {
   const [IsLoading, SetIsLoading] = useState(true);
   const {
     register,
-    reset,
+    setValue,
     control,
     formState: { errors },
     handleSubmit,
@@ -122,6 +122,28 @@ const AddContract = (props) => {
   const [listStatusType, setListStatusType] = useState([]);
 
   useEffect(() => {
+    if (
+      props &&
+      props.selectIdClick &&
+      Object.keys(props.selectIdClick).length > 0 &&
+      Object.keys(props).length > 0
+    ) {
+      console.log(props.selectIdClick);
+      setValue("MaHopDong", props.selectIdClick.maHopDong);
+      setValue("TenHopDong", props.selectIdClick.tenHienThi);
+      setValue("MaKh", props.selectIdClick.maKh);
+      setValue("SoHopDongCha", props.selectIdClick.soHopDongCha);
+      setValue("PhanLoaiHopDong", props.selectIdClick.phanLoaiHopDong);
+      setValue("PTVC", props.selectIdClick.maPtvc);
+      setValue("GhiChu", props.selectIdClick.ghiChu);
+      setValue("TrangThai", props.selectIdClick.trangThai);
+
+      setValue("NgayBatDau", new Date(props.selectIdClick.thoiGianBatDau));
+      setValue("NgayKetThuc", new Date(props.selectIdClick.thoiGianKetThuc));
+    }
+  }, [props, props.selectIdClick]);
+
+  useEffect(() => {
     if (props && props.listContractType) {
       setListContractType(props.listContractType);
     }
@@ -143,20 +165,14 @@ const AddContract = (props) => {
     SetIsLoading(false);
   }, []);
 
-  const handleResetClick = () => {
-    reset();
-  };
-
   const onSubmit = async (data) => {
     SetIsLoading(true);
 
-    var create = await postData(
-      "Contract/CreateContract",
+    var update = await putData(
+      `Contract/UpdateContract?id=${data.MaHopDong}`,
       {
-        maHopDong: data.MaHopDong,
         soHopDongCha: data.SoHopDongCha,
         tenHienThi: data.TenHopDong,
-        maKh: data.MaKh,
         maPtvc: data.PTVC,
         phanLoaiHopDong: data.PhanLoaiHopDong,
         thoiGianBatDau: data.NgayBatDau,
@@ -171,9 +187,8 @@ const AddContract = (props) => {
       }
     );
 
-    if (create === 1) {
+    if (update === 1) {
       props.getListContract(1);
-      reset();
     }
 
     SetIsLoading(false);
@@ -183,7 +198,7 @@ const AddContract = (props) => {
     <>
       <div className="card card-primary">
         <div className="card-header">
-          <h3 className="card-title">Form Thêm Mới Hợp Đồng</h3>
+          <h3 className="card-title">Form Cập Nhật Hợp Đồng</h3>
         </div>
         <div>{IsLoading === true && <div>Loading...</div>}</div>
 
@@ -198,6 +213,7 @@ const AddContract = (props) => {
                   className="form-control"
                   id="MaHopDong"
                   placeholder="Nhập mã hợp đồng"
+                  readOnly
                   {...register("MaHopDong", Validate.MaHopDong)}
                 />
                 {errors.MaHopDong && (
@@ -213,7 +229,7 @@ const AddContract = (props) => {
                   type="text"
                   className="form-control"
                   id="TenHopDong"
-                  placeholder="Nhập tên khách hàng"
+                  placeholder="Nhập tên hợp đồng"
                   {...register("TenHopDong", Validate.TenHopDong)}
                 />
                 {errors.TenHopDong && (
@@ -230,6 +246,7 @@ const AddContract = (props) => {
                   className="form-control"
                   id="MaKh"
                   placeholder="Nhập mã khách hàng"
+                  readOnly
                   {...register("MaKh", Validate.MaKh)}
                 />
                 {errors.MaKh && (
@@ -310,10 +327,9 @@ const AddContract = (props) => {
                     render={({ field }) => (
                       <DatePicker
                         className="form-control"
-                        dateFormat="dd/MM/yyyy"
-                        placeholderText="Chọn ngày bắt đầu"
                         onChange={(date) => field.onChange(date)}
                         selected={field.value}
+                        dateFormat="dd/MM/yyyy"
                       />
                     )}
                     rules={Validate.NgayBatDau}
@@ -335,10 +351,9 @@ const AddContract = (props) => {
                     render={({ field }) => (
                       <DatePicker
                         className="form-control"
-                        dateFormat="dd/MM/yyyy"
-                        placeholderText="Chọn ngày bắt đầu"
                         onChange={(date) => field.onChange(date)}
                         selected={field.value}
+                        dateFormat="dd/MM/yyyy"
                       />
                     )}
                     rules={Validate.NgayKetThuc}
@@ -405,18 +420,11 @@ const AddContract = (props) => {
             <div className="card-footer">
               <div>
                 <button
-                  type="button"
-                  onClick={() => handleResetClick()}
-                  className="btn btn-warning"
-                >
-                  Làm mới
-                </button>
-                <button
                   type="submit"
                   className="btn btn-primary"
                   style={{ float: "right" }}
                 >
-                  Thêm mới
+                  Cập nhật
                 </button>
               </div>
             </div>
@@ -427,4 +435,4 @@ const AddContract = (props) => {
   );
 };
 
-export default AddContract;
+export default EditContract;
