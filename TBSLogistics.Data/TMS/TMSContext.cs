@@ -17,6 +17,7 @@ namespace TBSLogistics.Data.TMS
         {
         }
 
+        public virtual DbSet<Attachment> Attachment { get; set; }
         public virtual DbSet<BangGia> BangGia { get; set; }
         public virtual DbSet<BangGiaDacBiet> BangGiaDacBiet { get; set; }
         public virtual DbSet<BangQuyDoi> BangQuyDoi { get; set; }
@@ -63,6 +64,31 @@ namespace TBSLogistics.Data.TMS
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasAnnotation("Relational:Collation", "SQL_Latin1_General_CP1_CI_AS");
+
+            modelBuilder.Entity<Attachment>(entity =>
+            {
+                entity.Property(e => e.Id).HasColumnName("ID");
+
+                entity.Property(e => e.FileName)
+                    .IsRequired()
+                    .HasMaxLength(200)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.FilePath)
+                    .IsRequired()
+                    .HasMaxLength(200)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.FileType)
+                    .IsRequired()
+                    .HasMaxLength(5)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.FolderName)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+            });
 
             modelBuilder.Entity<BangGia>(entity =>
             {
@@ -429,10 +455,9 @@ namespace TBSLogistics.Data.TMS
 
             modelBuilder.Entity<LoaiKhachHang>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e => e.MaLoaiKh);
 
                 entity.Property(e => e.MaLoaiKh)
-                    .IsRequired()
                     .HasMaxLength(10)
                     .IsUnicode(false)
                     .HasColumnName("MaLoaiKH");

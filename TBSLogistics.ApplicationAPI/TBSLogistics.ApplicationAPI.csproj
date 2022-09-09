@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Attachments\Contract\" />
     <Folder Include="Log\" />
   </ItemGroup>
 

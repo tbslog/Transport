@@ -19,5 +19,6 @@ namespace TBSLogistics.Model.Model.ContractModel
         public string GhiChu { get; set; }
         public bool? PhuPhi { get; set; }
         public int TrangThai { get; set; }
+        public string FileContrach { get; set; }
     }
 }

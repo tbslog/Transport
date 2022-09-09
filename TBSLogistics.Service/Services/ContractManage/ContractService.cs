@@ -18,24 +18,37 @@ namespace TBSLogistics.Service.Services.ContractManage
     public class ContractService : IContract
     {
         private readonly TMSContext _TMSContext;
-        private readonly ILogger _logger;
+        private readonly ICommon _common;
 
-        public ContractService(TMSContext tMSContext, ILogger logger)
+        public ContractService(TMSContext tMSContext, ICommon common)
         {
             _TMSContext = tMSContext;
-            _logger = logger;
+            _common = common;
         }
 
         public async Task<BoolActionResult> CreateContract(CreateContract request)
         {
             try
             {
-                var checkExists = await _TMSContext.HopDongVaPhuLuc.Where(x => x.MaHopDong == request.MaHopDong || x.TenHienThi == request.TenHienThi).FirstOrDefaultAsync();
+                var checkExists = await _TMSContext.HopDongVaPhuLuc.Where(x => (x.MaHopDong == request.MaHopDong || x.TenHienThi == request.TenHienThi || x.MaKh == request.MaKh)).FirstOrDefaultAsync();
 
                 if (checkExists != null)
                 {
                     return new BoolActionResult { isSuccess = false, Message = "Hợp đồng này đã tồn tại" };
                 }
+
+                var checkCustommer = await _TMSContext.KhachHang.Where(x => x.MaKh == request.MaKh).FirstOrDefaultAsync();
+
+                if (checkCustommer == null)
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Mã khách hàng không tồn tại" };
+                }
+
+                if (request.ThoiGianBatDau >= request.ThoiGianKetThuc)
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Thời gian bắt đầu không được lớn hơn hoặc bằng thời gian kết thúc" };
+                }
+
 
                 await _TMSContext.AddAsync(new HopDongVaPhuLuc()
                 {
@@ -58,18 +71,17 @@ namespace TBSLogistics.Service.Services.ContractManage
 
                 if (result > 0)
                 {
-                    _logger.LogInformation("ContractManage", "UserId: " + TempData.UserID + " create new Contract with Id: " + request.MaHopDong);
+                    await _common.Log("ContractManage", "UserId: " + TempData.UserID + " create new Contract with Id: " + request.MaHopDong);
                     return new BoolActionResult { isSuccess = true, Message = "Tạo mới hợp đồng thành công!" };
                 }
                 else
                 {
                     return new BoolActionResult { isSuccess = false, Message = "Tạo mới hợp đồng thất bại!" };
                 }
-
             }
             catch (Exception ex)
             {
-                _logger.LogError("ContractManage", "UserId: " + TempData.UserID + " create new Contract has ERROR: " + ex.ToString());
+                await _common.Log("ContractManage", "UserId: " + TempData.UserID + " create new Contract has ERROR: " + ex.ToString());
                 return new BoolActionResult { isSuccess = false, Message = ex.ToString(), DataReturn = "Exception" };
             }
         }
@@ -83,6 +95,11 @@ namespace TBSLogistics.Service.Services.ContractManage
                 if (checkExists == null)
                 {
                     return new BoolActionResult { isSuccess = false, Message = "Hợp đồng này không tồn tại" };
+                }
+
+                if (request.ThoiGianBatDau >= request.ThoiGianKetThuc)
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Thời gian bắt đầu không được lớn hơn hoặc bằng thời gian kết thúc" };
                 }
 
                 checkExists.TenHienThi = request.TenHienThi;
@@ -102,7 +119,7 @@ namespace TBSLogistics.Service.Services.ContractManage
 
                 if (result > 0)
                 {
-                    _logger.LogInformation("ContractManage", "UserId: " + TempData.UserID + " Update  Contract with Id: " + id);
+                    await _common.Log("ContractManage", "UserId: " + TempData.UserID + " Update  Contract with Id: " + id);
                     return new BoolActionResult { isSuccess = true, Message = "Cập nhật hợp đồng thành công!" };
                 }
                 else
@@ -112,7 +129,7 @@ namespace TBSLogistics.Service.Services.ContractManage
             }
             catch (Exception ex)
             {
-                _logger.LogError("ContractManage", "UserId: " + TempData.UserID + " Update Contract has ERROR: " + ex.ToString());
+                await _common.Log("ContractManage", "UserId: " + TempData.UserID + " Update Contract has ERROR: " + ex.ToString());
                 return new BoolActionResult { isSuccess = false, Message = ex.ToString(), DataReturn = "Exception" };
             }
         }
@@ -122,6 +139,10 @@ namespace TBSLogistics.Service.Services.ContractManage
             try
             {
                 var getContractById = await _TMSContext.HopDongVaPhuLuc.Where(x => x.MaHopDong == id).FirstOrDefaultAsync();
+
+                var getDataFile = await _TMSContext.Attachment.Where(x => x.FileName.Contains(id)).FirstOrDefaultAsync();
+
+                var fileContract = getDataFile == null ? "" : getDataFile.FilePath;
 
                 return new GetContractById()
                 {
@@ -136,11 +157,11 @@ namespace TBSLogistics.Service.Services.ContractManage
                     GhiChu = getContractById.GhiChu,
                     PhuPhi = getContractById.PhuPhi,
                     TrangThai = getContractById.TrangThai,
+                    FileContrach = fileContract
                 };
             }
             catch (Exception ex)
             {
-
                 throw;
             }
         }
@@ -158,7 +179,7 @@ namespace TBSLogistics.Service.Services.ContractManage
                                on contract.MaHopDong equals pricetable.MaHopDong
                                into cp
                                from contractPriceTbl in cp.DefaultIfEmpty()
-                               where contract.SoHopDongCha == ""
+                               where contract.SoHopDongCha == null
                                orderby contract.UpdatedTime descending
                                select new
                                {
