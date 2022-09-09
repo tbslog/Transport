@@ -2,8 +2,6 @@ import { useState, useEffect } from "react";
 import { getData, postData } from "../Common/FuncAxios";
 import { useForm, Controller } from "react-hook-form";
 import DatePicker from "react-datepicker";
-import moment from "moment";
-import Select from "react-select";
 
 const AddContract = (props) => {
   const [IsLoading, SetIsLoading] = useState(true);
@@ -152,19 +150,26 @@ const AddContract = (props) => {
   const onSubmit = async (data) => {
     SetIsLoading(true);
 
-    var create = await postData("Contract/CreateContract", {
-      maHopDong: data.MaHopDong,
-      soHopDongCha: data.SoHopDongCha,
-      tenHienThi: data.TenHopDong,
-      maKh: data.MaKh,
-      maPtvc: data.PTVC,
-      phanLoaiHopDong: data.PhanLoaiHopDong,
-      thoiGianBatDau: data.NgayBatDau,
-      thoiGianKetThuc: data.NgayKetThuc,
-      ghiChu: data.GhiChu,
-      phuPhi: null,
-      trangThai: data.TrangThai,
-    });
+    var create = await postData(
+      "Contract/CreateContract",
+      {
+        maHopDong: data.MaHopDong,
+        soHopDongCha: data.SoHopDongCha,
+        tenHienThi: data.TenHopDong,
+        maKh: data.MaKh,
+        maPtvc: data.PTVC,
+        phanLoaiHopDong: data.PhanLoaiHopDong,
+        thoiGianBatDau: data.NgayBatDau,
+        thoiGianKetThuc: data.NgayKetThuc,
+        ghiChu: data.GhiChu,
+        phuPhi: null,
+        trangThai: data.TrangThai,
+        file: data.FileContact[0],
+      },
+      {
+        headers: { "Content-Type": "multipart/form-data" },
+      }
+    );
 
     if (create === 1) {
       props.getListContract(1);
@@ -201,6 +206,7 @@ const AddContract = (props) => {
                   </span>
                 )}
               </div>
+
               <div className="form-group">
                 <label htmlFor="TenHopDong">Tên Hợp Đồng</label>
                 <input
@@ -216,6 +222,7 @@ const AddContract = (props) => {
                   </span>
                 )}
               </div>
+
               <div className="form-group">
                 <label htmlFor="MaKh">Mã Khách Hàng</label>
                 <input
@@ -229,6 +236,7 @@ const AddContract = (props) => {
                   <span className="text-danger">{errors.MaKh.message}</span>
                 )}
               </div>
+
               <div className="form-group">
                 <label htmlFor="SoHopDongCha">Số hợp đồng cha</label>
                 <input
@@ -245,6 +253,7 @@ const AddContract = (props) => {
                   </span>
                 )}
               </div>
+
               <div className="form-group">
                 <label htmlFor="PhanLoaiHopDong">Phân Loại Hợp Đồng</label>
                 <select
@@ -255,7 +264,10 @@ const AddContract = (props) => {
                   {listContractType &&
                     listContractType.map((val) => {
                       return (
-                        <option value={val.maLoaiHopDong}>
+                        <option
+                          value={val.maLoaiHopDong}
+                          key={val.maLoaiHopDong}
+                        >
                           {val.tenLoaiHopDong}
                         </option>
                       );
@@ -277,7 +289,11 @@ const AddContract = (props) => {
                   <option value="">Chọn phương thức vận chuyển</option>
                   {listTransportType &&
                     listTransportType.map((val) => {
-                      return <option value={val.maPtvc}>{val.tenPtvc}</option>;
+                      return (
+                        <option value={val.maPtvc} key={val.maPtvc}>
+                          {val.tenPtvc}
+                        </option>
+                      );
                     })}
                 </select>
                 {errors.PTVC && (
@@ -346,6 +362,20 @@ const AddContract = (props) => {
                 />
                 {errors.GhiChu && (
                   <span className="text-danger">{errors.GhiChu.message}</span>
+                )}
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="FileContact">Tải lên tệp Hợp Đồng</label>
+                <input
+                  type="file"
+                  className="form-control-file"
+                  {...register("FileContact", Validate.FileContact)}
+                />
+                {errors.FileContact && (
+                  <span className="text-danger">
+                    {errors.FileContact.message}
+                  </span>
                 )}
               </div>
 

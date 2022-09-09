@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { getData, putData } from "../Common/FuncAxios";
 import { useForm, Controller } from "react-hook-form";
-import { ToastWarning } from "../Common/FuncToast";
 import Select from "react-select";
 
 const EditCustommer = (props) => {

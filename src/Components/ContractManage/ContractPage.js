@@ -130,9 +130,11 @@ const ContractPage = () => {
 
   const handleEditButtonClick = async (val) => {
     showModalForm();
-    const dataRoad = await getData(`Road/GetById?id=${val.maCungDuong}`);
+    const getDataContract = await getData(
+      `Contract/GetContractById?id=${val.maHopDong}`
+    );
 
-    setSelectIdClick(dataRoad);
+    setSelectIdClick(getDataContract);
   };
 
   const handleOnclickDetail = async () => {};
@@ -379,7 +381,7 @@ const ContractPage = () => {
             </div>
           </div>
           <div className="card-footer">
-            <div className="row">
+            {/* <div className="row">
               <div className="col-sm-3">
                 <a
                   href=""
@@ -399,7 +401,7 @@ const ContractPage = () => {
                   />
                 </div>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
         <div
@@ -432,6 +434,7 @@ const ContractPage = () => {
                     <EditContract
                       selectIdClick={selectIdClick}
                       getListContract={fetchData}
+                      listContractType={listContractType}
                     />
                   )}
                   {ShowModal === "Create" && (
