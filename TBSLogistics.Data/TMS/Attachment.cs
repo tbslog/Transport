@@ -7,7 +7,7 @@ namespace TBSLogistics.Data.TMS
 {
     public partial class Attachment
     {
-        public int Id { get; set; }
+        public int FileId { get; set; }
         public string FileName { get; set; }
         public string FolderName { get; set; }
         public string FilePath { get; set; }

@@ -20,5 +20,6 @@ namespace TBSLogistics.Service.Repository.Common
         Task DeleteFileAsync(string fileName, string fileFolder);
 
         Task<BoolActionResult> AddAttachment(Attachment attachment);
+        Task<Attachment> GetAttachmentById(int id);
     }
 }

@@ -70,7 +70,7 @@ namespace TBSLogistics.Service.Repository.Common
 
         public string GetFileUrl(string fileName, string fileFolder)
         {
-            return $"/{USER_CONTENT_FOLDER_NAME}/{fileFolder}/{fileName}";
+            return $"{USER_CONTENT_FOLDER_NAME}/{fileFolder}/{fileName}";
         }
 
         public async Task SaveFileAsync(Stream mediaBinaryStream, string fileName, string fileFolder)
@@ -96,9 +96,16 @@ namespace TBSLogistics.Service.Repository.Common
         {
             var checkExists = await _context.Attachment.Where(x => x.FileName == attachment.FileName).FirstOrDefaultAsync();
 
-            if(checkExists == null)
+            if (checkExists == null)
             {
-                await _context.Attachment.AddAsync(attachment);
+                await _context.Attachment.AddAsync(new Attachment()
+                {
+                    FileName = attachment.FileName,
+                    FilePath = attachment.FilePath,
+                    FileSize = attachment.FileSize,
+                    FileType = attachment.FileType,
+                    FolderName = attachment.FolderName
+                });
             }
             else
             {
@@ -120,6 +127,18 @@ namespace TBSLogistics.Service.Repository.Common
             {
                 return new BoolActionResult { isSuccess = false };
             }
+        }
+
+        public async Task<Attachment> GetAttachmentById(int id)
+        {
+            var getAttachment = await _context.Attachment.Where(x => x.FileId == id).FirstOrDefaultAsync();
+
+            if (getAttachment == null)
+            {
+                return null;
+            }
+
+            return getAttachment;
         }
     }
 }

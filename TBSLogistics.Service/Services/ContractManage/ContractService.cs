@@ -142,7 +142,7 @@ namespace TBSLogistics.Service.Services.ContractManage
 
                 var getDataFile = await _TMSContext.Attachment.Where(x => x.FileName.Contains(id)).FirstOrDefaultAsync();
 
-                var fileContract = getDataFile == null ? "" : getDataFile.FilePath;
+                var file = getDataFile == null ? 0 : getDataFile.FileId;
 
                 return new GetContractById()
                 {
@@ -157,7 +157,7 @@ namespace TBSLogistics.Service.Services.ContractManage
                     GhiChu = getContractById.GhiChu,
                     PhuPhi = getContractById.PhuPhi,
                     TrangThai = getContractById.TrangThai,
-                    FileContrach = fileContract
+                    File = file.ToString()
                 };
             }
             catch (Exception ex)

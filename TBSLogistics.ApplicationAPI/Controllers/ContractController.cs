@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.StaticFiles;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -35,15 +36,15 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpPost]
         [Route("[action]")]
-        public async Task<IActionResult> CreateContract([FromForm]CreateContract request)
+        public async Task<IActionResult> CreateContract([FromForm] CreateContract request)
         {
             var createContract = await _contract.CreateContract(request);
 
             if (createContract.isSuccess == true)
             {
-                if (request.File != null )
+                if (request.File != null)
                 {
-                    await SaveFile(request.File, request.TenHienThi, request.MaHopDong);
+                    await UploadFile(request.File, request.TenHienThi, request.MaHopDong);
                 }
 
                 return Ok(createContract.Message);
@@ -56,7 +57,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpPut]
         [Route("[action]")]
-        public async Task<IActionResult> UpdateContract(string id,[FromForm] EditContract request)
+        public async Task<IActionResult> UpdateContract(string id, [FromForm] EditContract request)
         {
             var editContract = await _contract.EditContract(id, request);
 
@@ -64,7 +65,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             {
                 if (request.File != null)
                 {
-                    await SaveFile(request.File, request.TenHienThi, id);
+                    await UploadFile(request.File, request.TenHienThi, id);
                 }
                 return Ok(editContract.Message);
             }
@@ -93,16 +94,51 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             return Ok(pagedReponse);
         }
 
+        [HttpGet, DisableRequestSizeLimit]
+        [Route("[action]")]
+        public async Task<IActionResult> DownloadFile(int fileId)
+        {
+            var getFilePath = await _common.GetAttachmentById(fileId);
 
-        private async Task<bool> SaveFile( IFormFile file, string cusName, string maHopDong)
+            if (getFilePath == null)
+            {
+                return BadRequest("File không tồn tại");
+            }
+
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), getFilePath.FilePath);
+            if (!System.IO.File.Exists(filePath))
+                return NotFound();
+            var memory = new MemoryStream();
+            await using (var stream = new FileStream(filePath, FileMode.Open))
+            {
+                await stream.CopyToAsync(memory);
+            }
+            memory.Position = 0;
+            return File(memory, GetContentType(filePath), filePath);
+        }
+
+        private string GetContentType(string path)
+        {
+            var provider = new FileExtensionContentTypeProvider();
+            string contentType;
+
+            if (!provider.TryGetContentType(path, out contentType))
+            {
+                contentType = "application/octet-stream";
+            }
+
+            return contentType;
+        }
+
+
+        private async Task<bool> UploadFile(IFormFile file, string cusName, string maHopDong)
         {
             var PathFolder = $"/Contract/{cusName}";
 
             var originalFileName = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.Trim('"');
             var reNameFile = originalFileName.Replace(originalFileName.Substring(0, originalFileName.LastIndexOf('.')), maHopDong);
             var fileName = $"{reNameFile.Substring(0, reNameFile.LastIndexOf('.'))}{Path.GetExtension(reNameFile)}";
-            await _common.DeleteFileAsync(fileName, PathFolder);
-            await _common.SaveFileAsync(file.OpenReadStream(), fileName, PathFolder);
+
             var attachment = new Attachment()
             {
                 FileName = fileName,
@@ -114,7 +150,16 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
             var add = await _common.AddAttachment(attachment);
 
-            return add.isSuccess;
+            if (add.isSuccess == false)
+            {
+                return false;
+            }
+
+            await _common.DeleteFileAsync(fileName, PathFolder);
+            await _common.SaveFileAsync(file.OpenReadStream(), fileName, PathFolder);
+
+
+            return true;
         }
     }
 }
