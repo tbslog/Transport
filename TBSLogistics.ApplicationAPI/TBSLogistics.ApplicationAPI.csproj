@@ -17,9 +17,4 @@
     <ProjectReference Include="..\TBSLogistics.Service\TBSLogistics.Service.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Attachments\" />
-    <Folder Include="Log\" />
-  </ItemGroup>
-
 </Project>

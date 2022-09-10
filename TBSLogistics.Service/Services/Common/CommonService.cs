@@ -38,7 +38,7 @@ namespace TBSLogistics.Service.Repository.Common
                 string dirPath = _environment.WebRootPath;
                 string fileName = Path.Combine(dirPath, FileName + " - " + DateTime.Now.ToString("yyyy-MM-dd") + ".txt");
 
-                await LogDB(fileName, LogMessage);
+                await LogDB(FileName + " - " + DateTime.Now.ToString("yyyy-MM-dd"), LogMessage);
                 await WriteToLog(dirPath, fileName, LogMessage);
             }
             catch (Exception e)
@@ -60,6 +60,9 @@ namespace TBSLogistics.Service.Repository.Common
 
         public async Task WriteToLog(string dir, string file, string content)
         {
+            if (!Directory.Exists(dir))
+                Directory.CreateDirectory(dir);
+
             using (StreamWriter outputFile = new StreamWriter(Path.Combine(dir, file), true))
             {
                 await outputFile.WriteLineAsync(string.Format("Logged on: {1} \r\n at: {2}{0}Message: {3} at {4}{0}--------------------{0}",
@@ -83,9 +86,9 @@ namespace TBSLogistics.Service.Repository.Common
             await mediaBinaryStream.CopyToAsync(output);
         }
 
-        public async Task DeleteFileAsync(string fileName, string fileFolder)
+        public async Task DeleteFileAsync(string fileName, string IfilePath)
         {
-            var filePath = Path.Combine(_userContentFolder + $"{fileFolder}", fileName);
+            var filePath = Path.Combine(IfilePath);
             if (File.Exists(filePath))
             {
                 await Task.Run(() => File.Delete(filePath));
@@ -94,44 +97,48 @@ namespace TBSLogistics.Service.Repository.Common
 
         public async Task<BoolActionResult> AddAttachment(Attachment attachment)
         {
-            var checkExists = await _context.Attachment.Where(x => x.FileName == attachment.FileName).FirstOrDefaultAsync();
-
-            if (checkExists == null)
+            try
             {
-                await _context.Attachment.AddAsync(new Attachment()
+
+                string getName = attachment.FileName.Substring(0, attachment.FileName.LastIndexOf('.'));
+                var checkExists = await _context.Attachment.Where(x => x.FileName.Contains(getName)).FirstOrDefaultAsync();
+
+                if (checkExists == null)
                 {
-                    FileName = attachment.FileName,
-                    FilePath = attachment.FilePath,
-                    FileSize = attachment.FileSize,
-                    FileType = attachment.FileType,
-                    FolderName = attachment.FolderName
-                });
-            }
-            else
-            {
-                checkExists.FilePath = attachment.FilePath;
-                checkExists.FileSize = attachment.FileSize;
-                checkExists.FileType = attachment.FileType;
-                checkExists.FolderName = attachment.FolderName;
+                    await _context.Attachment.AddAsync(attachment);
+                }
+                else
+                {
+                    await this.DeleteFileAsync(checkExists.FileName, checkExists.FilePath);
+                    checkExists.FileName = attachment.FileName;
+                    checkExists.FilePath = attachment.FilePath;
+                    checkExists.FileSize = attachment.FileSize;
+                    checkExists.FileType = attachment.FileType;
+                    checkExists.FolderName = attachment.FolderName;
+                    _context.Attachment.Update(checkExists);
+                }
 
-                _context.Attachment.Update(checkExists);
+                var result = await _context.SaveChangesAsync();
+
+                if (result > 0)
+                {
+                    return new BoolActionResult { isSuccess = true };
+                }
+                else
+                {
+                    return new BoolActionResult { isSuccess = false };
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
             }
 
-            var result = await _context.SaveChangesAsync();
-
-            if (result > 0)
-            {
-                return new BoolActionResult { isSuccess = true };
-            }
-            else
-            {
-                return new BoolActionResult { isSuccess = false };
-            }
         }
 
         public async Task<Attachment> GetAttachmentById(int id)
         {
-            var getAttachment = await _context.Attachment.Where(x => x.FileId == id).FirstOrDefaultAsync();
+            var getAttachment = await _context.Attachment.Where(x => x.Id == id).FirstOrDefaultAsync();
 
             if (getAttachment == null)
             {

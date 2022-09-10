@@ -73,6 +73,13 @@ namespace TBSLogistics.Service.Repository.RoadManage
                     return new BoolActionResult { isSuccess = false, Message = "Mã cung đường đã tồn tại" };
                 }
 
+                var checkContract = await _context.HopDongVaPhuLuc.Where(x => x.MaHopDong == request.MaHopDong).FirstOrDefaultAsync();
+
+                if(checkContract == null)
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Mã hợp đồng không đúng" };
+                }
+
                 await _context.AddAsync(new CungDuong()
                 {
                     MaCungDuong = request.MaCungDuong,

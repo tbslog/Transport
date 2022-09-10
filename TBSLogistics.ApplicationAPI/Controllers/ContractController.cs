@@ -114,6 +114,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
                 await stream.CopyToAsync(memory);
             }
             memory.Position = 0;
+
             return File(memory, GetContentType(filePath), filePath);
         }
 
@@ -155,7 +156,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
                 return false;
             }
 
-            await _common.DeleteFileAsync(fileName, PathFolder);
+           
             await _common.SaveFileAsync(file.OpenReadStream(), fileName, PathFolder);
 
 

@@ -142,7 +142,7 @@ namespace TBSLogistics.Service.Services.ContractManage
 
                 var getDataFile = await _TMSContext.Attachment.Where(x => x.FileName.Contains(id)).FirstOrDefaultAsync();
 
-                var file = getDataFile == null ? 0 : getDataFile.FileId;
+                var file = getDataFile == null ? 0 : getDataFile.Id;
 
                 return new GetContractById()
                 {

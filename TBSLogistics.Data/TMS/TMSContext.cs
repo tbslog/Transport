@@ -67,9 +67,7 @@ namespace TBSLogistics.Data.TMS
 
             modelBuilder.Entity<Attachment>(entity =>
             {
-                entity.HasKey(e => e.FileId);
-
-                entity.Property(e => e.FileId).HasColumnName("FileID");
+                entity.Property(e => e.Id).HasColumnName("ID");
 
                 entity.Property(e => e.FileName)
                     .IsRequired()
