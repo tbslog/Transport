@@ -47,7 +47,7 @@ namespace TBSLogistics.Service.Repository.CustommerManage
 
                 string fullAddress = await _address.GetFullAddress(request.Address.SoNha, request.Address.MaTinh, request.Address.MaHuyen, request.Address.MaPhuong);
 
-                string ErrorValidate = ValiateCustommer(request.MaKh, request.TenKh, request.MaSoThue, request.Sdt, request.Email, request.Address.SoNha, request.Address.MaGps, request.LoaiKH, request.NhomKH, fullAddress);
+                string ErrorValidate = await ValiateCustommer(request.MaKh, request.TenKh, request.MaSoThue, request.Sdt, request.Email, request.Address.SoNha, request.Address.MaGps, request.LoaiKH, request.NhomKH, request.TrangThai, fullAddress);
 
                 if (ErrorValidate != "")
                 {
@@ -124,7 +124,7 @@ namespace TBSLogistics.Service.Repository.CustommerManage
                 var getAddress = await _TMSContext.DiaDiem.Where(x => x.MaDiaDiem == GetCustommer.MaDiaDiem).FirstOrDefaultAsync();
 
                 string FullAddress = await _address.GetFullAddress(request.Address.SoNha, request.Address.MaTinh, request.Address.MaHuyen, request.Address.MaPhuong);
-                string ErrorValidate = ValiateCustommer(CustomerId, request.TenKh, request.MaSoThue, request.Sdt, request.Email, request.Address.SoNha, request.Address.MaGps, request.LoaiKH, request.NhomKH, FullAddress);
+                string ErrorValidate = await ValiateCustommer(CustomerId, request.TenKh, request.MaSoThue, request.Sdt, request.Email, request.Address.SoNha, request.Address.MaGps, request.LoaiKH, request.NhomKH, request.TrangThai, FullAddress);
 
                 getAddress.TenDiaDiem = request.Address.TenDiaDiem;
                 getAddress.MaQuocGia = request.Address.MaQuocGia;
@@ -314,7 +314,10 @@ namespace TBSLogistics.Service.Repository.CustommerManage
                             worksheet.Cells[1, 7].Value.ToString().Trim() != "Mã Tỉnh" ||
                             worksheet.Cells[1, 8].Value.ToString().Trim() != "Mã Huyện" ||
                             worksheet.Cells[1, 9].Value.ToString().Trim() != "Mã Phường" ||
-                            worksheet.Cells[1, 10].Value.ToString().Trim() != "Mã GPS"
+                            worksheet.Cells[1, 10].Value.ToString().Trim() != "Mã GPS" ||
+                             worksheet.Cells[1, 11].Value.ToString().Trim() != "Nhóm Khách Hàng" ||
+                              worksheet.Cells[1, 12].Value.ToString().Trim() != "Phân Loại Khách Hàng" ||
+                               worksheet.Cells[1, 13].Value.ToString().Trim() != "Trạng Thái"
                             )
                         {
                             return new BoolActionResult { isSuccess = false, Message = "File excel không đúng " };
@@ -333,6 +336,7 @@ namespace TBSLogistics.Service.Repository.CustommerManage
                             string MaGps = worksheet.Cells[row, 10].Value.ToString().Trim();
                             string NhomKH = worksheet.Cells[row, 11].Value.ToString().Trim();
                             string LoaiKH = worksheet.Cells[row, 12].Value.ToString().Trim();
+                            int TrangThai = int.Parse(worksheet.Cells[row, 13].Value.ToString().Trim());
 
                             int MaTinh = int.Parse(worksheet.Cells[row, 7].Value.ToString().Trim());
                             int MaHuyen = int.Parse(worksheet.Cells[row, 8].Value.ToString().Trim());
@@ -340,7 +344,7 @@ namespace TBSLogistics.Service.Repository.CustommerManage
 
                             var FullAddress = await _address.GetFullAddress(SoNha, MaTinh, MaHuyen, MaPhuong);
 
-                            ErrorValidate = ValiateCustommer(MaKh, TenKh, MaSoThue, Sdt, Email, SoNha, MaGps, LoaiKH, NhomKH, FullAddress, ErrorRow.ToString());
+                            ErrorValidate = await ValiateCustommer(MaKh, TenKh, MaSoThue, Sdt, Email, SoNha, MaGps, LoaiKH, NhomKH, TrangThai, FullAddress, ErrorRow.ToString());
 
                             if (ErrorValidate == "")
                             {
@@ -353,6 +357,7 @@ namespace TBSLogistics.Service.Repository.CustommerManage
                                     Email = Email,
                                     NhomKH = NhomKH,
                                     LoaiKH = LoaiKH,
+                                    TrangThai = TrangThai,
                                     Address = new CreateAddressRequest
                                     {
                                         TenDiaDiem = TenKh,
@@ -405,6 +410,7 @@ namespace TBSLogistics.Service.Repository.CustommerManage
                             Email = item.Email,
                             MaNhomKh = item.NhomKH,
                             MaLoaiKh = item.LoaiKH,
+                            TrangThai = item.TrangThai,
                             MaDiaDiem = addAddress.Entity.MaDiaDiem,
                             CreatedTime = DateTime.Now,
                             UpdatedTime = DateTime.Now
@@ -438,9 +444,27 @@ namespace TBSLogistics.Service.Repository.CustommerManage
             }
         }
 
-        private string ValiateCustommer(string MaKh, string TenKh, string MaSoThue, string Sdt, string Email, string SoNha, string MaGps, string LoaiKH, string NhomKH, string FullAddress, string ErrorRow = "")
+        private async Task<string> ValiateCustommer(string MaKh, string TenKh, string MaSoThue, string Sdt, string Email, string SoNha, string MaGps, string LoaiKH, string NhomKH, int TrangThai, string FullAddress, string ErrorRow = "")
         {
             string ErrorValidate = "";
+
+            var checkStatus = await _TMSContext.LoaiTrangThai.Where(x => x.MaTrangThai == TrangThai).FirstOrDefaultAsync();
+            if (checkStatus == null)
+            {
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Trạng thái khách hàng không tồn tại \r\n" + System.Environment.NewLine;
+            }
+
+            var checkCustomerType = await _TMSContext.LoaiKhachHang.Where(x => x.MaLoaiKh == LoaiKH).FirstOrDefaultAsync();
+            if (checkCustomerType == null)
+            {
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Loại khách hàng không tồn tại \r\n" + System.Environment.NewLine;
+            }
+
+            var checkCustomerGroup = await _TMSContext.NhomKhachHang.Where(x => x.MaNhomKh == NhomKH).FirstOrDefaultAsync();
+            if (checkCustomerGroup == null)
+            {
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Nhóm khách hàng không tồn tại \r\n" + System.Environment.NewLine;
+            }
 
             if (MaKh.Length != 8)
             {
@@ -470,7 +494,6 @@ namespace TBSLogistics.Service.Repository.CustommerManage
             {
                 ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Nhóm khách hàng không được chứa ký tự đặc biệt \r\n" + System.Environment.NewLine;
             }
-
 
             if (LoaiKH.Length > 10 || LoaiKH.Length == 0)
             {
