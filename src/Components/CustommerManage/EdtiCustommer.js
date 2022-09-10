@@ -72,6 +72,8 @@ const EditCustommer = (props) => {
       Object.keys(props.Address).length > 0 &&
       Object.keys(props.selectIdClick).length > 0
     ) {
+      SetIsLoading(true);
+
       setValue("MaKH", props.selectIdClick.maKh);
       setValue("MST", props.selectIdClick.maSoThue);
       setValue("SDT", props.selectIdClick.sdt);
@@ -81,11 +83,17 @@ const EditCustommer = (props) => {
       setValue("SoNha", props.Address.soNha);
       setValue("LoaiKH", props.selectIdClick.loaiKH);
       setValue("NhomKH", props.selectIdClick.nhomKH);
+
+      setTimeout(() => {
+        setValue("TrangThai", props.selectIdClick.trangThai);
+      }, 1000);
       setValue("TrangThai", props.selectIdClick.trangThai);
 
       LoadProvince(props.Address.maTinh);
       LoadDistrict(props.Address.maTinh, props.Address.maHuyen);
       LoadWard(props.Address.maHuyen, props.Address.maPhuong);
+
+      SetIsLoading(false);
     }
   }, [
     props.selectIdClick,

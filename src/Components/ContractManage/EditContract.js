@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { getData, putData } from "../Common/FuncAxios";
+import { useState, useEffect, useCallback } from "react";
+import { getData, putData, getFile } from "../Common/FuncAxios";
 import { useForm, Controller } from "react-hook-form";
 import DatePicker from "react-datepicker";
 
@@ -9,6 +9,7 @@ const EditContract = (props) => {
     register,
     setValue,
     control,
+    watch,
     formState: { errors },
     handleSubmit,
   } = useForm({
@@ -121,6 +122,8 @@ const EditContract = (props) => {
   const [listTransportType, setListTransportType] = useState([]);
   const [listStatusType, setListStatusType] = useState([]);
 
+  const [downloadFile, setDownloadFile] = useState();
+
   useEffect(() => {
     if (
       props &&
@@ -128,20 +131,30 @@ const EditContract = (props) => {
       Object.keys(props.selectIdClick).length > 0 &&
       Object.keys(props).length > 0
     ) {
-      console.log(props.selectIdClick);
+      SetIsLoading(true);
+
       setValue("MaHopDong", props.selectIdClick.maHopDong);
       setValue("TenHopDong", props.selectIdClick.tenHienThi);
       setValue("MaKh", props.selectIdClick.maKh);
       setValue("SoHopDongCha", props.selectIdClick.soHopDongCha);
-      setValue("PhanLoaiHopDong", props.selectIdClick.phanLoaiHopDong);
-      setValue("PTVC", props.selectIdClick.maPtvc);
+
       setValue("GhiChu", props.selectIdClick.ghiChu);
-      setValue("TrangThai", props.selectIdClick.trangThai);
+      setDownloadFile(props.selectIdClick.file);
+      setValue("PhanLoaiHopDong", props.selectIdClick.phanLoaiHopDong);
+
+      setTimeout(() => {
+        setValue("TrangThai", props.selectIdClick.trangThai);
+        setValue("PTVC", props.selectIdClick.maPtvc);
+      }, 1000);
 
       setValue("NgayBatDau", new Date(props.selectIdClick.thoiGianBatDau));
       setValue("NgayKetThuc", new Date(props.selectIdClick.thoiGianKetThuc));
+
+      console.log(watch());
+
+      SetIsLoading(false);
     }
-  }, [props, props.selectIdClick]);
+  }, [props, props.selectIdClick, setValue]);
 
   useEffect(() => {
     if (props && props.listContractType) {
@@ -161,9 +174,17 @@ const EditContract = (props) => {
       );
       setListStatusType(getListStatusType);
     })();
-
     SetIsLoading(false);
   }, []);
+
+  const handleDownloadContact = async () => {
+    SetIsLoading(true);
+    const getFileDownLoad = getFile(
+      `Contract/DownloadFile?fileId=${downloadFile}`,
+      watch("TenHopDong")
+    );
+    SetIsLoading(false);
+  };
 
   const onSubmit = async (data) => {
     SetIsLoading(true);
@@ -393,6 +414,22 @@ const EditContract = (props) => {
                   </span>
                 )}
               </div>
+
+              {downloadFile && downloadFile !== "0" && (
+                <div>
+                  <div className="form-group">
+                    <label htmlFor="FileContact">Tải về tệp Hợp Đồng</label>
+                    <br />
+                    <button
+                      type="button"
+                      className="btn btn-default"
+                      onClick={() => handleDownloadContact()}
+                    >
+                      <i className="fas fa-file-download"> Tải tệp hợp đồng</i>
+                    </button>
+                  </div>
+                </div>
+              )}
 
               <div className="form-group">
                 <label htmlFor="TrangThai">Trạng thái</label>

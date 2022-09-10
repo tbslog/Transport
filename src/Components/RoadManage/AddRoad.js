@@ -56,10 +56,6 @@ const AddRoad = (props) => {
         value: 10,
         message: "Không được vượt quá 10 ký tự",
       },
-      minLength: {
-        value: 10,
-        message: "Không được ít hơn 10 ký tự",
-      },
       pattern: {
         value: /^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9]+(?<![_.])$/,
         message: "Không được chứa ký tự đặc biệt",

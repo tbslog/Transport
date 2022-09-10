@@ -1,9 +1,8 @@
 import { useMemo, useState, useEffect, useCallback, useRef } from "react";
-import { getData, postData, postFile } from "../Common/FuncAxios";
+import { getData, postFile } from "../Common/FuncAxios";
 import DataTable from "react-data-table-component";
 import moment from "moment";
 import { Modal } from "bootstrap";
-import { ToastWarning } from "../Common/FuncToast";
 import AddContract from "./AddContract";
 import EditContract from "./EditContract";
 import DatePicker from "react-datepicker";

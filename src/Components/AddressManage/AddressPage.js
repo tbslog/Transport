@@ -125,22 +125,15 @@ const AddressPage = () => {
   useEffect(() => {
     setLoading(true);
 
-    (async () => {
-      let dataCus = await getData(
-        `Address/ListAddress?PageNumber=1&PageSize=10`
-      );
-
-      formatTable(dataCus.data);
-      setTotalRows(dataCus.totalRecords);
-    })();
+    fetchData(1);
 
     setLoading(false);
   }, []);
 
   function formatTable(data) {
     data.map((val) => {
-      val.createdtime = moment(val.createdtime).format(" HH:mm:ss DD/MM/YYYY");
-      val.updatedtime = moment(val.updatedtime).format(" HH:mm:ss DD/MM/YYYY");
+      val.createdtime = moment(val.createdTime).format(" HH:mm:ss DD/MM/YYYY");
+      val.updatedtime = moment(val.updatedTime).format(" HH:mm:ss DD/MM/YYYY");
     });
     setData(data);
   }

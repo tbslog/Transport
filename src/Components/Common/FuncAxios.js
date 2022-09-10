@@ -1,4 +1,5 @@
 import axios from "axios";
+import state from "react";
 import { ToastSuccess, ToastError, ToastWarning } from "../Common/FuncToast";
 
 const Host = "http://localhost:8088/api/";
@@ -7,6 +8,24 @@ const getData = async (url) => {
   const get = await axios.get(Host + url);
   var data = get.data;
   return data;
+};
+
+const getFile = async (url, fileName) => {
+  axios
+    .get(Host + url, {
+      responseType: "arraybuffer",
+    })
+    .then((response) => {
+      let blob = new Blob([response.data], {
+          type: `${response.headers["content-type"]}`,
+        }),
+        url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `${fileName}`);
+      document.body.appendChild(link);
+      link.click();
+    });
 };
 
 const postData = async (url, data, header = null) => {
@@ -74,4 +93,4 @@ const deleteData = async (url) => {
   return isSuccess;
 };
 
-export { getData, postData, putData, deleteData, postFile };
+export { getData, postData, putData, deleteData, postFile, getFile };
