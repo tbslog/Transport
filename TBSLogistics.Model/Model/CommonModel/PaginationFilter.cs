@@ -10,8 +10,8 @@ namespace TBSLogistics.Model.Filter
     {
         public string contractType { get; set; }
 
-        public string custommerType { get; set; }
-        public string custommerGroup { get; set; }
+        public string customerType { get; set; }
+        public string customerGroup { get; set; }
 
 
         public string Keyword { get; set; }

@@ -30,7 +30,7 @@ namespace TBSLogistics.Service.Services.ContractManage
         {
             try
             {
-                var checkExists = await _TMSContext.HopDongVaPhuLuc.Where(x => (x.MaHopDong == request.MaHopDong || x.TenHienThi == request.TenHienThi || x.MaKh == request.MaKh)).FirstOrDefaultAsync();
+                var checkExists = await _TMSContext.HopDongVaPhuLuc.Where(x => x.MaHopDong == request.MaHopDong || x.TenHienThi == request.TenHienThi).FirstOrDefaultAsync();
 
                 if (checkExists != null)
                 {
@@ -179,7 +179,6 @@ namespace TBSLogistics.Service.Services.ContractManage
                                on contract.MaHopDong equals pricetable.MaHopDong
                                into cp
                                from contractPriceTbl in cp.DefaultIfEmpty()
-                               where contract.SoHopDongCha == null
                                orderby contract.UpdatedTime descending
                                select new
                                {
@@ -201,6 +200,12 @@ namespace TBSLogistics.Service.Services.ContractManage
                 if (!string.IsNullOrEmpty(filter.contractType))
                 {
                     listData = listData.Where(x => x.contract.MaLoaiHopDong == filter.contractType);
+                }
+
+
+                if (!string.IsNullOrEmpty(filter.customerType))
+                {
+                    listData = listData.Where(x => x.cus.MaLoaiKh == filter.customerType);
                 }
 
 

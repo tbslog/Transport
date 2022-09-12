@@ -223,14 +223,14 @@ namespace TBSLogistics.Service.Repository.CustommerManage
                     listData = listData.Where(x => x.cus.MaKh.Contains(filter.Keyword));
                 }
 
-                if (!string.IsNullOrEmpty(filter.custommerType))
+                if (!string.IsNullOrEmpty(filter.customerType))
                 {
-                    listData = listData.Where(x => x.cus.MaLoaiKh == filter.custommerType);
+                    listData = listData.Where(x => x.cus.MaLoaiKh == filter.customerType);
                 }
 
-                if (!string.IsNullOrEmpty(filter.custommerGroup))
+                if (!string.IsNullOrEmpty(filter.customerGroup))
                 {
-                    listData = listData.Where(x => x.cus.MaNhomKh == filter.custommerGroup);
+                    listData = listData.Where(x => x.cus.MaNhomKh == filter.customerGroup);
                 }
 
                 if (!string.IsNullOrEmpty(filter.fromDate.ToString()) && !string.IsNullOrEmpty(filter.toDate.ToString()))
