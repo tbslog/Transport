@@ -40,28 +40,23 @@ const AddressPage = () => {
     {
       name: "Tên Địa Điểm",
       selector: (row) => row.tenDiaDiem,
+      sortable: true,
     },
     {
       name: "Loại địa điểm",
       selector: (row) => row.loaiDiaDiem,
+      sortable: true,
+    },
+
+    {
+      name: "Tọa Độ",
+      selector: (row) => row.maGps,
     },
     {
       name: "Địa chỉ",
       selector: (row) => row.diaChiDayDu,
-    },
-    {
-      name: "Mã GPS",
-      selector: (row) => row.maGps,
-    },
-    {
-      name: "Thời gian cập nhật",
-      selector: (row) => row.updatedtime,
-      sortable: true,
-    },
-    {
-      name: "Thời Gian tạo mới",
-      selector: (row) => row.createdtime,
-      sortable: true,
+      wrap: true,
+      grow: 5,
     },
   ]);
 
@@ -241,6 +236,7 @@ const AddressPage = () => {
                 onSelectedRowsChange={handleChange}
                 onChangeRowsPerPage={handlePerRowsChange}
                 onChangePage={handlePageChange}
+                highlightOnHover
               />
             </div>
           </div>

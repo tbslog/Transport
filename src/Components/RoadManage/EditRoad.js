@@ -130,24 +130,21 @@ const EditRoad = (props) => {
   }, []);
 
   const HandleOnchangeDiemLayRong = (val) => {
-    setValue(
-      "DiemLayRong",
-      listAddress.filter((x) => x.value === val.value)
-    );
+    setValue("DiemLayRong", {
+      ...listAddress.filter((x) => x.value === val.value)[0],
+    });
   };
 
   const HandleOnchangeDiemDau = (val) => {
-    setValue(
-      "DiemDau",
-      listAddress.filter((x) => x.value === val.value)
-    );
+    setValue("DiemDau", {
+      ...listAddress.filter((x) => x.value === val.value)[0],
+    });
   };
 
   const HandleOnchangeDiemCuoi = (val) => {
-    setValue(
-      "DiemCuoi",
-      listAddress.filter((x) => x.value === val.value)
-    );
+    setValue("DiemCuoi", {
+      ...listAddress.filter((x) => x.value === val.value)[0],
+    });
   };
 
   const onSubmit = async (data, e) => {
@@ -157,9 +154,9 @@ const EditRoad = (props) => {
       tenCungDuong: data.TenCungDuong,
       maHopDong: data.MaHopDong,
       km: data.SoKM,
-      diemDau: data.DiemDau[0].value,
-      diemCuoi: data.DiemCuoi[0].value,
-      diemLayRong: data.DiemLayRong[0].value,
+      diemDau: data.DiemDau.value,
+      diemCuoi: data.DiemCuoi.value,
+      diemLayRong: data.DiemLayRong.value,
       ghiChu: data.GhiChu,
     });
 

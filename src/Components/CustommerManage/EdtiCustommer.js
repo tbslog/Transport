@@ -40,9 +40,9 @@ const EditCustommer = (props) => {
         address: {
           tenDiaDiem: "",
           maQuocGia: 1,
-          maTinh: data.MaTinh[0].value,
-          maHuyen: data.MaHuyen[0].value,
-          maPhuong: data.MaPhuong[0].value,
+          maTinh: data.MaTinh.value,
+          maHuyen: data.MaHuyen.value,
+          maPhuong: data.MaPhuong.value,
           soNha: data.SoNha,
           diaChiDayDu: "",
           maGps: data.GPS,
@@ -135,10 +135,7 @@ const EditCustommer = (props) => {
           });
         });
         SetListProvince(obj);
-        setValue(
-          "MaTinh",
-          obj.filter((x) => x.value === tinh)
-        );
+        setValue("MaTinh", { ...obj.filter((x) => x.value === tinh)[0] });
       }
     })();
   };
@@ -159,10 +156,7 @@ const EditCustommer = (props) => {
         });
         SetListDistrict(obj);
 
-        setValue(
-          "MaHuyen",
-          obj.filter((x) => x.value === huyen)
-        );
+        setValue("MaHuyen", { ...obj.filter((x) => x.value === huyen)[0] });
       } else {
         SetListDistrict([]);
       }
@@ -184,10 +178,7 @@ const EditCustommer = (props) => {
         });
 
         SetListWard(obj);
-        setValue(
-          "MaPhuong",
-          obj.filter((x) => x.value === phuong)
-        );
+        setValue("MaPhuong", { ...obj.filter((x) => x.value === phuong)[0] });
       } else {
         SetListWard([]);
       }

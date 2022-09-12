@@ -12,6 +12,7 @@ import ContractPage from "./Components/ContractManage/ContractPage";
 
 import "react-toastify/dist/ReactToastify.css";
 import "react-datepicker/dist/react-datepicker.css";
+import "react-tabs/style/react-tabs.css";
 
 function App() {
   return (

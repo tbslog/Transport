@@ -1,4 +1,5 @@
 import { useMemo, useState, useEffect, useCallback, useRef } from "react";
+import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
 import { getData, postFile } from "../Common/FuncAxios";
 import DataTable from "react-data-table-component";
 import moment from "moment";
@@ -21,6 +22,7 @@ const ContractPage = () => {
   const [selectedRows, setSelectedRows] = useState([]);
   const [selectIdClick, setSelectIdClick] = useState({});
 
+  const [tabIndex, setTabIndex] = useState(0);
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
 
@@ -101,6 +103,7 @@ const ContractPage = () => {
     {
       name: "Trạng thái",
       selector: (row) => row.trangThai,
+      format: (row) => (row.trangThai == 1 ? "Active" : "Disable"),
     },
     {
       name: "Thời Gian Bắt Đầu",
@@ -143,7 +146,8 @@ const ContractPage = () => {
     KeyWord = "",
     fromDate = "",
     toDate = "",
-    contractType = ""
+    contractType = "",
+    customerType = ""
   ) => {
     setLoading(true);
 
@@ -152,7 +156,7 @@ const ContractPage = () => {
     }
 
     const dataCus = await getData(
-      `Contract/GetListContract?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}&fromDate=${fromDate}&toDate=${toDate}&contractType=${contractType}`
+      `Contract/GetListContract?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}&fromDate=${fromDate}&toDate=${toDate}&contractType=${contractType}&customerType=${customerType}`
     );
     formatTable(dataCus.data);
     setTotalRows(dataCus.totalRecords);
@@ -183,7 +187,7 @@ const ContractPage = () => {
     setLoading(true);
 
     (async () => {
-      await fetchData(1);
+      await fetchData(1, "", "", "", "", "KH");
       const getListContractType = await getData(`Common/GetListContractType`);
       setListContractType(getListContractType);
     })();
@@ -239,6 +243,20 @@ const ContractPage = () => {
     setFromDate("");
     setToDate("");
     fetchData(1);
+  };
+
+  const HandleOnChangeTabs = (tabIndex) => {
+    setTabIndex(tabIndex);
+
+    let customerType = tabIndex === 0 ? "KH" : "NNP";
+    fetchData(
+      1,
+      keySearch,
+      fromDate === "" ? "" : moment(fromDate).format("YYYY-MM-DD"),
+      toDate === "" ? "" : moment(toDate).format("YYYY-MM-DD"),
+      contractType,
+      customerType
+    );
   };
 
   return (
@@ -363,21 +381,52 @@ const ContractPage = () => {
             </div>
           </div>
           <div className="card-body">
-            <div className="container-datatable" style={{ height: "50vm" }}>
-              <DataTable
-                title="Danh sách hợp đồng"
-                columns={columns}
-                data={data}
-                progressPending={loading}
-                pagination
-                paginationServer
-                paginationTotalRows={totalRows}
-                selectableRows
-                onSelectedRowsChange={handleChange}
-                onChangeRowsPerPage={handlePerRowsChange}
-                onChangePage={handlePageChange}
-              />
-            </div>
+            <Tabs
+              selectedIndex={tabIndex}
+              onSelect={(index) => HandleOnChangeTabs(index)}
+            >
+              <TabList>
+                <Tab>Hợp Đồng Khách Hàng</Tab>
+                <Tab>Hợp Đồng Nhà Cung Cấp</Tab>
+              </TabList>
+
+              <TabPanel>
+                <div className="container-datatable" style={{ height: "50vm" }}>
+                  <DataTable
+                    title="Danh sách hợp đồng khách hàng"
+                    columns={columns}
+                    data={data}
+                    progressPending={loading}
+                    pagination
+                    paginationServer
+                    paginationTotalRows={totalRows}
+                    selectableRows
+                    onSelectedRowsChange={handleChange}
+                    onChangeRowsPerPage={handlePerRowsChange}
+                    onChangePage={handlePageChange}
+                    highlightOnHover
+                  />
+                </div>
+              </TabPanel>
+              <TabPanel>
+                <div className="container-datatable" style={{ height: "50vm" }}>
+                  <DataTable
+                    title="Danh sách hợp đồng nhà phân phối"
+                    columns={columns}
+                    data={data}
+                    progressPending={loading}
+                    pagination
+                    paginationServer
+                    paginationTotalRows={totalRows}
+                    selectableRows
+                    onSelectedRowsChange={handleChange}
+                    onChangeRowsPerPage={handlePerRowsChange}
+                    onChangePage={handlePageChange}
+                    highlightOnHover
+                  />
+                </div>
+              </TabPanel>
+            </Tabs>
           </div>
           <div className="card-footer">
             {/* <div className="row">

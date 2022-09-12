@@ -28,7 +28,6 @@ const CustommerPage = () => {
 
   const columns = useMemo(() => [
     {
-      name: "Cập nhật",
       cell: (val) => (
         <button
           title="Cập nhật"
@@ -44,10 +43,8 @@ const CustommerPage = () => {
       button: true,
     },
     {
-      name: "Lập HĐ",
       cell: (val) => (
         <button
-          title="Lập Hợp Đồng"
           onClick={() =>
             handleCreateContract(val, SetShowModal("CreateContract"))
           }
@@ -82,17 +79,19 @@ const CustommerPage = () => {
     {
       name: "Địa chỉ",
       selector: (row) => row.diaDiem,
+      wrap: true,
+      grow: 7,
     },
-    {
-      name: "Thời gian cập nhật",
-      selector: (row) => row.updateTime,
-      sortable: true,
-    },
-    {
-      name: "Thời Gian tạo mới",
-      selector: (row) => row.createdtime,
-      sortable: true,
-    },
+    // {
+    //   name: "Thời gian cập nhật",
+    //   selector: (row) => row.updateTime,
+    //   sortable: true,
+    // },
+    // {
+    //   name: "Thời Gian tạo mới",
+    //   selector: (row) => row.createdtime,
+    //   sortable: true,
+    // },
   ]);
 
   const showModalForm = () => {
@@ -295,6 +294,7 @@ const CustommerPage = () => {
                 onSelectedRowsChange={handleChange}
                 onChangeRowsPerPage={handlePerRowsChange}
                 onChangePage={handlePageChange}
+                highlightOnHover
               />
             </div>
           </div>

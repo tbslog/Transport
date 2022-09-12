@@ -45,7 +45,6 @@ const CreateAddress = (props) => {
       },
     },
     SoNha: {
-      required: "Không được để trống",
       maxLength: {
         value: 100,
         message: "Không được vượt quá 100 ký tự",
@@ -217,47 +216,6 @@ const CreateAddress = (props) => {
         {IsLoading === false && (
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="card-body">
-              <div className="form-group">
-                <label htmlFor="TenDiaDiem">Tên địa điểm</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="TenDiaDiem"
-                  placeholder="Nhập tên địa điểm"
-                  {...register("TenDiaDiem", Validate.TenDiaDiem)}
-                />
-                {errors.TenDiaDiem && (
-                  <span className="text-danger">
-                    {errors.TenDiaDiem.message}
-                  </span>
-                )}
-              </div>
-              <div className="form-group">
-                <label htmlFor="GPS">Mã GPS</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="GPS"
-                  placeholder="Nhập mã GPS"
-                  {...register("GPS", Validate.MaGPS)}
-                />
-                {errors.GPS && (
-                  <span className="text-danger">{errors.GPS.message}</span>
-                )}
-              </div>
-              <div className="form-group">
-                <label htmlFor="Sonha">Số nhà</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="Sonha"
-                  placeholder="Nhập số nhà"
-                  {...register("SoNha", Validate.SoNha)}
-                />
-                {errors.SoNha && (
-                  <span className="text-danger">{errors.SoNha.message}</span>
-                )}
-              </div>
               <div className="row">
                 <div className="col-sm">
                   <div className="form-group">
@@ -286,6 +244,52 @@ const CreateAddress = (props) => {
                     )}
                   </div>
                 </div>
+                <div className="col-sm">
+                  <div className="form-group">
+                    <label htmlFor="TenDiaDiem">Tên địa điểm</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="TenDiaDiem"
+                      placeholder="Nhập tên địa điểm"
+                      {...register("TenDiaDiem", Validate.TenDiaDiem)}
+                    />
+                    {errors.TenDiaDiem && (
+                      <span className="text-danger">
+                        {errors.TenDiaDiem.message}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="GPS">Tọa Độ</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="GPS"
+                  placeholder="Nhập Tọa Độ"
+                  {...register("GPS", Validate.MaGPS)}
+                />
+                {errors.GPS && (
+                  <span className="text-danger">{errors.GPS.message}</span>
+                )}
+              </div>
+              <div className="form-group">
+                <label htmlFor="Sonha">Số nhà</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="Sonha"
+                  placeholder="Nhập số nhà"
+                  {...register("SoNha", Validate.SoNha)}
+                />
+                {errors.SoNha && (
+                  <span className="text-danger">{errors.SoNha.message}</span>
+                )}
+              </div>
+              <div className="row">
                 <div className="col-sm">
                   <div className="form-group">
                     <label htmlFor="Tinh">Tỉnh</label>

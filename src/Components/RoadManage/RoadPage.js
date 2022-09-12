@@ -251,6 +251,7 @@ const RoadPage = () => {
                 onSelectedRowsChange={handleChange}
                 onChangeRowsPerPage={handlePerRowsChange}
                 onChangePage={handlePageChange}
+                highlightOnHover
               />
             </div>
           </div>
