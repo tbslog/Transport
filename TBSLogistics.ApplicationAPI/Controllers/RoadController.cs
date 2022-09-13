@@ -47,9 +47,9 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpPut]
         [Route("[action]")]
-        public async Task<IActionResult> UpdateRoad(string id, UpdateRoadRequest request)
+        public async Task<IActionResult> UpdateRoad(string Id, UpdateRoadRequest request)
         {
-            var Update = await _road.UpdateRoad(id, request);
+            var Update = await _road.UpdateRoad(Id, request);
 
             if (Update.isSuccess == true)
             {
@@ -63,9 +63,9 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<IActionResult> GetById(string id)
+        public async Task<IActionResult> GetRoadById(string Id)
         {
-            var getById = await _road.GetRoadById(id);
+            var getById = await _road.GetRoadById(Id);
 
             return Ok(getById);
         }

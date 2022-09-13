@@ -57,15 +57,15 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpPut]
         [Route("[action]")]
-        public async Task<IActionResult> UpdateContract(string id, [FromForm] EditContract request)
+        public async Task<IActionResult> UpdateContract(string Id, [FromForm] EditContract request)
         {
-            var editContract = await _contract.EditContract(id, request);
+            var editContract = await _contract.EditContract(Id, request);
 
             if (editContract.isSuccess == true)
             {
                 if (request.File != null)
                 {
-                    await UploadFile(request.File, request.TenHienThi, id);
+                    await UploadFile(request.File, request.TenHienThi, Id);
                 }
                 return Ok(editContract.Message);
             }
@@ -77,9 +77,9 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<IActionResult> GetContractById(string id)
+        public async Task<IActionResult> GetContractById(string Id)
         {
-            var contract = await _contract.GetContractById(id);
+            var contract = await _contract.GetContractById(Id);
             return Ok(contract);
         }
 

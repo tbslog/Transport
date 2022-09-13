@@ -48,9 +48,9 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpPut]
         [Route("[action]")]
-        public async Task<IActionResult> EditAddress(int id, UpdateAddressRequest request)
+        public async Task<IActionResult> EditAddress(int Id, UpdateAddressRequest request)
         {
-            var EditAddress = await _address.EditAddress(id, request);
+            var EditAddress = await _address.EditAddress(Id, request);
 
             if (EditAddress.isSuccess == true)
             {
@@ -64,15 +64,15 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<IActionResult> GetAddressById(int AddressId)
+        public async Task<IActionResult> GetAddressById(int Id)
         {
-            var address = await _address.GetAddressById(AddressId);
+            var address = await _address.GetAddressById(Id);
             return Ok(address);
         }
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<IActionResult> ListAddress([FromQuery] PaginationFilter filter)
+        public async Task<IActionResult> GetListAddress([FromQuery] PaginationFilter filter)
         {
             var route = Request.Path.Value;
             var pagedData = await _address.GetListAddress(filter);
@@ -83,10 +83,9 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<IActionResult> GetListTypeAddress()
+        public async Task<IActionResult> GetListAddressType()
         {
             var list = await _address.GetListTypeAddress();
-
             return Ok(list);
         }
 
@@ -108,7 +107,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<IActionResult> ListProvinces()
+        public async Task<IActionResult> GetListProvinces()
         {
             var list = await _address.GetProvinces();
 
@@ -117,7 +116,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<IActionResult> ListDistricts(int ProvinceId)
+        public async Task<IActionResult> GetListDistricts(int ProvinceId)
         {
             var list = await _address.GetDistricts(ProvinceId);
             return Ok(list);
@@ -125,7 +124,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<IActionResult> ListWards(int DistrictId)
+        public async Task<IActionResult> GetListWards(int DistrictId)
         {
             var list = await _address.GetWards(DistrictId);
             return Ok(list);
@@ -133,7 +132,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<IActionResult> GetListAddress()
+        public async Task<IActionResult> GetListAddressSelect()
         {
             var list = await _address.GetListAddress();
 

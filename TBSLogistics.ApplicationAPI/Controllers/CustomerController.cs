@@ -21,12 +21,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CustommerController : ControllerBase
+    public class CustomerController : ControllerBase
     {
         private ICustomer _customer;
         private IPaginationService _uriService;
 
-        public CustommerController(ICustomer customer, IPaginationService uriService)
+        public CustomerController(ICustomer customer, IPaginationService uriService)
         {
             _customer = customer;
             _uriService = uriService;
@@ -34,7 +34,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpPost]
         [Route("[action]")]
-        public async Task<IActionResult> CreateCustommer(CreateCustomerRequest request)
+        public async Task<IActionResult> CreateCustomer(CreateCustomerRequest request)
         {
             var Create = await _customer.CreateCustomer(request);
 
@@ -50,9 +50,9 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpPut]
         [Route("[action]")]
-        public async Task<IActionResult> EdtiCustommer(string CustommerId, EditCustomerRequest request)
+        public async Task<IActionResult> UpdateCustomer(string Id, EditCustomerRequest request)
         {
-            var Edit = await _customer.EditCustomer(CustommerId, request);
+            var Edit = await _customer.EditCustomer(Id, request);
 
             if (Edit.isSuccess == true)
             {
@@ -66,7 +66,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<IActionResult> GetListCustommer([FromQuery] PaginationFilter filter)
+        public async Task<IActionResult> GetListCustomer([FromQuery] PaginationFilter filter)
         {
             var route = Request.Path.Value;
             var pagedData = await _customer.getListCustommer(filter);
@@ -77,9 +77,9 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<IActionResult> GetCustommerById(string CustommerId)
+        public async Task<IActionResult> GetCustomerById(string Id)
         {
-            var Custommer = await _customer.GetCustomerById(CustommerId);
+            var Custommer = await _customer.GetCustomerById(Id);
             return Ok(Custommer);
         }
 

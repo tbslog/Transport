@@ -3,7 +3,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.PriceListModel;
+using TBSLogistics.Service.Helpers;
+using TBSLogistics.Service.Panigation;
 using TBSLogistics.Service.Repository.PricelistManage;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -15,10 +18,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
     public class PriceTableController : ControllerBase
     {
         private readonly IPriceTable _priceTable;
+        private IPaginationService _paninationService;
 
-        public PriceTableController(IPriceTable priceTable)
+        public PriceTableController(IPriceTable priceTable,IPaginationService paninationService)
         {
             _priceTable = priceTable;
+            _paninationService = paninationService;
         }
 
         [HttpPost]
@@ -39,9 +44,9 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpPut]
         [Route("[action]")]
-        public async Task<IActionResult> EditPriceTable(string PriceListId, UpdatePriceListRequest request)
+        public async Task<IActionResult> UpdatePriceTable(string Id, UpdatePriceListRequest request)
         {
-            var update = await _priceTable.EditPriceTable(PriceListId, request);
+            var update = await _priceTable.EditPriceTable(Id, request);
 
             if (update.isSuccess == true)
             {
@@ -55,18 +60,21 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<IActionResult> GetPriceTableById(string PriceListId)
+        public async Task<IActionResult> GetPriceTableById(string Id)
         {
-            var list = await _priceTable.GetPriceTableById(PriceListId);
+            var list = await _priceTable.GetPriceTableById(Id);
             return Ok(list);
         }
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<IActionResult> GetListPriceTable()
+        public async Task<IActionResult> GetListPriceTable([FromQuery] PaginationFilter filter)
         {
-            var PriceList = await _priceTable.GetListPriceTable();
-            return Ok(PriceList);
+            var route = Request.Path.Value;
+            var pagedData = await _priceTable.GetListPriceTable(filter);
+
+            var pagedReponse = PaginationHelper.CreatePagedReponse<GetListPiceTableRequest>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _paninationService, route);
+            return Ok(pagedReponse);
         }
 
         [HttpGet]

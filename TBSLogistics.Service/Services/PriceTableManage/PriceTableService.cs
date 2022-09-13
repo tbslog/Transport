@@ -5,8 +5,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using TBSLogistics.Data.TMS;
 using TBSLogistics.Model.CommonModel;
+using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.PriceListModel;
 using TBSLogistics.Model.TempModel;
+using TBSLogistics.Model.Wrappers;
 using TBSLogistics.Service.Repository.Common;
 
 namespace TBSLogistics.Service.Repository.PricelistManage
@@ -68,11 +70,11 @@ namespace TBSLogistics.Service.Repository.PricelistManage
             }
         }
 
-        public async Task<BoolActionResult> EditPriceTable(string PriceListId, UpdatePriceListRequest request)
+        public async Task<BoolActionResult> EditPriceTable(string Id, UpdatePriceListRequest request)
         {
             try
             {
-                var getPriceList = await _context.BangGia.Where(x => x.MaBangGia == PriceListId).FirstOrDefaultAsync();
+                var getPriceList = await _context.BangGia.Where(x => x.MaBangGia == Id).FirstOrDefaultAsync();
 
                 if (getPriceList == null)
                 {
@@ -96,7 +98,7 @@ namespace TBSLogistics.Service.Repository.PricelistManage
 
                 if (result > 0)
                 {
-                    await _common.Log("PriceListManage", "UserId:" + TempData.UserID + " Update PriceList with Id: " + PriceListId);
+                    await _common.Log("PriceListManage", "UserId:" + TempData.UserID + " Update PriceList with Id: " + Id);
                     return new BoolActionResult { isSuccess = true, Message = "Tạo mới bảng giá thành công" };
                 }
                 else
@@ -111,23 +113,71 @@ namespace TBSLogistics.Service.Repository.PricelistManage
             }
         }
 
-        public async Task<List<GetPriceListRequest>> GetListPriceTable()
+        public async Task<PagedResponseCustom<GetListPiceTableRequest>> GetListPriceTable(PaginationFilter filter)
         {
-            var list = await _context.BangGia.Select(x => new GetPriceListRequest()
+
+            var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
+
+            var getData = from bg in _context.BangGia
+                          join kh in _context.KhachHang
+                          on bg.MaKh equals kh.MaKh
+                          join hd in _context.HopDongVaPhuLuc on bg.MaHopDong equals hd.MaHopDong
+                          join cd in _context.CungDuong on bg.MaCungDuong equals cd.MaCungDuong
+                          where hd.SoHopDongCha == null
+                          orderby bg.UpdatedTime descending
+                          select new { bg, kh, hd, cd };
+
+            if (!string.IsNullOrEmpty(filter.Keyword))
             {
-                MaBangGia = x.MaBangGia,
-                MaKh = x.MaKh,
-                MaCungDuong = x.MaCungDuong,
-                MaLoaiPhuongTien = x.MaLoaiPhuongTien,
-                GiaVnd = x.GiaVnd,
-                GiaUsd = x.GiaUsd,
-                MaDvt = x.MaDvt,
-                SoLuong = x.SoLuong,
-                MaLoaiHangHoa = x.MaLoaiHangHoa,
-                MaPtvc = x.MaPtvc,
+                getData = getData.Where(x => x.bg.MaKh.ToLower().Contains(filter.Keyword.ToLower()) ||
+                x.bg.MaBangGia.ToLower().Contains(filter.Keyword.ToLower()) ||
+                x.kh.TenKh.ToLower().Contains(filter.Keyword.ToLower())
+                );
+            }
+
+            if (!string.IsNullOrEmpty(filter.fromDate.ToString()) && !string.IsNullOrEmpty(filter.toDate.ToString()))
+            {
+                getData = getData.Where(x => x.bg.NgayApDung.Date >= filter.fromDate && x.bg.NgayApDung <= filter.toDate);
+            }
+
+            if (!string.IsNullOrEmpty(filter.goodsType))
+            {
+                getData = getData.Where(x => x.bg.MaLoaiHangHoa == filter.goodsType);
+            }
+
+            if (!string.IsNullOrEmpty(filter.vehicleType))
+            {
+                getData = getData.Where(x => x.bg.MaLoaiPhuongTien == filter.vehicleType);
+            }
+
+            var totalRecords = await getData.CountAsync();
+
+            var pagedData = await getData.Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new GetListPiceTableRequest()
+            {
+                MaBangGia = x.bg.MaBangGia,
+                MaHopDong = x.bg.MaHopDong,
+                TenHopDong = x.hd.TenHienThi,
+                MaKh = x.bg.MaHopDong,
+                TenKH = x.kh.TenKh,
+                MaCungDuong = x.bg.MaCungDuong,
+                TenCungDuong = x.cd.TenCungDuong,
+                MaLoaiPhuongTien = x.bg.MaLoaiPhuongTien,
+                GiaVnd = x.bg.GiaVnd,
+                GiaUsd = x.bg.GiaUsd,
+                MaDvt = x.bg.MaDvt,
+                SoLuong = x.bg.SoLuong,
+                MaLoaiHangHoa = x.bg.MaLoaiHangHoa,
+                MaPtvc = x.bg.MaPtvc,
+                NgayApDung = x.bg.NgayApDung,
+                TrangThai = x.bg.TrangThai
             }).ToListAsync();
 
-            return list;
+            return new PagedResponseCustom<GetListPiceTableRequest>()
+            {
+                paginationFilter = validFilter,
+                totalCount = totalRecords,
+                dataResponse = pagedData
+            };
         }
 
         public async Task<List<GetPriceListRequest>> GetListPriceTableByCusId(string CustomerId)

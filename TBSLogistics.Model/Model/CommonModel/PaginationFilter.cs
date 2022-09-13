@@ -13,6 +13,8 @@ namespace TBSLogistics.Model.Filter
         public string customerType { get; set; }
         public string customerGroup { get; set; }
 
+        public string goodsType { get; set; }
+        public string vehicleType { get; set;}
 
         public string Keyword { get; set; }
         public DateTime? fromDate { get; set; }
