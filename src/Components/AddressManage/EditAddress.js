@@ -87,7 +87,7 @@ const EditAddress = (props) => {
 
   const LoadTypeAddress = async (id) => {
     (async () => {
-      const getListTypeAddress = await getData("address/GetListTypeAddress");
+      const getListTypeAddress = await getData("address/GetListAddressType");
 
       if (getListTypeAddress && getListTypeAddress.length > 0) {
         let obj = [];
@@ -110,7 +110,7 @@ const EditAddress = (props) => {
 
   const LoadProvince = async (tinh) => {
     (async () => {
-      const listProvince = await getData("address/ListProvinces");
+      const listProvince = await getData("address/GetListProvinces");
       if (listProvince && listProvince.length > 0) {
         var obj = [];
         obj.push({ value: "", label: "Chọn Tỉnh" });
@@ -129,7 +129,7 @@ const EditAddress = (props) => {
   const LoadDistrict = async (tinh, huyen) => {
     (async () => {
       const listDistrict = await getData(
-        `address/ListDistricts?ProvinceId=${tinh}`
+        `address/GetListDistricts?ProvinceId=${tinh}`
       );
       if (listDistrict && listDistrict.length > 0) {
         var obj = [];
@@ -151,7 +151,9 @@ const EditAddress = (props) => {
 
   const LoadWard = async (huyen, phuong) => {
     (async () => {
-      const listWard = await getData(`address/ListWards?DistrictId=${huyen}`);
+      const listWard = await getData(
+        `address/GetListWards?DistrictId=${huyen}`
+      );
 
       if (listWard && listWard.length > 0) {
         var obj = [];
@@ -204,7 +206,7 @@ const EditAddress = (props) => {
     SetIsLoading(true);
 
     const Update = await putData(
-      `Address/EditAddress?id=${data.MaDiaDiem}`,
+      `Address/EditAddress?Id=${data.MaDiaDiem}`,
       {
         tenDiaDiem: data.TenDiaDiem,
         maQuocGia: 1,

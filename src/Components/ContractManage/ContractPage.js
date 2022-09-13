@@ -28,6 +28,7 @@ const ContractPage = () => {
 
   const [listContractType, setListContractType] = useState([]);
   const [contractType, setContractType] = useState("");
+  const [custommerType, setCustommerType] = useState("");
 
   const columns = useMemo(() => [
     {
@@ -133,7 +134,7 @@ const ContractPage = () => {
   const handleEditButtonClick = async (val) => {
     showModalForm();
     const getDataContract = await getData(
-      `Contract/GetContractById?id=${val.maHopDong}`
+      `Contract/GetContractById?Id=${val.maHopDong}`
     );
 
     setSelectIdClick(getDataContract);
@@ -211,7 +212,8 @@ const ContractPage = () => {
       keySearch,
       fromDate === "" ? "" : moment(fromDate).format("YYYY-MM-DD"),
       toDate === "" ? "" : moment(toDate).format("YYYY-MM-DD"),
-      contractType
+      contractType,
+      custommerType
     );
   };
 
@@ -222,7 +224,8 @@ const ContractPage = () => {
       keySearch,
       fromDate === "" ? "" : moment(fromDate).format("YYYY-MM-DD"),
       toDate === "" ? "" : moment(toDate).format("YYYY-MM-DD"),
-      val
+      val,
+      custommerType
     );
   };
 
@@ -242,13 +245,15 @@ const ContractPage = () => {
     setKeySearch("");
     setFromDate("");
     setToDate("");
+    setTabIndex(0);
     fetchData(1);
   };
 
   const HandleOnChangeTabs = (tabIndex) => {
     setTabIndex(tabIndex);
 
-    let customerType = tabIndex === 0 ? "KH" : "NNP";
+    let customerType = tabIndex === 0 ? "KH" : "NCC";
+    setCustommerType(customerType);
     fetchData(
       1,
       keySearch,

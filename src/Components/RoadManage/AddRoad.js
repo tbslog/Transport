@@ -84,7 +84,7 @@ const AddRoad = (props) => {
     SetIsLoading(true);
 
     (async () => {
-      const getlistAddress = await getData("address/GetListAddress");
+      const getlistAddress = await getData("address/GetListAddressSelect");
 
       if (getlistAddress && getlistAddress.length > 0) {
         var obj = [];

@@ -28,7 +28,7 @@ const CreateCustommer = (props) => {
   const onSubmit = async (data, e) => {
     SetIsLoading(true);
 
-    const post = await postData("Custommer/CreateCustommer", {
+    const post = await postData("Customer/CreateCustomer", {
       maKh: data.MaKH.toUpperCase(),
       tenKh: data.TenKH,
       maSoThue: data.MST,
@@ -77,7 +77,7 @@ const CreateCustommer = (props) => {
         `Common/GetListStatus?statusType=common`
       );
       setListStatusType(getListStatusType);
-      const getlistProvince = await getData("address/ListProvinces");
+      const getlistProvince = await getData("address/GetListProvinces");
 
       if (getlistProvince && getlistProvince.length > 0) {
         var obj = [];
@@ -111,7 +111,7 @@ const CreateCustommer = (props) => {
 
       (async () => {
         const listDistrict = await getData(
-          `address/ListDistricts?ProvinceId=${val.value}`
+          `address/GetListDistricts?ProvinceId=${val.value}`
         );
 
         if (listDistrict && listDistrict.length > 0) {
@@ -149,7 +149,7 @@ const CreateCustommer = (props) => {
 
       (async () => {
         const listWard = await getData(
-          `address/ListWards?DistrictId=${val.value}`
+          `address/GetListWards?DistrictId=${val.value}`
         );
         if (listWard && listWard.length > 0) {
           var obj = [];
@@ -304,7 +304,7 @@ const CreateCustommer = (props) => {
               <div className="form-group">
                 <label htmlFor="SDT">Số điện thoại</label>
                 <input
-                  type="number"
+                  type="text"
                   className="form-control"
                   id="SDT"
                   placeholder="Nhập số điện thoại"

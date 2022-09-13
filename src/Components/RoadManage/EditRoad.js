@@ -91,25 +91,28 @@ const EditRoad = (props) => {
       setValue("MaHopDong", props.selectIdClick.maHopDong);
       setValue("SoKM", props.selectIdClick.km);
 
-      setValue(
-        "DiemLayRong",
-        listAddress.filter((x) => x.value === props.selectIdClick.diemLayRong)
-      );
-      setValue(
-        "DiemDau",
-        listAddress.filter((x) => x.value === props.selectIdClick.diemDau)
-      );
-      setValue(
-        "DiemCuoi",
-        listAddress.filter((x) => x.value === props.selectIdClick.diemCuoi)
-      );
+      setValue("DiemLayRong", {
+        ...listAddress.filter(
+          (x) => x.value === props.selectIdClick.diemLayRong
+        )[0],
+      });
+      setValue("DiemDau", {
+        ...listAddress.filter(
+          (x) => x.value === props.selectIdClick.diemDau
+        )[0],
+      });
+      setValue("DiemCuoi", {
+        ...listAddress.filter(
+          (x) => x.value === props.selectIdClick.diemCuoi
+        )[0],
+      });
     }
-  }, [props.selectIdClick, listAddress]);
+  }, [props, props.selectIdClick, listAddress]);
 
   useEffect(() => {
     SetIsLoading(true);
     (async () => {
-      const getlistAddress = await getData("address/GetListAddress");
+      const getlistAddress = await getData("address/GetListAddressSelect");
 
       if (getlistAddress && getlistAddress.length > 0) {
         var obj = [];
@@ -149,8 +152,7 @@ const EditRoad = (props) => {
 
   const onSubmit = async (data, e) => {
     SetIsLoading(true);
-
-    const post = await putData(`Road/UpdateRoad?id=${data.MaCungDuong}`, {
+    const post = await putData(`Road/UpdateRoad?Id=${data.MaCungDuong}`, {
       tenCungDuong: data.TenCungDuong,
       maHopDong: data.MaHopDong,
       km: data.SoKM,

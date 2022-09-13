@@ -4,6 +4,7 @@ import DriverPage from "./Components/DriverManage/DriverPage";
 import HomePage from "./Components/Home/HomePage";
 import RoadPage from "./Components/RoadManage/RoadPage";
 import ContractPage from "./Components/ContractManage/ContractPage";
+import PriceTablePage from "./Components/PriceListManage/PriceTablePage";
 
 let routerList = [
   {
@@ -21,18 +22,10 @@ let routerList = [
         child: [],
       },
       {
-        name: "Khách hàng",
+        name: "KH & NCC",
         pathName: "/custommer",
         path: "custommer",
         element: <CustommerPage />,
-        exact: true,
-        child: [],
-      },
-      {
-        name: "Nhà cung cấp",
-        pathName: "/address",
-        path: "address",
-        element: <AddressPage />,
         exact: true,
         child: [],
       },
@@ -111,9 +104,9 @@ let routerList = [
       },
       {
         name: "Bảng giá",
-        pathName: "/driver",
-        path: "driver",
-        element: <DriverPage />,
+        pathName: "/pricetable",
+        path: "pricetable",
+        element: <PriceTablePage />,
         exact: true,
         child: [],
       },

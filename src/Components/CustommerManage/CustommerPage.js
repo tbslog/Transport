@@ -1,9 +1,9 @@
 import { useMemo, useState, useEffect, useCallback, useRef } from "react";
 import { getData, postData } from "../Common/FuncAxios";
 import DataTable from "react-data-table-component";
-import CreateCustommer from "./CreateCustommer";
 import moment from "moment";
 import EditCustommer from "./EdtiCustommer";
+import CreateCustommer from "./CreateCustommer";
 import { Modal } from "bootstrap";
 import { ToastWarning } from "../Common/FuncToast";
 import FileExcelImport from "../../ExcelFile/CustommerTemplate/AddnewCus.xlsx";
@@ -113,9 +113,7 @@ const CustommerPage = () => {
 
   const handleEditButtonClick = async (val) => {
     showModalForm();
-    const dataCus = await getData(
-      `Custommer/GetCustommerById?CustommerId=${val.maKh}`
-    );
+    const dataCus = await getData(`Customer/GetCustomerById?Id=${val.maKh}`);
     setSelectIdClick(dataCus);
 
     SetAddress(dataCus.address);
@@ -129,7 +127,7 @@ const CustommerPage = () => {
     }
 
     const dataCus = await getData(
-      `Custommer/GetListCustommer?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}`
+      `Customer/GetListCustomer?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}`
     );
 
     formatTable(dataCus.data);
@@ -145,7 +143,7 @@ const CustommerPage = () => {
     setLoading(true);
 
     const dataCus = await getData(
-      `Custommer/GetListCustommer?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}`
+      `Customer/GetListCustomer?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}`
     );
 
     formatTable(dataCus.data);
@@ -168,7 +166,7 @@ const CustommerPage = () => {
       setListCustomerType(getListCustommerType);
 
       let dataCus = await getData(
-        `Custommer/GetListCustommer?PageNumber=1&PageSize=10`
+        `Customer/GetListCustomer?PageNumber=1&PageSize=10`
       );
 
       formatTable(dataCus.data);
@@ -192,7 +190,7 @@ const CustommerPage = () => {
     e.target.value = null;
 
     const importExcelCus = await postData(
-      "Custommer/ReadFileExcel",
+      "Customer/ReadFileExcel",
       { formFile: file },
       {
         headers: { "Content-Type": "multipart/form-data" },

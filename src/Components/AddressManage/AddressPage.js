@@ -76,7 +76,7 @@ const AddressPage = () => {
   const handleEditButtonClick = async (val) => {
     showModalForm();
     const dataAddress = await getData(
-      `Address/GetAddressById?AddressId=${val.maDiaDiem}`
+      `Address/GetAddressById?Id=${val.maDiaDiem}`
     );
     setSelectIdClick(dataAddress);
   };
@@ -89,7 +89,7 @@ const AddressPage = () => {
     }
 
     const dataCus = await getData(
-      `Address/ListAddress?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}`
+      `Address/GetListAddress?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}`
     );
 
     formatTable(dataCus.data);
@@ -105,7 +105,7 @@ const AddressPage = () => {
     setLoading(true);
 
     const dataCus = await getData(
-      `Address/ListAddress?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}`
+      `Address/GetListAddress?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}`
     );
 
     formatTable(dataCus.data);

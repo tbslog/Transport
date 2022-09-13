@@ -13,6 +13,7 @@ import ContractPage from "./Components/ContractManage/ContractPage";
 import "react-toastify/dist/ReactToastify.css";
 import "react-datepicker/dist/react-datepicker.css";
 import "react-tabs/style/react-tabs.css";
+import PriceTablePage from "./Components/PriceListManage/PriceTablePage";
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
                   <Route path="/driver" element={<DriverPage />} />
                   <Route path="/road" element={<RoadPage />} />
                   <Route path="/contract" element={<ContractPage />} />
+                  <Route path="/pricetable" element={<PriceTablePage />} />
                 </Routes>
               </div>
             </div>

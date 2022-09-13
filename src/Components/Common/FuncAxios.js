@@ -1,7 +1,8 @@
 import axios from "axios";
 import { ToastSuccess, ToastError, ToastWarning } from "../Common/FuncToast";
 
-//const Host = "https://kind-northcutt.112-78-2-40.plesk.page/api/";
+// const Host = "https://kind-northcutt.112-78-2-40.plesk.page/api/";
+// const Host = "https://api.tbslogistics.com.vn/api/";
 const Host = "http://localhost:8088/api/";
 
 const getData = async (url) => {

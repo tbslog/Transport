@@ -181,7 +181,7 @@ const EditContract = (props) => {
     SetIsLoading(true);
 
     var update = await putData(
-      `Contract/UpdateContract?id=${data.MaHopDong}`,
+      `Contract/UpdateContract?Id=${data.MaHopDong}`,
       {
         soHopDongCha: data.SoHopDongCha,
         tenHienThi: data.TenHopDong,

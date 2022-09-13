@@ -89,7 +89,7 @@ const RoadPage = () => {
 
   const handleEditButtonClick = async (val) => {
     showModalForm();
-    const dataRoad = await getData(`Road/GetById?id=${val.maCungDuong}`);
+    const dataRoad = await getData(`Road/GetRoadById?Id=${val.maCungDuong}`);
 
     setSelectIdClick(dataRoad);
   };

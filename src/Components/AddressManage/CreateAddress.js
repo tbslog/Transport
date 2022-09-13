@@ -64,7 +64,7 @@ const CreateAddress = (props) => {
     SetListWard([]);
 
     (async () => {
-      const getListTypeAddress = await getData("address/GetListTypeAddress");
+      const getListTypeAddress = await getData("address/GetListAddressType");
 
       if (getListTypeAddress && getListTypeAddress.length > 0) {
         let obj = [];
@@ -81,7 +81,7 @@ const CreateAddress = (props) => {
         SetListTypeAddress(obj);
       }
 
-      const getlistProvince = await getData("address/ListProvinces");
+      const getlistProvince = await getData("address/GetListProvinces");
 
       if (getlistProvince && getlistProvince.length > 0) {
         let obj = [];
@@ -115,7 +115,7 @@ const CreateAddress = (props) => {
 
       (async () => {
         const listDistrict = await getData(
-          `address/ListDistricts?ProvinceId=${val.value}`
+          `address/GetListDistricts?ProvinceId=${val.value}`
         );
 
         if (listDistrict && listDistrict.length > 0) {
@@ -153,7 +153,7 @@ const CreateAddress = (props) => {
 
       (async () => {
         const listWard = await getData(
-          `address/ListWards?DistrictId=${val.value}`
+          `address/GetListWards?DistrictId=${val.value}`
         );
         if (listWard && listWard.length > 0) {
           var obj = [];

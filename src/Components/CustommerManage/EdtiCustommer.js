@@ -27,7 +27,7 @@ const EditCustommer = (props) => {
     SetIsLoading(true);
 
     const put = await putData(
-      `Custommer/EdtiCustommer?CustommerId=${data.MaKH}`,
+      `Customer/UpdateCustomer?Id=${data.MaKH}`,
       {
         maKh: data.MaKH.toUpperCase(),
         tenKh: data.TenKH,
@@ -124,7 +124,7 @@ const EditCustommer = (props) => {
 
   const LoadProvince = async (tinh) => {
     (async () => {
-      const listProvince = await getData("address/ListProvinces");
+      const listProvince = await getData("address/GetListProvinces");
       if (listProvince && listProvince.length > 0) {
         var obj = [];
         obj.push({ value: "", label: "Chọn Tỉnh" });
@@ -143,7 +143,7 @@ const EditCustommer = (props) => {
   const LoadDistrict = async (tinh, huyen) => {
     (async () => {
       const listDistrict = await getData(
-        `address/ListDistricts?ProvinceId=${tinh}`
+        `address/GetListDistricts?ProvinceId=${tinh}`
       );
       if (listDistrict && listDistrict.length > 0) {
         var obj = [];
@@ -165,7 +165,9 @@ const EditCustommer = (props) => {
 
   const LoadWard = async (huyen, phuong) => {
     (async () => {
-      const listWard = await getData(`address/ListWards?DistrictId=${huyen}`);
+      const listWard = await getData(
+        `address/GetListWards?DistrictId=${huyen}`
+      );
 
       if (listWard && listWard.length > 0) {
         var obj = [];
