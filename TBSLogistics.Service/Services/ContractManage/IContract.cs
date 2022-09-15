@@ -10,12 +10,13 @@ using TBSLogistics.Model.Wrappers;
 
 namespace TBSLogistics.Service.Services.ContractManage
 {
-   public interface IContract
+    public interface IContract
     {
-        public  Task<BoolActionResult> CreateContract(CreateContract request);
-        public Task<BoolActionResult> EditContract(string id,EditContract request);
+        public Task<BoolActionResult> CreateContract(CreateContract request);
+        public Task<BoolActionResult> EditContract(string id, EditContract request);
         public Task<GetContractById> GetContractById(string id);
         Task<PagedResponseCustom<ListContract>> GetListContract(PaginationFilter filter);
+        Task<List<GetContractById>> GetListContractSelect(string MaKH);
 
 
     }

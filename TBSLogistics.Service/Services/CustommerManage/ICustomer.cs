@@ -18,9 +18,8 @@ namespace TBSLogistics.Service.Repository.CustommerManage
         Task<BoolActionResult> CreateCustomer(CreateCustomerRequest request);
         Task<BoolActionResult> EditCustomer(string CustomerId, EditCustomerRequest request);
         Task<GetCustomerRequest> GetCustomerById(string CustomerId);
-
         Task<PagedResponseCustom<ListCustommerRequest>> getListCustommer(PaginationFilter filter);
-
+        Task<List<GetCustomerRequest>> getListCustomerOptionSelect();
         Task<BoolActionResult> ReadExcelFile(IFormFile formFile, CancellationToken cancellationToken);
 
     }

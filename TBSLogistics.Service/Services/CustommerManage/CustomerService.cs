@@ -206,6 +206,18 @@ namespace TBSLogistics.Service.Repository.CustommerManage
             }).FirstOrDefaultAsync();
         }
 
+        public async Task<List<GetCustomerRequest>> getListCustomerOptionSelect()
+        {
+            var getList = await _TMSContext.KhachHang.Where(x => x.TrangThai == 1).Select(x => new GetCustomerRequest()
+            {
+                MaKh = x.MaKh,
+                TenKh = x.TenKh,
+                LoaiKH = x.MaLoaiKh,
+            }).ToListAsync();
+
+            return getList;
+        }
+
         public async Task<PagedResponseCustom<ListCustommerRequest>> getListCustommer(PaginationFilter filter)
         {
             try

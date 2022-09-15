@@ -94,6 +94,14 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             return Ok(pagedReponse);
         }
 
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetListContractSelect(string MaKH=null)
+        {
+            var list = await _contract.GetListContractSelect(MaKH);
+            return Ok(list);
+        }
+
         [HttpGet, DisableRequestSizeLimit]
         [Route("[action]")]
         public async Task<IActionResult> DownloadFile(int fileId)

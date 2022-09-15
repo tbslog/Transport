@@ -9,6 +9,7 @@ namespace TBSLogistics.Model.Model.PriceListModel
     public class CreatePriceListRequest
     {
         public string MaBangGia { get; set; }
+        public string MaHopDong { get; set; }
         public string MaKH { get; set; }
         public string MaCungDuong { get; set; }
         public string MaLoaiPhuongTien { get; set; }
@@ -18,5 +19,7 @@ namespace TBSLogistics.Model.Model.PriceListModel
         public int SoLuong { get; set; }
         public string MaLoaiHangHoa { get; set; }
         public string MaPtvc { get; set; }
+        public DateTime NgayApDung { get; set; }
+        public int TrangThai { get; set; }
     }
 }

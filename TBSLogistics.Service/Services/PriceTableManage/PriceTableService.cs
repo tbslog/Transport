@@ -38,6 +38,7 @@ namespace TBSLogistics.Service.Repository.PricelistManage
                 await _context.BangGia.AddAsync(new BangGia()
                 {
                     MaBangGia = request.MaBangGia,
+                    MaHopDong = request.MaHopDong,
                     MaKh = request.MaKH,
                     MaCungDuong = request.MaCungDuong,
                     MaLoaiPhuongTien = request.MaLoaiPhuongTien,
@@ -47,6 +48,8 @@ namespace TBSLogistics.Service.Repository.PricelistManage
                     SoLuong = request.SoLuong,
                     MaLoaiHangHoa = request.MaLoaiHangHoa,
                     MaPtvc = request.MaPtvc,
+                    NgayApDung = request.NgayApDung,
+                    TrangThai = request.TrangThai,
                     UpdatedTime = DateTime.Now,
                     CreatedTime = DateTime.Now
                 });

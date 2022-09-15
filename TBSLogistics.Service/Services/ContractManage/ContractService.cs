@@ -241,5 +241,26 @@ namespace TBSLogistics.Service.Services.ContractManage
                 throw;
             }
         }
+
+        public async Task<List<GetContractById>> GetListContractSelect(string MaKH)
+        {
+            var getList = from ct in _TMSContext.HopDongVaPhuLuc
+                          join kh in _TMSContext.KhachHang on ct.MaKh equals kh.MaKh
+                          orderby ct.MaHopDong descending
+                          where ct.SoHopDongCha ==null
+                          select new { ct, kh };
+
+            if (!string.IsNullOrEmpty(MaKH))
+            {
+                getList = getList.Where(x => x.ct.MaKh == MaKH);
+            }
+
+            var list = await getList.Select(x => new GetContractById() { 
+                MaHopDong = x.ct.MaHopDong,
+                TenHienThi = x.ct.TenHienThi,
+            }).ToListAsync();
+
+            return list;
+        }
     }
 }

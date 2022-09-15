@@ -75,7 +75,7 @@ namespace TBSLogistics.Service.Repository.RoadManage
 
                 var checkContract = await _context.HopDongVaPhuLuc.Where(x => x.MaHopDong == request.MaHopDong).FirstOrDefaultAsync();
 
-                if(checkContract == null)
+                if (checkContract == null)
                 {
                     return new BoolActionResult { isSuccess = false, Message = "Mã hợp đồng không đúng" };
                 }
@@ -393,6 +393,29 @@ namespace TBSLogistics.Service.Repository.RoadManage
             }
 
             return ErrorValidate;
+        }
+
+        public async Task<List<GetRoadRequest>> getListRoadOptionSelect(string MaKH)
+        {
+            var getList = from cd in _context.CungDuong
+                          join
+                          ct in _context.HopDongVaPhuLuc
+                          on cd.MaHopDong equals ct.MaHopDong
+                          orderby cd.MaCungDuong descending
+                          select new { ct, cd };
+
+            if (!string.IsNullOrEmpty(MaKH))
+            {
+                getList = getList.Where(x => x.ct.MaKh == MaKH);
+            }
+
+            var list = await getList.Select(x => new GetRoadRequest()
+            {
+                MaCungDuong = x.cd.MaCungDuong,
+                TenCungDuong = x.cd.TenCungDuong,
+            }).ToListAsync();
+
+            return list;
         }
     }
 }

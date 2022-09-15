@@ -96,5 +96,13 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             var pagedReponse = PaginationHelper.CreatePagedReponse<ListRoadRequest>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _uriService, route);
             return Ok(pagedReponse);
         }
+
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetListRoadOptionSelect(string MaKH = null)
+        {
+            var listRoad = await _road.getListRoadOptionSelect(MaKH);
+            return Ok(listRoad);
+        }
     }
 }

@@ -77,6 +77,14 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpGet]
         [Route("[action]")]
+        public async Task<IActionResult> GetListCustomerOptionSelect()
+        {
+            var listOptionSelect = await _customer.getListCustomerOptionSelect();
+            return Ok(listOptionSelect);
+        }
+
+        [HttpGet]
+        [Route("[action]")]
         public async Task<IActionResult> GetCustomerById(string Id)
         {
             var Custommer = await _customer.GetCustomerById(Id);
