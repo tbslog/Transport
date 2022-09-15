@@ -67,6 +67,17 @@ const CustommerPage = () => {
     {
       name: "Tên khách hàng",
       selector: (row) => row.tenKh,
+      sortable: true,
+    },
+    {
+      name: "Phân Loại",
+      selector: (row) => row.loaiKH,
+      sortable: true,
+    },
+    {
+      name: "Nhóm",
+      selector: (row) => row.nhomKH,
+      sortable: true,
     },
     {
       name: "Mã số thuế",
@@ -80,7 +91,7 @@ const CustommerPage = () => {
       name: "Địa chỉ",
       selector: (row) => row.diaDiem,
       wrap: true,
-      grow: 7,
+      grow: 5,
     },
     // {
     //   name: "Thời gian cập nhật",
@@ -168,7 +179,7 @@ const CustommerPage = () => {
       let dataCus = await getData(
         `Customer/GetListCustomer?PageNumber=1&PageSize=10`
       );
-
+      console.log(dataCus.data);
       formatTable(dataCus.data);
       setTotalRows(dataCus.totalRecords);
     })();

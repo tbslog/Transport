@@ -254,14 +254,7 @@ const ContractPage = () => {
 
     let customerType = tabIndex === 0 ? "KH" : "NCC";
     setCustommerType(customerType);
-    fetchData(
-      1,
-      keySearch,
-      fromDate === "" ? "" : moment(fromDate).format("YYYY-MM-DD"),
-      toDate === "" ? "" : moment(toDate).format("YYYY-MM-DD"),
-      contractType,
-      customerType
-    );
+    fetchData(1, "", "", "", "", customerType);
   };
 
   return (

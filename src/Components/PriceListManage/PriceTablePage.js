@@ -65,7 +65,7 @@ const PriceTablePage = () => {
     },
     {
       name: "Tên khách hàng",
-      selector: (row) => row.tenKh,
+      selector: (row) => row.tenKH,
     },
     {
       name: "Mã Cung Đường",
@@ -147,9 +147,9 @@ const PriceTablePage = () => {
   const handlePerRowsChange = async (newPerPage, page) => {
     setLoading(true);
 
-    fetchData(1, keySearch, fromDate, toDate, vehicleType, goodsType);
-
     setPerPage(newPerPage);
+
+    fetchData(page, keySearch, fromDate, toDate, vehicleType, goodsType);
 
     setLoading(false);
   };
@@ -168,28 +168,24 @@ const PriceTablePage = () => {
     fetchData(1);
     setLoading(false);
   }, []);
-
   function formatTable(data) {
     data.map((val) => {
       val.ngayApDung = moment(val.ngayApDung).format("DD/MM/YYYY");
     });
     setData(data);
   }
-
   const handleOnChangeVehicleType = (value) => {
     setLoading(true);
     setVehicleType(value);
 
     setLoading(false);
   };
-
   const handleOnChangeGoodsType = (value) => {
     setLoading(true);
     setGoodsType(value);
 
     setLoading(false);
   };
-
   const handleSearchClick = () => {
     setLoading(true);
 
@@ -423,7 +419,9 @@ const PriceTablePage = () => {
               <div className="modal-body">
                 <>
                   {ShowModal === "Edit" && <EditPriceTable />}
-                  {ShowModal === "Create" && <AddPriceTable />}
+                  {ShowModal === "Create" && (
+                    <AddPriceTable getListPriceTable={fetchData} />
+                  )}
                 </>
               </div>
             </div>
