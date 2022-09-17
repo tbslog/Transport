@@ -30,7 +30,7 @@ namespace TBSLogistics.Service.Services.ContractManage
         {
             try
             {
-                var checkExists = await _TMSContext.HopDongVaPhuLuc.Where(x => x.MaHopDong == request.MaHopDong || x.TenHienThi == request.TenHienThi).FirstOrDefaultAsync();
+                var checkExists = await _TMSContext.HopDongVaPhuLuc.Where(x => x.MaHopDong == request.MaHopDong ).FirstOrDefaultAsync();
 
                 if (checkExists != null)
                 {
@@ -48,7 +48,6 @@ namespace TBSLogistics.Service.Services.ContractManage
                 {
                     return new BoolActionResult { isSuccess = false, Message = "Thời gian bắt đầu không được lớn hơn hoặc bằng thời gian kết thúc" };
                 }
-
 
                 await _TMSContext.AddAsync(new HopDongVaPhuLuc()
                 {
@@ -104,7 +103,6 @@ namespace TBSLogistics.Service.Services.ContractManage
 
                 checkExists.TenHienThi = request.TenHienThi;
                 checkExists.MaLoaiHopDong = request.PhanLoaiHopDong;
-                checkExists.SoHopDongCha = request.SoHopDongCha;
                 checkExists.ThoiGianBatDau = request.ThoiGianBatDau;
                 checkExists.ThoiGianKetThuc = request.ThoiGianKetThuc;
                 checkExists.MaPtvc = request.MaPtvc;

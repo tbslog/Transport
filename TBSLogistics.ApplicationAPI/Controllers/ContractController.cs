@@ -55,7 +55,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             }
         }
 
-        [HttpPut]
+        [HttpPost]
         [Route("[action]")]
         public async Task<IActionResult> UpdateContract(string Id, [FromForm] EditContract request)
         {

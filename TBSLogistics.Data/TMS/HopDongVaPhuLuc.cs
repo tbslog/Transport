@@ -22,7 +22,7 @@ namespace TBSLogistics.Data.TMS
         public DateTime ThoiGianBatDau { get; set; }
         public DateTime ThoiGianKetThuc { get; set; }
         public string GhiChu { get; set; }
-        public bool? PhuPhi { get; set; }
+        public decimal? PhuPhi { get; set; }
         public int TrangThai { get; set; }
         public DateTime UpdatedTime { get; set; }
         public DateTime CreatedTime { get; set; }

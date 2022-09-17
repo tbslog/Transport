@@ -45,7 +45,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             }
         }
 
-        [HttpPut]
+        [HttpPost]
         [Route("[action]")]
         public async Task<IActionResult> UpdateRoad(string Id, UpdateRoadRequest request)
         {

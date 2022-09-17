@@ -65,7 +65,7 @@ namespace TBSLogistics.Data.TMS
                      .AddJsonFile("appsettings.json")
                      .Build();
 
-                    optionsBuilder.UseSqlServer(configuration.GetConnectionString("TMS_Local"));
+                    optionsBuilder.UseSqlServer(configuration.GetConnectionString("TMS_Cloud"));
                 }
             }
         }
@@ -357,6 +357,8 @@ namespace TBSLogistics.Data.TMS
                     .HasMaxLength(10)
                     .IsUnicode(false)
                     .HasColumnName("MaPTVC");
+
+                entity.Property(e => e.PhuPhi).HasColumnType("decimal(18, 2)");
 
                 entity.Property(e => e.SoHopDongCha)
                     .HasMaxLength(10)

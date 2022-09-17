@@ -14,7 +14,7 @@ namespace TBSLogistics.Model.Filter
         public string customerGroup { get; set; }
 
         public string goodsType { get; set; }
-        public string vehicleType { get; set;}
+        public string vehicleType { get; set; }
 
         public string Keyword { get; set; }
         public DateTime? fromDate { get; set; }
@@ -30,7 +30,7 @@ namespace TBSLogistics.Model.Filter
         public PaginationFilter(int pageNumber, int pageSize)
         {
             this.PageNumber = pageNumber < 1 ? 1 : pageNumber;
-            this.PageSize = pageSize > 10 ? 10 : pageSize;
+            this.PageSize = pageSize;
         }
     }
 }

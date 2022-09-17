@@ -10,7 +10,7 @@ namespace TBSLogistics.Data.TMS
         public string MaPhuPhi { get; set; }
         public string MaLoaiPhuPhi { get; set; }
         public DateTime NgayHieuLuc { get; set; }
-        public int ThoiGianHieuLuc { get; set; }
+        public DateTime NgayHetHan { get; set; }
         public decimal GiaUsd { get; set; }
         public decimal GiaVnd { get; set; }
         public int SoLuong { get; set; }

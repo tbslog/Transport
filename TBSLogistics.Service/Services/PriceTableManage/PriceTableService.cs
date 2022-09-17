@@ -188,37 +188,43 @@ namespace TBSLogistics.Service.Repository.PricelistManage
             var list = await _context.BangGia.Where(x => x.MaKh == CustomerId).Select(x => new GetPriceListRequest()
             {
                 MaBangGia = x.MaBangGia,
+                MaHopDong = x.MaHopDong,
                 MaKh = x.MaKh,
                 MaCungDuong = x.MaCungDuong,
-                MaLoaiPhuongTien = x.MaLoaiPhuongTien,
-                GiaVnd = x.GiaVnd,
-                GiaUsd = x.GiaUsd,
-                MaDvt = x.MaDvt,
+                NgayApDung = x.NgayApDung,
+                GiaVND = x.GiaVnd,
+                GiaUSD = x.GiaUsd,
                 SoLuong = x.SoLuong,
+                MaLoaiPhuongTien = x.MaLoaiPhuongTien,
                 MaLoaiHangHoa = x.MaLoaiHangHoa,
-                MaPtvc = x.MaPtvc,
+                MaDVT = x.MaDvt,
+                MaPTVC = x.MaPtvc,
+                TrangThai = x.TrangThai
             }).ToListAsync();
 
             return list;
         }
 
-        public async Task<GetPriceListRequest> GetPriceTableById(string PriceListId)
+        public async Task<GetPriceListRequest> GetPriceTableById(string Id)
         {
-            var PriceList = await _context.BangGia.Where(x => x.MaBangGia == PriceListId).Select(x => new GetPriceListRequest()
+            var priceTable = await _context.BangGia.Where(x => x.MaBangGia == Id).Select(x => new GetPriceListRequest()
             {
                 MaBangGia = x.MaBangGia,
+                MaHopDong = x.MaHopDong,
                 MaKh = x.MaKh,
                 MaCungDuong = x.MaCungDuong,
-                MaLoaiPhuongTien = x.MaLoaiPhuongTien,
-                GiaVnd = x.GiaVnd,
-                GiaUsd = x.GiaUsd,
-                MaDvt = x.MaDvt,
+                NgayApDung = x.NgayApDung,
+                GiaVND = x.GiaVnd,
+                GiaUSD = x.GiaUsd,
                 SoLuong = x.SoLuong,
+                MaLoaiPhuongTien = x.MaLoaiPhuongTien,
                 MaLoaiHangHoa = x.MaLoaiHangHoa,
-                MaPtvc = x.MaPtvc,
+                MaDVT = x.MaDvt,
+                MaPTVC = x.MaPtvc,
+                TrangThai = x.TrangThai
             }).FirstOrDefaultAsync();
 
-            return PriceList;
+            return priceTable;
         }
     }
 }

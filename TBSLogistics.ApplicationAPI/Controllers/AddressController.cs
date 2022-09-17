@@ -46,7 +46,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             }
         }
 
-        [HttpPut]
+        [HttpPost]
         [Route("[action]")]
         public async Task<IActionResult> EditAddress(int Id, UpdateAddressRequest request)
         {
