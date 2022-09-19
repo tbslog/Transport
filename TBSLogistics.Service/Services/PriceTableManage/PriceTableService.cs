@@ -24,41 +24,30 @@ namespace TBSLogistics.Service.Repository.PricelistManage
             _common = common;
         }
 
-        public async Task<BoolActionResult> CreatePriceTable(CreatePriceListRequest request)
+        public async Task<BoolActionResult> CreatePriceTable(List<CreatePriceListRequest> request)
         {
             try
             {
-                var checkExists = await _context.BangGia.Where(x => x.MaBangGia == request.MaBangGia).FirstOrDefaultAsync();
-
-                if (checkExists != null)
+                await _context.BangGia.AddRangeAsync(request.Select(x => new BangGia
                 {
-                    return new BoolActionResult { isSuccess = false, Message = "Bảng giá đã tồn tại" };
-                }
-
-                await _context.BangGia.AddAsync(new BangGia()
-                {
-                    MaBangGia = request.MaBangGia,
-                    MaHopDong = request.MaHopDong,
-                    MaKh = request.MaKH,
-                    MaCungDuong = request.MaCungDuong,
-                    MaLoaiPhuongTien = request.MaLoaiPhuongTien,
-                    GiaVnd = request.GiaVnd,
-                    GiaUsd = request.GiaUsd,
-                    MaDvt = request.MaDvt,
-                    SoLuong = request.SoLuong,
-                    MaLoaiHangHoa = request.MaLoaiHangHoa,
-                    MaPtvc = request.MaPtvc,
-                    NgayApDung = request.NgayApDung,
-                    TrangThai = request.TrangThai,
-                    UpdatedTime = DateTime.Now,
-                    CreatedTime = DateTime.Now
-                });
+                    MaHopDong = x.MaHopDong,
+                    MaKh = x.MaKH,
+                    MaPtvc = x.MaPtvc,
+                    MaCungDuong = x.MaCungDuong,
+                    MaLoaiPhuongTien = x.MaLoaiPhuongTien,
+                    GiaVnd = x.GiaVnd,
+                    GiaUsd = x.GiaUsd,
+                    MaDvt = x.MaDvt,
+                    MaLoaiHangHoa = x.MaLoaiHangHoa,
+                    NgayApDung = x.NgayApDung,
+                    TrangThai = x.TrangThai,
+                }).ToList());
 
                 var result = await _context.SaveChangesAsync();
 
                 if (result > 0)
                 {
-                    await _common.Log("PriceListManage", "UserId:" + TempData.UserID + " create new PriceList with Id: " + request.MaBangGia);
+                    await _common.Log("PriceListManage", "UserId:" + TempData.UserID + " create new PriceList with contract: " + request.Select(x => x.MaHopDong).FirstOrDefault());
                     return new BoolActionResult { isSuccess = true, Message = "Tạo mới bảng giá thành công" };
                 }
                 else
@@ -73,69 +62,22 @@ namespace TBSLogistics.Service.Repository.PricelistManage
             }
         }
 
-        public async Task<BoolActionResult> EditPriceTable(string Id, UpdatePriceListRequest request)
-        {
-            try
-            {
-                var getPriceList = await _context.BangGia.Where(x => x.MaBangGia == Id).FirstOrDefaultAsync();
-
-                if (getPriceList == null)
-                {
-                    return new BoolActionResult { isSuccess = false, Message = "Bảng giá không tồn tại, Vui lòng tạo mới" };
-                }
-
-                getPriceList.MaKh = request.MaKh;
-                getPriceList.MaCungDuong = request.MaCungDuong;
-                getPriceList.MaLoaiPhuongTien = request.MaLoaiPhuongTien;
-                getPriceList.GiaVnd = request.GiaVnd;
-                getPriceList.GiaUsd = request.GiaUsd;
-                getPriceList.MaDvt = request.MaDvt;
-                getPriceList.SoLuong = request.SoLuong;
-                getPriceList.MaLoaiHangHoa = request.MaLoaiHangHoa;
-                getPriceList.MaPtvc = request.MaPtvc;
-                getPriceList.UpdatedTime = DateTime.Now;
-
-                _context.BangGia.Update(getPriceList);
-
-                var result = await _context.SaveChangesAsync();
-
-                if (result > 0)
-                {
-                    await _common.Log("PriceListManage", "UserId:" + TempData.UserID + " Update PriceList with Id: " + Id);
-                    return new BoolActionResult { isSuccess = true, Message = "Tạo mới bảng giá thành công" };
-                }
-                else
-                {
-                    return new BoolActionResult { isSuccess = false, Message = "Tạo mới bảng giá thất bại" };
-                }
-            }
-            catch (Exception ex)
-            {
-                await _common.Log("PriceListManage", "UserId:" + TempData.UserID + " Update PriceList with ERROR: " + ex.ToString());
-                return new BoolActionResult { isSuccess = false, Message = ex.ToString(), DataReturn = "Exception" };
-            }
-        }
-
         public async Task<PagedResponseCustom<GetListPiceTableRequest>> GetListPriceTable(PaginationFilter filter)
         {
-
             var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
 
             var getData = from bg in _context.BangGia
-                          join kh in _context.KhachHang
-                          on bg.MaKh equals kh.MaKh
-                          join hd in _context.HopDongVaPhuLuc on bg.MaHopDong equals hd.MaHopDong
-                          join cd in _context.CungDuong on bg.MaCungDuong equals cd.MaCungDuong
-                          where hd.SoHopDongCha == null
-                          orderby bg.UpdatedTime descending
-                          select new { bg, kh, hd, cd };
+                          join
+                          hd in _context.HopDongVaPhuLuc
+                          on bg.MaHopDong equals hd.MaHopDong
+                          join
+                          kh in _context.KhachHang on bg.MaKh equals kh.MaKh
+                          orderby bg.CreatedTime descending
+                          select new { bg, hd, kh };
 
             if (!string.IsNullOrEmpty(filter.Keyword))
             {
-                getData = getData.Where(x => x.bg.MaKh.ToLower().Contains(filter.Keyword.ToLower()) ||
-                x.bg.MaBangGia.ToLower().Contains(filter.Keyword.ToLower()) ||
-                x.kh.TenKh.ToLower().Contains(filter.Keyword.ToLower())
-                );
+                getData = getData.Where(x => x.bg.MaHopDong == filter.Keyword);
             }
 
             if (!string.IsNullOrEmpty(filter.fromDate.ToString()) && !string.IsNullOrEmpty(filter.toDate.ToString()))
@@ -157,18 +99,15 @@ namespace TBSLogistics.Service.Repository.PricelistManage
 
             var pagedData = await getData.Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new GetListPiceTableRequest()
             {
-                MaBangGia = x.bg.MaBangGia,
                 MaHopDong = x.bg.MaHopDong,
                 TenHopDong = x.hd.TenHienThi,
                 MaKh = x.bg.MaHopDong,
                 TenKH = x.kh.TenKh,
                 MaCungDuong = x.bg.MaCungDuong,
-                TenCungDuong = x.cd.TenCungDuong,
                 MaLoaiPhuongTien = x.bg.MaLoaiPhuongTien,
                 GiaVnd = x.bg.GiaVnd,
                 GiaUsd = x.bg.GiaUsd,
                 MaDvt = x.bg.MaDvt,
-                SoLuong = x.bg.SoLuong,
                 MaLoaiHangHoa = x.bg.MaLoaiHangHoa,
                 MaPtvc = x.bg.MaPtvc,
                 NgayApDung = x.bg.NgayApDung,
@@ -183,48 +122,30 @@ namespace TBSLogistics.Service.Repository.PricelistManage
             };
         }
 
-        public async Task<List<GetPriceListRequest>> GetListPriceTableByCusId(string CustomerId)
+        public async Task<List<GetPriceListRequest>> GetListPriceTableByContractId(string contractId)
         {
-            var list = await _context.BangGia.Where(x => x.MaKh == CustomerId).Select(x => new GetPriceListRequest()
+            var getList = from bg in _context.BangGia
+                          join hd in _context.HopDongVaPhuLuc
+                          on bg.MaHopDong equals hd.MaHopDong
+                          where bg.MaHopDong == contractId
+                          orderby bg.NgayApDung descending
+                          select new { bg, hd };
+
+            var list = await getList.Select(x => new GetPriceListRequest()
             {
-                MaBangGia = x.MaBangGia,
-                MaHopDong = x.MaHopDong,
-                MaKh = x.MaKh,
-                MaCungDuong = x.MaCungDuong,
-                NgayApDung = x.NgayApDung,
-                GiaVND = x.GiaVnd,
-                GiaUSD = x.GiaUsd,
-                SoLuong = x.SoLuong,
-                MaLoaiPhuongTien = x.MaLoaiPhuongTien,
-                MaLoaiHangHoa = x.MaLoaiHangHoa,
-                MaDVT = x.MaDvt,
-                MaPTVC = x.MaPtvc,
-                TrangThai = x.TrangThai
+                MaHopDong = x.bg.MaHopDong,
+                MaKh = x.bg.MaKh,
+                MaCungDuong = x.bg.MaCungDuong,
+                NgayApDung = x.bg.NgayApDung,
+                GiaVND = x.bg.GiaVnd,
+                GiaUSD = x.bg.GiaUsd,
+                MaLoaiPhuongTien = x.bg.MaLoaiPhuongTien,
+                MaLoaiHangHoa = x.bg.MaLoaiHangHoa,
+                MaDVT = x.bg.MaDvt,
+                MaPTVC = x.bg.MaPtvc,
+                TrangThai = x.bg.TrangThai,
             }).ToListAsync();
-
             return list;
-        }
-
-        public async Task<GetPriceListRequest> GetPriceTableById(string Id)
-        {
-            var priceTable = await _context.BangGia.Where(x => x.MaBangGia == Id).Select(x => new GetPriceListRequest()
-            {
-                MaBangGia = x.MaBangGia,
-                MaHopDong = x.MaHopDong,
-                MaKh = x.MaKh,
-                MaCungDuong = x.MaCungDuong,
-                NgayApDung = x.NgayApDung,
-                GiaVND = x.GiaVnd,
-                GiaUSD = x.GiaUsd,
-                SoLuong = x.SoLuong,
-                MaLoaiPhuongTien = x.MaLoaiPhuongTien,
-                MaLoaiHangHoa = x.MaLoaiHangHoa,
-                MaDVT = x.MaDvt,
-                MaPTVC = x.MaPtvc,
-                TrangThai = x.TrangThai
-            }).FirstOrDefaultAsync();
-
-            return priceTable;
         }
     }
 }

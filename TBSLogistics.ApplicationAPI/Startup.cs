@@ -50,9 +50,9 @@ namespace TBSLogistics.ApplicationAPI
             });
 
             services.AddDbContext<TBSTuyenDungContext>(options =>
-            options.UseSqlServer(Configuration["TuyenDung_Cloud"]));
+            options.UseSqlServer(Configuration["TuyenDung_Local"]));
             services.AddDbContext<TMSContext>(options =>
-            options.UseSqlServer(Configuration["TMS_Cloud"]));
+            options.UseSqlServer(Configuration["TMS_Local"]));
 
             services.AddHttpContextAccessor();
             services.AddSingleton<IPaginationService>(o =>

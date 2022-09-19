@@ -20,7 +20,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         private readonly IPriceTable _priceTable;
         private IPaginationService _paninationService;
 
-        public PriceTableController(IPriceTable priceTable,IPaginationService paninationService)
+        public PriceTableController(IPriceTable priceTable, IPaginationService paninationService)
         {
             _priceTable = priceTable;
             _paninationService = paninationService;
@@ -28,7 +28,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpPost]
         [Route("[action]")]
-        public async Task<IActionResult> CreatePriceTable(CreatePriceListRequest request)
+        public async Task<IActionResult> CreatePriceTable(List<CreatePriceListRequest> request)
         {
             var create = await _priceTable.CreatePriceTable(request);
 
@@ -42,29 +42,6 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             }
         }
 
-        [HttpPost]
-        [Route("[action]")]
-        public async Task<IActionResult> UpdatePriceTable(string Id, UpdatePriceListRequest request)
-        {
-            var update = await _priceTable.EditPriceTable(Id, request);
-
-            if (update.isSuccess == true)
-            {
-                return Ok(update.Message);
-            }
-            else
-            {
-                return BadRequest(update.Message);
-            }
-        }
-
-        [HttpGet]
-        [Route("[action]")]
-        public async Task<IActionResult> GetPriceTableById(string Id)
-        {
-            var list = await _priceTable.GetPriceTableById(Id);
-            return Ok(list);
-        }
 
         [HttpGet]
         [Route("[action]")]
@@ -79,9 +56,9 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<IActionResult> GetListPriceTableByCusId(string CustomerId)
+        public async Task<IActionResult> GetListPriceTableByContractId(string Id)
         {
-            var list = await _priceTable.GetListPriceTableByCusId(CustomerId);
+            var list = await _priceTable.GetListPriceTableByContractId(Id);
             return Ok(list);
         }
     }

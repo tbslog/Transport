@@ -36,7 +36,7 @@ namespace TBSLogistics.Data.TBSLogisticsDbContext
                  .AddJsonFile("appsettings.json")
                  .Build();
 
-                optionsBuilder.UseSqlServer(configuration.GetConnectionString("TuyenDung_Cloud"));
+                optionsBuilder.UseSqlServer(configuration.GetConnectionString("TuyenDung_Local"));
             }
         }
 

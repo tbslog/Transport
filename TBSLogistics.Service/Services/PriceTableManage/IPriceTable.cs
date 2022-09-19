@@ -12,11 +12,9 @@ namespace TBSLogistics.Service.Repository.PricelistManage
 {
     public interface IPriceTable
     {
-        Task<BoolActionResult> CreatePriceTable(CreatePriceListRequest request);
-        Task<BoolActionResult> EditPriceTable(string PriceListId,UpdatePriceListRequest request);
+        Task<BoolActionResult> CreatePriceTable(List<CreatePriceListRequest> request);
 
-        Task<GetPriceListRequest> GetPriceTableById(string PriceListId);
         Task<PagedResponseCustom<GetListPiceTableRequest>> GetListPriceTable(PaginationFilter filter);
-        Task<List<GetPriceListRequest>> GetListPriceTableByCusId(string CustomerId);
+        Task<List<GetPriceListRequest>> GetListPriceTableByContractId(string contractId);
     }
 }

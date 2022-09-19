@@ -224,7 +224,6 @@ namespace TBSLogistics.Service.Services.ContractManage
                     TrangThai = x.contract.TrangThai,
                     ThoiGianBatDau = x.contract.ThoiGianBatDau,
                     ThoiGianKetThuc = x.contract.ThoiGianKetThuc,
-                    MaBangGia = x.contractPriceTbl.MaBangGia
                 }).ToListAsync();
 
                 return new PagedResponseCustom<ListContract>()
