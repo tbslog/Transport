@@ -1,6 +1,5 @@
 import { useMemo, useState, useEffect, useCallback, useRef } from "react";
 import { getData, postFile } from "../Common/FuncAxios";
-import { ToastWarning } from "../Common/FuncToast";
 import DataTable from "react-data-table-component";
 import moment from "moment";
 import { Modal } from "bootstrap";
@@ -53,14 +52,11 @@ const PriceTablePage = () => {
       allowOverflow: true,
       button: true,
     },
-    {
-      name: "Mã Bảng Giá",
-      selector: (row) => row.maBangGia,
-      sortable: true,
-    },
+
     {
       name: "Mã Hợp Đồng",
       selector: (row) => row.maHopDong,
+      sortable: true,
     },
     {
       name: "Tên Hợp Đồng",
@@ -91,11 +87,6 @@ const PriceTablePage = () => {
       selector: (row) => row.ngayApDung,
       sortable: true,
     },
-    // {
-    //   name: "Thời Gian tạo mới",
-    //   selector: (row) => row.createdtime,
-    //   sortable: true,
-    // },
   ]);
 
   const showModalForm = () => {
@@ -410,7 +401,7 @@ const PriceTablePage = () => {
         >
           <div
             className="modal-dialog modal-dialog-scrollable"
-            style={{ maxWidth: "88%" }}
+            style={{ maxWidth: "95%" }}
           >
             <div className="modal-content">
               <div className="modal-header">
