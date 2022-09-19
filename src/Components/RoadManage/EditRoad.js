@@ -1,5 +1,9 @@
 import { useState, useEffect } from "react";
+<<<<<<< HEAD
 import { getData, postData } from "../Common/FuncAxios";
+=======
+import { getData, putData } from "../Common/FuncAxios";
+>>>>>>> 103083c6cb18e0f69c01e255502e2c9c68ee3a6f
 import { useForm, Controller } from "react-hook-form";
 import { ToastWarning } from "../Common/FuncToast";
 import Select from "react-select";
@@ -152,7 +156,11 @@ const EditRoad = (props) => {
 
   const onSubmit = async (data, e) => {
     SetIsLoading(true);
+<<<<<<< HEAD
     const post = await postData(`Road/UpdateRoad?Id=${data.MaCungDuong}`, {
+=======
+    const post = await putData(`Road/UpdateRoad?Id=${data.MaCungDuong}`, {
+>>>>>>> 103083c6cb18e0f69c01e255502e2c9c68ee3a6f
       tenCungDuong: data.TenCungDuong,
       maHopDong: data.MaHopDong,
       km: data.SoKM,

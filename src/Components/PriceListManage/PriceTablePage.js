@@ -30,6 +30,7 @@ const PriceTablePage = () => {
   const [listGoodsType, setListGoodsType] = useState([]);
   const [goodsType, setGoodsType] = useState("");
 
+<<<<<<< HEAD
   const paginationComponentOptions = {
     rowsPerPageText: "Dữ liệu mỗi trang",
     rangeSeparatorText: "của",
@@ -37,6 +38,8 @@ const PriceTablePage = () => {
     selectAllRowsItemText: "Tất cả",
   };
 
+=======
+>>>>>>> 103083c6cb18e0f69c01e255502e2c9c68ee3a6f
   const columns = useMemo(() => [
     {
       cell: (val) => (
@@ -154,12 +157,18 @@ const PriceTablePage = () => {
   const handlePerRowsChange = async (newPerPage, page) => {
     setLoading(true);
 
+<<<<<<< HEAD
     const dataCus = await getData(
       `PriceTable/GetListPriceTable?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}&fromDate=${fromDate}&toDate=${toDate}&goodsType=${goodsType}&vehicleType=${vehicleType}`
     );
     setPerPage(newPerPage);
     formatTable(dataCus.data);
     setTotalRows(dataCus.totalRecords);
+=======
+    setPerPage(newPerPage);
+
+    fetchData(page, keySearch, fromDate, toDate, vehicleType, goodsType);
+>>>>>>> 103083c6cb18e0f69c01e255502e2c9c68ee3a6f
 
     setLoading(false);
   };
@@ -178,13 +187,17 @@ const PriceTablePage = () => {
     fetchData(1);
     setLoading(false);
   }, []);
+<<<<<<< HEAD
 
+=======
+>>>>>>> 103083c6cb18e0f69c01e255502e2c9c68ee3a6f
   function formatTable(data) {
     data.map((val) => {
       val.ngayApDung = moment(val.ngayApDung).format("DD/MM/YYYY");
     });
     setData(data);
   }
+<<<<<<< HEAD
 
   const handleOnChangeVehicleType = (value) => {
     setLoading(true);
@@ -207,6 +220,33 @@ const PriceTablePage = () => {
   const handleRefeshDataClick = () => {
     setKeySearch("");
     setPerPage(10);
+=======
+  const handleOnChangeVehicleType = (value) => {
+    setLoading(true);
+    setVehicleType(value);
+
+    setLoading(false);
+  };
+  const handleOnChangeGoodsType = (value) => {
+    setLoading(true);
+    setGoodsType(value);
+
+    setLoading(false);
+  };
+  const handleSearchClick = () => {
+    setLoading(true);
+
+    if (keySearch === "") {
+      ToastWarning("Vui lòng  nhập thông tin tìm kiếm");
+      return;
+    }
+    fetchData(1, keySearch, fromDate, toDate, vehicleType, goodsType);
+
+    setLoading(false);
+  };
+  const handleRefeshDataClick = () => {
+    setKeySearch("");
+>>>>>>> 103083c6cb18e0f69c01e255502e2c9c68ee3a6f
     fetchData(1);
   };
 
@@ -364,7 +404,10 @@ const PriceTablePage = () => {
                 pagination
                 paginationServer
                 paginationTotalRows={totalRows}
+<<<<<<< HEAD
                 paginationComponentOptions={paginationComponentOptions}
+=======
+>>>>>>> 103083c6cb18e0f69c01e255502e2c9c68ee3a6f
                 selectableRows
                 onSelectedRowsChange={handleChange}
                 onChangeRowsPerPage={handlePerRowsChange}
@@ -427,12 +470,16 @@ const PriceTablePage = () => {
               </div>
               <div className="modal-body">
                 <>
+<<<<<<< HEAD
                   {ShowModal === "Edit" && (
                     <EditPriceTable
                       selectIdClick={selectIdClick}
                       getListPriceTable={fetchData}
                     />
                   )}
+=======
+                  {ShowModal === "Edit" && <EditPriceTable />}
+>>>>>>> 103083c6cb18e0f69c01e255502e2c9c68ee3a6f
                   {ShowModal === "Create" && (
                     <AddPriceTable getListPriceTable={fetchData} />
                   )}

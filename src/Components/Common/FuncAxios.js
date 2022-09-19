@@ -2,8 +2,13 @@ import axios from "axios";
 import { ToastSuccess, ToastError, ToastWarning } from "../Common/FuncToast";
 
 // const Host = "https://kind-northcutt.112-78-2-40.plesk.page/api/";
+<<<<<<< HEAD
 const Host = "https://api.tbslogistics.com.vn/api/";
 // const Host = "http://localhost:8088/api/";
+=======
+// const Host = "https://api.tbslogistics.com.vn/api/";
+const Host = "http://localhost:8088/api/";
+>>>>>>> 103083c6cb18e0f69c01e255502e2c9c68ee3a6f
 
 const getData = async (url) => {
   const get = await axios.get(Host + url);

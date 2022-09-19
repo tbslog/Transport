@@ -1,5 +1,9 @@
 import { useState, useEffect } from "react";
+<<<<<<< HEAD
 import { getData, postData } from "../Common/FuncAxios";
+=======
+import { getData, putData } from "../Common/FuncAxios";
+>>>>>>> 103083c6cb18e0f69c01e255502e2c9c68ee3a6f
 import { useForm, Controller } from "react-hook-form";
 import Select from "react-select";
 
@@ -26,7 +30,11 @@ const EditCustommer = (props) => {
   const onSubmit = async (data) => {
     SetIsLoading(true);
 
+<<<<<<< HEAD
     const put = await postData(
+=======
+    const put = await putData(
+>>>>>>> 103083c6cb18e0f69c01e255502e2c9c68ee3a6f
       `Customer/UpdateCustomer?Id=${data.MaKH}`,
       {
         maKh: data.MaKH.toUpperCase(),

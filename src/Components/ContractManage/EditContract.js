@@ -1,7 +1,12 @@
 import { useState, useEffect, useCallback } from "react";
+<<<<<<< HEAD
 import { getData, postData, getFile } from "../Common/FuncAxios";
 import { useForm, Controller } from "react-hook-form";
 import Select from "react-select";
+=======
+import { getData, putData, getFile } from "../Common/FuncAxios";
+import { useForm, Controller } from "react-hook-form";
+>>>>>>> 103083c6cb18e0f69c01e255502e2c9c68ee3a6f
 import DatePicker from "react-datepicker";
 
 const EditContract = (props) => {
@@ -111,6 +116,7 @@ const EditContract = (props) => {
     TrangThai: {
       required: "Không được để trống",
     },
+<<<<<<< HEAD
     PhuPhi: {
       pattern: {
         value: /^[0-9]*$/,
@@ -120,6 +126,10 @@ const EditContract = (props) => {
   };
 
   const [isContract, setIsContract] = useState(true);
+=======
+  };
+
+>>>>>>> 103083c6cb18e0f69c01e255502e2c9c68ee3a6f
   const [listContractType, setListContractType] = useState([]);
   const [listTransportType, setListTransportType] = useState([]);
   const [listStatusType, setListStatusType] = useState([]);
@@ -133,6 +143,7 @@ const EditContract = (props) => {
       Object.keys(props.selectIdClick).length > 0 &&
       Object.keys(props).length > 0
     ) {
+<<<<<<< HEAD
       if (props.selectIdClick.soHopDongCha) {
         setIsContract(false);
         setValue("SoHopDongCha", props.selectIdClick.soHopDongCha);
@@ -144,6 +155,14 @@ const EditContract = (props) => {
       setValue("TenHopDong", props.selectIdClick.tenHienThi);
       setValue("MaKh", props.selectIdClick.maKh);
       console.log(props.selectIdClick.soHopDongCha);
+=======
+      SetIsLoading(true);
+
+      setValue("MaHopDong", props.selectIdClick.maHopDong);
+      setValue("TenHopDong", props.selectIdClick.tenHienThi);
+      setValue("MaKh", props.selectIdClick.maKh);
+      setValue("SoHopDongCha", props.selectIdClick.soHopDongCha);
+>>>>>>> 103083c6cb18e0f69c01e255502e2c9c68ee3a6f
 
       setValue("GhiChu", props.selectIdClick.ghiChu);
       setDownloadFile(props.selectIdClick.file);
@@ -156,6 +175,10 @@ const EditContract = (props) => {
 
       setValue("NgayBatDau", new Date(props.selectIdClick.thoiGianBatDau));
       setValue("NgayKetThuc", new Date(props.selectIdClick.thoiGianKetThuc));
+<<<<<<< HEAD
+=======
+      SetIsLoading(false);
+>>>>>>> 103083c6cb18e0f69c01e255502e2c9c68ee3a6f
     }
   }, [props, props.selectIdClick, setValue]);
 
@@ -192,16 +215,27 @@ const EditContract = (props) => {
   const onSubmit = async (data) => {
     SetIsLoading(true);
 
+<<<<<<< HEAD
     var update = await postData(
       `Contract/UpdateContract?Id=${data.MaHopDong}`,
       {
+=======
+    var update = await putData(
+      `Contract/UpdateContract?Id=${data.MaHopDong}`,
+      {
+        soHopDongCha: data.SoHopDongCha,
+>>>>>>> 103083c6cb18e0f69c01e255502e2c9c68ee3a6f
         tenHienThi: data.TenHopDong,
         maPtvc: data.PTVC,
         phanLoaiHopDong: data.PhanLoaiHopDong,
         thoiGianBatDau: data.NgayBatDau,
         thoiGianKetThuc: data.NgayKetThuc,
         ghiChu: data.GhiChu,
+<<<<<<< HEAD
         phuPhi: isContract === false ? data.PhuPhi : null,
+=======
+        phuPhi: null,
+>>>>>>> 103083c6cb18e0f69c01e255502e2c9c68ee3a6f
         trangThai: data.TrangThai,
         file: data.FileContact[0],
       },
@@ -219,6 +253,7 @@ const EditContract = (props) => {
 
   return (
     <>
+<<<<<<< HEAD
       {isContract === true && (
         <>
           <div className="card card-primary">
@@ -776,6 +811,259 @@ const EditContract = (props) => {
           </div>
         </>
       )}
+=======
+      <div className="card card-primary">
+        <div className="card-header">
+          <h3 className="card-title">Form Cập Nhật Hợp Đồng</h3>
+        </div>
+        <div>{IsLoading === true && <div>Loading...</div>}</div>
+
+        {IsLoading === false && (
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <div className="card-body">
+              <div className="form-group">
+                <label htmlFor="MaHopDong">Mã Hợp Đồng</label>
+                <input
+                  autoComplete="false"
+                  type="text"
+                  className="form-control"
+                  id="MaHopDong"
+                  placeholder="Nhập mã hợp đồng"
+                  readOnly
+                  {...register("MaHopDong", Validate.MaHopDong)}
+                />
+                {errors.MaHopDong && (
+                  <span className="text-danger">
+                    {errors.MaHopDong.message}
+                  </span>
+                )}
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="TenHopDong">Tên Hợp Đồng</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="TenHopDong"
+                  placeholder="Nhập tên hợp đồng"
+                  {...register("TenHopDong", Validate.TenHopDong)}
+                />
+                {errors.TenHopDong && (
+                  <span className="text-danger">
+                    {errors.TenHopDong.message}
+                  </span>
+                )}
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="MaKh">Mã Khách Hàng</label>
+                <input
+                  type="text "
+                  className="form-control"
+                  id="MaKh"
+                  placeholder="Nhập mã khách hàng"
+                  readOnly
+                  {...register("MaKh", Validate.MaKh)}
+                />
+                {errors.MaKh && (
+                  <span className="text-danger">{errors.MaKh.message}</span>
+                )}
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="SoHopDongCha">Số hợp đồng cha</label>
+                <input
+                  autoComplete="false"
+                  type="text"
+                  className="form-control"
+                  id="SoHopDongCha"
+                  placeholder="Nhập Số hợp đồng cha (bỏ trống nếu là hợp đồng chính)"
+                  {...register("SoHopDongCha", Validate.SoHopDongCha)}
+                />
+                {errors.SoHopDongCha && (
+                  <span className="text-danger">
+                    {errors.SoHopDongCha.message}
+                  </span>
+                )}
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="PhanLoaiHopDong">Phân Loại Hợp Đồng</label>
+                <select
+                  className="form-control"
+                  {...register("PhanLoaiHopDong", Validate.PhanLoaiHopDong)}
+                >
+                  <option value="">Chọn phân loại HĐ</option>
+                  {listContractType &&
+                    listContractType.map((val) => {
+                      return (
+                        <option
+                          value={val.maLoaiHopDong}
+                          key={val.maLoaiHopDong}
+                        >
+                          {val.tenLoaiHopDong}
+                        </option>
+                      );
+                    })}
+                </select>
+                {errors.PhanLoaiHopDong && (
+                  <span className="text-danger">
+                    {errors.PhanLoaiHopDong.message}
+                  </span>
+                )}
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="PTVC">Phương thức vận chuyển</label>
+                <select
+                  className="form-control"
+                  {...register("PTVC", Validate.PTVC)}
+                >
+                  <option value="">Chọn phương thức vận chuyển</option>
+                  {listTransportType &&
+                    listTransportType.map((val) => {
+                      return (
+                        <option value={val.maPtvc} key={val.maPtvc}>
+                          {val.tenPtvc}
+                        </option>
+                      );
+                    })}
+                </select>
+                {errors.PTVC && (
+                  <span className="text-danger">{errors.PTVC.message}</span>
+                )}
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="NgayBatDau">Ngày bắt đầu</label>
+                <div className="input-group ">
+                  <Controller
+                    control={control}
+                    name="NgayBatDau"
+                    render={({ field }) => (
+                      <DatePicker
+                        className="form-control"
+                        onChange={(date) => field.onChange(date)}
+                        selected={field.value}
+                        dateFormat="dd/MM/yyyy"
+                      />
+                    )}
+                    rules={Validate.NgayBatDau}
+                  />
+                  {errors.NgayBatDau && (
+                    <span className="text-danger">
+                      {errors.NgayBatDau.message}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="NgayKetThuc">Ngày kết thúc</label>
+                <div className="input-group ">
+                  <Controller
+                    control={control}
+                    name="NgayKetThuc"
+                    render={({ field }) => (
+                      <DatePicker
+                        className="form-control"
+                        onChange={(date) => field.onChange(date)}
+                        selected={field.value}
+                        dateFormat="dd/MM/yyyy"
+                      />
+                    )}
+                    rules={Validate.NgayKetThuc}
+                  />
+                  {errors.NgayKetThuc && (
+                    <span className="text-danger">
+                      {errors.NgayKetThuc.message}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="GhiChu">Ghi Chú</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="GhiChu"
+                  placeholder="Nhập ghi chú"
+                  {...register("GhiChu")}
+                />
+                {errors.GhiChu && (
+                  <span className="text-danger">{errors.GhiChu.message}</span>
+                )}
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="FileContact">Tải lên tệp Hợp Đồng</label>
+                <input
+                  type="file"
+                  className="form-control-file"
+                  {...register("FileContact", Validate.FileContact)}
+                />
+                {errors.FileContact && (
+                  <span className="text-danger">
+                    {errors.FileContact.message}
+                  </span>
+                )}
+              </div>
+
+              {downloadFile && downloadFile !== "0" && (
+                <div>
+                  <div className="form-group">
+                    <label htmlFor="FileContact">Tải về tệp Hợp Đồng</label>
+                    <br />
+                    <button
+                      type="button"
+                      className="btn btn-default"
+                      onClick={() => handleDownloadContact()}
+                    >
+                      <i className="fas fa-file-download"> Tải tệp hợp đồng</i>
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              <div className="form-group">
+                <label htmlFor="TrangThai">Trạng thái</label>
+                <select
+                  className="form-control"
+                  {...register("TrangThai", Validate.TrangThai)}
+                >
+                  <option value="">Chọn trạng thái</option>
+                  {listStatusType &&
+                    listStatusType.map((val) => {
+                      return (
+                        <option value={val.maTrangThai} key={val.maTrangThai}>
+                          {val.tenTrangThai}
+                        </option>
+                      );
+                    })}
+                </select>
+                {errors.TrangThai && (
+                  <span className="text-danger">
+                    {errors.TrangThai.message}
+                  </span>
+                )}
+              </div>
+            </div>
+            <div className="card-footer">
+              <div>
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  style={{ float: "right" }}
+                >
+                  Cập nhật
+                </button>
+              </div>
+            </div>
+          </form>
+        )}
+      </div>
+>>>>>>> 103083c6cb18e0f69c01e255502e2c9c68ee3a6f
     </>
   );
 };

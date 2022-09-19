@@ -179,6 +179,10 @@ const CustommerPage = () => {
       let dataCus = await getData(
         `Customer/GetListCustomer?PageNumber=1&PageSize=10`
       );
+<<<<<<< HEAD
+=======
+      console.log(dataCus.data);
+>>>>>>> 103083c6cb18e0f69c01e255502e2c9c68ee3a6f
       formatTable(dataCus.data);
       setTotalRows(dataCus.totalRecords);
     })();
