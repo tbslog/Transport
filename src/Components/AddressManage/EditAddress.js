@@ -1,9 +1,5 @@
 import { useState, useEffect } from "react";
-<<<<<<< HEAD
 import { getData, postData } from "../Common/FuncAxios";
-=======
-import { getData, putData } from "../Common/FuncAxios";
->>>>>>> 103083c6cb18e0f69c01e255502e2c9c68ee3a6f
 import { useForm, Controller } from "react-hook-form";
 import { ToastWarning } from "../Common/FuncToast";
 import Select from "react-select";
@@ -65,12 +61,8 @@ const EditAddress = (props) => {
     if (
       props &&
       props.selectIdClick &&
-<<<<<<< HEAD
       Object.keys(props.selectIdClick).length > 0 &&
       Object.keys(props).length > 0
-=======
-      Object.keys(props.selectIdClick).length > 0
->>>>>>> 103083c6cb18e0f69c01e255502e2c9c68ee3a6f
     ) {
       setValue("MaDiaDiem", props.selectIdClick.maDiaDiem);
       setValue("TenDiaDiem", props.selectIdClick.tenDiaDiem);
@@ -82,11 +74,7 @@ const EditAddress = (props) => {
       LoadDistrict(props.selectIdClick.maTinh, props.selectIdClick.maHuyen);
       LoadWard(props.selectIdClick.maHuyen, props.selectIdClick.maPhuong);
     }
-<<<<<<< HEAD
   }, [props, props.selectIdClick]);
-=======
-  }, [props.selectIdClick]);
->>>>>>> 103083c6cb18e0f69c01e255502e2c9c68ee3a6f
 
   useEffect(() => {
     SetIsLoading(true);
@@ -218,11 +206,7 @@ const EditAddress = (props) => {
   const onSubmit = async (data) => {
     SetIsLoading(true);
 
-<<<<<<< HEAD
     const Update = await postData(
-=======
-    const Update = await putData(
->>>>>>> 103083c6cb18e0f69c01e255502e2c9c68ee3a6f
       `Address/EditAddress?Id=${data.MaDiaDiem}`,
       {
         tenDiaDiem: data.TenDiaDiem,

@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { useState, useEffect, useCallback } from "react";
 import { getData, postData } from "../Common/FuncAxios";
 import { useForm, Controller } from "react-hook-form";
@@ -647,8 +646,5 @@ const EditPriceTable = (props) => {
     </>
   );
 };
-=======
-const EditPriceTable = () => {};
->>>>>>> 103083c6cb18e0f69c01e255502e2c9c68ee3a6f
 
 export default EditPriceTable;

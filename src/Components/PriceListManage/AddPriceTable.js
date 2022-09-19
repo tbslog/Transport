@@ -11,10 +11,6 @@ const AddPriceTable = (props) => {
     register,
     reset,
     setValue,
-<<<<<<< HEAD
-=======
-    getValues,
->>>>>>> 103083c6cb18e0f69c01e255502e2c9c68ee3a6f
     control,
     formState: { errors },
     handleSubmit,
@@ -89,22 +85,14 @@ const AddPriceTable = (props) => {
     },
     GiaVND: {
       pattern: {
-<<<<<<< HEAD
         value: /^[0-9]*$/,
-=======
-        value: /^[1-9.]*$/,
->>>>>>> 103083c6cb18e0f69c01e255502e2c9c68ee3a6f
         message: "Chỉ được nhập ký tự là số",
       },
       required: "Không được để trống",
     },
     GiaUSD: {
       pattern: {
-<<<<<<< HEAD
         value: /^[0-9]*$/,
-=======
-        value: /^[1-9.]*$/,
->>>>>>> 103083c6cb18e0f69c01e255502e2c9c68ee3a6f
         message: "Chỉ được nhập ký tự là số",
       },
       required: "Không được để trống",
@@ -112,11 +100,7 @@ const AddPriceTable = (props) => {
     SoLuong: {
       required: "Không được để trống",
       pattern: {
-<<<<<<< HEAD
         value: /^[1-9][0-9]*$/,
-=======
-        value: /^[1-9]*$/,
->>>>>>> 103083c6cb18e0f69c01e255502e2c9c68ee3a6f
         message: "Chỉ được nhập ký tự là số",
       },
     },
@@ -145,10 +129,6 @@ const AddPriceTable = (props) => {
   const [listTransportType, setListTransportType] = useState([]);
   const [listStatus, setListStatus] = useState([]);
   const [listContract, setListContract] = useState([]);
-<<<<<<< HEAD
-
-=======
->>>>>>> 103083c6cb18e0f69c01e255502e2c9c68ee3a6f
   useEffect(() => {
     SetIsLoading(true);
 
@@ -156,19 +136,11 @@ const AddPriceTable = (props) => {
       let getListCustomer = await getData(
         `Customer/GetListCustomerOptionSelect`
       );
-<<<<<<< HEAD
-=======
-
->>>>>>> 103083c6cb18e0f69c01e255502e2c9c68ee3a6f
       if (getListCustomer && getListCustomer.length > 0) {
         let obj = [];
         obj.push({
           value: "",
-<<<<<<< HEAD
           label: "Chọn khách hàng",
-=======
-          label: "Chọn cung đường",
->>>>>>> 103083c6cb18e0f69c01e255502e2c9c68ee3a6f
         });
         getListCustomer.map((val) => {
           obj.push({
@@ -198,22 +170,16 @@ const AddPriceTable = (props) => {
   }, []);
 
   const handleOnchangeListCustomer = (val) => {
-<<<<<<< HEAD
     SetIsLoading(true);
 
     setListContract([]);
     setListRoad([]);
-=======
->>>>>>> 103083c6cb18e0f69c01e255502e2c9c68ee3a6f
     setValue("MaKh", val);
     setValue("MaHopDong", { value: "", label: "Chọn Hợp Đồng" });
     setValue("MaCungDuong", { value: "", label: "Chọn Cung Đường" });
     getListRoadAndContract(val.value);
-<<<<<<< HEAD
 
     SetIsLoading(false);
-=======
->>>>>>> 103083c6cb18e0f69c01e255502e2c9c68ee3a6f
   };
 
   const getListRoadAndContract = async (MaKh) => {
@@ -259,10 +225,7 @@ const AddPriceTable = (props) => {
     reset();
     setValue("MaCungDuong", { value: "", label: "Chọn cung đường" });
     setValue("MaKh", { value: "", label: "Chọn Khách Hàng" });
-<<<<<<< HEAD
     setValue("MaHopDong", { value: "", label: "Chọn Hợp Đồng" });
-=======
->>>>>>> 103083c6cb18e0f69c01e255502e2c9c68ee3a6f
   };
 
   const onSubmit = async (data, e) => {
@@ -345,10 +308,6 @@ const AddPriceTable = (props) => {
                   </div>
                 </div>
               </div>
-<<<<<<< HEAD
-=======
-
->>>>>>> 103083c6cb18e0f69c01e255502e2c9c68ee3a6f
               <div className="row">
                 <div className="col col-sm">
                   <div className="form-group">
@@ -424,10 +383,6 @@ const AddPriceTable = (props) => {
                   </div>
                 </div>
               </div>
-<<<<<<< HEAD
-=======
-              <div className="row"></div>
->>>>>>> 103083c6cb18e0f69c01e255502e2c9c68ee3a6f
               <div className="row">
                 <div className="col col-sm">
                   <div className="form-group">
@@ -462,10 +417,6 @@ const AddPriceTable = (props) => {
                   </div>
                 </div>
               </div>
-<<<<<<< HEAD
-=======
-
->>>>>>> 103083c6cb18e0f69c01e255502e2c9c68ee3a6f
               <div className="row">
                 <div className="col col-sm">
                   <div className="form-group">

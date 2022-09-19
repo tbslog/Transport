@@ -2,22 +2,16 @@ import { useState, useEffect } from "react";
 import { getData, postData } from "../Common/FuncAxios";
 import { useForm, Controller } from "react-hook-form";
 import DatePicker from "react-datepicker";
-<<<<<<< HEAD
 import Select from "react-select";
 import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
-=======
->>>>>>> 103083c6cb18e0f69c01e255502e2c9c68ee3a6f
 
 const AddContract = (props) => {
   const [IsLoading, SetIsLoading] = useState(true);
   const {
     register,
     reset,
-<<<<<<< HEAD
     setValue,
     watch,
-=======
->>>>>>> 103083c6cb18e0f69c01e255502e2c9c68ee3a6f
     control,
     formState: { errors },
     handleSubmit,
@@ -72,10 +66,7 @@ const AddContract = (props) => {
       required: "Không được để trống",
     },
     SoHopDongCha: {
-<<<<<<< HEAD
       required: "Không được để trống",
-=======
->>>>>>> 103083c6cb18e0f69c01e255502e2c9c68ee3a6f
       maxLength: {
         value: 10,
         message: "Không được vượt quá 10 ký tự",
@@ -123,7 +114,6 @@ const AddContract = (props) => {
     TrangThai: {
       required: "Không được để trống",
     },
-<<<<<<< HEAD
     PhuPhi: {
       pattern: {
         value: /^[0-9]*$/,
@@ -138,13 +128,6 @@ const AddContract = (props) => {
   const [listStatusType, setListStatusType] = useState([]);
   const [listCustomer, setListCustomer] = useState([]);
   const [listContract, setListContract] = useState([]);
-=======
-  };
-
-  const [listContractType, setListContractType] = useState([]);
-  const [listTransportType, setListTransportType] = useState([]);
-  const [listStatusType, setListStatusType] = useState([]);
->>>>>>> 103083c6cb18e0f69c01e255502e2c9c68ee3a6f
 
   useEffect(() => {
     if (props && props.listContractType) {
@@ -156,7 +139,6 @@ const AddContract = (props) => {
     SetIsLoading(true);
 
     (async () => {
-<<<<<<< HEAD
       let getListCustomer = await getData(
         `Customer/GetListCustomerOptionSelect`
       );
@@ -175,8 +157,6 @@ const AddContract = (props) => {
         setListCustomer(obj);
       }
 
-=======
->>>>>>> 103083c6cb18e0f69c01e255502e2c9c68ee3a6f
       const getListTransportType = await getData("Common/GetListTransportType");
       setListTransportType(getListTransportType);
 
@@ -189,7 +169,6 @@ const AddContract = (props) => {
     SetIsLoading(false);
   }, []);
 
-<<<<<<< HEAD
   const getListContract = async (MaKh) => {
     setValue("SoHopDongCha", { value: "", label: "Chọn Hợp Đồng" });
     setListContract([]);
@@ -218,42 +197,26 @@ const AddContract = (props) => {
     }
   };
 
-=======
->>>>>>> 103083c6cb18e0f69c01e255502e2c9c68ee3a6f
   const handleResetClick = () => {
     reset();
   };
 
   const onSubmit = async (data) => {
     SetIsLoading(true);
-<<<<<<< HEAD
     console.log(data);
-=======
-
->>>>>>> 103083c6cb18e0f69c01e255502e2c9c68ee3a6f
     var create = await postData(
       "Contract/CreateContract",
       {
         maHopDong: data.MaHopDong,
-<<<<<<< HEAD
         soHopDongCha: tabIndex === 0 ? null : data.SoHopDongCha,
         tenHienThi: data.TenHopDong,
         maKh: data.MaKh.value,
-=======
-        soHopDongCha: data.SoHopDongCha,
-        tenHienThi: data.TenHopDong,
-        maKh: data.MaKh,
->>>>>>> 103083c6cb18e0f69c01e255502e2c9c68ee3a6f
         maPtvc: data.PTVC,
         phanLoaiHopDong: data.PhanLoaiHopDong,
         thoiGianBatDau: data.NgayBatDau,
         thoiGianKetThuc: data.NgayKetThuc,
         ghiChu: data.GhiChu,
-<<<<<<< HEAD
         phuPhi: tabIndex === 0 ? null : data.PhuPhi,
-=======
-        phuPhi: null,
->>>>>>> 103083c6cb18e0f69c01e255502e2c9c68ee3a6f
         trangThai: data.TrangThai,
         file: data.FileContact[0],
       },
@@ -270,7 +233,6 @@ const AddContract = (props) => {
     SetIsLoading(false);
   };
 
-<<<<<<< HEAD
   const HandleOnChangeTabs = (tabIndex) => {
     setTabIndex(tabIndex, reset());
   };
@@ -873,252 +835,6 @@ const AddContract = (props) => {
           )}
         </TabPanel>
       </Tabs>
-=======
-  return (
-    <>
-      <div className="card card-primary">
-        <div className="card-header">
-          <h3 className="card-title">Form Thêm Mới Hợp Đồng</h3>
-        </div>
-        <div>{IsLoading === true && <div>Loading...</div>}</div>
-
-        {IsLoading === false && (
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="card-body">
-              <div className="form-group">
-                <label htmlFor="MaHopDong">Mã Hợp Đồng</label>
-                <input
-                  autoComplete="false"
-                  type="text"
-                  className="form-control"
-                  id="MaHopDong"
-                  placeholder="Nhập mã hợp đồng"
-                  {...register("MaHopDong", Validate.MaHopDong)}
-                />
-                {errors.MaHopDong && (
-                  <span className="text-danger">
-                    {errors.MaHopDong.message}
-                  </span>
-                )}
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="TenHopDong">Tên Hợp Đồng</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="TenHopDong"
-                  placeholder="Nhập tên khách hàng"
-                  {...register("TenHopDong", Validate.TenHopDong)}
-                />
-                {errors.TenHopDong && (
-                  <span className="text-danger">
-                    {errors.TenHopDong.message}
-                  </span>
-                )}
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="MaKh">Mã Khách Hàng</label>
-                <input
-                  type="text "
-                  className="form-control"
-                  id="MaKh"
-                  placeholder="Nhập mã khách hàng"
-                  {...register("MaKh", Validate.MaKh)}
-                />
-                {errors.MaKh && (
-                  <span className="text-danger">{errors.MaKh.message}</span>
-                )}
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="SoHopDongCha">Số hợp đồng cha</label>
-                <input
-                  autoComplete="false"
-                  type="text"
-                  className="form-control"
-                  id="SoHopDongCha"
-                  placeholder="Nhập Số hợp đồng cha (bỏ trống nếu là hợp đồng chính)"
-                  {...register("SoHopDongCha", Validate.SoHopDongCha)}
-                />
-                {errors.SoHopDongCha && (
-                  <span className="text-danger">
-                    {errors.SoHopDongCha.message}
-                  </span>
-                )}
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="PhanLoaiHopDong">Phân Loại Hợp Đồng</label>
-                <select
-                  className="form-control"
-                  {...register("PhanLoaiHopDong", Validate.PhanLoaiHopDong)}
-                >
-                  <option value="">Chọn phân loại HĐ</option>
-                  {listContractType &&
-                    listContractType.map((val) => {
-                      return (
-                        <option
-                          value={val.maLoaiHopDong}
-                          key={val.maLoaiHopDong}
-                        >
-                          {val.tenLoaiHopDong}
-                        </option>
-                      );
-                    })}
-                </select>
-                {errors.PhanLoaiHopDong && (
-                  <span className="text-danger">
-                    {errors.PhanLoaiHopDong.message}
-                  </span>
-                )}
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="PTVC">Phương thức vận chuyển</label>
-                <select
-                  className="form-control"
-                  {...register("PTVC", Validate.PTVC)}
-                >
-                  <option value="">Chọn phương thức vận chuyển</option>
-                  {listTransportType &&
-                    listTransportType.map((val) => {
-                      return (
-                        <option value={val.maPtvc} key={val.maPtvc}>
-                          {val.tenPtvc}
-                        </option>
-                      );
-                    })}
-                </select>
-                {errors.PTVC && (
-                  <span className="text-danger">{errors.PTVC.message}</span>
-                )}
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="NgayBatDau">Ngày bắt đầu</label>
-                <div className="input-group ">
-                  <Controller
-                    control={control}
-                    name="NgayBatDau"
-                    render={({ field }) => (
-                      <DatePicker
-                        className="form-control"
-                        dateFormat="dd/MM/yyyy"
-                        placeholderText="Chọn ngày bắt đầu"
-                        onChange={(date) => field.onChange(date)}
-                        selected={field.value}
-                      />
-                    )}
-                    rules={Validate.NgayBatDau}
-                  />
-                  {errors.NgayBatDau && (
-                    <span className="text-danger">
-                      {errors.NgayBatDau.message}
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="NgayKetThuc">Ngày kết thúc</label>
-                <div className="input-group ">
-                  <Controller
-                    control={control}
-                    name="NgayKetThuc"
-                    render={({ field }) => (
-                      <DatePicker
-                        className="form-control"
-                        dateFormat="dd/MM/yyyy"
-                        placeholderText="Chọn ngày bắt đầu"
-                        onChange={(date) => field.onChange(date)}
-                        selected={field.value}
-                      />
-                    )}
-                    rules={Validate.NgayKetThuc}
-                  />
-                  {errors.NgayKetThuc && (
-                    <span className="text-danger">
-                      {errors.NgayKetThuc.message}
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="GhiChu">Ghi Chú</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="GhiChu"
-                  placeholder="Nhập ghi chú"
-                  {...register("GhiChu")}
-                />
-                {errors.GhiChu && (
-                  <span className="text-danger">{errors.GhiChu.message}</span>
-                )}
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="FileContact">Tải lên tệp Hợp Đồng</label>
-                <input
-                  type="file"
-                  className="form-control-file"
-                  {...register("FileContact", Validate.FileContact)}
-                />
-                {errors.FileContact && (
-                  <span className="text-danger">
-                    {errors.FileContact.message}
-                  </span>
-                )}
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="TrangThai">Trạng thái</label>
-                <select
-                  className="form-control"
-                  {...register("TrangThai", Validate.TrangThai)}
-                >
-                  <option value="">Chọn trạng thái</option>
-                  {listStatusType &&
-                    listStatusType.map((val) => {
-                      return (
-                        <option value={val.maTrangThai} key={val.maTrangThai}>
-                          {val.tenTrangThai}
-                        </option>
-                      );
-                    })}
-                </select>
-                {errors.TrangThai && (
-                  <span className="text-danger">
-                    {errors.TrangThai.message}
-                  </span>
-                )}
-              </div>
-            </div>
-            <div className="card-footer">
-              <div>
-                <button
-                  type="button"
-                  onClick={() => handleResetClick()}
-                  className="btn btn-warning"
-                >
-                  Làm mới
-                </button>
-                <button
-                  type="submit"
-                  className="btn btn-primary"
-                  style={{ float: "right" }}
-                >
-                  Thêm mới
-                </button>
-              </div>
-            </div>
-          </form>
-        )}
-      </div>
->>>>>>> 103083c6cb18e0f69c01e255502e2c9c68ee3a6f
     </>
   );
 };
