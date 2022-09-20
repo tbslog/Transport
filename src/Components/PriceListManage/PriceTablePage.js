@@ -5,7 +5,6 @@ import moment from "moment";
 import { Modal } from "bootstrap";
 import DatePicker from "react-datepicker";
 import AddPriceTable from "./AddPriceTable";
-import EditPriceTable from "./EditPriceTable";
 
 const PriceTablePage = () => {
   const [data, setData] = useState([]);
@@ -41,7 +40,7 @@ const PriceTablePage = () => {
       cell: (val) => (
         <button
           title="Cập nhật"
-          onClick={() => handleEditButtonClick(val, SetShowModal("Edit"))}
+          onClick={() => handleEditButtonClick(val, SetShowModal("Create"))}
           type="button"
           className="btn btn-sm btn-default"
         >
@@ -63,16 +62,8 @@ const PriceTablePage = () => {
       selector: (row) => row.tenHopDong,
     },
     {
-      name: "Mã Khách Hàng",
-      selector: (row) => row.maKh,
-    },
-    {
       name: "Tên khách hàng",
       selector: (row) => row.tenKH,
-    },
-    {
-      name: "Mã Cung Đường",
-      selector: (row) => row.maCungDuong,
     },
     {
       name: "Tên Cung Đường",
@@ -108,10 +99,7 @@ const PriceTablePage = () => {
 
   const handleEditButtonClick = async (val) => {
     showModalForm();
-    const dataPriceTable = await getData(
-      `PriceTable/GetPriceTableById?Id=${val.maBangGia}`
-    );
-    setSelectIdClick(dataPriceTable);
+    setSelectIdClick(val);
   };
 
   const fetchData = async (
@@ -169,6 +157,7 @@ const PriceTablePage = () => {
     fetchData(1);
     setLoading(false);
   }, []);
+
   function formatTable(data) {
     data.map((val) => {
       val.ngayApDung = moment(val.ngayApDung).format("DD/MM/YYYY");
@@ -196,6 +185,8 @@ const PriceTablePage = () => {
 
   const handleRefeshDataClick = () => {
     setKeySearch("");
+    setFromDate("");
+    setToDate("");
     setPerPage(10);
     fetchData(1);
   };
@@ -230,7 +221,12 @@ const PriceTablePage = () => {
                     title="Thêm mới"
                     type="button"
                     className="btn btn-sm btn-default mx-1"
-                    onClick={() => showModalForm(SetShowModal("Create"))}
+                    onClick={() =>
+                      showModalForm(
+                        SetShowModal("Create"),
+                        setSelectIdClick({})
+                      )
+                    }
                   >
                     <i className="fas fa-plus-circle"></i>
                   </button>
@@ -417,14 +413,11 @@ const PriceTablePage = () => {
               </div>
               <div className="modal-body">
                 <>
-                  {ShowModal === "Edit" && (
-                    <EditPriceTable
-                      selectIdClick={selectIdClick}
-                      getListPriceTable={fetchData}
-                    />
-                  )}
                   {ShowModal === "Create" && (
-                    <AddPriceTable getListPriceTable={fetchData} />
+                    <AddPriceTable
+                      getListPriceTable={fetchData}
+                      selectIdClick={selectIdClick}
+                    />
                   )}
                 </>
               </div>
