@@ -128,31 +128,38 @@ namespace TBSLogistics.Service.Repository.PricelistManage
             var getList = from bg in _context.BangGia
                           join hd in _context.HopDongVaPhuLuc
                           on bg.MaHopDong equals hd.MaHopDong
+                          where bg.MaHopDong == contractId
                           orderby bg.NgayApDung descending
                           select new { bg, hd };
 
-            var checkContractChild = await _context.HopDongVaPhuLuc.Where(x => x.MaHopDong == contractId).FirstOrDefaultAsync();
+            //var checkContractChild = await _context.HopDongVaPhuLuc.Where(x => x.MaHopDong == contractId).FirstOrDefaultAsync();
 
-            if (checkContractChild.SoHopDongCha == null)
-            {
-                getList = getList.Where(x => x.hd.MaHopDong == contractId);
-            }
-            else
-            {
-                getList = getList.Where(x => x.hd.SoHopDongCha == contractId || x.hd.MaHopDong == contractId);
-            }
+            //if (checkContractChild.SoHopDongCha == null)
+            //{
+            //    getList = getList.Where(x => x.hd.MaHopDong == contractId);
+            //}
+            //else
+            //{
+            //    getList = getList.Where(x => x.hd.SoHopDongCha == contractId || x.hd.MaHopDong == contractId);
+            //}
 
-            var gr = getList.Select(x => new
-            {
-                id = x.bg.Id,
-                ptvc = x.bg.MaPtvc,
-                cungduong = x.bg.MaCungDuong,
-                loaipt = x.bg.MaLoaiPhuongTien,
-                dvt = x.bg.MaDvt,
-                loaihh = x.bg.MaLoaiHangHoa
-            }).GroupBy(x => new { x.id }).Select(x => x.Key.id);
+            var gr = from t in getList
+                     group t by new { t.bg.MaCungDuong, t.bg.MaDvt, t.bg.MaKh, t.bg.MaLoaiHangHoa, t.bg.MaLoaiPhuongTien, t.bg.MaPtvc, t.bg.MaHopDong }
+                     into g
+                     select new
+                     {
+                         MaCungDuong = g.Key.MaCungDuong,
+                         MaDvt = g.Key.MaDvt,
+                         MaKh = g.Key.MaKh,
+                         MaLoaiHangHoa = g.Key.MaLoaiHangHoa,
+                         MaLoaiPhuongTien = g.Key.MaLoaiPhuongTien,
+                         MaPtvc = g.Key.MaPtvc,
+                         MaHopDong = g.Key.MaHopDong,
+                         Id = (from t2 in g select t2.bg.Id).Max(),
+                     };
 
-            getList = getList.Where(x => gr.Contains(x.bg.Id));
+
+            getList = getList.Where(x => gr.Select(y => y.Id).Contains(x.bg.Id));
 
             var totalRecords = await getList.CountAsync();
 

@@ -14,7 +14,6 @@ namespace TBSLogistics.Model.Model.PriceListModel
         public DateTime NgayApDung { get; set; }
         public decimal GiaVND { get; set; }
         public decimal GiaUSD { get; set; }
-        public int SoLuong { get; set; }
         public string MaLoaiPhuongTien { get; set; }
         public string MaLoaiHangHoa { get; set; }
         public string MaDVT { get; set; }
