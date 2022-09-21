@@ -1,24 +1,19 @@
 import { useState, useEffect, useMemo } from "react";
 import { getData, postData } from "../Common/FuncAxios";
 import { useForm, Controller, useFieldArray } from "react-hook-form";
-import Select from "react-select";
 import DatePicker from "react-datepicker";
 import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
 import DataTable from "react-data-table-component";
 import moment from "moment";
-import { isDisabled } from "@testing-library/user-event/dist/utils";
+import Select from "react-select";
 
 const AddPriceTable = (props) => {
   const { getListPriceTable, selectIdClick } = props;
-  const [IsLoading, SetIsLoading] = useState(false);
-  const [data, setData] = useState([]);
-  const [totalRows, setTotalRows] = useState(0);
-  const [perPage, setPerPage] = useState(10);
-
   const {
     register,
     reset,
     setValue,
+    watch,
     control,
     formState: { errors },
     handleSubmit,
@@ -27,10 +22,7 @@ const AddPriceTable = (props) => {
     defaultValues: {
       optionRoad: [
         {
-          MaCungDuong: {
-            value: "",
-            label: "Chọn Cung Đường",
-          },
+          MaCungDuong: null,
           GiaVND: "",
           GiaUSD: "",
           MaDVT: "",
@@ -48,6 +40,83 @@ const AddPriceTable = (props) => {
     control, // control props comes from useForm (optional: if you are using FormContext)
     name: "optionRoad", // unique name for your Field Array
   });
+
+  const Validate = {
+    MaHopDong: {
+      required: "Không được để trống",
+      maxLength: {
+        value: 10,
+        message: "Không được vượt quá 10 ký tự",
+      },
+      pattern: {
+        value: /^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9]+(?<![_.])$/,
+        message: "Không được chứa ký tự đặc biệt",
+      },
+    },
+    MaKh: {
+      required: "Không được để trống",
+      maxLength: {
+        value: 8,
+        message: "Không được vượt quá 8 ký tự",
+      },
+      minLength: {
+        value: 8,
+        message: "Không được ít hơn 8 ký tự",
+      },
+      pattern: {
+        value: /^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9]+(?<![_.])$/,
+        message: "Không được chứa ký tự đặc biệt",
+      },
+    },
+    MaCungDuong: {
+      required: "Không được để trống",
+    },
+    NgayApDung: {
+      required: "Không được để trống",
+      maxLength: {
+        value: 10,
+        message: "Không được vượt quá 10 ký tự",
+      },
+      minLength: {
+        value: 10,
+        message: "Không được ít hơn 10 ký tự",
+      },
+      pattern: {
+        value:
+          /^(?:(?:31(\/|-|\.)(?:0?[13578]|1[02]))\1|(?:(?:29|30)(\/|-|\.)(?:0?[13-9]|1[0-2])\2))(?:(?:1[6-9]|[2-9]\d)?\d{2})$|^(?:29(\/|-|\.)0?2\3(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\d|2[0-8])(\/|-|\.)(?:(?:0?[1-9])|(?:1[0-2]))\4(?:(?:1[6-9]|[2-9]\d)?\d{2})$/,
+        message: "Không phải định dạng ngày",
+      },
+    },
+    GiaVND: {
+      pattern: {
+        value: /^[0-9]*$/,
+        message: "Chỉ được nhập ký tự là số",
+      },
+      required: "Không được để trống",
+    },
+    GiaUSD: {
+      pattern: {
+        value: /^[0-9]*$/,
+        message: "Chỉ được nhập ký tự là số",
+      },
+      required: "Không được để trống",
+    },
+    MaLoaiPhuongTien: {
+      required: "Không được để trống",
+    },
+    MaLoaiHangHoa: {
+      required: "Không được để trống",
+    },
+    MaDVT: {
+      required: "Không được để trống",
+    },
+    MaPTVC: {
+      required: "Không được để trống",
+    },
+    TrangThai: {
+      required: "Không được để trống",
+    },
+  };
 
   const columns = useMemo(() => [
     {
@@ -102,108 +171,10 @@ const AddPriceTable = (props) => {
     },
   ]);
 
-  const Validate = {
-    MaBangGia: {
-      required: "Không được để trống",
-      maxLength: {
-        value: 10,
-        message: "Không được vượt quá 10 ký tự",
-      },
-      pattern: {
-        value: /^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9]+(?<![_.])$/,
-        message: "Không được chứa ký tự đặc biệt",
-      },
-    },
-    MaHopDong: {
-      required: "Không được để trống",
-      maxLength: {
-        value: 10,
-        message: "Không được vượt quá 10 ký tự",
-      },
-      pattern: {
-        value: /^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9]+(?<![_.])$/,
-        message: "Không được chứa ký tự đặc biệt",
-      },
-    },
-    MaKh: {
-      required: "Không được để trống",
-      maxLength: {
-        value: 8,
-        message: "Không được vượt quá 8 ký tự",
-      },
-      minLength: {
-        value: 8,
-        message: "Không được ít hơn 8 ký tự",
-      },
-      pattern: {
-        value: /^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9]+(?<![_.])$/,
-        message: "Không được chứa ký tự đặc biệt",
-      },
-    },
-    MaCungDuong: {
-      required: "Không được để trống",
-      maxLength: {
-        value: 10,
-        message: "Không được vượt quá 10 ký tự",
-      },
-      pattern: {
-        value: /^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9]+(?<![_.])$/,
-        message: "Không được chứa ký tự đặc biệt",
-      },
-    },
-    NgayApDung: {
-      required: "Không được để trống",
-      maxLength: {
-        value: 10,
-        message: "Không được vượt quá 10 ký tự",
-      },
-      minLength: {
-        value: 10,
-        message: "Không được ít hơn 10 ký tự",
-      },
-      pattern: {
-        value:
-          /^(?:(?:31(\/|-|\.)(?:0?[13578]|1[02]))\1|(?:(?:29|30)(\/|-|\.)(?:0?[13-9]|1[0-2])\2))(?:(?:1[6-9]|[2-9]\d)?\d{2})$|^(?:29(\/|-|\.)0?2\3(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\d|2[0-8])(\/|-|\.)(?:(?:0?[1-9])|(?:1[0-2]))\4(?:(?:1[6-9]|[2-9]\d)?\d{2})$/,
-        message: "Không phải định dạng ngày",
-      },
-    },
-    GiaVND: {
-      pattern: {
-        value: /^[0-9]*$/,
-        message: "Chỉ được nhập ký tự là số",
-      },
-      required: "Không được để trống",
-    },
-    GiaUSD: {
-      pattern: {
-        value: /^[0-9]*$/,
-        message: "Chỉ được nhập ký tự là số",
-      },
-      required: "Không được để trống",
-    },
-    SoLuong: {
-      required: "Không được để trống",
-      pattern: {
-        value: /^[1-9][0-9]*$/,
-        message: "Chỉ được nhập ký tự là số",
-      },
-    },
-    MaLoaiPhuongTien: {
-      required: "Không được để trống",
-    },
-    MaLoaiHangHoa: {
-      required: "Không được để trống",
-    },
-    MaDVT: {
-      required: "Không được để trống",
-    },
-    MaPTVC: {
-      required: "Không được để trống",
-    },
-    TrangThai: {
-      required: "Không được để trống",
-    },
-  };
+  const [IsLoading, SetIsLoading] = useState(false);
+  const [data, setData] = useState([]);
+  const [totalRows, setTotalRows] = useState(0);
+  const [perPage, setPerPage] = useState(10);
 
   const [contractId, setContractId] = useState("");
   const [tabIndex, setTabIndex] = useState(0);
@@ -241,10 +212,7 @@ const AddPriceTable = (props) => {
       );
       if (getListCustomer && getListCustomer.length > 0) {
         let obj = [];
-        obj.push({
-          value: "",
-          label: "Chọn khách hàng",
-        });
+
         getListCustomer.map((val) => {
           obj.push({
             value: val.maKh,
@@ -289,7 +257,7 @@ const AddPriceTable = (props) => {
     const dataCus = await getData(
       `PriceTable/GetListPriceTableByContractId?Id=${mahd}&PageNumber=${page}&PageSize=${perPage}`
     );
-    console.log(dataCus.data);
+
     formatTable(dataCus.data);
     setTotalRows(dataCus.totalRecords);
     SetIsLoading(false);
@@ -303,7 +271,7 @@ const AddPriceTable = (props) => {
   }
 
   const handlePageChange = async (page) => {
-    await fetchData(page);
+    await fetchData(page, contractId);
   };
 
   const handleOnchangeListCustomer = (val) => {
@@ -311,26 +279,21 @@ const AddPriceTable = (props) => {
 
     setListContract([]);
     setListRoad([]);
-    setValue("optionRoad", [
-      { MaCungDuong: { value: "", label: "Chọn Cung Đường" } },
-    ]);
+    setValue("optionRoad", [{ MaCungDuong: null }]);
     setValue("MaKh", val);
-    setValue("MaHopDong", { value: "", label: "Chọn Hợp Đồng" });
+    setValue("MaHopDong", null);
     getListRoadAndContract(val.value);
 
     SetIsLoading(false);
   };
 
   const getListRoadAndContract = async (MaKh) => {
+    SetIsLoading(true);
     let getListRoad = await getData(
       `Road/GetListRoadOptionSelect?MaKH=${MaKh}`
     );
     if (getListRoad && getListRoad.length > 0) {
       let obj = [];
-      obj.push({
-        value: "",
-        label: "Chọn cung đường",
-      });
       getListRoad.map((val) => {
         obj.push({
           value: val.maCungDuong,
@@ -358,12 +321,14 @@ const AddPriceTable = (props) => {
       });
       setListContract(obj);
     }
+
+    SetIsLoading(false);
   };
 
   const handleResetClick = () => {
     reset();
-    setValue("MaKh", { value: "", label: "Chọn Khách Hàng" });
-    setValue("MaHopDong", { value: "", label: "Chọn Hợp Đồng" });
+    setValue("MaKh", null);
+    setValue("MaHopDong", null);
     setListContract([]);
     setListRoad([]);
   };
@@ -383,11 +348,14 @@ const AddPriceTable = (props) => {
         giaUsd: val.GiaUSD,
         maDvt: val.MaDVT,
         maLoaiHangHoa: val.MaLoaiHangHoa,
-        ngayApDung: new Date(val.NgayApDung),
+        ngayApDung: moment(new Date(val.NgayApDung).toISOString()).format(
+          "YYYY-MM-DD"
+        ),
         trangThai: val.TrangThai,
       });
     });
 
+    console.log(arr);
     const createPriceTable = await postData("PriceTable/CreatePriceTable", arr);
 
     if (createPriceTable === 1) {
@@ -437,15 +405,11 @@ const AddPriceTable = (props) => {
                             <Select
                               {...field}
                               classNamePrefix={"form-control"}
+                              value={field.value}
+                              options={listCustomer}
                               onChange={(field) =>
                                 handleOnchangeListCustomer(field)
                               }
-                              value={field.value}
-                              options={listCustomer}
-                              defaultValue={{
-                                value: "",
-                                label: "Chọn Khách Hàng",
-                              }}
                             />
                           )}
                           rules={Validate.MaKh}
@@ -462,6 +426,7 @@ const AddPriceTable = (props) => {
                         <label htmlFor="MaHopDong">Hợp Đồng</label>
                         <Controller
                           name="MaHopDong"
+                          rules={Validate.MaHopDong}
                           control={control}
                           render={({ field }) => (
                             <Select
@@ -469,13 +434,8 @@ const AddPriceTable = (props) => {
                               classNamePrefix={"form-control"}
                               value={field.value}
                               options={listContract}
-                              defaultValue={{
-                                value: "",
-                                label: "Chọn hợp đồng",
-                              }}
                             />
                           )}
-                          rules={Validate.MaHopDong}
                         />
                         {errors.MaHopDong && (
                           <span className="text-danger">
@@ -487,7 +447,7 @@ const AddPriceTable = (props) => {
                   </div>
                   <br />
                   <table
-                    className="table table-bordered"
+                    className="table table-sm table-bordered"
                     style={{
                       whiteSpace: "nowrap",
                     }}
@@ -508,22 +468,7 @@ const AddPriceTable = (props) => {
                           <button
                             className="form-control form-control-sm"
                             type="button"
-                            onClick={() =>
-                              append({
-                                MaCungDuong: {
-                                  value: "",
-                                  label: "Chọn Cung Đường",
-                                },
-                                GiaVND: "",
-                                GiaUSD: "",
-                                MaDVT: "",
-                                MaPTVC: "",
-                                MaLoaiPhuongTien: "",
-                                MaLoaiHangHoa: "",
-                                NgayApDung: "",
-                                TrangThai: "",
-                              })
-                            }
+                            onClick={() => append(watch("optionRoad", 0))}
                           >
                             <i className="fas fa-plus"></i>
                           </button>
@@ -545,13 +490,10 @@ const AddPriceTable = (props) => {
                                     classNamePrefix={"form-control"}
                                     value={field.value}
                                     options={listRoad}
-                                    defaultValue={{
-                                      value: "",
-                                      label: "Chọn cung đường",
-                                    }}
+                                    defaultValue={null}
                                   />
                                 )}
-                                rules={Validate.MaCungDuong}
+                                rules={{ required: "không được để trống" }}
                               />
                               {errors.optionRoad?.[index]?.MaCungDuong && (
                                 <span className="text-danger">
@@ -711,9 +653,12 @@ const AddPriceTable = (props) => {
                                     );
                                   })}
                               </select>
-                              {errors.MaLoaiHangHoa && (
+                              {errors.optionRoad?.[index]?.MaLoaiHangHoa && (
                                 <span className="text-danger">
-                                  {errors.MaLoaiHangHoa.message}
+                                  {
+                                    errors.optionRoad?.[index]?.MaLoaiHangHoa
+                                      .message
+                                  }
                                 </span>
                               )}
                             </div>
@@ -780,13 +725,15 @@ const AddPriceTable = (props) => {
                           </td>
                           <td>
                             <div className="form-group">
-                              <button
-                                type="button"
-                                className="form-control form-control-sm"
-                                onClick={() => remove(index)}
-                              >
-                                <i className="fas fa-minus"></i>
-                              </button>
+                              {index >= 1 && (
+                                <button
+                                  type="button"
+                                  className="form-control form-control-sm"
+                                  onClick={() => remove(index)}
+                                >
+                                  <i className="fas fa-minus"></i>
+                                </button>
+                              )}
                             </div>
                           </td>
                         </tr>
@@ -817,6 +764,7 @@ const AddPriceTable = (props) => {
             )}
           </div>
         </TabPanel>
+
         {props.selectIdClick && Object.keys(props.selectIdClick).length > 0 && (
           <>
             <TabPanel>

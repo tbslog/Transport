@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { getData, postData, getFile } from "../Common/FuncAxios";
 import { useForm, Controller } from "react-hook-form";
-import Select from "react-select";
+import moment from "moment";
 import DatePicker from "react-datepicker";
 
 const EditContract = (props) => {
@@ -143,7 +143,6 @@ const EditContract = (props) => {
       setValue("MaHopDong", props.selectIdClick.maHopDong);
       setValue("TenHopDong", props.selectIdClick.tenHienThi);
       setValue("MaKh", props.selectIdClick.maKh);
-      console.log(props.selectIdClick.soHopDongCha);
 
       setValue("GhiChu", props.selectIdClick.ghiChu);
       setDownloadFile(props.selectIdClick.file);
@@ -198,8 +197,13 @@ const EditContract = (props) => {
         tenHienThi: data.TenHopDong,
         maPtvc: data.PTVC,
         phanLoaiHopDong: data.PhanLoaiHopDong,
-        thoiGianBatDau: data.NgayBatDau,
-        thoiGianKetThuc: data.NgayKetThuc,
+
+        thoiGianBatDau: moment(new Date(data.NgayBatDau).toISOString()).format(
+          "YYYY-MM-DD"
+        ),
+        thoiGianKetThuc: moment(
+          new Date(data.NgayKetThuc).toISOString()
+        ).format("YYYY-MM-DD"),
         ghiChu: data.GhiChu,
         phuPhi: isContract === false ? data.PhuPhi : null,
         trangThai: data.TrangThai,

@@ -4,6 +4,7 @@ import { useForm, Controller } from "react-hook-form";
 import DatePicker from "react-datepicker";
 import Select from "react-select";
 import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
+import moment from "moment/moment";
 
 const AddContract = (props) => {
   const [IsLoading, SetIsLoading] = useState(true);
@@ -172,9 +173,6 @@ const AddContract = (props) => {
   const getListContract = async (MaKh) => {
     setValue("SoHopDongCha", { value: "", label: "Chọn Hợp Đồng" });
     setListContract([]);
-
-    console.log(watch("MaKh"));
-
     let getListContract = await getData(
       `Contract/GetListContractSelect?MaKH=${MaKh}`
     );
@@ -213,8 +211,12 @@ const AddContract = (props) => {
         maKh: data.MaKh.value,
         maPtvc: data.PTVC,
         phanLoaiHopDong: data.PhanLoaiHopDong,
-        thoiGianBatDau: data.NgayBatDau,
-        thoiGianKetThuc: data.NgayKetThuc,
+        thoiGianBatDau: moment(new Date(data.NgayBatDau).toISOString()).format(
+          "YYYY-MM-DD"
+        ),
+        thoiGianKetThuc: moment(
+          new Date(data.NgayKetThuc).toISOString()
+        ).format("YYYY-MM-DD"),
         ghiChu: data.GhiChu,
         phuPhi: tabIndex === 0 ? null : data.PhuPhi,
         trangThai: data.TrangThai,
@@ -385,7 +387,6 @@ const AddContract = (props) => {
                     </div>
                     <div className="row">
                       <div className="col col-sm">
-                        {" "}
                         <div className="form-group">
                           <label htmlFor="NgayBatDau">Ngày bắt đầu</label>
                           <div className="input-group ">
