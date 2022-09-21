@@ -7,8 +7,11 @@ namespace TBSLogistics.Data.TMS
 {
     public partial class ThongBao
     {
-        public int MaThongBao { get; set; }
-        public string NoiDung { get; set; }
-        public string PhanLoai { get; set; }
+        public int Id { get; set; }
+        public string LangId { get; set; }
+        public int TextId { get; set; }
+        public string TextContent { get; set; }
+        public string TextType { get; set; }
+        public string FunctionId { get; set; }
     }
 }

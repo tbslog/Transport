@@ -21,7 +21,6 @@ namespace TBSLogistics.Data.TMS
 
         public virtual DbSet<Attachment> Attachment { get; set; }
         public virtual DbSet<BangGia> BangGia { get; set; }
-        public virtual DbSet<BangGiaCungDuong> BangGiaCungDuong { get; set; }
         public virtual DbSet<BangGiaDacBiet> BangGiaDacBiet { get; set; }
         public virtual DbSet<BangQuyDoi> BangQuyDoi { get; set; }
         public virtual DbSet<CungDuong> CungDuong { get; set; }
@@ -60,11 +59,12 @@ namespace TBSLogistics.Data.TMS
             if (!optionsBuilder.IsConfigured)
             {
                 IConfigurationRoot configuration = new ConfigurationBuilder()
-                               .SetBasePath(Directory.GetCurrentDirectory())
-                               .AddJsonFile("appsettings.json")
-                               .Build();
+                             .SetBasePath(Directory.GetCurrentDirectory())
+                             .AddJsonFile("appsettings.json")
+                             .Build();
 
                 optionsBuilder.UseSqlServer(configuration.GetConnectionString("TMS_Local"));
+
             }
         }
 
@@ -164,57 +164,6 @@ namespace TBSLogistics.Data.TMS
                     .HasForeignKey(d => d.MaKh)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_BangGia_KhachHang");
-            });
-
-            modelBuilder.Entity<BangGiaCungDuong>(entity =>
-            {
-                entity.Property(e => e.Id).HasColumnName("ID");
-
-                entity.Property(e => e.GiaUsd)
-                    .HasColumnType("decimal(18, 2)")
-                    .HasColumnName("GiaUSD");
-
-                entity.Property(e => e.GiaVnd)
-                    .HasColumnType("decimal(18, 2)")
-                    .HasColumnName("GiaVND");
-
-                entity.Property(e => e.MaBangGia)
-                    .IsRequired()
-                    .HasMaxLength(10)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.MaCungDuong)
-                    .IsRequired()
-                    .HasMaxLength(10)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.MaDvt)
-                    .IsRequired()
-                    .HasMaxLength(10)
-                    .IsUnicode(false)
-                    .HasColumnName("MaDVT");
-
-                entity.Property(e => e.MaLoaiHangHoa)
-                    .IsRequired()
-                    .HasMaxLength(10)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.MaLoaiPhuongTien)
-                    .IsRequired()
-                    .HasMaxLength(10)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.MaPtvc)
-                    .IsRequired()
-                    .HasMaxLength(10)
-                    .IsUnicode(false)
-                    .HasColumnName("MaPTVC");
-
-                entity.HasOne(d => d.MaCungDuongNavigation)
-                    .WithMany(p => p.BangGiaCungDuong)
-                    .HasForeignKey(d => d.MaCungDuong)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_BangGiaCungDuong_CungDuong");
             });
 
             modelBuilder.Entity<BangGiaDacBiet>(entity =>
@@ -890,15 +839,29 @@ namespace TBSLogistics.Data.TMS
 
             modelBuilder.Entity<ThongBao>(entity =>
             {
-                entity.HasKey(e => e.MaThongBao);
+                entity.Property(e => e.Id).HasColumnName("ID");
 
-                entity.Property(e => e.NoiDung)
+                entity.Property(e => e.FunctionId)
                     .IsRequired()
-                    .HasMaxLength(100);
+                    .HasMaxLength(30)
+                    .IsUnicode(false)
+                    .HasColumnName("FunctionID");
 
-                entity.Property(e => e.PhanLoai)
+                entity.Property(e => e.LangId)
                     .IsRequired()
-                    .HasMaxLength(10)
+                    .HasMaxLength(3)
+                    .IsUnicode(false)
+                    .HasColumnName("LangID");
+
+                entity.Property(e => e.TextContent)
+                    .IsRequired()
+                    .HasColumnType("text");
+
+                entity.Property(e => e.TextId).HasColumnName("TextID");
+
+                entity.Property(e => e.TextType)
+                    .IsRequired()
+                    .HasMaxLength(15)
                     .IsUnicode(false);
             });
 

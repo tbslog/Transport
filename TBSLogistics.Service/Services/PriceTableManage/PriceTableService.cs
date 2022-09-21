@@ -41,6 +41,8 @@ namespace TBSLogistics.Service.Repository.PricelistManage
                     MaLoaiHangHoa = x.MaLoaiHangHoa,
                     NgayApDung = x.NgayApDung,
                     TrangThai = x.TrangThai,
+                    CreatedTime = DateTime.Now,
+                    UpdatedTime = DateTime.Now
                 }).ToList());
 
                 var result = await _context.SaveChangesAsync();
@@ -66,18 +68,19 @@ namespace TBSLogistics.Service.Repository.PricelistManage
         {
             var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
 
-            var getData = from bg in _context.BangGia
-                          join
-                          hd in _context.HopDongVaPhuLuc
-                          on bg.MaHopDong equals hd.MaHopDong
-                          join
-                          kh in _context.KhachHang on bg.MaKh equals kh.MaKh
-                          orderby bg.CreatedTime descending
-                          select new { bg, hd, kh };
+            var getData = from kh in _context.KhachHang
+                          join hd in _context.HopDongVaPhuLuc
+                          on kh.MaKh equals hd.MaKh
+                          join bg in _context.BangGia
+                          on hd.MaHopDong equals bg.MaHopDong
+                          join cd in _context.CungDuong
+                          on bg.MaCungDuong equals cd.MaCungDuong
+                          orderby bg.NgayApDung descending
+                          select new { kh, hd, bg, cd };
 
             if (!string.IsNullOrEmpty(filter.Keyword))
             {
-                getData = getData.Where(x => x.bg.MaHopDong == filter.Keyword);
+                getData = getData.Where(x => x.hd.MaHopDong == filter.Keyword);
             }
 
             if (!string.IsNullOrEmpty(filter.fromDate.ToString()) && !string.IsNullOrEmpty(filter.toDate.ToString()))
@@ -101,13 +104,9 @@ namespace TBSLogistics.Service.Repository.PricelistManage
             {
                 MaHopDong = x.bg.MaHopDong,
                 TenHopDong = x.hd.TenHienThi,
-                MaKh = x.bg.MaHopDong,
                 TenKH = x.kh.TenKh,
-                MaCungDuong = x.bg.MaCungDuong,
+                TenCungDuong = x.cd.TenCungDuong,
                 MaLoaiPhuongTien = x.bg.MaLoaiPhuongTien,
-                GiaVnd = x.bg.GiaVnd,
-                GiaUsd = x.bg.GiaUsd,
-                MaDvt = x.bg.MaDvt,
                 MaLoaiHangHoa = x.bg.MaLoaiHangHoa,
                 MaPtvc = x.bg.MaPtvc,
                 NgayApDung = x.bg.NgayApDung,
@@ -122,16 +121,42 @@ namespace TBSLogistics.Service.Repository.PricelistManage
             };
         }
 
-        public async Task<List<GetPriceListRequest>> GetListPriceTableByContractId(string contractId)
+        public async Task<PagedResponseCustom<GetPriceListRequest>> GetListPriceTableByContractId(string contractId, int PageNumber, int PageSize)
         {
+            var validFilter = new PaginationFilter(PageNumber, PageSize);
+
             var getList = from bg in _context.BangGia
                           join hd in _context.HopDongVaPhuLuc
                           on bg.MaHopDong equals hd.MaHopDong
-                          where bg.MaHopDong == contractId
                           orderby bg.NgayApDung descending
                           select new { bg, hd };
 
-            var list = await getList.Select(x => new GetPriceListRequest()
+            var checkContractChild = await _context.HopDongVaPhuLuc.Where(x => x.MaHopDong == contractId).FirstOrDefaultAsync();
+
+            if (checkContractChild.SoHopDongCha == null)
+            {
+                getList = getList.Where(x => x.hd.MaHopDong == contractId);
+            }
+            else
+            {
+                getList = getList.Where(x => x.hd.SoHopDongCha == contractId || x.hd.MaHopDong == contractId);
+            }
+
+            var gr = getList.Select(x => new
+            {
+                id = x.bg.Id,
+                ptvc = x.bg.MaPtvc,
+                cungduong = x.bg.MaCungDuong,
+                loaipt = x.bg.MaLoaiPhuongTien,
+                dvt = x.bg.MaDvt,
+                loaihh = x.bg.MaLoaiHangHoa
+            }).GroupBy(x => new { x.id }).Select(x => x.Key.id);
+
+            getList = getList.Where(x => gr.Contains(x.bg.Id));
+
+            var totalRecords = await getList.CountAsync();
+
+            var pagedData = await getList.Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new GetPriceListRequest()
             {
                 MaHopDong = x.bg.MaHopDong,
                 MaKh = x.bg.MaKh,
@@ -145,7 +170,14 @@ namespace TBSLogistics.Service.Repository.PricelistManage
                 MaPTVC = x.bg.MaPtvc,
                 TrangThai = x.bg.TrangThai,
             }).ToListAsync();
-            return list;
+
+
+            return new PagedResponseCustom<GetPriceListRequest>()
+            {
+                paginationFilter = validFilter,
+                totalCount = totalRecords,
+                dataResponse = pagedData
+            };
         }
     }
 }

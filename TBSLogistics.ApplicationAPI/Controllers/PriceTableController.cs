@@ -56,10 +56,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<IActionResult> GetListPriceTableByContractId(string Id)
+        public async Task<IActionResult> GetListPriceTableByContractId(string Id, int PageNumber, int PageSize)
         {
-            var list = await _priceTable.GetListPriceTableByContractId(Id);
-            return Ok(list);
+            var route = Request.Path.Value;
+            var pagedData = await _priceTable.GetListPriceTableByContractId(Id, PageNumber, PageSize);
+            var pagedReponse = PaginationHelper.CreatePagedReponse<GetPriceListRequest>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _paninationService, route);
+            return Ok(pagedReponse);
         }
     }
 }

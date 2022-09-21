@@ -8,7 +8,6 @@ namespace TBSLogistics.Model.Model.PriceListModel
 {
    public class GetPriceListRequest
     {
-        public string MaBangGia { get; set; }
         public string MaHopDong { get; set; }
         public string MaKh { get; set; }
         public string MaCungDuong { get; set; }
