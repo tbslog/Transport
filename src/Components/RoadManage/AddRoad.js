@@ -61,7 +61,6 @@ const AddRoad = (props) => {
         message: "Không được chứa ký tự đặc biệt",
       },
     },
-
     SoKM: {
       required: "Không được để trống",
       maxLength: {
@@ -98,6 +97,9 @@ const AddRoad = (props) => {
         });
 
         SetListAddress(obj);
+        setValue("DiemDau", { value: "", label: "-- Chọn --" });
+        setValue("DiemCuoi", { value: "", label: "-- Chọn --" });
+        setValue("DiemLayRong", { value: "", label: "-- Chọn --" });
       }
     })();
 
@@ -113,6 +115,7 @@ const AddRoad = (props) => {
 
   const onSubmit = async (data, e) => {
     SetIsLoading(true);
+    console.log(data);
     const post = await postData("Road/CreateRoad", {
       maCungDuong: data.MaCungDuong,
       tenCungDuong: data.TenCungDuong,
@@ -120,7 +123,8 @@ const AddRoad = (props) => {
       km: data.SoKM,
       diemDau: data.DiemDau.value,
       diemCuoi: data.DiemCuoi.value,
-      diemLayRong: data.DiemLayRong.value,
+      diemLayRong:
+        data.DiemLayRong.value === "" ? null : data.DiemLayRong.value,
       ghiChu: data.GhiChu,
     });
 
@@ -208,16 +212,15 @@ const AddRoad = (props) => {
                 <Controller
                   name="DiemLayRong"
                   control={control}
+                  defaultValue={{ value: "", label: "-- Chọn --" }}
                   render={({ field }) => (
                     <Select
                       {...field}
                       classNamePrefix={"form-control"}
                       value={field.value}
                       options={listAddress}
-                      defaultValue={{ value: "", label: "-- Chọn --" }}
                     />
                   )}
-                  rules={{ required: "không được để trống" }}
                 />
                 {errors.DiemLayRong && (
                   <span className="text-danger">

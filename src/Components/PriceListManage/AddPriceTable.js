@@ -23,10 +23,9 @@ const AddPriceTable = (props) => {
       optionRoad: [
         {
           MaCungDuong: null,
-          GiaVND: "",
-          GiaUSD: "",
+          DonGia: "",
           MaDVT: "",
-          MaPTVC: "",
+          // MaPTVC: "",
           MaLoaiPhuongTien: "",
           MaLoaiHangHoa: "",
           NgayApDung: "",
@@ -110,10 +109,13 @@ const AddPriceTable = (props) => {
     MaDVT: {
       required: "Không được để trống",
     },
-    MaPTVC: {
+    // MaPTVC: {
+    //   required: "Không được để trống",
+    // },
+    TrangThai: {
       required: "Không được để trống",
     },
-    TrangThai: {
+    PhanLoaiDoiTac: {
       required: "Không được để trống",
     },
   };
@@ -159,11 +161,11 @@ const AddPriceTable = (props) => {
       selector: (row) => row.maDVT,
       sortable: true,
     },
-    {
-      name: "Phương Thức Vận Chuyển",
-      selector: (row) => row.maPTVC,
-      sortable: true,
-    },
+    // {
+    //   name: "Phương Thức Vận Chuyển",
+    //   selector: (row) => row.maPTVC,
+    //   sortable: true,
+    // },
     {
       name: "Thời gian Áp Dụng",
       selector: (row) => row.ngayApDung,
@@ -183,9 +185,10 @@ const AddPriceTable = (props) => {
   const [listVehicleType, setListVehicleType] = useState([]);
   const [listGoodsType, setListGoodsType] = useState([]);
   const [listDVT, setListDVT] = useState([]);
-  const [listTransportType, setListTransportType] = useState([]);
+  // const [listTransportType, setListTransportType] = useState([]);
   const [listStatus, setListStatus] = useState([]);
   const [listContract, setListContract] = useState([]);
+  const [listCustomerType, setListCustomerType] = useState([]);
 
   useEffect(() => {
     setTabIndex(0);
@@ -207,33 +210,20 @@ const AddPriceTable = (props) => {
     SetIsLoading(true);
 
     (async () => {
-      let getListCustomer = await getData(
-        `Customer/GetListCustomerOptionSelect`
-      );
-      if (getListCustomer && getListCustomer.length > 0) {
-        let obj = [];
-
-        getListCustomer.map((val) => {
-          obj.push({
-            value: val.maKh,
-            label: val.maKh + " - " + val.tenKh,
-          });
-        });
-        setListCustomer(obj);
-      }
-
       let getListDVT = await getData("Common/GetListDVT");
       let getListVehicleType = await getData("Common/GetListVehicleType");
       let getListGoodsType = await getData("Common/GetListGoodsType");
-      let getListTransportType = await getData("Common/GetListTransportType");
+      // let getListTransportType = await getData("Common/GetListTransportType");
       let getListStatus = await getData(
         "Common/GetListStatus?statusType=common"
       );
+      let getListCustommerType = await getData(`Common/GetListCustommerType`);
+      setListCustomerType(getListCustommerType);
 
       setListVehicleType(getListVehicleType);
       setListGoodsType(getListGoodsType);
       setListDVT(getListDVT);
-      setListTransportType(getListTransportType);
+      // setListTransportType(getListTransportType);
       setListStatus(getListStatus);
     })();
 
@@ -287,6 +277,32 @@ const AddPriceTable = (props) => {
     SetIsLoading(false);
   };
 
+  const handleOnChangeContractType = async (val) => {
+    setValue("PhanLoaiDoiTac", val);
+    if (val && val !== "") {
+      let getListCustomer = await getData(
+        `Customer/GetListCustomerOptionSelect`
+      );
+      if (getListCustomer && getListCustomer.length > 0) {
+        getListCustomer = getListCustomer.filter((x) => x.loaiKH === val);
+        console.log(getListCustomer);
+        let obj = [];
+
+        getListCustomer.map((val) => {
+          obj.push({
+            value: val.maKh,
+            label: val.maKh + " - " + val.tenKh,
+          });
+        });
+        setListCustomer(obj);
+      }
+    } else {
+      handleResetClick();
+    }
+
+    console.log(watch("PhanLoaiDoiTac"));
+  };
+
   const getListRoadAndContract = async (MaKh) => {
     SetIsLoading(true);
     let getListRoad = await getData(
@@ -331,6 +347,7 @@ const AddPriceTable = (props) => {
     setValue("MaHopDong", null);
     setListContract([]);
     setListRoad([]);
+    setListCustomer([]);
   };
 
   const onSubmit = async (data, e) => {
@@ -341,11 +358,11 @@ const AddPriceTable = (props) => {
       arr.push({
         maHopDong: data.MaHopDong.value,
         maKh: data.MaKh.value,
-        maPtvc: val.MaPTVC,
+        maPtvc: "VT",
         maCungDuong: val.MaCungDuong.value,
         maLoaiPhuongTien: val.MaLoaiPhuongTien,
-        giaVnd: val.GiaVND,
-        giaUsd: val.GiaUSD,
+        maLoaiDoiTac: data.PhanLoaiDoiTac,
+        donGia: val.DonGia,
         maDvt: val.MaDVT,
         maLoaiHangHoa: val.MaLoaiHangHoa,
         ngayApDung: moment(new Date(val.NgayApDung).toISOString()).format(
@@ -355,9 +372,7 @@ const AddPriceTable = (props) => {
       });
     });
 
-    console.log(arr);
     const createPriceTable = await postData("PriceTable/CreatePriceTable", arr);
-
     if (createPriceTable === 1) {
       getListPriceTable(1);
       reset();
@@ -395,6 +410,38 @@ const AddPriceTable = (props) => {
               <form onSubmit={handleSubmit(onSubmit)}>
                 <div className="card-body">
                   <div className="row">
+                    <div className="col col-sm">
+                      <div className="form-group">
+                        <label htmlFor="PhanLoaiDoiTac">
+                          Phân Loại Đối Tác
+                        </label>
+                        <select
+                          className="form-control"
+                          {...register(
+                            "PhanLoaiDoiTac",
+                            Validate.PhanLoaiDoiTac
+                          )}
+                          onChange={(e) =>
+                            handleOnChangeContractType(e.target.value)
+                          }
+                        >
+                          <option value="">Chọn phân loại đối tác</option>
+                          {listCustomerType &&
+                            listCustomerType.map((val) => {
+                              return (
+                                <option value={val.maLoaiKh} key={val.maLoaiKh}>
+                                  {val.tenLoaiKh}
+                                </option>
+                              );
+                            })}
+                        </select>
+                        {errors.PhanLoaiDoiTac && (
+                          <span className="text-danger">
+                            {errors.PhanLoaiDoiTac.message}
+                          </span>
+                        )}
+                      </div>
+                    </div>
                     <div className="col col-sm">
                       <div className="form-group">
                         <label htmlFor="KhachHang">Khách Hàng</label>
@@ -456,10 +503,9 @@ const AddPriceTable = (props) => {
                       <tr>
                         <th style={{ width: "10px" }}></th>
                         <th>Cung Đường</th>
-                        <th>Giá VND</th>
-                        <th>Giá USD</th>
+                        <th>Đơn Giá</th>
                         <th>Đơn vị tính</th>
-                        <th>PTVC</th>
+                        {/* <th>PTVC</th> */}
                         <th>Loại phương tiện</th>
                         <th>Loại Hàng Hóa</th>
                         <th>Ngày Áp Dụng</th>
@@ -510,34 +556,15 @@ const AddPriceTable = (props) => {
                               <input
                                 type="text"
                                 className="form-control"
-                                id="VND"
+                                id="DonGia"
                                 {...register(
-                                  `optionRoad.${index}.GiaVND`,
-                                  Validate.GiaVND
+                                  `optionRoad.${index}.DonGia`,
+                                  Validate.DonGia
                                 )}
                               />
-                              {errors.optionRoad?.[index]?.GiaVND && (
+                              {errors.optionRoad?.[index]?.DonGia && (
                                 <span className="text-danger">
-                                  {errors.optionRoad?.[index]?.GiaVND.message}
-                                </span>
-                              )}
-                            </div>
-                          </td>
-                          <td>
-                            <div className="form-group">
-                              <input
-                                type="text"
-                                className="form-control"
-                                id="USD"
-                                {...register(
-                                  `optionRoad.${index}.GiaUSD`,
-                                  Validate.GiaUSD
-                                )}
-                              />
-
-                              {errors.optionRoad?.[index]?.GiaUSD && (
-                                <span className="text-danger">
-                                  {errors.optionRoad?.[index]?.GiaUSD.message}
+                                  {errors.optionRoad?.[index]?.DonGia.message}
                                 </span>
                               )}
                             </div>
@@ -568,7 +595,7 @@ const AddPriceTable = (props) => {
                               )}
                             </div>
                           </td>
-                          <td>
+                          {/* <td>
                             <div className="form-group">
                               <select
                                 className="form-control"
@@ -598,7 +625,7 @@ const AddPriceTable = (props) => {
                                 </span>
                               )}
                             </div>
-                          </td>
+                          </td> */}
                           <td>
                             <div className="form-group">
                               <select

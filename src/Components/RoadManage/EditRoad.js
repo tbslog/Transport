@@ -158,7 +158,7 @@ const EditRoad = (props) => {
       km: data.SoKM,
       diemDau: data.DiemDau.value,
       diemCuoi: data.DiemCuoi.value,
-      diemLayRong: data.DiemLayRong.value,
+      diemLayRong: data.DiemLayRong.value == "" ? null : data.DiemLayRong.value,
       ghiChu: data.GhiChu,
     });
 
@@ -257,7 +257,6 @@ const EditRoad = (props) => {
                       defaultValue={{ value: "", label: "-- Chọn --" }}
                     />
                   )}
-                  rules={{ required: "không được để trống" }}
                 />
                 {errors.DiemLayRong && (
                   <span className="text-danger">
