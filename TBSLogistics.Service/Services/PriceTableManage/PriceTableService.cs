@@ -28,6 +28,8 @@ namespace TBSLogistics.Service.Repository.PricelistManage
         {
             try
             {
+                
+
                 await _context.BangGia.AddRangeAsync(request.Select(x => new BangGia
                 {
                     MaHopDong = x.MaHopDong,

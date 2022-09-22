@@ -30,7 +30,7 @@ namespace TBSLogistics.Service.Services.ContractManage
         {
             try
             {
-                var checkExists = await _TMSContext.HopDongVaPhuLuc.Where(x => x.MaHopDong == request.MaHopDong ).FirstOrDefaultAsync();
+                var checkExists = await _TMSContext.HopDongVaPhuLuc.Where(x => x.MaHopDong == request.MaHopDong).FirstOrDefaultAsync();
 
                 if (checkExists != null)
                 {
@@ -43,6 +43,24 @@ namespace TBSLogistics.Service.Services.ContractManage
                 {
                     return new BoolActionResult { isSuccess = false, Message = "Mã khách hàng không tồn tại" };
                 }
+
+                if (request.SoHopDongCha == null)
+                {
+                    var checkContractCustommer = await _TMSContext.HopDongVaPhuLuc.Where(x => x.MaKh == request.MaKh && x.SoHopDongCha == null).FirstOrDefaultAsync();
+                    if (checkContractCustommer != null)
+                    {
+                        return new BoolActionResult { isSuccess = false, Message = "Một khách hàng chỉ có một hợp đồng chính" };
+                    }
+                }
+                else
+                {
+                    var checkChildContract = await _TMSContext.HopDongVaPhuLuc.Where(x => x.MaKh == request.MaKh && x.SoHopDongCha != null).FirstOrDefaultAsync();
+                    if (checkChildContract != null)
+                    {
+                        return new BoolActionResult { isSuccess = false, Message = "Chỉ hợp đồng chính mới được có phụ lục" };
+                    }
+                }
+
 
                 if (request.ThoiGianBatDau >= request.ThoiGianKetThuc)
                 {
@@ -244,7 +262,7 @@ namespace TBSLogistics.Service.Services.ContractManage
             var getList = from ct in _TMSContext.HopDongVaPhuLuc
                           join kh in _TMSContext.KhachHang on ct.MaKh equals kh.MaKh
                           orderby ct.MaHopDong descending
-                          where ct.SoHopDongCha ==null
+                          where ct.SoHopDongCha == null
                           select new { ct, kh };
 
             if (!string.IsNullOrEmpty(MaKH))
@@ -252,7 +270,8 @@ namespace TBSLogistics.Service.Services.ContractManage
                 getList = getList.Where(x => x.ct.MaKh == MaKH);
             }
 
-            var list = await getList.Select(x => new GetContractById() { 
+            var list = await getList.Select(x => new GetContractById()
+            {
                 MaHopDong = x.ct.MaHopDong,
                 TenHienThi = x.ct.TenHienThi,
             }).ToListAsync();
