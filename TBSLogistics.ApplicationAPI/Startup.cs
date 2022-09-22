@@ -21,7 +21,6 @@ using TBSLogistics.Service.Repository.CustommerManage;
 using TBSLogistics.Service.Repository.DriverManage;
 using TBSLogistics.Service.Repository.PricelistManage;
 using TBSLogistics.Service.Repository.RoadManage;
-using TBSLogistics.Service.Repository.SupplierManage;
 using TBSLogistics.Service.Repository.VehicleManage;
 using TBSLogistics.Service.Services.ContractManage;
 

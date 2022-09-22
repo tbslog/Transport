@@ -110,12 +110,12 @@ namespace TBSLogistics.Data.TMS
                     .HasMaxLength(10)
                     .IsUnicode(false);
 
-                entity.Property(e => e.MaLoaiHangHoa)
+                entity.Property(e => e.MaLoaiDoiTac)
                     .IsRequired()
                     .HasMaxLength(10)
                     .IsUnicode(false);
 
-                entity.Property(e => e.MaLoaiHopDong)
+                entity.Property(e => e.MaLoaiHangHoa)
                     .IsRequired()
                     .HasMaxLength(10)
                     .IsUnicode(false);
