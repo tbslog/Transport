@@ -8,7 +8,6 @@ namespace TBSLogistics.Data.TMS
     public partial class VanDon
     {
         public string MaVanDon { get; set; }
-        public DateTime NgayNhapHang { get; set; }
         public string MaKh { get; set; }
         public string MaSoXe { get; set; }
         public string MaTaiXe { get; set; }
@@ -30,7 +29,9 @@ namespace TBSLogistics.Data.TMS
         public int DiemNhapHang { get; set; }
         public int DiemGioHang { get; set; }
         public int DiemTraRong { get; set; }
-        public DateTime ThoiGianHanLech { get; set; }
+        public DateTime? ThoiGianLayRong { get; set; }
+        public DateTime? ThoiGianHaCong { get; set; }
+        public int ThoiGianHanLech { get; set; }
         public DateTime ThoiGianCoMat { get; set; }
         public DateTime? ThoiGianCatMang { get; set; }
         public DateTime ThoiGianTraRong { get; set; }

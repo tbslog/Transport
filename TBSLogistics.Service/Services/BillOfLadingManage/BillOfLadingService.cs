@@ -38,7 +38,6 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
                 await _context.VanDon.AddAsync(new VanDon()
                 {
                     MaVanDon = request.MaVanDon,
-                    NgayNhapHang = request.NgayNhapHang,
                     MaKh = request.MaKh,
                     MaSoXe = request.MaSoXe,
                     MaTaiXe = request.MaTaiXe,
@@ -104,7 +103,6 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
                     return new BoolActionResult { isSuccess = false, Message = "Vận đơn này không tồn tại" };
                 }
 
-                getBillOfLading.NgayNhapHang = request.NgayNhapHang;
                 getBillOfLading.MaKh = request.MaKh;
                 getBillOfLading.MaSoXe = request.MaSoXe;
                 getBillOfLading.MaTaiXe = request.MaTaiXe;
@@ -162,7 +160,6 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
             var getBillOfLading = await _context.VanDon.Where(x => x.MaVanDon == billOfLadingId).Select(x => new GetBillOfLadingRequest()
             {
                 MaVanDon = x.MaVanDon,
-                NgayNhapHang = x.NgayNhapHang,
                 MaKh = x.MaKh,
                 MaSoXe = x.MaSoXe,
                 MaTaiXe = x.MaTaiXe,

@@ -43,7 +43,7 @@ namespace TBSLogistics.Service.Repository.DriverManage
                     SoDienThoai = request.SoDienThoai,
                     NgaySinh = request.NgaySinh,
                     GhiChu = request.GhiChu,
-                    MaNhaThau = request.MaNhaThau,
+                    MaKh = request.MaNhaThau,
                     TaiXeTbs = request.TaiXeTBS,
                     LoaiXe = request.LoaiXe,
                     TrangThai = request.TrangThai,
@@ -86,7 +86,7 @@ namespace TBSLogistics.Service.Repository.DriverManage
                 getDriver.SoDienThoai = request.SoDienThoai;
                 getDriver.NgaySinh = request.NgaySinh;
                 getDriver.GhiChu = request.GhiChu;
-                getDriver.MaNhaThau = request.MaNhaThau;
+                getDriver.MaKh = request.MaNhaThau;
                 getDriver.LoaiXe = request.LoaiXe;
                 getDriver.TrangThai = request.TrangThai;
                 getDriver.UpdatedTime = DateTime.Now;
@@ -122,7 +122,7 @@ namespace TBSLogistics.Service.Repository.DriverManage
                 SoDienThoai = x.SoDienThoai,
                 NgaySinh = x.NgaySinh,
                 GhiChu = x.GhiChu,
-                MaNhaThau = x.MaNhaThau,
+                MaNhaThau = x.MaKh,
                 LoaiXe = x.LoaiXe,
                     TaiXeTBSL = x.TaiXeTbs,
                 TrangThai = x.TrangThai,
@@ -143,7 +143,7 @@ namespace TBSLogistics.Service.Repository.DriverManage
                 SoDienThoai = x.SoDienThoai,
                 NgaySinh = x.NgaySinh,
                 GhiChu = x.GhiChu,
-                MaNhaThau = x.MaNhaThau,
+                MaNhaThau = x.MaKh,
                 LoaiXe = x.LoaiXe,
                 TaiXeTBSL = x.TaiXeTbs,
                 TrangThai = x.TrangThai,
@@ -164,7 +164,7 @@ namespace TBSLogistics.Service.Repository.DriverManage
                 SoDienThoai = x.SoDienThoai,
                 NgaySinh = x.NgaySinh,
                 GhiChu = x.GhiChu,
-                MaNhaThau = x.MaNhaThau,
+                MaNhaThau = x.MaKh,
                 LoaiXe = x.LoaiXe,
                 TaiXeTBSL = x.TaiXeTbs,
                 TrangThai = x.TrangThai,
@@ -185,7 +185,7 @@ namespace TBSLogistics.Service.Repository.DriverManage
                 SoDienThoai = x.SoDienThoai,
                 NgaySinh = x.NgaySinh,
                 GhiChu = x.GhiChu,
-                MaNhaThau = x.MaNhaThau,
+                MaNhaThau = x.MaKh,
                 LoaiXe = x.LoaiXe,
                 TaiXeTBSL = x.TaiXeTbs,
                 TrangThai = x.TrangThai,
@@ -225,7 +225,7 @@ namespace TBSLogistics.Service.Repository.DriverManage
                     SoDienThoai = x.driver.SoDienThoai,
                     NgaySinh = x.driver.NgaySinh,
                     GhiChu = x.driver.GhiChu,
-                    MaNhaThau = x.driver.MaNhaThau,
+                    MaNhaThau = x.driver.MaKh,
                     LoaiXe = x.driver.LoaiXe,
                     TaiXeTBSL = x.driver.TaiXeTbs,
                     TrangThai = x.driver.TrangThai,

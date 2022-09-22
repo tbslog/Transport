@@ -86,7 +86,6 @@ namespace TBSLogistics.ApplicationAPI
             services.AddTransient<IAddress, AddressService>();
             services.AddTransient<ICustomer, CustomerService>();
             services.AddTransient<IPriceTable, PriceTableService>();
-            services.AddTransient<ISupplier, SupplierService>();
             services.AddTransient<IDriver, DriverService>();
             services.AddTransient<IVehicle, VehicleService>();
             services.AddTransient<IBillOfLading, BillOfLadingService>();

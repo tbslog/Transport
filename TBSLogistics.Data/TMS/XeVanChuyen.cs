@@ -28,7 +28,6 @@ namespace TBSLogistics.Data.TMS
         public DateTime UpdatedTime { get; set; }
         public DateTime CreatedTime { get; set; }
 
-        public virtual NhaCungCap MaNhaCungCapNavigation { get; set; }
         public virtual TaiXe MaTaiXeMacDinhNavigation { get; set; }
         public virtual ICollection<VanDon> VanDon { get; set; }
     }

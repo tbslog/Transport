@@ -30,7 +30,7 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
         public int DiemNhapHang { get; set; }
         public int DiemGioHang { get; set; }
         public int DiemTraRong { get; set; }
-        public DateTime ThoiGianHanLech { get; set; }
+        public int ThoiGianHanLech { get; set; }
         public DateTime ThoiGianCoMat { get; set; }
         public DateTime? ThoiGianCatMang { get; set; }
         public DateTime ThoiGianTraRong { get; set; }

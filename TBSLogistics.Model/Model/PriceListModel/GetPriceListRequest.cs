@@ -12,10 +12,10 @@ namespace TBSLogistics.Model.Model.PriceListModel
         public string MaKh { get; set; }
         public string MaCungDuong { get; set; }
         public DateTime NgayApDung { get; set; }
-        public decimal GiaVND { get; set; }
-        public decimal GiaUSD { get; set; }
+        public decimal DonGia { get; set; }
         public string MaLoaiPhuongTien { get; set; }
         public string MaLoaiHangHoa { get; set; }
+        public string MaLoaiHopDong { get; set; }
         public string MaDVT { get; set; }
         public string MaPTVC { get; set; }
         public int TrangThai { get; set; }

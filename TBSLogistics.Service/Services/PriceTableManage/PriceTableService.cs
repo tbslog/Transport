@@ -28,20 +28,17 @@ namespace TBSLogistics.Service.Repository.PricelistManage
         {
             try
             {
-                
-
                 await _context.BangGia.AddRangeAsync(request.Select(x => new BangGia
                 {
                     MaHopDong = x.MaHopDong,
-                    MaKh = x.MaKH,
                     MaPtvc = x.MaPtvc,
                     MaCungDuong = x.MaCungDuong,
                     MaLoaiPhuongTien = x.MaLoaiPhuongTien,
-                    GiaVnd = x.GiaVnd,
-                    GiaUsd = x.GiaUsd,
+                    DonGia = x.DonGia,
                     MaDvt = x.MaDvt,
                     MaLoaiHangHoa = x.MaLoaiHangHoa,
                     NgayApDung = x.NgayApDung,
+                    MaLoaiHopDong = x.MaLoaiHopDong,
                     TrangThai = x.TrangThai,
                     CreatedTime = DateTime.Now,
                     UpdatedTime = DateTime.Now
@@ -146,13 +143,12 @@ namespace TBSLogistics.Service.Repository.PricelistManage
             //}
 
             var gr = from t in getList
-                     group t by new { t.bg.MaCungDuong, t.bg.MaDvt, t.bg.MaKh, t.bg.MaLoaiHangHoa, t.bg.MaLoaiPhuongTien, t.bg.MaPtvc, t.bg.MaHopDong }
+                     group t by new { t.bg.MaCungDuong, t.bg.MaDvt, t.bg.MaLoaiHangHoa, t.bg.MaLoaiPhuongTien, t.bg.MaPtvc, t.bg.MaHopDong }
                      into g
                      select new
                      {
                          MaCungDuong = g.Key.MaCungDuong,
                          MaDvt = g.Key.MaDvt,
-                         MaKh = g.Key.MaKh,
                          MaLoaiHangHoa = g.Key.MaLoaiHangHoa,
                          MaLoaiPhuongTien = g.Key.MaLoaiPhuongTien,
                          MaPtvc = g.Key.MaPtvc,
@@ -168,18 +164,15 @@ namespace TBSLogistics.Service.Repository.PricelistManage
             var pagedData = await getList.Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new GetPriceListRequest()
             {
                 MaHopDong = x.bg.MaHopDong,
-                MaKh = x.bg.MaKh,
                 MaCungDuong = x.bg.MaCungDuong,
                 NgayApDung = x.bg.NgayApDung,
-                GiaVND = x.bg.GiaVnd,
-                GiaUSD = x.bg.GiaUsd,
+                DonGia = x.bg.DonGia,
                 MaLoaiPhuongTien = x.bg.MaLoaiPhuongTien,
                 MaLoaiHangHoa = x.bg.MaLoaiHangHoa,
                 MaDVT = x.bg.MaDvt,
                 MaPTVC = x.bg.MaPtvc,
                 TrangThai = x.bg.TrangThai,
             }).ToListAsync();
-
 
             return new PagedResponseCustom<GetPriceListRequest>()
             {
