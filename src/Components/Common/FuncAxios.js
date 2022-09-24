@@ -11,6 +11,14 @@ const getData = async (url) => {
   return data;
 };
 
+const getDataCustom = async (url, data, header = null) => {
+  let dataReturn = [];
+  await axios.post(Host + url, data, header).then((response) => {
+    dataReturn = response.data;
+  });
+  return dataReturn;
+};
+
 const getFile = async (url, fileName) => {
   axios
     .get(Host + url, {
@@ -94,4 +102,12 @@ const deleteData = async (url) => {
   return isSuccess;
 };
 
-export { getData, postData, putData, deleteData, postFile, getFile };
+export {
+  getData,
+  postData,
+  putData,
+  deleteData,
+  postFile,
+  getFile,
+  getDataCustom,
+};

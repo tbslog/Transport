@@ -17,6 +17,7 @@ const EditRoad = (props) => {
   });
 
   const [listAddress, SetListAddress] = useState([]);
+  const [listStatus, setListStatus] = useState([]);
 
   const Validate = {
     MaCungDuong: {
@@ -78,6 +79,9 @@ const EditRoad = (props) => {
         message: "Phải là số",
       },
     },
+    TrangThai: {
+      required: "Không được để trống",
+    },
   };
 
   useEffect(() => {
@@ -90,6 +94,8 @@ const EditRoad = (props) => {
       setValue("TenCungDuong", props.selectIdClick.tenCungDuong);
       setValue("MaHopDong", props.selectIdClick.maHopDong);
       setValue("SoKM", props.selectIdClick.km);
+
+      setValue("TrangThai", props.selectIdClick.trangThai);
 
       setValue("DiemLayRong", {
         ...listAddress.filter(
@@ -124,7 +130,7 @@ const EditRoad = (props) => {
               val.maDiaDiem + " - " + val.tenDiaDiem + " --- " + val.diaChi,
           });
         });
-
+        setListStatus(props.listStatus);
         SetListAddress(obj);
       }
     })();
@@ -160,10 +166,12 @@ const EditRoad = (props) => {
       diemCuoi: data.DiemCuoi.value,
       diemLayRong: data.DiemLayRong.value == "" ? null : data.DiemLayRong.value,
       ghiChu: data.GhiChu,
+      trangThai: data.TrangThai,
     });
 
     if (post === 1) {
       props.getListRoad(1);
+      props.hideModal();
     }
 
     SetIsLoading(false);
@@ -318,6 +326,28 @@ const EditRoad = (props) => {
                 />
                 {errors.GhiChu && (
                   <span className="text-danger">{errors.GhiChu.message}</span>
+                )}
+              </div>
+              <div className="form-group">
+                <label htmlFor="TrangThai">Trạng Thái</label>
+                <select
+                  className="form-control"
+                  {...register("TrangThai", Validate.TrangThai)}
+                >
+                  <option value="">Chọn Trạng Thái</option>
+                  {listStatus &&
+                    listStatus.map((val) => {
+                      return (
+                        <option value={val.statusId} key={val.statusId}>
+                          {val.statusContent}
+                        </option>
+                      );
+                    })}
+                </select>
+                {errors.TrangThai && (
+                  <span className="text-danger">
+                    {errors.TrangThai.message}
+                  </span>
                 )}
               </div>
             </div>

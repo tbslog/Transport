@@ -1,12 +1,13 @@
 import { useMemo, useState, useEffect, useCallback, useRef } from "react";
 import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
-import { getData, postFile } from "../Common/FuncAxios";
+import { getData, postFile, getDataCustom } from "../Common/FuncAxios";
 import DataTable from "react-data-table-component";
 import moment from "moment";
 import { Modal } from "bootstrap";
 import AddContract from "./AddContract";
 import EditContract from "./EditContract";
 import DatePicker from "react-datepicker";
+import AddPriceTable from "../PriceListManage/AddPriceTable";
 
 const ContractPage = () => {
   const [data, setData] = useState([]);
@@ -26,6 +27,8 @@ const ContractPage = () => {
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
 
+  const [priceTable, setPriceTable] = useState([]);
+  const [listStatus, setListStatus] = useState([]);
   const [listContractType, setListContractType] = useState([]);
   const [contractType, setContractType] = useState("");
   const [custommerType, setCustommerType] = useState("");
@@ -46,26 +49,28 @@ const ContractPage = () => {
       allowOverflow: true,
       button: true,
     },
-    {
-      name: "Chi Tiết",
-      cell: (val) => (
-        <button
-          onClick={() => handleOnclickDetail()}
-          type="button"
-          className="btn btn-sm btn-default"
-        >
-          <i className="fas fa-file-contract"></i>
-        </button>
-      ),
-      ignoreRowClick: true,
-      allowOverflow: true,
-      button: true,
-    },
+    // {
+    //   name: "Chi Tiết",
+    //   cell: (val) => (
+    //     <button
+    //       onClick={() => handleOnclickDetail()}
+    //       type="button"
+    //       className="btn btn-sm btn-default"
+    //     >
+    //       <i className="fas fa-file-contract"></i>
+    //     </button>
+    //   ),
+    //   ignoreRowClick: true,
+    //   allowOverflow: true,
+    //   button: true,
+    // },
     {
       name: "Bảng Giá",
       cell: (val) => (
         <button
-          onClick={() => handleEditButtonClick(val, SetShowModal("Edit"))}
+          onClick={() =>
+            handleOnclickPriceTable(val, SetShowModal("PriceTable"))
+          }
           type="button"
           className="btn btn-sm btn-default"
         >
@@ -85,6 +90,11 @@ const ContractPage = () => {
       selector: (row) => row.tenHienThi,
     },
     {
+      name: "",
+      selector: (row) => row.soHopDongCha,
+      sortable: true,
+    },
+    {
       name: "Phân Loại",
       selector: (row) => row.phanLoaiHopDong,
       sortable: true,
@@ -96,10 +106,6 @@ const ContractPage = () => {
     {
       name: "Tên Khách Hàng",
       selector: (row) => row.tenKH,
-    },
-    {
-      name: "Mã Bảng Giá",
-      selector: (row) => row.maBangGia,
     },
     {
       name: "Trạng thái",
@@ -140,7 +146,10 @@ const ContractPage = () => {
     setSelectIdClick(getDataContract);
   };
 
-  const handleOnclickDetail = async () => {};
+  const handleOnclickPriceTable = async (val) => {
+    setPriceTable(val);
+    showModalForm();
+  };
 
   const fetchData = async (
     page,
@@ -191,6 +200,11 @@ const ContractPage = () => {
       await fetchData(1, "", "", "", "", "KH");
       const getListContractType = await getData(`Common/GetListContractType`);
       setListContractType(getListContractType);
+
+      let getStatusList = await getDataCustom(`Common/GetListStatus`, [
+        "common",
+      ]);
+      setListStatus(getStatusList);
     })();
 
     setLoading(false);
@@ -481,12 +495,21 @@ const ContractPage = () => {
                       selectIdClick={selectIdClick}
                       getListContract={fetchData}
                       listContractType={listContractType}
+                      listStatus={listStatus}
                     />
                   )}
                   {ShowModal === "Create" && (
                     <AddContract
                       getListContract={fetchData}
                       listContractType={listContractType}
+                      listStatus={listStatus}
+                    />
+                  )}
+                  {ShowModal === "PriceTable" && (
+                    <AddPriceTable
+                      getListPriceTable={fetchData}
+                      selectIdClick={priceTable}
+                      listStatus={listStatus}
                     />
                   )}
                 </>

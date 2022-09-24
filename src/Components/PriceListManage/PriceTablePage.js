@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect, useCallback, useRef } from "react";
-import { getData, postFile } from "../Common/FuncAxios";
+import { getData, getDataCustom } from "../Common/FuncAxios";
 import DataTable from "react-data-table-component";
 import moment from "moment";
 import { Modal } from "bootstrap";
@@ -23,6 +23,7 @@ const PriceTablePage = () => {
   const [selectedRows, setSelectedRows] = useState([]);
   const [selectIdClick, setSelectIdClick] = useState({});
 
+  const [listStatus, setListStatus] = useState([]);
   const [listVehicleType, setListVehicleType] = useState([]);
   const [vehicleType, setVehicleType] = useState("");
   const [listGoodsType, setListGoodsType] = useState([]);
@@ -152,6 +153,11 @@ const PriceTablePage = () => {
 
       let getListCustommerType = await getData(`Common/GetListGoodsType`);
       setListGoodsType(getListCustommerType);
+
+      let getStatusList = await getDataCustom(`Common/GetListStatus`, [
+        "common",
+      ]);
+      setListStatus(getStatusList);
     })();
 
     fetchData(1);
@@ -417,6 +423,7 @@ const PriceTablePage = () => {
                     <AddPriceTable
                       getListPriceTable={fetchData}
                       selectIdClick={selectIdClick}
+                      listStatus={listStatus}
                     />
                   )}
                 </>

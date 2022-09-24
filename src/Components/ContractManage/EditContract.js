@@ -133,28 +133,30 @@ const EditContract = (props) => {
       Object.keys(props.selectIdClick).length > 0 &&
       Object.keys(props).length > 0
     ) {
-      if (props.selectIdClick.soHopDongCha) {
-        setIsContract(false);
-        setValue("SoHopDongCha", props.selectIdClick.soHopDongCha);
-        setValue("PhuPhi", props.selectIdClick.phuPhi);
-      } else {
-        setIsContract(true);
-      }
-      setValue("MaHopDong", props.selectIdClick.maHopDong);
-      setValue("TenHopDong", props.selectIdClick.tenHienThi);
-      setValue("MaKh", props.selectIdClick.maKh);
-
-      setValue("GhiChu", props.selectIdClick.ghiChu);
-      setDownloadFile(props.selectIdClick.file);
-      setValue("PhanLoaiHopDong", props.selectIdClick.phanLoaiHopDong);
-
+      SetIsLoading(true);
       setTimeout(() => {
+        if (props.selectIdClick.soHopDongCha) {
+          setIsContract(false);
+          setValue("SoHopDongCha", props.selectIdClick.soHopDongCha);
+          setValue("PhuPhi", props.selectIdClick.phuPhi);
+        } else {
+          setIsContract(true);
+        }
+        setValue("MaHopDong", props.selectIdClick.maHopDong);
+        setValue("TenHopDong", props.selectIdClick.tenHienThi);
+        setValue("MaKh", props.selectIdClick.maKh);
+
+        setValue("GhiChu", props.selectIdClick.ghiChu);
+        setDownloadFile(props.selectIdClick.file);
+        setValue("PhanLoaiHopDong", props.selectIdClick.phanLoaiHopDong);
+
         setValue("TrangThai", props.selectIdClick.trangThai);
         setValue("PTVC", props.selectIdClick.maPtvc);
-      }, 1000);
 
-      setValue("NgayBatDau", new Date(props.selectIdClick.thoiGianBatDau));
-      setValue("NgayKetThuc", new Date(props.selectIdClick.thoiGianKetThuc));
+        setValue("NgayBatDau", new Date(props.selectIdClick.thoiGianBatDau));
+        setValue("NgayKetThuc", new Date(props.selectIdClick.thoiGianKetThuc));
+        SetIsLoading(false);
+      }, 1000);
     }
   }, [props, props.selectIdClick, setValue]);
 
@@ -170,12 +172,8 @@ const EditContract = (props) => {
     (async () => {
       const getListTransportType = await getData("Common/GetListTransportType");
       setListTransportType(getListTransportType);
-
-      const getListStatusType = await getData(
-        `Common/GetListStatus?statusType=common`
-      );
-      setListStatusType(getListStatusType);
     })();
+    setListStatusType(props.listStatus);
     SetIsLoading(false);
   }, []);
 
@@ -462,11 +460,8 @@ const EditContract = (props) => {
                       {listStatusType &&
                         listStatusType.map((val) => {
                           return (
-                            <option
-                              value={val.maTrangThai}
-                              key={val.maTrangThai}
-                            >
-                              {val.tenTrangThai}
+                            <option value={val.statusId} key={val.statusId}>
+                              {val.statusContent}
                             </option>
                           );
                         })}
@@ -748,11 +743,8 @@ const EditContract = (props) => {
                       {listStatusType &&
                         listStatusType.map((val) => {
                           return (
-                            <option
-                              value={val.maTrangThai}
-                              key={val.maTrangThai}
-                            >
-                              {val.tenTrangThai}
+                            <option value={val.statusId} key={val.statusId}>
+                              {val.statusContent}
                             </option>
                           );
                         })}

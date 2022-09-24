@@ -8,7 +8,7 @@ import moment from "moment";
 import Select from "react-select";
 
 const AddPriceTable = (props) => {
-  const { getListPriceTable, selectIdClick } = props;
+  const { getListPriceTable, selectIdClick, listStatus } = props;
   const {
     register,
     reset,
@@ -29,6 +29,7 @@ const AddPriceTable = (props) => {
           MaLoaiPhuongTien: "",
           MaLoaiHangHoa: "",
           NgayApDung: "",
+          NgayHetHieuLuc: "",
           TrangThai: "",
         },
       ],
@@ -71,6 +72,22 @@ const AddPriceTable = (props) => {
       required: "Không được để trống",
     },
     NgayApDung: {
+      required: "Không được để trống",
+      maxLength: {
+        value: 10,
+        message: "Không được vượt quá 10 ký tự",
+      },
+      minLength: {
+        value: 10,
+        message: "Không được ít hơn 10 ký tự",
+      },
+      pattern: {
+        value:
+          /^(?:(?:31(\/|-|\.)(?:0?[13578]|1[02]))\1|(?:(?:29|30)(\/|-|\.)(?:0?[13-9]|1[0-2])\2))(?:(?:1[6-9]|[2-9]\d)?\d{2})$|^(?:29(\/|-|\.)0?2\3(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\d|2[0-8])(\/|-|\.)(?:(?:0?[1-9])|(?:1[0-2]))\4(?:(?:1[6-9]|[2-9]\d)?\d{2})$/,
+        message: "Không phải định dạng ngày",
+      },
+    },
+    NgayHetHieuLuc: {
       required: "Không được để trống",
       maxLength: {
         value: 10,
@@ -132,18 +149,18 @@ const AddPriceTable = (props) => {
       sortable: true,
     },
     {
+      name: "",
+      selector: (row) => row.soHopDongCha,
+      sortable: true,
+    },
+    {
       name: "Mã Cung Đường",
       selector: (row) => row.maCungDuong,
       sortable: true,
     },
     {
-      name: "Giá VND",
-      selector: (row) => row.giaVND,
-      sortable: true,
-    },
-    {
-      name: "Giá USD",
-      selector: (row) => row.giaUSD,
+      name: "Đơn Giá",
+      selector: (row) => row.donGia,
       sortable: true,
     },
     {
@@ -167,8 +184,13 @@ const AddPriceTable = (props) => {
     //   sortable: true,
     // },
     {
-      name: "Thời gian Áp Dụng",
+      name: "Ngày Áp Dụng",
       selector: (row) => row.ngayApDung,
+      sortable: true,
+    },
+    {
+      name: "Ngày Hết Hiệu Lực",
+      selector: (row) => row.ngayHetHieuLuc,
       sortable: true,
     },
   ]);
@@ -186,7 +208,6 @@ const AddPriceTable = (props) => {
   const [listGoodsType, setListGoodsType] = useState([]);
   const [listDVT, setListDVT] = useState([]);
   // const [listTransportType, setListTransportType] = useState([]);
-  const [listStatus, setListStatus] = useState([]);
   const [listContract, setListContract] = useState([]);
   const [listCustomerType, setListCustomerType] = useState([]);
 
@@ -214,9 +235,7 @@ const AddPriceTable = (props) => {
       let getListVehicleType = await getData("Common/GetListVehicleType");
       let getListGoodsType = await getData("Common/GetListGoodsType");
       // let getListTransportType = await getData("Common/GetListTransportType");
-      let getListStatus = await getData(
-        "Common/GetListStatus?statusType=common"
-      );
+
       let getListCustommerType = await getData(`Common/GetListCustommerType`);
       setListCustomerType(getListCustommerType);
 
@@ -224,10 +243,8 @@ const AddPriceTable = (props) => {
       setListGoodsType(getListGoodsType);
       setListDVT(getListDVT);
       // setListTransportType(getListTransportType);
-      setListStatus(getListStatus);
+      SetIsLoading(false);
     })();
-
-    SetIsLoading(false);
   }, []);
 
   const handlePerRowsChange = async (newPerPage, page) => {
@@ -247,7 +264,6 @@ const AddPriceTable = (props) => {
     const dataCus = await getData(
       `PriceTable/GetListPriceTableByContractId?Id=${mahd}&PageNumber=${page}&PageSize=${perPage}`
     );
-
     formatTable(dataCus.data);
     setTotalRows(dataCus.totalRecords);
     SetIsLoading(false);
@@ -256,6 +272,7 @@ const AddPriceTable = (props) => {
   function formatTable(data) {
     data.map((val) => {
       val.ngayApDung = moment(val.ngayApDung).format("DD/MM/YYYY");
+      val.ngayHetHieuLuc = moment(val.ngayHetHieuLuc).format("DD/MM/YYYY");
     });
     setData(data);
   }
@@ -285,7 +302,6 @@ const AddPriceTable = (props) => {
       );
       if (getListCustomer && getListCustomer.length > 0) {
         getListCustomer = getListCustomer.filter((x) => x.loaiKH === val);
-        console.log(getListCustomer);
         let obj = [];
 
         getListCustomer.map((val) => {
@@ -299,8 +315,6 @@ const AddPriceTable = (props) => {
     } else {
       handleResetClick();
     }
-
-    console.log(watch("PhanLoaiDoiTac"));
   };
 
   const getListRoadAndContract = async (MaKh) => {
@@ -368,6 +382,9 @@ const AddPriceTable = (props) => {
         ngayApDung: moment(new Date(val.NgayApDung).toISOString()).format(
           "YYYY-MM-DD"
         ),
+        ngayHetHieuLuc: moment(
+          new Date(val.NgayHetHieuLuc).toISOString()
+        ).format("YYYY-MM-DD"),
         trangThai: val.TrangThai,
       });
     });
@@ -509,6 +526,7 @@ const AddPriceTable = (props) => {
                         <th>Loại phương tiện</th>
                         <th>Loại Hàng Hóa</th>
                         <th>Ngày Áp Dụng</th>
+                        <th>Ngày Hết Hiệu Lực</th>
                         <th>Trạng Thái</th>
                         <th style={{ width: "40px" }}>
                           <button
@@ -719,6 +737,33 @@ const AddPriceTable = (props) => {
                           </td>
                           <td>
                             <div className="form-group">
+                              <div className="input-group ">
+                                <Controller
+                                  control={control}
+                                  name={`optionRoad.${index}.NgayHetHieuLuc`}
+                                  render={({ field }) => (
+                                    <DatePicker
+                                      className="form-control"
+                                      dateFormat="dd/MM/yyyy"
+                                      onChange={(date) => field.onChange(date)}
+                                      selected={field.value}
+                                    />
+                                  )}
+                                  rules={Validate.NgayHetHieuLuc}
+                                />
+                                {errors.optionRoad?.[index]?.NgayHetHieuLuc && (
+                                  <span className="text-danger">
+                                    {
+                                      errors.optionRoad?.[index]?.NgayHetHieuLuc
+                                        .message
+                                    }
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </td>
+                          <td>
+                            <div className="form-group">
                               <select
                                 className="form-control"
                                 {...register(
@@ -731,15 +776,14 @@ const AddPriceTable = (props) => {
                                   listStatus.map((val) => {
                                     return (
                                       <option
-                                        value={val.maTrangThai}
-                                        key={val.maTrangThai}
+                                        value={val.statusId}
+                                        key={val.statusId}
                                       >
-                                        {val.tenTrangThai}
+                                        {val.statusContent}
                                       </option>
                                     );
                                   })}
                               </select>
-
                               {errors.optionRoad?.[index]?.TrangThai && (
                                 <span className="text-danger">
                                   {

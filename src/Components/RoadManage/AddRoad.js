@@ -15,9 +15,6 @@ const AddRoad = (props) => {
   } = useForm({
     mode: "onChange",
   });
-
-  const [listAddress, SetListAddress] = useState([]);
-
   const Validate = {
     MaCungDuong: {
       required: "Không được để trống",
@@ -77,14 +74,21 @@ const AddRoad = (props) => {
         message: "Phải là số",
       },
     },
+    TrangThai: {
+      required: "Không được bỏ trống",
+    },
+    DiaDiem: {
+      required: "Không được để trống",
+    },
   };
+  const [listAddress, SetListAddress] = useState([]);
+  const [listStatus, setListStatus] = useState([]);
 
   useEffect(() => {
     SetIsLoading(true);
 
     (async () => {
       const getlistAddress = await getData("address/GetListAddressSelect");
-
       if (getlistAddress && getlistAddress.length > 0) {
         var obj = [];
         obj.push({ value: "", label: "-- Chọn --" });
@@ -95,12 +99,9 @@ const AddRoad = (props) => {
               val.maDiaDiem + " - " + val.tenDiaDiem + " --- " + val.diaChi,
           });
         });
-
         SetListAddress(obj);
-        setValue("DiemDau", { value: "", label: "-- Chọn --" });
-        setValue("DiemCuoi", { value: "", label: "-- Chọn --" });
-        setValue("DiemLayRong", { value: "", label: "-- Chọn --" });
       }
+      setListStatus(props.listStatus);
     })();
 
     SetIsLoading(false);
@@ -126,6 +127,7 @@ const AddRoad = (props) => {
       diemLayRong:
         data.DiemLayRong.value === "" ? null : data.DiemLayRong.value,
       ghiChu: data.GhiChu,
+      trangThai: data.TrangThai,
     });
 
     if (post === 1) {
@@ -242,7 +244,7 @@ const AddRoad = (props) => {
                       defaultValue={{ value: "", label: "-- Chọn --" }}
                     />
                   )}
-                  rules={{ required: "không được để trống" }}
+                  rules={Validate.DiaDiem}
                 />
                 {errors.DiemDau && (
                   <span className="text-danger">{errors.DiemDau.message}</span>
@@ -263,7 +265,7 @@ const AddRoad = (props) => {
                       defaultValue={{ value: "", label: "-- Chọn --" }}
                     />
                   )}
-                  rules={{ required: "không được để trống" }}
+                  rules={Validate.DiaDiem}
                 />
                 {errors.DiemCuoi && (
                   <span className="text-danger">{errors.DiemCuoi.message}</span>
@@ -280,6 +282,28 @@ const AddRoad = (props) => {
                 />
                 {errors.GhiChu && (
                   <span className="text-danger">{errors.GhiChu.message}</span>
+                )}
+              </div>
+              <div className="form-group">
+                <label htmlFor="TrangThai">Trạng Thái</label>
+                <select
+                  className="form-control"
+                  {...register("TrangThai", Validate.TrangThai)}
+                >
+                  <option value="">Chọn Trạng Thái</option>
+                  {listStatus &&
+                    listStatus.map((val) => {
+                      return (
+                        <option value={val.statusId} key={val.statusId}>
+                          {val.statusContent}
+                        </option>
+                      );
+                    })}
+                </select>
+                {errors.TrangThai && (
+                  <span className="text-danger">
+                    {errors.TrangThai.message}
+                  </span>
                 )}
               </div>
             </div>

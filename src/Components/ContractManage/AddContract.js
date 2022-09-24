@@ -12,7 +12,6 @@ const AddContract = (props) => {
     register,
     reset,
     setValue,
-    watch,
     control,
     formState: { errors },
     handleSubmit,
@@ -138,7 +137,6 @@ const AddContract = (props) => {
 
   useEffect(() => {
     SetIsLoading(true);
-
     (async () => {
       let getListCustomer = await getData(
         `Customer/GetListCustomerOptionSelect`
@@ -161,16 +159,13 @@ const AddContract = (props) => {
       const getListTransportType = await getData("Common/GetListTransportType");
       setListTransportType(getListTransportType);
 
-      const getListStatusType = await getData(
-        `Common/GetListStatus?statusType=common`
-      );
-      setListStatusType(getListStatusType);
+      setListStatusType(props.listStatus);
+      SetIsLoading(false);
     })();
-
-    SetIsLoading(false);
   }, []);
 
   const getListContract = async (MaKh) => {
+    SetIsLoading(true);
     setValue("SoHopDongCha", { value: "", label: "Chọn Hợp Đồng" });
     setListContract([]);
     let getListContract = await getData(
@@ -193,6 +188,8 @@ const AddContract = (props) => {
     } else {
       setListContract([]);
     }
+
+    SetIsLoading(false);
   };
 
   const handleResetClick = () => {
@@ -201,12 +198,11 @@ const AddContract = (props) => {
 
   const onSubmit = async (data) => {
     SetIsLoading(true);
-    console.log(data);
     var create = await postData(
       "Contract/CreateContract",
       {
         maHopDong: data.MaHopDong,
-        soHopDongCha: tabIndex === 0 ? null : data.SoHopDongCha,
+        soHopDongCha: tabIndex === 0 ? null : data.SoHopDongCha.value,
         tenHienThi: data.TenHopDong,
         maKh: data.MaKh.value,
         maPtvc: data.PTVC,
@@ -480,11 +476,8 @@ const AddContract = (props) => {
                         {listStatusType &&
                           listStatusType.map((val) => {
                             return (
-                              <option
-                                value={val.maTrangThai}
-                                key={val.maTrangThai}
-                              >
-                                {val.tenTrangThai}
+                              <option value={val.statusId} key={val.statusId}>
+                                {val.statusContent}
                               </option>
                             );
                           })}

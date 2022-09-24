@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect, useCallback, useRef } from "react";
-import { getData, postData, postFile } from "../Common/FuncAxios";
+import { getData, postFile, getDataCustom } from "../Common/FuncAxios";
 import DataTable from "react-data-table-component";
 import moment from "moment";
 import { Modal } from "bootstrap";
@@ -21,6 +21,7 @@ const RoadPage = () => {
 
   const [selectedRows, setSelectedRows] = useState([]);
   const [selectIdClick, setSelectIdClick] = useState({});
+  const [listStatus, setListStatus] = useState([]);
 
   const columns = useMemo(() => [
     {
@@ -137,6 +138,11 @@ const RoadPage = () => {
       let dataCus = await getData(`Road/GetListRoad?PageNumber=1&PageSize=10`);
       formatTable(dataCus.data);
       setTotalRows(dataCus.totalRecords);
+
+      let getStatusList = await getDataCustom(`Common/GetListStatus`, [
+        "common",
+      ]);
+      setListStatus(getStatusList);
     })();
 
     setLoading(false);
@@ -308,11 +314,13 @@ const RoadPage = () => {
                   {ShowModal === "Edit" && (
                     <EditRoad
                       selectIdClick={selectIdClick}
+                      listStatus={listStatus}
                       getListRoad={fetchData}
+                      hideModal={hideModal}
                     />
                   )}
                   {ShowModal === "Create" && (
-                    <AddRoad getListRoad={fetchData} />
+                    <AddRoad getListRoad={fetchData} listStatus={listStatus} />
                   )}
                 </>
               </div>
