@@ -16,5 +16,6 @@ namespace TBSLogistics.Model.Model.RoadModel
         public int DiemCuoi { get; set; }
         public int? DiemLayRong { get; set; }
         public string GhiChu { get; set; }
+        public int TrangThai { get; set; }
     }
 }

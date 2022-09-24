@@ -460,7 +460,7 @@ namespace TBSLogistics.Service.Repository.CustommerManage
         {
             string ErrorValidate = "";
 
-            var checkStatus = await _TMSContext.LoaiTrangThai.Where(x => x.MaTrangThai == TrangThai).FirstOrDefaultAsync();
+            var checkStatus = await _TMSContext.StatusText.Where(x => x.Id == TrangThai).FirstOrDefaultAsync();
             if (checkStatus == null)
             {
                 ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Trạng thái khách hàng không tồn tại \r\n" + System.Environment.NewLine;

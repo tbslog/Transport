@@ -11,6 +11,7 @@ namespace TBSLogistics.Model.Model.ContractModel
         public string MaHopDong { get; set; }
         public string MaBangGia { get; set; }
         public string TenHienThi { get; set; }
+        public string SoHopDongCha { get; set; }
         public string MaKh { get; set; }
         public string TenKH { get; set; }
         public string PhanLoaiHopDong { get; set; }

@@ -10,5 +10,6 @@ namespace TBSLogistics.Model.TempModel
     {
         public static int UserID { get; set; }
         public static List<int> Permission { get; set; }
+        public static string LangID { get; set; } = "VI";
     }
 }

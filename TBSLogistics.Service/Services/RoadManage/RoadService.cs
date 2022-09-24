@@ -49,6 +49,7 @@ namespace TBSLogistics.Service.Repository.RoadManage
                         DiemCuoi = getById.DiemCuoi,
                         DiemLayRong = getById.DiemLayRong,
                         GhiChu = getById.GhiChu,
+                        TrangThai = getById.TrangThai,
                     };
                 }
 
@@ -90,6 +91,7 @@ namespace TBSLogistics.Service.Repository.RoadManage
                     DiemCuoi = request.DiemCuoi,
                     DiemLayRong = request.DiemLayRong,
                     GhiChu = request.GhiChu,
+                    TrangThai = request.TrangThai,
                     UpdatedTime = DateTime.Now,
                     CreatedTime = DateTime.Now
                 });
@@ -131,6 +133,7 @@ namespace TBSLogistics.Service.Repository.RoadManage
                 checkExists.DiemLayRong = request.DiemLayRong;
                 checkExists.GhiChu = request.GhiChu;
                 checkExists.UpdatedTime = DateTime.Now;
+                checkExists.TrangThai = request.TrangThai;
 
                 _context.CungDuong.Update(checkExists);
 
@@ -188,7 +191,8 @@ namespace TBSLogistics.Service.Repository.RoadManage
                     DiemCuoi = getAddress.Where(y => y.diadiem.MaDiaDiem == x.cungduong.DiemCuoi).Select(y => y.diadiem.TenDiaDiem).FirstOrDefault(),
                     DiemLayRong = getAddress.Where(y => y.diadiem.MaDiaDiem == x.cungduong.DiemLayRong).Select(y => y.diadiem.TenDiaDiem).FirstOrDefault(),
                     GhiChu = x.cungduong.GhiChu,
-                    PhanLoaiDiaDiem = getAddress.Select(x => x.phanloaidd.TenPhanLoaiDiaDiem).FirstOrDefault()
+                    PhanLoaiDiaDiem = getAddress.Select(x => x.phanloaidd.TenPhanLoaiDiaDiem).FirstOrDefault(),
+                    TrangThai = x.cungduong.TrangThai
                 }).ToListAsync();
 
                 return new PagedResponseCustom<ListRoadRequest>()

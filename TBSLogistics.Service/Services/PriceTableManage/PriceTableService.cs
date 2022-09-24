@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using TBSLogistics.Data.TMS;
@@ -28,6 +29,15 @@ namespace TBSLogistics.Service.Repository.PricelistManage
         {
             try
             {
+                foreach (var item in request)
+                {
+                    if (item.NgayHetHieuLuc.Date <= item.NgayApDung.Date)
+                    {
+                        return new BoolActionResult { isSuccess = false, Message = "" };
+                    }
+
+                }
+
                 await _context.BangGia.AddRangeAsync(request.Select(x => new BangGia
                 {
                     MaHopDong = x.MaHopDong,
@@ -38,6 +48,7 @@ namespace TBSLogistics.Service.Repository.PricelistManage
                     MaDvt = x.MaDvt,
                     MaLoaiHangHoa = x.MaLoaiHangHoa,
                     NgayApDung = x.NgayApDung,
+                    NgayHetHieuLuc = x.NgayHetHieuLuc,
                     MaLoaiDoiTac = x.MaLoaiDoiTac,
                     TrangThai = x.TrangThai,
                     CreatedTime = DateTime.Now,
@@ -99,9 +110,13 @@ namespace TBSLogistics.Service.Repository.PricelistManage
 
             var totalRecords = await getData.CountAsync();
 
+
+
             var pagedData = await getData.Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new GetListPiceTableRequest()
             {
                 MaHopDong = x.bg.MaHopDong,
+                SoHopDongCha = x.hd.SoHopDongCha == null ? "Hợp Đồng" : "Phụ Lục",
+                MaLoaiDoiTac = x.bg.MaLoaiDoiTac,
                 TenHopDong = x.hd.TenHienThi,
                 TenKH = x.kh.TenKh,
                 TenCungDuong = x.cd.TenCungDuong,
@@ -109,6 +124,7 @@ namespace TBSLogistics.Service.Repository.PricelistManage
                 MaLoaiHangHoa = x.bg.MaLoaiHangHoa,
                 MaPtvc = x.bg.MaPtvc,
                 NgayApDung = x.bg.NgayApDung,
+                NgayHetHieuLuc = x.bg.NgayHetHieuLuc,
                 TrangThai = x.bg.TrangThai
             }).ToListAsync();
 
@@ -124,26 +140,36 @@ namespace TBSLogistics.Service.Repository.PricelistManage
         {
             var validFilter = new PaginationFilter(PageNumber, PageSize);
 
+
             var getList = from bg in _context.BangGia
                           join hd in _context.HopDongVaPhuLuc
                           on bg.MaHopDong equals hd.MaHopDong
-                          where bg.MaHopDong == contractId
+                          where bg.NgayHetHieuLuc.Date >= DateTime.Now.Date && bg.NgayApDung <= DateTime.Now.Date
                           orderby bg.NgayApDung descending
                           select new { bg, hd };
 
-            //var checkContractChild = await _context.HopDongVaPhuLuc.Where(x => x.MaHopDong == contractId).FirstOrDefaultAsync();
 
-            //if (checkContractChild.SoHopDongCha == null)
-            //{
-            //    getList = getList.Where(x => x.hd.MaHopDong == contractId);
-            //}
-            //else
-            //{
-            //    getList = getList.Where(x => x.hd.SoHopDongCha == contractId || x.hd.MaHopDong == contractId);
-            //}
+
+            var checkContractChild = await _context.HopDongVaPhuLuc.Where(x => x.MaHopDong == contractId).FirstOrDefaultAsync();
+
+            if (checkContractChild == null)
+            {
+                return null;
+            }
+
+            if (checkContractChild.SoHopDongCha == null)
+            {
+                var listContract = getList.Where(x => x.hd.MaHopDong == contractId || x.hd.SoHopDongCha == contractId).Select(x => x.hd.MaHopDong);
+                getList = getList.Where(x => listContract.Contains(x.bg.MaHopDong));
+            }
+            else
+            {
+                var listContract = getList.Where(x => x.hd.MaHopDong == checkContractChild.SoHopDongCha || x.hd.SoHopDongCha == checkContractChild.SoHopDongCha).Select(x => x.hd.MaHopDong);
+                getList = getList.Where(x => listContract.Contains(x.bg.MaHopDong));
+            }
 
             var gr = from t in getList
-                     group t by new { t.bg.MaCungDuong, t.bg.MaDvt, t.bg.MaLoaiHangHoa, t.bg.MaLoaiPhuongTien, t.bg.MaPtvc, t.bg.MaHopDong }
+                     group t by new { t.bg.MaCungDuong, t.bg.MaDvt, t.bg.MaLoaiHangHoa, t.bg.MaLoaiPhuongTien, t.bg.MaPtvc, t.bg.MaLoaiDoiTac }
                      into g
                      select new
                      {
@@ -152,10 +178,9 @@ namespace TBSLogistics.Service.Repository.PricelistManage
                          MaLoaiHangHoa = g.Key.MaLoaiHangHoa,
                          MaLoaiPhuongTien = g.Key.MaLoaiPhuongTien,
                          MaPtvc = g.Key.MaPtvc,
-                         MaHopDong = g.Key.MaHopDong,
+                         MaLoaiDoiTac = g.Key.MaLoaiDoiTac,
                          Id = (from t2 in g select t2.bg.Id).Max(),
                      };
-
 
             getList = getList.Where(x => gr.Select(y => y.Id).Contains(x.bg.Id));
 
@@ -163,16 +188,20 @@ namespace TBSLogistics.Service.Repository.PricelistManage
 
             var pagedData = await getList.Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new GetPriceListRequest()
             {
+                MaKh = x.hd.MaKh,
                 MaHopDong = x.bg.MaHopDong,
                 MaCungDuong = x.bg.MaCungDuong,
                 NgayApDung = x.bg.NgayApDung,
+                NgayHetHieuLuc = x.bg.NgayHetHieuLuc,
                 DonGia = x.bg.DonGia,
                 MaLoaiPhuongTien = x.bg.MaLoaiPhuongTien,
                 MaLoaiHangHoa = x.bg.MaLoaiHangHoa,
                 MaDVT = x.bg.MaDvt,
                 MaPTVC = x.bg.MaPtvc,
+                SoHopDongCha = x.hd.SoHopDongCha == null ? "Hợp Đồng" : "Phụ Lục",
+                MaLoaiDoiTac = x.bg.MaLoaiDoiTac,
                 TrangThai = x.bg.TrangThai,
-            }).ToListAsync();
+            }).OrderByDescending(x => x.NgayApDung).ToListAsync();
 
             return new PagedResponseCustom<GetPriceListRequest>()
             {

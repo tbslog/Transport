@@ -35,7 +35,6 @@ namespace TBSLogistics.Data.TMS
         public virtual DbSet<LoaiPhuongTien> LoaiPhuongTien { get; set; }
         public virtual DbSet<LoaiRomooc> LoaiRomooc { get; set; }
         public virtual DbSet<LoaiThungHang> LoaiThungHang { get; set; }
-        public virtual DbSet<LoaiTrangThai> LoaiTrangThai { get; set; }
         public virtual DbSet<Log> Log { get; set; }
         public virtual DbSet<NhomKhachHang> NhomKhachHang { get; set; }
         public virtual DbSet<PhuPhi> PhuPhi { get; set; }
@@ -43,6 +42,7 @@ namespace TBSLogistics.Data.TMS
         public virtual DbSet<QuanHuyen> QuanHuyen { get; set; }
         public virtual DbSet<QuocGia> QuocGia { get; set; }
         public virtual DbSet<Romooc> Romooc { get; set; }
+        public virtual DbSet<StatusText> StatusText { get; set; }
         public virtual DbSet<TaiXe> TaiXe { get; set; }
         public virtual DbSet<ThongBao> ThongBao { get; set; }
         public virtual DbSet<TinhThanh> TinhThanh { get; set; }
@@ -511,20 +511,6 @@ namespace TBSLogistics.Data.TMS
                     .HasMaxLength(50);
             });
 
-            modelBuilder.Entity<LoaiTrangThai>(entity =>
-            {
-                entity.HasKey(e => e.MaTrangThai);
-
-                entity.Property(e => e.PhanLoai)
-                    .IsRequired()
-                    .HasMaxLength(10)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.TenTrangThai)
-                    .IsRequired()
-                    .HasMaxLength(50);
-            });
-
             modelBuilder.Entity<Log>(entity =>
             {
                 entity.Property(e => e.Id).HasColumnName("ID");
@@ -681,6 +667,33 @@ namespace TBSLogistics.Data.TMS
                     .HasConstraintName("FK_ThongTin_Romooc_PhanLoai_Romooc");
             });
 
+            modelBuilder.Entity<StatusText>(entity =>
+            {
+                entity.Property(e => e.Id).HasColumnName("ID");
+
+                entity.Property(e => e.FunctionId)
+                    .IsRequired()
+                    .HasMaxLength(30)
+                    .IsUnicode(false)
+                    .HasColumnName("FunctionID");
+
+                entity.Property(e => e.LangId)
+                    .IsRequired()
+                    .HasMaxLength(3)
+                    .IsUnicode(false)
+                    .HasColumnName("LangID");
+
+                entity.Property(e => e.StatusContent)
+                    .IsRequired()
+                    .HasMaxLength(30);
+
+                entity.Property(e => e.StatusId)
+                    .IsRequired()
+                    .HasMaxLength(10)
+                    .IsUnicode(false)
+                    .HasColumnName("StatusID");
+            });
+
             modelBuilder.Entity<TaiXe>(entity =>
             {
                 entity.HasKey(e => e.MaTaiXe)
@@ -779,10 +792,6 @@ namespace TBSLogistics.Data.TMS
                     .HasMaxLength(10)
                     .IsUnicode(false);
 
-                entity.Property(e => e.Booking)
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
-
                 entity.Property(e => e.CangChuyenTai).HasMaxLength(50);
 
                 entity.Property(e => e.CangDich).HasMaxLength(50);
@@ -798,6 +807,11 @@ namespace TBSLogistics.Data.TMS
                     .HasColumnName("Cont_No");
 
                 entity.Property(e => e.HangTau).HasMaxLength(50);
+
+                entity.Property(e => e.MaDonHang)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
 
                 entity.Property(e => e.MaDonViVanTai)
                     .IsRequired()
@@ -847,10 +861,10 @@ namespace TBSLogistics.Data.TMS
                     .IsUnicode(false)
                     .HasColumnName("SEAL_HQ");
 
-                entity.Property(e => e.SealHt)
+                entity.Property(e => e.SealNp)
                     .HasMaxLength(50)
                     .IsUnicode(false)
-                    .HasColumnName("SEAL_HT");
+                    .HasColumnName("SEAL_NP");
 
                 entity.Property(e => e.Tau).HasMaxLength(50);
 

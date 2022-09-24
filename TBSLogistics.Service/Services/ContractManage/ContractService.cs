@@ -44,7 +44,7 @@ namespace TBSLogistics.Service.Services.ContractManage
                     return new BoolActionResult { isSuccess = false, Message = "Mã khách hàng không tồn tại" };
                 }
 
-                if (request.SoHopDongCha == null)
+                if (string.IsNullOrEmpty(request.SoHopDongCha))
                 {
                     var checkContractCustommer = await _TMSContext.HopDongVaPhuLuc.Where(x => x.MaKh == request.MaKh && x.SoHopDongCha == null).FirstOrDefaultAsync();
                     if (checkContractCustommer != null)
@@ -191,17 +191,14 @@ namespace TBSLogistics.Service.Services.ContractManage
                 var listData = from contract in _TMSContext.HopDongVaPhuLuc
                                join cus in _TMSContext.KhachHang
                                on contract.MaKh equals cus.MaKh
-                               join pricetable in _TMSContext.BangGia
-                               on contract.MaHopDong equals pricetable.MaHopDong
-                               into cp
-                               from contractPriceTbl in cp.DefaultIfEmpty()
                                orderby contract.UpdatedTime descending
                                select new
                                {
                                    contract,
                                    cus,
-                                   contractPriceTbl
                                };
+
+
 
                 if (!string.IsNullOrEmpty(filter.Keyword))
                 {
@@ -209,7 +206,6 @@ namespace TBSLogistics.Service.Services.ContractManage
                        x.contract.MaHopDong.Contains(filter.Keyword.ToLower())
                     || x.contract.MaKh.Contains(filter.Keyword.ToLower())
                     || x.contract.TenHienThi.Contains(filter.Keyword.ToLower())
-
                     );
                 }
 
@@ -236,6 +232,7 @@ namespace TBSLogistics.Service.Services.ContractManage
                 {
                     MaHopDong = x.contract.MaHopDong,
                     TenHienThi = x.contract.TenHienThi,
+                    SoHopDongCha = x.contract.SoHopDongCha == null ? "Hợp Đồng" : "Phụ Lục",
                     MaKh = x.contract.MaKh,
                     TenKH = x.cus.TenKh,
                     PhanLoaiHopDong = x.contract.MaLoaiHopDong,
@@ -262,7 +259,6 @@ namespace TBSLogistics.Service.Services.ContractManage
             var getList = from ct in _TMSContext.HopDongVaPhuLuc
                           join kh in _TMSContext.KhachHang on ct.MaKh equals kh.MaKh
                           orderby ct.MaHopDong descending
-                          where ct.SoHopDongCha == null
                           select new { ct, kh };
 
             if (!string.IsNullOrEmpty(MaKH))
@@ -274,6 +270,7 @@ namespace TBSLogistics.Service.Services.ContractManage
             {
                 MaHopDong = x.ct.MaHopDong,
                 TenHienThi = x.ct.TenHienThi,
+                SoHopDongCha = x.ct.SoHopDongCha == null ? "Hợp Đồng" : "Phụ Lục",
             }).ToListAsync();
 
             return list;
