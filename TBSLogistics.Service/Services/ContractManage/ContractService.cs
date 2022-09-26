@@ -254,7 +254,7 @@ namespace TBSLogistics.Service.Services.ContractManage
             }
         }
 
-        public async Task<List<GetContractById>> GetListContractSelect(string MaKH)
+        public async Task<List<GetContractById>> GetListContractSelect(string MaKH,bool getChild)
         {
             var getList = from ct in _TMSContext.HopDongVaPhuLuc
                           join kh in _TMSContext.KhachHang on ct.MaKh equals kh.MaKh
@@ -264,6 +264,11 @@ namespace TBSLogistics.Service.Services.ContractManage
             if (!string.IsNullOrEmpty(MaKH))
             {
                 getList = getList.Where(x => x.ct.MaKh == MaKH);
+            }
+
+            if(getChild == false)
+            {
+                getList = getList.Where(x => x.ct.SoHopDongCha == null);
             }
 
             var list = await getList.Select(x => new GetContractById()
