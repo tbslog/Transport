@@ -30,7 +30,6 @@ const AddPriceTable = (props) => {
           MaLoaiHangHoa: "",
           NgayApDung: "",
           NgayHetHieuLuc: "",
-          TrangThai: "",
         },
       ],
     },
@@ -339,10 +338,7 @@ const AddPriceTable = (props) => {
 
     if (getListContract && getListContract.length > 0) {
       let obj = [];
-      obj.push({
-        value: "",
-        label: "Chọn Hợp Đồng",
-      });
+
       getListContract.map((val) => {
         obj.push({
           value: val.maHopDong,
@@ -385,7 +381,6 @@ const AddPriceTable = (props) => {
         ngayHetHieuLuc: moment(
           new Date(val.NgayHetHieuLuc).toISOString()
         ).format("YYYY-MM-DD"),
-        trangThai: val.TrangThai,
       });
     });
 
@@ -527,7 +522,6 @@ const AddPriceTable = (props) => {
                         <th>Loại Hàng Hóa</th>
                         <th>Ngày Áp Dụng</th>
                         <th>Ngày Hết Hiệu Lực</th>
-                        <th>Trạng Thái</th>
                         <th style={{ width: "40px" }}>
                           <button
                             className="form-control form-control-sm"
@@ -760,38 +754,6 @@ const AddPriceTable = (props) => {
                                   </span>
                                 )}
                               </div>
-                            </div>
-                          </td>
-                          <td>
-                            <div className="form-group">
-                              <select
-                                className="form-control"
-                                {...register(
-                                  `optionRoad.${index}.TrangThai`,
-                                  Validate.TrangThai
-                                )}
-                              >
-                                <option value="">Chọn Trạng Thái</option>
-                                {listStatus &&
-                                  listStatus.map((val) => {
-                                    return (
-                                      <option
-                                        value={val.statusId}
-                                        key={val.statusId}
-                                      >
-                                        {val.statusContent}
-                                      </option>
-                                    );
-                                  })}
-                              </select>
-                              {errors.optionRoad?.[index]?.TrangThai && (
-                                <span className="text-danger">
-                                  {
-                                    errors.optionRoad?.[index]?.TrangThai
-                                      .message
-                                  }
-                                </span>
-                              )}
                             </div>
                           </td>
                           <td>

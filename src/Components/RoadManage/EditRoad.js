@@ -122,7 +122,6 @@ const EditRoad = (props) => {
 
       if (getlistAddress && getlistAddress.length > 0) {
         var obj = [];
-        obj.push({ value: "", label: "-- Chọn --" });
         getlistAddress.map((val) => {
           obj.push({
             value: val.maDiaDiem,
@@ -160,7 +159,6 @@ const EditRoad = (props) => {
     SetIsLoading(true);
     const post = await postData(`Road/UpdateRoad?Id=${data.MaCungDuong}`, {
       tenCungDuong: data.TenCungDuong,
-      maHopDong: data.MaHopDong,
       km: data.SoKM,
       diemDau: data.DiemDau.value,
       diemCuoi: data.DiemCuoi.value,
@@ -188,54 +186,63 @@ const EditRoad = (props) => {
         {IsLoading === false && (
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="card-body">
-              <div className="form-group">
-                <label htmlFor="MaCungDuong">Mã cung đường</label>
-                <input
-                  readOnly
-                  autoComplete="false"
-                  type="text"
-                  className="form-control"
-                  id="MaCungDuong"
-                  placeholder="Nhập mã cung đường"
-                  {...register("MaCungDuong", Validate.MaCungDuong)}
-                />
-                {errors.MaCungDuong && (
-                  <span className="text-danger">
-                    {errors.MaCungDuong.message}
-                  </span>
-                )}
+              <div className="row">
+                <div className="col col-sm">
+                  <div className="form-group">
+                    <label htmlFor="MaHopDong">Mã hợp đồng</label>
+                    <input
+                      readOnly
+                      type="text "
+                      className="form-control"
+                      id="MaHopDong"
+                      placeholder="Nhập mã hợp đồng"
+                      {...register("MaHopDong", Validate.MaHopDong)}
+                    />
+                    {errors.MaHopDong && (
+                      <span className="text-danger">
+                        {errors.MaHopDong.message}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className="col col-sm">
+                  <div className="form-group">
+                    <label htmlFor="MaCungDuong">Mã cung đường</label>
+                    <input
+                      readOnly
+                      autoComplete="false"
+                      type="text"
+                      className="form-control"
+                      id="MaCungDuong"
+                      placeholder="Nhập mã cung đường"
+                      {...register("MaCungDuong", Validate.MaCungDuong)}
+                    />
+                    {errors.MaCungDuong && (
+                      <span className="text-danger">
+                        {errors.MaCungDuong.message}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className="col col-sm">
+                  <div className="form-group">
+                    <label htmlFor="TenCungDuong">Tên cung đường</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="TenCungDuong"
+                      placeholder="Nhập tên khách hàng"
+                      {...register("TenCungDuong", Validate.TenCungDuong)}
+                    />
+                    {errors.TenCungDuong && (
+                      <span className="text-danger">
+                        {errors.TenCungDuong.message}
+                      </span>
+                    )}
+                  </div>
+                </div>
               </div>
-              <div className="form-group">
-                <label htmlFor="TenCungDuong">Tên cung đường</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="TenCungDuong"
-                  placeholder="Nhập tên khách hàng"
-                  {...register("TenCungDuong", Validate.TenCungDuong)}
-                />
-                {errors.TenCungDuong && (
-                  <span className="text-danger">
-                    {errors.TenCungDuong.message}
-                  </span>
-                )}
-              </div>
-              <div className="form-group">
-                <label htmlFor="MaHopDong">Mã hợp đồng</label>
-                <input
-                  readOnly
-                  type="text "
-                  className="form-control"
-                  id="MaHopDong"
-                  placeholder="Nhập mã hợp đồng"
-                  {...register("MaHopDong", Validate.MaHopDong)}
-                />
-                {errors.MaHopDong && (
-                  <span className="text-danger">
-                    {errors.MaHopDong.message}
-                  </span>
-                )}
-              </div>
+
               <div className="form-group">
                 <label htmlFor="SoKM">Số KM</label>
                 <input
@@ -250,71 +257,80 @@ const EditRoad = (props) => {
                 )}
               </div>
 
-              <div className="form-group">
-                <label htmlFor="DiemLayRong">Điểm lấy rỗng</label>
-                <Controller
-                  name="DiemLayRong"
-                  control={control}
-                  render={({ field }) => (
-                    <Select
-                      {...field}
-                      classNamePrefix={"form-control"}
-                      value={field.value}
-                      options={listAddress}
-                      onChange={(field) => HandleOnchangeDiemLayRong(field)}
-                      defaultValue={{ value: "", label: "-- Chọn --" }}
+              <div className="row">
+                <div className="col col-sm">
+                  <div className="form-group">
+                    <label htmlFor="DiemLayRong">Điểm lấy rỗng</label>
+                    <Controller
+                      name="DiemLayRong"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          classNamePrefix={"form-control"}
+                          value={field.value}
+                          options={listAddress}
+                          onChange={(field) => HandleOnchangeDiemLayRong(field)}
+                        />
+                      )}
                     />
-                  )}
-                />
-                {errors.DiemLayRong && (
-                  <span className="text-danger">
-                    {errors.DiemLayRong.message}
-                  </span>
-                )}
-              </div>
-              <div className="form-group">
-                <label htmlFor="DiemDau">Điểm đầu</label>
-                <Controller
-                  name="DiemDau"
-                  control={control}
-                  render={({ field }) => (
-                    <Select
-                      {...field}
-                      classNamePrefix={"form-control"}
-                      value={field.value}
-                      options={listAddress}
-                      onChange={(field) => HandleOnchangeDiemDau(field)}
-                      defaultValue={{ value: "", label: "-- Chọn --" }}
+                    {errors.DiemLayRong && (
+                      <span className="text-danger">
+                        {errors.DiemLayRong.message}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className="col col-sm">
+                  <div className="form-group">
+                    <label htmlFor="DiemDau">Điểm đầu</label>
+                    <Controller
+                      name="DiemDau"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          classNamePrefix={"form-control"}
+                          value={field.value}
+                          options={listAddress}
+                          onChange={(field) => HandleOnchangeDiemDau(field)}
+                        />
+                      )}
+                      rules={{ required: "không được để trống" }}
                     />
-                  )}
-                  rules={{ required: "không được để trống" }}
-                />
-                {errors.DiemDau && (
-                  <span className="text-danger">{errors.DiemDau.message}</span>
-                )}
+                    {errors.DiemDau && (
+                      <span className="text-danger">
+                        {errors.DiemDau.message}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className="col col-sm">
+                  <div className="form-group">
+                    <label htmlFor="DiemCuoi">Điểm cuối</label>
+                    <Controller
+                      name="DiemCuoi"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          classNamePrefix={"form-control"}
+                          value={field.value}
+                          options={listAddress}
+                          onChange={(field) => HandleOnchangeDiemCuoi(field)}
+                        />
+                      )}
+                      rules={{ required: "không được để trống" }}
+                    />
+                    {errors.DiemCuoi && (
+                      <span className="text-danger">
+                        {errors.DiemCuoi.message}
+                      </span>
+                    )}
+                  </div>
+                </div>
               </div>
 
-              <div className="form-group">
-                <label htmlFor="DiemCuoi">Điểm cuối</label>
-                <Controller
-                  name="DiemCuoi"
-                  control={control}
-                  render={({ field }) => (
-                    <Select
-                      {...field}
-                      classNamePrefix={"form-control"}
-                      value={field.value}
-                      options={listAddress}
-                      onChange={(field) => HandleOnchangeDiemCuoi(field)}
-                      defaultValue={{ value: "", label: "-- Chọn --" }}
-                    />
-                  )}
-                  rules={{ required: "không được để trống" }}
-                />
-                {errors.DiemCuoi && (
-                  <span className="text-danger">{errors.DiemCuoi.message}</span>
-                )}
-              </div>
               <div className="form-group">
                 <label htmlFor="GhiChu">Ghi Chú</label>
                 <input

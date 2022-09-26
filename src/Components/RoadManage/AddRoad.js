@@ -81,8 +81,11 @@ const AddRoad = (props) => {
       required: "Không được để trống",
     },
   };
+
+  setValue("DiemLayRong", null);
   const [listAddress, SetListAddress] = useState([]);
   const [listStatus, setListStatus] = useState([]);
+  const [listContract, setListContract] = useState([]);
 
   useEffect(() => {
     SetIsLoading(true);
@@ -91,7 +94,6 @@ const AddRoad = (props) => {
       const getlistAddress = await getData("address/GetListAddressSelect");
       if (getlistAddress && getlistAddress.length > 0) {
         var obj = [];
-        obj.push({ value: "", label: "-- Chọn --" });
         getlistAddress.map((val) => {
           obj.push({
             value: val.maDiaDiem,
@@ -102,16 +104,32 @@ const AddRoad = (props) => {
         SetListAddress(obj);
       }
       setListStatus(props.listStatus);
-    })();
 
-    SetIsLoading(false);
+      let getListContract = await getData(
+        `Contract/GetListContractSelect?getChild=false`
+      );
+      if (getListContract && getListContract.length > 0) {
+        let obj = [];
+        getListContract.map((val) => {
+          obj.push({
+            value: val.maHopDong,
+            label: val.maHopDong + " - " + val.tenHienThi,
+          });
+        });
+        setListContract(obj);
+      } else {
+        setListContract([]);
+      }
+
+      SetIsLoading(false);
+    })();
   }, []);
 
   const handleResetClick = () => {
     reset();
-    setValue("DiemDau", { value: "", label: "-- Chọn --" });
-    setValue("DiemCuoi", { value: "", label: "-- Chọn --" });
-    setValue("DiemLayRong", { value: "", label: "-- Chọn --" });
+    setValue("DiemDau", null);
+    setValue("DiemCuoi", null);
+    setValue("DiemLayRong", null);
   };
 
   const onSubmit = async (data, e) => {
@@ -120,12 +138,11 @@ const AddRoad = (props) => {
     const post = await postData("Road/CreateRoad", {
       maCungDuong: data.MaCungDuong,
       tenCungDuong: data.TenCungDuong,
-      maHopDong: data.MaHopDong,
+      maHopDong: data.MaHopDong.value,
       km: data.SoKM,
       diemDau: data.DiemDau.value,
       diemCuoi: data.DiemCuoi.value,
-      diemLayRong:
-        data.DiemLayRong.value === "" ? null : data.DiemLayRong.value,
+      diemLayRong: data.DiemLayRong === null ? null : data.DiemLayRong.value,
       ghiChu: data.GhiChu,
       trangThai: data.TrangThai,
     });
@@ -149,51 +166,135 @@ const AddRoad = (props) => {
         {IsLoading === false && (
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="card-body">
-              <div className="form-group">
-                <label htmlFor="MaCungDuong">Mã cung đường</label>
-                <input
-                  autoComplete="false"
-                  type="text"
-                  className="form-control"
-                  id="MaCungDuong"
-                  placeholder="Nhập mã cung đường"
-                  {...register("MaCungDuong", Validate.MaCungDuong)}
-                />
-                {errors.MaCungDuong && (
-                  <span className="text-danger">
-                    {errors.MaCungDuong.message}
-                  </span>
-                )}
+              <div className="row">
+                <div className="col-sm">
+                  <div className="form-group">
+                    <label htmlFor="MaHopDong">Hợp Đồng</label>
+                    <Controller
+                      name="MaHopDong"
+                      rules={Validate.MaHopDong}
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          classNamePrefix={"form-control"}
+                          value={field.value}
+                          options={listContract}
+                        />
+                      )}
+                    />
+                    {errors.MaHopDong && (
+                      <span className="text-danger">
+                        {errors.MaHopDong.message}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className="col-sm">
+                  <div className="form-group">
+                    <label htmlFor="MaCungDuong">Mã cung đường</label>
+                    <input
+                      autoComplete="false"
+                      type="text"
+                      className="form-control"
+                      id="MaCungDuong"
+                      placeholder="Nhập mã cung đường"
+                      {...register("MaCungDuong", Validate.MaCungDuong)}
+                    />
+                    {errors.MaCungDuong && (
+                      <span className="text-danger">
+                        {errors.MaCungDuong.message}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className="col-sm">
+                  <div className="form-group">
+                    <label htmlFor="TenCungDuong">Tên cung đường</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="TenCungDuong"
+                      placeholder="Nhập tên cung đường"
+                      {...register("TenCungDuong", Validate.TenCungDuong)}
+                    />
+                    {errors.TenCungDuong && (
+                      <span className="text-danger">
+                        {errors.TenCungDuong.message}
+                      </span>
+                    )}
+                  </div>
+                </div>
               </div>
-              <div className="form-group">
-                <label htmlFor="TenCungDuong">Tên cung đường</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="TenCungDuong"
-                  placeholder="Nhập tên khách hàng"
-                  {...register("TenCungDuong", Validate.TenCungDuong)}
-                />
-                {errors.TenCungDuong && (
-                  <span className="text-danger">
-                    {errors.TenCungDuong.message}
-                  </span>
-                )}
-              </div>
-              <div className="form-group">
-                <label htmlFor="MaHopDong">Mã hợp đồng</label>
-                <input
-                  type="text "
-                  className="form-control"
-                  id="MaHopDong"
-                  placeholder="Nhập mã hợp đồng"
-                  {...register("MaHopDong", Validate.MaHopDong)}
-                />
-                {errors.MaHopDong && (
-                  <span className="text-danger">
-                    {errors.MaHopDong.message}
-                  </span>
-                )}
+              <div className="row">
+                <div className="col-sm">
+                  <div className="form-group">
+                    <label htmlFor="DiemLayRong">Điểm lấy rỗng</label>
+                    <Controller
+                      name="DiemLayRong"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          classNamePrefix={"form-control"}
+                          value={field.value}
+                          options={listAddress}
+                        />
+                      )}
+                    />
+                    {errors.DiemLayRong && (
+                      <span className="text-danger">
+                        {errors.DiemLayRong.message}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className="col-sm">
+                  <div className="form-group">
+                    <label htmlFor="DiemDau">Điểm đầu</label>
+                    <Controller
+                      name="DiemDau"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          classNamePrefix={"form-control"}
+                          value={field.value}
+                          options={listAddress}
+                        />
+                      )}
+                      rules={Validate.DiaDiem}
+                    />
+                    {errors.DiemDau && (
+                      <span className="text-danger">
+                        {errors.DiemDau.message}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className="col-sm">
+                  <div className="form-group">
+                    <label htmlFor="DiemCuoi">Điểm cuối</label>
+                    <Controller
+                      name="DiemCuoi"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          classNamePrefix={"form-control"}
+                          value={field.value}
+                          options={listAddress}
+                        />
+                      )}
+                      rules={Validate.DiaDiem}
+                    />
+                    {errors.DiemCuoi && (
+                      <span className="text-danger">
+                        {errors.DiemCuoi.message}
+                      </span>
+                    )}
+                  </div>
+                </div>
               </div>
               <div className="form-group">
                 <label htmlFor="SoKM">Số KM</label>
@@ -206,69 +307,6 @@ const AddRoad = (props) => {
                 />
                 {errors.SoKM && (
                   <span className="text-danger">{errors.SoKM.message}</span>
-                )}
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="DiemLayRong">Điểm lấy rỗng</label>
-                <Controller
-                  name="DiemLayRong"
-                  control={control}
-                  defaultValue={{ value: "", label: "-- Chọn --" }}
-                  render={({ field }) => (
-                    <Select
-                      {...field}
-                      classNamePrefix={"form-control"}
-                      value={field.value}
-                      options={listAddress}
-                    />
-                  )}
-                />
-                {errors.DiemLayRong && (
-                  <span className="text-danger">
-                    {errors.DiemLayRong.message}
-                  </span>
-                )}
-              </div>
-              <div className="form-group">
-                <label htmlFor="DiemDau">Điểm đầu</label>
-                <Controller
-                  name="DiemDau"
-                  control={control}
-                  render={({ field }) => (
-                    <Select
-                      {...field}
-                      classNamePrefix={"form-control"}
-                      value={field.value}
-                      options={listAddress}
-                      defaultValue={{ value: "", label: "-- Chọn --" }}
-                    />
-                  )}
-                  rules={Validate.DiaDiem}
-                />
-                {errors.DiemDau && (
-                  <span className="text-danger">{errors.DiemDau.message}</span>
-                )}
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="DiemCuoi">Điểm cuối</label>
-                <Controller
-                  name="DiemCuoi"
-                  control={control}
-                  render={({ field }) => (
-                    <Select
-                      {...field}
-                      classNamePrefix={"form-control"}
-                      value={field.value}
-                      options={listAddress}
-                      defaultValue={{ value: "", label: "-- Chọn --" }}
-                    />
-                  )}
-                  rules={Validate.DiaDiem}
-                />
-                {errors.DiemCuoi && (
-                  <span className="text-danger">{errors.DiemCuoi.message}</span>
                 )}
               </div>
               <div className="form-group">

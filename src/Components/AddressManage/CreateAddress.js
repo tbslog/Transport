@@ -68,10 +68,7 @@ const CreateAddress = (props) => {
 
       if (getListTypeAddress && getListTypeAddress.length > 0) {
         let obj = [];
-        obj.push({
-          value: "",
-          label: "Chọn Loại địa điểm",
-        });
+
         getListTypeAddress.map((val) => {
           obj.push({
             value: val.maLoaiDiaDiem,
@@ -85,7 +82,7 @@ const CreateAddress = (props) => {
 
       if (getlistProvince && getlistProvince.length > 0) {
         let obj = [];
-        obj.push({ value: "", label: "Chọn Tỉnh" });
+
         getlistProvince.map((val) => {
           obj.push({
             value: val.maTinh,
@@ -104,8 +101,8 @@ const CreateAddress = (props) => {
     try {
       SetIsLoading(true);
 
-      setValue("MaHuyen", { value: "", label: "Chọn Huyện" });
-      setValue("MaPhuong", { value: "", label: "Chọn Phường" });
+      setValue("MaHuyen", null);
+      setValue("MaPhuong", null);
       if (val.value === undefined || val.value === "" || val === "") {
         SetListDistrict([]);
         SetListWard([]);
@@ -120,7 +117,7 @@ const CreateAddress = (props) => {
 
         if (listDistrict && listDistrict.length > 0) {
           var obj = [];
-          obj.push({ value: "", label: "Chọn Huyện" });
+
           listDistrict.map((val) => {
             obj.push({
               value: val.maHuyen,
@@ -157,7 +154,7 @@ const CreateAddress = (props) => {
         );
         if (listWard && listWard.length > 0) {
           var obj = [];
-          obj.push({ value: "", label: "Chọn Phường" });
+
           listWard.map((val) => {
             obj.push({
               value: val.maPhuong,
@@ -178,10 +175,10 @@ const CreateAddress = (props) => {
 
   const handleResetClick = () => {
     reset();
-    setValue("MaLoaiDiaDiem", { value: "", label: "Chọn Loại địa điểm" });
-    setValue("MaTinh", { value: "", label: "Chọn Tỉnh" });
-    setValue("MaHuyen", { value: "", label: "Chọn Huyện" });
-    setValue("MaPhuong", { value: "", label: "Chọn Phường" });
+    setValue("MaLoaiDiaDiem", null);
+    setValue("MaTinh", null);
+    setValue("MaHuyen", null);
+    setValue("MaPhuong", null);
   };
 
   const onSubmit = async (data, e) => {
@@ -196,7 +193,7 @@ const CreateAddress = (props) => {
       soNha: data.SoNha,
       diaChiDayDu: "",
       maGps: data.GPS,
-      maLoaiDiaDiem: "1",
+      maLoaiDiaDiem: data.MaLoaiDiaDiem.value,
     });
     if (post === 1) {
       props.getListAddress(1);
@@ -229,10 +226,6 @@ const CreateAddress = (props) => {
                           classNamePrefix={"form-control"}
                           value={field.value}
                           options={ListTypeAddress}
-                          defaultValue={{
-                            value: "",
-                            label: "Chọn Loại địa điểm",
-                          }}
                         />
                       )}
                       rules={{ required: "không được để trống" }}
@@ -303,7 +296,6 @@ const CreateAddress = (props) => {
                           value={field.value}
                           options={ListProvince}
                           onChange={(field) => HandleChangeProvince(field)}
-                          defaultValue={{ value: "", label: "Chọn Tỉnh" }}
                         />
                       )}
                       rules={{ required: "không được để trống" }}
@@ -328,7 +320,6 @@ const CreateAddress = (props) => {
                           value={field.value}
                           options={ListDistrict}
                           onChange={(field) => HandleOnchangeDistrict(field)}
-                          defaultValue={{ value: "", label: "Chọn Huyện" }}
                         />
                       )}
                       rules={{ required: "không được để trống" }}
@@ -352,7 +343,6 @@ const CreateAddress = (props) => {
                           classNamePrefix={"form-control"}
                           value={field.value}
                           options={ListWard}
-                          defaultValue={{ value: "", label: "Chọn Phường" }}
                         />
                       )}
                       rules={{ required: "không được để trống" }}

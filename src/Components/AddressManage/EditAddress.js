@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { getData, postData } from "../Common/FuncAxios";
 import { useForm, Controller } from "react-hook-form";
-import { ToastWarning } from "../Common/FuncToast";
 import Select from "react-select";
 
 const EditAddress = (props) => {
@@ -92,10 +91,7 @@ const EditAddress = (props) => {
 
       if (getListTypeAddress && getListTypeAddress.length > 0) {
         let obj = [];
-        obj.push({
-          value: "",
-          label: "Chọn Loại địa điểm",
-        });
+
         getListTypeAddress.map((val) => {
           obj.push({
             value: val.maLoaiDiaDiem,
@@ -114,7 +110,6 @@ const EditAddress = (props) => {
       const listProvince = await getData("address/GetListProvinces");
       if (listProvince && listProvince.length > 0) {
         var obj = [];
-        obj.push({ value: "", label: "Chọn Tỉnh" });
         listProvince.map((val) => {
           obj.push({
             value: val.maTinh,
@@ -134,7 +129,6 @@ const EditAddress = (props) => {
       );
       if (listDistrict && listDistrict.length > 0) {
         var obj = [];
-        obj.push({ value: "", label: "Chọn Huyện" });
         listDistrict.map((val) => {
           obj.push({
             value: val.maHuyen,
@@ -158,7 +152,6 @@ const EditAddress = (props) => {
 
       if (listWard && listWard.length > 0) {
         var obj = [];
-        obj.push({ value: "", label: "Chọn Phường" });
         listWard.map((val) => {
           obj.push({
             value: val.maPhuong,
@@ -176,8 +169,8 @@ const EditAddress = (props) => {
 
   const HandleChangeProvince = (val) => {
     try {
-      setValue("MaHuyen", { value: "", label: "Chọn Huyện" });
-      setValue("MaPhuong", { value: "", label: "Chọn Phường" });
+      setValue("MaHuyen", null);
+      setValue("MaPhuong", null);
       SetListDistrict([]);
       SetListWard([]);
       if (val.value === undefined || val.value === "") {
@@ -227,6 +220,7 @@ const EditAddress = (props) => {
 
     if (Update === 1) {
       props.getListAddress(1);
+      props.hideModal();
     }
     SetIsLoading(false);
   };
@@ -255,10 +249,6 @@ const EditAddress = (props) => {
                           classNamePrefix={"form-control"}
                           value={field.value}
                           options={ListTypeAddress}
-                          defaultValue={{
-                            value: "",
-                            label: "Chọn Loại địa điểm",
-                          }}
                         />
                       )}
                       rules={{ required: "không được để trống" }}
@@ -328,7 +318,6 @@ const EditAddress = (props) => {
                           value={field.value}
                           options={ListProvince}
                           onChange={(field) => HandleChangeProvince(field)}
-                          defaultValue={{ value: "", label: "Chọn Tỉnh" }}
                         />
                       )}
                       rules={{ required: "không được để trống" }}
@@ -353,7 +342,6 @@ const EditAddress = (props) => {
                           value={field.value}
                           options={ListDistrict}
                           onChange={(field) => HandleOnchangeDistrict(field)}
-                          defaultValue={{ value: "", label: "Chọn Huyện" }}
                         />
                       )}
                       rules={{ required: "không được để trống" }}
@@ -377,7 +365,6 @@ const EditAddress = (props) => {
                           classNamePrefix={"form-control"}
                           value={field.value}
                           options={ListWard}
-                          defaultValue={{ value: "", label: "Chọn Phường" }}
                         />
                       )}
                       rules={{ required: "không được để trống" }}

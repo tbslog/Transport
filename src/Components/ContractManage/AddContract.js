@@ -143,10 +143,7 @@ const AddContract = (props) => {
       );
       if (getListCustomer && getListCustomer.length > 0) {
         let obj = [];
-        obj.push({
-          value: "",
-          label: "Chọn khách hàng",
-        });
+
         getListCustomer.map((val) => {
           obj.push({
             value: val.maKh,
@@ -158,7 +155,6 @@ const AddContract = (props) => {
 
       const getListTransportType = await getData("Common/GetListTransportType");
       setListTransportType(getListTransportType);
-
       setListStatusType(props.listStatus);
       SetIsLoading(false);
     })();
@@ -166,7 +162,7 @@ const AddContract = (props) => {
 
   const getListContract = async (MaKh) => {
     SetIsLoading(true);
-    setValue("SoHopDongCha", { value: "", label: "Chọn Hợp Đồng" });
+    setValue("SoHopDongCha", null);
     setListContract([]);
     let getListContract = await getData(
       `Contract/GetListContractSelect?MaKH=${MaKh}`
@@ -174,10 +170,6 @@ const AddContract = (props) => {
 
     if (getListContract && getListContract.length > 0) {
       let obj = [];
-      obj.push({
-        value: "",
-        label: "Chọn Hợp Đồng",
-      });
       getListContract.map((val) => {
         obj.push({
           value: val.maHopDong,
@@ -307,10 +299,6 @@ const AddContract = (props) => {
                                 classNamePrefix={"form-control"}
                                 value={field.value}
                                 options={listCustomer}
-                                defaultValue={{
-                                  value: "",
-                                  label: "Chọn Khách Hàng",
-                                }}
                               />
                             )}
                             rules={Validate.MaKh}
@@ -579,10 +567,6 @@ const AddContract = (props) => {
                                 }
                                 value={field.value}
                                 options={listCustomer}
-                                defaultValue={{
-                                  value: "",
-                                  label: "Chọn Khách Hàng",
-                                }}
                               />
                             )}
                             rules={Validate.MaKh}
@@ -606,10 +590,6 @@ const AddContract = (props) => {
                                 classNamePrefix={"form-control"}
                                 value={field.value}
                                 options={listContract}
-                                defaultValue={{
-                                  value: "",
-                                  label: "Chọn Hợp Đồng",
-                                }}
                               />
                             )}
                             rules={Validate.SoHopDongCha}
@@ -789,11 +769,8 @@ const AddContract = (props) => {
                         {listStatusType &&
                           listStatusType.map((val) => {
                             return (
-                              <option
-                                value={val.maTrangThai}
-                                key={val.maTrangThai}
-                              >
-                                {val.tenTrangThai}
+                              <option value={val.statusId} key={val.statusId}>
+                                {val.statusContent}
                               </option>
                             );
                           })}

@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect, useCallback, useRef } from "react";
-import { getData, postData } from "../Common/FuncAxios";
+import { getData, postData, getDataCustom } from "../Common/FuncAxios";
 import DataTable from "react-data-table-component";
 import moment from "moment";
 import EditCustommer from "./EdtiCustommer";
@@ -25,6 +25,8 @@ const CustommerPage = () => {
 
   const [listCustomerGroup, setListCustomerGroup] = useState([]);
   const [listCustomerType, setListCustomerType] = useState([]);
+  const [listStatus, setListStatus] = useState([]);
+  const [ListTypeAddress, SetListTypeAddress] = useState([]);
 
   const columns = useMemo(() => [
     {
@@ -42,23 +44,22 @@ const CustommerPage = () => {
       allowOverflow: true,
       button: true,
     },
-    {
-      cell: (val) => (
-        <button
-          onClick={() =>
-            handleCreateContract(val, SetShowModal("CreateContract"))
-          }
-          type="button"
-          className="btn btn-sm btn-default"
-        >
-          <i className="fas fa-file-contract"></i>
-        </button>
-      ),
-      ignoreRowClick: true,
-      allowOverflow: true,
-      button: true,
-    },
-
+    // {
+    //   cell: (val) => (
+    //     <button
+    //       onClick={() =>
+    //         handleCreateContract(val, SetShowModal("CreateContract"))
+    //       }
+    //       type="button"
+    //       className="btn btn-sm btn-default"
+    //     >
+    //       <i className="fas fa-file-contract"></i>
+    //     </button>
+    //   ),
+    //   ignoreRowClick: true,
+    //   allowOverflow: true,
+    //   button: true,
+    // },
     {
       name: "Mã khách hàng",
       selector: (row) => row.maKh,
@@ -179,11 +180,29 @@ const CustommerPage = () => {
       let dataCus = await getData(
         `Customer/GetListCustomer?PageNumber=1&PageSize=10`
       );
+
+      const getListTypeAddress = await getData("address/GetListAddressType");
+      if (getListTypeAddress && getListTypeAddress.length > 0) {
+        let obj = [];
+
+        getListTypeAddress.map((val) => {
+          obj.push({
+            value: val.maLoaiDiaDiem,
+            label: val.maLoaiDiaDiem + " - " + val.tenLoaiDiaDiem,
+          });
+        });
+        SetListTypeAddress(obj);
+      }
+
+      let getStatusList = await getDataCustom(`Common/GetListStatus`, [
+        "common",
+      ]);
+      setListStatus(getStatusList);
+
       formatTable(dataCus.data);
       setTotalRows(dataCus.totalRecords);
+      setLoading(false);
     })();
-
-    setLoading(false);
   }, []);
 
   function formatTable(data) {
@@ -367,6 +386,9 @@ const CustommerPage = () => {
                       getListUser={fetchData}
                       listCusGroup={listCustomerGroup}
                       listCusType={listCustomerType}
+                      listStatus={listStatus}
+                      listTypeAddress={ListTypeAddress}
+                      hideModal={hideModal}
                     />
                   )}
                   {ShowModal === "Create" && (
@@ -374,6 +396,8 @@ const CustommerPage = () => {
                       getListUser={fetchData}
                       listCusGroup={listCustomerGroup}
                       listCusType={listCustomerType}
+                      listStatus={listStatus}
+                      listTypeAddress={ListTypeAddress}
                     />
                   )}
                 </>

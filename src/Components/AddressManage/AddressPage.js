@@ -294,10 +294,14 @@ const AddressPage = () => {
                     <EditAddress
                       selectIdClick={selectIdClick}
                       getListAddress={fetchData}
+                      hideModal={hideModal}
                     />
                   )}
                   {ShowModal === "Create" && (
-                    <CreateAddress getListAddress={fetchData} />
+                    <CreateAddress
+                      getListAddress={fetchData}
+                      hideModal={hideModal}
+                    />
                   )}
                 </>
               </div>
