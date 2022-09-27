@@ -13,10 +13,10 @@ namespace TBSLogistics.Data.TMS
         public string MaTaiXe { get; set; }
         public string MaRomooc { get; set; }
         public string MaPtvc { get; set; }
-        public string Booking { get; set; }
+        public string MaDonHang { get; set; }
         public string ClpNo { get; set; }
         public string ContNo { get; set; }
-        public string SealHt { get; set; }
+        public string SealNp { get; set; }
         public string SealHq { get; set; }
         public string MaLoaiThungHang { get; set; }
         public string MaDonViVanTai { get; set; }
@@ -24,13 +24,13 @@ namespace TBSLogistics.Data.TMS
         public double TrongLuong { get; set; }
         public double TheTich { get; set; }
         public int MaDvt { get; set; }
-        public int DiemLayRong { get; set; }
         public int DiemLayHang { get; set; }
         public int DiemNhapHang { get; set; }
         public int DiemGioHang { get; set; }
         public int DiemTraRong { get; set; }
         public DateTime? ThoiGianLayRong { get; set; }
-        public DateTime? ThoiGianHaCong { get; set; }
+        public DateTime ThoiGianHaCong { get; set; }
+        public DateTime? ThoiGianKeoCong { get; set; }
         public int ThoiGianHanLech { get; set; }
         public DateTime ThoiGianCoMat { get; set; }
         public DateTime? ThoiGianCatMang { get; set; }

@@ -38,7 +38,7 @@ namespace TBSLogistics.Service.Repository.PricelistManage
                     MaDvt = x.MaDvt,
                     MaLoaiHangHoa = x.MaLoaiHangHoa,
                     NgayApDung = x.NgayApDung,
-                    MaLoaiHopDong = x.MaLoaiHopDong,
+                    MaLoaiDoiTac = x.MaLoaiHopDong,
                     TrangThai = x.TrangThai,
                     CreatedTime = DateTime.Now,
                     UpdatedTime = DateTime.Now
