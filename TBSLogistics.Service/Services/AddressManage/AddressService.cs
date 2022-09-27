@@ -447,9 +447,9 @@ namespace TBSLogistics.Service.Repository.AddressManage
                 ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Tên địa điểm không được chứa ký tự đặc biệt \r\n";
             }
 
-            if (SoNha.Length == 0 || SoNha.Length > 100)
+            if ( SoNha.Length > 100)
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Số nhà không được rỗng hoặc nhiều hơn 100 ký tự \r\n";
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Số nhà không được nhiều hơn 100 ký tự \r\n";
             }
 
             if (MaGps.Length == 0 || MaGps.Length > 50)

@@ -126,7 +126,6 @@ namespace TBSLogistics.Service.Repository.CustommerManage
                 string FullAddress = await _address.GetFullAddress(request.Address.SoNha, request.Address.MaTinh, request.Address.MaHuyen, request.Address.MaPhuong);
                 string ErrorValidate = await ValiateCustommer(CustomerId, request.TenKh, request.MaSoThue, request.Sdt, request.Email, request.Address.SoNha, request.Address.MaGps, request.LoaiKH, request.NhomKH, request.TrangThai, FullAddress);
 
-                getAddress.TenDiaDiem = request.Address.TenDiaDiem;
                 getAddress.MaQuocGia = request.Address.MaQuocGia;
                 getAddress.MaTinh = request.Address.MaTinh;
                 getAddress.MaHuyen = request.Address.MaHuyen;
@@ -200,6 +199,7 @@ namespace TBSLogistics.Service.Repository.CustommerManage
                     DiaChiDayDu = x.address.DiaChiDayDu,
                     TenDiaDiem = x.address.TenDiaDiem,
                     MaGps = x.address.MaGps,
+                    LoaiDiaDiem = x.address.MaLoaiDiaDiem,
                     CreatedTime = x.address.CreatedTime,
                     UpdatedTime = x.address.UpdatedTime
                 }
@@ -460,11 +460,11 @@ namespace TBSLogistics.Service.Repository.CustommerManage
         {
             string ErrorValidate = "";
 
-            //var checkStatus = await _TMSContext.StatusText.Where(x => x.StatusId = TrangThai).FirstOrDefaultAsync();
-            //if (checkStatus == null)
-            //{
-            //    ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Trạng thái khách hàng không tồn tại \r\n" + System.Environment.NewLine;
-            //}
+            var checkStatus = await _TMSContext.StatusText.Where(x => x.Id == TrangThai).FirstOrDefaultAsync();
+            if (checkStatus == null)
+            {
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Trạng thái khách hàng không tồn tại \r\n" + System.Environment.NewLine;
+            }
 
             var checkCustomerType = await _TMSContext.LoaiKhachHang.Where(x => x.MaLoaiKh == LoaiKH).FirstOrDefaultAsync();
             if (checkCustomerType == null)
@@ -547,9 +547,9 @@ namespace TBSLogistics.Service.Repository.CustommerManage
                 ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Địa chỉ Email không đúng" + System.Environment.NewLine;
             }
 
-            if (SoNha.Length == 0 || SoNha.Length > 100)
+            if ( SoNha.Length > 100)
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Số nhà không được rỗng hoặc nhiều hơn 100 ký tự \r\n" + System.Environment.NewLine;
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Số nhà không nhiều hơn 100 ký tự \r\n" + System.Environment.NewLine;
             }
 
             if (MaGps.Length == 0 || MaGps.Length > 50)

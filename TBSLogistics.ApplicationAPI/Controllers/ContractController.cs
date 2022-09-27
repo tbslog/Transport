@@ -96,9 +96,9 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<IActionResult> GetListContractSelect(string MaKH=null)
+        public async Task<IActionResult> GetListContractSelect(string MaKH = null, bool getChild = true)
         {
-            var list = await _contract.GetListContractSelect(MaKH);
+            var list = await _contract.GetListContractSelect(MaKH, getChild);
             return Ok(list);
         }
 
@@ -164,7 +164,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
                 return false;
             }
 
-           
+
             await _common.SaveFileAsync(file.OpenReadStream(), fileName, PathFolder);
 
 

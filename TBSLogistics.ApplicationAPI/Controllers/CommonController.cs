@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TBSLogistics.Data.TMS;
+using TBSLogistics.Model.TempModel;
+
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -79,11 +81,20 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         }
 
 
-        [HttpGet]
+        [HttpPost]
         [Route("[action]")]
-        public async Task<IActionResult> GetListStatus(string statusType)
+        public async Task<IActionResult> GetListStatus(List<string> funcId)
         {
-            var list = await _tMSContext.LoaiTrangThai.Where(x => x.PhanLoai == statusType).Select(x=> new {x.MaTrangThai,x.TenTrangThai }).ToListAsync();
+            var list = await _tMSContext.StatusText.Where(x => x.LangId == TempData.LangID && funcId.Contains(x.FunctionId)).Select(x => new { x.StatusId, x.StatusContent }).ToListAsync();
+            return Ok(list);
+        }
+
+        [HttpPost]
+        [Route("[action]")]
+        public async Task<IActionResult> GetListMessage(List<string> funcId)
+        {
+
+            var list = await _tMSContext.ThongBao.Where(x => x.LangId == TempData.LangID && funcId.Contains(x.FunctionId)).Select(x => new { x.TextId, x.TextContent }).ToListAsync();
             return Ok(list);
         }
     }

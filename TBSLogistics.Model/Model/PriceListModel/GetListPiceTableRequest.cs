@@ -9,6 +9,8 @@ namespace TBSLogistics.Model.Model.PriceListModel
    public class GetListPiceTableRequest
     {
         public string MaBangGia { get; set; }
+        public string MaLoaiDoiTac { get; set; }
+        public string SoHopDongCha { get; set; }
         public string MaHopDong { get; set; }
         public string TenHopDong { get; set; }
         public string MaKh { get; set; }
@@ -19,10 +21,10 @@ namespace TBSLogistics.Model.Model.PriceListModel
         public decimal GiaVnd { get; set; }
         public decimal GiaUsd { get; set; }
         public string MaDvt { get; set; }
-        public int SoLuong { get; set; }
         public string MaLoaiHangHoa { get; set; }
         public string MaPtvc { get; set; }
         public DateTime NgayApDung { get; set; }
+        public DateTime NgayHetHieuLuc { get; set; }
         public int TrangThai { get; set; }
     }
 }

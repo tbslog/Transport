@@ -1,7 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TBSLogistics.Data.TMS;
 using TBSLogistics.Model.CommonModel;
@@ -28,6 +30,102 @@ namespace TBSLogistics.Service.Repository.PricelistManage
         {
             try
             {
+                string ErrorValidate = "";
+
+                foreach (var item in request)
+                {
+                    if (item.NgayHetHieuLuc.Date <= item.NgayApDung.Date)
+                    {
+                        ErrorValidate += "Ngày hiệu lực không được nhỏ hơn ngày áp dụng";
+                    }
+
+                    if (item.NgayApDung.Date > DateTime.Now.Date)
+                    {
+                        ErrorValidate += "Ngày áp dụng không được lớn hơn hôm nay";
+                    }
+                }
+
+                if (ErrorValidate != "")
+                {
+                    return new BoolActionResult { isSuccess = false, Message = ErrorValidate };
+                }
+
+                var checkContract = await _context.HopDongVaPhuLuc.Where(x => request.Select(y => y.MaHopDong).Contains(x.MaHopDong)).ToListAsync();
+                var checkExistsContract = request.Where(x => !checkContract.Any(y => y.MaHopDong == x.MaHopDong)).Select(x => x.MaHopDong);
+                if (checkExistsContract.Count() > 0)
+                {
+                    ErrorValidate += "Mã hợp đồng không tồn tại: " + String.Join(",", checkExistsContract);
+                }
+
+                var checkRoad = await _context.CungDuong.Where(x => request.Select(y => y.MaCungDuong).Contains(x.MaCungDuong)).ToListAsync();
+                var checkExistsRoad = request.Where(x => !checkRoad.Any(y => y.MaCungDuong == x.MaCungDuong)).Select(x => x.MaCungDuong);
+                if (checkExistsRoad.Count() > 0)
+                {
+                    ErrorValidate += "Mã cung đường không tồn tại: " + String.Join(",", checkExistsRoad);
+                }
+
+                var checkPtvc = await _context.PhuongThucVanChuyen.Where(x => request.Select(y => y.MaPtvc).Contains(x.MaPtvc)).ToListAsync();
+                var checkExistsPtvc = request.Where(x => !checkPtvc.Any(y => y.MaPtvc == x.MaPtvc)).Select(x => x.MaPtvc);
+                if (checkExistsPtvc.Count() > 0)
+                {
+                    ErrorValidate += "Mã phương thức vận chuyển không tồn tại: " + String.Join(",", checkExistsPtvc);
+                }
+
+                var checkVehicleType = await _context.LoaiPhuongTien.Where(x => request.Select(y => y.MaLoaiPhuongTien).Contains(x.MaLoaiPhuongTien)).ToListAsync();
+                var checkExistsVehicleType = request.Where(x => !checkVehicleType.Any(y => y.MaLoaiPhuongTien == x.MaLoaiPhuongTien)).Select(x => x.MaLoaiPhuongTien);
+                if (checkExistsVehicleType.Count() > 0)
+                {
+                    ErrorValidate += "Mã phương tiện vận chuyển không tồn tại: " + String.Join(",", checkExistsVehicleType);
+                }
+
+                var checkDVT = await _context.DonViTinh.Where(x => request.Select(y => y.MaDvt).Contains(x.MaDvt)).ToListAsync();
+                var checkExistsDVT = request.Where(x => !checkDVT.Any(y => y.MaDvt == x.MaDvt)).Select(x => x.MaDvt);
+                if (checkExistsDVT.Count() > 0)
+                {
+                    ErrorValidate += "Mã đơn vị tính không tồn tại: " + String.Join(",", checkExistsDVT);
+                }
+
+                var checkGoodsType = await _context.LoaiHangHoa.Where(x => request.Select(y => y.MaLoaiHangHoa).Contains(x.MaLoaiHangHoa)).ToListAsync();
+                var checkExistsGoodsType = request.Where(x => !checkGoodsType.Any(y => y.MaLoaiHangHoa == x.MaLoaiHangHoa)).Select(x => x.MaLoaiHangHoa);
+                if (checkExistsGoodsType.Count() > 0)
+                {
+                    ErrorValidate += "Mã loại hàng hóa không tồn tại: " + String.Join(",", checkExistsGoodsType);
+                }
+
+                var checkPartner = await _context.LoaiKhachHang.Where(x => request.Select(y => y.MaLoaiDoiTac).Contains(x.MaLoaiKh)).ToListAsync();
+                var checkExistsPertner = request.Where(x => !checkPartner.Any(y => y.MaLoaiKh == x.MaLoaiDoiTac)).Select(x => x.MaLoaiDoiTac);
+                if (checkExistsPertner.Count() > 0)
+                {
+                    ErrorValidate += "Mã đối tác không tồn tại: " + String.Join(",", checkExistsPertner);
+                }
+
+                var checkStatus = await _context.StatusText.Where(x => request.Select(y => y.TrangThai.ToString()).Contains(x.StatusId)).ToListAsync();
+                var checkExistsStatus = request.Where(x => !checkStatus.Any(y => y.StatusId == x.TrangThai.ToString())).Select(x => x.TrangThai);
+                if (checkExistsStatus.Count() > 0)
+                {
+                    ErrorValidate += "Mã trạng thái không tồn tại: " + String.Join(",", checkExistsStatus);
+                }
+
+
+                foreach (var item in request)
+                {
+                    var checkPriceTable = await _context.BangGia.Where(x =>
+                    x.MaHopDong == item.MaHopDong &&
+                    x.MaPtvc == item.MaPtvc &&
+                    x.MaCungDuong == item.MaCungDuong &&
+                    x.MaLoaiPhuongTien == item.MaLoaiPhuongTien &&
+                    x.MaDvt == item.MaDvt &&
+                    x.MaLoaiHangHoa == item.MaLoaiHangHoa &&
+                    x.MaLoaiDoiTac == item.MaLoaiDoiTac
+                    ).FirstOrDefaultAsync();
+
+                    if (checkPriceTable != null)
+                    {
+                        checkPriceTable.TrangThai = 2;
+                        _context.BangGia.Update(checkPriceTable);
+                    }
+                }
+
                 await _context.BangGia.AddRangeAsync(request.Select(x => new BangGia
                 {
                     MaHopDong = x.MaHopDong,
@@ -38,8 +136,9 @@ namespace TBSLogistics.Service.Repository.PricelistManage
                     MaDvt = x.MaDvt,
                     MaLoaiHangHoa = x.MaLoaiHangHoa,
                     NgayApDung = x.NgayApDung,
-                    MaLoaiDoiTac = x.MaLoaiHopDong,
-                    TrangThai = x.TrangThai,
+                    NgayHetHieuLuc = x.NgayHetHieuLuc,
+                    MaLoaiDoiTac = x.MaLoaiDoiTac,
+                    TrangThai = 3,
                     CreatedTime = DateTime.Now,
                     UpdatedTime = DateTime.Now
                 }).ToList());
@@ -99,9 +198,13 @@ namespace TBSLogistics.Service.Repository.PricelistManage
 
             var totalRecords = await getData.CountAsync();
 
+
+
             var pagedData = await getData.Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new GetListPiceTableRequest()
             {
                 MaHopDong = x.bg.MaHopDong,
+                SoHopDongCha = x.hd.SoHopDongCha == null ? "Hợp Đồng" : "Phụ Lục",
+                MaLoaiDoiTac = x.bg.MaLoaiDoiTac,
                 TenHopDong = x.hd.TenHienThi,
                 TenKH = x.kh.TenKh,
                 TenCungDuong = x.cd.TenCungDuong,
@@ -109,6 +212,7 @@ namespace TBSLogistics.Service.Repository.PricelistManage
                 MaLoaiHangHoa = x.bg.MaLoaiHangHoa,
                 MaPtvc = x.bg.MaPtvc,
                 NgayApDung = x.bg.NgayApDung,
+                NgayHetHieuLuc = x.bg.NgayHetHieuLuc,
                 TrangThai = x.bg.TrangThai
             }).ToListAsync();
 
@@ -124,26 +228,37 @@ namespace TBSLogistics.Service.Repository.PricelistManage
         {
             var validFilter = new PaginationFilter(PageNumber, PageSize);
 
+
             var getList = from bg in _context.BangGia
                           join hd in _context.HopDongVaPhuLuc
                           on bg.MaHopDong equals hd.MaHopDong
-                          where bg.MaHopDong == contractId
+                          where 
+                          bg.NgayHetHieuLuc.Date >= DateTime.Now.Date 
+                          && bg.NgayApDung <= DateTime.Now.Date 
+                          && bg.TrangThai == 4
                           orderby bg.NgayApDung descending
                           select new { bg, hd };
 
-            //var checkContractChild = await _context.HopDongVaPhuLuc.Where(x => x.MaHopDong == contractId).FirstOrDefaultAsync();
+            var checkContractChild = await _context.HopDongVaPhuLuc.Where(x => x.MaHopDong == contractId).FirstOrDefaultAsync();
 
-            //if (checkContractChild.SoHopDongCha == null)
-            //{
-            //    getList = getList.Where(x => x.hd.MaHopDong == contractId);
-            //}
-            //else
-            //{
-            //    getList = getList.Where(x => x.hd.SoHopDongCha == contractId || x.hd.MaHopDong == contractId);
-            //}
+            if (checkContractChild == null)
+            {
+                return null;
+            }
+
+            if (checkContractChild.SoHopDongCha == null)
+            {
+                var listContract = getList.Where(x => x.hd.MaHopDong == contractId || x.hd.SoHopDongCha == contractId).Select(x => x.hd.MaHopDong);
+                getList = getList.Where(x => listContract.Contains(x.bg.MaHopDong));
+            }
+            else
+            {
+                var listContract = getList.Where(x => x.hd.MaHopDong == checkContractChild.SoHopDongCha || x.hd.SoHopDongCha == checkContractChild.SoHopDongCha).Select(x => x.hd.MaHopDong);
+                getList = getList.Where(x => listContract.Contains(x.bg.MaHopDong));
+            }
 
             var gr = from t in getList
-                     group t by new { t.bg.MaCungDuong, t.bg.MaDvt, t.bg.MaLoaiHangHoa, t.bg.MaLoaiPhuongTien, t.bg.MaPtvc, t.bg.MaHopDong }
+                     group t by new { t.bg.MaCungDuong, t.bg.MaDvt, t.bg.MaLoaiHangHoa, t.bg.MaLoaiPhuongTien, t.bg.MaPtvc, t.bg.MaLoaiDoiTac }
                      into g
                      select new
                      {
@@ -152,10 +267,9 @@ namespace TBSLogistics.Service.Repository.PricelistManage
                          MaLoaiHangHoa = g.Key.MaLoaiHangHoa,
                          MaLoaiPhuongTien = g.Key.MaLoaiPhuongTien,
                          MaPtvc = g.Key.MaPtvc,
-                         MaHopDong = g.Key.MaHopDong,
+                         MaLoaiDoiTac = g.Key.MaLoaiDoiTac,
                          Id = (from t2 in g select t2.bg.Id).Max(),
                      };
-
 
             getList = getList.Where(x => gr.Select(y => y.Id).Contains(x.bg.Id));
 
@@ -163,16 +277,20 @@ namespace TBSLogistics.Service.Repository.PricelistManage
 
             var pagedData = await getList.Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new GetPriceListRequest()
             {
+                MaKh = x.hd.MaKh,
                 MaHopDong = x.bg.MaHopDong,
                 MaCungDuong = x.bg.MaCungDuong,
                 NgayApDung = x.bg.NgayApDung,
+                NgayHetHieuLuc = x.bg.NgayHetHieuLuc,
                 DonGia = x.bg.DonGia,
                 MaLoaiPhuongTien = x.bg.MaLoaiPhuongTien,
                 MaLoaiHangHoa = x.bg.MaLoaiHangHoa,
                 MaDVT = x.bg.MaDvt,
                 MaPTVC = x.bg.MaPtvc,
+                SoHopDongCha = x.hd.SoHopDongCha == null ? "Hợp Đồng" : "Phụ Lục",
+                MaLoaiDoiTac = x.bg.MaLoaiDoiTac,
                 TrangThai = x.bg.TrangThai,
-            }).ToListAsync();
+            }).OrderByDescending(x => x.NgayApDung).ToListAsync();
 
             return new PagedResponseCustom<GetPriceListRequest>()
             {
@@ -181,5 +299,6 @@ namespace TBSLogistics.Service.Repository.PricelistManage
                 dataResponse = pagedData
             };
         }
+
     }
 }
