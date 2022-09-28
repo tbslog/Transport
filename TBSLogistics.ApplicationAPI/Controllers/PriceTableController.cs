@@ -63,5 +63,14 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             var pagedReponse = PaginationHelper.CreatePagedReponse<GetPriceListRequest>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _paninationService, route);
             return Ok(pagedReponse);
         }
+
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetListPriceTableByCustomerId(string Id)
+        {
+            var list = await _priceTable.GetListPriceTableByCustommerId(Id);
+
+            return Ok(list);
+        }
     }
 }

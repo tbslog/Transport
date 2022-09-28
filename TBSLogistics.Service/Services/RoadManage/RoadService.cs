@@ -421,5 +421,22 @@ namespace TBSLogistics.Service.Repository.RoadManage
 
             return list;
         }
+
+        public async Task<List<GetRoadRequest>> getListRoadByPoint(int diemDau, int diemCuoi, int? diemLayRong)
+        {
+
+            diemLayRong = diemLayRong == 0 ? null : diemLayRong;
+            var listRoad = from cd in _context.CungDuong
+                           where cd.DiemDau == diemDau
+                           && cd.DiemCuoi == diemCuoi
+                           && cd.DiemLayRong == diemLayRong
+                           select cd;
+
+            return await listRoad.Select(x => new GetRoadRequest()
+            {
+                MaCungDuong = x.MaCungDuong,
+                TenCungDuong = x.TenCungDuong,
+            }).ToListAsync();
+        }
     }
 }

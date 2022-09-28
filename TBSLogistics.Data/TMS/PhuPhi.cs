@@ -8,6 +8,7 @@ namespace TBSLogistics.Data.TMS
     public partial class PhuPhi
     {
         public string MaPhuPhi { get; set; }
+        public string TenPhuPhi { get; set; }
         public string MaLoaiPhuPhi { get; set; }
         public DateTime NgayHieuLuc { get; set; }
         public DateTime NgayHetHan { get; set; }

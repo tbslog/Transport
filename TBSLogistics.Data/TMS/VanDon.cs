@@ -9,10 +9,10 @@ namespace TBSLogistics.Data.TMS
     {
         public string MaVanDon { get; set; }
         public string MaKh { get; set; }
+        public int IdbangGia { get; set; }
         public string MaSoXe { get; set; }
         public string MaTaiXe { get; set; }
         public string MaRomooc { get; set; }
-        public string MaPtvc { get; set; }
         public string MaDonHang { get; set; }
         public string ClpNo { get; set; }
         public string ContNo { get; set; }
@@ -20,10 +20,8 @@ namespace TBSLogistics.Data.TMS
         public string SealHq { get; set; }
         public string MaLoaiThungHang { get; set; }
         public string MaDonViVanTai { get; set; }
-        public string MaLoaiHangHoa { get; set; }
         public double TrongLuong { get; set; }
         public double TheTich { get; set; }
-        public int MaDvt { get; set; }
         public int DiemLayHang { get; set; }
         public int DiemNhapHang { get; set; }
         public int DiemGioHang { get; set; }
@@ -44,6 +42,7 @@ namespace TBSLogistics.Data.TMS
         public DateTime UpdatedTime { get; set; }
         public DateTime CreatedTime { get; set; }
 
+        public virtual BangGia IdbangGiaNavigation { get; set; }
         public virtual KhachHang MaKhNavigation { get; set; }
         public virtual Romooc MaRomoocNavigation { get; set; }
         public virtual XeVanChuyen MaSoXeNavigation { get; set; }

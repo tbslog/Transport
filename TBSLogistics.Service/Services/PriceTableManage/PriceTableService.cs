@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -41,7 +42,7 @@ namespace TBSLogistics.Service.Repository.PricelistManage
 
                     if (item.NgayApDung.Date > DateTime.Now.Date)
                     {
-                        ErrorValidate += "Ngày áp dụng không được lớn hơn hôm nay";
+                        ErrorValidate += "Ngày áp dụng không được lớn hơn ngày hiện tại";
                     }
                 }
 
@@ -107,24 +108,24 @@ namespace TBSLogistics.Service.Repository.PricelistManage
                 }
 
 
-                foreach (var item in request)
-                {
-                    var checkPriceTable = await _context.BangGia.Where(x =>
-                    x.MaHopDong == item.MaHopDong &&
-                    x.MaPtvc == item.MaPtvc &&
-                    x.MaCungDuong == item.MaCungDuong &&
-                    x.MaLoaiPhuongTien == item.MaLoaiPhuongTien &&
-                    x.MaDvt == item.MaDvt &&
-                    x.MaLoaiHangHoa == item.MaLoaiHangHoa &&
-                    x.MaLoaiDoiTac == item.MaLoaiDoiTac
-                    ).FirstOrDefaultAsync();
+                //foreach (var item in request)
+                //{
+                //    var checkPriceTable = await _context.BangGia.Where(x =>
+                //    x.MaHopDong == item.MaHopDong &&
+                //    x.MaPtvc == item.MaPtvc &&
+                //    x.MaCungDuong == item.MaCungDuong &&
+                //    x.MaLoaiPhuongTien == item.MaLoaiPhuongTien &&
+                //    x.MaDvt == item.MaDvt &&
+                //    x.MaLoaiHangHoa == item.MaLoaiHangHoa &&
+                //    x.MaLoaiDoiTac == item.MaLoaiDoiTac
+                //    ).FirstOrDefaultAsync();
 
-                    if (checkPriceTable != null)
-                    {
-                        checkPriceTable.TrangThai = 2;
-                        _context.BangGia.Update(checkPriceTable);
-                    }
-                }
+                //    if (checkPriceTable != null)
+                //    {
+                //        checkPriceTable.TrangThai = 2;
+                //        _context.BangGia.Update(checkPriceTable);
+                //    }
+                //}
 
                 await _context.BangGia.AddRangeAsync(request.Select(x => new BangGia
                 {
@@ -203,7 +204,7 @@ namespace TBSLogistics.Service.Repository.PricelistManage
             var pagedData = await getData.Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new GetListPiceTableRequest()
             {
                 MaHopDong = x.bg.MaHopDong,
-                SoHopDongCha = x.hd.SoHopDongCha == null ? "Hợp Đồng" : "Phụ Lục",
+                SoHopDongCha = x.hd.MaHopDongCha == null ? "Hợp Đồng" : "Phụ Lục",
                 MaLoaiDoiTac = x.bg.MaLoaiDoiTac,
                 TenHopDong = x.hd.TenHienThi,
                 TenKH = x.kh.TenKh,
@@ -228,13 +229,12 @@ namespace TBSLogistics.Service.Repository.PricelistManage
         {
             var validFilter = new PaginationFilter(PageNumber, PageSize);
 
-
             var getList = from bg in _context.BangGia
                           join hd in _context.HopDongVaPhuLuc
                           on bg.MaHopDong equals hd.MaHopDong
-                          where 
-                          bg.NgayHetHieuLuc.Date >= DateTime.Now.Date 
-                          && bg.NgayApDung <= DateTime.Now.Date 
+                          where
+                          bg.NgayHetHieuLuc.Date >= DateTime.Now.Date
+                          && bg.NgayApDung <= DateTime.Now.Date
                           && bg.TrangThai == 4
                           orderby bg.NgayApDung descending
                           select new { bg, hd };
@@ -246,14 +246,14 @@ namespace TBSLogistics.Service.Repository.PricelistManage
                 return null;
             }
 
-            if (checkContractChild.SoHopDongCha == null)
+            if (checkContractChild.MaHopDongCha == null)
             {
-                var listContract = getList.Where(x => x.hd.MaHopDong == contractId || x.hd.SoHopDongCha == contractId).Select(x => x.hd.MaHopDong);
+                var listContract = getList.Where(x => x.hd.MaHopDong == contractId || x.hd.MaHopDongCha == contractId).Select(x => x.hd.MaHopDong);
                 getList = getList.Where(x => listContract.Contains(x.bg.MaHopDong));
             }
             else
             {
-                var listContract = getList.Where(x => x.hd.MaHopDong == checkContractChild.SoHopDongCha || x.hd.SoHopDongCha == checkContractChild.SoHopDongCha).Select(x => x.hd.MaHopDong);
+                var listContract = getList.Where(x => x.hd.MaHopDong == checkContractChild.MaHopDongCha || x.hd.MaHopDongCha == checkContractChild.MaHopDongCha).Select(x => x.hd.MaHopDong);
                 getList = getList.Where(x => listContract.Contains(x.bg.MaHopDong));
             }
 
@@ -287,7 +287,7 @@ namespace TBSLogistics.Service.Repository.PricelistManage
                 MaLoaiHangHoa = x.bg.MaLoaiHangHoa,
                 MaDVT = x.bg.MaDvt,
                 MaPTVC = x.bg.MaPtvc,
-                SoHopDongCha = x.hd.SoHopDongCha == null ? "Hợp Đồng" : "Phụ Lục",
+                SoHopDongCha = x.hd.MaHopDongCha == null ? "Hợp Đồng" : "Phụ Lục",
                 MaLoaiDoiTac = x.bg.MaLoaiDoiTac,
                 TrangThai = x.bg.TrangThai,
             }).OrderByDescending(x => x.NgayApDung).ToListAsync();
@@ -298,6 +298,48 @@ namespace TBSLogistics.Service.Repository.PricelistManage
                 totalCount = totalRecords,
                 dataResponse = pagedData
             };
+        }
+
+        public async Task<List<GetPriceListRequest>> GetListPriceTableByCustommerId(string MaKH)
+        {
+            var listPriceTable = from bg in _context.BangGia
+                                 join hd in _context.HopDongVaPhuLuc
+                                 on bg.MaHopDong equals hd.MaHopDong
+                                 where bg.NgayApDung.Date <= DateTime.Now.Date
+                                 && bg.NgayHetHieuLuc.Date >= DateTime.Now.Date
+                                 && bg.TrangThai == 4
+                                 && hd.MaKh == MaKH
+                                 orderby bg.Id
+                                 select new { bg, hd };
+
+
+            var gr = from t in listPriceTable
+                     group t by new { t.bg.MaCungDuong, t.bg.MaDvt, t.bg.MaLoaiHangHoa, t.bg.MaLoaiPhuongTien, t.bg.MaPtvc, t.bg.MaLoaiDoiTac }
+                     into g
+                     select new
+                     {
+                         MaCungDuong = g.Key.MaCungDuong,
+                         MaDvt = g.Key.MaDvt,
+                         MaLoaiHangHoa = g.Key.MaLoaiHangHoa,
+                         MaLoaiPhuongTien = g.Key.MaLoaiPhuongTien,
+                         MaPtvc = g.Key.MaPtvc,
+                         MaLoaiDoiTac = g.Key.MaLoaiDoiTac,
+                         Id = (from t2 in g select t2.bg.Id).Max(),
+                     };
+
+            listPriceTable = listPriceTable.Where(x => gr.Select(y => y.Id).Contains(x.bg.Id));
+
+
+            return await listPriceTable.Select(x => new GetPriceListRequest()
+            {
+                ID = x.bg.Id,
+                MaCungDuong = x.bg.MaCungDuong,
+                DonGia = x.bg.DonGia,
+                MaLoaiPhuongTien = x.bg.MaLoaiPhuongTien,
+                MaLoaiHangHoa = x.bg.MaLoaiHangHoa,
+                MaDVT = x.bg.MaDvt,
+                MaPTVC = x.bg.MaPtvc
+            }).ToListAsync();
         }
 
     }

@@ -44,7 +44,7 @@ namespace TBSLogistics.ApplicationAPI
             {
                 option.AddPolicy(name: apiCorsPolicy, policy =>
                  {
-                     policy.WithOrigins("http://localhost:3000", "http://localhost:8888", "https://tbslogistics.com.vn").AllowAnyMethod().AllowAnyHeader();
+                     policy.WithOrigins("http://localhost:3000", "http://localhost:8888", "https://tms.tbslogistics.com.vn").AllowAnyMethod().AllowAnyHeader();
                  });
             });
 
