@@ -5,6 +5,7 @@ import HomePage from "./Components/Home/HomePage";
 import RoadPage from "./Components/RoadManage/RoadPage";
 import ContractPage from "./Components/ContractManage/ContractPage";
 import PriceTablePage from "./Components/PriceListManage/PriceTablePage";
+import TransportPage from "./Components/Transport/TransportPage";
 
 let routerList = [
   {
@@ -120,9 +121,9 @@ let routerList = [
     child: [
       {
         name: "Vận Đơn (Nhập & Xuất)",
-        pathName: "/driver",
-        path: "driver",
-        element: <DriverPage />,
+        pathName: "/transport",
+        path: "transport",
+        element: <TransportPage />,
         exact: true,
         child: [],
       },

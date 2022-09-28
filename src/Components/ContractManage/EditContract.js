@@ -731,6 +731,26 @@ const EditContract = (props) => {
                         {errors.FileContact.message}
                       </span>
                     )}
+
+                    {downloadFile && downloadFile !== "0" && (
+                      <div>
+                        <div className="form-group">
+                          <label htmlFor="FileContact">
+                            Tải về tệp Hợp Đồng
+                          </label>
+                          <br />
+                          <button
+                            type="button"
+                            className="btn btn-default"
+                            onClick={() => handleDownloadContact()}
+                          >
+                            <i className="fas fa-file-download">
+                              Tải tệp hợp đồng
+                            </i>
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   <div className="form-group">

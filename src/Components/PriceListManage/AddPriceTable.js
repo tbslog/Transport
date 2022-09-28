@@ -25,7 +25,7 @@ const AddPriceTable = (props) => {
           MaCungDuong: null,
           DonGia: "",
           MaDVT: "",
-          // MaPTVC: "",
+          MaPTVC: "",
           MaLoaiPhuongTien: "",
           MaLoaiHangHoa: "",
           NgayApDung: "",
@@ -206,7 +206,7 @@ const AddPriceTable = (props) => {
   const [listVehicleType, setListVehicleType] = useState([]);
   const [listGoodsType, setListGoodsType] = useState([]);
   const [listDVT, setListDVT] = useState([]);
-  // const [listTransportType, setListTransportType] = useState([]);
+  const [listTransportType, setListTransportType] = useState([]);
   const [listContract, setListContract] = useState([]);
   const [listCustomerType, setListCustomerType] = useState([]);
 
@@ -233,7 +233,7 @@ const AddPriceTable = (props) => {
       let getListDVT = await getData("Common/GetListDVT");
       let getListVehicleType = await getData("Common/GetListVehicleType");
       let getListGoodsType = await getData("Common/GetListGoodsType");
-      // let getListTransportType = await getData("Common/GetListTransportType");
+      let getListTransportType = await getData("Common/GetListTransportType");
 
       let getListCustommerType = await getData(`Common/GetListCustommerType`);
       setListCustomerType(getListCustommerType);
@@ -241,7 +241,7 @@ const AddPriceTable = (props) => {
       setListVehicleType(getListVehicleType);
       setListGoodsType(getListGoodsType);
       setListDVT(getListDVT);
-      // setListTransportType(getListTransportType);
+      setListTransportType(getListTransportType);
       SetIsLoading(false);
     })();
   }, []);
@@ -368,7 +368,7 @@ const AddPriceTable = (props) => {
       arr.push({
         maHopDong: data.MaHopDong.value,
         maKh: data.MaKh.value,
-        maPtvc: "VT",
+        maPtvc: val.MaPTVC,
         maCungDuong: val.MaCungDuong.value,
         maLoaiPhuongTien: val.MaLoaiPhuongTien,
         maLoaiDoiTac: data.PhanLoaiDoiTac,
@@ -517,7 +517,7 @@ const AddPriceTable = (props) => {
                         <th>Cung Đường</th>
                         <th>Đơn Giá</th>
                         <th>Đơn vị tính</th>
-                        {/* <th>PTVC</th> */}
+                        <th>PTVC</th>
                         <th>Loại phương tiện</th>
                         <th>Loại Hàng Hóa</th>
                         <th>Ngày Áp Dụng</th>
@@ -534,8 +534,8 @@ const AddPriceTable = (props) => {
                       </tr>
                     </thead>
                     <tbody>
-                      {fields.map((item, index) => (
-                        <tr key={item.id}>
+                      {fields.map((value, index) => (
+                        <tr key={index}>
                           <td>{index + 1}</td>
                           <td>
                             <div className="form-group">
@@ -607,7 +607,7 @@ const AddPriceTable = (props) => {
                               )}
                             </div>
                           </td>
-                          {/* <td>
+                          <td>
                             <div className="form-group">
                               <select
                                 className="form-control"
@@ -637,7 +637,7 @@ const AddPriceTable = (props) => {
                                 </span>
                               )}
                             </div>
-                          </td> */}
+                          </td>
                           <td>
                             <div className="form-group">
                               <select
