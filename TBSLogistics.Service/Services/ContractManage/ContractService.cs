@@ -54,8 +54,8 @@ namespace TBSLogistics.Service.Services.ContractManage
                 }
                 else
                 {
-                    var checkChildContract = await _TMSContext.HopDongVaPhuLuc.Where(x => x.MaKh == request.MaKh && x.MaHopDong != null).FirstOrDefaultAsync();
-                    if (checkChildContract != null)
+                    var checkChildContract = await _TMSContext.HopDongVaPhuLuc.Where(x => x.MaHopDong == request.SoHopDongCha && x.MaHopDongCha == null).FirstOrDefaultAsync();
+                    if (checkChildContract == null)
                     {
                         return new BoolActionResult { isSuccess = false, Message = "Chỉ hợp đồng chính mới được có phụ lục" };
                     }
@@ -71,7 +71,7 @@ namespace TBSLogistics.Service.Services.ContractManage
                 {
                     MaHopDong = request.MaHopDong,
                     TenHienThi = request.TenHienThi,
-                    MaLoaiHopDong = request.PhanLoaiHopDong,
+                    MaLoaiHopDong = checkCustommer.MaLoaiKh == "KH" ? "SELL" : "BUY",
                     MaHopDongCha = request.SoHopDongCha,
                     ThoiGianBatDau = request.ThoiGianBatDau,
                     ThoiGianKetThuc = request.ThoiGianKetThuc,
@@ -119,7 +119,6 @@ namespace TBSLogistics.Service.Services.ContractManage
                 }
 
                 checkExists.TenHienThi = request.TenHienThi;
-                checkExists.MaLoaiHopDong = request.PhanLoaiHopDong;
                 checkExists.ThoiGianBatDau = request.ThoiGianBatDau;
                 checkExists.ThoiGianKetThuc = request.ThoiGianKetThuc;
                 checkExists.GhiChu = request.GhiChu;
@@ -194,8 +193,6 @@ namespace TBSLogistics.Service.Services.ContractManage
                                    contract,
                                    cus,
                                };
-
-
 
                 if (!string.IsNullOrEmpty(filter.Keyword))
                 {
