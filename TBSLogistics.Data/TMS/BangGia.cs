@@ -7,6 +7,11 @@ namespace TBSLogistics.Data.TMS
 {
     public partial class BangGia
     {
+        public BangGia()
+        {
+            VanDon = new HashSet<VanDon>();
+        }
+
         public int Id { get; set; }
         public string MaHopDong { get; set; }
         public string MaPtvc { get; set; }
@@ -25,5 +30,6 @@ namespace TBSLogistics.Data.TMS
 
         public virtual CungDuong MaCungDuongNavigation { get; set; }
         public virtual HopDongVaPhuLuc MaHopDongNavigation { get; set; }
+        public virtual ICollection<VanDon> VanDon { get; set; }
     }
 }

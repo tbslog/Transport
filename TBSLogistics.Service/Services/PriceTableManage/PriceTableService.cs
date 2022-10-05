@@ -203,7 +203,7 @@ namespace TBSLogistics.Service.Repository.PricelistManage
             var pagedData = await getData.Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new GetListPiceTableRequest()
             {
                 MaHopDong = x.bg.MaHopDong,
-                SoHopDongCha = x.hd.SoHopDongCha == null ? "Hợp Đồng" : "Phụ Lục",
+                SoHopDongCha = x.hd.MaHopDongCha == null ? "Hợp Đồng" : "Phụ Lục",
                 MaLoaiDoiTac = x.bg.MaLoaiDoiTac,
                 TenHopDong = x.hd.TenHienThi,
                 TenKH = x.kh.TenKh,
@@ -246,14 +246,14 @@ namespace TBSLogistics.Service.Repository.PricelistManage
                 return null;
             }
 
-            if (checkContractChild.SoHopDongCha == null)
+            if (checkContractChild.MaHopDongCha == null)
             {
-                var listContract = getList.Where(x => x.hd.MaHopDong == contractId || x.hd.SoHopDongCha == contractId).Select(x => x.hd.MaHopDong);
+                var listContract = getList.Where(x => x.hd.MaHopDong == contractId || x.hd.MaHopDongCha == contractId).Select(x => x.hd.MaHopDong);
                 getList = getList.Where(x => listContract.Contains(x.bg.MaHopDong));
             }
             else
             {
-                var listContract = getList.Where(x => x.hd.MaHopDong == checkContractChild.SoHopDongCha || x.hd.SoHopDongCha == checkContractChild.SoHopDongCha).Select(x => x.hd.MaHopDong);
+                var listContract = getList.Where(x => x.hd.MaHopDong == checkContractChild.MaHopDongCha || x.hd.MaHopDongCha == checkContractChild.MaHopDongCha).Select(x => x.hd.MaHopDong);
                 getList = getList.Where(x => listContract.Contains(x.bg.MaHopDong));
             }
 
@@ -287,7 +287,7 @@ namespace TBSLogistics.Service.Repository.PricelistManage
                 MaLoaiHangHoa = x.bg.MaLoaiHangHoa,
                 MaDVT = x.bg.MaDvt,
                 MaPTVC = x.bg.MaPtvc,
-                SoHopDongCha = x.hd.SoHopDongCha == null ? "Hợp Đồng" : "Phụ Lục",
+                SoHopDongCha = x.hd.MaHopDongCha == null ? "Hợp Đồng" : "Phụ Lục",
                 MaLoaiDoiTac = x.bg.MaLoaiDoiTac,
                 TrangThai = x.bg.TrangThai,
             }).OrderByDescending(x => x.NgayApDung).ToListAsync();

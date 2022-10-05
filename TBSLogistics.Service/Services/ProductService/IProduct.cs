@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using TBSLogistics.Model.CommonModel;
 using TBSLogistics.Model.Filter;
@@ -10,8 +11,15 @@ namespace TBSLogistics.Service.Services.ProductServiceManage
     public interface IProduct
     {
         public Task<BoolActionResult> CreateProductService(List<CreateProductServiceRequest> request);
-        public Task<BoolActionResult> EditProductServiceRequest(int id, EditProductServiceRequest request);
-        //public Task<GetProductServiceRequest> GetProductServiceByIdRequest(string id);
-        //Task<PagedResponseCustom<ListProductServiceRequest>> GetListProductService(PaginationFilter filter);
+        public Task<BoolActionResult> EditProductServiceRequest( EditProductServiceRequest request);
+        public Task<BoolActionResult> DeleteProductServiceRequest(DeleteProductServiceRequest request);
+        public Task<BoolActionResult> ApproveProductServiceRequestByMaHD(ApproveProductServiceRequestByMaHD request);
+        public Task<BoolActionResult> ApproveProductServiceRequestById(List<ApproveProductServiceRequestById> request);
+        public Task<ListProductServiceRequest> GetProductServiceByIdRequest(int id);
+        public Task<PagedResponseCustom<ListProductServiceRequest>> GetListProductServiceByMaKH(PaginationFilter filter, string MaKH );
+        public Task<PagedResponseCustom<ListProductServiceRequest>> GetListProductServiceByMaHD(PaginationFilter filter, string MaKH);
+        public Task<PagedResponseCustom<ListProductServiceRequest>> GetListProductService(PaginationFilter filter, int trangthai);
+        public Task<PagedResponseCustom<ListProductServiceRequest>> GetListProductServiceByDate(PaginationFilter filter, DateTime date);
+
     }
 }

@@ -10,7 +10,6 @@ namespace TBSLogistics.Data.TMS
         public CungDuong()
         {
             BangGia = new HashSet<BangGia>();
-            PhuPhi = new HashSet<PhuPhi>();
         }
 
         public string MaCungDuong { get; set; }
@@ -26,6 +25,5 @@ namespace TBSLogistics.Data.TMS
         public DateTime CreatedTime { get; set; }
 
         public virtual ICollection<BangGia> BangGia { get; set; }
-        public virtual ICollection<PhuPhi> PhuPhi { get; set; }
     }
 }

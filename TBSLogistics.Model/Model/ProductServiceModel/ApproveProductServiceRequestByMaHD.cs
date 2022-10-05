@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace TBSLogistics.Model.Model.ProductServiceModel
 {
-    public class DeleteProductServiceRequest
+    public class ApproveProductServiceRequestByMaHD
     {
-        public int id { get; set; }
+        public string MaHopDong { get; set; }
     }
 }
