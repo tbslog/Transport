@@ -10,6 +10,7 @@ using TBSLogistics.Data.TMS;
 using TBSLogistics.Model.CommonModel;
 using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.PriceListModel;
+using TBSLogistics.Model.Model.RoadModel;
 using TBSLogistics.Model.TempModel;
 using TBSLogistics.Model.Wrappers;
 using TBSLogistics.Service.Repository.Common;
@@ -108,24 +109,24 @@ namespace TBSLogistics.Service.Repository.PricelistManage
                 }
 
 
-                //foreach (var item in request)
-                //{
-                //    var checkPriceTable = await _context.BangGia.Where(x =>
-                //    x.MaHopDong == item.MaHopDong &&
-                //    x.MaPtvc == item.MaPtvc &&
-                //    x.MaCungDuong == item.MaCungDuong &&
-                //    x.MaLoaiPhuongTien == item.MaLoaiPhuongTien &&
-                //    x.MaDvt == item.MaDvt &&
-                //    x.MaLoaiHangHoa == item.MaLoaiHangHoa &&
-                //    x.MaLoaiDoiTac == item.MaLoaiDoiTac
-                //    ).FirstOrDefaultAsync();
+                foreach (var item in request)
+                {
+                    var checkPriceTable = await _context.BangGia.Where(x =>
+                    x.MaHopDong == item.MaHopDong &&
+                    x.MaPtvc == item.MaPtvc &&
+                    x.MaCungDuong == item.MaCungDuong &&
+                    x.MaLoaiPhuongTien == item.MaLoaiPhuongTien &&
+                    x.MaDvt == item.MaDvt &&
+                    x.MaLoaiHangHoa == item.MaLoaiHangHoa &&
+                    x.MaLoaiDoiTac == item.MaLoaiDoiTac
+                    ).FirstOrDefaultAsync();
 
-                //    if (checkPriceTable != null)
-                //    {
-                //        checkPriceTable.TrangThai = 2;
-                //        _context.BangGia.Update(checkPriceTable);
-                //    }
-                //}
+                    if (checkPriceTable != null)
+                    {
+                        checkPriceTable.TrangThai = 2;
+                        _context.BangGia.Update(checkPriceTable);
+                    }
+                }
 
                 await _context.BangGia.AddRangeAsync(request.Select(x => new BangGia
                 {
@@ -232,7 +233,10 @@ namespace TBSLogistics.Service.Repository.PricelistManage
             var getList = from bg in _context.BangGia
                           join hd in _context.HopDongVaPhuLuc
                           on bg.MaHopDong equals hd.MaHopDong
+                          join cd in _context.CungDuong
+                          on bg.MaCungDuong equals cd.MaCungDuong
                           where
+                          cd.TrangThai == 1 &&
                           bg.NgayHetHieuLuc.Date >= DateTime.Now.Date
                           && bg.NgayApDung <= DateTime.Now.Date
                           && bg.TrangThai == 4
@@ -305,11 +309,15 @@ namespace TBSLogistics.Service.Repository.PricelistManage
             var listPriceTable = from bg in _context.BangGia
                                  join hd in _context.HopDongVaPhuLuc
                                  on bg.MaHopDong equals hd.MaHopDong
-                                 where bg.NgayApDung.Date <= DateTime.Now.Date
+                                 join cd in _context.CungDuong
+                                 on bg.MaCungDuong equals cd.MaCungDuong
+                                 where
+                                 cd.TrangThai == 1 &&
+                                 bg.NgayApDung.Date <= DateTime.Now.Date
                                  && bg.NgayHetHieuLuc.Date >= DateTime.Now.Date
                                  && bg.TrangThai == 4
                                  && hd.MaKh == MaKH
-                                 orderby bg.Id
+                                 orderby bg.Id descending
                                  select new { bg, hd };
 
 
@@ -341,6 +349,5 @@ namespace TBSLogistics.Service.Repository.PricelistManage
                 MaPTVC = x.bg.MaPtvc
             }).ToListAsync();
         }
-
     }
 }
