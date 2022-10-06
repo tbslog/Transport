@@ -20,36 +20,12 @@ const CreateTransport = (props) => {
     handleSubmit,
   } = useForm({
     mode: "onSubmit",
+    defaultValues: {
+      DiemLayRong: { value: 0, label: "Empty" },
+    },
   });
 
   const Validate = {
-    MaHopDong: {
-      required: "Không được để trống",
-      maxLength: {
-        value: 10,
-        message: "Không được vượt quá 10 ký tự",
-      },
-      pattern: {
-        value: /^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9]+(?<![_.])$/,
-        message: "Không được chứa ký tự đặc biệt",
-      },
-    },
-    TenHopDong: {
-      required: "Không được để trống",
-      maxLength: {
-        value: 50,
-        message: "Không được vượt quá 50 ký tự",
-      },
-      minLength: {
-        value: 1,
-        message: "Không được ít hơn 1 ký tự",
-      },
-      pattern: {
-        value:
-          /^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9 aAàÀảẢãÃáÁạẠăĂằẰẳẲẵẴắẮặẶâÂầẦẩẨẫẪấẤậẬbBcCdDđĐeEèÈẻẺẽẼéÉẹẸêÊềỀểỂễỄếẾệỆ fFgGhHiIìÌỉỈĩĨíÍịỊjJkKlLmMnNoOòÒỏỎõÕóÓọỌôÔồỒổỔỗỖốỐộỘơƠờỜởỞỡỠớỚợỢpPqQrRsStTu UùÙủỦũŨúÚụỤưƯừỪửỬữỮứỨựỰvVwWxXyYỳỲỷỶỹỸýÝỵỴzZ]+(?<![_.])$/,
-        message: "Không được chứa ký tự đặc biệt",
-      },
-    },
     MaKh: {
       required: "Không được để trống",
       maxLength: {
@@ -65,66 +41,94 @@ const CreateTransport = (props) => {
         message: "Không được chứa ký tự đặc biệt",
       },
     },
-    PhanLoaiHopDong: {
+    MaBangGia: {
+      required: "Không được để trống",
+      valueAsNumber: {
+        value: true,
+        message: "Không đúng định dạng",
+      },
+    },
+    MaCungDuong: {
       required: "Không được để trống",
     },
-    SoHopDongCha: {
+    DiemLayHang: { required: "Không được để trống" },
+    DiemNhapHang: { required: "Không được để trống" },
+    MaDonHang: { required: "Không được để trống" },
+    MaTaiXe: { required: "Không được để trống" },
+    XeVanChuyen: { required: "Không được để trống" },
+    MaRomooc: {},
+    CONTNO: {
       required: "Không được để trống",
       maxLength: {
-        value: 10,
-        message: "Không được vượt quá 10 ký tự",
+        value: 11,
+        message: "Không được ít hơn 11 ký tự",
+      },
+      minLength: {
+        value: 11,
+        message: "Không được ít hơn 11 ký tự",
       },
       pattern: {
-        value: /^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9]+(?<![_.])$/,
+        value: /^(?![_.])(?![_.])(?!.*[_.]{2})[A-Z0-9]+(?<![_.])$/,
         message: "Không được chứa ký tự đặc biệt",
       },
     },
-    NgayBatDau: {
-      required: "Không được để trống",
-      maxLength: {
-        value: 10,
-        message: "Không được vượt quá 10 ký tự",
-      },
-      minLength: {
-        value: 10,
-        message: "Không được ít hơn 10 ký tự",
-      },
-      pettern: {
-        value:
-          /^(?:(?:31(\/|-|\.)(?:0?[13578]|1[02]))\1|(?:(?:29|30)(\/|-|\.)(?:0?[13-9]|1[0-2])\2))(?:(?:1[6-9]|[2-9]\d)?\d{2})$|^(?:29(\/|-|\.)0?2\3(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\d|2[0-8])(\/|-|\.)(?:(?:0?[1-9])|(?:1[0-2]))\4(?:(?:1[6-9]|[2-9]\d)?\d{2})$/,
-        message: "Không phải định dạng ngày",
-      },
-    },
-    NgayKetThuc: {
-      required: "Không được để trống",
-      maxLength: {
-        value: 10,
-        message: "Không được vượt quá 10 ký tự",
-      },
-      minLength: {
-        value: 10,
-        message: "Không được ít hơn 10 ký tự",
-      },
-      pettern: {
-        value:
-          /^(?:(?:31(\/|-|\.)(?:0?[13578]|1[02]))\1|(?:(?:29|30)(\/|-|\.)(?:0?[13-9]|1[0-2])\2))(?:(?:1[6-9]|[2-9]\d)?\d{2})$|^(?:29(\/|-|\.)0?2\3(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\d|2[0-8])(\/|-|\.)(?:(?:0?[1-9])|(?:1[0-2]))\4(?:(?:1[6-9]|[2-9]\d)?\d{2})$/,
-        message: "Không phải định dạng ngày",
-      },
-    },
-    PTVC: {
-      required: "Không được để trống",
-    },
-    TrangThai: {
-      required: "Không được để trống",
-    },
-    PhuPhi: {
+    SEALHQ: {
       pattern: {
-        value: /^[0-9]*$/,
-        message: "Chỉ được nhập ký tự là số",
+        value: /^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9 ]+(?<![_.])$/,
+        message: "Không được chứa ký tự đặc biệt",
+      },
+    },
+    SEALHT: {
+      pattern: {
+        value: /^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9 ]+(?<![_.])$/,
+        message: "Không được chứa ký tự đặc biệt",
+      },
+    },
+    TrongLuong: {
+      pattern: {
+        value: /^(?![_.])(?![_.])(?!.*[_.]{2})[0-9.]+(?<![_.])$/,
+        message: "Không được chứa ký tự đặc biệt",
+      },
+    },
+    TheTich: {
+      pattern: {
+        value: /^(?![_.])(?![_.])(?!.*[_.]{2})[0-9.]+(?<![_.])$/,
+        message: "Không được chứa ký tự đặc biệt",
+      },
+    },
+    TGLayRong: {
+      required: "Không được để trống",
+      pattern: {
+        value:
+          /^([1-9]|([012][0-9])|(3[01]))-([0]{0,1}[1-9]|1[012])-\d\d\d\d [012]{0,1}[0-9]:[0-6][0-9]$/,
+        message: "Định dạng ngày không đúng",
+      },
+    },
+    TGTraRong: {
+      required: "Không được để trống",
+      pattern: {
+        value:
+          /^([1-9]|([012][0-9])|(3[01]))-([0]{0,1}[1-9]|1[012])-\d\d\d\d [012]{0,1}[0-9]:[0-6][0-9]$/,
+        message: "Định dạng ngày không đúng",
+      },
+    },
+    TGCoMat: {
+      required: "Không được để trống",
+      pattern: {
+        value:
+          /^([1-9]|([012][0-9])|(3[01]))-([0]{0,1}[1-9]|1[012])-\d\d\d\d [012]{0,1}[0-9]:[0-6][0-9]$/,
+        message: "Định dạng ngày không đúng",
+      },
+    },
+    TGLech: {
+      required: "Không được để trống",
+      pattern: {
+        value:
+          /^([1-9]|([012][0-9])|(3[01]))-([0]{0,1}[1-9]|1[012])-\d\d\d\d [012]{0,1}[0-9]:[0-6][0-9]$/,
+        message: "Định dạng ngày không đúng",
       },
     },
   };
-
   const [tabIndex, setTabIndex] = useState(0);
   const [listDVT, setListDVT] = useState([]);
   const [listPTVC, setListPTVC] = useState([]);
@@ -145,7 +149,6 @@ const CreateTransport = (props) => {
 
   useEffect(() => {
     SetIsLoading(true);
-
     (async () => {
       const getlistPoint = await getData("address/GetListAddressSelect");
       if (getlistPoint && getlistPoint.length > 0) {
@@ -166,11 +169,10 @@ const CreateTransport = (props) => {
       );
       if (getListCustomer && getListCustomer.length > 0) {
         let obj = [];
-
         getListCustomer.map((val) => {
           obj.push({
             value: val.maKh,
-            label: val.maKh + " - " + val.tenKh,
+            label: val.maKh + " - " + val.tenKh + " (" + val.loaiKH + ")",
           });
         });
         setListCustomer(obj);
@@ -201,6 +203,7 @@ const CreateTransport = (props) => {
 
     if (getListPriceTable && getListPriceTable.length > 0) {
       setListFilterPriceTable(getListPriceTable);
+      setValue("MaKh", value);
     } else {
       setListPriceTable([]);
     }
@@ -223,7 +226,7 @@ const CreateTransport = (props) => {
         getlistRoadByPoint.map((val) => {
           obj.push({
             value: val.maCungDuong,
-            label: val.tenCungDuong,
+            label: val.maCungDuong + " - " + val.tenCungDuong,
           });
         });
         setListRoad(obj);
@@ -234,6 +237,7 @@ const CreateTransport = (props) => {
   };
 
   const handleOnChangeFilter = () => {
+    setListPriceTable([]);
     let maDVT = watch("DVT");
     let maPTVC = watch("PTVC");
     let maPTVanChuyen = watch("PTVanChuyen");
@@ -283,6 +287,12 @@ const CreateTransport = (props) => {
       filterByRoad = tempData.filter(
         (x) => x.maCungDuong === maCungDuong.value
       );
+
+      if (filterByRoad && filterByRoad.length > 0) {
+        setValue("MaBangGia", filterByRoad[0].id);
+      } else {
+        setValue("MaBangGia", null);
+      }
       setListPriceTable(filterByRoad);
     } else {
       setListPriceTable([]);
@@ -291,7 +301,7 @@ const CreateTransport = (props) => {
 
   const onSubmit = async (data) => {
     SetIsLoading(true);
-
+    console.log(watch());
     SetIsLoading(false);
   };
 
@@ -301,6 +311,7 @@ const CreateTransport = (props) => {
     setValue("DiemNhapHang", null);
     setValue("MaCungDuong", null);
     setListRoad([]);
+    setListPriceTable([]);
   };
 
   return (
@@ -328,7 +339,9 @@ const CreateTransport = (props) => {
                     <div className="row">
                       <div className="col col-sm">
                         <div className="form-group">
-                          <label htmlFor="KhachHang">Khách Hàng</label>
+                          <label htmlFor="KhachHang">
+                            Khách Hàng/ Nhà cung cấp
+                          </label>
                           <Controller
                             name="MaKh"
                             control={control}
@@ -339,10 +352,7 @@ const CreateTransport = (props) => {
                                 value={field.value}
                                 options={listCustomer}
                                 onChange={(field) =>
-                                  handleOnchangeListCustomer(
-                                    field,
-                                    setValue("MaKh", field)
-                                  )
+                                  handleOnchangeListCustomer(field)
                                 }
                               />
                             )}
@@ -603,6 +613,11 @@ const CreateTransport = (props) => {
                                   );
                                 })}
                             </select>
+                            {errors.MaBangGia && (
+                              <span className="text-danger">
+                                {errors.MaBangGia.message}
+                              </span>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -625,7 +640,7 @@ const CreateTransport = (props) => {
                           )}
                         </div>
                       </div>
-                      <div className="col col-sm">
+                      {/* <div className="col col-sm">
                         <div className="form-group">
                           <label htmlFor="DonViVanTai">Đơn vị vận tải</label>
                           <input
@@ -641,7 +656,7 @@ const CreateTransport = (props) => {
                             </span>
                           )}
                         </div>
-                      </div>
+                      </div> */}
                       <div className="col col-sm">
                         <div className="form-group">
                           <label htmlFor="MaTaiXe">Tài Xế</label>
@@ -730,7 +745,7 @@ const CreateTransport = (props) => {
                           )}
                         </div>
                       </div>
-                      <div className="col col-sm">
+                      {/* <div className="col col-sm">
                         <div className="form-group">
                           <label htmlFor="CPLNO">CPL NO</label>
                           <input
@@ -746,7 +761,7 @@ const CreateTransport = (props) => {
                             </span>
                           )}
                         </div>
-                      </div>
+                      </div> */}
                       <div className="col col-sm">
                         <div className="form-group">
                           <label htmlFor="SEALHQ">SEAL HQ</label>

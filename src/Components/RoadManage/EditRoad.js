@@ -16,6 +16,7 @@ const EditRoad = (props) => {
     mode: "onChange",
   });
 
+  const [listDiemLayRong, setListDiemLayRong] = useState([]);
   const [listAddress, SetListAddress] = useState([]);
   const [listStatus, setListStatus] = useState([]);
 
@@ -45,11 +46,11 @@ const EditRoad = (props) => {
         value: 1,
         message: "Không được ít hơn 1 ký tự",
       },
-      pattern: {
-        value:
-          /^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9 aAàÀảẢãÃáÁạẠăĂằẰẳẲẵẴắẮặẶâÂầẦẩẨẫẪấẤậẬbBcCdDđĐeEèÈẻẺẽẼéÉẹẸêÊềỀểỂễỄếẾệỆ fFgGhHiIìÌỉỈĩĨíÍịỊjJkKlLmMnNoOòÒỏỎõÕóÓọỌôÔồỒổỔỗỖốỐộỘơƠờỜởỞỡỠớỚợỢpPqQrRsStTu UùÙủỦũŨúÚụỤưƯừỪửỬữỮứỨựỰvVwWxXyYỳỲỷỶỹỸýÝỵỴzZ]+(?<![_.])$/,
-        message: "Tên khách hàng không được chứa ký tự đặc biệt",
-      },
+      // pattern: {
+      //   value:
+      //     /^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9 aAàÀảẢãÃáÁạẠăĂằẰẳẲẵẴắẮặẶâÂầẦẩẨẫẪấẤậẬbBcCdDđĐeEèÈẻẺẽẼéÉẹẸêÊềỀểỂễỄếẾệỆ fFgGhHiIìÌỉỈĩĨíÍịỊjJkKlLmMnNoOòÒỏỎõÕóÓọỌôÔồỒổỔỗỖốỐộỘơƠờỜởỞỡỠớỚợỢpPqQrRsStTu UùÙủỦũŨúÚụỤưƯừỪửỬữỮứỨựỰvVwWxXyYỳỲỷỶỹỸýÝỵỴzZ]+(?<![_.])$/,
+      //   message: "Tên khách hàng không được chứa ký tự đặc biệt",
+      // },
     },
     MaHopDong: {
       required: "Không được để trống",
@@ -130,7 +131,10 @@ const EditRoad = (props) => {
           });
         });
         setListStatus(props.listStatus);
-        SetListAddress(obj);
+
+        obj.unshift({ value: "", label: "Empty" });
+        setListDiemLayRong(obj);
+        SetListAddress(obj.filter((x) => x.value !== ""));
       }
     })();
 
@@ -269,7 +273,7 @@ const EditRoad = (props) => {
                           {...field}
                           classNamePrefix={"form-control"}
                           value={field.value}
-                          options={listAddress}
+                          options={listDiemLayRong}
                           onChange={(field) => HandleOnchangeDiemLayRong(field)}
                         />
                       )}

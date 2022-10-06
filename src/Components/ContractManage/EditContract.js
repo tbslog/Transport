@@ -145,14 +145,9 @@ const EditContract = (props) => {
         setValue("MaHopDong", props.selectIdClick.maHopDong);
         setValue("TenHopDong", props.selectIdClick.tenHienThi);
         setValue("MaKh", props.selectIdClick.maKh);
-
         setValue("GhiChu", props.selectIdClick.ghiChu);
         setDownloadFile(props.selectIdClick.file);
-        setValue("PhanLoaiHopDong", props.selectIdClick.phanLoaiHopDong);
-
         setValue("TrangThai", props.selectIdClick.trangThai);
-        setValue("PTVC", props.selectIdClick.maPtvc);
-
         setValue("NgayBatDau", new Date(props.selectIdClick.thoiGianBatDau));
         setValue("NgayKetThuc", new Date(props.selectIdClick.thoiGianKetThuc));
         SetIsLoading(false);
@@ -168,11 +163,6 @@ const EditContract = (props) => {
 
   useEffect(() => {
     SetIsLoading(true);
-
-    (async () => {
-      const getListTransportType = await getData("Common/GetListTransportType");
-      setListTransportType(getListTransportType);
-    })();
     setListStatusType(props.listStatus);
     SetIsLoading(false);
   }, []);
@@ -193,9 +183,6 @@ const EditContract = (props) => {
       `Contract/UpdateContract?Id=${data.MaHopDong}`,
       {
         tenHienThi: data.TenHopDong,
-        maPtvc: data.PTVC,
-        phanLoaiHopDong: data.PhanLoaiHopDong,
-
         thoiGianBatDau: moment(new Date(data.NgayBatDau).toISOString()).format(
           "YYYY-MM-DD"
         ),
@@ -214,6 +201,7 @@ const EditContract = (props) => {
 
     if (update === 1) {
       props.getListContract(1);
+      props.hideModal();
     }
 
     SetIsLoading(false);
@@ -289,7 +277,7 @@ const EditContract = (props) => {
                         )}
                       </div>
                     </div>
-                    <div className="col col-sm">
+                    {/* <div className="col col-sm">
                       <div className="form-group">
                         <label htmlFor="PhanLoaiHopDong">
                           Phân Loại Hợp Đồng
@@ -320,8 +308,8 @@ const EditContract = (props) => {
                           </span>
                         )}
                       </div>
-                    </div>
-                    <div className="col col-sm">
+                    </div> */}
+                    {/* <div className="col col-sm">
                       <div className="form-group">
                         <label htmlFor="PTVC">Phương thức vận chuyển</label>
                         <select
@@ -344,7 +332,7 @@ const EditContract = (props) => {
                           </span>
                         )}
                       </div>
-                    </div>
+                    </div> */}
                   </div>
                   <div className="row">
                     <div className="col col-sm">
@@ -577,7 +565,7 @@ const EditContract = (props) => {
                         )}
                       </div>
                     </div>
-                    <div className="col col-sm">
+                    {/* <div className="col col-sm">
                       <div className="form-group">
                         <label htmlFor="PhanLoaiHopDong">
                           Phân Loại Hợp Đồng
@@ -608,8 +596,8 @@ const EditContract = (props) => {
                           </span>
                         )}
                       </div>
-                    </div>
-                    <div className="col col-sm">
+                    </div> */}
+                    {/* <div className="col col-sm">
                       <div className="form-group">
                         <label htmlFor="PTVC">Phương thức vận chuyển</label>
                         <select
@@ -632,7 +620,7 @@ const EditContract = (props) => {
                           </span>
                         )}
                       </div>
-                    </div>
+                    </div> */}
                   </div>
                   <div className="row">
                     <div className="col col-sm">

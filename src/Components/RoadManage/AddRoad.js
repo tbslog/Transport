@@ -15,6 +15,7 @@ const AddRoad = (props) => {
   } = useForm({
     mode: "onChange",
   });
+
   const Validate = {
     MaCungDuong: {
       required: "Không được để trống",
@@ -41,11 +42,11 @@ const AddRoad = (props) => {
         value: 1,
         message: "Không được ít hơn 1 ký tự",
       },
-      pattern: {
-        value:
-          /^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9 aAàÀảẢãÃáÁạẠăĂằẰẳẲẵẴắẮặẶâÂầẦẩẨẫẪấẤậẬbBcCdDđĐeEèÈẻẺẽẼéÉẹẸêÊềỀểỂễỄếẾệỆ fFgGhHiIìÌỉỈĩĨíÍịỊjJkKlLmMnNoOòÒỏỎõÕóÓọỌôÔồỒổỔỗỖốỐộỘơƠờỜởỞỡỠớỚợỢpPqQrRsStTu UùÙủỦũŨúÚụỤưƯừỪửỬữỮứỨựỰvVwWxXyYỳỲỷỶỹỸýÝỵỴzZ]+(?<![_.])$/,
-        message: "Tên khách hàng không được chứa ký tự đặc biệt",
-      },
+      // pattern: {
+      //   value:
+      //     /^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9 -,aAàÀảẢãÃáÁạẠăĂằẰẳẲẵẴắẮặẶâÂầẦẩẨẫẪấẤậẬbBcCdDđĐeEèÈẻẺẽẼéÉẹẸêÊềỀểỂễỄếẾệỆ fFgGhHiIìÌỉỈĩĨíÍịỊjJkKlLmMnNoOòÒỏỎõÕóÓọỌôÔồỒổỔỗỖốỐộỘơƠờỜởỞỡỠớỚợỢpPqQrRsStTu UùÙủỦũŨúÚụỤưƯừỪửỬữỮứỨựỰvVwWxXyYỳỲỷỶỹỸýÝỵỴzZ]+(?<![_.])$/,
+      //   message: "Tên khách hàng không được chứa ký tự đặc biệt",
+      // },
     },
     MaHopDong: {
       required: "Không được để trống",
@@ -82,14 +83,14 @@ const AddRoad = (props) => {
     },
   };
 
-  setValue("DiemLayRong", null);
+  const [listDiemLayRong, setListDiemLayRong] = useState([]);
   const [listAddress, SetListAddress] = useState([]);
   const [listStatus, setListStatus] = useState([]);
   const [listContract, setListContract] = useState([]);
 
   useEffect(() => {
     SetIsLoading(true);
-
+    setValue("DiemLayRong", { value: "", label: "Empty" });
     (async () => {
       const getlistAddress = await getData("address/GetListAddressSelect");
       if (getlistAddress && getlistAddress.length > 0) {
@@ -101,7 +102,10 @@ const AddRoad = (props) => {
               val.maDiaDiem + " - " + val.tenDiaDiem + " --- " + val.diaChi,
           });
         });
-        SetListAddress(obj);
+
+        obj.unshift({ value: "", label: "Empty" });
+        setListDiemLayRong(obj);
+        SetListAddress(obj.filter((x) => x.value !== ""));
       }
       setListStatus(props.listStatus);
 
@@ -129,12 +133,11 @@ const AddRoad = (props) => {
     reset();
     setValue("DiemDau", null);
     setValue("DiemCuoi", null);
-    setValue("DiemLayRong", null);
+    setValue("DiemLayRong", { value: "", label: "Empty" });
   };
 
   const onSubmit = async (data, e) => {
     SetIsLoading(true);
-    console.log(data);
     const post = await postData("Road/CreateRoad", {
       maCungDuong: data.MaCungDuong,
       tenCungDuong: data.TenCungDuong,
@@ -142,16 +145,16 @@ const AddRoad = (props) => {
       km: data.SoKM,
       diemDau: data.DiemDau.value,
       diemCuoi: data.DiemCuoi.value,
-      diemLayRong: data.DiemLayRong === null ? null : data.DiemLayRong.value,
+      diemLayRong:
+        data.DiemLayRong.value === "" ? null : data.DiemLayRong.value,
       ghiChu: data.GhiChu,
       trangThai: data.TrangThai,
     });
 
     if (post === 1) {
       props.getListRoad(1);
-      reset();
+      handleResetClick();
     }
-
     SetIsLoading(false);
   };
 
@@ -238,7 +241,7 @@ const AddRoad = (props) => {
                           {...field}
                           classNamePrefix={"form-control"}
                           value={field.value}
-                          options={listAddress}
+                          options={listDiemLayRong}
                         />
                       )}
                     />

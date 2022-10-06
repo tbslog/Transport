@@ -141,13 +141,14 @@ const AddContract = (props) => {
       let getListCustomer = await getData(
         `Customer/GetListCustomerOptionSelect`
       );
+      console.log(getListCustomer);
       if (getListCustomer && getListCustomer.length > 0) {
         let obj = [];
 
         getListCustomer.map((val) => {
           obj.push({
             value: val.maKh,
-            label: val.maKh + " - " + val.tenKh,
+            label: val.maKh + " - " + val.tenKh + " (" + val.loaiKH + ")",
           });
         });
         setListCustomer(obj);
@@ -165,7 +166,7 @@ const AddContract = (props) => {
     setValue("SoHopDongCha", null);
     setListContract([]);
     let getListContract = await getData(
-      `Contract/GetListContractSelect?MaKH=${MaKh}`
+      `Contract/GetListContractSelect?MaKH=${MaKh}&getChild=false`
     );
 
     if (getListContract && getListContract.length > 0) {
@@ -190,6 +191,9 @@ const AddContract = (props) => {
 
   const onSubmit = async (data) => {
     SetIsLoading(true);
+
+    console.log(data);
+
     var create = await postData(
       "Contract/CreateContract",
       {
@@ -197,8 +201,6 @@ const AddContract = (props) => {
         soHopDongCha: tabIndex === 0 ? null : data.SoHopDongCha.value,
         tenHienThi: data.TenHopDong,
         maKh: data.MaKh.value,
-        maPtvc: data.PTVC,
-        phanLoaiHopDong: data.PhanLoaiHopDong,
         thoiGianBatDau: moment(new Date(data.NgayBatDau).toISOString()).format(
           "YYYY-MM-DD"
         ),
@@ -206,7 +208,6 @@ const AddContract = (props) => {
           new Date(data.NgayKetThuc).toISOString()
         ).format("YYYY-MM-DD"),
         ghiChu: data.GhiChu,
-        phuPhi: tabIndex === 0 ? null : data.PhuPhi,
         trangThai: data.TrangThai,
         file: data.FileContact[0],
       },
@@ -218,6 +219,7 @@ const AddContract = (props) => {
     if (create === 1) {
       props.getListContract(1);
       reset();
+      props.hideModal();
     }
 
     SetIsLoading(false);
@@ -250,6 +252,31 @@ const AddContract = (props) => {
                 <form onSubmit={handleSubmit(onSubmit)}>
                   <div className="card-body">
                     <div className="row">
+                      <div className="col col-sm">
+                        <div className="form-group">
+                          <label htmlFor="KhachHang">
+                            Khách Hàng/ Nhà Cung Cấp
+                          </label>
+                          <Controller
+                            name="MaKh"
+                            control={control}
+                            render={({ field }) => (
+                              <Select
+                                {...field}
+                                classNamePrefix={"form-control"}
+                                value={field.value}
+                                options={listCustomer}
+                              />
+                            )}
+                            rules={Validate.MaKh}
+                          />
+                          {errors.MaKh && (
+                            <span className="text-danger">
+                              {errors.MaKh.message}
+                            </span>
+                          )}
+                        </div>
+                      </div>
                       <div className="col col-sm">
                         <div className="form-group">
                           <label htmlFor="MaHopDong">Mã Hợp Đồng</label>
@@ -287,30 +314,7 @@ const AddContract = (props) => {
                       </div>
                     </div>
                     <div className="row">
-                      <div className="col col-sm">
-                        <div className="form-group">
-                          <label htmlFor="KhachHang">Khách Hàng</label>
-                          <Controller
-                            name="MaKh"
-                            control={control}
-                            render={({ field }) => (
-                              <Select
-                                {...field}
-                                classNamePrefix={"form-control"}
-                                value={field.value}
-                                options={listCustomer}
-                              />
-                            )}
-                            rules={Validate.MaKh}
-                          />
-                          {errors.MaKh && (
-                            <span className="text-danger">
-                              {errors.MaKh.message}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      <div className="col col-sm">
+                      {/* <div className="col col-sm">
                         <div className="form-group">
                           <label htmlFor="PhanLoaiHopDong">
                             Phân Loại Hợp Đồng
@@ -341,8 +345,8 @@ const AddContract = (props) => {
                             </span>
                           )}
                         </div>
-                      </div>
-                      <div className="col col-sm">
+                      </div> */}
+                      {/* <div className="col col-sm">
                         <div className="form-group">
                           <label htmlFor="PTVC">Phương thức vận chuyển</label>
                           <select
@@ -367,7 +371,7 @@ const AddContract = (props) => {
                             </span>
                           )}
                         </div>
-                      </div>
+                      </div> */}
                     </div>
                     <div className="row">
                       <div className="col col-sm">
@@ -514,44 +518,9 @@ const AddContract = (props) => {
                     <div className="row">
                       <div className="col col-sm">
                         <div className="form-group">
-                          <label htmlFor="MaHopDong">Mã Hợp Đồng</label>
-                          <input
-                            autoComplete="false"
-                            type="text"
-                            className="form-control"
-                            id="MaHopDong"
-                            placeholder="Nhập mã hợp đồng"
-                            {...register("MaHopDong", Validate.MaHopDong)}
-                          />
-                          {errors.MaHopDong && (
-                            <span className="text-danger">
-                              {errors.MaHopDong.message}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      <div className="col col-sm">
-                        <div className="form-group">
-                          <label htmlFor="TenHopDong">Tên Hợp Đồng</label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            id="TenHopDong"
-                            placeholder="Nhập tên khách hàng"
-                            {...register("TenHopDong", Validate.TenHopDong)}
-                          />
-                          {errors.TenHopDong && (
-                            <span className="text-danger">
-                              {errors.TenHopDong.message}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="row">
-                      <div className="col col-sm">
-                        <div className="form-group">
-                          <label htmlFor="KhachHang">Khách Hàng</label>
+                          <label htmlFor="KhachHang">
+                            Khách Hàng/ Nhà Cung Cấp
+                          </label>
                           <Controller
                             name="MaKh"
                             control={control}
@@ -603,6 +572,43 @@ const AddContract = (props) => {
                       </div>
                       <div className="col col-sm">
                         <div className="form-group">
+                          <label htmlFor="MaHopDong">Mã Hợp Đồng</label>
+                          <input
+                            autoComplete="false"
+                            type="text"
+                            className="form-control"
+                            id="MaHopDong"
+                            placeholder="Nhập mã hợp đồng"
+                            {...register("MaHopDong", Validate.MaHopDong)}
+                          />
+                          {errors.MaHopDong && (
+                            <span className="text-danger">
+                              {errors.MaHopDong.message}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="col col-sm">
+                        <div className="form-group">
+                          <label htmlFor="TenHopDong">Tên Hợp Đồng</label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            id="TenHopDong"
+                            placeholder="Nhập tên khách hàng"
+                            {...register("TenHopDong", Validate.TenHopDong)}
+                          />
+                          {errors.TenHopDong && (
+                            <span className="text-danger">
+                              {errors.TenHopDong.message}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="row">
+                      {/* <div className="col col-sm">
+                        <div className="form-group">
                           <label htmlFor="PhanLoaiHopDong">
                             Phân Loại Hợp Đồng
                           </label>
@@ -632,8 +638,8 @@ const AddContract = (props) => {
                             </span>
                           )}
                         </div>
-                      </div>
-                      <div className="col col-sm">
+                      </div> */}
+                      {/* <div className="col col-sm">
                         <div className="form-group">
                           <label htmlFor="PTVC">Phương thức vận chuyển</label>
                           <select
@@ -658,7 +664,7 @@ const AddContract = (props) => {
                             </span>
                           )}
                         </div>
-                      </div>
+                      </div> */}
                     </div>
                     <div className="row">
                       <div className="col col-sm">
@@ -714,7 +720,7 @@ const AddContract = (props) => {
                         </div>
                       </div>
                     </div>
-                    <div className="form-group">
+                    {/* <div className="form-group">
                       <label htmlFor="PhuPhi">Phụ Phí</label>
                       <input
                         type="text"
@@ -728,7 +734,7 @@ const AddContract = (props) => {
                           {errors.PhuPhi.message}
                         </span>
                       )}
-                    </div>
+                    </div> */}
                     <div className="form-group">
                       <label htmlFor="GhiChu">Ghi Chú</label>
                       <input

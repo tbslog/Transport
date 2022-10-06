@@ -496,6 +496,7 @@ const ContractPage = () => {
                       getListContract={fetchData}
                       listContractType={listContractType}
                       listStatus={listStatus}
+                      hideModal={hideModal}
                     />
                   )}
                   {ShowModal === "Create" && (
@@ -503,6 +504,7 @@ const ContractPage = () => {
                       getListContract={fetchData}
                       listContractType={listContractType}
                       listStatus={listStatus}
+                      hideModal={hideModal}
                     />
                   )}
                   {ShowModal === "PriceTable" && (
