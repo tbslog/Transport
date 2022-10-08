@@ -135,7 +135,10 @@ const CreateTransport = (props) => {
   const [listCustomer, setListCustomer] = useState([]);
   const [listVehicleType, setlistVehicleType] = useState([]);
   const [listGoodsType, setListGoodsType] = useState([]);
-  const [listPoint, setListPoint] = useState([]);
+  const [listFirstPoint, setListFirstPoint] = useState([]);
+  const [listLastPoint, setListLastPoint] = useState([]);
+  const [listGetEmptyPoint, setListGetEmptyPoint] = useState([]);
+  const [listRoadPoint, setListRoadPoint] = useState([]);
   const [listDriver, setListDriver] = useState([]);
   const [listVehicle, setListVehicle] = useState([]);
   const [listRomooc, setListRomooc] = useState([]);
@@ -150,20 +153,6 @@ const CreateTransport = (props) => {
   useEffect(() => {
     SetIsLoading(true);
     (async () => {
-      const getlistPoint = await getData("address/GetListAddressSelect");
-      if (getlistPoint && getlistPoint.length > 0) {
-        var obj = [];
-        obj.push({ value: 0, label: "Empty" });
-        getlistPoint.map((val) => {
-          obj.push({
-            value: val.maDiaDiem,
-            label:
-              val.maDiaDiem + " - " + val.tenDiaDiem + " --- " + val.diaChi,
-          });
-        });
-        setListPoint(obj);
-      }
-
       let getListCustomer = await getData(
         `Customer/GetListCustomerOptionSelect`
       );
@@ -194,8 +183,48 @@ const CreateTransport = (props) => {
   }, []);
 
   const handleOnchangeListCustomer = async (value) => {
+    SetIsLoading(true);
+
     handleResetClick();
     setListPriceTable([]);
+
+    const getlistPoint = await getData(
+      `Road/GetListRoadBillOfLading?maKh=${value.value}`
+    );
+
+    if (getlistPoint && Object.keys(getlistPoint).length > 0) {
+      console.log(getlistPoint);
+
+      let objGetEmptyPoint = [];
+      objGetEmptyPoint.push({ value: 0, label: "Empty" });
+      getlistPoint.diemLayRong.map((val) => {
+        objGetEmptyPoint.push({
+          value: val.maDiaDiem,
+          label: val.maDiaDiem + " - " + val.tenDiaDiem,
+        });
+      });
+      setListGetEmptyPoint(objGetEmptyPoint);
+
+      let objFirstPoint = [];
+      getlistPoint.diemDau.map((val) => {
+        objFirstPoint.push({
+          value: val.maDiaDiem,
+          label: val.maDiaDiem + " - " + val.tenDiaDiem,
+        });
+      });
+      setListFirstPoint(objFirstPoint);
+
+      let objGetLastPoint = [];
+      getlistPoint.diemCuoi.map((val) => {
+        objGetLastPoint.push({
+          value: val.maDiaDiem,
+          label: val.maDiaDiem + " - " + val.tenDiaDiem,
+        });
+      });
+      setListLastPoint(objGetLastPoint);
+
+      setListRoadPoint(getlistPoint.cungDuong);
+    }
 
     let getListPriceTable = await getData(
       `PriceTable/GetListPriceTableByCustomerId?Id=${value.value}`
@@ -207,6 +236,8 @@ const CreateTransport = (props) => {
     } else {
       setListPriceTable([]);
     }
+
+    SetIsLoading(false);
   };
 
   const handleOnChangePoint = async () => {
@@ -218,9 +249,14 @@ const CreateTransport = (props) => {
     let diemNhapHang = watch("DiemNhapHang");
 
     if (diemLayHang && diemNhapHang) {
-      const getlistRoadByPoint = await getData(
-        `Road/GetListRoadByPoint?diemDau=${diemLayHang.value}&diemCuoi=${diemNhapHang.value}&diemLayRong=${diemLayRong.value}`
+      console.log(listRoadPoint);
+      var getlistRoadByPoint = listRoadPoint.filter(
+        (x) =>
+          x.diemCuoi === diemNhapHang.value &&
+          x.diemDau === diemLayHang.value &&
+          x.diemLayRong === (diemLayRong.value === 0 ? null : diemLayRong.value)
       );
+
       if (getlistRoadByPoint && getlistRoadByPoint.length > 0) {
         var obj = [];
         getlistRoadByPoint.map((val) => {
@@ -490,7 +526,7 @@ const CreateTransport = (props) => {
                                 {...field}
                                 classNamePrefix={"form-control"}
                                 value={field.value}
-                                options={listPoint}
+                                options={listGetEmptyPoint}
                                 onChange={(field) =>
                                   handleOnChangePoint(
                                     setValue("DiemLayRong", field)
@@ -518,7 +554,7 @@ const CreateTransport = (props) => {
                                 {...field}
                                 classNamePrefix={"form-control"}
                                 value={field.value}
-                                options={listPoint.filter((x) => x.value !== 0)}
+                                options={listFirstPoint}
                                 onChange={(field) =>
                                   handleOnChangePoint(
                                     setValue("DiemLayHang", field)
@@ -546,7 +582,7 @@ const CreateTransport = (props) => {
                                 {...field}
                                 classNamePrefix={"form-control"}
                                 value={field.value}
-                                options={listPoint.filter((x) => x.value !== 0)}
+                                options={listLastPoint}
                                 onChange={(field) =>
                                   handleOnChangePoint(
                                     setValue("DiemNhapHang", field)

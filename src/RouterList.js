@@ -6,6 +6,7 @@ import RoadPage from "./Components/RoadManage/RoadPage";
 import ContractPage from "./Components/ContractManage/ContractPage";
 import PriceTablePage from "./Components/PriceListManage/PriceTablePage";
 import TransportPage from "./Components/Transport/TransportPage";
+import ProductServicePage from "./Components/ProductService/ProductServicePage";
 
 let routerList = [
   {
@@ -108,6 +109,14 @@ let routerList = [
         pathName: "/pricetable",
         path: "pricetable",
         element: <PriceTablePage />,
+        exact: true,
+        child: [],
+      },
+      {
+        name: "Sản phẩm dịch vụ",
+        pathName: "/productservice",
+        path: "productservice",
+        element: <ProductServicePage />,
         exact: true,
         child: [],
       },

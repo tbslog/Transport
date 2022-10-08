@@ -1,13 +1,12 @@
 import { useMemo, useState, useEffect, useCallback, useRef } from "react";
-import { getData, getDataCustom } from "../Common/FuncAxios";
+import { getData, postData } from "../Common/FuncAxios";
 import DataTable from "react-data-table-component";
 import moment from "moment";
 import { Modal } from "bootstrap";
 import DatePicker from "react-datepicker";
-import AddPriceTable from "./AddPriceTable";
-import ApprovePriceTable from "./ApprovePriceTable";
 
-const PriceTablePage = () => {
+const ApprovePriceTable = (props) => {
+  const { getDataApprove } = props;
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [totalRows, setTotalRows] = useState(0);
@@ -22,38 +21,51 @@ const PriceTablePage = () => {
   const [toDate, setToDate] = useState("");
 
   const [selectedRows, setSelectedRows] = useState([]);
-  const [selectIdClick, setSelectIdClick] = useState({});
-
-  const [listStatus, setListStatus] = useState([]);
-  const [listVehicleType, setListVehicleType] = useState([]);
-  const [vehicleType, setVehicleType] = useState("");
-  const [listGoodsType, setListGoodsType] = useState([]);
-  const [goodsType, setGoodsType] = useState("");
-
-  const paginationComponentOptions = {
-    rowsPerPageText: "Dữ liệu mỗi trang",
-    rangeSeparatorText: "của",
-    selectAllRowsItem: true,
-    selectAllRowsItemText: "Tất cả",
-  };
 
   const columns = useMemo(() => [
     {
       cell: (val) => (
         <button
-          title="Cập nhật"
-          onClick={() => handleEditButtonClick(val, SetShowModal("Create"))}
+          title="Duyệt"
+          onClick={() => handleEditButtonApprove(val)}
           type="button"
           className="btn btn-sm btn-default"
         >
-          <i className="far fa-edit"></i>
+          <i className="fas fa-check"></i>
         </button>
       ),
       ignoreRowClick: true,
       allowOverflow: true,
       button: true,
     },
-
+    {
+      cell: (val) => (
+        <button
+          title="Không Duyệt"
+          onClick={() => handleEditButtonDeApprove(val)}
+          type="button"
+          className="btn btn-sm btn-default"
+        >
+          <i className="fas fa-times"></i>
+        </button>
+      ),
+      ignoreRowClick: true,
+      allowOverflow: true,
+      button: true,
+    },
+    {
+      omit: true,
+      name: "Id",
+      selector: (row) => row.id,
+    },
+    {
+      name: "Phân Loại Đối Tác",
+      selector: (row) => row.maLoaiDoiTac,
+    },
+    {
+      name: "Tên khách hàng",
+      selector: (row) => row.tenKh,
+    },
     {
       name: "Mã Hợp Đồng",
       selector: (row) => row.maHopDong,
@@ -64,8 +76,8 @@ const PriceTablePage = () => {
       selector: (row) => row.tenHopDong,
     },
     {
-      name: "Tên khách hàng",
-      selector: (row) => row.tenKH,
+      name: "Mã Cung Đường",
+      selector: (row) => row.maCungDuong,
     },
     {
       name: "Tên Cung Đường",
@@ -76,8 +88,26 @@ const PriceTablePage = () => {
       selector: (row) => row.maLoaiPhuongTien,
     },
     {
+      name: "Phương Thức Vận Chuyển",
+      selector: (row) => row.ptvc,
+    },
+    {
+      name: "Loại Hàng Hóa",
+      selector: (row) => row.maLoaiHangHoa,
+    },
+    {
       name: "Thời gian Áp Dụng",
       selector: (row) => row.ngayApDung,
+      sortable: true,
+    },
+    {
+      name: "Thời gian Hết Hiệu Lực",
+      selector: (row) => row.ngayHetHieuLuc,
+      sortable: true,
+    },
+    {
+      name: "Thời gian Tạo",
+      selector: (row) => row.thoiGianTao,
       sortable: true,
     },
   ]);
@@ -95,23 +125,20 @@ const PriceTablePage = () => {
     modal.hide();
   };
 
+  useEffect(() => {
+    setLoading(true);
+    (async () => {
+      var list = await getDataApprove();
+      setData(list.data);
+      setLoading(false);
+    })();
+  }, [props]);
+
   const handleChange = useCallback((state) => {
     setSelectedRows(state.selectedRows);
   }, []);
 
-  const handleEditButtonClick = async (val) => {
-    showModalForm();
-    setSelectIdClick(val);
-  };
-
-  const fetchData = async (
-    page,
-    KeyWord = "",
-    fromDate = "",
-    toDate = "",
-    vehicleType = "",
-    goodsType = ""
-  ) => {
+  const fetchData = async (page, KeyWord = "", fromDate = "", toDate = "") => {
     setLoading(true);
 
     if (KeyWord !== "") {
@@ -120,10 +147,9 @@ const PriceTablePage = () => {
     fromDate = fromDate === "" ? "" : moment(fromDate).format("YYYY-MM-DD");
     toDate = toDate === "" ? "" : moment(toDate).format("YYYY-MM-DD");
     const dataCus = await getData(
-      `PriceTable/GetListPriceTable?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}&fromDate=${fromDate}&toDate=${toDate}&goodsType=${goodsType}&vehicleType=${vehicleType}`
+      `PriceTable/GetListPriceTableApprove?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}&fromDate=${fromDate}&toDate=${toDate}`
     );
-
-    formatTable(dataCus.data);
+    setData(dataCus.data);
     setTotalRows(dataCus.totalRecords);
     setLoading(false);
   };
@@ -136,58 +162,35 @@ const PriceTablePage = () => {
     setLoading(true);
 
     const dataCus = await getData(
-      `PriceTable/GetListPriceTable?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}&fromDate=${fromDate}&toDate=${toDate}&goodsType=${goodsType}&vehicleType=${vehicleType}`
+      `PriceTable/GetListPriceTableApprove?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}&fromDate=${fromDate}&toDate=${toDate}`
     );
     setPerPage(newPerPage);
-    formatTable(dataCus.data);
     setTotalRows(dataCus.totalRecords);
-
     setLoading(false);
   };
 
-  useEffect(() => {
-    setLoading(true);
+  const handleEditButtonApprove = async (value) => {
+    const Approve = await postData(
+      `PriceTable/ApprovePriceTable?id=${value.id}&choose=${0}`
+    );
 
-    (async () => {
-      let getListCustommerGroup = await getData(`Common/GetListVehicleType`);
-      setListVehicleType(getListCustommerGroup);
-
-      let getListCustommerType = await getData(`Common/GetListGoodsType`);
-      setListGoodsType(getListCustommerType);
-
-      let getStatusList = await getDataCustom(`Common/GetListStatus`, [
-        "common",
-      ]);
-      setListStatus(getStatusList);
-    })();
-
-    fetchData(1);
-    setLoading(false);
-  }, []);
-
-  function formatTable(data) {
-    data.map((val) => {
-      val.ngayApDung = moment(val.ngayApDung).format("DD/MM/YYYY");
-    });
-    setData(data);
-  }
-
-  const handleOnChangeVehicleType = (value) => {
-    setLoading(true);
-    setVehicleType(value);
-    fetchData(1, keySearch, fromDate, toDate, value, goodsType);
-    setLoading(false);
+    if (Approve === 1) {
+      setData(data.filter((x) => x.id !== value.id));
+    }
   };
 
-  const handleOnChangeGoodsType = (value) => {
-    setLoading(true);
-    setGoodsType(value);
-    fetchData(1, keySearch, fromDate, toDate, vehicleType, value);
-    setLoading(false);
+  const handleEditButtonDeApprove = async (value) => {
+    const DeApprove = await postData(
+      `PriceTable/ApprovePriceTable?id=${value.id}&choose=${1}`
+    );
+
+    if (DeApprove === 1) {
+      setData(data.filter((x) => x.id !== value.id));
+    }
   };
 
   const handleSearchClick = () => {
-    fetchData(1, keySearch, fromDate, toDate, vehicleType, goodsType);
+    fetchData(1, keySearch, fromDate, toDate);
   };
 
   const handleRefeshDataClick = () => {
@@ -198,40 +201,15 @@ const PriceTablePage = () => {
     fetchData(1);
   };
 
-  const getDataApprove = async () => {
-    const listApprove = await getData(
-      `PriceTable/GetListPriceTableApprove?PageNumber=1&PageSize=10`
-    );
-    return listApprove;
-  };
-
   return (
     <>
-      <section className="content-header">
-        <div className="container-fluid">
-          <div className="row mb-2">
-            <div className="col-sm-6">
-              <h1>Quản lý bảng giá</h1>
-            </div>
-            {/* <div className="col-sm-6">
-                  <ol className="breadcrumb float-sm-right">
-                    <li className="breadcrumb-item">
-                      <a href="#">Home</a>
-                    </li>
-                    <li className="breadcrumb-item active">Blank Page</li>
-                  </ol>
-                </div> */}
-          </div>
-        </div>
-      </section>
-
       <section className="content">
         <div className="card">
           <div className="card-header">
             <div className="container-fruid">
               <div className="row">
                 <div className="col col-sm">
-                  <button
+                  {/* <button
                     title="Thêm mới"
                     type="button"
                     className="btn btn-sm btn-default mx-1"
@@ -243,25 +221,12 @@ const PriceTablePage = () => {
                     }
                   >
                     <i className="fas fa-plus-circle"></i>
-                  </button>
-                  <button
-                    title="Approve List"
-                    type="button"
-                    className="btn btn-sm btn-default mx-1"
-                    onClick={() =>
-                      showModalForm(
-                        SetShowModal("ApprovePriceTable"),
-                        setSelectIdClick({})
-                      )
-                    }
-                  >
-                    <i className="fas fa-check-double"></i>
-                  </button>
+                  </button> */}
                 </div>
                 <div className="col col-sm">
                   <div className="row">
                     <div className="col col-sm">
-                      <div className="input-group input-group-sm">
+                      {/* <div className="input-group input-group-sm">
                         <select
                           className="form-control form-control-sm"
                           onChange={(e) =>
@@ -282,10 +247,10 @@ const PriceTablePage = () => {
                               );
                             })}
                         </select>
-                      </div>
+                      </div> */}
                     </div>
                     <div className="col col-sm">
-                      <div className="input-group input-group-sm">
+                      {/* <div className="input-group input-group-sm">
                         <select
                           className="form-control form-control-sm"
                           onChange={(e) =>
@@ -306,7 +271,7 @@ const PriceTablePage = () => {
                               );
                             })}
                         </select>
-                      </div>
+                      </div> */}
                     </div>
                   </div>
                 </div>
@@ -370,19 +335,19 @@ const PriceTablePage = () => {
           <div className="card-body">
             <div className="container-datatable" style={{ height: "50vm" }}>
               <DataTable
-                title="Danh sách bảng giá"
+                title="Duyệt Bảng Giá"
                 columns={columns}
                 data={data}
                 progressPending={loading}
                 pagination
                 paginationServer
                 paginationTotalRows={totalRows}
-                paginationComponentOptions={paginationComponentOptions}
-                selectableRows
                 onSelectedRowsChange={handleChange}
                 onChangeRowsPerPage={handlePerRowsChange}
                 onChangePage={handlePageChange}
                 highlightOnHover
+                responsive
+                striped
               />
             </div>
           </div>
@@ -439,18 +404,7 @@ const PriceTablePage = () => {
                 </button>
               </div>
               <div className="modal-body">
-                <>
-                  {ShowModal === "Create" && (
-                    <AddPriceTable
-                      getListPriceTable={fetchData}
-                      selectIdClick={selectIdClick}
-                      listStatus={listStatus}
-                    />
-                  )}
-                  {ShowModal === "ApprovePriceTable" && (
-                    <ApprovePriceTable getDataApprove={getDataApprove} />
-                  )}
-                </>
+                <></>
               </div>
             </div>
           </div>
@@ -460,4 +414,4 @@ const PriceTablePage = () => {
   );
 };
 
-export default PriceTablePage;
+export default ApprovePriceTable;

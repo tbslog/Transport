@@ -15,6 +15,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import "react-tabs/style/react-tabs.css";
 import PriceTablePage from "./Components/PriceListManage/PriceTablePage";
 import TransportPage from "./Components/Transport/TransportPage";
+import ProductServicePage from "./Components/ProductService/ProductServicePage";
 
 function App() {
   return (
@@ -35,6 +36,10 @@ function App() {
                   <Route path="/contract" element={<ContractPage />} />
                   <Route path="/pricetable" element={<PriceTablePage />} />
                   <Route path="/transport" element={<TransportPage />} />
+                  <Route
+                    path="/productService"
+                    element={<ProductServicePage />}
+                  />
                 </Routes>
               </div>
             </div>
