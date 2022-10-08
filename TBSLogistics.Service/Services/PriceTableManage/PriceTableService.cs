@@ -337,7 +337,6 @@ namespace TBSLogistics.Service.Repository.PricelistManage
 
             listPriceTable = listPriceTable.Where(x => gr.Select(y => y.Id).Contains(x.bg.Id));
 
-
             return await listPriceTable.Select(x => new GetPriceListRequest()
             {
                 ID = x.bg.Id,
@@ -348,6 +347,125 @@ namespace TBSLogistics.Service.Repository.PricelistManage
                 MaDVT = x.bg.MaDvt,
                 MaPTVC = x.bg.MaPtvc
             }).ToListAsync();
+        }
+
+        public async Task<PagedResponseCustom<ListApprove>> GetListPriceTableApprove(PaginationFilter filter)
+        {
+            var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
+
+            var getData = from kh in _context.KhachHang
+                          join hd in _context.HopDongVaPhuLuc
+                          on kh.MaKh equals hd.MaKh
+                          join bg in _context.BangGia
+                          on hd.MaHopDong equals bg.MaHopDong
+                          join cd in _context.CungDuong
+                          on bg.MaCungDuong equals cd.MaCungDuong
+                          where bg.TrangThai == 3
+                          orderby bg.CreatedTime descending
+                          select new { kh, hd, bg, cd };
+
+
+            if (!string.IsNullOrEmpty(filter.Keyword))
+            {
+                getData = getData.Where(x => x.hd.MaHopDong.Contains(filter.Keyword) || x.hd.MaKh.Contains(filter.Keyword));
+            }
+
+            var totalRecords = await getData.CountAsync();
+
+            var pagedData = await getData.Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new ListApprove()
+            {
+                Id = x.bg.Id,
+                MaKh = x.kh.MaKh,
+                TenKh = x.kh.TenKh,
+                MaHopDong = x.hd.MaHopDong,
+                TenHopDong = x.hd.TenHienThi,
+                PTVC = _context.PhuongThucVanChuyen.Where(y => y.MaPtvc == x.bg.MaPtvc).Select(x => x.TenPtvc).FirstOrDefault(),
+                MaCungDuong = x.cd.MaCungDuong,
+                TenCungDuong = x.cd.TenCungDuong,
+                MaLoaiPhuongTien = _context.LoaiPhuongTien.Where(y => y.MaLoaiPhuongTien == x.bg.MaLoaiPhuongTien).Select(x => x.TenLoaiPhuongTien).FirstOrDefault(),
+                DVT = _context.DonViTinh.Where(y => y.MaDvt == x.bg.MaDvt).Select(x => x.TenDvt).FirstOrDefault(),
+                MaLoaiHangHoa = _context.LoaiHangHoa.Where(y => y.MaLoaiHangHoa == x.bg.MaLoaiHangHoa).Select(x => x.TenLoaiHangHoa).FirstOrDefault(),
+                MaLoaiDoiTac = _context.LoaiKhachHang.Where(y => y.MaLoaiKh == x.bg.MaLoaiDoiTac).Select(x => x.TenLoaiKh).FirstOrDefault(),
+                NgayApDung = x.bg.NgayApDung.ToString("dd-MM-yyyy"),
+                NgayHetHieuLuc = x.bg.NgayHetHieuLuc.ToString("dd-MM-yyyy"),
+                ThoiGianTao = x.bg.CreatedTime.ToString("dd-MM-yyyy HH:mm:ss")
+            }).ToListAsync();
+
+            return new PagedResponseCustom<ListApprove>()
+            {
+                paginationFilter = validFilter,
+                totalCount = totalRecords,
+                dataResponse = pagedData
+            };
+        }
+
+        public async Task<BoolActionResult> ApprovePriceTable(int Id, int choose)
+        {
+            try
+            {
+                var checkExists = await _context.BangGia.Where(x => x.Id == Id && x.TrangThai == 3).FirstOrDefaultAsync();
+
+                if (checkExists == null)
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Bảng giá không tồn tại" };
+                }
+
+                if (choose == 1)
+                {
+                    checkExists.TrangThai = 5;
+                    _context.BangGia.Update(checkExists);
+
+                    var result = await _context.SaveChangesAsync();
+
+                    if (result > 0)
+                    {
+                        return new BoolActionResult { isSuccess = true, Message = "Duyệt bảng giá thành công" };
+                    }
+                    else
+                    {
+                        return new BoolActionResult { isSuccess = false, Message = "Duyệt bảng giá thất bại" };
+                    }
+                }
+
+                if (choose == 0)
+                {
+                    var checkOldPriceTable = await _context.BangGia.Where(x =>
+                  x.MaHopDong == checkExists.MaHopDong &&
+                  x.MaPtvc == checkExists.MaPtvc &&
+                  x.MaCungDuong == checkExists.MaCungDuong &&
+                  x.MaLoaiPhuongTien == checkExists.MaLoaiPhuongTien &&
+                  x.MaDvt == checkExists.MaDvt &&
+                  x.MaLoaiHangHoa == checkExists.MaLoaiHangHoa &&
+                  x.MaLoaiDoiTac == checkExists.MaLoaiDoiTac
+                  ).FirstOrDefaultAsync();
+
+                    if (checkOldPriceTable != null)
+                    {
+                        checkOldPriceTable.TrangThai = 2;
+                        _context.BangGia.Update(checkOldPriceTable);
+                    }
+
+                    checkExists.TrangThai = 4;
+                    _context.BangGia.Update(checkExists);
+
+                    var result = await _context.SaveChangesAsync();
+
+                    if (result > 0)
+                    {
+                        return new BoolActionResult { isSuccess = true, Message = "Duyệt bảng giá thành công" };
+                    }
+                    else
+                    {
+                        return new BoolActionResult { isSuccess = false, Message = "Duyệt bảng giá thất bại" };
+                    }
+                }
+
+                return new BoolActionResult { isSuccess = false, Message = "" };
+            }
+            catch (Exception ex)
+            {
+                return new BoolActionResult { isSuccess = false, Message = ex.ToString() };
+            }
         }
     }
 }

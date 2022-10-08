@@ -12,7 +12,6 @@ using TBSLogistics.Service.Services.ProductServiceManage;
 [ApiController]
 public class ProductServiceController : ControllerBase
 {
-
     private IProduct _product;
     private readonly IPaginationService _pagination;
 
@@ -24,7 +23,7 @@ public class ProductServiceController : ControllerBase
 
     [HttpPost]
     [Route("[action]")]
-    public async Task<IActionResult> CreateProductService( List < CreateProductServiceRequest> request)
+    public async Task<IActionResult> CreateProductService(List<CreateProductServiceRequest> request)
     {
         var Create = await _product.CreateProductService(request);
 
@@ -38,12 +37,11 @@ public class ProductServiceController : ControllerBase
         }
     }
 
-
     [HttpPut]
     [Route("[action]")]
-    public async Task<IActionResult> UpdateProductService( [FromForm] EditProductServiceRequest request)
+    public async Task<IActionResult> UpdateProductService([FromForm] EditProductServiceRequest request)
     {
-        var editProductService = await _product.EditProductServiceRequest( request);
+        var editProductService = await _product.EditProductServiceRequest(request);
         if (editProductService.isSuccess == true)
         {
             return Ok(editProductService.Message);
@@ -55,9 +53,9 @@ public class ProductServiceController : ControllerBase
     }
     [HttpPut]
     [Route("[action]")]
-    public async Task<IActionResult> DeleteProductServiceRequest([FromForm]  DeleteProductServiceRequest request)
+    public async Task<IActionResult> DeleteProductServiceRequest(int id)
     {
-        var deleteProductService = await _product.DeleteProductServiceRequest( request);
+        var deleteProductService = await _product.DeleteProductServiceRequest(id);
         if (deleteProductService.isSuccess == true)
         {
             return Ok(deleteProductService.Message);
@@ -69,9 +67,9 @@ public class ProductServiceController : ControllerBase
     }
     [HttpPut]
     [Route("[action]")]
-    public async Task<IActionResult> ApproveProductServiceRequestById( List< ApproveProductServiceRequestById> request)
+    public async Task<IActionResult> ApproveProductServiceRequestById(List<int> id)
     {
-        var approveProductService = await _product.ApproveProductServiceRequestById(request);
+        var approveProductService = await _product.ApproveProductServiceRequestById(id);
         if (approveProductService.isSuccess == true)
         {
             return Ok(approveProductService.Message);
@@ -83,9 +81,9 @@ public class ProductServiceController : ControllerBase
     }
     [HttpPut]
     [Route("[action]")]
-    public async Task<IActionResult> ApproveProductServiceRequestByMaHD([FromForm] ApproveProductServiceRequestByMaHD request)
+    public async Task<IActionResult> ApproveProductServiceRequestByMaHD(string contractId)
     {
-        var approveProductService = await _product.ApproveProductServiceRequestByMaHD(request);
+        var approveProductService = await _product.ApproveProductServiceRequestByMaHD(contractId);
         if (approveProductService.isSuccess == true)
         {
             return Ok(approveProductService.Message);
@@ -108,7 +106,7 @@ public class ProductServiceController : ControllerBase
     public async Task<IActionResult> GetListProductServiceByMaKH([FromQuery] PaginationFilter filter, string Makh)
     {
         var route = Request.Path.Value;
-        var pagedData = await _product.GetListProductServiceByMaKH(filter , Makh);
+        var pagedData = await _product.GetListProductServiceByMaKH(filter, Makh);
         var pagedReponse = PaginationHelper.CreatePagedReponse<ListProductServiceRequest>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _pagination, route);
         return Ok(pagedReponse);
     }
@@ -123,20 +121,20 @@ public class ProductServiceController : ControllerBase
     }
     [HttpGet]
     [Route("[action]")]
-    public async Task<IActionResult> GetListProductServiceBy([FromQuery] PaginationFilter filter, int trangthai=2)
+    public async Task<IActionResult> GetListProductServiceBy([FromQuery] PaginationFilter filter, int trangthai = 2)
     {
-            var route = Request.Path.Value;
-            var pagedData = await _product.GetListProductService(filter, trangthai);
-        if(pagedData.totalCount<1)
+        var route = Request.Path.Value;
+        var pagedData = await _product.GetListProductService(filter, trangthai);
+        if (pagedData.totalCount < 1)
         {
             return BadRequest(" trạng thái: " + trangthai + " không hợp lệ hoặc chưa có bản ghi ");
         }
         else
-        { 
+        {
             var pagedReponse = PaginationHelper.CreatePagedReponse<ListProductServiceRequest>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _pagination, route);
             return Ok(pagedReponse);
         }
-       
+
     }
     [HttpGet]
     [Route("[action]")]
