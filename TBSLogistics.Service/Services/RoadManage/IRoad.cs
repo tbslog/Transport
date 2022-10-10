@@ -23,6 +23,5 @@ namespace TBSLogistics.Service.Repository.RoadManage
         Task<List<GetRoadRequest>> getListRoadByPoint(int diemDau, int diemCuoi, int? diemLayRong);
         Task<BoolActionResult> ImportExcel(IFormFile file, CancellationToken cancellationToken);
 
-        Task<ListPoint> getListRoadBillOfLading(string MaKH);
     }
 }

@@ -11,7 +11,6 @@ namespace TBSLogistics.Data.TMS
         {
             HopDongVaPhuLuc = new HashSet<HopDongVaPhuLuc>();
             TaiXe = new HashSet<TaiXe>();
-            VanDon = new HashSet<VanDon>();
         }
 
         public string MaKh { get; set; }
@@ -28,6 +27,5 @@ namespace TBSLogistics.Data.TMS
 
         public virtual ICollection<HopDongVaPhuLuc> HopDongVaPhuLuc { get; set; }
         public virtual ICollection<TaiXe> TaiXe { get; set; }
-        public virtual ICollection<VanDon> VanDon { get; set; }
     }
 }

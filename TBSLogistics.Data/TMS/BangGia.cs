@@ -9,7 +9,7 @@ namespace TBSLogistics.Data.TMS
     {
         public BangGia()
         {
-            VanDon = new HashSet<VanDon>();
+            DieuPhoi = new HashSet<DieuPhoi>();
         }
 
         public int Id { get; set; }
@@ -30,6 +30,6 @@ namespace TBSLogistics.Data.TMS
 
         public virtual CungDuong MaCungDuongNavigation { get; set; }
         public virtual HopDongVaPhuLuc MaHopDongNavigation { get; set; }
-        public virtual ICollection<VanDon> VanDon { get; set; }
+        public virtual ICollection<DieuPhoi> DieuPhoi { get; set; }
     }
 }

@@ -58,7 +58,6 @@ namespace TBSLogistics.Service.Repository.RoadManage
             }
             catch (Exception)
             {
-
                 throw;
             }
         }
@@ -465,72 +464,6 @@ namespace TBSLogistics.Service.Repository.RoadManage
             }).ToListAsync();
         }
 
-        public async Task<ListPoint> getListRoadBillOfLading(string MaKH)
-        {
-            var getListRoad = from cd in _context.CungDuong
-                              join bg in _context.BangGia
-                              on cd.MaCungDuong equals bg.MaCungDuong
-                              join hd in _context.HopDongVaPhuLuc
-                              on bg.MaHopDong equals hd.MaHopDong
-                              where
-                                 cd.TrangThai == 1 &&
-                                 bg.NgayApDung.Date <= DateTime.Now.Date
-                                 && bg.NgayHetHieuLuc.Date >= DateTime.Now.Date
-                                 && bg.TrangThai == 4
-                                 && hd.MaKh == MaKH
-                              orderby bg.Id descending
-                              select new { cd, bg, hd };
-
-            var ls = getListRoad.ToList();
-
-            var gr = from t in getListRoad
-                     group t by new { t.bg.MaCungDuong, t.bg.MaDvt, t.bg.MaLoaiHangHoa, t.bg.MaLoaiPhuongTien, t.bg.MaPtvc, t.bg.MaLoaiDoiTac }
-                    into g
-                     select new
-                     {
-                         MaCungDuong = g.Key.MaCungDuong,
-                         MaDvt = g.Key.MaDvt,
-                         MaLoaiHangHoa = g.Key.MaLoaiHangHoa,
-                         MaLoaiPhuongTien = g.Key.MaLoaiPhuongTien,
-                         MaPtvc = g.Key.MaPtvc,
-                         MaLoaiDoiTac = g.Key.MaLoaiDoiTac,
-                         Id = (from t2 in g select t2.bg.Id).Max(),
-                     };
-
-            getListRoad = getListRoad.Where(x => gr.Select(y => y.Id).Contains(x.bg.Id));
-
-            var listDiemDau = await getListRoad.Select(x => x.cd.DiemDau).ToListAsync();
-            var listDiemCuoi = await getListRoad.Select(x => x.cd.DiemCuoi).ToListAsync();
-            var listDiemLayRong = await getListRoad.Where(x => x.cd.DiemLayRong != null).Select(x => x.cd.DiemLayRong).ToListAsync();
-
-            var result = new ListPoint()
-            {
-                DiemDau = await _context.DiaDiem.Where(x => listDiemDau.Contains(x.MaDiaDiem)).Select(x => new Point()
-                {
-                    MaDiaDiem = x.MaDiaDiem,
-                    TenDiaDiem = x.TenDiaDiem,
-                }).ToListAsync(),
-                DiemCuoi = await _context.DiaDiem.Where(x => listDiemCuoi.Contains(x.MaDiaDiem)).Select(x => new Point()
-                {
-                    MaDiaDiem = x.MaDiaDiem,
-                    TenDiaDiem = x.TenDiaDiem,
-                }).ToListAsync(),
-                DiemLayRong = await _context.DiaDiem.Where(x => listDiemLayRong.Contains(x.MaDiaDiem)).Select(x => new Point()
-                {
-                    MaDiaDiem = x.MaDiaDiem,
-                    TenDiaDiem = x.TenDiaDiem,
-                }).ToListAsync(),
-                CungDuong = await _context.CungDuong.Where(x => getListRoad.Select(y => y.cd.MaCungDuong).Contains(x.MaCungDuong)).Select(x => new Road()
-                {
-                    MaCungDuong = x.MaCungDuong,
-                    TenCungDuong = x.TenCungDuong,
-                    KM = x.Km,
-                    DiemDau = x.DiemDau,
-                    DiemCuoi = x.DiemCuoi,
-                    DiemLayRong = x.DiemLayRong,
-                }).ToListAsync(),
-            };
-            return result;
-        }
+        
     }
 }
