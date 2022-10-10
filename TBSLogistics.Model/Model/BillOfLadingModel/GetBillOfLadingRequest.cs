@@ -9,28 +9,25 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
     public class GetBillOfLadingRequest
     {
         public string MaVanDon { get; set; }
-        public DateTime NgayNhapHang { get; set; }
         public string MaKh { get; set; }
+        public int IDBangGia { get; set; }
         public string MaSoXe { get; set; }
         public string MaTaiXe { get; set; }
         public string MaRomooc { get; set; }
-        public string MaPtvc { get; set; }
-        public string Booking { get; set; }
+        public string MaDonHang { get; set; }
         public string ClpNo { get; set; }
         public string ContNo { get; set; }
-        public string SealHt { get; set; }
+        public string SealNP { get; set; }
         public string SealHq { get; set; }
-        public string MaLoaiThungHang { get; set; }
-        public string MaDonViVanTai { get; set; }
-        public string MaLoaiHangHoa { get; set; }
-        public double TrongLuong { get; set; }
-        public double TheTich { get; set; }
-        public int MaDvt { get; set; }
-        public int DiemLayRong { get; set; }
+        public float TrongLuong { get; set; }
+        public float TheTich { get; set; }
         public int DiemLayHang { get; set; }
         public int DiemNhapHang { get; set; }
         public int DiemGioHang { get; set; }
         public int DiemTraRong { get; set; }
+        public DateTime ThoiGianLayRong { get; set; }
+        public DateTime ThoiGianHaCong { get; set; }
+        public DateTime ThoiGianKeoCong { get; set; }
         public int ThoiGianHanLech { get; set; }
         public DateTime ThoiGianCoMat { get; set; }
         public DateTime? ThoiGianCatMang { get; set; }
@@ -41,7 +38,7 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
         public string CangDich { get; set; }
         public int TrangThai { get; set; }
         public DateTime NgayTaoDon { get; set; }
-        public DateTime UpdateTime { get; set; }
-        public DateTime Createdtime { get; set; }
+        public DateTime UpdatedTime { get; set; }
+        public DateTime CreatedTime { get; set; }
     }
 }

@@ -81,20 +81,20 @@ public class ProductServiceController : ControllerBase
             return BadRequest(approveProductService.Message);
         }
     }
-    [HttpPut]
-    [Route("[action]")]
-    public async Task<IActionResult> ApproveProductServiceRequestByMaHD([FromForm] ApproveProductServiceRequestByMaHD request)
-    {
-        var approveProductService = await _product.ApproveProductServiceRequestByMaHD(request);
-        if (approveProductService.isSuccess == true)
-        {
-            return Ok(approveProductService.Message);
-        }
-        else
-        {
-            return BadRequest(approveProductService.Message);
-        }
-    }
+    //[HttpPut]
+    //[Route("[action]")]
+    //public async Task<IActionResult> ApproveProductServiceRequestByMaHD([FromForm] ApproveProductServiceRequestByMaHD request , int sttID)
+    //{
+    //    var approveProductService = await _product.ApproveProductServiceRequestByMaHD(request, sttID);
+    //    if (approveProductService.isSuccess == true)
+    //    {
+    //        return Ok(approveProductService.Message);
+    //    }
+    //    else
+    //    {
+    //        return BadRequest(approveProductService.Message);
+    //    }
+    //}
     [HttpGet]
     [Route("[action]")]
     public async Task<IActionResult> GetProductServiceByIdRequest(int id)
@@ -105,46 +105,46 @@ public class ProductServiceController : ControllerBase
     }
     [HttpGet]
     [Route("[action]")]
-    public async Task<IActionResult> GetListProductServiceByMaKH([FromQuery] PaginationFilter filter, string Makh)
+    public async Task<IActionResult> GetListProductService([FromQuery] PaginationFilter filter)
     {
         var route = Request.Path.Value;
-        var pagedData = await _product.GetListProductServiceByMaKH(filter , Makh);
+        var pagedData = await _product.GetListProductService(filter);
         var pagedReponse = PaginationHelper.CreatePagedReponse<ListProductServiceRequest>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _pagination, route);
         return Ok(pagedReponse);
     }
-    [HttpGet]
-    [Route("[action]")]
-    public async Task<IActionResult> GetListProductServiceByMaHD([FromQuery] PaginationFilter filter, string MaHD)
-    {
-        var route = Request.Path.Value;
-        var pagedData = await _product.GetListProductServiceByMaHD(filter, MaHD);
-        var pagedReponse = PaginationHelper.CreatePagedReponse<ListProductServiceRequest>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _pagination, route);
-        return Ok(pagedReponse);
-    }
-    [HttpGet]
-    [Route("[action]")]
-    public async Task<IActionResult> GetListProductServiceBy([FromQuery] PaginationFilter filter, int trangthai=2)
-    {
-            var route = Request.Path.Value;
-            var pagedData = await _product.GetListProductService(filter, trangthai);
-        if(pagedData.totalCount<1)
-        {
-            return BadRequest(" trạng thái: " + trangthai + " không hợp lệ hoặc chưa có bản ghi ");
-        }
-        else
-        { 
-            var pagedReponse = PaginationHelper.CreatePagedReponse<ListProductServiceRequest>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _pagination, route);
-            return Ok(pagedReponse);
-        }
+    //[HttpGet]
+    //[Route("[action]")]
+    //public async Task<IActionResult> GetListProductServiceByMaHD([FromQuery] PaginationFilter filter, string MaHD)
+    //{
+    //    var route = Request.Path.Value;
+    //    var pagedData = await _product.GetListProductServiceByMaHD(filter, MaHD);
+    //    var pagedReponse = PaginationHelper.CreatePagedReponse<ListProductServiceRequest>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _pagination, route);
+    //    return Ok(pagedReponse);
+    //}
+    //[HttpGet]
+    //[Route("[action]")]
+    //public async Task<IActionResult> GetListProductServiceBy([FromQuery] PaginationFilter filter, int trangthai=2)
+    //{
+    //        var route = Request.Path.Value;
+    //        var pagedData = await _product.GetListProductService(filter, trangthai);
+    //    if(pagedData.totalCount<1)
+    //    {
+    //        return BadRequest(" trạng thái: " + trangthai + " không hợp lệ hoặc chưa có bản ghi ");
+    //    }
+    //    else
+    //    { 
+    //        var pagedReponse = PaginationHelper.CreatePagedReponse<ListProductServiceRequest>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _pagination, route);
+    //        return Ok(pagedReponse);
+    //    }
        
-    }
-    [HttpGet]
-    [Route("[action]")]
-    public async Task<IActionResult> GetListProductServiceByDate([FromQuery] PaginationFilter filter, DateTime date)
-    {
-        var route = Request.Path.Value;
-        var pagedData = await _product.GetListProductServiceByDate(filter, date);
-        var pagedReponse = PaginationHelper.CreatePagedReponse<ListProductServiceRequest>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _pagination, route);
-        return Ok(pagedReponse);
-    }
+    //}
+    //[HttpGet]
+    //[Route("[action]")]
+    //public async Task<IActionResult> GetListProductServiceByDate([FromQuery] PaginationFilter filter, DateTime date)
+    //{
+    //    var route = Request.Path.Value;
+    //    var pagedData = await _product.GetListProductServiceByDate(filter, date);
+    //    var pagedReponse = PaginationHelper.CreatePagedReponse<ListProductServiceRequest>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _pagination, route);
+    //    return Ok(pagedReponse);
+    //}
 }

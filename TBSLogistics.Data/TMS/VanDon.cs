@@ -20,8 +20,8 @@ namespace TBSLogistics.Data.TMS
         public string SealHq { get; set; }
         public string MaLoaiThungHang { get; set; }
         public string MaDonViVanTai { get; set; }
-        public double TrongLuong { get; set; }
-        public double TheTich { get; set; }
+        public float TrongLuong { get; set; }
+        public float TheTich { get; set; }
         public int DiemLayHang { get; set; }
         public int DiemNhapHang { get; set; }
         public int DiemGioHang { get; set; }

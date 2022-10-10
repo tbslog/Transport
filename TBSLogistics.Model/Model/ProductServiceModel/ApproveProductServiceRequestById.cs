@@ -9,5 +9,6 @@ namespace TBSLogistics.Model.Model.ProductServiceModel
     public class ApproveProductServiceRequestById
     {
         public int ID { get; set; }
+        public int  isApprove { get; set; }
     }
 }
