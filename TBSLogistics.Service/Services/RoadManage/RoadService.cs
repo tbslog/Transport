@@ -58,7 +58,6 @@ namespace TBSLogistics.Service.Repository.RoadManage
             }
             catch (Exception)
             {
-
                 throw;
             }
         }
@@ -80,6 +79,13 @@ namespace TBSLogistics.Service.Repository.RoadManage
                 {
                     return new BoolActionResult { isSuccess = false, Message = "Mã hợp đồng không đúng" };
                 }
+
+                string validateRoad = await ValiateRoad(request.MaCungDuong, request.TenCungDuong, request.MaHopDong, request.Km, request.DiemDau, request.DiemCuoi, request.DiemLayRong, request.GhiChu);
+                if (validateRoad != null)
+                {
+                    return new BoolActionResult { isSuccess = false, Message = validateRoad };
+                }
+
 
                 await _context.AddAsync(new CungDuong()
                 {
@@ -126,6 +132,12 @@ namespace TBSLogistics.Service.Repository.RoadManage
                     return new BoolActionResult { isSuccess = false, Message = "Mã cung đường không tồn tại" };
                 }
 
+                var checkValidate = await ValiateRoad(MaCungDuong, request.TenCungDuong, checkExists.MaHopDong, request.Km, request.DiemDau, request.DiemCuoi, request.DiemLayRong, request.GhiChu);
+                if (checkValidate != null)
+                {
+                    return new BoolActionResult { isSuccess = false, Message = checkValidate };
+                }
+
                 checkExists.TenCungDuong = request.TenCungDuong;
                 checkExists.Km = request.Km;
                 checkExists.DiemDau = request.DiemDau;
@@ -134,7 +146,6 @@ namespace TBSLogistics.Service.Repository.RoadManage
                 checkExists.GhiChu = request.GhiChu;
                 checkExists.UpdatedTime = DateTime.Now;
                 checkExists.TrangThai = request.TrangThai;
-
                 _context.CungDuong.Update(checkExists);
 
 
@@ -261,18 +272,26 @@ namespace TBSLogistics.Service.Repository.RoadManage
                         {
                             ErrorRow = row;
 
+                            int? DiemLayRong;
                             string MaCungDuong = worksheet.Cells[row, 1].Value.ToString().Trim().ToUpper();
                             string TenCungDuong = worksheet.Cells[row, 2].Value.ToString().Trim();
                             string MaHopDong = worksheet.Cells[row, 3].Value.ToString().Trim();
                             double SoKM = double.Parse(worksheet.Cells[row, 4].Value.ToString().Trim());
                             int DiemDau = int.Parse(worksheet.Cells[row, 5].Value.ToString().Trim());
                             int DiemCuoi = int.Parse(worksheet.Cells[row, 6].Value.ToString().Trim());
-                            int DiemLayRong = int.Parse(worksheet.Cells[row, 7].Value.ToString().Trim());
+                            if (!string.IsNullOrEmpty(worksheet.Cells[row, 7].Value.ToString().Trim()))
+                            {
+                                DiemLayRong = int.Parse(worksheet.Cells[row, 7].Value.ToString().Trim());
+                            }
+                            else
+                            {
+                                DiemLayRong = null;
+                            }
                             string GhiChu = worksheet.Cells[row, 8].Value.ToString().Trim();
 
 
 
-                            ErrorValidate = await ValiateCustommer(MaCungDuong, TenCungDuong, MaHopDong, SoKM, DiemDau, DiemCuoi, DiemLayRong, GhiChu, ErrorRow.ToString());
+                            ErrorValidate = await ValiateRoad(MaCungDuong, TenCungDuong, MaHopDong, SoKM, DiemDau, DiemCuoi, DiemLayRong, GhiChu, ErrorRow.ToString());
 
                             if (ErrorValidate == "")
                             {
@@ -340,7 +359,7 @@ namespace TBSLogistics.Service.Repository.RoadManage
             }
         }
 
-        private async Task<string> ValiateCustommer(string MaCungDuong, string TenCungDuong, string MaHopDong, double SoKM, int DiemDau, int DiemCuoi, int DiemLayRong, string GhiChu, string ErrorRow = "")
+        private async Task<string> ValiateRoad(string MaCungDuong, string TenCungDuong, string MaHopDong, double SoKM, int DiemDau, int DiemCuoi, int? DiemLayRong, string GhiChu, string ErrorRow = "")
         {
             string ErrorValidate = "";
 
@@ -358,10 +377,10 @@ namespace TBSLogistics.Service.Repository.RoadManage
                 ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Tên cung đường không được rỗng hoặc nhiều hơn 50 ký tự \r\n";
             }
 
-            if (!Regex.IsMatch(TenCungDuong, "^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9 aAàÀảẢãÃáÁạẠăĂằẰẳẲẵẴắẮặẶâÂầẦẩẨẫẪấẤậẬbBcCdDđĐeEèÈẻẺẽẼéÉẹẸêÊềỀểỂễỄếẾệỆ fFgGhHiIìÌỉỈĩĨíÍịỊjJkKlLmMnNoOòÒỏỎõÕóÓọỌôÔồỒổỔỗỖốỐộỘơƠờỜởỞỡỠớỚợỢpPqQrRsStTu UùÙủỦũŨúÚụỤưƯừỪửỬữỮứỨựỰvVwWxXyYỳỲỷỶỹỸýÝỵỴzZ]+(?<![_.])$", RegexOptions.IgnoreCase))
-            {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Tên cung đường không được chứa ký tự đặc biệt \r\n";
-            }
+            //if (!Regex.IsMatch(TenCungDuong, "^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9 aAàÀảẢãÃáÁạẠăĂằẰẳẲẵẴắẮặẶâÂầẦẩẨẫẪấẤậẬbBcCdDđĐeEèÈẻẺẽẼéÉẹẸêÊềỀểỂễỄếẾệỆ fFgGhHiIìÌỉỈĩĨíÍịỊjJkKlLmMnNoOòÒỏỎõÕóÓọỌôÔồỒổỔỗỖốỐộỘơƠờỜởỞỡỠớỚợỢpPqQrRsStTu UùÙủỦũŨúÚụỤưƯừỪửỬữỮứỨựỰvVwWxXyYỳỲỷỶỹỸýÝỵỴzZ]+(?<![_.])$", RegexOptions.IgnoreCase))
+            //{
+            //    ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Tên cung đường không được chứa ký tự đặc biệt \r\n";
+            //}
 
             if (MaHopDong.Length != 10)
             {
@@ -375,6 +394,12 @@ namespace TBSLogistics.Service.Repository.RoadManage
             if (SoKM < 1)
             {
                 ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Số KM không được nhỏ hơn 1 \r\n";
+            }
+
+            var checkExists = await _context.CungDuong.Where(x => x.DiemDau == DiemDau && x.DiemCuoi == DiemCuoi && x.DiemLayRong == DiemLayRong && x.MaHopDong == MaHopDong).FirstOrDefaultAsync();
+            if (checkExists != null)
+            {
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Cung Đường đã tồn tại, vui lòng xem lại \r\n";
             }
 
             var checkDC = await _context.DiaDiem.Where(x => x.MaDiaDiem == DiemCuoi).FirstOrDefaultAsync();
@@ -421,5 +446,24 @@ namespace TBSLogistics.Service.Repository.RoadManage
 
             return list;
         }
+
+        public async Task<List<GetRoadRequest>> getListRoadByPoint(int diemDau, int diemCuoi, int? diemLayRong)
+        {
+
+            diemLayRong = diemLayRong == 0 ? null : diemLayRong;
+            var listRoad = from cd in _context.CungDuong
+                           where cd.DiemDau == diemDau
+                           && cd.DiemCuoi == diemCuoi
+                           && cd.DiemLayRong == diemLayRong
+                           select cd;
+
+            return await listRoad.Select(x => new GetRoadRequest()
+            {
+                MaCungDuong = x.MaCungDuong,
+                TenCungDuong = x.TenCungDuong,
+            }).ToListAsync();
+        }
+
+        
     }
 }

@@ -12,7 +12,6 @@ using TBSLogistics.Service.Services.ProductServiceManage;
 [ApiController]
 public class ProductServiceController : ControllerBase
 {
-
     private IProduct _product;
     private readonly IPaginationService _pagination;
 
@@ -24,7 +23,7 @@ public class ProductServiceController : ControllerBase
 
     [HttpPost]
     [Route("[action]")]
-    public async Task<IActionResult> CreateProductService( List < CreateProductServiceRequest> request)
+    public async Task<IActionResult> CreateProductService(List<CreateProductServiceRequest> request)
     {
         var Create = await _product.CreateProductService(request);
 
@@ -38,12 +37,11 @@ public class ProductServiceController : ControllerBase
         }
     }
 
-
     [HttpPut]
     [Route("[action]")]
-    public async Task<IActionResult> UpdateProductService( [FromForm] EditProductServiceRequest request)
+    public async Task<IActionResult> UpdateProductService([FromForm] EditProductServiceRequest request)
     {
-        var editProductService = await _product.EditProductServiceRequest( request);
+        var editProductService = await _product.EditProductServiceRequest(request);
         if (editProductService.isSuccess == true)
         {
             return Ok(editProductService.Message);
@@ -55,9 +53,9 @@ public class ProductServiceController : ControllerBase
     }
     [HttpPut]
     [Route("[action]")]
-    public async Task<IActionResult> DeleteProductServiceRequest([FromForm]  DeleteProductServiceRequest request)
+    public async Task<IActionResult> DeleteProductServiceRequest(int id)
     {
-        var deleteProductService = await _product.DeleteProductServiceRequest( request);
+        var deleteProductService = await _product.DeleteProductServiceRequest(id);
         if (deleteProductService.isSuccess == true)
         {
             return Ok(deleteProductService.Message);
@@ -69,9 +67,9 @@ public class ProductServiceController : ControllerBase
     }
     [HttpPut]
     [Route("[action]")]
-    public async Task<IActionResult> ApproveProductServiceRequestById( List< ApproveProductServiceRequestById> request)
+    public async Task<IActionResult> ApproveProductServiceRequestById(List<int> id)
     {
-        var approveProductService = await _product.ApproveProductServiceRequestById(request);
+        var approveProductService = await _product.ApproveProductServiceRequestById(id);
         if (approveProductService.isSuccess == true)
         {
             return Ok(approveProductService.Message);

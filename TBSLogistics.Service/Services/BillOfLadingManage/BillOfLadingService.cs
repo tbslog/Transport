@@ -7,7 +7,7 @@ using TBSLogistics.Data.TMS;
 using TBSLogistics.Model.CommonModel;
 using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.BillOfLadingModel;
-using TBSLogistics.Model.Model.ProductServiceModel;
+using TBSLogistics.Model.Model.RoadModel;
 using TBSLogistics.Model.TempModel;
 using TBSLogistics.Model.Wrappers;
 using TBSLogistics.Service.Repository.Common;
@@ -25,183 +25,68 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
             _TMSContext = context;
         }
 
-
-        public async Task<BoolActionResult> CreateBillOfLading(CreateBillOfLadingRequest request)
+        public async Task<LoadDataTransPort> getListRoadBillOfLading(string RoadId)
         {
-            try
+            var getListRoad = from cd in _context.CungDuong
+                              join bg in _context.BangGia
+                              on cd.MaCungDuong equals bg.MaCungDuong
+                              join hd in _context.HopDongVaPhuLuc
+                              on bg.MaHopDong equals hd.MaHopDong
+                              join kh in _context.KhachHang
+                              on hd.MaKh equals kh.MaKh
+                              where
+                                 cd.TrangThai == 1 &&
+                                 bg.NgayApDung.Date <= DateTime.Now.Date
+                                 && bg.NgayHetHieuLuc.Date >= DateTime.Now.Date
+                                 && bg.TrangThai == 4
+                                 && cd.MaCungDuong == RoadId
+                              orderby bg.Id descending
+                              select new { cd, bg, hd, kh };
+
+            var ls = getListRoad.ToList();
+
+            var gr = from t in getListRoad
+                     group t by new { t.bg.MaCungDuong, t.bg.MaDvt, t.bg.MaLoaiHangHoa, t.bg.MaLoaiPhuongTien, t.bg.MaPtvc, t.bg.MaLoaiDoiTac }
+                    into g
+                     select new
+                     {
+                         MaCungDuong = g.Key.MaCungDuong,
+                         MaDvt = g.Key.MaDvt,
+                         MaLoaiHangHoa = g.Key.MaLoaiHangHoa,
+                         MaLoaiPhuongTien = g.Key.MaLoaiPhuongTien,
+                         MaPtvc = g.Key.MaPtvc,
+                         MaLoaiDoiTac = g.Key.MaLoaiDoiTac,
+                         Id = (from t2 in g select t2.bg.Id).Max(),
+                     };
+
+            getListRoad = getListRoad.Where(x => gr.Select(y => y.Id).Contains(x.bg.Id));
+
+
+
+            var result = new LoadDataTransPort()
             {
-                var checkExists = await _TMSContext.VanDon.Where(x => x.MaVanDon == request.MaVanDon).FirstOrDefaultAsync();
-
-                if (checkExists != null)
+                ListNhaPhanPhoi = await getListRoad.Where(x => x.bg.MaLoaiDoiTac == "NCC").Select(x => new NhaPhanPhoiSelect()
                 {
-                    return new BoolActionResult { isSuccess = false, Message = "Mã vận đơn này đã tồn tại" };
-                }
-
-                string ErrorValidate = await ValiateBillOfLading(request.MaVanDon, request.MaKh, request.IDBangGia, request.MaSoXe, request.MaTaiXe, request.MaRomooc, request.MaDonHang, request.ClpNo, request.ContNo, request.SealNP, request.SealHq, request.TrongLuong, request.TheTich, request.DiemLayHang, request.DiemNhapHang, request.DiemGioHang, request.DiemTraRong, request.ThoiGianLayRong, request.ThoiGianHaCong, request.ThoiGianKeoCong, request.ThoiGianHanLech, request.ThoiGianCoMat, request.ThoiGianTraRong, request.HangTau, request.Tau, request.CangChuyenTai, request.CangDich, request.TrangThai, request.NgayTaoDon);
-                if (ErrorValidate != "")
+                    MaNPP = x.kh.MaKh,
+                    TenNPP = x.kh.TenKh
+                }).ToListAsync(),
+                ListKhachHang = await getListRoad.Where(x => x.bg.MaLoaiDoiTac == "KH").Select(x => new KhachHangSelect()
                 {
-                    return new BoolActionResult { isSuccess = false, Message = ErrorValidate };
-                }
-
-                await _TMSContext.VanDon.AddAsync(new VanDon()
+                    MaKH = x.kh.MaKh,
+                    TenKH = x.kh.TenKh
+                }).ToListAsync(),
+                BangGiaVanDon = await getListRoad.Select(x => new BangGiaVanDon
                 {
-                    MaVanDon = request.MaVanDon,
-                    //MaKh = request.MaKh,
-                    //IdbangGia =request.IDBangGia,
-                    //MaSoXe = request.MaSoXe,
-                    //MaTaiXe = request.MaTaiXe,
-                    //MaRomooc = request.MaRomooc,
-                    //MaDonHang = request.MaDonHang,
-                    //ClpNo = request.ClpNo,
-                    //ContNo = request.ContNo,
-                    //SealNp = request. SealNP,
-                    //SealHq = request.SealHq,
-                    //TrongLuong = request.TrongLuong,            
-                    //TheTich = request.TheTich,                 
-                    //DiemLayHang = request.DiemLayHang,
-                    //DiemNhapHang = request.DiemNhapHang,
-                    //DiemGioHang = request.DiemGioHang,
-                    //DiemTraRong = request.DiemTraRong,
-                    //ThoiGianLayRong= request.ThoiGianLayRong,
-                    //ThoiGianHaCong= request.ThoiGianHaCong,
-                    //ThoiGianKeoCong= request.ThoiGianKeoCong,
-                    //ThoiGianHanLech = request.ThoiGianHanLech,
-                    //ThoiGianCoMat = request.ThoiGianCoMat,//.Value.Date
-                    //ThoiGianCatMang = request.ThoiGianCatMang,
-                    //ThoiGianTraRong = request.ThoiGianTraRong,
-                    HangTau = request.HangTau,
-                    Tau = request.Tau,
-                    CangChuyenTai = request.CangChuyenTai,
-                    CangDich = request.CangDich,
-                    TrangThai = request.TrangThai,
-                    NgayTaoDon = DateTime.Now,
-                    UpdatedTime = DateTime.Now,
-                    CreatedTime = DateTime.Now,
-                });
-
-                var result = await _TMSContext.SaveChangesAsync();
-
-                if (result > 0)
-                {
-                    await _common.Log("BillOfLadingManage", "UserId: " + TempData.UserID + "create new BillOfLading with Id: " + request.MaVanDon);
-                    return new BoolActionResult { isSuccess = true, Message = "Tạo vận đơn thành công" };
-                }
-                else
-                {
-                    return new BoolActionResult { isSuccess = false, Message = "Tạo vận đơn thất bại" };
-                }
-            }
-            catch (Exception ex)
-            {
-                await _common.Log("BillOfLadingManage", "UserId: " + TempData.UserID + "create new BillOfLading with ERROR: " + ex.ToString());
-                return new BoolActionResult { isSuccess = false, Message = ex.ToString(), DataReturn = "Exception" };
-            }
-        }
-
-        public async Task<BoolActionResult> EditBillOfLading(string billOfLadingId, EditBillOfLadingRequest request)
-        {
-            try
-            {
-                var getBillOfLading = await _TMSContext.VanDon.Where(x => x.MaVanDon == billOfLadingId && x.TrangThai!=1).FirstOrDefaultAsync();
-
-                if (getBillOfLading == null)
-                {
-                    return new BoolActionResult { isSuccess = false, Message = billOfLadingId +"Vận đơn này không tồn tại hoặc không phải trảng thái tạo mới" };
-                }
-
-                //getBillOfLading.MaKh = request.MaKh;
-                //getBillOfLading.IdbangGia = request.IDBangGia;
-                //getBillOfLading.MaSoXe = request.MaSoXe;
-                //getBillOfLading.MaTaiXe = request.MaTaiXe;
-                //getBillOfLading.MaRomooc = request.MaRomooc;
-                //getBillOfLading.MaDonHang = request.MaDonHang;
-                //getBillOfLading.ClpNo = request.ClpNo;
-                //getBillOfLading.ContNo = request.ContNo;
-                //getBillOfLading.SealNp = request.SealNP;
-                //getBillOfLading.SealHq = request.SealHq;
-                //getBillOfLading.TrongLuong = request.TrongLuong;
-                //getBillOfLading.TheTich = request.TheTich;
-                //getBillOfLading.DiemLayHang = request.DiemLayHang;
-                //getBillOfLading.DiemNhapHang = request.DiemNhapHang;
-                //getBillOfLading.DiemGioHang = request.DiemGioHang;
-                //getBillOfLading.DiemTraRong = request.DiemTraRong;
-                //getBillOfLading.ThoiGianLayRong = request.ThoiGianTraRong;
-                //getBillOfLading.ThoiGianHaCong = request.ThoiGianHaCong;
-                //getBillOfLading.ThoiGianKeoCong = request.ThoiGianKeoCong;
-                //getBillOfLading.ThoiGianHanLech = request.ThoiGianHanLech;
-                //getBillOfLading.ThoiGianCoMat = request.ThoiGianCoMat;
-                //getBillOfLading.ThoiGianCatMang = request.ThoiGianCatMang;
-                //getBillOfLading.ThoiGianTraRong = request.ThoiGianTraRong;
-                getBillOfLading.HangTau = request.HangTau;
-                getBillOfLading.Tau = request.Tau;
-                getBillOfLading.CangChuyenTai = request.CangChuyenTai;
-                getBillOfLading.CangDich = request.CangDich;
-                getBillOfLading.TrangThai = request.TrangThai;
-                getBillOfLading.NgayTaoDon = DateTime.Now;
-                getBillOfLading.UpdatedTime = DateTime.Now;
-                getBillOfLading.CreatedTime = DateTime.Now;
-
-             _TMSContext.Update(getBillOfLading);
-
-                var result = await _TMSContext.SaveChangesAsync();
-
-                if (result > 0)
-                {
-                    await _common.Log("BillOfLadingManage", "UserId: " + TempData.UserID + "update BillOfLading with Id: " + billOfLadingId);
-                    return new BoolActionResult { isSuccess = true, Message = "Cập nhật vận đơn thành công" };
-                }
-                else
-                {
-                    return new BoolActionResult { isSuccess = false, Message = "Cập nhật vận đơn thất bại" };
-                }
-            }
-            catch (Exception ex)
-            {
-                await _common.Log("BillOfLadingManage", "UserId: " + TempData.UserID + "update BillOfLading with ERROR: " + ex.ToString());
-                return new BoolActionResult { isSuccess = false, Message = ex.ToString() };
-            }
-        }
-
-        public async Task<GetBillOfLadingRequest> GetBillOfLadingById(string billOfLadingId)
-        {
-            var getBillOfLading = await _TMSContext.VanDon.Where(x => x.MaVanDon == billOfLadingId).Select(x => new GetBillOfLadingRequest()
-            {
-
-                MaVanDon = x.MaVanDon,
-                //MaKh = x.MaKh,
-                //IDBangGia = x.IdbangGia,
-                //MaSoXe = x.MaSoXe,
-                //MaTaiXe = x.MaTaiXe,
-                //MaRomooc = x.MaRomooc,
-                //MaDonHang = x.MaDonHang,
-                //ClpNo = x.ClpNo,
-                //ContNo = x.ContNo,
-                //SealNP = x.SealNp,
-                //SealHq = x.SealHq,
-                //TrongLuong = x.TrongLuong,
-                //TheTich = x.TheTich,
-                //DiemLayHang = x.DiemLayHang,
-                //DiemNhapHang = x.DiemNhapHang,
-                //DiemGioHang = x.DiemGioHang,
-                //DiemTraRong = x.DiemTraRong,
-                //ThoiGianLayRong = x.ThoiGianLayRong.Value.Date,
-                //ThoiGianHaCong = x.ThoiGianHaCong,
-                //ThoiGianKeoCong = x.ThoiGianKeoCong.Value.Date,
-                //ThoiGianHanLech = x.ThoiGianHanLech,
-                //ThoiGianCoMat = x.ThoiGianCoMat,//.Value.Date
-                //ThoiGianCatMang = x.ThoiGianCatMang,
-                //ThoiGianTraRong = x.ThoiGianTraRong,
-                HangTau = x.HangTau,
-                Tau = x.Tau,
-                CangChuyenTai = x.CangChuyenTai,
-                CangDich = x.CangDich,
-                TrangThai = x.TrangThai,
-                NgayTaoDon = x.NgayTaoDon,
-                UpdatedTime = x.UpdatedTime,
-                CreatedTime = x.CreatedTime
-            }).FirstOrDefaultAsync();
-
-            return getBillOfLading;
+                    MaNPP = x.kh.MaKh,
+                    PTVC = x.bg.MaPtvc,
+                    DVT = x.bg.MaDvt,
+                    PTVanChuyen = x.bg.MaLoaiPhuongTien,
+                    LoaiHangHoa = x.bg.MaLoaiHangHoa,
+                    Price = x.bg.DonGia,
+                    MaCungDuong = x.bg.MaCungDuong
+                }).ToListAsync()
+            };
+            return result;
         }
         public async Task<BoolActionResult> DeleteBillOfLading(DeleteBillOfLading request)
         {

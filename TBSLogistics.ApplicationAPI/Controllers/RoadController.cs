@@ -104,5 +104,14 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             var listRoad = await _road.getListRoadOptionSelect(MaKH);
             return Ok(listRoad);
         }
+
+
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetListRoadByPoint(int diemDau, int diemCuoi, int diemLayRong )
+        {
+            var list = await _road.getListRoadByPoint(diemDau, diemCuoi, diemLayRong);
+            return Ok(list);
+        }
     }
 }

@@ -63,5 +63,41 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             var pagedReponse = PaginationHelper.CreatePagedReponse<GetPriceListRequest>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _paninationService, route);
             return Ok(pagedReponse);
         }
+
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetListPriceTableByCustomerId(string Id)
+        {
+            var list = await _priceTable.GetListPriceTableByCustommerId(Id);
+
+            return Ok(list);
+        }
+
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetListPriceTableApprove([FromQuery] PaginationFilter filter)
+        {
+            var route = Request.Path.Value;
+            var pagedData = await _priceTable.GetListPriceTableApprove(filter);
+
+            var pagedReponse = PaginationHelper.CreatePagedReponse<ListApprove>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _paninationService, route);
+            return Ok(pagedReponse);
+        }
+
+        [HttpPost]
+        [Route("[action]")]
+        public async Task<IActionResult> ApprovePriceTable(int id, int choose)
+        {
+            var approve = await _priceTable.ApprovePriceTable(id, choose);
+
+            if (approve.isSuccess == true)
+            {
+                return Ok(approve.Message);
+            }
+            else
+            {
+                return BadRequest(approve.Message);
+            }
+        }
     }
 }

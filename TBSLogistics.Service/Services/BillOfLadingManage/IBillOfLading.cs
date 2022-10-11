@@ -12,10 +12,6 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
 {
     public interface IBillOfLading
     {
-        public Task<BoolActionResult> CreateBillOfLading(CreateBillOfLadingRequest request);
-        public Task<BoolActionResult> EditBillOfLading(string billOfLadingId, EditBillOfLadingRequest request);
-        public Task<BoolActionResult> DeleteBillOfLading(DeleteBillOfLading request);
-        public Task<GetBillOfLadingRequest> GetBillOfLadingById(string billOfLadingId);
-        public Task<PagedResponseCustom<GetBillOfLadingRequest>> GetListBillOfLading(PaginationFilter filter);
+        Task<LoadDataTransPort> getListRoadBillOfLading(string RoadId);
     }
 }

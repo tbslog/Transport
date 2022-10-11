@@ -19,11 +19,10 @@ namespace TBSLogistics.Service.Services.ProductServiceManage
     {
         private readonly TMSContext _TMSContext;
         private readonly ICommon _common;
-        private readonly ProductService _productService;
-        public ProductService(TMSContext TMSContext, ICommon common)
-        {
 
-            _TMSContext = TMSContext;
+        public ProductService(TMSContext context, ICommon common)
+        {
+            _TMSContext = context;
             _common = common;
         }
         public async Task<BoolActionResult> CreateProductService(List<CreateProductServiceRequest> request)
@@ -160,10 +159,10 @@ namespace TBSLogistics.Service.Services.ProductServiceManage
 
 
         }
-        public async Task<BoolActionResult> DeleteProductServiceRequest(DeleteProductServiceRequest request)
+        public async Task<BoolActionResult> DeleteProductServiceRequest(int  id)
         {
 
-            var checkExists = await _TMSContext.BangGia.Where(x => x.Id == request.id).FirstOrDefaultAsync();
+            var checkExists = await _TMSContext.BangGia.Where(x => x.Id == id).FirstOrDefaultAsync();
             if (checkExists == null)
             {
 
@@ -172,14 +171,14 @@ namespace TBSLogistics.Service.Services.ProductServiceManage
             if (checkExists.TrangThai != 1)
             {
 
-                return new BoolActionResult { isSuccess = false, Message = "ID: " + request.id + " Bảng Giá phải là bảng giá mới chưa được duyệt  " };
+                return new BoolActionResult { isSuccess = false, Message = "ID: " + id + " Bảng Giá phải là bảng giá mới chưa được duyệt  " };
             }
             checkExists.TrangThai = 3;
             _TMSContext.Update(checkExists);
             var result = await _TMSContext.SaveChangesAsync();
             if (result > 0)
             {
-                await _common.Log("ProductServiceManage", "UserId: " + TempData.UserID + " Update  Contract with Id: " + request.id);
+                await _common.Log("ProductServiceManage", "UserId: " + TempData.UserID + " Update  Contract with Id: " + id);
                 return new BoolActionResult { isSuccess = true, Message = "Xóa Bảng Giá thành công!" };
             }
             else
@@ -194,7 +193,7 @@ namespace TBSLogistics.Service.Services.ProductServiceManage
 
             try
             {
-                foreach (var item in request)
+                foreach (var item in Id)
                 {
                     if(item.isApprove!=0 && item.isApprove != 1)
                     {
@@ -204,7 +203,7 @@ namespace TBSLogistics.Service.Services.ProductServiceManage
                     var checkExists = await _TMSContext.BangGia.Where(x => x.Id == item.ID).FirstOrDefaultAsync();
                     if (checkExists == null)
                     {
-                        IdListFail.Add("Bảng giá có ID:" + item.ID + " này không tồn tại " + " \r\n");
+                        IdListFail.Add("Bảng giá có ID:" + item + " này không tồn tại " + " \r\n");
                         continue;
 
                     }

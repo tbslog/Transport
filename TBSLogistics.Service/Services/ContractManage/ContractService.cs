@@ -46,7 +46,7 @@ namespace TBSLogistics.Service.Services.ContractManage
 
                 if (string.IsNullOrEmpty(request.SoHopDongCha))
                 {
-                    var checkContractCustommer = await _TMSContext.HopDongVaPhuLuc.Where(x => x.MaKh == request.MaKh && x.MaHopDongCha == null).FirstOrDefaultAsync();
+                    var checkContractCustommer = await _TMSContext.HopDongVaPhuLuc.Where(x => x.MaKh == request.MaKh && x.MaHopDong == null).FirstOrDefaultAsync();
                     if (checkContractCustommer != null)
                     {
                         return new BoolActionResult { isSuccess = false, Message = "Một khách hàng chỉ có một hợp đồng chính" };
@@ -54,8 +54,8 @@ namespace TBSLogistics.Service.Services.ContractManage
                 }
                 else
                 {
-                    var checkChildContract = await _TMSContext.HopDongVaPhuLuc.Where(x => x.MaKh == request.MaKh && x.MaHopDongCha != null).FirstOrDefaultAsync();
-                    if (checkChildContract != null)
+                    var checkChildContract = await _TMSContext.HopDongVaPhuLuc.Where(x => x.MaHopDong == request.SoHopDongCha && x.MaHopDongCha == null).FirstOrDefaultAsync();
+                    if (checkChildContract == null)
                     {
                         return new BoolActionResult { isSuccess = false, Message = "Chỉ hợp đồng chính mới được có phụ lục" };
                     }
@@ -71,12 +71,13 @@ namespace TBSLogistics.Service.Services.ContractManage
                 {
                     MaHopDong = request.MaHopDong,
                     TenHienThi = request.TenHienThi,
-                    MaLoaiHopDong = request.PhanLoaiHopDong,
+                    MaLoaiHopDong = checkCustommer.MaLoaiKh == "KH" ? "SELL" : "BUY",
                     MaHopDongCha = request.SoHopDongCha,
                     ThoiGianBatDau = request.ThoiGianBatDau,
                     ThoiGianKetThuc = request.ThoiGianKetThuc,
                     MaKh = request.MaKh,
                     GhiChu = request.GhiChu,
+                    MaPhuPhi = request.PhuPhi,
                     TrangThai = request.TrangThai,
                     UpdatedTime = DateTime.Now,
                     CreatedTime = DateTime.Now
@@ -118,12 +119,10 @@ namespace TBSLogistics.Service.Services.ContractManage
                 }
 
                 checkExists.TenHienThi = request.TenHienThi;
-                checkExists.MaLoaiHopDong = request.PhanLoaiHopDong;
                 checkExists.ThoiGianBatDau = request.ThoiGianBatDau;
                 checkExists.ThoiGianKetThuc = request.ThoiGianKetThuc;
-           
                 checkExists.GhiChu = request.GhiChu;
-      
+                checkExists.MaPhuPhi = request.PhuPhi;
                 checkExists.TrangThai = request.TrangThai;
                 checkExists.UpdatedTime = DateTime.Now;
 
@@ -161,15 +160,14 @@ namespace TBSLogistics.Service.Services.ContractManage
                 return new GetContractById()
                 {
                     MaHopDong = getContractById.MaHopDong,
-                
+                    SoHopDongCha = getContractById.MaHopDongCha,
                     TenHienThi = getContractById.TenHienThi,
                     MaKh = getContractById.MaKh,
-                   
                     PhanLoaiHopDong = getContractById.MaLoaiHopDong,
                     ThoiGianBatDau = getContractById.ThoiGianBatDau,
                     ThoiGianKetThuc = getContractById.ThoiGianKetThuc,
                     GhiChu = getContractById.GhiChu,
-               
+                    PhuPhi = getContractById.MaPhuPhi,
                     TrangThai = getContractById.TrangThai,
                     File = file.ToString()
                 };
@@ -195,8 +193,6 @@ namespace TBSLogistics.Service.Services.ContractManage
                                    contract,
                                    cus,
                                };
-
-
 
                 if (!string.IsNullOrEmpty(filter.Keyword))
                 {
@@ -252,7 +248,7 @@ namespace TBSLogistics.Service.Services.ContractManage
             }
         }
 
-        public async Task<List<GetContractById>> GetListContractSelect(string MaKH,bool getChild)
+        public async Task<List<GetContractById>> GetListContractSelect(string MaKH, bool getChild)
         {
             var getList = from ct in _TMSContext.HopDongVaPhuLuc
                           join kh in _TMSContext.KhachHang on ct.MaKh equals kh.MaKh
@@ -264,7 +260,7 @@ namespace TBSLogistics.Service.Services.ContractManage
                 getList = getList.Where(x => x.ct.MaKh == MaKH);
             }
 
-            if(getChild == false)
+            if (getChild == false)
             {
                 getList = getList.Where(x => x.ct.MaHopDongCha == null);
             }

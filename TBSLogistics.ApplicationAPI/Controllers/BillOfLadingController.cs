@@ -30,61 +30,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         }
 
 
-        [HttpPost]
-        [Route("[action]")]
-        public async Task<IActionResult> CreateBillOfLading(CreateBillOfLadingRequest request)
-        {
-            var create = await _billOfLading.CreateBillOfLading(request);
-
-            if (create.isSuccess == true)
-            {
-                return Ok(create.Message);
-            }
-            else
-            {
-                return BadRequest(create.Message);
-            }
-        }
-
-        [HttpPost]
-        [Route("[action]")]
-        public async Task<IActionResult> EditBillOfLading(string billOfLadingId, EditBillOfLadingRequest request)
-        {
-            var edit = await _billOfLading.EditBillOfLading(billOfLadingId, request);
-
-            if (edit.isSuccess == true)
-            {
-                return Ok(edit.Message);
-            }
-            else
-            {
-                return BadRequest(edit.Message);
-            }
-        }
-
-        [HttpPost]
-        [Route("[action]")]
-        public async Task<IActionResult> DeleteBillOfLading(DeleteBillOfLading request)
-        {
-            var edit = await _billOfLading.DeleteBillOfLading( request);
-
-            if (edit.isSuccess == true)
-            {
-                return Ok(edit.Message);
-            }
-            else
-            {
-                return BadRequest(edit.Message);
-            }
-        }
-
         [HttpGet]
         [Route("[action]")]
-        public async Task<IActionResult> GetBillOfLadingById(string billOfLadingId)
+        public async Task<IActionResult> LoadDataTransport(string RoadId)
         {
-            var billOfLading = await _billOfLading.GetBillOfLadingById(billOfLadingId);
-
-            return Ok(billOfLading);
+            var data = await _billOfLading.getListRoadBillOfLading(RoadId);
+            return Ok(data);
         }
         [HttpGet]
         [Route("[action]")]
