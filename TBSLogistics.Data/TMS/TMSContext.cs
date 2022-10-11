@@ -23,8 +23,8 @@ namespace TBSLogistics.Data.TMS
         public virtual DbSet<BangQuyDoi> BangQuyDoi { get; set; }
         public virtual DbSet<CungDuong> CungDuong { get; set; }
         public virtual DbSet<DiaDiem> DiaDiem { get; set; }
+        public virtual DbSet<DieuPhoi> DieuPhoi { get; set; }
         public virtual DbSet<DonViTinh> DonViTinh { get; set; }
-        public virtual DbSet<DonViVanTai> DonViVanTai { get; set; }
         public virtual DbSet<HopDongVaPhuLuc> HopDongVaPhuLuc { get; set; }
         public virtual DbSet<KhachHang> KhachHang { get; set; }
         public virtual DbSet<LoaiDiaDiem> LoaiDiaDiem { get; set; }
@@ -34,7 +34,6 @@ namespace TBSLogistics.Data.TMS
         public virtual DbSet<LoaiPhuPhi> LoaiPhuPhi { get; set; }
         public virtual DbSet<LoaiPhuongTien> LoaiPhuongTien { get; set; }
         public virtual DbSet<LoaiRomooc> LoaiRomooc { get; set; }
-        public virtual DbSet<LoaiThungHang> LoaiThungHang { get; set; }
         public virtual DbSet<Log> Log { get; set; }
         public virtual DbSet<NhomKhachHang> NhomKhachHang { get; set; }
         public virtual DbSet<PhuongThucVanChuyen> PhuongThucVanChuyen { get; set; }
@@ -266,6 +265,77 @@ namespace TBSLogistics.Data.TMS
                     .HasConstraintName("FK_DiaDiem_TinhThanh");
             });
 
+            modelBuilder.Entity<DieuPhoi>(entity =>
+            {
+                entity.Property(e => e.Id).HasColumnName("ID");
+
+                entity.Property(e => e.ContNo)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("Cont_No");
+
+                entity.Property(e => e.DonGia).HasColumnType("decimal(18, 0)");
+
+                entity.Property(e => e.IdbangGia).HasColumnName("IDBangGia");
+
+                entity.Property(e => e.MaRomooc)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.MaSoXe)
+                    .IsRequired()
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.MaTaiXe)
+                    .IsRequired()
+                    .HasMaxLength(12)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.MaVanDon)
+                    .IsRequired()
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.SealHq)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("SEAL_HQ");
+
+                entity.Property(e => e.SealNp)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("SEAL_NP");
+
+                entity.HasOne(d => d.IdbangGiaNavigation)
+                    .WithMany(p => p.DieuPhoi)
+                    .HasForeignKey(d => d.IdbangGia)
+                    .HasConstraintName("FK_DieuPhoi_BangGia");
+
+                entity.HasOne(d => d.MaRomoocNavigation)
+                    .WithMany(p => p.DieuPhoi)
+                    .HasForeignKey(d => d.MaRomooc)
+                    .HasConstraintName("FK_DieuPhoi_Romooc");
+
+                entity.HasOne(d => d.MaSoXeNavigation)
+                    .WithMany(p => p.DieuPhoi)
+                    .HasForeignKey(d => d.MaSoXe)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_DieuPhoi_XeVanChuyen");
+
+                entity.HasOne(d => d.MaTaiXeNavigation)
+                    .WithMany(p => p.DieuPhoi)
+                    .HasForeignKey(d => d.MaTaiXe)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_DieuPhoi_TaiXe");
+
+                entity.HasOne(d => d.MaVanDonNavigation)
+                    .WithMany(p => p.DieuPhoi)
+                    .HasForeignKey(d => d.MaVanDon)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_DieuPhoi_VanDon");
+            });
+
             modelBuilder.Entity<DonViTinh>(entity =>
             {
                 entity.HasKey(e => e.MaDvt)
@@ -284,20 +354,6 @@ namespace TBSLogistics.Data.TMS
                     .IsRequired()
                     .HasMaxLength(50)
                     .HasColumnName("TenDVT");
-            });
-
-            modelBuilder.Entity<DonViVanTai>(entity =>
-            {
-                entity.HasKey(e => e.MaDonViVanTai)
-                    .HasName("PK_PhanLoai_DonViVanTai");
-
-                entity.Property(e => e.MaDonViVanTai)
-                    .HasMaxLength(10)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.TenDonViVanTai)
-                    .IsRequired()
-                    .HasMaxLength(50);
             });
 
             modelBuilder.Entity<HopDongVaPhuLuc>(entity =>
@@ -497,20 +553,6 @@ namespace TBSLogistics.Data.TMS
                     .HasMaxLength(50);
             });
 
-            modelBuilder.Entity<LoaiThungHang>(entity =>
-            {
-                entity.HasKey(e => e.MaLoaiThungHang)
-                    .HasName("PK_PhanLoai_Container");
-
-                entity.Property(e => e.MaLoaiThungHang)
-                    .HasMaxLength(10)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.TenLoaiThungHang)
-                    .IsRequired()
-                    .HasMaxLength(50);
-            });
-
             modelBuilder.Entity<Log>(entity =>
             {
                 entity.Property(e => e.Id).HasColumnName("ID");
@@ -651,7 +693,7 @@ namespace TBSLogistics.Data.TMS
 
             modelBuilder.Entity<SubFee>(entity =>
             {
-                entity.HasNoKey();
+                entity.Property(e => e.SubFeeId).HasColumnName("subFeeID");
 
                 entity.Property(e => e.Creator)
                     .IsRequired()
@@ -672,10 +714,6 @@ namespace TBSLogistics.Data.TMS
                     .HasComment("0: deactivated, 1: create new, 2: approved, 3: deleted");
 
                 entity.Property(e => e.SfType).HasColumnName("sfType");
-
-                entity.Property(e => e.SubFeeId)
-                    .ValueGeneratedOnAdd()
-                    .HasColumnName("subFeeID");
             });
 
             modelBuilder.Entity<SubFeePrice>(entity =>
@@ -722,6 +760,12 @@ namespace TBSLogistics.Data.TMS
                     .HasComment("0: deactivated, 1: create new, 2: approved, 3: deleted");
 
                 entity.Property(e => e.UnitPrice).HasColumnName("unitPrice");
+
+                entity.HasOne(d => d.Sf)
+                    .WithMany(p => p.SubFeePrice)
+                    .HasForeignKey(d => d.SfId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_SubFeePrice_SubFee");
             });
 
             modelBuilder.Entity<TaiXe>(entity =>
@@ -745,14 +789,14 @@ namespace TBSLogistics.Data.TMS
                     .IsRequired()
                     .HasMaxLength(50);
 
-                entity.Property(e => e.LoaiXe)
-                    .HasMaxLength(50)
+                entity.Property(e => e.MaLoaiPhuongTien)
+                    .IsRequired()
+                    .HasMaxLength(10)
                     .IsUnicode(false);
 
-                entity.Property(e => e.MaKh)
+                entity.Property(e => e.MaNhaCungCap)
                     .HasMaxLength(8)
-                    .IsUnicode(false)
-                    .HasColumnName("MaKH");
+                    .IsUnicode(false);
 
                 entity.Property(e => e.NgaySinh).HasColumnType("date");
 
@@ -763,10 +807,10 @@ namespace TBSLogistics.Data.TMS
 
                 entity.Property(e => e.TaiXeTbs).HasColumnName("TaiXeTBS");
 
-                entity.HasOne(d => d.MaKhNavigation)
+                entity.HasOne(d => d.MaNhaCungCapNavigation)
                     .WithMany(p => p.TaiXe)
-                    .HasForeignKey(d => d.MaKh)
-                    .HasConstraintName("FK_TaiXe_KhachHang");
+                    .HasForeignKey(d => d.MaNhaCungCap)
+                    .HasConstraintName("FK_TaiXe_KhachHang1");
             });
 
             modelBuilder.Entity<ThongBao>(entity =>
@@ -826,95 +870,14 @@ namespace TBSLogistics.Data.TMS
 
                 entity.Property(e => e.CangDich).HasMaxLength(50);
 
-                entity.Property(e => e.ClpNo)
-                    .HasMaxLength(50)
-                    .IsUnicode(false)
-                    .HasColumnName("CLP_No");
-
-                entity.Property(e => e.ContNo)
-                    .HasMaxLength(50)
-                    .IsUnicode(false)
-                    .HasColumnName("Cont_No");
-
                 entity.Property(e => e.HangTau).HasMaxLength(50);
 
-                entity.Property(e => e.IdbangGia).HasColumnName("IDBangGia");
-
-                entity.Property(e => e.MaDonHang)
-                    .IsRequired()
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.MaDonViVanTai)
+                entity.Property(e => e.MaCungDuong)
                     .IsRequired()
                     .HasMaxLength(10)
                     .IsUnicode(false);
-
-                entity.Property(e => e.MaKh)
-                    .IsRequired()
-                    .HasMaxLength(8)
-                    .IsUnicode(false)
-                    .HasColumnName("MaKH");
-
-                entity.Property(e => e.MaLoaiThungHang)
-                    .IsRequired()
-                    .HasMaxLength(10)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.MaRomooc)
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.MaSoXe)
-                    .IsRequired()
-                    .HasMaxLength(10)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.MaTaiXe)
-                    .IsRequired()
-                    .HasMaxLength(12)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.SealHq)
-                    .HasMaxLength(50)
-                    .IsUnicode(false)
-                    .HasColumnName("SEAL_HQ");
-
-                entity.Property(e => e.SealNp)
-                    .HasMaxLength(50)
-                    .IsUnicode(false)
-                    .HasColumnName("SEAL_NP");
 
                 entity.Property(e => e.Tau).HasMaxLength(50);
-
-                entity.HasOne(d => d.IdbangGiaNavigation)
-                    .WithMany(p => p.VanDon)
-                    .HasForeignKey(d => d.IdbangGia)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_VanDon_BangGia");
-
-                entity.HasOne(d => d.MaKhNavigation)
-                    .WithMany(p => p.VanDon)
-                    .HasForeignKey(d => d.MaKh)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_ThongTin_VanDonXuatNhap_ThongTin_KhachHang");
-
-                entity.HasOne(d => d.MaRomoocNavigation)
-                    .WithMany(p => p.VanDon)
-                    .HasForeignKey(d => d.MaRomooc)
-                    .HasConstraintName("FK_VanDon_Romooc");
-
-                entity.HasOne(d => d.MaSoXeNavigation)
-                    .WithMany(p => p.VanDon)
-                    .HasForeignKey(d => d.MaSoXe)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_VanDon_XeVanChuyen");
-
-                entity.HasOne(d => d.MaTaiXeNavigation)
-                    .WithMany(p => p.VanDon)
-                    .HasForeignKey(d => d.MaTaiXe)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_VanDon_TaiXe");
             });
 
             modelBuilder.Entity<XaPhuong>(entity =>
@@ -960,10 +923,6 @@ namespace TBSLogistics.Data.TMS
 
                 entity.Property(e => e.MaLoaiPhuongTien)
                     .IsRequired()
-                    .HasMaxLength(10)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.MaNhaCungCap)
                     .HasMaxLength(10)
                     .IsUnicode(false);
 

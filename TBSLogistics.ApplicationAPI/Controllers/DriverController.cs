@@ -28,7 +28,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpPost]
         [Route("[action]")]
-        public async Task<IActionResult> CreateDriver(CreateDriverRequest request)
+        public async Task<IActionResult> CreateDriver([FromForm] CreateDriverRequest request)
         {
             var create = await _driver.CreateDriver(request);
 
@@ -89,13 +89,13 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             return Ok();
         }
 
-        [HttpGet]
-        [Route("[action]")]
-        public async Task<IActionResult> GetListByVehicleType(string vehicleType)
-        {
-            var driver = await _driver.GetListByVehicleType(vehicleType);
-            return Ok(driver);
-        }
+        //[HttpGet]
+        //[Route("[action]")]
+        //public async Task<IActionResult> GetListByVehicleType(string vehicleType)
+        //{
+        //    var driver = await _driver.GetListByVehicleType(vehicleType);
+        //    return Ok(driver);
+        //}
 
         [HttpGet]
         [Route("[action]")]

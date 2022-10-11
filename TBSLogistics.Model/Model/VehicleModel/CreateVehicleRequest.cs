@@ -9,7 +9,6 @@ namespace TBSLogistics.Model.Model.VehicleModel
     public class CreateVehicleRequest
     {
         public string MaSoXe { get; set; }
-        public string MaNhaCungCap { get; set; }
         public string MaLoaiPhuongTien { get; set; }
         public string MaTaiXeMacDinh { get; set; }
         public double TrongTaiToiThieu { get; set; }
@@ -20,7 +19,6 @@ namespace TBSLogistics.Model.Model.VehicleModel
         public string MaTaiSan { get; set; }
         public int? ThoiGianKhauHao { get; set; }
         public DateTime? NgayHoatDong { get; set; }
-        public string PhanLoaiXeVanChuyen { get; set; }
         public int TrangThai { get; set; }
     }
 }

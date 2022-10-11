@@ -20,5 +20,7 @@ namespace TBSLogistics.Data.TMS
         public string Creator { get; set; }
         public DateTime? ApprovedDate { get; set; }
         public DateTime? DeactiveDate { get; set; }
+
+        public virtual SubFee Sf { get; set; }
     }
 }

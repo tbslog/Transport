@@ -46,29 +46,29 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
                 await _TMSContext.VanDon.AddAsync(new VanDon()
                 {
                     MaVanDon = request.MaVanDon,
-                    MaKh = request.MaKh,
-                    IdbangGia =request.IDBangGia,
-                    MaSoXe = request.MaSoXe,
-                    MaTaiXe = request.MaTaiXe,
-                    MaRomooc = request.MaRomooc,
-                    MaDonHang = request.MaDonHang,
-                    ClpNo = request.ClpNo,
-                    ContNo = request.ContNo,
-                    SealNp = request. SealNP,
-                    SealHq = request.SealHq,
-                    TrongLuong = request.TrongLuong,            
-                    TheTich = request.TheTich,                 
-                    DiemLayHang = request.DiemLayHang,
-                    DiemNhapHang = request.DiemNhapHang,
-                    DiemGioHang = request.DiemGioHang,
-                    DiemTraRong = request.DiemTraRong,
-                    ThoiGianLayRong= request.ThoiGianLayRong,
-                    ThoiGianHaCong= request.ThoiGianHaCong,
-                    ThoiGianKeoCong= request.ThoiGianKeoCong,
-                    ThoiGianHanLech = request.ThoiGianHanLech,
-                    ThoiGianCoMat = request.ThoiGianCoMat,//.Value.Date
-                    ThoiGianCatMang = request.ThoiGianCatMang,
-                    ThoiGianTraRong = request.ThoiGianTraRong,
+                    //MaKh = request.MaKh,
+                    //IdbangGia =request.IDBangGia,
+                    //MaSoXe = request.MaSoXe,
+                    //MaTaiXe = request.MaTaiXe,
+                    //MaRomooc = request.MaRomooc,
+                    //MaDonHang = request.MaDonHang,
+                    //ClpNo = request.ClpNo,
+                    //ContNo = request.ContNo,
+                    //SealNp = request. SealNP,
+                    //SealHq = request.SealHq,
+                    //TrongLuong = request.TrongLuong,            
+                    //TheTich = request.TheTich,                 
+                    //DiemLayHang = request.DiemLayHang,
+                    //DiemNhapHang = request.DiemNhapHang,
+                    //DiemGioHang = request.DiemGioHang,
+                    //DiemTraRong = request.DiemTraRong,
+                    //ThoiGianLayRong= request.ThoiGianLayRong,
+                    //ThoiGianHaCong= request.ThoiGianHaCong,
+                    //ThoiGianKeoCong= request.ThoiGianKeoCong,
+                    //ThoiGianHanLech = request.ThoiGianHanLech,
+                    //ThoiGianCoMat = request.ThoiGianCoMat,//.Value.Date
+                    //ThoiGianCatMang = request.ThoiGianCatMang,
+                    //ThoiGianTraRong = request.ThoiGianTraRong,
                     HangTau = request.HangTau,
                     Tau = request.Tau,
                     CangChuyenTai = request.CangChuyenTai,
@@ -109,29 +109,29 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
                     return new BoolActionResult { isSuccess = false, Message = billOfLadingId +"Vận đơn này không tồn tại hoặc không phải trảng thái tạo mới" };
                 }
 
-                getBillOfLading.MaKh = request.MaKh;
-                getBillOfLading.IdbangGia = request.IDBangGia;
-                getBillOfLading.MaSoXe = request.MaSoXe;
-                getBillOfLading.MaTaiXe = request.MaTaiXe;
-                getBillOfLading.MaRomooc = request.MaRomooc;
-                getBillOfLading.MaDonHang = request.MaDonHang;
-                getBillOfLading.ClpNo = request.ClpNo;
-                getBillOfLading.ContNo = request.ContNo;
-                getBillOfLading.SealNp = request.SealNP;
-                getBillOfLading.SealHq = request.SealHq;
-                getBillOfLading.TrongLuong = request.TrongLuong;
-                getBillOfLading.TheTich = request.TheTich;
-                getBillOfLading.DiemLayHang = request.DiemLayHang;
-                getBillOfLading.DiemNhapHang = request.DiemNhapHang;
-                getBillOfLading.DiemGioHang = request.DiemGioHang;
-                getBillOfLading.DiemTraRong = request.DiemTraRong;
-                getBillOfLading.ThoiGianLayRong = request.ThoiGianTraRong;
-                getBillOfLading.ThoiGianHaCong = request.ThoiGianHaCong;
-                getBillOfLading.ThoiGianKeoCong = request.ThoiGianKeoCong;
-                getBillOfLading.ThoiGianHanLech = request.ThoiGianHanLech;
-                getBillOfLading.ThoiGianCoMat = request.ThoiGianCoMat;
-                getBillOfLading.ThoiGianCatMang = request.ThoiGianCatMang;
-                getBillOfLading.ThoiGianTraRong = request.ThoiGianTraRong;
+                //getBillOfLading.MaKh = request.MaKh;
+                //getBillOfLading.IdbangGia = request.IDBangGia;
+                //getBillOfLading.MaSoXe = request.MaSoXe;
+                //getBillOfLading.MaTaiXe = request.MaTaiXe;
+                //getBillOfLading.MaRomooc = request.MaRomooc;
+                //getBillOfLading.MaDonHang = request.MaDonHang;
+                //getBillOfLading.ClpNo = request.ClpNo;
+                //getBillOfLading.ContNo = request.ContNo;
+                //getBillOfLading.SealNp = request.SealNP;
+                //getBillOfLading.SealHq = request.SealHq;
+                //getBillOfLading.TrongLuong = request.TrongLuong;
+                //getBillOfLading.TheTich = request.TheTich;
+                //getBillOfLading.DiemLayHang = request.DiemLayHang;
+                //getBillOfLading.DiemNhapHang = request.DiemNhapHang;
+                //getBillOfLading.DiemGioHang = request.DiemGioHang;
+                //getBillOfLading.DiemTraRong = request.DiemTraRong;
+                //getBillOfLading.ThoiGianLayRong = request.ThoiGianTraRong;
+                //getBillOfLading.ThoiGianHaCong = request.ThoiGianHaCong;
+                //getBillOfLading.ThoiGianKeoCong = request.ThoiGianKeoCong;
+                //getBillOfLading.ThoiGianHanLech = request.ThoiGianHanLech;
+                //getBillOfLading.ThoiGianCoMat = request.ThoiGianCoMat;
+                //getBillOfLading.ThoiGianCatMang = request.ThoiGianCatMang;
+                //getBillOfLading.ThoiGianTraRong = request.ThoiGianTraRong;
                 getBillOfLading.HangTau = request.HangTau;
                 getBillOfLading.Tau = request.Tau;
                 getBillOfLading.CangChuyenTai = request.CangChuyenTai;
@@ -168,29 +168,29 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
             {
 
                 MaVanDon = x.MaVanDon,
-                MaKh = x.MaKh,
-                IDBangGia = x.IdbangGia,
-                MaSoXe = x.MaSoXe,
-                MaTaiXe = x.MaTaiXe,
-                MaRomooc = x.MaRomooc,
-                MaDonHang = x.MaDonHang,
-                ClpNo = x.ClpNo,
-                ContNo = x.ContNo,
-                SealNP = x.SealNp,
-                SealHq = x.SealHq,
-                TrongLuong = x.TrongLuong,
-                TheTich = x.TheTich,
-                DiemLayHang = x.DiemLayHang,
-                DiemNhapHang = x.DiemNhapHang,
-                DiemGioHang = x.DiemGioHang,
-                DiemTraRong = x.DiemTraRong,
-                ThoiGianLayRong = x.ThoiGianLayRong.Value.Date,
-                ThoiGianHaCong = x.ThoiGianHaCong,
-                ThoiGianKeoCong = x.ThoiGianKeoCong.Value.Date,
-                ThoiGianHanLech = x.ThoiGianHanLech,
-                ThoiGianCoMat = x.ThoiGianCoMat,//.Value.Date
-                ThoiGianCatMang = x.ThoiGianCatMang,
-                ThoiGianTraRong = x.ThoiGianTraRong,
+                //MaKh = x.MaKh,
+                //IDBangGia = x.IdbangGia,
+                //MaSoXe = x.MaSoXe,
+                //MaTaiXe = x.MaTaiXe,
+                //MaRomooc = x.MaRomooc,
+                //MaDonHang = x.MaDonHang,
+                //ClpNo = x.ClpNo,
+                //ContNo = x.ContNo,
+                //SealNP = x.SealNp,
+                //SealHq = x.SealHq,
+                //TrongLuong = x.TrongLuong,
+                //TheTich = x.TheTich,
+                //DiemLayHang = x.DiemLayHang,
+                //DiemNhapHang = x.DiemNhapHang,
+                //DiemGioHang = x.DiemGioHang,
+                //DiemTraRong = x.DiemTraRong,
+                //ThoiGianLayRong = x.ThoiGianLayRong.Value.Date,
+                //ThoiGianHaCong = x.ThoiGianHaCong,
+                //ThoiGianKeoCong = x.ThoiGianKeoCong.Value.Date,
+                //ThoiGianHanLech = x.ThoiGianHanLech,
+                //ThoiGianCoMat = x.ThoiGianCoMat,//.Value.Date
+                //ThoiGianCatMang = x.ThoiGianCatMang,
+                //ThoiGianTraRong = x.ThoiGianTraRong,
                 HangTau = x.HangTau,
                 Tau = x.Tau,
                 CangChuyenTai = x.CangChuyenTai,
@@ -249,38 +249,38 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
                 {
                     listData = listData.Where(x => x.bill.TrangThai.ToString().Contains(filter.Keyword));
                 }
-                if (!string.IsNullOrEmpty(filter.Keyword))
-                {
-                    listData = listData.Where(x => x.bill.MaKh.ToString().Contains(filter.Keyword));
-                }
+                //if (!string.IsNullOrEmpty(filter.Keyword))
+                //{
+                //    listData = listData.Where(x => x.bill.MaKh.ToString().Contains(filter.Keyword));
+                //}
                 var totalCount = await listData.CountAsync();
                 var pagedData = await listData.Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new GetBillOfLadingRequest()
                 {
                     
                     MaVanDon = x.bill.MaVanDon,
-                    MaKh = x.bill.MaKh,
-                    IDBangGia = x.bill.IdbangGia,
-                    MaSoXe = x.bill.MaSoXe,
-                    MaTaiXe = x.bill.MaTaiXe,
-                    MaRomooc = x.bill.MaRomooc,
-                    MaDonHang = x.bill.MaDonHang,
-                    ClpNo = x.bill.ClpNo,
-                    ContNo = x.bill.ContNo,
-                    SealNP = x.bill.SealNp,
-                    SealHq = x.bill.SealHq,
-                    TrongLuong = x.bill.TrongLuong,
-                    TheTich = x.bill.TheTich,
-                    DiemLayHang = x.bill.DiemLayHang,
-                    DiemNhapHang = x.bill.DiemNhapHang,
-                    DiemGioHang = x.bill.DiemGioHang,
-                    DiemTraRong = x.bill.DiemTraRong,
-                    ThoiGianLayRong = x.bill.ThoiGianLayRong.Value.Date,
-                    ThoiGianHaCong = x.bill.ThoiGianHaCong,
-                    ThoiGianKeoCong = x.bill.ThoiGianKeoCong.Value.Date,
-                    ThoiGianHanLech = x.bill.ThoiGianHanLech,
-                    ThoiGianCoMat = x.bill.ThoiGianCoMat,//.Value.Date
-                    ThoiGianCatMang = x.bill.ThoiGianCatMang,
-                    ThoiGianTraRong = x.bill.ThoiGianTraRong,
+                    //MaKh = x.bill.MaKh,
+                    //IDBangGia = x.bill.IdbangGia,
+                    //MaSoXe = x.bill.MaSoXe,
+                    //MaTaiXe = x.bill.MaTaiXe,
+                    //MaRomooc = x.bill.MaRomooc,
+                    //MaDonHang = x.bill.MaDonHang,
+                    //ClpNo = x.bill.ClpNo,
+                    //ContNo = x.bill.ContNo,
+                    //SealNP = x.bill.SealNp,
+                    //SealHq = x.bill.SealHq,
+                    //TrongLuong = x.bill.TrongLuong,
+                    //TheTich = x.bill.TheTich,
+                    //DiemLayHang = x.bill.DiemLayHang,
+                    //DiemNhapHang = x.bill.DiemNhapHang,
+                    //DiemGioHang = x.bill.DiemGioHang,
+                    //DiemTraRong = x.bill.DiemTraRong,
+                    //ThoiGianLayRong = x.bill.ThoiGianLayRong.Value.Date,
+                    //ThoiGianHaCong = x.bill.ThoiGianHaCong,
+                    //ThoiGianKeoCong = x.bill.ThoiGianKeoCong.Value.Date,
+                    //ThoiGianHanLech = x.bill.ThoiGianHanLech,
+                    //ThoiGianCoMat = x.bill.ThoiGianCoMat,//.Value.Date
+                    //ThoiGianCatMang = x.bill.ThoiGianCatMang,
+                    //ThoiGianTraRong = x.bill.ThoiGianTraRong,
                     HangTau = x.bill.HangTau,
                     Tau = x.bill.Tau,
                     CangChuyenTai = x.bill.CangChuyenTai,
