@@ -298,9 +298,9 @@ namespace TBSLogistics.Service.Repository.DriverManage
             return ErrorValidate;
             var checkMapt = await _context.LoaiPhuongTien.Where(x => x.MaLoaiPhuongTien == MaLoaiPhuongTien).FirstOrDefaultAsync();
 
-            if (checkMaKH == null)
+            if (checkMapt == null)
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã Loại Phương Tiện: " + MaLoaiPhuongTien + " không tồn tại \r\n" + System.Environment.NewLine;
+               ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã Loại Phương Tiện: " + MaLoaiPhuongTien + " không tồn tại \r\n" + System.Environment.NewLine;
             }
             return ErrorValidate;
         }

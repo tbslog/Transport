@@ -14,7 +14,6 @@ namespace TBSLogistics.Data.TMS
 
         public string MaCungDuong { get; set; }
         public string TenCungDuong { get; set; }
-        public string MaHopDong { get; set; }
         public double Km { get; set; }
         public int DiemDau { get; set; }
         public int DiemCuoi { get; set; }
