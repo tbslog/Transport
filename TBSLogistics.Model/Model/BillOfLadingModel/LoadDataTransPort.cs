@@ -16,6 +16,7 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
     public class BangGiaVanDon
     {
         public string MaNPP { get; set; }
+        public string MaKH { get; set; }
         public string PTVC { get; set; }
         public string DVT { get; set; }
         public string PTVanChuyen { get; set; }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -42,10 +43,8 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
                               orderby bg.Id descending
                               select new { cd, bg, hd, kh };
 
-            var ls = getListRoad.ToList();
-
             var gr = from t in getListRoad
-                     group t by new { t.bg.MaCungDuong, t.bg.MaDvt, t.bg.MaLoaiHangHoa, t.bg.MaLoaiPhuongTien, t.bg.MaPtvc, t.bg.MaLoaiDoiTac }
+                     group t by new { t.bg.MaCungDuong, t.bg.MaDvt, t.bg.MaLoaiHangHoa, t.bg.MaLoaiPhuongTien, t.bg.MaPtvc, t.bg.MaLoaiDoiTac, t.kh.MaKh }
                     into g
                      select new
                      {
@@ -55,6 +54,7 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
                          MaLoaiPhuongTien = g.Key.MaLoaiPhuongTien,
                          MaPtvc = g.Key.MaPtvc,
                          MaLoaiDoiTac = g.Key.MaLoaiDoiTac,
+                         MaKH = g.Key.MaKh,
                          Id = (from t2 in g select t2.bg.Id).Max(),
                      };
 
@@ -62,7 +62,7 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
 
             var result = new LoadDataTransPort()
             {
-                ListNhaPhanPhoi = await getListRoad.Where(x => x.bg.MaLoaiDoiTac == "NCC").GroupBy(x=> new {x.kh.MaKh,x.kh.TenKh}).Select(x => new NhaPhanPhoiSelect()
+                ListNhaPhanPhoi = await getListRoad.Where(x => x.bg.MaLoaiDoiTac == "NCC").GroupBy(x => new { x.kh.MaKh, x.kh.TenKh }).Select(x => new NhaPhanPhoiSelect()
                 {
                     MaNPP = x.Key.MaKh,
                     TenNPP = x.Key.TenKh
@@ -72,9 +72,9 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
                     MaKH = x.Key.MaKh,
                     TenKH = x.Key.TenKh
                 }).ToListAsync(),
-                BangGiaVanDon = await getListRoad.Select(x => new BangGiaVanDon
+                BangGiaVanDon = await getListRoad.Where(x => x.bg.MaLoaiDoiTac == "KH").Select(x => new BangGiaVanDon
                 {
-                    MaNPP = x.kh.MaKh,
+                    MaKH = x.kh.MaKh,
                     PTVC = x.bg.MaPtvc,
                     DVT = x.bg.MaDvt,
                     PTVanChuyen = x.bg.MaLoaiPhuongTien,
