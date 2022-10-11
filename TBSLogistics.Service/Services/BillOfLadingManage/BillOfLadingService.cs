@@ -60,19 +60,17 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
 
             getListRoad = getListRoad.Where(x => gr.Select(y => y.Id).Contains(x.bg.Id));
 
-
-
             var result = new LoadDataTransPort()
             {
-                ListNhaPhanPhoi = await getListRoad.Where(x => x.bg.MaLoaiDoiTac == "NCC").Select(x => new NhaPhanPhoiSelect()
+                ListNhaPhanPhoi = await getListRoad.Where(x => x.bg.MaLoaiDoiTac == "NCC").GroupBy(x=> new {x.kh.MaKh,x.kh.TenKh}).Select(x => new NhaPhanPhoiSelect()
                 {
-                    MaNPP = x.kh.MaKh,
-                    TenNPP = x.kh.TenKh
+                    MaNPP = x.Key.MaKh,
+                    TenNPP = x.Key.TenKh
                 }).ToListAsync(),
-                ListKhachHang = await getListRoad.Where(x => x.bg.MaLoaiDoiTac == "KH").Select(x => new KhachHangSelect()
+                ListKhachHang = await getListRoad.Where(x => x.bg.MaLoaiDoiTac == "KH").GroupBy(x => new { x.kh.MaKh, x.kh.TenKh }).Select(x => new KhachHangSelect()
                 {
-                    MaKH = x.kh.MaKh,
-                    TenKH = x.kh.TenKh
+                    MaKH = x.Key.MaKh,
+                    TenKH = x.Key.TenKh
                 }).ToListAsync(),
                 BangGiaVanDon = await getListRoad.Select(x => new BangGiaVanDon
                 {

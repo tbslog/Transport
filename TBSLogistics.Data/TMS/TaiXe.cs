@@ -19,14 +19,14 @@ namespace TBSLogistics.Data.TMS
         public string SoDienThoai { get; set; }
         public DateTime? NgaySinh { get; set; }
         public string GhiChu { get; set; }
-        public string MaKh { get; set; }
-        public string LoaiXe { get; set; }
+        public string MaNhaCungCap { get; set; }
+        public string MaLoaiPhuongTien { get; set; }
         public bool TaiXeTbs { get; set; }
-        public int? TrangThai { get; set; }
+        public int TrangThai { get; set; }
         public DateTime UpdatedTime { get; set; }
         public DateTime CreatedTime { get; set; }
 
-        public virtual KhachHang MaKhNavigation { get; set; }
+        public virtual KhachHang MaNhaCungCapNavigation { get; set; }
         public virtual ICollection<DieuPhoi> DieuPhoi { get; set; }
         public virtual ICollection<XeVanChuyen> XeVanChuyen { get; set; }
     }

@@ -200,11 +200,6 @@ namespace TBSLogistics.Data.TMS
                     .IsRequired()
                     .HasMaxLength(500);
 
-                entity.Property(e => e.MaHopDong)
-                    .IsRequired()
-                    .HasMaxLength(10)
-                    .IsUnicode(false);
-
                 entity.Property(e => e.TenCungDuong)
                     .IsRequired()
                     .HasMaxLength(50);
@@ -273,6 +268,8 @@ namespace TBSLogistics.Data.TMS
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnName("Cont_No");
+
+                entity.Property(e => e.DonGia).HasColumnType("decimal(18, 0)");
 
                 entity.Property(e => e.IdbangGia).HasColumnName("IDBangGia");
 
@@ -787,14 +784,14 @@ namespace TBSLogistics.Data.TMS
                     .IsRequired()
                     .HasMaxLength(50);
 
-                entity.Property(e => e.LoaiXe)
-                    .HasMaxLength(50)
+                entity.Property(e => e.MaLoaiPhuongTien)
+                    .IsRequired()
+                    .HasMaxLength(10)
                     .IsUnicode(false);
 
-                entity.Property(e => e.MaKh)
+                entity.Property(e => e.MaNhaCungCap)
                     .HasMaxLength(8)
-                    .IsUnicode(false)
-                    .HasColumnName("MaKH");
+                    .IsUnicode(false);
 
                 entity.Property(e => e.NgaySinh).HasColumnType("date");
 
@@ -805,10 +802,10 @@ namespace TBSLogistics.Data.TMS
 
                 entity.Property(e => e.TaiXeTbs).HasColumnName("TaiXeTBS");
 
-                entity.HasOne(d => d.MaKhNavigation)
+                entity.HasOne(d => d.MaNhaCungCapNavigation)
                     .WithMany(p => p.TaiXe)
-                    .HasForeignKey(d => d.MaKh)
-                    .HasConstraintName("FK_TaiXe_KhachHang");
+                    .HasForeignKey(d => d.MaNhaCungCap)
+                    .HasConstraintName("FK_TaiXe_KhachHang1");
             });
 
             modelBuilder.Entity<ThongBao>(entity =>
@@ -921,10 +918,6 @@ namespace TBSLogistics.Data.TMS
 
                 entity.Property(e => e.MaLoaiPhuongTien)
                     .IsRequired()
-                    .HasMaxLength(10)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.MaNhaCungCap)
                     .HasMaxLength(10)
                     .IsUnicode(false);
 

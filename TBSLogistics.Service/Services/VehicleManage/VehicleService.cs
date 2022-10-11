@@ -39,7 +39,6 @@ namespace TBSLogistics.Service.Repository.VehicleManage
                 await _context.XeVanChuyen.AddAsync(new XeVanChuyen()
                 {
                     MaSoXe = request.MaSoXe,
-                    MaNhaCungCap = request.MaNhaCungCap,
                     MaLoaiPhuongTien = request.MaLoaiPhuongTien,
                     MaTaiXeMacDinh = request.MaTaiXeMacDinh,
                     TrongTaiToiThieu = request.TrongTaiToiThieu,
@@ -85,7 +84,6 @@ namespace TBSLogistics.Service.Repository.VehicleManage
                     return new BoolActionResult { isSuccess = false, Message = "Xe này không tồn tại trong dữ liệu" };
                 }
 
-                getVehicle.MaNhaCungCap = request.MaNhaCungCap;
                 getVehicle.MaLoaiPhuongTien = request.MaLoaiPhuongTien;
                 getVehicle.MaTaiXeMacDinh = request.MaTaiXeMacDinh;
                 getVehicle.TrongTaiToiThieu = request.TrongTaiToiThieu;
@@ -145,7 +143,6 @@ namespace TBSLogistics.Service.Repository.VehicleManage
                 var pagedData = await listData.Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new ListVehicleRequest()
                 {
                     MaSoXe = x.vehicle.MaSoXe,
-                    MaNhaCungCap = x.vehicle.MaNhaCungCap,
                     MaLoaiPhuongTien = x.vehicle.MaLoaiPhuongTien,
                     MaTaiXeMacDinh = x.vehicle.MaTaiXeMacDinh,
                     TrongTaiToiThieu = x.vehicle.TrongTaiToiThieu,
@@ -179,7 +176,6 @@ namespace TBSLogistics.Service.Repository.VehicleManage
             var vehicle = await _context.XeVanChuyen.Where(x => x.MaSoXe == vehicleId).Select(x => new GetVehicleRequest()
             {
                 MaSoXe = x.MaSoXe,
-                MaNhaCungCap = x.MaNhaCungCap,
                 MaLoaiPhuongTien = x.MaLoaiPhuongTien,
                 MaTaiXeMacDinh = x.MaTaiXeMacDinh,
                 TrongTaiToiThieu = x.TrongTaiToiThieu,
