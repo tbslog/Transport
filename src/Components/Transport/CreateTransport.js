@@ -21,7 +21,30 @@ const CreateTransport = (props) => {
   } = useForm({
     mode: "onSubmit",
     defaultValues: {
-      optionTransport: [{}],
+      optionTransport: [
+        {
+          KhachHang: null,
+          XeVanChuyen: null,
+          TaiXe: null,
+          Romooc: null,
+          PTVanChuyen: "",
+          LoaiHangHoa: "",
+          MaBangGia: "",
+          GiaThucTe: "",
+          CONTNO: "",
+          SEALHQ: "",
+          SEALHT: "",
+          TrongLuong: "",
+          TheTich: "",
+          TGLayRong: "",
+          TGTraRong: "",
+          TGCoMat: "",
+          TGLech: "",
+          TGNhapHang: "",
+          TGKeoCont: "",
+          GhiChu: "",
+        },
+      ],
     },
   });
 
@@ -172,7 +195,6 @@ const CreateTransport = (props) => {
   const [listVehicle, setListVehicle] = useState([]);
   const [listRomooc, setListRomooc] = useState([]);
   const [listRoad, setListRoad] = useState([]);
-  const [listPriceTable, setListPriceTable] = useState([]);
   const [listFilterPriceTable, setListFilterPriceTable] = useState([]);
 
   const HandleOnChangeTabs = (tabIndex) => {
@@ -212,7 +234,6 @@ const CreateTransport = (props) => {
   const handleOnchangeListRoad = async (value) => {
     SetIsLoading(true);
     setValue("MaCungDuong", value);
-    setListPriceTable([]);
 
     const getlistData = await getData(
       `BillOfLading/LoadDataTransport?RoadId=${value.value}`
@@ -231,8 +252,8 @@ const CreateTransport = (props) => {
       let objNpp = [];
       getlistData.listNhaPhanPhoi.map((val) => {
         objNpp.push({
-          value: val.maNpp,
-          label: val.maNpp + " - " + val.tenNpp,
+          value: val.maNPP,
+          label: val.maNPP + " - " + val.tenNPP,
         });
       });
       setListNpp(objNpp);
@@ -243,77 +264,86 @@ const CreateTransport = (props) => {
   };
 
   const handleOnChangeFilter = () => {
-    setListPriceTable([]);
     let maDVT = watch("DVT");
     let maPTVC = watch("PTVC");
-    let maPTVanChuyen = watch("PTVanChuyen");
-    let maLoaiHH = watch("LoaiHangHoa");
-    let maCungDuong = watch("MaCungDuong");
-
-    let data = listFilterPriceTable;
+    let data = listData;
     let tempData = data;
 
     let filterByTransportType;
     let filterByDVT;
-    let filterByVehicleType;
-    let filterByGoodsType;
-    let filterByRoad;
 
     if (maPTVC !== "") {
-      filterByTransportType = tempData.filter((x) => x.maPTVC === maPTVC);
+      filterByTransportType = tempData.filter((x) => x.ptvc === maPTVC);
     } else {
       filterByTransportType = tempData;
     }
     tempData = filterByTransportType;
 
     if (maDVT !== "") {
-      filterByDVT = tempData.filter((x) => x.maDVT === maDVT);
+      filterByDVT = tempData.filter((x) => x.dvt === maDVT);
     } else {
       filterByDVT = tempData;
     }
     tempData = filterByDVT;
 
-    if (maPTVanChuyen !== "") {
-      filterByVehicleType = tempData.filter(
-        (x) => x.maLoaiPhuongTien === maPTVanChuyen
-      );
-    } else {
-      filterByVehicleType = tempData;
+    setListData(tempData);
+  };
+
+  const handleOnChangeFilterArr = (index, value, nameVar) => {
+    if (nameVar === "PTVanChuyen") {
+      setValue(`optionTransport.${index}.PTVanChuyen`, value);
     }
-    tempData = filterByVehicleType;
-
-    if (maLoaiHH !== "") {
-      filterByGoodsType = tempData.filter((x) => x.maLoaiHangHoa === maLoaiHH);
-    } else {
-      filterByGoodsType = tempData;
+    if (nameVar === "LoaiHangHoa") {
+      setValue(`optionTransport.${index}.LoaiHangHoa`, value);
     }
-    tempData = filterByGoodsType;
-
-    if (maCungDuong) {
-      filterByRoad = tempData.filter(
-        (x) => x.maCungDuong === maCungDuong.value
+    if (nameVar === "KhachHang") {
+      setValue(
+        `optionTransport.${index}.KhachHang`,
+        {
+          ...listCustomer.filter((x) => x.value === value),
+        }[0]
       );
+    }
 
-      if (filterByRoad && filterByRoad.length > 0) {
-        setValue("MaBangGia", filterByRoad[0].id);
-      } else {
-        setValue("MaBangGia", null);
-      }
-      setListPriceTable(filterByRoad);
+    let data = listData;
+    let tempData = data;
+
+    let PTVanChuyen = watch(`optionTransport.${index}.PTVanChuyen`);
+    let LoaiHangHoa = watch(`optionTransport.${index}.LoaiHangHoa`);
+    let KhachHang = watch(`optionTransport.${index}.KhachHang`);
+
+    if (PTVanChuyen !== "") {
+      tempData = tempData.filter((x) => x.ptVanChuyen === PTVanChuyen);
+    }
+
+    if (LoaiHangHoa !== "") {
+      tempData = tempData.filter((x) => x.loaiHangHoa === LoaiHangHoa);
+    }
+
+    if (KhachHang !== "") {
+      tempData = tempData.filter((x) => x.maKH === KhachHang.value);
+    }
+
+    if (tempData && tempData.length === 1) {
+      setValue(`optionTransport.${index}.MaBangGia`, tempData[0].price);
     } else {
-      setListPriceTable([]);
+      setValue(`optionTransport.${index}.MaBangGia`, null);
     }
   };
 
   const onSubmit = async (data) => {
     SetIsLoading(true);
-    console.log(watch());
+    console.log(watch("optionTransport"));
     SetIsLoading(false);
   };
 
   const handleResetClick = () => {
     reset();
-    setListPriceTable([]);
+    setListNpp([]);
+    setListCustomer([]);
+    setValue("NhaCungCap", null);
+    setValue("MaCungDuong", null);
+    setValue("optionTransport", [{}]);
   };
 
   return (
@@ -454,7 +484,6 @@ const CreateTransport = (props) => {
                         </div>
                       </div>
                       <br />
-                      <br />
                     </div>
                     <div>
                       {fields.map((value, index) => (
@@ -475,7 +504,6 @@ const CreateTransport = (props) => {
                                       <i className="fas fa-minus"></i>
                                     </button>
                                   )}
-
                                   <button
                                     type="button"
                                     className="btn btn-tool"
@@ -502,6 +530,13 @@ const CreateTransport = (props) => {
                                             classNamePrefix={"form-control"}
                                             value={field.value}
                                             options={listCustomer}
+                                            onChange={(field) =>
+                                              handleOnChangeFilterArr(
+                                                index,
+                                                field.value,
+                                                "KhachHang"
+                                              )
+                                            }
                                           />
                                         )}
                                         rules={{
@@ -531,11 +566,10 @@ const CreateTransport = (props) => {
                                           Validate.PTVanChuyen
                                         )}
                                         onChange={(e) =>
-                                          handleOnChangeFilter(
-                                            setValue(
-                                              "PTVanChuyen",
-                                              e.target.value
-                                            )
+                                          handleOnChangeFilterArr(
+                                            index,
+                                            e.target.value,
+                                            "PTVanChuyen"
                                           )
                                         }
                                         value={watch("PTVanChuyen")}
@@ -578,11 +612,10 @@ const CreateTransport = (props) => {
                                           Validate.LoaiHangHoa
                                         )}
                                         onChange={(e) =>
-                                          handleOnChangeFilter(
-                                            setValue(
-                                              "LoaiHangHoa",
-                                              e.target.value
-                                            )
+                                          handleOnChangeFilterArr(
+                                            index,
+                                            e.target.value,
+                                            "LoaiHangHoa"
                                           )
                                         }
                                         value={watch("LoaiHangHoa")}
@@ -616,27 +649,19 @@ const CreateTransport = (props) => {
                                   <div className="col col-sm">
                                     <div className="form-group">
                                       <label htmlFor="MaBangGia">
-                                        Giá kham khảo
+                                        Giá Tham Chiếu
                                       </label>
-                                      <select
+                                      <input
+                                        autoComplete="false"
+                                        type="text"
                                         className="form-control"
+                                        id="MaBangGia"
+                                        readOnly
                                         {...register(
                                           `optionTransport.${index}.MaBangGia`,
                                           Validate.MaBangGia
                                         )}
-                                      >
-                                        {listPriceTable &&
-                                          listPriceTable.map((val) => {
-                                            return (
-                                              <option
-                                                value={val.id}
-                                                key={val.id}
-                                              >
-                                                {val.donGia}
-                                              </option>
-                                            );
-                                          })}
-                                      </select>
+                                      />
                                       {errors.optionTransport?.[index]
                                         ?.MaBangGia && (
                                         <span className="text-danger">
@@ -810,6 +835,97 @@ const CreateTransport = (props) => {
                                           {
                                             errors.optionTransport?.[index]
                                               ?.TheTich.message
+                                          }
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className="row">
+                                  <div className="col col-sm">
+                                    <div className="form-group">
+                                      <label htmlFor="XeVanChuyen">
+                                        Xe Vận Chuyển
+                                      </label>
+                                      <Controller
+                                        name={`optionTransport.${index}.XeVanChuyen`}
+                                        control={control}
+                                        render={({ field }) => (
+                                          <Select
+                                            {...field}
+                                            classNamePrefix={"form-control"}
+                                            value={field.value}
+                                            options={listVehicle}
+                                          />
+                                        )}
+                                        rules={{
+                                          required: "không được để trống",
+                                        }}
+                                      />
+                                      {errors.optionTransport?.[index]
+                                        ?.XeVanChuyen && (
+                                        <span className="text-danger">
+                                          {
+                                            errors.optionTransport?.[index]
+                                              ?.XeVanChuyen.message
+                                          }
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                  <div className="col col-sm">
+                                    <div className="form-group">
+                                      <label htmlFor="TaiXe">Tài Xế</label>
+                                      <Controller
+                                        name={`optionTransport.${index}.TaiXe`}
+                                        control={control}
+                                        render={({ field }) => (
+                                          <Select
+                                            {...field}
+                                            classNamePrefix={"form-control"}
+                                            value={field.value}
+                                            options={listDriver}
+                                          />
+                                        )}
+                                        rules={{
+                                          required: "không được để trống",
+                                        }}
+                                      />
+                                      {errors.optionTransport?.[index]
+                                        ?.TaiXe && (
+                                        <span className="text-danger">
+                                          {
+                                            errors.optionTransport?.[index]
+                                              ?.TaiXe.message
+                                          }
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                  <div className="col col-sm">
+                                    <div className="form-group">
+                                      <label htmlFor="Romooc">Số Romooc</label>
+                                      <Controller
+                                        name={`optionTransport.${index}.Romooc`}
+                                        control={control}
+                                        render={({ field }) => (
+                                          <Select
+                                            {...field}
+                                            classNamePrefix={"form-control"}
+                                            value={field.value}
+                                            options={listRomooc}
+                                          />
+                                        )}
+                                        rules={{
+                                          required: "không được để trống",
+                                        }}
+                                      />
+                                      {errors.optionTransport?.[index]
+                                        ?.Romooc && (
+                                        <span className="text-danger">
+                                          {
+                                            errors.optionTransport?.[index]
+                                              ?.Romooc.message
                                           }
                                         </span>
                                       )}
@@ -1038,6 +1154,22 @@ const CreateTransport = (props) => {
                                             }
                                           </span>
                                         )}
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className="row">
+                                  <div className="col col-12">
+                                    <div className="form-group">
+                                      <label htmlFor="GhiChu">Ghi Chú</label>
+                                      <div className="input-group ">
+                                        <textarea
+                                          className="form-control"
+                                          rows={3}
+                                          {...register(
+                                            `optionTransport.${index}.GhiChu`
+                                          )}
+                                        ></textarea>
                                       </div>
                                     </div>
                                   </div>

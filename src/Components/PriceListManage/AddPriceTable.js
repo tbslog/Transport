@@ -294,6 +294,7 @@ const AddPriceTable = (props) => {
   };
 
   const handleOnChangeContractType = async (val) => {
+    handleResetClick();
     setValue("PhanLoaiDoiTac", val);
     if (val && val !== "") {
       let getListCustomer = await getData(
@@ -318,9 +319,7 @@ const AddPriceTable = (props) => {
 
   const getListRoadAndContract = async (MaKh) => {
     SetIsLoading(true);
-    let getListRoad = await getData(
-      `Road/GetListRoadOptionSelect?MaKH=${MaKh}`
-    );
+    let getListRoad = await getData(`Road/GetListRoadOptionSelect`);
     if (getListRoad && getListRoad.length > 0) {
       let obj = [];
       getListRoad.map((val) => {

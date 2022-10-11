@@ -193,24 +193,6 @@ const EditRoad = (props) => {
               <div className="row">
                 <div className="col col-sm">
                   <div className="form-group">
-                    <label htmlFor="MaHopDong">Mã hợp đồng</label>
-                    <input
-                      readOnly
-                      type="text "
-                      className="form-control"
-                      id="MaHopDong"
-                      placeholder="Nhập mã hợp đồng"
-                      {...register("MaHopDong", Validate.MaHopDong)}
-                    />
-                    {errors.MaHopDong && (
-                      <span className="text-danger">
-                        {errors.MaHopDong.message}
-                      </span>
-                    )}
-                  </div>
-                </div>
-                <div className="col col-sm">
-                  <div className="form-group">
                     <label htmlFor="MaCungDuong">Mã cung đường</label>
                     <input
                       readOnly
@@ -272,6 +254,7 @@ const EditRoad = (props) => {
                         <Select
                           {...field}
                           classNamePrefix={"form-control"}
+                          isDisabled={true}
                           value={field.value}
                           options={listDiemLayRong}
                           onChange={(field) => HandleOnchangeDiemLayRong(field)}
@@ -295,6 +278,7 @@ const EditRoad = (props) => {
                         <Select
                           {...field}
                           classNamePrefix={"form-control"}
+                          isDisabled={true}
                           value={field.value}
                           options={listAddress}
                           onChange={(field) => HandleOnchangeDiemDau(field)}
@@ -319,6 +303,7 @@ const EditRoad = (props) => {
                         <Select
                           {...field}
                           classNamePrefix={"form-control"}
+                          isDisabled={true}
                           value={field.value}
                           options={listAddress}
                           onChange={(field) => HandleOnchangeDiemCuoi(field)}

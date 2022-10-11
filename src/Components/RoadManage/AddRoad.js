@@ -14,6 +14,9 @@ const AddRoad = (props) => {
     handleSubmit,
   } = useForm({
     mode: "onChange",
+    defaultValues: {
+      DiemLayRong: { value: "", label: "Empty" },
+    },
   });
 
   const Validate = {
@@ -47,17 +50,6 @@ const AddRoad = (props) => {
       //     /^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9 -,aAàÀảẢãÃáÁạẠăĂằẰẳẲẵẴắẮặẶâÂầẦẩẨẫẪấẤậẬbBcCdDđĐeEèÈẻẺẽẼéÉẹẸêÊềỀểỂễỄếẾệỆ fFgGhHiIìÌỉỈĩĨíÍịỊjJkKlLmMnNoOòÒỏỎõÕóÓọỌôÔồỒổỔỗỖốỐộỘơƠờỜởỞỡỠớỚợỢpPqQrRsStTu UùÙủỦũŨúÚụỤưƯừỪửỬữỮứỨựỰvVwWxXyYỳỲỷỶỹỸýÝỵỴzZ]+(?<![_.])$/,
       //   message: "Tên khách hàng không được chứa ký tự đặc biệt",
       // },
-    },
-    MaHopDong: {
-      required: "Không được để trống",
-      maxLength: {
-        value: 10,
-        message: "Không được vượt quá 10 ký tự",
-      },
-      pattern: {
-        value: /^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9]+(?<![_.])$/,
-        message: "Không được chứa ký tự đặc biệt",
-      },
     },
     SoKM: {
       required: "Không được để trống",
@@ -141,7 +133,6 @@ const AddRoad = (props) => {
     const post = await postData("Road/CreateRoad", {
       maCungDuong: data.MaCungDuong,
       tenCungDuong: data.TenCungDuong,
-      maHopDong: data.MaHopDong.value,
       km: data.SoKM,
       diemDau: data.DiemDau.value,
       diemCuoi: data.DiemCuoi.value,
@@ -170,29 +161,6 @@ const AddRoad = (props) => {
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="card-body">
               <div className="row">
-                <div className="col-sm">
-                  <div className="form-group">
-                    <label htmlFor="MaHopDong">Hợp Đồng</label>
-                    <Controller
-                      name="MaHopDong"
-                      rules={Validate.MaHopDong}
-                      control={control}
-                      render={({ field }) => (
-                        <Select
-                          {...field}
-                          classNamePrefix={"form-control"}
-                          value={field.value}
-                          options={listContract}
-                        />
-                      )}
-                    />
-                    {errors.MaHopDong && (
-                      <span className="text-danger">
-                        {errors.MaHopDong.message}
-                      </span>
-                    )}
-                  </div>
-                </div>
                 <div className="col-sm">
                   <div className="form-group">
                     <label htmlFor="MaCungDuong">Mã cung đường</label>
