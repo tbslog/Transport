@@ -36,7 +36,7 @@ namespace TBSLogistics.Service.Repository.DriverManage
                 {
                     return new BoolActionResult { isSuccess = false, Message = "Tài xế đã tồn tại" };
                 }
-                string ErrorValidate = await ValiateCreat(request.MaTaiXe, request.Cccd, request.HoVaTen, request.SoDienThoai, request.NgaySinh, request.MaNhaCC, request.MaLoaiPhuongTien, request.TaiXeTBS);
+                string ErrorValidate = await ValidateCreat(request.MaTaiXe, request.Cccd, request.HoVaTen, request.SoDienThoai, request.NgaySinh, request.MaNhaCC, request.MaLoaiPhuongTien, request.TaiXeTBS);
                 if (ErrorValidate != "")
                 {
                     return new BoolActionResult { isSuccess = false, Message = ErrorValidate };
@@ -52,7 +52,7 @@ namespace TBSLogistics.Service.Repository.DriverManage
                     MaNhaCungCap = request.MaNhaCC,
                     MaLoaiPhuongTien= request.MaLoaiPhuongTien,
                     TaiXeTbs = request.TaiXeTBS,
-                    TrangThai = request.TrangThai,
+                    TrangThai = 1,
                     CreatedTime = DateTime.Now,
                     UpdatedTime = DateTime.Now
                 });
@@ -86,7 +86,13 @@ namespace TBSLogistics.Service.Repository.DriverManage
                 {
                     return new BoolActionResult { isSuccess = false, Message = "Tài xế không tồn tại" };
                 }
-                string ErrorValidate = await ValiateCreat(driverId, request.Cccd, request.HoVaTen, request.SoDienThoai, request.NgaySinh, request.MaNhaCungCap, request.MaLoaiPhuongTien, request.TaiXeTBS);
+                var checktt = await _context.TaiXe.Where(x => x.TrangThai == 1).FirstOrDefaultAsync();
+
+                if (checktt == null)
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Tài xế phải ở trạng thái hoạt động" };
+                }
+                string ErrorValidate = await ValidateCreat(driverId, request.Cccd, request.HoVaTen, request.SoDienThoai, request.NgaySinh, request.MaNhaCungCap, request.MaLoaiPhuongTien, request.TaiXeTBS);
                 if (ErrorValidate != "")
                 {
                     return new BoolActionResult { isSuccess = false, Message = ErrorValidate };
@@ -98,8 +104,7 @@ namespace TBSLogistics.Service.Repository.DriverManage
                 getDriver.NgaySinh = request.NgaySinh;
                 getDriver.GhiChu = request.GhiChu;
                 getDriver.MaNhaCungCap = request.MaNhaCungCap;
-                getDriver.MaLoaiPhuongTien = request.MaLoaiPhuongTien;
-                getDriver.TrangThai = request.TrangThai.Value;
+                getDriver.MaLoaiPhuongTien = request.MaLoaiPhuongTien;                
                 getDriver.UpdatedTime = DateTime.Now;
 
                 _context.Update(getDriver);
@@ -122,7 +127,45 @@ namespace TBSLogistics.Service.Repository.DriverManage
                 return new BoolActionResult { isSuccess = false, Message = "Cập nhật tài xế thất bại" };
             }
         }
+        public async Task<BoolActionResult> DeleteDriver(string driverId)
+        {
+            try
+            {
+                var getDriver = await _context.TaiXe.Where(x => x.MaTaiXe == driverId).FirstOrDefaultAsync();
 
+                if (getDriver == null)
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Tài xế không tồn tại" };
+                }
+                var checktt = await _context.TaiXe.Where(x => x.TrangThai == 1).FirstOrDefaultAsync();
+
+                if (checktt == null)
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Tài xế phải ở trạng thái hoạt động" };
+                }              
+                getDriver.TrangThai = 2;
+              
+
+                _context.Update(getDriver);
+
+                var result = await _context.SaveChangesAsync();
+
+                if (result > 0)
+                {
+                    await _common.Log("DriverManage", "UserId: " + TempData.UserID + " Delete driver with id: " + driverId);
+                    return new BoolActionResult { isSuccess = true, Message = "Xóa tài xế thành công" };
+                }
+                else
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Xóa tài xế thất bại" };
+                }
+            }
+            catch (Exception ex)
+            {
+                await _common.Log("DriverManage", "UserId: " + TempData.UserID + " Delete driver with ERROR: " + ex.ToString());
+                return new BoolActionResult { isSuccess = false, Message = "Xóa tài xế thất bại" };
+            }
+        }
         public async Task<GetDriverRequest> GetDriverByCardId(string cccd)
         {
 
@@ -164,51 +207,12 @@ namespace TBSLogistics.Service.Repository.DriverManage
             return driver;
         }
 
-        public async Task<List<GetDriverRequest>> GetListByStatus(int status)
-        {
-            var driver = await _context.TaiXe.Where(x => x.TrangThai == status).Select(x => new GetDriverRequest()
-            {
-                MaTaiXe = x.MaTaiXe,
-                Cccd = x.Cccd,
-                HoVaTen = x.HoVaTen,
-                SoDienThoai = x.SoDienThoai,
-                NgaySinh = x.NgaySinh,
-                GhiChu = x.GhiChu,
-                MaNhaCungCap = x.MaNhaCungCap,
-                MaLoaiPhuongTien = x.MaLoaiPhuongTien,
-                TrangThai = x.TrangThai,
-                Createdtime = x.CreatedTime,
-                UpdateTime = x.UpdatedTime,
-            }).ToListAsync();
-
-            return driver;
-        }
-
-        //public async Task<List<GetDriverRequest>> GetListByVehicleType(string vehicleType)
-        //{
-        //    var driver = await _context.TaiXe.Where(x => x.LoaiXe == vehicleType).Select(x => new GetDriverRequest()
-        //    {
-        //        MaTaiXe = x.MaTaiXe,
-        //        Cccd = x.Cccd,
-        //        HoVaTen = x.HoVaTen,
-        //        SoDienThoai = x.SoDienThoai,
-        //        NgaySinh = x.NgaySinh,
-        //        GhiChu = x.GhiChu,
-        //        MaKH = x.MaKh,
-        //        LoaiXe = x.LoaiXe,
-        //        TaiXeTBSL = x.TaiXeTbs,
-        //        TrangThai = x.TrangThai.Value,
-        //        Createdtime = x.CreatedTime,
-        //        UpdateTime = x.UpdatedTime,
-        //    }).ToListAsync();
-
-        //    return driver;
-        //}
 
         public async Task<PagedResponseCustom<ListDriverRequest>> getListDriver(PaginationFilter filter)
         {
             try
             {
+               
                 var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
                 var getData = from driver in _context.TaiXe
                               orderby driver.CreatedTime descending
@@ -218,7 +222,10 @@ namespace TBSLogistics.Service.Repository.DriverManage
                 {
                     getData = getData.Where(x => x.driver.MaTaiXe.ToLower().Contains(filter.Keyword.ToLower()));
                 }
-
+                if (!string.IsNullOrEmpty(filter.statusId.ToString()))
+                {                  
+                    getData = getData.Where(x => x.driver.TrangThai == filter.statusId);
+                }
                 if (!string.IsNullOrEmpty(filter.fromDate.ToString()) && !string.IsNullOrEmpty(filter.toDate.ToString()))
                 {
                     getData = getData.Where(x => x.driver.CreatedTime.Date >= filter.fromDate && x.driver.CreatedTime <= filter.toDate);
@@ -255,7 +262,7 @@ namespace TBSLogistics.Service.Repository.DriverManage
             }
 
         }
-        private async Task<string> ValiateCreat(string MaTaiXe, string CCCD, string HoVaTen, string SoDienThoai, DateTime? NgaySinh, string? MaNhaCungCap, string MaLoaiPhuongTien, bool TaiXeTBS, string ErrorRow = "")
+        private async Task<string> ValidateCreat(string MaTaiXe, string CCCD, string HoVaTen, string SoDienThoai, DateTime? NgaySinh, string? MaNhaCungCap, string MaLoaiPhuongTien, bool TaiXeTBS, string ErrorRow = "")
         {
             string ErrorValidate = "";
             if (MaTaiXe.Length > 12 || MaTaiXe.Length<5)

@@ -15,7 +15,6 @@ using TBSLogistics.Data.TMS;
 using TBSLogistics.Service.Panigation;
 using TBSLogistics.Service.Repository.AddressManage;
 using TBSLogistics.Service.Repository.Authenticate;
-using TBSLogistics.Service.Repository.BillOfLadingManage;
 using TBSLogistics.Service.Repository.Common;
 using TBSLogistics.Service.Repository.CustommerManage;
 using TBSLogistics.Service.Repository.DriverManage;
@@ -24,6 +23,7 @@ using TBSLogistics.Service.Repository.RoadManage;
 using TBSLogistics.Service.Repository.VehicleManage;
 using TBSLogistics.Service.Services.ContractManage;
 using TBSLogistics.Service.Services.ProductServiceManage;
+using TBSLogistics.Service.Services.RomoocManage;
 
 namespace TBSLogistics.ApplicationAPI
 {
@@ -88,10 +88,10 @@ namespace TBSLogistics.ApplicationAPI
             services.AddTransient<IPriceTable, PriceTableService>();
             services.AddTransient<IDriver, DriverService>();
             services.AddTransient<IVehicle, VehicleService>();
-            services.AddTransient<IBillOfLading, BillOfLadingService>();
             services.AddTransient<IRoad, RoadService>();
             services.AddTransient<IContract, ContractService>();
             services.AddTransient<IProduct, ProductService>();
+            services.AddTransient<IRomooc, RomoocService>();
 
             services.AddSwaggerGen(option =>
             {

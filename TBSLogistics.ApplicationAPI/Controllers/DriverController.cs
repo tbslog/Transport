@@ -58,6 +58,22 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             }
         }
 
+        [HttpPost]
+        [Route("[action]")]
+        public async Task<IActionResult> DeleteDriver(string driverId)
+        {
+            var update = await _driver.DeleteDriver(driverId);
+
+            if (update.isSuccess == true)
+            {
+                return Ok(update.Message);
+            }
+            else
+            {
+                return BadRequest(update.Message);
+            }
+        }
+
         [HttpGet]
         [Route("[action]")]
         public async Task<IActionResult> getDriverById(string driverId)
@@ -76,26 +92,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<IActionResult> getListDriverByStatus(int status)
-        {
-            var driver = await _driver.GetListByStatus(status);
-            return Ok(driver);
-        }
 
-        [HttpGet]
-        [Route("[action]")]
-        public async Task<IActionResult> GetListByType(string driverType)
-        {
-            return Ok();
-        }
-
-        //[HttpGet]
-        //[Route("[action]")]
-        //public async Task<IActionResult> GetListByVehicleType(string vehicleType)
-        //{
-        //    var driver = await _driver.GetListByVehicleType(vehicleType);
-        //    return Ok(driver);
-        //}
 
         [HttpGet]
         [Route("[action]")]

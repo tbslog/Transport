@@ -56,7 +56,7 @@ namespace TBSLogistics.Service.Repository.VehicleManage
                     MaTaiSan = request.MaTaiSan,
                     ThoiGianKhauHao = request.ThoiGianKhauHao,
                     NgayHoatDong = request.NgayHoatDong,
-                    TrangThai = request.TrangThai,
+                    TrangThai =1,
                     UpdatedTime = DateTime.Now,
                     CreatedTime = DateTime.Now,
                 });
@@ -125,7 +125,43 @@ namespace TBSLogistics.Service.Repository.VehicleManage
                 return new BoolActionResult { isSuccess = false, Message = "Cập nhật xe thất bại" };
             }
         }
+        public async Task<BoolActionResult> DeleteVehicle(string vehicleId)
+        {
+            try
+            {
+                var getVehicle = await _context.XeVanChuyen.Where(x => x.MaSoXe == vehicleId).FirstOrDefaultAsync();
 
+                if (getVehicle == null)
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Xe này không tồn tại trong dữ liệu" };
+                }
+                var checktt = await _context.XeVanChuyen.Where(x => x.TrangThai == 1).FirstOrDefaultAsync();
+
+                if (checktt == null)
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Xe phải ở trạng thái hoạt động" };
+                }
+                getVehicle.TrangThai = 2;
+                _context.Update(getVehicle);
+
+                var result = await _context.SaveChangesAsync();
+
+                if (result > 0)
+                {
+                    await _common.Log("VehicleManage", "UserId: " + TempData.UserID + " Delete vehicle with id:" + vehicleId);
+                    return new BoolActionResult { isSuccess = true, Message = "Delete xe thành công" };
+                }
+                else
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Delete xe thất bại" };
+                }
+            }
+            catch (Exception ex)
+            {
+                await _common.Log("VehicleManage", "UserId: " + TempData.UserID + " Delete vehicle with ERROR:" + ex.ToString());
+                return new BoolActionResult { isSuccess = false, Message = "Delete xe thất bại" };
+            }
+        }
         public async Task<PagedResponseCustom<ListVehicleRequest>> getListVehicle(PaginationFilter filter)
         {
             try

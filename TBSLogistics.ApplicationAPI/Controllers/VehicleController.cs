@@ -57,6 +57,21 @@ namespace TBSLogistics.ApplicationAPI.Controllers
                 return BadRequest(Edit.Message);
             }
         }
+        [HttpPut]
+        [Route("[action]")]
+        public async Task<IActionResult> DeleteVehicle(string vehicleId)
+        {
+            var Edit = await _vehicle.DeleteVehicle(vehicleId);
+
+            if (Edit.isSuccess == true)
+            {
+                return Ok(Edit.Message);
+            }
+            else
+            {
+                return BadRequest(Edit.Message);
+            }
+        }
 
         [HttpGet]
         [Route("[action]")]

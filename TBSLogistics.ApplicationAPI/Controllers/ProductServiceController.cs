@@ -53,7 +53,7 @@ public class ProductServiceController : ControllerBase
     }
     [HttpPut]
     [Route("[action]")]
-    public async Task<IActionResult> DeleteProductServiceRequest(int id)
+    public async Task<IActionResult> DeleteProductServiceRequest(DeleteProductServiceRequest id)
     {
         var deleteProductService = await _product.DeleteProductServiceRequest(id);
         if (deleteProductService.isSuccess == true)
@@ -67,7 +67,7 @@ public class ProductServiceController : ControllerBase
     }
     [HttpPut]
     [Route("[action]")]
-    public async Task<IActionResult> ApproveProductServiceRequestById(List<int> id)
+    public async Task<IActionResult> ApproveProductServiceRequestById(List<ApproveProductServiceRequestById> id)
     {
         var approveProductService = await _product.ApproveProductServiceRequestById(id);
         if (approveProductService.isSuccess == true)

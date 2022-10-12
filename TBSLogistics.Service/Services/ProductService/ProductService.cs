@@ -34,7 +34,7 @@ namespace TBSLogistics.Service.Services.ProductServiceManage
 
                 foreach (var i in request)
                 {
-                    string ErrorValidate = await ValiateProductService(i.MaHopDong, i.MaPTVC, i.MaCungDuong, i.MaLoaiPhuongTien, i.DonGia, i.MaDVT, i.MaLoaiHangHoa, i.MaLoaiHopDong, i.NgayHetHieuLuc);
+                    string ErrorValidate = await ValidateProductService(i.MaHopDong, i.MaPTVC, i.MaCungDuong, i.MaLoaiPhuongTien, i.DonGia, i.MaDVT, i.MaLoaiHangHoa, i.MaLoaiHopDong, i.NgayHetHieuLuc);
                     if (ErrorValidate != "")
                     {
                         IdListFail.Add(i.MaHopDong + " \r\n" + ErrorValidate + " \r\n");
@@ -63,7 +63,7 @@ namespace TBSLogistics.Service.Services.ProductServiceManage
                         MaLoaiDoiTac = i.MaLoaiHopDong,
                         NgayApDung = a.FirstOrDefault(),
                         NgayHetHieuLuc = i.NgayHetHieuLuc,
-                        TrangThai = 1,
+                        TrangThai = 3,
                         UpdatedTime = DateTime.Now,
                         CreatedTime = DateTime.Now
                     });
@@ -110,7 +110,7 @@ namespace TBSLogistics.Service.Services.ProductServiceManage
                 {
                     return new BoolActionResult { isSuccess = false, Message = "Hợp đồng này không tồn tại " };
                 }
-                string ErrorValidate = await ValiateEdit(request.MaHopDong, request.MaPTVC, request.MaCungDuong, request.MaLoaiPhuongTien, request.DonGia, request.MaDVT, request.MaLoaiHangHoa, request.MaLoaiHopDong, request.NgayHetHieuLuc);
+                string ErrorValidate = await ValidateEdit(request.MaHopDong, request.MaPTVC, request.MaCungDuong, request.MaLoaiPhuongTien, request.DonGia, request.MaDVT, request.MaLoaiHangHoa, request.MaLoaiHopDong, request.NgayHetHieuLuc);
                 if (ErrorValidate != "")
                 {
                     return new BoolActionResult { isSuccess = false, Message = ErrorValidate };
@@ -159,26 +159,26 @@ namespace TBSLogistics.Service.Services.ProductServiceManage
 
 
         }
-        public async Task<BoolActionResult> DeleteProductServiceRequest(int  id)
+        public async Task<BoolActionResult> DeleteProductServiceRequest(DeleteProductServiceRequest request)
         {
 
-            var checkExists = await _TMSContext.BangGia.Where(x => x.Id == id).FirstOrDefaultAsync();
+            var checkExists = await _TMSContext.BangGia.Where(x => x.Id == request.id).FirstOrDefaultAsync();
             if (checkExists == null)
             {
 
                 return new BoolActionResult { isSuccess = false, Message = "ID: " + request.id + "không tồn tại  " };
             }
-            if (checkExists.TrangThai != 1)
+            if (checkExists.TrangThai != 3)
             {
 
-                return new BoolActionResult { isSuccess = false, Message = "ID: " + id + " Bảng Giá phải là bảng giá mới chưa được duyệt  " };
+                return new BoolActionResult { isSuccess = false, Message = "ID: " + request.id + " Bảng Giá phải là bảng giá mới chưa được duyệt  " };
             }
-            checkExists.TrangThai = 3;
+            checkExists.TrangThai = 7;
             _TMSContext.Update(checkExists);
             var result = await _TMSContext.SaveChangesAsync();
             if (result > 0)
             {
-                await _common.Log("ProductServiceManage", "UserId: " + TempData.UserID + " Update  Contract with Id: " + id);
+                await _common.Log("ProductServiceManage", "UserId: " + TempData.UserID + " Update  Contract with Id: " + request.id);
                 return new BoolActionResult { isSuccess = true, Message = "Xóa Bảng Giá thành công!" };
             }
             else
@@ -193,7 +193,7 @@ namespace TBSLogistics.Service.Services.ProductServiceManage
 
             try
             {
-                foreach (var item in Id)
+                foreach (var item in request)
                 {
                     if(item.isApprove!=0 && item.isApprove != 1)
                     {
@@ -467,11 +467,11 @@ namespace TBSLogistics.Service.Services.ProductServiceManage
                 }
                 if (filter.statusId == 2)
                 {
-                    listData = listData.Where(x => x.bg.TrangThai == filter.statusId);
+                    listData = listData.Where(x => x.bg.TrangThai ==4);
                 }
                 if (filter.statusId == 7)
                 {
-                    listData = listData.Where(x => x.bg.TrangThai == 1 || x.bg.TrangThai == 2);
+                    listData = listData.Where(x => x.bg.TrangThai == 3 || x.bg.TrangThai == 4);
                 }
                 if (!string.IsNullOrEmpty(filter.Keyword))
                 {
@@ -660,7 +660,7 @@ namespace TBSLogistics.Service.Services.ProductServiceManage
         //        throw;
         //    }
         //}
-        private async Task<string> ValiateProductService(string MaHopDong, string MaPTVC, string MaCungDuong, string MaLoaiPhuongTien, decimal DonGia, string MaDVT, string MaLoaiHangHoa, string MaLoaiHopDong, DateTime NgayHetHieuLuc, string ErrorRow = "")
+        private async Task<string> ValidateProductService(string MaHopDong, string MaPTVC, string MaCungDuong, string MaLoaiPhuongTien, decimal DonGia, string MaDVT, string MaLoaiHangHoa, string MaLoaiHopDong, DateTime NgayHetHieuLuc, string ErrorRow = "")
         {
             string ErrorValidate = "";
 
@@ -746,10 +746,10 @@ namespace TBSLogistics.Service.Services.ProductServiceManage
             }
             return ErrorValidate;
         }
-        private async Task<string> ValiateEdit(string MaHopDong, string MaPTVC, string MaCungDuong, string MaLoaiPhuongTien, decimal DonGia, string MaDVT, string MaLoaiHangHoa, string MaLoaiHopDong, DateTime NgayHetHieuLuc, string ErrorRow = "")
+        private async Task<string> ValidateEdit(string MaHopDong, string MaPTVC, string MaCungDuong, string MaLoaiPhuongTien, decimal DonGia, string MaDVT, string MaLoaiHangHoa, string MaLoaiHopDong, DateTime NgayHetHieuLuc, string ErrorRow = "")
         {
             string ErrorValidate = "";
-            var checkTrangThai = await _TMSContext.BangGia.Where(x => x.TrangThai == 1).FirstOrDefaultAsync();
+            var checkTrangThai = await _TMSContext.BangGia.Where(x => x.TrangThai == 3).FirstOrDefaultAsync();
             if (checkTrangThai == null)
             {
                 ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Trạng thải phải là tạo mới \r\n" + System.Environment.NewLine;
