@@ -23,7 +23,7 @@ const AddContract = (props) => {
     MaHopDong: {
       required: "Không được để trống",
       maxLength: {
-        value: 10,
+        value: 20,
         message: "Không được vượt quá 10 ký tự",
       },
       pattern: {
@@ -572,7 +572,7 @@ const AddContract = (props) => {
                       </div>
                       <div className="col col-sm">
                         <div className="form-group">
-                          <label htmlFor="MaHopDong">Mã Hợp Đồng</label>
+                          <label htmlFor="MaHopDong">Mã Phụ Lục Hợp Đồng</label>
                           <input
                             autoComplete="false"
                             type="text"
@@ -590,7 +590,9 @@ const AddContract = (props) => {
                       </div>
                       <div className="col col-sm">
                         <div className="form-group">
-                          <label htmlFor="TenHopDong">Tên Hợp Đồng</label>
+                          <label htmlFor="TenHopDong">
+                            Tên Phụ Lục Hợp Đồng
+                          </label>
                           <input
                             type="text"
                             className="form-control"

@@ -386,6 +386,7 @@ const AddPriceTable = (props) => {
     const createPriceTable = await postData("PriceTable/CreatePriceTable", arr);
     if (createPriceTable === 1) {
       getListPriceTable(1);
+      fetchData(1, selectIdClick.maHopDong);
       reset();
     }
 
@@ -455,7 +456,9 @@ const AddPriceTable = (props) => {
                     </div>
                     <div className="col col-sm">
                       <div className="form-group">
-                        <label htmlFor="KhachHang">Khách Hàng</label>
+                        <label htmlFor="KhachHang">
+                          Khách Hàng / Nhà Cung Cấp
+                        </label>
                         <Controller
                           name="MaKh"
                           control={control}

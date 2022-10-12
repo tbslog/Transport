@@ -401,14 +401,14 @@ const CreateCustommer = (props) => {
                 <div className="col-sm">
                   {" "}
                   <div className="form-group">
-                    <label htmlFor="LoaiKH">Phân Loại khách hàng</label>
+                    <label htmlFor="LoaiKH">Phân Loại Đối Tác</label>
                     <select
                       className="form-control"
                       {...register("LoaiKH", {
                         required: "Không được để trống",
                       })}
                     >
-                      <option value="">Chọn Phân Loại khách hàng</option>
+                      <option value="">Chọn Phân Loại Đối Tác</option>
                       {listCustomerType &&
                         listCustomerType.map((val) => {
                           return (
@@ -428,7 +428,7 @@ const CreateCustommer = (props) => {
               </div>
 
               <div className="form-group">
-                <label htmlFor="Tinh">Loại địa điểm</label>
+                <label htmlFor="Tinh">Phân Loại Địa Điểm</label>
                 <Controller
                   name="MaLoaiDiaDiem"
                   control={control}

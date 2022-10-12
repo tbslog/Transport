@@ -183,7 +183,7 @@ const CreateTransport = (props) => {
     DVT: { required: "Không được để trống" },
   };
 
-  const [listData, setListData] = useState([]);
+  const [listPriceTable, setListPriceTable] = useState([]);
   const [tabIndex, setTabIndex] = useState(0);
   const [listDVT, setListDVT] = useState([]);
   const [listPTVC, setListPTVC] = useState([]);
@@ -239,6 +239,8 @@ const CreateTransport = (props) => {
       `BillOfLading/LoadDataTransport?RoadId=${value.value}`
     );
 
+    console.log(getlistData);
+
     if (getlistData && Object.keys(getlistData).length > 0) {
       let objCustomer = [];
       getlistData.listKhachHang.map((val) => {
@@ -250,6 +252,7 @@ const CreateTransport = (props) => {
       setListCustomer(objCustomer);
 
       let objNpp = [];
+      objNpp.push({ value: "TBSL", label: "TBS Logistics" });
       getlistData.listNhaPhanPhoi.map((val) => {
         objNpp.push({
           value: val.maNPP,
@@ -257,7 +260,35 @@ const CreateTransport = (props) => {
         });
       });
       setListNpp(objNpp);
-      setListData(getlistData.bangGiaVanDon);
+
+      let objDriver = [];
+      getlistData.listTaiXe.map((val) => {
+        objDriver.push({
+          value: val.maTaiXe,
+          label: val.maTaiXe + " - " + val.tenTaiXe,
+        });
+      });
+      setListDriver(objDriver);
+
+      let objVehicle = [];
+      getlistData.listXeVanChuyen.map((val) => {
+        objVehicle.push({
+          value: val.maSoXe,
+          label: val.maSoXe + " - " + val.maLoaiPhuongTien,
+        });
+      });
+      setListVehicle(objVehicle);
+
+      let objRomooc = [];
+      getlistData.listRomooc.map((val) => {
+        objRomooc.push({
+          value: val.maRomooc,
+          label: val.maRomooc + " - " + val.tenLoaiRomooc,
+        });
+      });
+      setListRomooc(objRomooc);
+
+      setListPriceTable(getlistData.bangGiaVanDon);
     }
 
     SetIsLoading(false);
@@ -266,7 +297,7 @@ const CreateTransport = (props) => {
   const handleOnChangeFilter = () => {
     let maDVT = watch("DVT");
     let maPTVC = watch("PTVC");
-    let data = listData;
+    let data = listPriceTable;
     let tempData = data;
 
     let filterByTransportType;
@@ -286,7 +317,9 @@ const CreateTransport = (props) => {
     }
     tempData = filterByDVT;
 
-    setListData(tempData);
+    setListPriceTable(tempData);
+
+    console.log(tempData);
   };
 
   const handleOnChangeFilterArr = (index, value, nameVar) => {
@@ -295,6 +328,14 @@ const CreateTransport = (props) => {
     }
     if (nameVar === "LoaiHangHoa") {
       setValue(`optionTransport.${index}.LoaiHangHoa`, value);
+    }
+    if (nameVar === "NhaCungCap") {
+      setValue(
+        `optionTransport.${index}.NhaCungCap`,
+        {
+          ...listNpp.filter((x) => x.value === value),
+        }[0]
+      );
     }
     if (nameVar === "KhachHang") {
       setValue(
@@ -305,12 +346,23 @@ const CreateTransport = (props) => {
       );
     }
 
-    let data = listData;
+    let data = listPriceTable;
     let tempData = data;
 
+    let NhaPhanPhoi = watch(`optionTransport.${index}.NhaCungCap`);
     let PTVanChuyen = watch(`optionTransport.${index}.PTVanChuyen`);
     let LoaiHangHoa = watch(`optionTransport.${index}.LoaiHangHoa`);
     let KhachHang = watch(`optionTransport.${index}.KhachHang`);
+
+    if (nameVar === "NhaCungCap") {
+      if (NhaPhanPhoi !== null) {
+        if (NhaPhanPhoi.value === "TBSL") {
+          tempData = tempData.filter((x) => x.phanLoaiDoiTac === "KH");
+        } else {
+          tempData = tempData.filter((x) => x.maDoiTac === NhaPhanPhoi.value);
+        }
+      }
+    }
 
     if (PTVanChuyen !== "") {
       tempData = tempData.filter((x) => x.ptVanChuyen === PTVanChuyen);
@@ -319,9 +371,12 @@ const CreateTransport = (props) => {
     if (LoaiHangHoa !== "") {
       tempData = tempData.filter((x) => x.loaiHangHoa === LoaiHangHoa);
     }
-
-    if (KhachHang !== "") {
-      tempData = tempData.filter((x) => x.maKH === KhachHang.value);
+    if (NhaPhanPhoi.value === "TBSL") {
+      if (KhachHang !== null) {
+        tempData = tempData.filter((x) => x.maDoiTac === KhachHang.value);
+      }
+    } else {
+      tempData = tempData.filter((x) => x.maDoiTac === NhaPhanPhoi.value);
     }
 
     if (tempData && tempData.length === 1) {
@@ -333,7 +388,7 @@ const CreateTransport = (props) => {
 
   const onSubmit = async (data) => {
     SetIsLoading(true);
-    console.log(watch("optionTransport"));
+    console.log(data);
     SetIsLoading(false);
   };
 
@@ -391,32 +446,6 @@ const CreateTransport = (props) => {
                           {errors.MaCungDuong && (
                             <span className="text-danger">
                               {errors.MaCungDuong.message}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      <div className="col col-sm">
-                        <div className="form-group">
-                          <label htmlFor="NhaCungCap">Đơn Vị Vận Tải</label>
-                          <Controller
-                            name="NhaCungCap"
-                            control={control}
-                            render={({ field }) => (
-                              <Select
-                                {...field}
-                                classNamePrefix={"form-control"}
-                                value={field.value}
-                                options={listNpp}
-                                // onChange={(field) =>
-                                //   handleOnchangeListCustomer(field)
-                                // }
-                              />
-                            )}
-                            rules={Validate.NhaCungCap}
-                          />
-                          {errors.NhaCungCap && (
-                            <span className="text-danger">
-                              {errors.NhaCungCap.message}
                             </span>
                           )}
                         </div>
@@ -516,6 +545,44 @@ const CreateTransport = (props) => {
 
                               <div className="card-body">
                                 <div className="row">
+                                  <div className="col col-sm">
+                                    <div className="form-group">
+                                      <label htmlFor="NhaCungCap">
+                                        Đơn Vị Vận Tải
+                                      </label>
+                                      <Controller
+                                        name={`optionTransport.${index}.NhaCungCap`}
+                                        control={control}
+                                        render={({ field }) => (
+                                          <Select
+                                            {...field}
+                                            classNamePrefix={"form-control"}
+                                            value={field.value}
+                                            options={listNpp}
+                                            onChange={(field) =>
+                                              handleOnChangeFilterArr(
+                                                index,
+                                                field.value,
+                                                "NhaCungCap"
+                                              )
+                                            }
+                                          />
+                                        )}
+                                        rules={{
+                                          required: "không được để trống",
+                                        }}
+                                      />
+                                      {errors.optionTransport?.[index]
+                                        ?.NhaCungCap && (
+                                        <span className="text-danger">
+                                          {
+                                            errors.optionTransport?.[index]
+                                              ?.NhaCungCap.message
+                                          }
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
                                   <div className="col col-sm">
                                     <div className="form-group">
                                       <label htmlFor="KhachHang">

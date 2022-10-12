@@ -21,7 +21,7 @@ const EditContract = (props) => {
     MaHopDong: {
       required: "Không được để trống",
       maxLength: {
-        value: 10,
+        value: 20,
         message: "Không được vượt quá 10 ký tự",
       },
       pattern: {
