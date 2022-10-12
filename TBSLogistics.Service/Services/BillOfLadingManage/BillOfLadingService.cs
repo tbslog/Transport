@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -60,6 +61,8 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
 
             getListRoad = getListRoad.Where(x => gr.Select(y => y.Id).Contains(x.bg.Id));
 
+            var listRomooc = from rm in _context.Romooc join lrm in _context.LoaiRomooc on rm.MaRomooc equals lrm.MaLoaiRomooc select new { rm, lrm };
+
             var result = new LoadDataTransPort()
             {
                 ListNhaPhanPhoi = await getListRoad.Where(x => x.bg.MaLoaiDoiTac == "NCC").GroupBy(x => new { x.kh.MaKh, x.kh.TenKh }).Select(x => new NhaPhanPhoiSelect()
@@ -72,18 +75,125 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
                     MaKH = x.Key.MaKh,
                     TenKH = x.Key.TenKh
                 }).ToListAsync(),
-                BangGiaVanDon = await getListRoad.Where(x => x.bg.MaLoaiDoiTac == "KH").Select(x => new BangGiaVanDon
+                BangGiaVanDon = await getListRoad.Select(x => new BangGiaVanDon
                 {
-                    MaKH = x.kh.MaKh,
+                    MaDoiTac = x.kh.MaKh,
+                    PhanLoaiDoiTac = x.kh.MaLoaiKh,
                     PTVC = x.bg.MaPtvc,
                     DVT = x.bg.MaDvt,
                     PTVanChuyen = x.bg.MaLoaiPhuongTien,
                     LoaiHangHoa = x.bg.MaLoaiHangHoa,
                     Price = x.bg.DonGia,
                     MaCungDuong = x.bg.MaCungDuong
+                }).ToListAsync(),
+                ListTaiXe = await _context.TaiXe.Select(x => new DriverTransport()
+                {
+                    MaTaiXe = x.MaTaiXe,
+                    TenTaiXe = x.HoVaTen,
+                }).ToListAsync(),
+                ListXeVanChuyen = await _context.XeVanChuyen.Select(x => new VehicleTransport()
+                {
+                    MaLoaiPhuongTien = x.MaLoaiPhuongTien,
+                    MaSoXe = x.MaSoXe
+                }).ToListAsync(),
+                ListRomooc = await listRomooc.Select(x => new RomoocTransport() {
+                    MaRomooc = x.rm.MaRomooc,
+                    TenLoaiRomooc = x.lrm.TenLoaiRomooc
                 }).ToListAsync()
             };
             return result;
+        }
+
+        public async Task<BoolActionResult> CreateTransPort(CreateTransport request)
+        {
+            try
+            {
+                var checkRoad = await _context.CungDuong.Where(x => x.MaCungDuong == request.MaCungDuong).FirstOrDefaultAsync();
+
+                if (checkRoad == null)
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Cung đường không tồn tại" };
+                }
+
+
+                string errors = "";
+                foreach (var item in request.DieuPhoi)
+                {
+
+                }
+
+                var getMaxTransportID = _context.VanDon.Max(x => x.MaVanDon).Select(x => x).FirstOrDefault().ToString();
+                string transPortId = "";
+
+                if (string.IsNullOrEmpty(getMaxTransportID))
+                {
+                    transPortId = DateTime.Now.ToString("yy") + "000000001";
+                }
+                else
+                {
+                    transPortId = DateTime.Now.ToString("yy") + (int.Parse(getMaxTransportID.Substring(2, getMaxTransportID.Length)) + 1).ToString("000000000");
+                }
+
+
+                var createTransport = _context.VanDon.Add(new VanDon()
+                {
+                    MaVanDon = transPortId,
+                    MaCungDuong = request.MaCungDuong,
+                    TrangThai = 8,
+                    NgayTaoDon = DateTime.Now.Date,
+                    UpdatedTime = DateTime.Now,
+                    CreatedTime = DateTime.Now
+                });
+
+                await _context.SaveChangesAsync();
+
+
+                var handling = request.DieuPhoi.Select(x => new DieuPhoi()
+                {
+                    MaVanDon = createTransport.Entity.MaVanDon,
+                    MaSoXe = x.MaSoXe,
+                    MaTaiXe = x.MaTaiXe,
+                    DonViVanTai = x.DonViVanTai,
+                    MaKh = x.MaKh,
+                    IdbangGia = x.IdbangGia,
+                    GiaThamChieu = x.GiaThamChieu,
+                    GiaThucTe = x.GiaThucTe,
+                    MaRomooc = x.MaRomooc,
+                    ContNo = x.ContNo,
+                    SealNp = x.SealNp,
+                    SealHq = x.SealHq,
+                    TrongLuong = x.TrongLuong,
+                    TheTich = x.TheTich,
+                    GhiChu = x.GhiChu,
+                    ThoiGianLayRong = x.ThoiGianLayRong,
+                    ThoiGianHaCong = x.ThoiGianHaCong,
+                    ThoiGianKeoCong = x.ThoiGianKeoCong,
+                    ThoiGianHanLech = x.ThoiGianHanLech,
+                    ThoiGianCoMat = x.ThoiGianCoMat,
+                    ThoiGianCatMang = x.ThoiGianCatMang,
+                    ThoiGianTraRong = x.ThoiGianTraRong,
+                    ThoiGianNhapHang = x.ThoiGianNhapHang,
+                    ThoiGianXaHang = x.ThoiGianXaHang,
+                    TrangThai = 8,
+                    CreatedTime = DateTime.Now,
+                }).ToList();
+                await _context.DieuPhoi.AddRangeAsync(handling);
+
+                var result = await _context.SaveChangesAsync();
+
+                if (result > 0)
+                {
+                    return new BoolActionResult { isSuccess = true, Message = "Tạo mới vận đơn thành công" };
+                }
+                else
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Tạo mới vận đơn thất bại" };
+                }
+            }
+            catch (Exception ex)
+            {
+                return new BoolActionResult { isSuccess = false, Message = ex.ToString() };
+            }
         }
     }
 }

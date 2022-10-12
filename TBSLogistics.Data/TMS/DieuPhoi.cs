@@ -11,8 +11,11 @@ namespace TBSLogistics.Data.TMS
         public string MaVanDon { get; set; }
         public string MaSoXe { get; set; }
         public string MaTaiXe { get; set; }
-        public int? IdbangGia { get; set; }
-        public decimal DonGia { get; set; }
+        public string DonViVanTai { get; set; }
+        public string MaKh { get; set; }
+        public int IdbangGia { get; set; }
+        public decimal GiaThamChieu { get; set; }
+        public decimal GiaThucTe { get; set; }
         public string MaRomooc { get; set; }
         public string ContNo { get; set; }
         public string SealNp { get; set; }
@@ -33,6 +36,7 @@ namespace TBSLogistics.Data.TMS
         public DateTime CreatedTime { get; set; }
         public DateTime? UpdatedTime { get; set; }
 
+        public virtual KhachHang DonViVanTaiNavigation { get; set; }
         public virtual BangGia IdbangGiaNavigation { get; set; }
         public virtual Romooc MaRomoocNavigation { get; set; }
         public virtual XeVanChuyen MaSoXeNavigation { get; set; }
