@@ -1,24 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-#nullable disable
-
-namespace TBSLogistics.Data.TMS
+namespace TBSLogistics.Model.Model.ProductServiceModel
 {
-    public partial class BangGia
+    public class ListProductServiceRequest
     {
-        public BangGia()
-        {
-            DieuPhoi = new HashSet<DieuPhoi>();
-        }
-
-        public int Id { get; set; }
+        public int ID { get; set; }
         public string MaHopDong { get; set; }
-        public string MaPtvc { get; set; }
+        public string MaPTVC { get; set; }
         public string MaCungDuong { get; set; }
         public string MaLoaiPhuongTien { get; set; }
         public decimal DonGia { get; set; }
-        public string MaDvt { get; set; }
+        public string MaDVT { get; set; }
         public string MaLoaiHangHoa { get; set; }
         public string MaLoaiDoiTac { get; set; }
         public DateTime NgayApDung { get; set; }
@@ -26,10 +22,5 @@ namespace TBSLogistics.Data.TMS
         public int TrangThai { get; set; }
         public DateTime UpdatedTime { get; set; }
         public DateTime CreatedTime { get; set; }
-        public DateTime? DeletedTime { get; set; }
-
-        public virtual CungDuong MaCungDuongNavigation { get; set; }
-        public virtual HopDongVaPhuLuc MaHopDongNavigation { get; set; }
-        public virtual ICollection<DieuPhoi> DieuPhoi { get; set; }
     }
 }
