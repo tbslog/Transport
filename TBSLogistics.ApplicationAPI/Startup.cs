@@ -23,6 +23,7 @@ using TBSLogistics.Service.Repository.PricelistManage;
 using TBSLogistics.Service.Repository.RoadManage;
 using TBSLogistics.Service.Repository.VehicleManage;
 using TBSLogistics.Service.Services.ContractManage;
+using TBSLogistics.Service.Services.SubFeePriceManage;
 
 namespace TBSLogistics.ApplicationAPI
 {
@@ -90,6 +91,7 @@ namespace TBSLogistics.ApplicationAPI
             services.AddTransient<IBillOfLading, BillOfLadingService>();
             services.AddTransient<IRoad, RoadService>();
             services.AddTransient<IContract, ContractService>();
+            services.AddTransient<ISubFeePrice, SubFeePriceService>();
 
             services.AddSwaggerGen(option =>
             {

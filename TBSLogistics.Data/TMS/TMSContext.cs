@@ -1,8 +1,6 @@
 ﻿using System;
-using System.IO;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.Extensions.Configuration;
 
 #nullable disable
 
@@ -57,12 +55,8 @@ namespace TBSLogistics.Data.TMS
         {
             if (!optionsBuilder.IsConfigured)
             {
-                IConfigurationRoot configuration = new ConfigurationBuilder()
-                                .SetBasePath(Directory.GetCurrentDirectory())
-                                .AddJsonFile("appsettings.json")
-                                .Build();
-
-                optionsBuilder.UseSqlServer(configuration.GetConnectionString("TMS_Local"));
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+                optionsBuilder.UseSqlServer("Server=192.168.3.63;Database=TMS;User Id=haile;Password=123456;");
             }
         }
 
@@ -686,7 +680,9 @@ namespace TBSLogistics.Data.TMS
 
             modelBuilder.Entity<SubFeePrice>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e => e.PriceId);
+
+                entity.Property(e => e.PriceId).HasColumnName("priceID");
 
                 entity.Property(e => e.ApprovedDate).HasColumnName("approvedDate");
 
@@ -715,10 +711,6 @@ namespace TBSLogistics.Data.TMS
                     .HasComment("if the sub-fee is collected on road, need two place; is collected at a place need one place; independent to place  then 2 place-fields are null ");
 
                 entity.Property(e => e.GoodsType).HasColumnName("goodsType");
-
-                entity.Property(e => e.PriceId)
-                    .ValueGeneratedOnAdd()
-                    .HasColumnName("priceID");
 
                 entity.Property(e => e.SecondPlace).HasColumnName("secondPlace");
 
