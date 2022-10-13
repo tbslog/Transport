@@ -90,9 +90,6 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             return Ok(driver);
         }
 
-        [HttpGet]
-        [Route("[action]")]
-
 
         [HttpGet]
         [Route("[action]")]

@@ -20,6 +20,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             _Romooc = romooc;
             _uriService = uriService;
         }
+
         [HttpPost]
         [Route("[action]")]
         public async Task<IActionResult> CreateRomooc(CreateRomooc request)
@@ -35,6 +36,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
                 return BadRequest(create.Message);
             }
         }
+
         [HttpPut]
         [Route("[action]")]
         public async Task<IActionResult> EditRomooc(string MaRomooc, EditRomooc request)
@@ -50,6 +52,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
                 return BadRequest(Edit.Message);
             }
         }
+
         [HttpPut]
         [Route("[action]")]
         public async Task<IActionResult> DeleteRomooc(string MaRomooc)
@@ -65,6 +68,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
                 return BadRequest(Edit.Message);
             }
         }
+
         [HttpGet]
         [Route("[action]")]
         public async Task<IActionResult> GetListRomooc([FromQuery] PaginationFilter filter)
@@ -75,6 +79,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             var pagedReponse = PaginationHelper.CreatePagedReponse<ListRomooc>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _uriService, route);
             return Ok(pagedReponse);
         }
+
         [HttpGet]
         [Route("[action]")]
         public async Task<IActionResult> GetRomoocById(string MaRomooc)

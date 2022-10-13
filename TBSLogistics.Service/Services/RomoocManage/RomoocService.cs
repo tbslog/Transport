@@ -24,8 +24,8 @@ namespace TBSLogistics.Service.Services.RomoocManage
         private readonly TMSContext _TMScontext;
         public RomoocService(ICommon common, TMSContext context)
         {
-            common = _common;
-            context = _TMScontext;
+            _common =common ;
+            _TMScontext = context;
         }
         public async Task<BoolActionResult> CreateRomooc(CreateRomooc request)
         {
