@@ -141,7 +141,6 @@ const AddContract = (props) => {
       let getListCustomer = await getData(
         `Customer/GetListCustomerOptionSelect`
       );
-      console.log(getListCustomer);
       if (getListCustomer && getListCustomer.length > 0) {
         let obj = [];
 
