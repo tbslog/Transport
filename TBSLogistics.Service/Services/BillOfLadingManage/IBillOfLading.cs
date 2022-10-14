@@ -10,6 +10,6 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
 {
     public interface IBillOfLading
     {
-        Task<LoadDataTransPort> getListRoadBillOfLading(string RoadId);
+        Task<LoadDataTransPort> getListDataHandling(string RoadId);
     }
 }

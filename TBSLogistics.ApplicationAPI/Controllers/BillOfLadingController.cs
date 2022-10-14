@@ -26,7 +26,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> LoadDataTransport(string RoadId)
         {
-            var data = await _billOfLading.getListRoadBillOfLading(RoadId);
+            var data = await _billOfLading.getListDataHandling(RoadId);
             return Ok(data);
         }
     }

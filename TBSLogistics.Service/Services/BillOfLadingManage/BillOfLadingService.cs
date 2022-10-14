@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TBSLogistics.Data.TMS;
 using TBSLogistics.Model.CommonModel;
@@ -26,7 +27,7 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
             _context = context;
         }
 
-        public async Task<LoadDataTransPort> getListRoadBillOfLading(string RoadId)
+        public async Task<LoadDataTransPort> getListDataHandling(string RoadId)
         {
             var getListRoad = from cd in _context.CungDuong
                               join bg in _context.BangGia
@@ -104,7 +105,7 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
             return result;
         }
 
-        public async Task<BoolActionResult> CreateTransPort(CreateTransport request)
+        public async Task<BoolActionResult> CreateHandling(CreateTransport request)
         {
             try
             {
@@ -116,41 +117,63 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
                 }
 
 
-                string errors = "";
+                string ErrorValidate = "";
                 foreach (var item in request.DieuPhoi)
                 {
+                    if (string.IsNullOrEmpty(item.DonViVanTai))
+                    {
+                        ErrorValidate += "Không được để trống Đơn vị vận tải";
+                    }
 
+                    if (item.DonViVanTai.Length != 8)
+                    {
+                        ErrorValidate += "Đơn vị vận tải phải dài 8 ký tự \r\n" + System.Environment.NewLine;
+                    }
+
+                    if (!Regex.IsMatch(item.DonViVanTai, "^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9]+(?<![_.])$", RegexOptions.IgnoreCase))
+                    {
+                        ErrorValidate += "Đơn vị vận tải không được chứa ký tự đặc biệt \r\n" + System.Environment.NewLine;
+                    }
+
+                    if (string.IsNullOrEmpty(item.MaKh))
+                    {
+                        ErrorValidate += "Không được để trống đơn vị vận tải";
+                    }
+
+                    if (item.MaKh.Length != 8)
+                    {
+                        ErrorValidate += "Mã khách hàng phải dài 8 ký tự \r\n" + System.Environment.NewLine;
+                    }
+
+                    if (!Regex.IsMatch(item.MaKh, "^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9]+(?<![_.])$", RegexOptions.IgnoreCase))
+                    {
+                        ErrorValidate += "Mã khách hàng không được chứa ký tự đặc biệt \r\n" + System.Environment.NewLine;
+                    }
+
+                    if (string.IsNullOrEmpty(item.GiaThamChieu.ToString()) || string.IsNullOrEmpty(item.GiaThucTe.ToString()))
+                    {
+
+                    }
+
+                    if(!Regex.IsMatch(item.GiaThamChieu.ToString(), "^(?![_.])(?![_.])(?!.*[_.]{2})[0-9]+(?<![_.])$") || !Regex.IsMatch(item.GiaThucTe.ToString(), "^(?![_.])(?![_.])(?!.*[_.]{2})[0-9]+(?<![_.])$"))
+                    {
+
+                    }
+
+                    if (string.IsNullOrEmpty(item.ContNo))
+                    {
+
+                    }
+
+                    if(string.IsNullOrEmpty(item.MaTaiXe) || string.IsNullOrEmpty(item.MaSoXe))
+                    {
+
+                    }
                 }
-
-                var getMaxTransportID = _context.VanDon.Max(x => x.MaVanDon).Select(x => x).FirstOrDefault().ToString();
-                string transPortId = "";
-
-                if (string.IsNullOrEmpty(getMaxTransportID))
-                {
-                    transPortId = DateTime.Now.ToString("yy") + "000000001";
-                }
-                else
-                {
-                    transPortId = DateTime.Now.ToString("yy") + (int.Parse(getMaxTransportID.Substring(2, getMaxTransportID.Length)) + 1).ToString("000000000");
-                }
-
-
-                var createTransport = _context.VanDon.Add(new VanDon()
-                {
-                    MaVanDon = transPortId,
-                    MaCungDuong = request.MaCungDuong,
-                    TrangThai = 8,
-                    NgayTaoDon = DateTime.Now.Date,
-                    UpdatedTime = DateTime.Now,
-                    CreatedTime = DateTime.Now
-                });
-
-                await _context.SaveChangesAsync();
-
 
                 var handling = request.DieuPhoi.Select(x => new DieuPhoi()
                 {
-                    MaVanDon = createTransport.Entity.MaVanDon,
+                    MaVanDon = request.MaVanDon,
                     MaSoXe = x.MaSoXe,
                     MaTaiXe = x.MaTaiXe,
                     DonViVanTai = x.DonViVanTai,

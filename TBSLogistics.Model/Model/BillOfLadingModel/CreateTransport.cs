@@ -8,6 +8,7 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
 {
     public class CreateTransport
     {
+        public string MaVanDon { get; set; }
         public string MaCungDuong { get; set; }
         public string HangTau { get; set; }
         public string Tau { get; set; }
