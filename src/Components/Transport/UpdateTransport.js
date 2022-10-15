@@ -6,9 +6,9 @@ import Select from "react-select";
 import moment from "moment";
 import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
 
-const CreateTransport = (props) => {
-  const { getListTransport } = props;
-  const [IsLoading, SetIsLoading] = useState(false);
+const UpdateTransport = (props) => {
+  const { getListTransport, selectIdClick, hideModal } = props;
+
   const {
     register,
     reset,
@@ -65,8 +65,14 @@ const CreateTransport = (props) => {
   };
 
   const [tabIndex, setTabIndex] = useState(0);
+  const [IsLoading, SetIsLoading] = useState(false);
   const [listPoint, setListPoint] = useState([]);
   const [listRoad, setListRoad] = useState([]);
+  const [contractId, setContractId] = useState("");
+
+  const HandleOnChangeTabs = (tabIndex) => {
+    setTabIndex(tabIndex, reset());
+  };
 
   useEffect(() => {
     SetIsLoading(true);
@@ -86,29 +92,49 @@ const CreateTransport = (props) => {
     })();
   }, []);
 
-  const HandleOnChangeTabs = (tabIndex) => {
-    setTabIndex(tabIndex, reset());
-  };
+  useEffect(() => {
+    if (props && selectIdClick && Object.keys(selectIdClick).length > 0) {
+      setValue(
+        "MaCungDuong",
+        {
+          ...listRoad.filter((x) => x.value === selectIdClick.maCungDuong),
+        }[0]
+      );
+
+      console.log(selectIdClick);
+      setContractId(selectIdClick.maVanDon);
+      setValue("MaVanDon", selectIdClick.maVanDon);
+      setValue("TongThungHang", selectIdClick.tongThungHang);
+      setValue("TongKhoiLuong", selectIdClick.tongKhoiLuong);
+      setValue("TGLayHang", new Date(selectIdClick.thoiGianLayHang));
+      setValue("TGTraHang", new Date(selectIdClick.thoiGianTraHang));
+
+      if (selectIdClick.loaiVanDon == "nhap") {
+      }
+    }
+  }, [props, selectIdClick, listRoad]);
 
   const onSubmit = async (data) => {
     SetIsLoading(true);
 
-    const create = await postData("BillOfLading/CreateTransport", {
-      maCungDuong: data.MaCungDuong.value,
-      loaiVanDon: "nhap",
-      tongThungHang: data.TongThungHang,
-      tongKhoiLuong: data.TongKhoiLuong,
-      thoiGianLayHang: moment(new Date(data.TGLayHang).toISOString()).format(
-        "yyyy-MM-DDTHH:mm:ss.SSS"
-      ),
-      thoiGianTraHang: moment(new Date(data.TGTraHang).toISOString()).format(
-        "yyyy-MM-DDTHH:mm:ss.SSS"
-      ),
-    });
+    const Update = await postData(
+      `BillOfLading/UpdateTransport?transportId=${contractId}`,
+      {
+        maCungDuong: data.MaCungDuong.value,
+        tongThungHang: data.TongThungHang,
+        tongKhoiLuong: data.TongKhoiLuong,
+        thoiGianLayHang: moment(new Date(data.TGLayHang).toISOString()).format(
+          "yyyy-MM-DDTHH:mm:ss.SSS"
+        ),
+        thoiGianTraHang: moment(new Date(data.TGTraHang).toISOString()).format(
+          "yyyy-MM-DDTHH:mm:ss.SSS"
+        ),
+      }
+    );
 
-    if (create === 1) {
+    if (Update === 1) {
       getListTransport(1);
-      handleResetClick();
+      hideModal();
     }
 
     SetIsLoading(false);
@@ -117,6 +143,7 @@ const CreateTransport = (props) => {
   const handleResetClick = () => {
     reset();
   };
+
   return (
     <>
       <Tabs
@@ -142,6 +169,24 @@ const CreateTransport = (props) => {
                     <div className="row">
                       <div className="col col-sm">
                         <div className="form-group">
+                          <label htmlFor="MaVanDon">Mã Vận Đơn</label>
+                          <input
+                            readOnly
+                            autoComplete="false"
+                            type="text"
+                            className="form-control"
+                            id="MaVanDon"
+                            {...register(`MaVanDon`)}
+                          />
+                          {errors.MaVanDon && (
+                            <span className="text-danger">
+                              {errors.MaVanDon.message}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="col col-sm">
+                        <div className="form-group">
                           <label htmlFor="MaCungDuong">Cung Đường</label>
                           <Controller
                             name="MaCungDuong"
@@ -164,7 +209,6 @@ const CreateTransport = (props) => {
                         </div>
                       </div>
                     </div>
-
                     <>
                       <div className="row">
                         <div className="col col-sm">
@@ -192,7 +236,7 @@ const CreateTransport = (props) => {
                         <div className="col col-sm">
                           <div className="form-group">
                             <label htmlFor="TongKhoiLuong">
-                              Tổng Khối Lượng
+                              Tổng Trọng Lượng
                             </label>
                             <input
                               autoComplete="false"
@@ -294,7 +338,7 @@ const CreateTransport = (props) => {
                         className="btn btn-primary"
                         style={{ float: "right" }}
                       >
-                        Thêm mới
+                        Cập nhật
                       </button>
                     </div>
                   </div>
@@ -317,18 +361,11 @@ const CreateTransport = (props) => {
                   <div className="card-footer">
                     <div>
                       <button
-                        type="button"
-                        onClick={() => handleResetClick()}
-                        className="btn btn-warning"
-                      >
-                        Làm mới
-                      </button>
-                      <button
                         type="submit"
                         className="btn btn-primary"
                         style={{ float: "right" }}
                       >
-                        Thêm mới
+                        Cập Nhật
                       </button>
                     </div>
                   </div>
@@ -342,4 +379,4 @@ const CreateTransport = (props) => {
   );
 };
 
-export default CreateTransport;
+export default UpdateTransport;

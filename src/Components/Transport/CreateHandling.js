@@ -7,7 +7,7 @@ import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
 import moment from "moment/moment";
 
 const CreateHandling = (props) => {
-  const { listStatus } = props;
+  const { listStatus, selectIdClick } = props;
 
   const [IsLoading, SetIsLoading] = useState(false);
   const {
@@ -20,33 +20,6 @@ const CreateHandling = (props) => {
     handleSubmit,
   } = useForm({
     mode: "onSubmit",
-    defaultValues: {
-      optionTransport: [
-        {
-          NhaCungCap: null,
-          KhachHang: null,
-          XeVanChuyen: null,
-          TaiXe: null,
-          Romooc: null,
-          PTVanChuyen: "",
-          LoaiHangHoa: "",
-          MaBangGia: "",
-          GiaThucTe: "",
-          CONTNO: "",
-          SEALHQ: "",
-          SEALHT: "",
-          TrongLuong: "",
-          TheTich: "",
-          TGLayRong: "",
-          TGTraRong: "",
-          TGCoMat: "",
-          TGLech: "",
-          TGNhapHang: "",
-          TGKeoCont: "",
-          GhiChu: "",
-        },
-      ],
-    },
   });
 
   const { fields, append, remove } = useFieldArray({
@@ -116,7 +89,7 @@ const CreateHandling = (props) => {
         message: "Không được chứa ký tự đặc biệt",
       },
     },
-    TrongLuong: {
+    KhoiLuong: {
       required: "Không được để trống",
       pattern: {
         value: /^(?![_.])(?![_.])(?!.*[_.]{2})[0-9.]+(?<![_.])$/,
@@ -230,12 +203,52 @@ const CreateHandling = (props) => {
     })();
   }, []);
 
+  useEffect(() => {
+    if (props && selectIdClick && Object.keys(selectIdClick).length > 0) {
+      handleOnchangeListRoad(selectIdClick.maCungDuong);
+      setValue("MaVanDon", selectIdClick.maVanDon);
+      setValue("TongThungHang", selectIdClick.tongThungHang);
+      setValue("TongKhoiLuong", selectIdClick.tongKhoiLuong);
+      let arrData = [];
+      for (let i = 1; i <= selectIdClick.tongThungHang; i++) {
+        arrData.push({
+          NhaCungCap: null,
+          KhachHang: null,
+          XeVanChuyen: null,
+          TaiXe: null,
+          Romooc: null,
+          PTVanChuyen: "",
+          LoaiHangHoa: "",
+          MaBangGia: "",
+          GiaThucTe: "",
+          CONTNO: "",
+          SEALHQ: "",
+          SEALHT: "",
+          KhoiLuong: "",
+          TheTich: "",
+          TGLayRong: null,
+          TGTraRong: null,
+          TGCoMat: null,
+          TGLech: null,
+          TGNhapHang: null,
+          TGXuatHang: null,
+          TGKeoCont: null,
+          GhiChu: "",
+        });
+      }
+      setValue("optionTransport", arrData);
+    }
+  }, [props, selectIdClick, listRoad]);
+
   const handleOnchangeListRoad = async (value) => {
     SetIsLoading(true);
-    setValue("MaCungDuong", value);
+    setValue(
+      "MaCungDuong",
+      { ...listRoad.filter((x) => x.value === value) }[0]
+    );
 
     const getlistData = await getData(
-      `BillOfLading/LoadDataTransport?RoadId=${value.value}`
+      `BillOfLading/LoadDataHandling?RoadId=${value}`
     );
 
     if (getlistData && Object.keys(getlistData).length > 0) {
@@ -346,17 +359,17 @@ const CreateHandling = (props) => {
     let data = listPriceTable;
     let tempData = data;
 
-    let NhaPhanPhoi = watch(`optionTransport.${index}.NhaCungCap`);
+    let NhaCungCap = watch(`optionTransport.${index}.NhaCungCap`);
     let PTVanChuyen = watch(`optionTransport.${index}.PTVanChuyen`);
     let LoaiHangHoa = watch(`optionTransport.${index}.LoaiHangHoa`);
     let KhachHang = watch(`optionTransport.${index}.KhachHang`);
 
     if (nameVar === "NhaCungCap") {
-      if (NhaPhanPhoi !== null) {
-        if (NhaPhanPhoi.value === "TBSL") {
+      if (NhaCungCap !== null) {
+        if (NhaCungCap.value === "TBSL") {
           tempData = tempData.filter((x) => x.phanLoaiDoiTac === "KH");
         } else {
-          tempData = tempData.filter((x) => x.maDoiTac === NhaPhanPhoi.value);
+          tempData = tempData.filter((x) => x.maDoiTac === NhaCungCap.value);
         }
       }
     }
@@ -368,12 +381,12 @@ const CreateHandling = (props) => {
     if (LoaiHangHoa !== "") {
       tempData = tempData.filter((x) => x.loaiHangHoa === LoaiHangHoa);
     }
-    if (NhaPhanPhoi.value === "TBSL") {
+    if (NhaCungCap.value === "TBSL") {
       if (KhachHang !== null) {
         tempData = tempData.filter((x) => x.maDoiTac === KhachHang.value);
       }
     } else {
-      tempData = tempData.filter((x) => x.maDoiTac === NhaPhanPhoi.value);
+      tempData = tempData.filter((x) => x.maDoiTac === NhaCungCap.value);
     }
 
     if (tempData && tempData.length === 1) {
@@ -405,8 +418,8 @@ const CreateHandling = (props) => {
         onSelect={(index) => HandleOnChangeTabs(index)}
       >
         <TabList>
-          <Tab>Tạo Vận Đơn Nhập</Tab>
-          <Tab>Tạo Vận Đơn Xuất</Tab>
+          <Tab>Điều Phối Vận Đơn Nhập</Tab>
+          <Tab>Điều Phối Vận Đơn Xuất</Tab>
         </TabList>
 
         <TabPanel>
@@ -423,19 +436,60 @@ const CreateHandling = (props) => {
                     <div className="row">
                       <div className="col col-sm">
                         <div className="form-group">
+                          <label htmlFor="MaVanDon">Mã Vận Đơn</label>
+                          <input
+                            readOnly
+                            autoComplete="false"
+                            type="text"
+                            className="form-control"
+                            id="MaVanDon"
+                            {...register(`MaVanDon`)}
+                          />
+                        </div>
+                      </div>
+                      <div className="col col-sm">
+                        <div className="form-group">
+                          <label htmlFor="TongThungHang">
+                            Tổng Số Thùng Hàng
+                          </label>
+                          <input
+                            readOnly
+                            autoComplete="false"
+                            type="text"
+                            className="form-control"
+                            id="TongThungHang"
+                            {...register(`TongThungHang`)}
+                          />
+                        </div>
+                      </div>
+                      <div className="col col-sm">
+                        <div className="form-group">
+                          <label htmlFor="TongKhoiLuong">Tổng Khối Lượng</label>
+                          <input
+                            readOnly
+                            autoComplete="false"
+                            type="text"
+                            className="form-control"
+                            id="TongKhoiLuong"
+                            {...register(`TongKhoiLuong`)}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="row">
+                      <div className="col col-sm">
+                        <div className="form-group">
                           <label htmlFor="MaCungDuong">Cung Đường</label>
                           <Controller
                             name="MaCungDuong"
                             control={control}
                             render={({ field }) => (
                               <Select
+                                isDisabled
                                 {...field}
                                 classNamePrefix={"form-control"}
                                 value={field.value}
                                 options={listRoad}
-                                onChange={(field) =>
-                                  handleOnchangeListRoad(field)
-                                }
                               />
                             )}
                             rules={Validate.MaCungDuong}
@@ -520,7 +574,7 @@ const CreateHandling = (props) => {
                                 <h3 className="card-title">
                                   Thùng Hàng Số {index + 1}
                                 </h3>
-                                <div className="card-tools">
+                                {/* <div className="card-tools">
                                   {index >= 1 && (
                                     <button
                                       type="button"
@@ -537,7 +591,7 @@ const CreateHandling = (props) => {
                                   >
                                     <i className="fas fa-plus" />
                                   </button>
-                                </div>
+                                </div> */}
                               </div>
 
                               <div className="card-body">
@@ -886,25 +940,25 @@ const CreateHandling = (props) => {
 
                                   <div className="col col-sm">
                                     <div className="form-group">
-                                      <label htmlFor="TrongLuong">
-                                        Trọng Lượng
+                                      <label htmlFor="KhoiLuong">
+                                        Khối Lượng
                                       </label>
                                       <input
                                         autoComplete="false"
                                         type="text"
                                         className="form-control"
-                                        id="TrongLuong"
+                                        id="KhoiLuong"
                                         {...register(
-                                          `optionTransport.${index}.TrongLuong`,
-                                          Validate.TrongLuong
+                                          `optionTransport.${index}.KhoiLuong`,
+                                          Validate.KhoiLuong
                                         )}
                                       />
                                       {errors.optionTransport?.[index]
-                                        ?.TrongLuong && (
+                                        ?.KhoiLuong && (
                                         <span className="text-danger">
                                           {
                                             errors.optionTransport?.[index]
-                                              ?.TrongLuong.message
+                                              ?.KhoiLuong.message
                                           }
                                         </span>
                                       )}
@@ -1281,7 +1335,6 @@ const CreateHandling = (props) => {
                                             </div>
                                           </div>
                                         </div>
-
                                         <div className="col col-sm">
                                           <div className="form-group">
                                             <label htmlFor="TGKeoCont">

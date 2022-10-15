@@ -6,6 +6,8 @@ import moment from "moment";
 import { Modal } from "bootstrap";
 import DatePicker from "react-datepicker";
 import CreateTransport from "./CreateTransport";
+import UpdateTransport from "./UpdateTransport";
+import CreateHandling from "./CreateHandling";
 
 const TransportPage = () => {
   const [data, setData] = useState([]);
@@ -28,6 +30,98 @@ const TransportPage = () => {
   const [listStatus, setListStatus] = useState([]);
   const [listContractType, setListContractType] = useState([]);
 
+  const columns = useMemo(() => [
+    {
+      cell: (val) => (
+        <button
+          onClick={() => handleEditButtonClick(val, SetShowModal("Edit"))}
+          type="button"
+          className="btn btn-sm btn-default"
+        >
+          <i className="far fa-edit"></i>
+        </button>
+      ),
+      ignoreRowClick: true,
+      allowOverflow: true,
+      button: true,
+    },
+    {
+      cell: (val) => (
+        <button
+          onClick={() => handleEditButtonClick(val, SetShowModal("Handling"))}
+          type="button"
+          className="btn btn-sm btn-default"
+        >
+          <i className="fas fa-truck"></i>
+        </button>
+      ),
+      ignoreRowClick: true,
+      allowOverflow: true,
+      button: true,
+    },
+    {
+      name: "Mã Vận Đơn",
+      selector: (row) => row.maVanDon,
+    },
+    {
+      name: "Loại Vận Đơn",
+      selector: (row) => row.loaiVanDon,
+    },
+    {
+      name: "Mã Cung Đường",
+      selector: (row) => row.maCungDuong,
+      sortable: true,
+    },
+    {
+      name: "Tên Cung Đường",
+      selector: (row) => row.tenCungDuong,
+      sortable: true,
+    },
+    {
+      name: "Điểm Lấy Rỗng",
+      selector: (row) => row.diemLayRong,
+    },
+    {
+      name: "Điểm Lấy Hàng",
+      selector: (row) => row.diemLayHang,
+    },
+    {
+      name: "Điểm Trả Hàng",
+      selector: (row) => row.diemTraHang,
+    },
+    {
+      name: "Tổng Thùng Hàng",
+      selector: (row) => row.tongThungHang,
+      sortable: true,
+    },
+    {
+      name: "Tổng Trọng Lượng",
+      selector: (row) => row.tongKhoiLuong,
+      sortable: true,
+    },
+    {
+      name: "Thời Gian Lấy Hàng",
+      selector: (row) => moment(row.thoiGianLayHang).format("DD/MM/YYYY HH:mm"),
+      sortable: true,
+    },
+    {
+      name: "Thời Gian Trả Hàng",
+      selector: (row) => moment(row.thoiGianTraHang).format("DD/MM/YYYY HH:mm"),
+      sortable: true,
+    },
+    {
+      name: "Trạng Thái",
+      selector: (row) => row.trangThai,
+      sortable: true,
+    },
+    {
+      name: "Thời Gian Lập Đơn",
+      selector: (row) =>
+        moment(row.thoiGianTaoDon).format("DD/MM/YYYY HH:mm:ss"),
+      sortable: true,
+    },
+  ]);
+
   const showModalForm = () => {
     const modal = new Modal(parseExceptionModal.current, {
       keyboard: false,
@@ -43,13 +137,12 @@ const TransportPage = () => {
 
   useEffect(() => {
     (async () => {
-      const getListContractType = await getData(`Common/GetListContractType`);
-      setListContractType(getListContractType);
-
       let getStatusList = await getDataCustom(`Common/GetListStatus`, [
-        "common",
+        "Transport",
       ]);
       setListStatus(getStatusList);
+
+      fetchData(1);
     })();
   }, []);
 
@@ -58,12 +151,40 @@ const TransportPage = () => {
     KeyWord = "",
     fromDate = "",
     toDate = "",
-    contractType = "",
-    customerType = ""
+    status = ""
   ) => {
     setLoading(true);
-
+    const datatransport = await getData(
+      `BillOfLading/GetListTransport?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}&StatusId=${status}&fromDate=${fromDate}&toDate${toDate}`
+    );
+    console.log(datatransport.data);
+    setData(datatransport.data);
+    setTotalRows(datatransport.totalRecords);
     setLoading(false);
+  };
+
+  const handlePageChange = async (page) => {
+    await fetchData(page);
+  };
+
+  const handlePerRowsChange = async (newPerPage, page) => {
+    setLoading(true);
+
+    const datatransport = await getData(
+      `BillOfLading/GetListTransport?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}`
+    );
+    setData(datatransport);
+    setPerPage(newPerPage);
+    setLoading(false);
+  };
+
+  const handleChange = useCallback((state) => {
+    setSelectedRows(state.selectedRows);
+  }, []);
+
+  const handleEditButtonClick = (value) => {
+    setSelectIdClick(value);
+    showModalForm();
   };
 
   const handleSearchClick = () => {};
@@ -168,7 +289,24 @@ const TransportPage = () => {
               </div>
             </div>
           </div>
-          <div className="card-body">yyyyy</div>
+          <div className="card-body">
+            <div className="container-datatable" style={{ height: "50vm" }}>
+              <DataTable
+                title="Danh sách vận đơn"
+                columns={columns}
+                data={data}
+                progressPending={loading}
+                pagination
+                paginationServer
+                paginationTotalRows={totalRows}
+                selectableRows
+                onSelectedRowsChange={handleChange}
+                onChangeRowsPerPage={handlePerRowsChange}
+                onChangePage={handlePageChange}
+                highlightOnHover
+              />
+            </div>
+          </div>
           <div className="card-footer"></div>
         </div>
         <div
@@ -198,11 +336,17 @@ const TransportPage = () => {
               <div className="modal-body">
                 <>
                   {ShowModal === "Create" && (
-                    <CreateTransport
-                      getListContract={fetchData}
-                      listContractType={listContractType}
-                      listStatus={listStatus}
+                    <CreateTransport getListTransport={fetchData} />
+                  )}
+                  {ShowModal === "Edit" && (
+                    <UpdateTransport
+                      getListTransport={fetchData}
+                      selectIdClick={selectIdClick}
+                      hideModal={hideModal}
                     />
+                  )}
+                  {ShowModal === "Handling" && (
+                    <CreateHandling selectIdClick={selectIdClick} />
                   )}
                 </>
               </div>
