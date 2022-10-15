@@ -14,6 +14,7 @@ namespace TBSLogistics.Model.Filter
         public string customerType { get; set; }
         public string customerGroup { get; set; }
 
+        public string Status { get; set; }
         public string goodsType { get; set; }
         public string vehicleType { get; set; }
 

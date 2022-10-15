@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TBSLogistics.Model.Model.BillOfLadingModel
 {
-    public class LoadDataTransPort
+    public class LoadDataHandling
     {
         public List<NhaPhanPhoiSelect> ListNhaPhanPhoi { get; set; }
         public List<KhachHangSelect> ListKhachHang { get; set; }

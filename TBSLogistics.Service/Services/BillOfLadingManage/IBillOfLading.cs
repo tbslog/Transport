@@ -4,12 +4,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TBSLogistics.Model.CommonModel;
+using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.BillOfLadingModel;
+using TBSLogistics.Model.Wrappers;
 
 namespace TBSLogistics.Service.Repository.BillOfLadingManage
 {
     public interface IBillOfLading
     {
-        Task<LoadDataTransPort> getListDataHandling(string RoadId);
+        Task<LoadDataHandling> LoadDataHandling(string RoadId);
+        Task<BoolActionResult> CreateHandling(CreateHandling request);
+        Task<BoolActionResult> CreateTransport(CreateTransport request);
+        Task<BoolActionResult> UpdateTransport(string transPortId, UpdateTransport request);
+        Task<GetTransport> GetTransportById(string transportId);
+        Task<PagedResponseCustom<ListTransport>> GetListTransport(PaginationFilter filter);
     }
 }

@@ -699,11 +699,7 @@ namespace TBSLogistics.Data.TMS
                     .IsRequired()
                     .HasMaxLength(30);
 
-                entity.Property(e => e.StatusId)
-                    .IsRequired()
-                    .HasMaxLength(10)
-                    .IsUnicode(false)
-                    .HasColumnName("StatusID");
+                entity.Property(e => e.StatusId).HasColumnName("StatusID");
             });
 
             modelBuilder.Entity<SubFee>(entity =>
@@ -887,6 +883,11 @@ namespace TBSLogistics.Data.TMS
                 entity.Property(e => e.CangDich).HasMaxLength(50);
 
                 entity.Property(e => e.HangTau).HasMaxLength(50);
+
+                entity.Property(e => e.LoaiVanDon)
+                    .IsRequired()
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
 
                 entity.Property(e => e.MaCungDuong)
                     .IsRequired()

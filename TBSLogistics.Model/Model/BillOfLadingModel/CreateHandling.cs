@@ -1,13 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-#nullable disable
-
-namespace TBSLogistics.Data.TMS
+namespace TBSLogistics.Model.Model.BillOfLadingModel
 {
-    public partial class DieuPhoi
+    public class CreateHandling
     {
-        public int Id { get; set; }
+        public string MaVanDon { get; set; }
+        public string MaCungDuong { get; set; }
+        public string HangTau { get; set; }
+        public string Tau { get; set; }
+        public string CangChuyenTai { get; set; }
+        public string CangDich { get; set; }
+        public int TrangThai { get; set; }
+        public DateTime NgayTaoDon { get; set; }
+        public DateTime UpdatedTime { get; set; }
+        public DateTime CreatedTime { get; set; }
+        public List<Handling> DieuPhoi { get; set; }
+    }
+
+    public class Handling
+    {
         public string MaVanDon { get; set; }
         public string MaSoXe { get; set; }
         public string MaTaiXe { get; set; }
@@ -23,24 +38,14 @@ namespace TBSLogistics.Data.TMS
         public double KhoiLuong { get; set; }
         public double TheTich { get; set; }
         public string GhiChu { get; set; }
-        public DateTime? ThoiGianLayRong { get; set; }
+        public DateTime ThoiGianLayRong { get; set; }
         public DateTime? ThoiGianHaCong { get; set; }
-        public DateTime? ThoiGianKeoCong { get; set; }
+        public DateTime ThoiGianKeoCong { get; set; }
         public DateTime? ThoiGianHanLenh { get; set; }
         public DateTime ThoiGianCoMat { get; set; }
         public DateTime? ThoiGianCatMang { get; set; }
-        public DateTime? ThoiGianTraRong { get; set; }
+        public DateTime ThoiGianTraRong { get; set; }
         public DateTime? ThoiGianNhapHang { get; set; }
         public DateTime? ThoiGianXuatHang { get; set; }
-        public int TrangThai { get; set; }
-        public DateTime CreatedTime { get; set; }
-        public DateTime? UpdatedTime { get; set; }
-
-        public virtual KhachHang DonViVanTaiNavigation { get; set; }
-        public virtual BangGia IdbangGiaNavigation { get; set; }
-        public virtual Romooc MaRomoocNavigation { get; set; }
-        public virtual XeVanChuyen MaSoXeNavigation { get; set; }
-        public virtual TaiXe MaTaiXeNavigation { get; set; }
-        public virtual VanDon MaVanDonNavigation { get; set; }
     }
 }

@@ -101,8 +101,8 @@ namespace TBSLogistics.Service.Repository.PricelistManage
                     ErrorValidate += "Mã đối tác không tồn tại: " + String.Join(",", checkExistsPertner);
                 }
 
-                var checkStatus = await _context.StatusText.Where(x => request.Select(y => y.TrangThai.ToString()).Contains(x.StatusId)).ToListAsync();
-                var checkExistsStatus = request.Where(x => !checkStatus.Any(y => y.StatusId == x.TrangThai.ToString())).Select(x => x.TrangThai);
+                var checkStatus = await _context.StatusText.Where(x => request.Select(y => y.TrangThai).Contains(x.StatusId)).ToListAsync();
+                var checkExistsStatus = request.Where(x => !checkStatus.Any(y => y.StatusId == x.TrangThai)).Select(x => x.TrangThai);
                 if (checkExistsStatus.Count() > 0)
                 {
                     ErrorValidate += "Mã trạng thái không tồn tại: " + String.Join(",", checkExistsStatus);

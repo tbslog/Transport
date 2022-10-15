@@ -6,9 +6,8 @@ using System.Threading.Tasks;
 
 namespace TBSLogistics.Model.Model.BillOfLadingModel
 {
-    public class CreateTransport
+    public  class UpdateTransport
     {
-        public string LoaiVanDon { get; set; }
         public string MaCungDuong { get; set; }
         public int TongThungHang { get; set; }
         public int TongKhoiLuong { get; set; }
