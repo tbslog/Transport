@@ -18,6 +18,7 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
 
     public class BangGiaVanDon
     {
+        public long MaBangGia { get; set; }
         public string MaDoiTac { get; set; }
         public string PhanLoaiDoiTac { get; set; }
         public string PTVC { get; set; }
@@ -54,4 +55,5 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
         public string MaRomooc { get; set; }
         public string TenLoaiRomooc { get; set; }
     }
+
 }

@@ -75,9 +75,58 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpPost]
         [Route("[action]")]
+        public async Task<IActionResult> CreateHanling(CreateHandling request)
+        {
+            var create = await _billOfLading.CreateHandling(request);
+
+            if (create.isSuccess)
+            {
+                return Ok(create.Message);
+            }
+            else
+            {
+                return BadRequest(create.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("[action]")]
         public async Task<IActionResult> UpdateTransport(string transportId, UpdateTransport request)
         {
             var update = await _billOfLading.UpdateTransport(transportId, request);
+
+            if (update.isSuccess)
+            {
+                return Ok(update.Message);
+            }
+            else
+            {
+                return BadRequest(update.Message);
+            }
+        }
+
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetListHandlingByTransportId(string transportId)
+        {
+            var list = await _billOfLading.GetListHandlingByTransportId(transportId);
+
+            return Ok(list);
+        }
+
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetHandlingById(int id)
+        {
+            var data = await _billOfLading.GetHandlingById(id);
+            return Ok(data);
+        }
+
+        [HttpPost]
+        [Route("[action]")]
+        public async Task<IActionResult> UpdateHandling(int id, UpdateHandling request)
+        {
+            var update = await _billOfLading.UpdateHandling(id, request);
 
             if (update.isSuccess)
             {

@@ -278,6 +278,8 @@ namespace TBSLogistics.Data.TMS
 
                 entity.Property(e => e.GiaThucTe).HasColumnType("decimal(18, 0)");
 
+                entity.Property(e => e.HangTau).HasMaxLength(50);
+
                 entity.Property(e => e.IdbangGia).HasColumnName("IDBangGia");
 
                 entity.Property(e => e.MaKh)
@@ -314,6 +316,8 @@ namespace TBSLogistics.Data.TMS
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnName("SEAL_NP");
+
+                entity.Property(e => e.Tau).HasMaxLength(50);
 
                 entity.HasOne(d => d.DonViVanTaiNavigation)
                     .WithMany(p => p.DieuPhoi)
@@ -878,12 +882,6 @@ namespace TBSLogistics.Data.TMS
                     .HasMaxLength(10)
                     .IsUnicode(false);
 
-                entity.Property(e => e.CangChuyenTai).HasMaxLength(50);
-
-                entity.Property(e => e.CangDich).HasMaxLength(50);
-
-                entity.Property(e => e.HangTau).HasMaxLength(50);
-
                 entity.Property(e => e.LoaiVanDon)
                     .IsRequired()
                     .HasMaxLength(10)
@@ -893,8 +891,6 @@ namespace TBSLogistics.Data.TMS
                     .IsRequired()
                     .HasMaxLength(10)
                     .IsUnicode(false);
-
-                entity.Property(e => e.Tau).HasMaxLength(50);
             });
 
             modelBuilder.Entity<XaPhuong>(entity =>

@@ -18,5 +18,9 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
         Task<BoolActionResult> UpdateTransport(string transPortId, UpdateTransport request);
         Task<GetTransport> GetTransportById(string transportId);
         Task<PagedResponseCustom<ListTransport>> GetListTransport(PaginationFilter filter);
+        Task<List<ListHandling>> GetListHandlingByTransportId(string transPortId);
+        Task<GetHandling> GetHandlingById(int id);
+        Task<BoolActionResult> UpdateHandling(int id, UpdateHandling request);
+
     }
 }

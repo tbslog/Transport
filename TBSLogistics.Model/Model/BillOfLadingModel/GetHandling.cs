@@ -1,23 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-#nullable disable
-
-namespace TBSLogistics.Data.TMS
+namespace TBSLogistics.Model.Model.BillOfLadingModel
 {
-    public partial class DieuPhoi
+    public class GetHandling
     {
-        public long Id { get; set; }
+        public string PhanLoaiVanDon { get; set; }
         public string MaVanDon { get; set; }
+        public string MaCungDuong { get; set; }
         public string MaSoXe { get; set; }
         public string MaTaiXe { get; set; }
-        public string DonViVanTai { get; set; }
+        public string NhaCungCap { get; set; }
+        public string PTVanChuyen { get; set; }
+        public string LoaiHangHoa { get; set; }
         public string MaKh { get; set; }
+        public string TenTau { get; set; }
+        public string HangTau { get; set; }
         public long IdbangGia { get; set; }
         public decimal GiaThamChieu { get; set; }
         public decimal GiaThucTe { get; set; }
-        public string Tau { get; set; }
-        public string HangTau { get; set; }
         public string MaRomooc { get; set; }
         public string ContNo { get; set; }
         public string SealNp { get; set; }
@@ -34,16 +38,5 @@ namespace TBSLogistics.Data.TMS
         public DateTime? ThoiGianTraRong { get; set; }
         public DateTime ThoiGianLayHang { get; set; }
         public DateTime ThoiGianTraHang { get; set; }
-        public int TrangThai { get; set; }
-        public DateTime CreatedTime { get; set; }
-        public DateTime? UpdatedTime { get; set; }
-        public DateTime? DeletedTime { get; set; }
-
-        public virtual KhachHang DonViVanTaiNavigation { get; set; }
-        public virtual BangGia IdbangGiaNavigation { get; set; }
-        public virtual Romooc MaRomoocNavigation { get; set; }
-        public virtual XeVanChuyen MaSoXeNavigation { get; set; }
-        public virtual TaiXe MaTaiXeNavigation { get; set; }
-        public virtual VanDon MaVanDonNavigation { get; set; }
     }
 }

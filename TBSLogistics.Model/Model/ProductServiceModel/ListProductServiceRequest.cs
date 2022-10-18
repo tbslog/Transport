@@ -8,7 +8,7 @@ namespace TBSLogistics.Model.Model.ProductServiceModel
 {
     public class ListProductServiceRequest
     {
-        public int ID { get; set; }
+        public long ID { get; set; }
         public string MaHopDong { get; set; }
         public string MaPTVC { get; set; }
         public string MaCungDuong { get; set; }

@@ -12,7 +12,7 @@ namespace TBSLogistics.Data.TMS
             DieuPhoi = new HashSet<DieuPhoi>();
         }
 
-        public int Id { get; set; }
+        public long Id { get; set; }
         public string MaHopDong { get; set; }
         public string MaPtvc { get; set; }
         public string MaCungDuong { get; set; }
