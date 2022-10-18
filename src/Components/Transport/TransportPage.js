@@ -1,5 +1,4 @@
 import { useMemo, useState, useEffect, useCallback, useRef } from "react";
-import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
 import { getData, postFile, getDataCustom } from "../Common/FuncAxios";
 import DataTable from "react-data-table-component";
 import moment from "moment";
@@ -8,6 +7,7 @@ import DatePicker from "react-datepicker";
 import CreateTransport from "./CreateTransport";
 import UpdateTransport from "./UpdateTransport";
 import CreateHandling from "./CreateHandling";
+import ListHandling from "./ListHandling";
 
 const TransportPage = () => {
   const [data, setData] = useState([]);
@@ -23,12 +23,10 @@ const TransportPage = () => {
   const [selectedRows, setSelectedRows] = useState([]);
   const [selectIdClick, setSelectIdClick] = useState({});
 
-  const [tabIndex, setTabIndex] = useState(0);
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
 
   const [listStatus, setListStatus] = useState([]);
-  const [listContractType, setListContractType] = useState([]);
 
   const columns = useMemo(() => [
     {
@@ -48,7 +46,14 @@ const TransportPage = () => {
     {
       cell: (val) => (
         <button
-          onClick={() => handleEditButtonClick(val, SetShowModal("Handling"))}
+          onClick={() =>
+            handleEditButtonClick(
+              val,
+              val.maTrangThai === 8
+                ? SetShowModal("Handling")
+                : SetShowModal("ListHandling")
+            )
+          }
           type="button"
           className="btn btn-sm btn-default"
         >
@@ -71,15 +76,18 @@ const TransportPage = () => {
       name: "Mã Cung Đường",
       selector: (row) => row.maCungDuong,
       sortable: true,
+      width: "auto",
     },
     {
       name: "Tên Cung Đường",
       selector: (row) => row.tenCungDuong,
       sortable: true,
+      width: "auto",
     },
     {
       name: "Điểm Lấy Rỗng",
       selector: (row) => row.diemLayRong,
+      width: "auto",
     },
     {
       name: "Điểm Lấy Hàng",
@@ -100,6 +108,11 @@ const TransportPage = () => {
       sortable: true,
     },
     {
+      name: "Tổng Thể Tích",
+      selector: (row) => row.tongTheTich,
+      sortable: true,
+    },
+    {
       name: "Thời Gian Lấy Hàng",
       selector: (row) => moment(row.thoiGianLayHang).format("DD/MM/YYYY HH:mm"),
       sortable: true,
@@ -108,6 +121,11 @@ const TransportPage = () => {
       name: "Thời Gian Trả Hàng",
       selector: (row) => moment(row.thoiGianTraHang).format("DD/MM/YYYY HH:mm"),
       sortable: true,
+    },
+    {
+      selector: (row) => row.maTrangThai,
+      sortable: true,
+      omit: true,
     },
     {
       name: "Trạng Thái",
@@ -157,7 +175,6 @@ const TransportPage = () => {
     const datatransport = await getData(
       `BillOfLading/GetListTransport?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}&StatusId=${status}&fromDate=${fromDate}&toDate${toDate}`
     );
-    console.log(datatransport.data);
     setData(datatransport.data);
     setTotalRows(datatransport.totalRecords);
     setLoading(false);
@@ -346,7 +363,17 @@ const TransportPage = () => {
                     />
                   )}
                   {ShowModal === "Handling" && (
-                    <CreateHandling selectIdClick={selectIdClick} />
+                    <CreateHandling
+                      selectIdClick={selectIdClick}
+                      reOpenModal={handleEditButtonClick}
+                      hideModal={hideModal}
+                    />
+                  )}
+                  {ShowModal === "ListHandling" && (
+                    <ListHandling
+                      dataClick={selectIdClick}
+                      hideModal={hideModal}
+                    />
                   )}
                 </>
               </div>
