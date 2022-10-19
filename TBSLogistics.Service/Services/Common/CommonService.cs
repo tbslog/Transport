@@ -97,9 +97,9 @@ namespace TBSLogistics.Service.Repository.Common
 
         public async Task<BoolActionResult> AddAttachment(Attachment attachment)
         {
+            var transaction = _context.Database.BeginTransaction();
             try
             {
-
                 string getName = attachment.FileName.Substring(0, attachment.FileName.LastIndexOf('.'));
                 var checkExists = await _context.Attachment.Where(x => x.FileName.Contains(getName)).FirstOrDefaultAsync();
 
@@ -120,6 +120,8 @@ namespace TBSLogistics.Service.Repository.Common
 
                 var result = await _context.SaveChangesAsync();
 
+                transaction.Commit();
+
                 if (result > 0)
                 {
                     return new BoolActionResult { isSuccess = true };
@@ -131,9 +133,9 @@ namespace TBSLogistics.Service.Repository.Common
             }
             catch (Exception ex)
             {
-                throw;
+                transaction.Rollback();
+                return new BoolActionResult { isSuccess = false, Message = ex.ToString() };
             }
-
         }
 
         public async Task<Attachment> GetAttachmentById(int id)

@@ -525,6 +525,8 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
 
                 return await data.Select(x => new ListHandling()
                 {
+                    MaVanDon = x.dp.MaVanDon,
+                    PhanLoaiVanDon = x.vd.LoaiVanDon,
                     MaDieuPhoi = x.dp.Id,
                     MaSoXe = x.dp.MaSoXe,
                     TenTaiXe = _context.TaiXe.Where(y => y.MaTaiXe == x.dp.MaTaiXe).Select(y => y.HoVaTen).FirstOrDefault(),
@@ -568,8 +570,20 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
 
                 var data = await getHandling.FirstOrDefaultAsync();
 
+                var getRoad = await _context.CungDuong.Where(x => x.MaCungDuong == data.bg.MaCungDuong).FirstOrDefaultAsync();
+
+                var RoadDetail = new RoadDetail()
+                {
+                    MaCungDuong = getRoad.MaCungDuong,
+                    TenCungDuong = getRoad.TenCungDuong,
+                    DiemLayRong = await _context.DiaDiem.Where(x => x.MaDiaDiem == getRoad.DiemLayRong).Select(x => x.TenDiaDiem).FirstOrDefaultAsync(),
+                    DiemLayHang = await _context.DiaDiem.Where(x => x.MaDiaDiem == getRoad.DiemDau).Select(x => x.TenDiaDiem).FirstOrDefaultAsync(),
+                    DiemTraHang = await _context.DiaDiem.Where(x => x.MaDiaDiem == getRoad.DiemCuoi).Select(x => x.TenDiaDiem).FirstOrDefaultAsync()
+                };
+
                 return new GetHandling()
                 {
+                    CungDuong = RoadDetail,
                     PhanLoaiVanDon = data.vd.LoaiVanDon,
                     MaVanDon = data.vd.MaVanDon,
                     MaCungDuong = data.vd.MaCungDuong,
@@ -612,18 +626,23 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
         {
             try
             {
-                if (string.IsNullOrEmpty(request.ContNo) || string.IsNullOrEmpty(request.SealNp) || string.IsNullOrEmpty(request.SealHq))
-                {
-                    return new BoolActionResult { isSuccess = false, Message = "Không được để trống Contno, SealNP, seal HQ" };
-                }
-
                 if (request.KhoiLuong == null || request.TheTich == null)
                 {
                     return new BoolActionResult { isSuccess = false, Message = "Không được để trống Khối Lượng, Thể Tích" };
                 }
 
+                if (string.IsNullOrEmpty(request.SealNp))
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Không được để trống  SealNP" };
+                }
+
                 if (request.PTVanChuyen.Contains("Cont"))
                 {
+                    if (string.IsNullOrEmpty(request.ContNo) || string.IsNullOrEmpty(request.SealHq))
+                    {
+                        return new BoolActionResult { isSuccess = false, Message = "Không được để trống ContNo, Seal HQ" };
+                    }
+
                     if (string.IsNullOrEmpty(request.ThoiGianLayRong.ToString()) || string.IsNullOrEmpty(request.ThoiGianKeoCong.ToString())
                   || string.IsNullOrEmpty(request.ThoiGianHanLenh.ToString()) || string.IsNullOrEmpty(request.ThoiGianCoMat.ToString())
                   || string.IsNullOrEmpty(request.ThoiGianTraRong.ToString()) || string.IsNullOrEmpty(request.ThoiGianLayHang.ToString())
@@ -655,12 +674,12 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
                 {
                     if (string.IsNullOrEmpty(request.HangTau) || string.IsNullOrEmpty(request.TenTau))
                     {
-                        return new BoolActionResult { isSuccess = false, Message = " không được để trống hãng tàu và tên tàu \r\n" };
+                        return new BoolActionResult { isSuccess = false, Message = "Không được để trống hãng tàu và tên tàu \r\n" };
                     }
 
                     if (string.IsNullOrEmpty(request.ThoiGianCatMang.ToString()))
                     {
-                        return new BoolActionResult { isSuccess = false, Message = " không được để trống thời gian cắt máng \r\n" };
+                        return new BoolActionResult { isSuccess = false, Message = "Không được để trống thời gian cắt máng \r\n" };
                     }
                 }
 
@@ -683,24 +702,34 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
 
                 checkById.MaSoXe = request.MaSoXe;
                 checkById.MaTaiXe = request.MaTaiXe;
-                checkById.Tau = request.TenTau;
-                checkById.HangTau = request.HangTau;
-                checkById.MaRomooc = request.MaRomooc;
-                checkById.ContNo = request.ContNo;
                 checkById.SealNp = request.SealNp;
-                checkById.SealHq = request.SealHq;
                 checkById.KhoiLuong = request.KhoiLuong;
                 checkById.TheTich = request.TheTich;
                 checkById.GhiChu = request.GhiChu;
-                checkById.ThoiGianLayRong = request.ThoiGianLayRong;
-                checkById.ThoiGianHaCong = request.ThoiGianHaCong;
-                checkById.ThoiGianKeoCong = request.ThoiGianKeoCong;
-                checkById.ThoiGianHanLenh = request.ThoiGianHanLenh;
                 checkById.ThoiGianCoMat = request.ThoiGianCoMat;
-                checkById.ThoiGianCatMang = request.ThoiGianCatMang;
-                checkById.ThoiGianTraRong = request.ThoiGianTraRong;
                 checkById.ThoiGianLayHang = request.ThoiGianLayHang;
                 checkById.ThoiGianTraHang = request.ThoiGianTraHang;
+
+                var checkTransportType = await _context.VanDon.Where(x => x.MaVanDon == checkById.MaVanDon).FirstOrDefaultAsync();
+                if (checkTransportType.LoaiVanDon == "xuat")
+                {
+                    checkById.Tau = request.TenTau;
+                    checkById.HangTau = request.HangTau;
+                    checkById.ThoiGianCatMang = request.ThoiGianCatMang;
+                }
+
+                var checkVehicleType = await _context.BangGia.Where(x => x.Id == checkById.IdbangGia).FirstOrDefaultAsync();
+                if (checkVehicleType.MaLoaiPhuongTien.Contains("CONT"))
+                {
+                    checkById.MaRomooc = request.MaRomooc;
+                    checkById.ContNo = request.ContNo;
+                    checkById.SealHq = request.SealHq;
+                    checkById.ThoiGianLayRong = request.ThoiGianLayRong;
+                    checkById.ThoiGianTraRong = request.ThoiGianTraRong;
+                    checkById.ThoiGianHaCong = request.ThoiGianHaCong;
+                    checkById.ThoiGianKeoCong = request.ThoiGianKeoCong;
+                    checkById.ThoiGianHanLenh = request.ThoiGianHanLenh;
+                }
 
                 _context.DieuPhoi.Update(checkById);
 
