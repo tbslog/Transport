@@ -16,7 +16,6 @@ const ListHandling = (props) => {
   const [modal, setModal] = useState(null);
   const parseExceptionModal = useRef();
   const [selectIdClick, setSelectIdClick] = useState({});
-  const [IsLoading, SetIsLoading] = useState(false);
 
   const columns = useMemo(() => [
     {
@@ -52,11 +51,20 @@ const ListHandling = (props) => {
       omit: true,
     },
     {
+      name: "Mã Vận Đơn",
+      selector: (row) => row.maVanDon,
+      sortable: true,
+    },
+    {
+      name: "Loại Vận Đơn",
+      selector: (row) => row.phanLoaiVanDon,
+      sortable: true,
+    },
+    {
       name: "Mã Số Xe",
       selector: (row) => row.maSoXe,
       sortable: true,
     },
-
     {
       name: "Tài Xế",
       selector: (row) => row.tenTaiXe,
