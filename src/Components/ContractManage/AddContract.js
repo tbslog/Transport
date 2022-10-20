@@ -191,8 +191,6 @@ const AddContract = (props) => {
   const onSubmit = async (data) => {
     SetIsLoading(true);
 
-    console.log(data);
-
     var create = await postData(
       "Contract/CreateContract",
       {

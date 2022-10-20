@@ -1,10 +1,11 @@
 import { useMemo, useState, useEffect, useCallback, useRef } from "react";
-import { getData, postFile, getDataCustom } from "../Common/FuncAxios";
+import { getData, postData, postFile } from "../Common/FuncAxios";
 import DataTable from "react-data-table-component";
 import moment from "moment";
 import { Modal } from "bootstrap";
-import DatePicker from "react-datepicker";
 import UpdateHandling from "./UpdateHandling";
+import HandlingImage from "./HandlingImage";
+import "./cssbox.css";
 
 const ListHandling = (props) => {
   const { dataClick } = props;
@@ -35,12 +36,32 @@ const ListHandling = (props) => {
     {
       cell: (val) => (
         <button
-          onClick={() => handleEditButtonClick(val, SetShowModal("Attachment"))}
+          onClick={() => handleEditButtonClick(val, SetShowModal("Image"))}
           type="button"
           className="btn btn-sm btn-default"
         >
-          <i className="fas fa-file-image"></i>
+          <i className="fas fa-images"></i>
         </button>
+      ),
+      ignoreRowClick: true,
+      allowOverflow: true,
+      button: true,
+    },
+    {
+      name: "Upload",
+      cell: (val) => (
+        <div className="upload-btn-wrapper">
+          <button className="btn btn-sm btn-default mx-1">
+            <i className="fas fa-file-upload"></i>
+          </button>
+          <input
+            type="file"
+            name="myfile"
+            multiple
+            accept="image/png, image/jpg, image/jpeg"
+            onChange={(e) => handleUploadImage(val, e)}
+          />
+        </div>
       ),
       ignoreRowClick: true,
       allowOverflow: true,
@@ -76,12 +97,12 @@ const ListHandling = (props) => {
       sortable: true,
     },
     {
-      name: "KhoiLuong",
+      name: "Khối Lượng",
       selector: (row) => row.khoiLuong,
       sortable: true,
     },
     {
-      name: "TheTich",
+      name: "Thể Tích",
       selector: (row) => row.theTich,
       sortable: true,
     },
@@ -107,6 +128,24 @@ const ListHandling = (props) => {
       sortable: true,
     },
   ]);
+
+  const handleUploadImage = async (val, e) => {
+    let files = e.target.files;
+    const transportId = val.maVanDon;
+    const handlingId = val.maDieuPhoi;
+
+    let arrfiles = [];
+
+    for (let i = 0; i <= files.length - 1; i++) {
+      arrfiles.push(files[i]);
+    }
+
+    const uploadFiles = await postFile("BillOfLading/UploadFile", {
+      files: arrfiles,
+      transportId: transportId,
+      handlingId: handlingId,
+    });
+  };
 
   useEffect(() => {
     if (props && dataClick && Object.keys(dataClick).length > 0) {
@@ -188,6 +227,12 @@ const ListHandling = (props) => {
                     <UpdateHandling
                       getlistData={fetchData}
                       selectIdClick={selectIdClick}
+                      hideModal={hideModal}
+                    />
+                  )}
+                  {ShowModal === "Image" && (
+                    <HandlingImage
+                      dataClick={selectIdClick}
                       hideModal={hideModal}
                     />
                   )}

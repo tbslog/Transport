@@ -58,7 +58,7 @@ const postFile = async (url, data) => {
 
   await axios
     .post(Host + url, data, {
-      headers: { "Content-Type": "multipart/form-data" },
+      headers: { accept: "*/*", "Content-Type": "multipart/form-data" },
     })
     .then((response) => {
       ToastSuccess(`${response.data}`);
