@@ -42,11 +42,6 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
             if (createContract.isSuccess == true)
             {
-                if (request.File != null)
-                {
-                    await UploadFile(request.File, request.TenHienThi, request.MaHopDong);
-                }
-
                 return Ok(createContract.Message);
             }
             else
@@ -63,10 +58,6 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
             if (editContract.isSuccess == true)
             {
-                if (request.File != null)
-                {
-                    await UploadFile(request.File, request.TenHienThi, Id);
-                }
                 return Ok(editContract.Message);
             }
             else
@@ -137,38 +128,6 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             }
 
             return contentType;
-        }
-
-
-        private async Task<bool> UploadFile(IFormFile file, string cusName, string maHopDong)
-        {
-            var PathFolder = $"/Contract/{cusName}";
-
-            var originalFileName = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.Trim('"');
-            var reNameFile = originalFileName.Replace(originalFileName.Substring(0, originalFileName.LastIndexOf('.')), maHopDong);
-            var fileName = $"{reNameFile.Substring(0, reNameFile.LastIndexOf('.'))}{Path.GetExtension(reNameFile)}";
-
-            var attachment = new Attachment()
-            {
-                FileName = fileName,
-                FilePath = _common.GetFileUrl(fileName, PathFolder),
-                FileSize = file.Length,
-                FileType = Path.GetExtension(fileName),
-                FolderName = "Contract"
-            };
-
-            var add = await _common.AddAttachment(attachment);
-
-            if (add.isSuccess == false)
-            {
-                return false;
-            }
-
-
-            await _common.SaveFileAsync(file.OpenReadStream(), fileName, PathFolder);
-
-
-            return true;
         }
     }
 }

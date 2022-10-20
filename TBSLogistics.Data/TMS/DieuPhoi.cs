@@ -7,6 +7,11 @@ namespace TBSLogistics.Data.TMS
 {
     public partial class DieuPhoi
     {
+        public DieuPhoi()
+        {
+            Attachment = new HashSet<Attachment>();
+        }
+
         public long Id { get; set; }
         public string MaVanDon { get; set; }
         public string MaSoXe { get; set; }
@@ -45,5 +50,6 @@ namespace TBSLogistics.Data.TMS
         public virtual XeVanChuyen MaSoXeNavigation { get; set; }
         public virtual TaiXe MaTaiXeNavigation { get; set; }
         public virtual VanDon MaVanDonNavigation { get; set; }
+        public virtual ICollection<Attachment> Attachment { get; set; }
     }
 }

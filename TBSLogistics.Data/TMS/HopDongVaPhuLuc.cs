@@ -9,6 +9,7 @@ namespace TBSLogistics.Data.TMS
     {
         public HopDongVaPhuLuc()
         {
+            Attachment = new HashSet<Attachment>();
             BangGia = new HashSet<BangGia>();
             InverseMaHopDongChaNavigation = new HashSet<HopDongVaPhuLuc>();
         }
@@ -28,6 +29,7 @@ namespace TBSLogistics.Data.TMS
 
         public virtual HopDongVaPhuLuc MaHopDongChaNavigation { get; set; }
         public virtual KhachHang MaKhNavigation { get; set; }
+        public virtual ICollection<Attachment> Attachment { get; set; }
         public virtual ICollection<BangGia> BangGia { get; set; }
         public virtual ICollection<HopDongVaPhuLuc> InverseMaHopDongChaNavigation { get; set; }
     }

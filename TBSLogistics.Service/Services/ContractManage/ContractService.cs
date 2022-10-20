@@ -1,8 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using TBSLogistics.Data.TMS;
@@ -67,6 +70,11 @@ namespace TBSLogistics.Service.Services.ContractManage
                     return new BoolActionResult { isSuccess = false, Message = "Thời gian bắt đầu không được lớn hơn hoặc bằng thời gian kết thúc" };
                 }
 
+                if (request.File != null)
+                {
+                    await UploadFile(request.File, request.TenHienThi, request.MaHopDong);
+                }
+
                 await _TMSContext.AddAsync(new HopDongVaPhuLuc()
                 {
                     MaHopDong = request.MaHopDong,
@@ -118,6 +126,11 @@ namespace TBSLogistics.Service.Services.ContractManage
                     return new BoolActionResult { isSuccess = false, Message = "Thời gian bắt đầu không được lớn hơn hoặc bằng thời gian kết thúc" };
                 }
 
+                if (request.File != null)
+                {
+                    await UploadFile(request.File, request.TenHienThi, id);
+                }
+
                 checkExists.TenHienThi = request.TenHienThi;
                 checkExists.ThoiGianBatDau = request.ThoiGianBatDau;
                 checkExists.ThoiGianKetThuc = request.ThoiGianKetThuc;
@@ -153,9 +166,7 @@ namespace TBSLogistics.Service.Services.ContractManage
             {
                 var getContractById = await _TMSContext.HopDongVaPhuLuc.Where(x => x.MaHopDong == id).FirstOrDefaultAsync();
 
-                var getDataFile = await _TMSContext.Attachment.Where(x => x.FileName.Contains(id)).FirstOrDefaultAsync();
-
-                var file = getDataFile == null ? 0 : getDataFile.Id;
+                var getDataFile = await _TMSContext.Attachment.Where(x => x.MaHopDong == id).OrderByDescending(x => x.Id).FirstOrDefaultAsync();
 
                 return new GetContractById()
                 {
@@ -169,7 +180,7 @@ namespace TBSLogistics.Service.Services.ContractManage
                     GhiChu = getContractById.GhiChu,
                     PhuPhi = getContractById.MaPhuPhi,
                     TrangThai = getContractById.TrangThai,
-                    File = file.ToString()
+                    File = getDataFile.Id.ToString()
                 };
             }
             catch (Exception ex)
@@ -273,6 +284,43 @@ namespace TBSLogistics.Service.Services.ContractManage
             }).ToListAsync();
 
             return list;
+        }
+
+        private async Task<BoolActionResult> UploadFile(IFormFile file, string cusName, string maHopDong)
+        {
+            var PathFolder = $"/Contract/{cusName}";
+
+            var originalFileName = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.Trim('"');
+            var reNameFile = originalFileName.Replace(originalFileName.Substring(0, originalFileName.LastIndexOf('.')), Guid.NewGuid().ToString());
+            var fileName = $"{reNameFile.Substring(0, reNameFile.LastIndexOf('.'))}{Path.GetExtension(reNameFile)}";
+
+            var supportedTypes = new[] { "pdf", "docx", "xlsx" };
+            var fileExt = Path.GetExtension(originalFileName).Substring(1);
+            if (!supportedTypes.Contains(fileExt))
+            {
+                return new BoolActionResult { isSuccess = false, Message = "File không được hỗ trợ, chỉ hỗ trợ .pdf, .docx, .xlsx" };
+            }
+
+            var attachment = new Attachment()
+            {
+                FileName = fileName,
+                FilePath = _common.GetFileUrl(fileName, PathFolder),
+                FileSize = file.Length,
+                FileType = Path.GetExtension(fileName),
+                FolderName = "Contract",
+                MaHopDong = maHopDong,
+                UploadedTime = DateTime.Now
+            };
+
+            var add = await _common.AddAttachment(attachment);
+
+            if (add.isSuccess == false)
+            {
+                return new BoolActionResult { isSuccess = false, Message = add.Message };
+            }
+            await _common.SaveFileAsync(file.OpenReadStream(), fileName, PathFolder);
+
+            return new BoolActionResult { isSuccess = true }; ;
         }
     }
 }

@@ -100,23 +100,7 @@ namespace TBSLogistics.Service.Repository.Common
             var transaction = _context.Database.BeginTransaction();
             try
             {
-                string getName = attachment.FileName.Substring(0, attachment.FileName.LastIndexOf('.'));
-                var checkExists = await _context.Attachment.Where(x => x.FileName.Contains(getName)).FirstOrDefaultAsync();
-
-                if (checkExists == null)
-                {
-                    await _context.Attachment.AddAsync(attachment);
-                }
-                else
-                {
-                    await this.DeleteFileAsync(checkExists.FileName, checkExists.FilePath);
-                    checkExists.FileName = attachment.FileName;
-                    checkExists.FilePath = attachment.FilePath;
-                    checkExists.FileSize = attachment.FileSize;
-                    checkExists.FileType = attachment.FileType;
-                    checkExists.FolderName = attachment.FolderName;
-                    _context.Attachment.Update(checkExists);
-                }
+                await _context.Attachment.AddAsync(attachment);
 
                 var result = await _context.SaveChangesAsync();
 

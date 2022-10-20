@@ -67,6 +67,8 @@ namespace TBSLogistics.Data.TMS
             {
                 entity.Property(e => e.Id).HasColumnName("ID");
 
+                entity.Property(e => e.DieuPhoiId).HasColumnName("DieuPhoiID");
+
                 entity.Property(e => e.FileName)
                     .IsRequired()
                     .HasMaxLength(200)
@@ -86,6 +88,20 @@ namespace TBSLogistics.Data.TMS
                     .IsRequired()
                     .HasMaxLength(50)
                     .IsUnicode(false);
+
+                entity.Property(e => e.MaHopDong)
+                    .HasMaxLength(20)
+                    .IsUnicode(false);
+
+                entity.HasOne(d => d.DieuPhoi)
+                    .WithMany(p => p.Attachment)
+                    .HasForeignKey(d => d.DieuPhoiId)
+                    .HasConstraintName("FK_Attachment_DieuPhoi");
+
+                entity.HasOne(d => d.MaHopDongNavigation)
+                    .WithMany(p => p.Attachment)
+                    .HasForeignKey(d => d.MaHopDong)
+                    .HasConstraintName("FK_Attachment_HopDongVaPhuLuc");
             });
 
             modelBuilder.Entity<BangGia>(entity =>

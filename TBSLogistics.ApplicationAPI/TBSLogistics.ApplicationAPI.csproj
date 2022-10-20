@@ -18,4 +18,12 @@
     <ProjectReference Include="..\TBSLogistics.Service\TBSLogistics.Service.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="wwwroot\Attachments\Contract\KKD\KKD00001.docx" />
+    <None Include="wwwroot\Attachments\Transport\2200000003\3\074c3726-db40-4ee4-b520-25960a22bbdf.png" />
+    <None Include="wwwroot\Attachments\Transport\2200000003\3\80c5ef17-34b6-441f-8be7-c1a9435a56b7.png" />
+    <None Include="wwwroot\Attachments\Transport\2200000003\3\dfe26431-0610-4062-a71f-2abba8a6e971.png" />
+    <None Include="wwwroot\Attachments\Transport\2200000003\3\fa639af7-8a81-4810-bf19-a570f5c8393c.png" />
+  </ItemGroup>
+
 </Project>

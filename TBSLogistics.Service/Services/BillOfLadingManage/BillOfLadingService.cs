@@ -1,8 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TBSLogistics.Data.TMS;
@@ -748,6 +751,103 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
             {
                 return new BoolActionResult { isSuccess = true, Message = ex.ToString() };
             }
+        }
+
+        public async Task<List<Attachment>> GetListImageByHandlingId(int handlingId)
+        {
+            var list = await _context.Attachment.Where(x => x.DieuPhoiId == handlingId).ToListAsync();
+            return list.Select(x => new Attachment()
+            {
+                Id = x.Id,
+                FileName = x.FileName,
+                FileType = x.FileType,
+                FilePath = Path.Combine(Directory.GetCurrentDirectory(), x.FilePath),
+                UploadedTime = x.UploadedTime
+            }).ToList();
+        }
+
+        public async Task<BoolActionResult> DeleteImageById(int imageId)
+        {
+            try
+            {
+                var image = await _context.Attachment.Where(x => x.Id == imageId).FirstOrDefaultAsync();
+
+                if (image == null)
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Hình ảnh không tồn tại" };
+                }
+
+                await _common.DeleteFileAsync(image.FileName, image.FilePath);
+
+                _context.Attachment.Remove(image);
+
+                var result = await _context.SaveChangesAsync();
+
+                if (result > 0)
+                {
+                    return new BoolActionResult { isSuccess = true, Message = "Xóa hình ảnh thành công" };
+                }
+                else
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Xóa hình ảnh thất bại" };
+                }
+            }
+            catch (Exception ex)
+            {
+                return new BoolActionResult { isSuccess = false, Message = ex.ToString() };
+            }
+        }
+
+        public async Task<BoolActionResult> UploadFile(UploadImagesHandling request)
+        {
+            var PathFolder = $"/Transport/{request.transportId}/{request.handlingId}";
+
+            if (request.files.Files.Count < 1)
+            {
+                return new BoolActionResult { isSuccess = false, Message = "Không có file nào" };
+            }
+
+            var checkTrasnport = await _context.DieuPhoi.Where(x => x.MaVanDon == request.transportId && x.Id == request.handlingId).FirstOrDefaultAsync();
+
+            if (checkTrasnport == null)
+            {
+                return new BoolActionResult { isSuccess = false, Message = "Điều phối không tồn tại trong vận đơn" };
+            }
+
+            foreach (var fileItem in request.files.Files)
+            {
+                var originalFileName = ContentDispositionHeaderValue.Parse(fileItem.ContentDisposition).FileName.Trim('"');
+                var supportedTypes = new[] { "jpg", "jpeg", "png" };
+                var fileExt = System.IO.Path.GetExtension(originalFileName).Substring(1);
+                if (!supportedTypes.Contains(fileExt))
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "File không được hỗ trợ" };
+                }
+
+                var reNameFile = originalFileName.Replace(originalFileName.Substring(0, originalFileName.LastIndexOf('.')), Guid.NewGuid().ToString());
+                var fileName = $"{reNameFile.Substring(0, reNameFile.LastIndexOf('.'))}{Path.GetExtension(reNameFile)}";
+
+                var attachment = new Attachment()
+                {
+                    FileName = fileName,
+                    FilePath = _common.GetFileUrl(fileName, PathFolder),
+                    FileSize = fileItem.Length,
+                    FileType = Path.GetExtension(fileName),
+                    FolderName = "Transport",
+                    DieuPhoiId = request.handlingId,
+                    UploadedTime = DateTime.Now
+                };
+
+                var add = await _common.AddAttachment(attachment);
+
+                if (add.isSuccess == false)
+                {
+                    return new BoolActionResult { isSuccess = false, Message = add.Message };
+                }
+                await _common.SaveFileAsync(fileItem.OpenReadStream(), fileName, PathFolder);
+            }
+
+            return new BoolActionResult { isSuccess = true,Message="Upload hình ảnh thành công" };
         }
     }
 }
