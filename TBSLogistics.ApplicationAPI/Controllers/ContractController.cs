@@ -104,7 +104,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
                 return BadRequest("File không tồn tại");
             }
 
-            var filePath = Path.Combine(Directory.GetCurrentDirectory(), getFilePath.FilePath);
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), _common.GetFile(getFilePath.FilePath));
             if (!System.IO.File.Exists(filePath))
                 return NotFound();
             var memory = new MemoryStream();

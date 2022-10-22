@@ -26,6 +26,6 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
         Task<BoolActionResult> UploadFile(UploadImagesHandling request);
         Task<List<Attachment>> GetListImageByHandlingId(int handlingId);
         Task<BoolActionResult> DeleteImageById(int imageId);
-
+        Task<Attachment> GetImageById(int id);
     }
 }

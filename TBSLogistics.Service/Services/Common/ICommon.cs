@@ -14,7 +14,7 @@ namespace TBSLogistics.Service.Repository.Common
         Task Log(string FileName, string LogMessage);
 
         string GetFileUrl(string fileName, string fileFolder);
-
+       string GetFile(string fileFolder);
         Task SaveFileAsync(Stream mediaBinaryStream, string fileName, string fileFolder);
 
         Task DeleteFileAsync(string fileName, string fileFolder);

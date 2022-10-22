@@ -70,11 +70,6 @@ namespace TBSLogistics.Service.Services.ContractManage
                     return new BoolActionResult { isSuccess = false, Message = "Thời gian bắt đầu không được lớn hơn hoặc bằng thời gian kết thúc" };
                 }
 
-                if (request.File != null)
-                {
-                    await UploadFile(request.File, request.TenHienThi, request.MaHopDong);
-                }
-
                 await _TMSContext.AddAsync(new HopDongVaPhuLuc()
                 {
                     MaHopDong = request.MaHopDong,
@@ -95,6 +90,11 @@ namespace TBSLogistics.Service.Services.ContractManage
 
                 if (result > 0)
                 {
+                    if (request.File != null)
+                    {
+                        await UploadFile(request.File, request.TenHienThi, request.MaHopDong);
+                    }
+
                     await _common.Log("ContractManage", "UserId: " + TempData.UserID + " create new Contract with Id: " + request.MaHopDong);
                     return new BoolActionResult { isSuccess = true, Message = "Tạo mới hợp đồng thành công!" };
                 }
@@ -114,7 +114,7 @@ namespace TBSLogistics.Service.Services.ContractManage
         {
             try
             {
-                var checkExists = await _TMSContext.HopDongVaPhuLuc.Where(x => x.MaHopDong == id || x.TenHienThi == request.TenHienThi).FirstOrDefaultAsync();
+                var checkExists = await _TMSContext.HopDongVaPhuLuc.Where(x => x.MaHopDong == id).FirstOrDefaultAsync();
 
                 if (checkExists == null)
                 {
@@ -126,16 +126,11 @@ namespace TBSLogistics.Service.Services.ContractManage
                     return new BoolActionResult { isSuccess = false, Message = "Thời gian bắt đầu không được lớn hơn hoặc bằng thời gian kết thúc" };
                 }
 
-                if (request.File != null)
-                {
-                    await UploadFile(request.File, request.TenHienThi, id);
-                }
-
+             
                 checkExists.TenHienThi = request.TenHienThi;
                 checkExists.ThoiGianBatDau = request.ThoiGianBatDau;
                 checkExists.ThoiGianKetThuc = request.ThoiGianKetThuc;
                 checkExists.GhiChu = request.GhiChu;
-                checkExists.MaPhuPhi = request.PhuPhi;
                 checkExists.TrangThai = request.TrangThai;
                 checkExists.UpdatedTime = DateTime.Now;
 
@@ -145,6 +140,11 @@ namespace TBSLogistics.Service.Services.ContractManage
 
                 if (result > 0)
                 {
+                    if (request.File != null)
+                    {
+                        await UploadFile(request.File, request.TenHienThi, id);
+                    }
+
                     await _common.Log("ContractManage", "UserId: " + TempData.UserID + " Update  Contract with Id: " + id);
                     return new BoolActionResult { isSuccess = true, Message = "Cập nhật hợp đồng thành công!" };
                 }
@@ -180,7 +180,7 @@ namespace TBSLogistics.Service.Services.ContractManage
                     GhiChu = getContractById.GhiChu,
                     PhuPhi = getContractById.MaPhuPhi,
                     TrangThai = getContractById.TrangThai,
-                    File = getDataFile.Id.ToString()
+                    File = getDataFile == null ? null : getDataFile.Id.ToString(),
                 };
             }
             catch (Exception ex)
@@ -288,7 +288,7 @@ namespace TBSLogistics.Service.Services.ContractManage
 
         private async Task<BoolActionResult> UploadFile(IFormFile file, string cusName, string maHopDong)
         {
-            var PathFolder = $"/Contract/{cusName}";
+            var PathFolder = $"Contract/{cusName}";
 
             var originalFileName = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.Trim('"');
             var reNameFile = originalFileName.Replace(originalFileName.Substring(0, originalFileName.LastIndexOf('.')), Guid.NewGuid().ToString());

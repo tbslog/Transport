@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.StaticFiles;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.BillOfLadingModel;
@@ -8,6 +10,7 @@ using TBSLogistics.Service.Helpers;
 using TBSLogistics.Service.Panigation;
 using TBSLogistics.Service.Repository.BillOfLadingManage;
 using TBSLogistics.Service.Repository.Common;
+using static System.Net.WebRequestMethods;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -158,6 +161,26 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             {
                 return BadRequest(del.Message);
             }
+        }
+
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetImageById(int id)
+        {
+            var image = await _billOfLading.GetImageById(id);
+
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), image.FilePath);
+            if (!System.IO.File.Exists(filePath))
+                return NotFound();
+
+            var memory = new MemoryStream();
+            await using (var stream = new FileStream(filePath, FileMode.Open))
+            {
+                await stream.CopyToAsync(memory);
+            }
+            memory.Position = 0;
+
+            return File(memory, "application/octet-stream", image.FileName);
         }
 
         [HttpPost]

@@ -15,6 +15,7 @@ using TBSLogistics.Model.Model.BillOfLadingModel;
 using TBSLogistics.Model.TempModel;
 using TBSLogistics.Model.Wrappers;
 using TBSLogistics.Service.Repository.Common;
+using static System.Net.WebRequestMethods;
 
 namespace TBSLogistics.Service.Repository.BillOfLadingManage
 {
@@ -761,9 +762,21 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
                 Id = x.Id,
                 FileName = x.FileName,
                 FileType = x.FileType,
-                FilePath = Path.Combine(Directory.GetCurrentDirectory(), x.FilePath),
+               // FilePath =Path.Combine(_common.GetFile(x.FilePath)),
                 UploadedTime = x.UploadedTime
             }).ToList();
+        }
+
+        public async Task<Attachment> GetImageById(int id)
+        {
+            var image = await _context.Attachment.Where(x => x.Id == id).FirstOrDefaultAsync();
+
+            return new Attachment
+            {
+                FilePath = Path.Combine(_common.GetFile(image.FilePath)),
+                FileName = image.FileName,
+                FileType = image.FileType
+            };
         }
 
         public async Task<BoolActionResult> DeleteImageById(int imageId)
@@ -800,7 +813,7 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
 
         public async Task<BoolActionResult> UploadFile(UploadImagesHandling request)
         {
-            var PathFolder = $"/Transport/{request.transportId}/{request.handlingId}";
+            var PathFolder = $"Transport/{request.transportId}/{request.handlingId}";
 
             if (request.files.Files.Count < 1)
             {
@@ -815,10 +828,10 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
             }
 
             foreach (var fileItem in request.files.Files)
-            {
+            { 
                 var originalFileName = ContentDispositionHeaderValue.Parse(fileItem.ContentDisposition).FileName.Trim('"');
                 var supportedTypes = new[] { "jpg", "jpeg", "png" };
-                var fileExt = System.IO.Path.GetExtension(originalFileName).Substring(1);
+                var fileExt = Path.GetExtension(originalFileName).Substring(1);
                 if (!supportedTypes.Contains(fileExt))
                 {
                     return new BoolActionResult { isSuccess = false, Message = "File không được hỗ trợ" };
@@ -847,7 +860,7 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
                 await _common.SaveFileAsync(fileItem.OpenReadStream(), fileName, PathFolder);
             }
 
-            return new BoolActionResult { isSuccess = true,Message="Upload hình ảnh thành công" };
+            return new BoolActionResult { isSuccess = true, Message = "Upload hình ảnh thành công" };
         }
     }
 }

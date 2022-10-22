@@ -23,19 +23,14 @@ namespace TBSLogistics.Service.Repository.Common
         {
             _environment = environment;
             _context = context;
-            _userContentFolder = Path.Combine(Directory.GetCurrentDirectory(), USER_CONTENT_FOLDER_NAME);
+            _userContentFolder = Path.Combine(environment.WebRootPath, USER_CONTENT_FOLDER_NAME);
         }
 
         public async Task Log(string FileName, string LogMessage)
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(_environment.WebRootPath))
-                {
-                    _environment.WebRootPath = Path.Combine(Directory.GetCurrentDirectory(), "Log");
-                }
-
-                string dirPath = _environment.WebRootPath;
+                string dirPath = Path.Combine(_environment.WebRootPath, "Log");
                 string fileName = Path.Combine(dirPath, FileName + " - " + DateTime.Now.ToString("yyyy-MM-dd") + ".txt");
 
                 await LogDB(FileName + " - " + DateTime.Now.ToString("yyyy-MM-dd"), LogMessage);
@@ -73,22 +68,27 @@ namespace TBSLogistics.Service.Repository.Common
 
         public string GetFileUrl(string fileName, string fileFolder)
         {
-            return $"{USER_CONTENT_FOLDER_NAME}/{fileFolder}/{fileName}";
+            return $"/{fileFolder}/{fileName}";
+        }
+
+        public string GetFile(string fileFolder)
+        {
+            return $"{_userContentFolder}/{fileFolder}";
         }
 
         public async Task SaveFileAsync(Stream mediaBinaryStream, string fileName, string fileFolder)
         {
-            if (!Directory.Exists(_userContentFolder + $"{fileFolder}"))
-                Directory.CreateDirectory(_userContentFolder + $"{fileFolder}");
+            if (!Directory.Exists(_userContentFolder + $"/{fileFolder}"))
+                Directory.CreateDirectory(_userContentFolder + $"/{fileFolder}");
 
-            var filePath = Path.Combine(_userContentFolder + $"{fileFolder}", fileName);
+            var filePath = Path.Combine(_userContentFolder + $"/{fileFolder}", fileName);
             using var output = new FileStream(filePath, FileMode.Create);
             await mediaBinaryStream.CopyToAsync(output);
         }
 
         public async Task DeleteFileAsync(string fileName, string IfilePath)
         {
-            var filePath = Path.Combine(IfilePath);
+            var filePath = Path.Combine(_userContentFolder, IfilePath);
             if (File.Exists(filePath))
             {
                 await Task.Run(() => File.Delete(filePath));
