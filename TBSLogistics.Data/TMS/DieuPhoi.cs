@@ -30,7 +30,7 @@ namespace TBSLogistics.Data.TMS
         public double? KhoiLuong { get; set; }
         public double? TheTich { get; set; }
         public string GhiChu { get; set; }
-        public DateTime? ThoiGianLayRong { get; set; }
+        public DateTime ThoiGianLayRong { get; set; }
         public DateTime? ThoiGianHaCong { get; set; }
         public DateTime? ThoiGianKeoCong { get; set; }
         public DateTime? ThoiGianHanLenh { get; set; }
