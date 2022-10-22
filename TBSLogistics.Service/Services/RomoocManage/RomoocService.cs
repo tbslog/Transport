@@ -1,17 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
-using System.Drawing.Drawing2D;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TBSLogistics.Data.TMS;
 using TBSLogistics.Model.CommonModel;
 using TBSLogistics.Model.Filter;
-using TBSLogistics.Model.Model.DriverModel;
 using TBSLogistics.Model.Model.RomoocModel;
-using TBSLogistics.Model.Model.VehicleModel;
 using TBSLogistics.Model.TempModel;
 using TBSLogistics.Model.Wrappers;
 using TBSLogistics.Service.Repository.Common;
@@ -22,11 +17,13 @@ namespace TBSLogistics.Service.Services.RomoocManage
     {
         private readonly ICommon _common;
         private readonly TMSContext _TMScontext;
+
         public RomoocService(ICommon common, TMSContext context)
         {
-            _common =common ;
+            _common = common;
             _TMScontext = context;
         }
+
         public async Task<BoolActionResult> CreateRomooc(CreateRomooc request)
         {
             try
@@ -62,7 +59,6 @@ namespace TBSLogistics.Service.Services.RomoocManage
                 {
                     return new BoolActionResult { isSuccess = false, Message = "Tạo mới Romooc thất bại" };
                 }
-
             }
             catch (Exception ex)
             {
@@ -70,12 +66,11 @@ namespace TBSLogistics.Service.Services.RomoocManage
                 return new BoolActionResult { isSuccess = false, Message = ex.ToString(), DataReturn = "Exception" };
             }
         }
+
         public async Task<BoolActionResult> EditRomooc(string MaRomooc, EditRomooc request)
         {
             try
             {
-             
-
                 var getRomooc = await _TMScontext.Romooc.Where(x => x.MaRomooc == MaRomooc).FirstOrDefaultAsync();
                 if (getRomooc == null)
                 {
@@ -117,11 +112,11 @@ namespace TBSLogistics.Service.Services.RomoocManage
                 return new BoolActionResult { isSuccess = false, Message = "Cập nhật Romooc thất bại" };
             }
         }
-        public async Task<BoolActionResult> DeleteRomooc( string MaRomooc)
+
+        public async Task<BoolActionResult> DeleteRomooc(string MaRomooc)
         {
             try
             {
-
                 var getRomooc = await _TMScontext.Romooc.Where(x => x.MaRomooc == MaRomooc).FirstOrDefaultAsync();
                 if (getRomooc == null)
                 {
@@ -132,7 +127,7 @@ namespace TBSLogistics.Service.Services.RomoocManage
                 {
                     return new BoolActionResult { isSuccess = false, Message = "Romooc phải ở trạng thái hoạt động" };
                 }
-                getRomooc.TrangThai =2;
+                getRomooc.TrangThai = 2;
                 _TMScontext.Update(getRomooc);
                 var result = await _TMScontext.SaveChangesAsync();
 
@@ -145,8 +140,6 @@ namespace TBSLogistics.Service.Services.RomoocManage
                 {
                     return new BoolActionResult { isSuccess = false, Message = "Xóa Romooc thất bại" };
                 }
-
-
             }
             catch (Exception ex)
             {
@@ -154,6 +147,7 @@ namespace TBSLogistics.Service.Services.RomoocManage
                 return new BoolActionResult { isSuccess = false, Message = "Xóa Romooc thất bại" };
             }
         }
+
         public async Task<PagedResponseCustom<ListRomooc>> GetListRomooc(PaginationFilter filter)
         {
             try
@@ -187,7 +181,6 @@ namespace TBSLogistics.Service.Services.RomoocManage
                     TrangThai = x.romooc.TrangThai,
                     UpdateTime = x.romooc.UpdatedTime,
                     Createdtime = x.romooc.CreatedTime
-
                 }).ToListAsync();
                 return new PagedResponseCustom<ListRomooc>()
                 {
@@ -195,13 +188,13 @@ namespace TBSLogistics.Service.Services.RomoocManage
                     totalCount = totalCount,
                     paginationFilter = validFilter
                 };
-
             }
             catch (Exception ex)
             {
                 return new PagedResponseCustom<ListRomooc>();
             }
         }
+
         public async Task<ListRomooc> GetRomoocById(string MaRomooc)
         {
             var listRomooc = await _TMScontext.Romooc.Where(x => x.MaRomooc == MaRomooc).Select(x => new ListRomooc()
@@ -214,14 +207,14 @@ namespace TBSLogistics.Service.Services.RomoocManage
                 TrangThai = x.TrangThai,
                 UpdateTime = x.UpdatedTime,
                 Createdtime = x.CreatedTime
-
             }).FirstOrDefaultAsync();
             return listRomooc;
         }
-        private async Task<string> ValidateCreat(string MaRomooc, string MaLoaiRomooc, string ErrorRow ="")
+
+        private async Task<string> ValidateCreat(string MaRomooc, string MaLoaiRomooc, string ErrorRow = "")
         {
             string ErrorValidate = "";
-        
+
             if (!Regex.IsMatch(MaRomooc, "^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9 aAàÀảẢãÃáÁạẠăĂằẰẳẲẵẴắẮặẶâÂầẦẩẨẫẪấẤậẬbBcCdDđĐeEèÈẻẺẽẼéÉẹẸêÊềỀểỂễỄếẾệỆ fFgGhHiIìÌỉỈĩĨíÍịỊjJkKlLmMnNoOòÒỏỎõÕóÓọỌôÔồỒổỔỗỖốỐộỘơƠờỜởỞỡỠớỚợỢpPqQrRsStTu UùÙủỦũŨúÚụỤưƯừỪửỬữỮứỨựỰvVwWxXyYỳỲỷỶỹỸýÝỵỴzZ]+(?<![_.])$", RegexOptions.IgnoreCase))
             {
                 ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã Romooc không được chứa ký tự đặc biệt \r\n" + System.Environment.NewLine;
@@ -237,6 +230,5 @@ namespace TBSLogistics.Service.Services.RomoocManage
             }
             return ErrorValidate;
         }
-
     }
 }

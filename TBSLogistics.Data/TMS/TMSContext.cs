@@ -934,8 +934,6 @@ namespace TBSLogistics.Data.TMS
                     .HasMaxLength(10)
                     .IsUnicode(false);
 
-                entity.Property(e => e.LoaiVanHanh).HasMaxLength(50);
-
                 entity.Property(e => e.MaGps)
                     .IsRequired()
                     .HasMaxLength(50)
@@ -943,6 +941,7 @@ namespace TBSLogistics.Data.TMS
                     .HasColumnName("MaGPS");
 
                 entity.Property(e => e.MaGpsmobile)
+                    .IsRequired()
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnName("MaGPSMobile");
@@ -957,7 +956,6 @@ namespace TBSLogistics.Data.TMS
                     .IsUnicode(false);
 
                 entity.Property(e => e.MaTaiXeMacDinh)
-                    .IsRequired()
                     .HasMaxLength(12)
                     .IsUnicode(false);
 
@@ -966,7 +964,6 @@ namespace TBSLogistics.Data.TMS
                 entity.HasOne(d => d.MaTaiXeMacDinhNavigation)
                     .WithMany(p => p.XeVanChuyen)
                     .HasForeignKey(d => d.MaTaiXeMacDinh)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_ThongTin_XeVanChuyen_ThongTin_TaiXe");
             });
 

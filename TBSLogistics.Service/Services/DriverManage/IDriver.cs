@@ -19,5 +19,6 @@ namespace TBSLogistics.Service.Repository.DriverManage
         Task<GetDriverRequest> GetDriverByCardId(string cccd);
 
         Task<PagedResponseCustom<ListDriverRequest>> getListDriver(PaginationFilter filter);
+        Task<List<GetDriverRequest>> GetListDriverSelect();
     }
 }

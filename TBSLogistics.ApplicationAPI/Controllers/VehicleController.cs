@@ -42,7 +42,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             }
         }
 
-        [HttpPut]
+        [HttpPost]
         [Route("[action]")]
         public async Task<IActionResult> EditVehicle(string vehicleId, EditVehicleRequest request)
         {
@@ -78,7 +78,6 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         public async Task<IActionResult> GetVehicleById(string vehicleId)
         {
             var vehicle = await _vehicle.GetVehicleById(vehicleId);
-
             return Ok(vehicle);
         }
 

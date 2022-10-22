@@ -10,8 +10,8 @@ namespace TBSLogistics.Model.Model.VehicleModel
     {
         public string MaLoaiPhuongTien { get; set; }
         public string MaTaiXeMacDinh { get; set; }
-        public float TrongTaiToiThieu { get; set; }
-        public float TrongTaiToiDa { get; set; }
+        public double? TrongTaiToiThieu { get; set; }
+        public double? TrongTaiToiDa { get; set; }
         public string MaGps { get; set; }
         public string MaGpsmobile { get; set; }
         public string LoaiVanHanh { get; set; }

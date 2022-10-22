@@ -52,7 +52,6 @@ namespace TBSLogistics.Service.Repository.VehicleManage
                     TrongTaiToiDa = request.TrongTaiToiDa,
                     MaGps = request.MaGps,
                     MaGpsmobile = request.MaGpsmobile,
-                    LoaiVanHanh = request.LoaiVanHanh,
                     MaTaiSan = request.MaTaiSan,
                     ThoiGianKhauHao = request.ThoiGianKhauHao,
                     NgayHoatDong = request.NgayHoatDong,
@@ -79,7 +78,6 @@ namespace TBSLogistics.Service.Repository.VehicleManage
                 return new BoolActionResult { isSuccess = false, Message = ex.ToString(), DataReturn = "Exception" };
             }
         }
-
         public async Task<BoolActionResult> EditVehicle(string vehicleId, EditVehicleRequest request)
         {
             try
@@ -90,7 +88,6 @@ namespace TBSLogistics.Service.Repository.VehicleManage
                 {
                     return new BoolActionResult { isSuccess = false, Message = "Xe này không tồn tại trong dữ liệu" };
                 }
-
                 
                 getVehicle.MaLoaiPhuongTien = request.MaLoaiPhuongTien;
                 getVehicle.MaTaiXeMacDinh = request.MaTaiXeMacDinh;
@@ -98,7 +95,6 @@ namespace TBSLogistics.Service.Repository.VehicleManage
                 getVehicle.TrongTaiToiDa = request.TrongTaiToiDa;
                 getVehicle.MaGps = request.MaGps;
                 getVehicle.MaGpsmobile = request.MaGpsmobile;
-                getVehicle.LoaiVanHanh = request.LoaiVanHanh;
                 getVehicle.MaTaiSan = request.MaTaiSan;
                 getVehicle.ThoiGianKhauHao = request.ThoiGianKhauHao;
                 getVehicle.NgayHoatDong = request.NgayHoatDong;
@@ -193,7 +189,6 @@ namespace TBSLogistics.Service.Repository.VehicleManage
                     TrongTaiToiDa = x.vehicle.TrongTaiToiDa,
                     MaGps = x.vehicle.MaGps,
                     MaGpsmobile = x.vehicle.MaGpsmobile,
-                    LoaiVanHanh = x.vehicle.LoaiVanHanh,
                     MaTaiSan = x.vehicle.MaTaiSan,
                     ThoiGianKhauHao = x.vehicle.ThoiGianKhauHao,
                     NgayHoatDong = x.vehicle.NgayHoatDong,
@@ -214,7 +209,6 @@ namespace TBSLogistics.Service.Repository.VehicleManage
                 return new PagedResponseCustom<ListVehicleRequest>();
             }
         }
-
         public async Task<GetVehicleRequest> GetVehicleById(string vehicleId)
         {
             var vehicle = await _context.XeVanChuyen.Where(x => x.MaSoXe == vehicleId).Select(x => new GetVehicleRequest()
@@ -226,7 +220,6 @@ namespace TBSLogistics.Service.Repository.VehicleManage
                 TrongTaiToiDa = x.TrongTaiToiDa,
                 MaGps = x.MaGps,
                 MaGpsmobile = x.MaGpsmobile,
-                LoaiVanHanh = x.LoaiVanHanh,
                 MaTaiSan = x.MaTaiSan,
                 ThoiGianKhauHao = x.ThoiGianKhauHao,
                 NgayHoatDong = x.NgayHoatDong,
@@ -237,7 +230,7 @@ namespace TBSLogistics.Service.Repository.VehicleManage
 
             return vehicle;
         } 
-      private async Task<string> ValiateCreat(string MaSoXe, string MaLoaiPhuongTien, string MaTaiXeMacDinh, float TrongTaiToiThieu, float TrongTaiToiDa, string MaGps, string MaGpsmobile, string? MaTaiSan, int? ThoiGianKhauHao, DateTime? NgayHoatDong, string ErrorRow = "")
+      private async Task<string> ValiateCreat(string MaSoXe, string MaLoaiPhuongTien, string MaTaiXeMacDinh, double? TrongTaiToiThieu, double? TrongTaiToiDa, string MaGps, string MaGpsmobile, string? MaTaiSan, int? ThoiGianKhauHao, DateTime? NgayHoatDong, string ErrorRow = "")
         {
             string ErrorValidate = "";
             if (MaSoXe.Length > 10 || MaSoXe.Length < 6)
@@ -258,19 +251,23 @@ namespace TBSLogistics.Service.Repository.VehicleManage
             {
                 ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã Loại Phương Tiện: " + MaLoaiPhuongTien + " không tồn tại \r\n" + System.Environment.NewLine;
             }
-            var checkMaTaiXe = await _context.TaiXe.Where(x => x.MaTaiXe == MaTaiXeMacDinh).FirstOrDefaultAsync();
 
-            if (checkMaTaiXe == null)
+            if (!string.IsNullOrEmpty(MaTaiXeMacDinh))
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã Tài Xế: " + MaTaiXeMacDinh + " không tồn tại \r\n" + System.Environment.NewLine;
+                var checkMaTaiXe = await _context.TaiXe.Where(x => x.MaTaiXe == MaTaiXeMacDinh).FirstOrDefaultAsync();
+
+                if (checkMaTaiXe == null)
+                {
+                    ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã Tài Xế: " + MaTaiXeMacDinh + " không tồn tại \r\n" + System.Environment.NewLine;
+                }
             }
+           
             if (NgayHoatDong != null)
             {
                 if (!Regex.IsMatch(NgayHoatDong.Value.ToString("dd/MM/yyyy"), "^(((0[1-9]|[12][0-9]|30)[-/]?(0[13-9]|1[012])|31[-/]?(0[13578]|1[02])|(0[1-9]|1[0-9]|2[0-8])[-/]?02)[-/]?[0-9]{4}|29[-/]?02[-/]?([0-9]{2}(([2468][048]|[02468][48])|[13579][26])|([13579][26]|[02468][048]|0[0-9]|1[0-6])00))$", RegexOptions.IgnoreCase))
                 {
                     ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Sai định dạng ngày\r\n" + System.Environment.NewLine;
                 }
-             
             }
         
 

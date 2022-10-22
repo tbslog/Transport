@@ -20,7 +20,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         private readonly IDriver _driver;
         private readonly IPaginationService _uriService;
 
-        public DriverController(IDriver driver,IPaginationService uriService)
+        public DriverController(IDriver driver, IPaginationService uriService)
         {
             _driver = driver;
             _uriService = uriService;
@@ -28,7 +28,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpPost]
         [Route("[action]")]
-        public async Task<IActionResult> CreateDriver([FromForm] CreateDriverRequest request)
+        public async Task<IActionResult> CreateDriver(CreateDriverRequest request)
         {
             var create = await _driver.CreateDriver(request);
 
@@ -88,6 +88,15 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         {
             var driver = await _driver.GetDriverByCardId(cccd);
             return Ok(driver);
+        }
+
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetListSelectDriver()
+        {
+            var list = await _driver.GetListDriverSelect();
+
+            return Ok(list);
         }
 
 

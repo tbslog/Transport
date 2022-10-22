@@ -13,8 +13,8 @@ namespace TBSLogistics.Model.Model.DriverModel
         public string HoVaTen { get; set; }
         public string SoDienThoai { get; set; }
         public DateTime? NgaySinh { get; set; }
-        public string? GhiChu { get; set; }
-        public string? MaNhaCC { get; set; }
+        public string GhiChu { get; set; }
+        public string MaNhaCC { get; set; }
         public string MaLoaiPhuongTien { get; set; }
         public bool TaiXeTBS { get; set; }
         public int TrangThai { get; set; }
