@@ -1,11 +1,11 @@
 import { useMemo, useState, useEffect, useCallback, useRef } from "react";
-import { getData, postData } from "../Common/FuncAxios";
+import { getData, postData, getFileImage } from "../Common/FuncAxios";
 import DataTable from "react-data-table-component";
 import moment from "moment";
 import { Modal } from "bootstrap";
 
 const HandlingImage = (props) => {
-  const { dataClick } = props;
+  const { dataClick, checkModal } = props;
 
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -14,7 +14,7 @@ const HandlingImage = (props) => {
   const [modal, setModal] = useState(null);
   const parseExceptionModal = useRef();
   const [selectIdClick, setSelectIdClick] = useState({});
-  const [images, setImages] = useState([]);
+  const [image, setImage] = useState("");
 
   const showModalForm = () => {
     const modal = new Modal(parseExceptionModal.current, {
@@ -36,7 +36,6 @@ const HandlingImage = (props) => {
     if (del === 1) {
       let datafilter = data.filter((x) => x.id !== fileId);
       setData(datafilter);
-      getImages(datafilter);
     }
   };
 
@@ -97,30 +96,29 @@ const HandlingImage = (props) => {
     if (props && dataClick && Object.keys(dataClick).length > 0) {
       fetchData(dataClick.maDieuPhoi);
     }
-  }, [props, dataClick]);
+  }, [props, dataClick, checkModal]);
 
   const fetchData = async (maDieuPhoi) => {
     setLoading(true);
     const data = await getData(
       `BillOfLading/GetListImage?handlingId=${maDieuPhoi}`
     );
-    getImages(data);
+
     setData(data);
     setLoading(false);
   };
 
-  const getImages = (data) => {
-    let images = [];
-
-    data.map((val) => {
-      images.push(val.filePath);
-    });
-
-    setImages(images);
-  };
-
   const handleEditButtonClick = (value) => {
     setSelectIdClick(value);
+
+    (async () => {
+      var getImage = await getFileImage(
+        `BillOfLading/GetImageById?id=${value.id}`
+      );
+
+      setImage(getImage);
+    })();
+
     showModalForm();
   };
 
@@ -166,37 +164,14 @@ const HandlingImage = (props) => {
                 </button>
               </div>
               <div className="modal-body">
-                <>
-                  {ShowModal === "ShowImage" && (
-                    <div>
-                      <div>
-                        <div className="cssbox">
-                          {images &&
-                            images.length > 0 &&
-                            data.map((val) => {
-                              return (
-                                <>
-                                  <div key={val.id}>
-                                    <a id="image1" href="#image1">
-                                      <img
-                                        className="cssbox_thumb"
-                                        src={val.filePath}
-                                      />
-                                      <span className="cssbox_full"></span>
-                                    </a>
-                                    <a className="cssbox_close" href="#void" />
-                                    <a className="cssbox_next" href="#image2">
-                                      &gt;
-                                    </a>
-                                  </div>
-                                </>
-                              );
-                            })}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </>
+                {ShowModal === "ShowImage" && (
+                  <div>
+                    <img
+                      src={image}
+                      style={{ margin: "auto", left: "0", right: "0" }}
+                    />
+                  </div>
+                )}
               </div>
             </div>
           </div>

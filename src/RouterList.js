@@ -7,6 +7,7 @@ import ContractPage from "./Components/ContractManage/ContractPage";
 import PriceTablePage from "./Components/PriceListManage/PriceTablePage";
 import TransportPage from "./Components/Transport/TransportPage";
 import ProductServicePage from "./Components/ProductService/ProductServicePage";
+import VehiclePage from "./Components/VehicleManage/VehiclePage";
 
 let routerList = [
   {
@@ -52,7 +53,7 @@ let routerList = [
         name: "Thông tin xe",
         pathName: "/vehicle",
         path: "vehicle",
-        element: <DriverPage />,
+        element: <VehiclePage />,
         exact: true,
         child: [],
       },

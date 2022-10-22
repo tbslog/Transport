@@ -343,31 +343,6 @@ const CreateCustommer = (props) => {
                     )}
                   </div>
                 </div>
-                <div className="col-sm">
-                  <div className="form-group">
-                    <label htmlFor="GPS">Tọa Độ GPS</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      id="GPS"
-                      placeholder="Nhập mã GPS"
-                      {...register("GPS", {
-                        required: "Không được để trống",
-                        maxLength: {
-                          value: 50,
-                          message: "Không được vượt quá 50 ký tự",
-                        },
-                        minLength: {
-                          value: 1,
-                          message: "Không được ít hơn 1 ký tự",
-                        },
-                      })}
-                    />
-                    {errors.GPS && (
-                      <span className="text-danger">{errors.GPS.message}</span>
-                    )}
-                  </div>
-                </div>
               </div>
 
               <div className="row">
@@ -427,27 +402,57 @@ const CreateCustommer = (props) => {
                 </div>
               </div>
 
-              <div className="form-group">
-                <label htmlFor="Tinh">Phân Loại Địa Điểm</label>
-                <Controller
-                  name="MaLoaiDiaDiem"
-                  control={control}
-                  render={({ field }) => (
-                    <Select
-                      {...field}
-                      classNamePrefix={"form-control"}
-                      value={field.value}
-                      options={props.listTypeAddress}
+              <div className="row">
+                <div className="col col-sm">
+                  <div className="form-group">
+                    <label htmlFor="Tinh">Phân Loại Địa Điểm</label>
+                    <Controller
+                      name="MaLoaiDiaDiem"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          classNamePrefix={"form-control"}
+                          value={field.value}
+                          options={props.listTypeAddress}
+                        />
+                      )}
+                      rules={{ required: "không được để trống" }}
                     />
-                  )}
-                  rules={{ required: "không được để trống" }}
-                />
-                {errors.MaLoaiDiaDiem && (
-                  <span className="text-danger">
-                    {errors.MaLoaiDiaDiem.message}
-                  </span>
-                )}
+                    {errors.MaLoaiDiaDiem && (
+                      <span className="text-danger">
+                        {errors.MaLoaiDiaDiem.message}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className="col-sm">
+                  <div className="form-group">
+                    <label htmlFor="GPS">Tọa Độ GPS</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="GPS"
+                      placeholder="Nhập mã GPS"
+                      {...register("GPS", {
+                        required: "Không được để trống",
+                        maxLength: {
+                          value: 50,
+                          message: "Không được vượt quá 50 ký tự",
+                        },
+                        minLength: {
+                          value: 1,
+                          message: "Không được ít hơn 1 ký tự",
+                        },
+                      })}
+                    />
+                    {errors.GPS && (
+                      <span className="text-danger">{errors.GPS.message}</span>
+                    )}
+                  </div>
+                </div>
               </div>
+
               <div className="row">
                 <div className="col-sm">
                   <div className="form-group">

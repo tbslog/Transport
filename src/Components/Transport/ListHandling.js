@@ -5,7 +5,6 @@ import moment from "moment";
 import { Modal } from "bootstrap";
 import UpdateHandling from "./UpdateHandling";
 import HandlingImage from "./HandlingImage";
-import "./cssbox.css";
 
 const ListHandling = (props) => {
   const { dataClick } = props;
@@ -20,6 +19,7 @@ const ListHandling = (props) => {
 
   const columns = useMemo(() => [
     {
+      name: "Chỉnh Sửa",
       cell: (val) => (
         <button
           onClick={() => handleEditButtonClick(val, SetShowModal("Edit"))}
@@ -34,6 +34,7 @@ const ListHandling = (props) => {
       button: true,
     },
     {
+      name: "Xem Hình",
       cell: (val) => (
         <button
           onClick={() => handleEditButtonClick(val, SetShowModal("Image"))}
@@ -48,7 +49,7 @@ const ListHandling = (props) => {
       button: true,
     },
     {
-      name: "Upload",
+      name: "Đẩy Hình",
       cell: (val) => (
         <div className="upload-btn-wrapper">
           <button className="btn btn-sm btn-default mx-1">
@@ -234,6 +235,7 @@ const ListHandling = (props) => {
                     <HandlingImage
                       dataClick={selectIdClick}
                       hideModal={hideModal}
+                      checkModal={modal}
                     />
                   )}
                 </>

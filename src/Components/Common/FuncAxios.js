@@ -37,6 +37,33 @@ const getFile = async (url, fileName) => {
     });
 };
 
+const getFileImage = async (url) => {
+  let src = "";
+  await axios
+    .get(
+      Host + url,
+      {
+        responseType: "arraybuffer",
+      },
+      {
+        headers: { accept: "*/*", "Content-Type": "multipart/form-data" },
+      }
+    )
+    .then((response) => {
+      let base64string = btoa(
+        String.fromCharCode(...new Uint8Array(response.data))
+      );
+      let contentType = response.headers["content-type"];
+      src = "data:" + contentType + ";base64," + base64string;
+      return src;
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+
+  return src;
+};
+
 const postData = async (url, data, header = null) => {
   var isSuccess = 0;
   await axios
@@ -110,4 +137,5 @@ export {
   postFile,
   getFile,
   getDataCustom,
+  getFileImage,
 };

@@ -1281,7 +1281,7 @@ const UpdateHandling = (props) => {
                   className="btn btn-primary"
                   style={{ float: "right" }}
                 >
-                  Cập nhật
+                  Xác Nhận
                 </button>
               </div>
             </div>

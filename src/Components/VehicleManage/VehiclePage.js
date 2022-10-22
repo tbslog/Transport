@@ -4,10 +4,10 @@ import DataTable from "react-data-table-component";
 import moment from "moment";
 import { Modal } from "bootstrap";
 import { ToastWarning } from "../Common/FuncToast";
-import CreateDriver from "./CreateDriver";
-import UpdateDriver from "./UpdateDriver";
+import CreateVehicle from "./CreateVehicle";
+import UpdateVehicle from "./UpdateVehicle";
 
-const DriverPage = () => {
+const VehiclePage = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [totalRows, setTotalRows] = useState(0);
@@ -38,29 +38,32 @@ const DriverPage = () => {
       button: true,
     },
     {
-      name: "Mã Tài Xế",
-      selector: (row) => row.maTaiXe,
+      name: "Mã Số Xe",
+      selector: (row) => row.maSoXe,
     },
     {
-      name: "Số Điện Thoại",
-      selector: (row) => row.soDienThoai,
+      name: "Tài Xế Mặc Định",
+      selector: (row) => row.maTaiXeMacDinh,
     },
     {
-      name: "CCCD",
-      selector: (row) => row.cccd,
+      name: "Phân Loại Xe",
+      selector: (row) => row.maLoaiPhuongTien,
     },
     {
-      name: "Họ Và Tên",
-      selector: (row) => row.hoVaTen,
+      name: "Trọng Tải Tối Thiểu",
+      selector: (row) => row.trongTaiToiThieu,
     },
     {
-      name: "Ngày Sinh",
-      selector: (row) => row.ngaySinh,
+      name: "Trọng Tải Tối Đa",
+      selector: (row) => row.trongTaiToiDa,
     },
-
     {
-      name: "Đơn Vị Quản Lý",
-      selector: (row) => row.maNhaCungCap,
+      name: "Mã GPS",
+      selector: (row) => row.maGps,
+    },
+    {
+      name: "Mã GPS Mobile",
+      selector: (row) => row.maGpsmobile,
     },
     {
       name: "Thời Gian cập nhật",
@@ -89,7 +92,9 @@ const DriverPage = () => {
 
   const handleEditButtonClick = async (val) => {
     showModalForm();
-    var getById = await getData(`Driver/getDriverById?driverId=${val.maTaiXe}`);
+    var getById = await getData(
+      `Vehicle/GetVehicleById?vehicleId=${val.maSoXe}`
+    );
     setSelectIdClick(getById);
   };
 
@@ -101,7 +106,7 @@ const DriverPage = () => {
     }
 
     const dataCus = await getData(
-      `Driver/GetListDriver?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}`
+      `Vehicle/GetListVehicle?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}`
     );
 
     formatTable(dataCus.data);
@@ -117,7 +122,7 @@ const DriverPage = () => {
     setLoading(true);
 
     const dataCus = await getData(
-      `Driver/GetListDriver?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}`
+      `Vehicle/GetListVehicle?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}`
     );
 
     formatTable(dataCus.data);
@@ -133,7 +138,7 @@ const DriverPage = () => {
     setLoading(true);
     (async () => {
       let dataCus = await getData(
-        `Driver/GetListDriver?PageNumber=1&PageSize=10`
+        `Vehicle/GetListVehicle?PageNumber=1&PageSize=10`
       );
       formatTable(dataCus.data);
       setTotalRows(dataCus.totalRecords);
@@ -151,7 +156,6 @@ const DriverPage = () => {
     data.map((val) => {
       val.createdtime = moment(val.createdtime).format("DD/MM/YYYY HH:mm:ss");
       val.updatedtime = moment(val.updatedtime).format("DD/MM/YYYY HH:mm:ss");
-      val.ngaySinh = moment(val.ngaySinh).format("DD/MM/YYYY");
     });
     setData(data);
   }
@@ -175,7 +179,7 @@ const DriverPage = () => {
         <div className="container-fluid">
           <div className="row mb-2">
             <div className="col-sm-6">
-              <h1>Quản Lý Tài Xế</h1>
+              <h1>Quản Lý Phương Tiện</h1>
             </div>
             {/* <div className="col-sm-6">
               <ol className="breadcrumb float-sm-right">
@@ -237,7 +241,7 @@ const DriverPage = () => {
           <div className="card-body">
             <div className="container-datatable" style={{ height: "50vm" }}>
               <DataTable
-                title="Danh sách Tài Xế"
+                title="Danh sách Phương Tiện"
                 columns={columns}
                 data={data}
                 progressPending={loading}
@@ -302,16 +306,16 @@ const DriverPage = () => {
               <div className="modal-body">
                 <>
                   {ShowModal === "Edit" && (
-                    <UpdateDriver
+                    <UpdateVehicle
                       selectIdClick={selectIdClick}
                       listStatus={listStatus}
-                      getListDriver={fetchData}
+                      getListVehicle={fetchData}
                       hideModal={hideModal}
                     />
                   )}
                   {ShowModal === "Create" && (
-                    <CreateDriver
-                      getListDriver={fetchData}
+                    <CreateVehicle
+                      getListVehicle={fetchData}
                       listStatus={listStatus}
                     />
                   )}
@@ -325,4 +329,4 @@ const DriverPage = () => {
   );
 };
 
-export default DriverPage;
+export default VehiclePage;

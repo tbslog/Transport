@@ -90,15 +90,15 @@ const ContractPage = () => {
       selector: (row) => row.tenHienThi,
     },
     {
-      name: "",
+      name: "Phân Loại",
       selector: (row) => row.soHopDongCha,
       sortable: true,
     },
-    {
-      name: "Phân Loại",
-      selector: (row) => row.phanLoaiHopDong,
-      sortable: true,
-    },
+    // {
+    //   name: "Phân Loại",
+    //   selector: (row) => row.phanLoaiHopDong,
+    //   sortable: true,
+    // },
     {
       name: "Mã Khách Hàng",
       selector: (row) => row.maKh,
@@ -224,10 +224,10 @@ const ContractPage = () => {
     fetchData(
       1,
       keySearch,
-      fromDate === "" ? "" : moment(fromDate).format("YYYY-MM-DD"),
-      toDate === "" ? "" : moment(toDate).format("YYYY-MM-DD"),
-      contractType,
-      custommerType
+      !fromDate ? "" : moment(fromDate).format("YYYY-MM-DD"),
+      !toDate ? "" : moment(toDate).format("YYYY-MM-DD"),
+      "",
+      tabIndex === 0 ? "KH" : "NCC"
     );
   };
 
@@ -255,12 +255,12 @@ const ContractPage = () => {
   };
 
   const handleRefeshDataClick = () => {
+    fetchData(1, "", "", "", "", "KH");
     setContractType("");
     setKeySearch("");
     setFromDate("");
     setToDate("");
     setTabIndex(0);
-    fetchData(1);
   };
 
   const HandleOnChangeTabs = (tabIndex) => {
@@ -309,7 +309,7 @@ const ContractPage = () => {
                   <div className="row">
                     <div className="col col-sm"></div>
                     <div className="col col-sm">
-                      <div className="input-group input-group-sm">
+                      {/* <div className="input-group input-group-sm">
                         <select
                           className="form-control form-control-sm"
                           onChange={(e) =>
@@ -330,7 +330,7 @@ const ContractPage = () => {
                               );
                             })}
                         </select>
-                      </div>
+                      </div> */}
                     </div>
                   </div>
                 </div>
@@ -497,6 +497,7 @@ const ContractPage = () => {
                       listContractType={listContractType}
                       listStatus={listStatus}
                       hideModal={hideModal}
+                      tabIndex={tabIndex}
                     />
                   )}
                   {ShowModal === "Create" && (
@@ -505,6 +506,7 @@ const ContractPage = () => {
                       listContractType={listContractType}
                       listStatus={listStatus}
                       hideModal={hideModal}
+                      tabIndex={tabIndex}
                     />
                   )}
                   {ShowModal === "PriceTable" && (

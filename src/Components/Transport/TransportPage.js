@@ -77,6 +77,7 @@ const TransportPage = () => {
       selector: (row) => row.maCungDuong,
       sortable: true,
       width: "auto",
+      omit: true,
     },
     {
       name: "Tên Cung Đường",
@@ -173,7 +174,7 @@ const TransportPage = () => {
   ) => {
     setLoading(true);
     const datatransport = await getData(
-      `BillOfLading/GetListTransport?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}&StatusId=${status}&fromDate=${fromDate}&toDate${toDate}`
+      `BillOfLading/GetListTransport?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}&StatusId=${status}&fromDate=${fromDate}&toDate=${toDate}`
     );
     setData(datatransport.data);
     setTotalRows(datatransport.totalRecords);
@@ -204,9 +205,21 @@ const TransportPage = () => {
     showModalForm();
   };
 
-  const handleSearchClick = () => {};
+  const handleSearchClick = () => {
+    fetchData(
+      1,
+      keySearch,
+      !fromDate ? "" : moment(fromDate).format("YYYY-MM-DD"),
+      !toDate ? "" : moment(toDate).format("YYYY-MM-DD")
+    );
+  };
 
-  const handleRefeshDataClick = () => {};
+  const handleRefeshDataClick = () => {
+    setKeySearch("");
+    setFromDate("");
+    setToDate("");
+    fetchData(1);
+  };
 
   return (
     <>
@@ -316,7 +329,6 @@ const TransportPage = () => {
                 pagination
                 paginationServer
                 paginationTotalRows={totalRows}
-                selectableRows
                 onSelectedRowsChange={handleChange}
                 onChangeRowsPerPage={handlePerRowsChange}
                 onChangePage={handlePageChange}

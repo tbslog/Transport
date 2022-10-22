@@ -124,7 +124,7 @@ const EditContract = (props) => {
   const [listTransportType, setListTransportType] = useState([]);
   const [listStatusType, setListStatusType] = useState([]);
 
-  const [downloadFile, setDownloadFile] = useState();
+  const [downloadFile, setDownloadFile] = useState(null);
 
   useEffect(() => {
     if (
@@ -134,26 +134,24 @@ const EditContract = (props) => {
       Object.keys(props).length > 0
     ) {
       SetIsLoading(true);
-      setTimeout(() => {
-        if (props.selectIdClick.soHopDongCha) {
-          setIsContract(false);
-          setValue("SoHopDongCha", props.selectIdClick.soHopDongCha);
-          setValue("PhuPhi", props.selectIdClick.phuPhi);
-        } else {
-          setIsContract(true);
-        }
-        setValue("MaHopDong", props.selectIdClick.maHopDong);
-        setValue("TenHopDong", props.selectIdClick.tenHienThi);
-        setValue("MaKh", props.selectIdClick.maKh);
-        setValue("GhiChu", props.selectIdClick.ghiChu);
-        setDownloadFile(props.selectIdClick.file);
-        setValue("TrangThai", props.selectIdClick.trangThai);
-        setValue("NgayBatDau", new Date(props.selectIdClick.thoiGianBatDau));
-        setValue("NgayKetThuc", new Date(props.selectIdClick.thoiGianKetThuc));
-        SetIsLoading(false);
-      }, 1000);
+      if (props.selectIdClick.soHopDongCha) {
+        setIsContract(false);
+        setValue("SoHopDongCha", props.selectIdClick.soHopDongCha);
+        setValue("PhuPhi", props.selectIdClick.phuPhi);
+      } else {
+        setIsContract(true);
+      }
+      setValue("MaHopDong", props.selectIdClick.maHopDong);
+      setValue("TenHopDong", props.selectIdClick.tenHienThi);
+      setValue("MaKh", props.selectIdClick.maKh);
+      setValue("GhiChu", props.selectIdClick.ghiChu);
+      setDownloadFile(props.selectIdClick.file);
+      setValue("TrangThai", props.selectIdClick.trangThai);
+      setValue("NgayBatDau", new Date(props.selectIdClick.thoiGianBatDau));
+      setValue("NgayKetThuc", new Date(props.selectIdClick.thoiGianKetThuc));
+      SetIsLoading(false);
     }
-  }, [props, props.selectIdClick, setValue]);
+  }, [props, props.selectIdClick]);
 
   useEffect(() => {
     if (props && props.listContractType) {
@@ -190,7 +188,6 @@ const EditContract = (props) => {
           new Date(data.NgayKetThuc).toISOString()
         ).format("YYYY-MM-DD"),
         ghiChu: data.GhiChu,
-        phuPhi: isContract === false ? data.PhuPhi : null,
         trangThai: data.TrangThai,
         file: data.FileContact[0],
       },
@@ -200,7 +197,15 @@ const EditContract = (props) => {
     );
 
     if (update === 1) {
-      props.getListContract(1);
+      props.getListContract(
+        1,
+        "",
+        "",
+        "",
+        "",
+        props.tabIndex === 0 ? "KH" : "NCC"
+      );
+
       props.hideModal();
     }
 
@@ -677,21 +682,6 @@ const EditContract = (props) => {
                     </div>
                   </div>
                   <div className="form-group">
-                    <label htmlFor="PhuPhi">Phụ Phí</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      id="PhuPhi"
-                      placeholder="Nhập phụ phí"
-                      {...register("PhuPhi", Validate.PhuPhi)}
-                    />
-                    {errors.PhuPhi && (
-                      <span className="text-danger">
-                        {errors.PhuPhi.message}
-                      </span>
-                    )}
-                  </div>
-                  <div className="form-group">
                     <label htmlFor="GhiChu">Ghi Chú</label>
                     <input
                       type="text"
@@ -720,7 +710,7 @@ const EditContract = (props) => {
                       </span>
                     )}
 
-                    {downloadFile && downloadFile !== "0" && (
+                    {downloadFile && downloadFile !== !downloadFile && (
                       <div>
                         <div className="form-group">
                           <label htmlFor="FileContact">

@@ -214,9 +214,15 @@ const AddContract = (props) => {
     );
 
     if (create === 1) {
-      props.getListContract(1);
+      props.getListContract(
+        1,
+        "",
+        "",
+        "",
+        "",
+        props.tabIndex === 0 ? "KH" : "NCC"
+      );
       reset();
-      props.hideModal();
     }
 
     SetIsLoading(false);
