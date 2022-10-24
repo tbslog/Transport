@@ -23,6 +23,7 @@ using TBSLogistics.Service.Repository.PricelistManage;
 using TBSLogistics.Service.Repository.RoadManage;
 using TBSLogistics.Service.Repository.VehicleManage;
 using TBSLogistics.Service.Services.ContractManage;
+using TBSLogistics.Service.Services.NotificationManage;
 using TBSLogistics.Service.Services.ProductServiceManage;
 using TBSLogistics.Service.Services.RomoocManage;
 
