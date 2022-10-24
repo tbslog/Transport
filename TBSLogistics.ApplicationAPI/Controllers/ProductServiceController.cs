@@ -110,6 +110,9 @@ public class ProductServiceController : ControllerBase
         var pagedReponse = PaginationHelper.CreatePagedReponse<ListProductServiceRequest>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _pagination, route);
         return Ok(pagedReponse);
     }
+
+
+
     //[HttpGet]
     //[Route("[action]")]
     //public async Task<IActionResult> GetListProductServiceByMaHD([FromQuery] PaginationFilter filter, string MaHD)

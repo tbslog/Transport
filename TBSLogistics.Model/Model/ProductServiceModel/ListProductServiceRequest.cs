@@ -9,6 +9,10 @@ namespace TBSLogistics.Model.Model.ProductServiceModel
     public class ListProductServiceRequest
     {
         public long ID { get; set; }
+        public string MaKh { get; set; }
+        public string TenKh { get; set; }
+        public string TenHopDong { get; set; }
+        public string TenCungDuong { get; set; }
         public string MaHopDong { get; set; }
         public string MaPTVC { get; set; }
         public string MaCungDuong { get; set; }
@@ -19,7 +23,7 @@ namespace TBSLogistics.Model.Model.ProductServiceModel
         public string MaLoaiDoiTac { get; set; }
         public DateTime NgayApDung { get; set; }
         public DateTime NgayHetHieuLuc { get; set; }
-        public int TrangThai { get; set; }
+        public string TrangThai { get; set; }
         public DateTime UpdatedTime { get; set; }
         public DateTime CreatedTime { get; set; }
     }

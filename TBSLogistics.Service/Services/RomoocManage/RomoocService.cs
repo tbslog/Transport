@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -40,7 +41,7 @@ namespace TBSLogistics.Service.Services.RomoocManage
                 }
                 await _TMScontext.Romooc.AddAsync(new Romooc()
                 {
-                    MaRomooc = request.MaRomooc,
+                    MaRomooc = request.MaRomooc.ToUpper(),
                     KetCauSan = request.KetCauSan,
                     SoGuRomooc = request.SoGuRomooc,
                     ThongSoKyThuat = request.ThongSoKyThuat,
@@ -76,11 +77,7 @@ namespace TBSLogistics.Service.Services.RomoocManage
                 {
                     return new BoolActionResult { isSuccess = false, Message = "Mã Romooc không tồn tại" };
                 }
-                var CheckTT = await _TMScontext.Romooc.Where(x => x.TrangThai == 1).FirstOrDefaultAsync();
-                if (getRomooc == null)
-                {
-                    return new BoolActionResult { isSuccess = false, Message = "Romooc phải ở trạng thái hoạt động" };
-                }
+            
                 var IsMaLoaiRomooc = await _TMScontext.LoaiRomooc.Where(x => x.MaLoaiRomooc == request.MaLoaiRomooc).FirstOrDefaultAsync();
                 if (IsMaLoaiRomooc == null)
                 {
@@ -211,17 +208,20 @@ namespace TBSLogistics.Service.Services.RomoocManage
             return listRomooc;
         }
 
+        public async Task<List<LoaiRomooc>> GetListSelectRomoocType()
+        {
+            var list = await _TMScontext.LoaiRomooc.ToListAsync();
+
+            return list;
+        }
+
         private async Task<string> ValidateCreat(string MaRomooc, string MaLoaiRomooc, string ErrorRow = "")
         {
             string ErrorValidate = "";
 
-            if (!Regex.IsMatch(MaRomooc, "^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9 aAàÀảẢãÃáÁạẠăĂằẰẳẲẵẴắẮặẶâÂầẦẩẨẫẪấẤậẬbBcCdDđĐeEèÈẻẺẽẼéÉẹẸêÊềỀểỂễỄếẾệỆ fFgGhHiIìÌỉỈĩĨíÍịỊjJkKlLmMnNoOòÒỏỎõÕóÓọỌôÔồỒổỔỗỖốỐộỘơƠờỜởỞỡỠớỚợỢpPqQrRsStTu UùÙủỦũŨúÚụỤưƯừỪửỬữỮứỨựỰvVwWxXyYỳỲỷỶỹỸýÝỵỴzZ]+(?<![_.])$", RegexOptions.IgnoreCase))
-            {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã Romooc không được chứa ký tự đặc biệt \r\n" + System.Environment.NewLine;
-            }
             if (!Regex.IsMatch(MaRomooc, "^(?![_.])(?![_.])(?!.*[_.]{2})[A-Z0-9]+(?<![_.])$"))
             {
-                ErrorValidate += " - Mã Tài Xế phải viết hoa   \r\n" + System.Environment.NewLine;
+                ErrorValidate += " - Mã Tài Xế khÔng được chứa ký tự đặc biệt \r\n" + System.Environment.NewLine;
             }
             var checkTT = await _TMScontext.LoaiRomooc.Where(x => x.MaLoaiRomooc == MaLoaiRomooc).FirstOrDefaultAsync();
             if (checkTT == null)

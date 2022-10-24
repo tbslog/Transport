@@ -43,7 +43,7 @@ namespace TBSLogistics.Service.Repository.DriverManage
                 }
                 await _context.TaiXe.AddAsync(new TaiXe()
                 {
-                    MaTaiXe = request.MaTaiXe,
+                    MaTaiXe = request.MaTaiXe.ToUpper(),
                     Cccd = request.Cccd,
                     HoVaTen = request.HoVaTen,
                     SoDienThoai = request.SoDienThoai,

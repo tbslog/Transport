@@ -195,9 +195,9 @@ namespace TBSLogistics.Service.Services.ProductServiceManage
             {
                 foreach (var item in request)
                 {
-                    if(item.isApprove!=0 && item.isApprove != 1)
+                    if (item.isApprove != 0 && item.isApprove != 1)
                     {
-                        IdListFail.Add( item.isApprove + ": Sai => Phải ở trạng thái 0( Approve) hoặc 1( Không Approve ) " + " \r\n");
+                        IdListFail.Add(item.isApprove + ": Sai => Phải ở trạng thái 0( Approve) hoặc 1( Không Approve ) " + " \r\n");
                         continue;
                     }
                     var checkExists = await _TMSContext.BangGia.Where(x => x.Id == item.ID).FirstOrDefaultAsync();
@@ -214,7 +214,7 @@ namespace TBSLogistics.Service.Services.ProductServiceManage
                         continue;
 
                     }
-                    if(item.isApprove == 0)
+                    if (item.isApprove == 0)
                     {
                         checkTT.TrangThai = 4;
                         _TMSContext.Update(checkTT);
@@ -306,7 +306,7 @@ namespace TBSLogistics.Service.Services.ProductServiceManage
         //    {
         //        List<string> IdList = new List<string>();
         //        List<string> IdListFail = new List<string>();
-             
+
         //        var checkExists1 = await _TMSContext.BangGia.Where(x => x.MaHopDong == request.MaHopDong).FirstOrDefaultAsync();
         //        if (checkExists1 == null)
         //        {
@@ -432,7 +432,7 @@ namespace TBSLogistics.Service.Services.ProductServiceManage
                     MaLoaiDoiTac = getProductServiceById.MaLoaiDoiTac,
                     NgayApDung = getProductServiceById.NgayApDung,
                     NgayHetHieuLuc = getProductServiceById.NgayHetHieuLuc,
-                    TrangThai = getProductServiceById.TrangThai,
+                    TrangThai = getProductServiceById.TrangThai.ToString(),
                     UpdatedTime = getProductServiceById.UpdatedTime,
                     CreatedTime = getProductServiceById.CreatedTime
                 };
@@ -456,9 +456,15 @@ namespace TBSLogistics.Service.Services.ProductServiceManage
                 var listData = from pro in _TMSContext.HopDongVaPhuLuc
                                join bg in _TMSContext.BangGia
                                on pro.MaHopDong equals bg.MaHopDong
+                               join kh in _TMSContext.KhachHang
+                               on pro.MaKh equals kh.MaKh
+                               join cd in _TMSContext.CungDuong
+                               on bg.MaCungDuong equals cd.MaCungDuong
+                               join tt in _TMSContext.StatusText
+                               on bg.TrangThai equals tt.StatusId
+                               where tt.LangId == TempData.LangID
                                orderby bg.Id descending
-                               select new { pro, bg };
-
+                               select new { pro, bg, kh, tt, cd };
 
 
                 if (!string.IsNullOrEmpty(filter.Keyword))
@@ -467,7 +473,7 @@ namespace TBSLogistics.Service.Services.ProductServiceManage
                 }
                 if (filter.statusId == 2)
                 {
-                    listData = listData.Where(x => x.bg.TrangThai ==4);
+                    listData = listData.Where(x => x.bg.TrangThai == 4);
                 }
                 if (filter.statusId == 7)
                 {
@@ -475,7 +481,7 @@ namespace TBSLogistics.Service.Services.ProductServiceManage
                 }
                 if (!string.IsNullOrEmpty(filter.Keyword))
                 {
-                    listData = listData.Where(x => x.bg.NgayApDung.Date <= filter.fromDate.Value.Date && x.bg.NgayHetHieuLuc.Date > filter.fromDate.Value.Date)  ;
+                    listData = listData.Where(x => x.bg.NgayApDung.Date <= filter.fromDate.Value.Date && x.bg.NgayHetHieuLuc.Date > filter.fromDate.Value.Date);
                 }
 
 
@@ -483,6 +489,9 @@ namespace TBSLogistics.Service.Services.ProductServiceManage
                 var pagedData = await listData.Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new ListProductServiceRequest()
                 {
                     ID = x.bg.Id,
+                    TenKh = x.kh.TenKh,
+                    TenHopDong = x.pro.TenHienThi,
+                    TenCungDuong = x.cd.TenCungDuong,
                     MaHopDong = x.bg.MaHopDong,
                     MaPTVC = x.bg.MaPtvc,
                     MaCungDuong = x.bg.MaCungDuong,
@@ -493,10 +502,9 @@ namespace TBSLogistics.Service.Services.ProductServiceManage
                     MaLoaiDoiTac = x.bg.MaLoaiDoiTac,
                     NgayApDung = x.bg.NgayApDung,
                     NgayHetHieuLuc = x.bg.NgayHetHieuLuc,
-                    TrangThai = x.bg.TrangThai,
+                    TrangThai = x.tt.StatusContent,
                     UpdatedTime = x.bg.UpdatedTime,
                     CreatedTime = x.bg.CreatedTime
-
                 }).ToListAsync();
                 return new PagedResponseCustom<ListProductServiceRequest>()
                 {

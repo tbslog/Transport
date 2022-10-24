@@ -72,7 +72,7 @@ namespace TBSLogistics.Service.Services.ContractManage
 
                 await _TMSContext.AddAsync(new HopDongVaPhuLuc()
                 {
-                    MaHopDong = request.MaHopDong,
+                    MaHopDong = request.MaHopDong.ToUpper(),
                     TenHienThi = request.TenHienThi,
                     MaLoaiHopDong = checkCustommer.MaLoaiKh == "KH" ? "SELL" : "BUY",
                     MaHopDongCha = request.SoHopDongCha,

@@ -82,7 +82,7 @@ namespace TBSLogistics.Service.Repository.RoadManage
 
                 await _context.AddAsync(new CungDuong()
                 {
-                    MaCungDuong = request.MaCungDuong,
+                    MaCungDuong = request.MaCungDuong.ToUpper(),
                     TenCungDuong = request.TenCungDuong,
                     Km = request.Km,
                     DiemDau = request.DiemDau,

@@ -45,7 +45,7 @@ namespace TBSLogistics.Service.Repository.VehicleManage
 
                 await _context.XeVanChuyen.AddAsync(new XeVanChuyen()
                 {
-                    MaSoXe = request.MaSoXe,
+                    MaSoXe = request.MaSoXe.ToUpper(),
                     MaLoaiPhuongTien = request.MaLoaiPhuongTien,
                     MaTaiXeMacDinh = request.MaTaiXeMacDinh,
                     TrongTaiToiThieu = request.TrongTaiToiThieu,

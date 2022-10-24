@@ -73,7 +73,7 @@ namespace TBSLogistics.Service.Repository.CustommerManage
 
                 await _TMSContext.AddAsync(new KhachHang()
                 {
-                    MaKh = request.MaKh,
+                    MaKh = request.MaKh.ToUpper(),
                     TenKh = request.TenKh,
                     MaSoThue = request.MaSoThue,
                     Sdt = request.Sdt,

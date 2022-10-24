@@ -4,7 +4,6 @@ using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.RomoocModel;
 using TBSLogistics.Service.Helpers;
 using TBSLogistics.Service.Panigation;
-using TBSLogistics.Service.Repository.VehicleManage;
 using TBSLogistics.Service.Services.RomoocManage;
 
 namespace TBSLogistics.ApplicationAPI.Controllers
@@ -15,6 +14,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
     {
         private readonly IRomooc _Romooc;
         private readonly IPaginationService _uriService;
+
         public RomoocController(IRomooc romooc, IPaginationService uriService)
         {
             _Romooc = romooc;
@@ -37,9 +37,9 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             }
         }
 
-        [HttpPut]
+        [HttpPost]
         [Route("[action]")]
-        public async Task<IActionResult> EditRomooc(string MaRomooc, EditRomooc request)
+        public async Task<IActionResult> UpdateRomooc(string MaRomooc, EditRomooc request)
         {
             var Edit = await _Romooc.EditRomooc(MaRomooc, request);
 
@@ -87,6 +87,14 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             var byId = await _Romooc.GetRomoocById(MaRomooc);
 
             return Ok(byId);
+        }
+
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetListSelectRomoocType()
+        {
+            var list = await _Romooc.GetListSelectRomoocType();
+            return Ok(list);
         }
     }
 }

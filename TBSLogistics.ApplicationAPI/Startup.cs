@@ -15,6 +15,7 @@ using TBSLogistics.Data.TMS;
 using TBSLogistics.Service.Panigation;
 using TBSLogistics.Service.Repository.AddressManage;
 using TBSLogistics.Service.Repository.Authenticate;
+using TBSLogistics.Service.Repository.BillOfLadingManage;
 using TBSLogistics.Service.Repository.Common;
 using TBSLogistics.Service.Repository.CustommerManage;
 using TBSLogistics.Service.Repository.DriverManage;
@@ -92,6 +93,7 @@ namespace TBSLogistics.ApplicationAPI
             services.AddTransient<IContract, ContractService>();
             services.AddTransient<IProduct, ProductService>();
             services.AddTransient<IRomooc, RomoocService>();
+            services.AddTransient<IBillOfLading, BillOfLadingService>();
 
             services.AddSwaggerGen(option =>
             {
