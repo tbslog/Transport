@@ -50,6 +50,7 @@ namespace TBSLogistics.Service.Services.ProductServiceManage
                     var a = from j in _TMSContext.HopDongVaPhuLuc
                             where j.MaHopDong == i.MaHopDong
                             select j.ThoiGianBatDau;
+
                     await _TMSContext.AddAsync(new BangGia()
                     {
                         // ngày hiệu lực phải bằng ngày kí trong bảng phụ lục hợp đồng join bảng lấy ra
@@ -479,10 +480,10 @@ namespace TBSLogistics.Service.Services.ProductServiceManage
                 {
                     listData = listData.Where(x => x.bg.TrangThai == 3 || x.bg.TrangThai == 4);
                 }
-                if (!string.IsNullOrEmpty(filter.Keyword))
-                {
-                    listData = listData.Where(x => x.bg.NgayApDung.Date <= filter.fromDate.Value.Date && x.bg.NgayHetHieuLuc.Date > filter.fromDate.Value.Date);
-                }
+                //if (!string.IsNullOrEmpty(filter.Keyword))
+                //{
+                //    listData = listData.Where(x => x.bg.NgayApDung.Date <= filter.fromDate.Value.Date && x.bg.NgayHetHieuLuc.Date > filter.fromDate.Value.Date);
+                //}
 
 
                 var totalCount = await listData.CountAsync();

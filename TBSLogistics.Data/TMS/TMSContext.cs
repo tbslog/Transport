@@ -54,8 +54,7 @@ namespace TBSLogistics.Data.TMS
         {
             if (!optionsBuilder.IsConfigured)
             {
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-                optionsBuilder.UseSqlServer("Server=192.168.3.63;Database=TMS;User Id=haile;Password=123456;");
+                optionsBuilder.UseSqlServer("Server=DESKTOP-711TTSG\\HAILE;Database=TMS;Trusted_Connection=True;");
             }
         }
 
@@ -292,17 +291,31 @@ namespace TBSLogistics.Data.TMS
 
                 entity.Property(e => e.GiaThamChieu).HasColumnType("decimal(18, 0)");
 
-                entity.Property(e => e.GiaThucTe).HasColumnType("decimal(18, 0)");
-
                 entity.Property(e => e.HangTau).HasMaxLength(50);
 
                 entity.Property(e => e.IdbangGia).HasColumnName("IDBangGia");
 
-                entity.Property(e => e.MaKh)
+                entity.Property(e => e.MaDvt)
                     .IsRequired()
-                    .HasMaxLength(8)
+                    .HasMaxLength(10)
                     .IsUnicode(false)
-                    .HasColumnName("MaKH");
+                    .HasColumnName("MaDVT");
+
+                entity.Property(e => e.MaLoaiHangHoa)
+                    .IsRequired()
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.MaLoaiPhuongTien)
+                    .IsRequired()
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.MaPtvc)
+                    .IsRequired()
+                    .HasMaxLength(10)
+                    .IsUnicode(false)
+                    .HasColumnName("MaPTVC");
 
                 entity.Property(e => e.MaRomooc)
                     .HasMaxLength(50)
@@ -907,6 +920,12 @@ namespace TBSLogistics.Data.TMS
                     .IsRequired()
                     .HasMaxLength(10)
                     .IsUnicode(false);
+
+                entity.Property(e => e.MaKh)
+                    .IsRequired()
+                    .HasMaxLength(8)
+                    .IsUnicode(false)
+                    .HasColumnName("MaKH");
             });
 
             modelBuilder.Entity<XaPhuong>(entity =>

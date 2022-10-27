@@ -16,18 +16,17 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
         public string PTVanChuyen { get; set; }
         public string TenTau { get; set; }
         public string HangTau { get; set; }
-        public decimal GiaThucTe { get; set; }
         public string MaRomooc { get; set; }
         public string ContNo { get; set; }
+        public string DiemLayRong { get; set; }
         public double? KhoiLuong { get; set; }
         public double? TheTich { get; set; }
-        public DateTime? ThoiGianLayRong { get; set; }
+        public DateTime? ThoiGianLayTraRong { get; set; }
         public DateTime? ThoiGianHaCong { get; set; }
         public DateTime? ThoiGianKeoCong { get; set; }
         public DateTime? ThoiGianHanLenh { get; set; }
         public DateTime ThoiGianCoMat { get; set; }
         public DateTime? ThoiGianCatMang { get; set; }
-        public DateTime? ThoiGianTraRong { get; set; }
         public DateTime ThoiGianLayHang { get; set; }
         public DateTime ThoiGianTraHang { get; set; }
         public string TrangThai { get; set; }

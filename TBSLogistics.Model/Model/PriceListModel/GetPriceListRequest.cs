@@ -14,7 +14,7 @@ namespace TBSLogistics.Model.Model.PriceListModel
         public string MaKh { get; set; }
         public string MaCungDuong { get; set; }
         public DateTime NgayApDung { get; set; }
-        public DateTime NgayHetHieuLuc { get; set; }
+        public DateTime? NgayHetHieuLuc { get; set; }
         public decimal DonGia { get; set; }
         public string MaLoaiPhuongTien { get; set; }
         public string MaLoaiHangHoa { get; set; }

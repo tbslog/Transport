@@ -32,7 +32,7 @@ namespace TBSLogistics.Service.Repository.AddressManage
 
         Task<GetAddressModel> GetAddressById(int IdAddress);
 
-        Task<List<GetListAddress>> GetListAddress();
+        Task<List<GetListAddress>> GetListAddress(string pointType);
        
 
         Task<string> GetFullAddress(string address, int provinceId, int districtId, int wardId);

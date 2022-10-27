@@ -1,8 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.StaticFiles;
-using System.Collections.Generic;
+﻿using Microsoft.AspNetCore.Mvc;
 using System.IO;
+using System.Reflection.Metadata.Ecma335;
 using System.Threading.Tasks;
 using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.BillOfLadingModel;
@@ -10,7 +8,6 @@ using TBSLogistics.Service.Helpers;
 using TBSLogistics.Service.Panigation;
 using TBSLogistics.Service.Repository.BillOfLadingManage;
 using TBSLogistics.Service.Repository.Common;
-using static System.Net.WebRequestMethods;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -121,6 +118,38 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         {
             var data = await _billOfLading.GetHandlingById(id);
             return Ok(data);
+        }
+
+        [HttpPost]
+        [Route("[action]")]
+        public async Task<IActionResult> SetRuning(int id)
+        {
+            var update = await _billOfLading.SetRunning(id);
+
+            if (update.isSuccess)
+            {
+                return Ok(update.Message);
+            }
+            else
+            {
+                return BadRequest(update.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("[action]")]
+        public async Task<IActionResult> CancelHandling(int id)
+        {
+            var update = await _billOfLading.CancelHandling(id);
+
+            if (update.isSuccess)
+            {
+                return Ok(update.Message);
+            }
+            else
+            {
+                return BadRequest(update.Message);
+            }
         }
 
         [HttpPost]

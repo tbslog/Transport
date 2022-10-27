@@ -108,9 +108,9 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<IActionResult> GetListRoadByPoint(int diemDau, int diemCuoi, int diemLayRong )
+        public async Task<IActionResult> GetListRoadByPoint(int diemDau, int diemCuoi )
         {
-            var list = await _road.getListRoadByPoint(diemDau, diemCuoi, diemLayRong);
+            var list = await _road.getListRoadByPoint(diemDau, diemCuoi);
             return Ok(list);
         }
     }

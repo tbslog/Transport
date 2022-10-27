@@ -132,9 +132,9 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<IActionResult> GetListAddressSelect()
+        public async Task<IActionResult> GetListAddressSelect(string pointType = null)
         {
-            var list = await _address.GetListAddress();
+            var list = await _address.GetListAddress(pointType);
 
             return Ok(list);
         }

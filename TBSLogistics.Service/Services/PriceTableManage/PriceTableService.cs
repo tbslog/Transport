@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using TBSLogistics.Data.TBSLogisticsDbContext;
 using TBSLogistics.Data.TMS;
 using TBSLogistics.Model.CommonModel;
 using TBSLogistics.Model.Filter;
@@ -34,18 +35,18 @@ namespace TBSLogistics.Service.Repository.PricelistManage
             {
                 string ErrorValidate = "";
 
-                foreach (var item in request)
-                {
-                    if (item.NgayHetHieuLuc.Date <= item.NgayApDung.Date)
-                    {
-                        ErrorValidate += "Ngày hiệu lực không được nhỏ hơn ngày áp dụng";
-                    }
+                //foreach (var item in request)
+                //{
+                //    if (item.NgayHetHieuLuc.Value <= item.NgayApDung.Date)
+                //    {
+                //        ErrorValidate += "Ngày hiệu lực không được nhỏ hơn ngày áp dụng";
+                //    }
 
-                    if (item.NgayApDung.Date > DateTime.Now.Date)
-                    {
-                        ErrorValidate += "Ngày áp dụng không được lớn hơn ngày hiện tại";
-                    }
-                }
+                //    if (item.NgayApDung.Date > DateTime.Now.Date)
+                //    {
+                //        ErrorValidate += "Ngày áp dụng không được lớn hơn ngày hiện tại";
+                //    }
+                //}
 
                 if (ErrorValidate != "")
                 {
@@ -137,7 +138,7 @@ namespace TBSLogistics.Service.Repository.PricelistManage
                     DonGia = x.DonGia,
                     MaDvt = x.MaDvt,
                     MaLoaiHangHoa = x.MaLoaiHangHoa,
-                    NgayApDung = x.NgayApDung,
+                    NgayApDung = _context.HopDongVaPhuLuc.Where(y => y.MaHopDong == x.MaHopDong).Select(x => x.ThoiGianBatDau).FirstOrDefault(),
                     NgayHetHieuLuc = x.NgayHetHieuLuc,
                     MaLoaiDoiTac = x.MaLoaiDoiTac,
                     TrangThai = 3,
@@ -236,8 +237,8 @@ namespace TBSLogistics.Service.Repository.PricelistManage
                           join cd in _context.CungDuong
                           on bg.MaCungDuong equals cd.MaCungDuong
                           where
-                          cd.TrangThai == 1 &&
-                          bg.NgayHetHieuLuc.Date >= DateTime.Now.Date
+                          cd.TrangThai == 1
+                          && (bg.NgayHetHieuLuc.Value.Date > DateTime.Now.Date || bg.NgayHetHieuLuc == null)
                           && bg.NgayApDung <= DateTime.Now.Date
                           && bg.TrangThai == 4
                           orderby bg.NgayApDung descending
@@ -314,7 +315,7 @@ namespace TBSLogistics.Service.Repository.PricelistManage
                                  where
                                  cd.TrangThai == 1 &&
                                  bg.NgayApDung.Date <= DateTime.Now.Date
-                                 && bg.NgayHetHieuLuc.Date >= DateTime.Now.Date
+                                 && (bg.NgayHetHieuLuc.Value.Date > DateTime.Now.Date || bg.NgayHetHieuLuc == null)
                                  && bg.TrangThai == 4
                                  && hd.MaKh == MaKH
                                  orderby bg.Id descending
@@ -387,7 +388,7 @@ namespace TBSLogistics.Service.Repository.PricelistManage
                 MaLoaiHangHoa = _context.LoaiHangHoa.Where(y => y.MaLoaiHangHoa == x.bg.MaLoaiHangHoa).Select(x => x.TenLoaiHangHoa).FirstOrDefault(),
                 MaLoaiDoiTac = _context.LoaiKhachHang.Where(y => y.MaLoaiKh == x.bg.MaLoaiDoiTac).Select(x => x.TenLoaiKh).FirstOrDefault(),
                 NgayApDung = x.bg.NgayApDung.ToString("dd-MM-yyyy"),
-                NgayHetHieuLuc = x.bg.NgayHetHieuLuc.ToString("dd-MM-yyyy"),
+                NgayHetHieuLuc = x.bg.NgayHetHieuLuc == null ? null : x.bg.NgayHetHieuLuc.Value.ToString("dd-MM-yyyy"),
                 ThoiGianTao = x.bg.CreatedTime.ToString("dd-MM-yyyy HH:mm:ss")
             }).ToListAsync();
 

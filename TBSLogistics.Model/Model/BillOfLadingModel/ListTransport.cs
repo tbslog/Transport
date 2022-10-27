@@ -9,8 +9,9 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
     public class ListTransport
     {
         public string MaVanDon { get; set; }
+        public string MaKH { get; set; }
+        public string TenKH { get; set; }
         public string LoaiVanDon { get; set; }
-        public string DiemLayRong { get; set; }
         public string DiemLayHang { get; set; }
         public string DiemTraHang { get; set; }
         public string MaCungDuong { get; set; }

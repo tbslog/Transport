@@ -465,11 +465,21 @@ namespace TBSLogistics.Service.Repository.AddressManage
             return ErrorValidate;
         }
 
-        public async Task<List<GetListAddress>> GetListAddress()
+        public async Task<List<GetListAddress>> GetListAddress(string pointType)
         {
             try
             {
-                var list = await _VanChuyenContext.DiaDiem.Select(x => new GetListAddress()
+                var list = from dd in _VanChuyenContext.DiaDiem
+                           join ddt in _VanChuyenContext.LoaiDiaDiem
+                           on dd.MaLoaiDiaDiem equals ddt.MaLoaiDiaDiem
+                           select dd;
+
+                if (!string.IsNullOrEmpty(pointType))
+                {
+                    list = list.Where(x => x.MaLoaiDiaDiem == pointType);
+                }
+
+                var data = await _VanChuyenContext.DiaDiem.Select(x => new GetListAddress()
                 {
                     MaDiaDiem = x.MaDiaDiem,
                     TenDiaDiem = x.TenDiaDiem,
@@ -477,7 +487,7 @@ namespace TBSLogistics.Service.Repository.AddressManage
 
                 }).ToListAsync();
 
-                return list;
+                return data;
             }
             catch (Exception)
             {

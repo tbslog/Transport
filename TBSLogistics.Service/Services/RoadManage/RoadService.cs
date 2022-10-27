@@ -47,7 +47,6 @@ namespace TBSLogistics.Service.Repository.RoadManage
                         Km = getById.Km,
                         DiemDau = getById.DiemDau,
                         DiemCuoi = getById.DiemCuoi,
-                        DiemLayRong = getById.DiemLayRong,
                         GhiChu = getById.GhiChu,
                         TrangThai = getById.TrangThai,
                     };
@@ -73,12 +72,11 @@ namespace TBSLogistics.Service.Repository.RoadManage
                     return new BoolActionResult { isSuccess = false, Message = "Mã cung đường đã tồn tại" };
                 }
 
-                string checkValidate = await ValiateRoad(request.MaCungDuong, request.TenCungDuong, request.Km, request.DiemDau, request.DiemCuoi, request.DiemLayRong, request.GhiChu, "Create");
+                string checkValidate = await ValiateRoad(request.MaCungDuong, request.TenCungDuong, request.Km, request.DiemDau, request.DiemCuoi,  request.GhiChu, "Create");
                 if (!string.IsNullOrEmpty(checkValidate))
                 {
                     return new BoolActionResult { isSuccess = false, Message = checkValidate };
                 }
-
 
                 await _context.AddAsync(new CungDuong()
                 {
@@ -87,7 +85,6 @@ namespace TBSLogistics.Service.Repository.RoadManage
                     Km = request.Km,
                     DiemDau = request.DiemDau,
                     DiemCuoi = request.DiemCuoi,
-                    DiemLayRong = request.DiemLayRong,
                     GhiChu = request.GhiChu,
                     TrangThai = request.TrangThai,
                     UpdatedTime = DateTime.Now,
@@ -124,7 +121,7 @@ namespace TBSLogistics.Service.Repository.RoadManage
                     return new BoolActionResult { isSuccess = false, Message = "Mã cung đường không tồn tại" };
                 }
 
-                var checkValidate = await ValiateRoad(MaCungDuong, request.TenCungDuong, request.Km, request.DiemDau, request.DiemCuoi, request.DiemLayRong, request.GhiChu,"Update");
+                var checkValidate = await ValiateRoad(MaCungDuong, request.TenCungDuong, request.Km, request.DiemDau, request.DiemCuoi, request.GhiChu,"Update");
                 if (!string.IsNullOrEmpty(checkValidate))
                 {
                     return new BoolActionResult { isSuccess = false, Message = checkValidate };
@@ -134,7 +131,6 @@ namespace TBSLogistics.Service.Repository.RoadManage
                 checkExists.Km = request.Km;
                 //checkExists.DiemDau = request.DiemDau;
                 //checkExists.DiemCuoi = request.DiemCuoi;
-                //checkExists.DiemLayRong = request.DiemLayRong;
                 checkExists.GhiChu = request.GhiChu;
                 checkExists.UpdatedTime = DateTime.Now;
                 checkExists.TrangThai = request.TrangThai;
@@ -165,11 +161,13 @@ namespace TBSLogistics.Service.Repository.RoadManage
                 var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
 
                 var getData = from cungduong in _context.CungDuong
+                              orderby cungduong.UpdatedTime descending
                               select new { cungduong };
 
                 var getAddress = from diadiem in _context.DiaDiem
                                  join phanloaidd in _context.LoaiDiaDiem
                                  on diadiem.MaLoaiDiaDiem equals phanloaidd.MaLoaiDiaDiem
+                                 
                                  select new { diadiem, phanloaidd };
 
                 if (!string.IsNullOrEmpty(filter.Keyword))
@@ -191,7 +189,6 @@ namespace TBSLogistics.Service.Repository.RoadManage
                     Km = x.cungduong.Km,
                     DiemDau = getAddress.Where(y => y.diadiem.MaDiaDiem == x.cungduong.DiemDau).Select(y => y.diadiem.TenDiaDiem).FirstOrDefault(),
                     DiemCuoi = getAddress.Where(y => y.diadiem.MaDiaDiem == x.cungduong.DiemCuoi).Select(y => y.diadiem.TenDiaDiem).FirstOrDefault(),
-                    DiemLayRong = getAddress.Where(y => y.diadiem.MaDiaDiem == x.cungduong.DiemLayRong).Select(y => y.diadiem.TenDiaDiem).FirstOrDefault(),
                     GhiChu = x.cungduong.GhiChu,
                     PhanLoaiDiaDiem = getAddress.Select(x => x.phanloaidd.TenPhanLoaiDiaDiem).FirstOrDefault(),
                     TrangThai = x.cungduong.TrangThai
@@ -282,7 +279,7 @@ namespace TBSLogistics.Service.Repository.RoadManage
 
 
 
-                            ErrorValidate = await ValiateRoad(MaCungDuong, TenCungDuong, SoKM, DiemDau, DiemCuoi, DiemLayRong, GhiChu, ErrorRow.ToString());
+                            ErrorValidate = await ValiateRoad(MaCungDuong, TenCungDuong, SoKM, DiemDau, DiemCuoi, GhiChu, ErrorRow.ToString());
 
                             if (ErrorValidate == "")
                             {
@@ -348,7 +345,7 @@ namespace TBSLogistics.Service.Repository.RoadManage
             }
         }
 
-        private async Task<string> ValiateRoad(string MaCungDuong, string TenCungDuong, double SoKM, int DiemDau, int DiemCuoi, int? DiemLayRong, string GhiChu,string Action, string ErrorRow = "")
+        private async Task<string> ValiateRoad(string MaCungDuong, string TenCungDuong, double SoKM, int DiemDau, int DiemCuoi, string GhiChu,string Action, string ErrorRow = "")
         {
             string ErrorValidate = "";
 
@@ -383,19 +380,10 @@ namespace TBSLogistics.Service.Repository.RoadManage
 
             if (Action == "Create")
             {
-                var checkExists = await _context.CungDuong.Where(x => x.DiemDau == DiemDau && x.DiemCuoi == DiemCuoi && x.DiemLayRong == DiemLayRong).FirstOrDefaultAsync();
+                var checkExists = await _context.CungDuong.Where(x => x.DiemDau == DiemDau && x.DiemCuoi == DiemCuoi).FirstOrDefaultAsync();
                 if (checkExists != null)
                 {
                     ErrorValidate += "Lỗi Dòng > " + ErrorRow + " - Cung Đường đã tồn tại, " + checkExists.MaCungDuong + " - " + checkExists.TenCungDuong + " \r\n";
-                }
-
-                if (DiemLayRong != null)
-                {
-                    var checkDLR = await _context.DiaDiem.Where(x => x.MaDiaDiem == DiemLayRong).FirstOrDefaultAsync();
-                    if (checkDLR == null)
-                    {
-                        ErrorValidate += "Lỗi Dòng > " + ErrorRow + " - Mã điểm lấy rỗng không đúng, vui lòng xem lại \r\n";
-                    }
                 }
 
                 var checkDC = await _context.DiaDiem.Where(x => x.MaDiaDiem == DiemCuoi).FirstOrDefaultAsync();
@@ -439,14 +427,11 @@ namespace TBSLogistics.Service.Repository.RoadManage
             return list;
         }
 
-        public async Task<List<GetRoadRequest>> getListRoadByPoint(int diemDau, int diemCuoi, int? diemLayRong)
+        public async Task<List<GetRoadRequest>> getListRoadByPoint(int diemDau, int diemCuoi)
         {
-
-            diemLayRong = diemLayRong == 0 ? null : diemLayRong;
             var listRoad = from cd in _context.CungDuong
                            where cd.DiemDau == diemDau
                            && cd.DiemCuoi == diemCuoi
-                           && cd.DiemLayRong == diemLayRong
                            select cd;
 
             return await listRoad.Select(x => new GetRoadRequest()
