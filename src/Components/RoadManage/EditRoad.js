@@ -16,7 +16,6 @@ const EditRoad = (props) => {
     mode: "onChange",
   });
 
-  const [listDiemLayRong, setListDiemLayRong] = useState([]);
   const [listAddress, SetListAddress] = useState([]);
   const [listStatus, setListStatus] = useState([]);
 
@@ -98,11 +97,6 @@ const EditRoad = (props) => {
 
       setValue("TrangThai", props.selectIdClick.trangThai);
 
-      setValue("DiemLayRong", {
-        ...listAddress.filter(
-          (x) => x.value === props.selectIdClick.diemLayRong
-        )[0],
-      });
       setValue("DiemDau", {
         ...listAddress.filter(
           (x) => x.value === props.selectIdClick.diemDau
@@ -131,21 +125,12 @@ const EditRoad = (props) => {
           });
         });
         setListStatus(props.listStatus);
-
-        obj.unshift({ value: "", label: "Empty" });
-        setListDiemLayRong(obj);
-        SetListAddress(obj.filter((x) => x.value !== ""));
+        SetListAddress(obj);
       }
     })();
 
     SetIsLoading(false);
   }, []);
-
-  const HandleOnchangeDiemLayRong = (val) => {
-    setValue("DiemLayRong", {
-      ...listAddress.filter((x) => x.value === val.value)[0],
-    });
-  };
 
   const HandleOnchangeDiemDau = (val) => {
     setValue("DiemDau", {
@@ -166,7 +151,6 @@ const EditRoad = (props) => {
       km: data.SoKM,
       diemDau: data.DiemDau.value,
       diemCuoi: data.DiemCuoi.value,
-      diemLayRong: data.DiemLayRong.value == "" ? null : data.DiemLayRong.value,
       ghiChu: data.GhiChu,
       trangThai: data.TrangThai,
     });
@@ -244,30 +228,6 @@ const EditRoad = (props) => {
               </div>
 
               <div className="row">
-                <div className="col col-sm">
-                  <div className="form-group">
-                    <label htmlFor="DiemLayRong">Điểm lấy rỗng</label>
-                    <Controller
-                      name="DiemLayRong"
-                      control={control}
-                      render={({ field }) => (
-                        <Select
-                          {...field}
-                          classNamePrefix={"form-control"}
-                          isDisabled={true}
-                          value={field.value}
-                          options={listDiemLayRong}
-                          onChange={(field) => HandleOnchangeDiemLayRong(field)}
-                        />
-                      )}
-                    />
-                    {errors.DiemLayRong && (
-                      <span className="text-danger">
-                        {errors.DiemLayRong.message}
-                      </span>
-                    )}
-                  </div>
-                </div>
                 <div className="col col-sm">
                   <div className="form-group">
                     <label htmlFor="DiemDau">Điểm đầu</label>

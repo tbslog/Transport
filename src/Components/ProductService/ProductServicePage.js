@@ -24,7 +24,7 @@ const ProductServicePage = () => {
   const [selectedRows, setSelectedRows] = useState([]);
   const [selectIdClick, setSelectIdClick] = useState({});
   const [listStatus, setListStatus] = useState([]);
-  const [status, setStatus] = useState(4);
+  const [status, setStatus] = useState();
 
   const columns = useMemo(() => [
     {
@@ -64,12 +64,9 @@ const ProductServicePage = () => {
       name: "Tên Hợp Đồng",
       selector: (row) => row.tenHopDong,
     },
+
     {
-      name: "Mã Cung Đường",
-      selector: (row) => row.maCungDuong,
-    },
-    {
-      name: "Tên Cung Đường",
+      name: "Cung Đường",
       selector: (row) => row.tenCungDuong,
     },
     {
@@ -79,6 +76,7 @@ const ProductServicePage = () => {
     {
       name: "Phương Thức Vận Chuyển",
       selector: (row) => row.ptvc,
+      omit: true,
     },
     {
       name: "Loại Hàng Hóa",
@@ -102,7 +100,7 @@ const ProductServicePage = () => {
     },
     {
       name: "Thời gian Tạo",
-      selector: (row) => row.thoiGianTao,
+      selector: (row) => moment(row.createdTime).format("DD-MM-YYYY HH:mm:ss"),
       sortable: true,
     },
   ]);
@@ -144,7 +142,7 @@ const ProductServicePage = () => {
     fromDate = fromDate === "" ? "" : moment(fromDate).format("YYYY-MM-DD");
     toDate = toDate === "" ? "" : moment(toDate).format("YYYY-MM-DD");
     const dataCus = await getData(
-      `PriceTable/GetListPriceTable?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}&fromDate=${fromDate}&toDate=${toDate}&statusId=${status}`
+      `ProductService/GetListProductService?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}&fromDate=${fromDate}&toDate=${toDate}&statusId=${status}`
     );
 
     formatTable(dataCus.data);
@@ -160,7 +158,7 @@ const ProductServicePage = () => {
     setLoading(true);
 
     const dataCus = await getData(
-      `PriceTable/GetListPriceTable?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}&fromDate=${fromDate}&toDate=${toDate}&statusId=${status}`
+      `ProductService/GetListProductService?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}&fromDate=${fromDate}&toDate=${toDate}&statusId=${status}`
     );
     setPerPage(newPerPage);
     formatTable(dataCus.data);

@@ -14,9 +14,6 @@ const AddRoad = (props) => {
     handleSubmit,
   } = useForm({
     mode: "onChange",
-    defaultValues: {
-      DiemLayRong: { value: "", label: "Empty" },
-    },
   });
 
   const Validate = {
@@ -75,14 +72,11 @@ const AddRoad = (props) => {
     },
   };
 
-  const [listDiemLayRong, setListDiemLayRong] = useState([]);
   const [listAddress, SetListAddress] = useState([]);
   const [listStatus, setListStatus] = useState([]);
-  const [listContract, setListContract] = useState([]);
 
   useEffect(() => {
     SetIsLoading(true);
-    setValue("DiemLayRong", { value: "", label: "Empty" });
     (async () => {
       const getlistAddress = await getData("address/GetListAddressSelect");
       if (getlistAddress && getlistAddress.length > 0) {
@@ -95,28 +89,9 @@ const AddRoad = (props) => {
           });
         });
 
-        obj.unshift({ value: "", label: "Empty" });
-        setListDiemLayRong(obj);
-        SetListAddress(obj.filter((x) => x.value !== ""));
+        SetListAddress(obj);
       }
       setListStatus(props.listStatus);
-
-      let getListContract = await getData(
-        `Contract/GetListContractSelect?getChild=false`
-      );
-      if (getListContract && getListContract.length > 0) {
-        let obj = [];
-        getListContract.map((val) => {
-          obj.push({
-            value: val.maHopDong,
-            label: val.maHopDong + " - " + val.tenHienThi,
-          });
-        });
-        setListContract(obj);
-      } else {
-        setListContract([]);
-      }
-
       SetIsLoading(false);
     })();
   }, []);
@@ -125,7 +100,6 @@ const AddRoad = (props) => {
     reset();
     setValue("DiemDau", null);
     setValue("DiemCuoi", null);
-    setValue("DiemLayRong", { value: "", label: "Empty" });
   };
 
   const onSubmit = async (data, e) => {
@@ -136,8 +110,6 @@ const AddRoad = (props) => {
       km: data.SoKM,
       diemDau: data.DiemDau.value,
       diemCuoi: data.DiemCuoi.value,
-      diemLayRong:
-        data.DiemLayRong.value === "" ? null : data.DiemLayRong.value,
       ghiChu: data.GhiChu,
       trangThai: data.TrangThai,
     });
@@ -198,28 +170,6 @@ const AddRoad = (props) => {
                 </div>
               </div>
               <div className="row">
-                <div className="col-sm">
-                  <div className="form-group">
-                    <label htmlFor="DiemLayRong">Điểm lấy rỗng</label>
-                    <Controller
-                      name="DiemLayRong"
-                      control={control}
-                      render={({ field }) => (
-                        <Select
-                          {...field}
-                          classNamePrefix={"form-control"}
-                          value={field.value}
-                          options={listDiemLayRong}
-                        />
-                      )}
-                    />
-                    {errors.DiemLayRong && (
-                      <span className="text-danger">
-                        {errors.DiemLayRong.message}
-                      </span>
-                    )}
-                  </div>
-                </div>
                 <div className="col-sm">
                   <div className="form-group">
                     <label htmlFor="DiemDau">Điểm đầu</label>

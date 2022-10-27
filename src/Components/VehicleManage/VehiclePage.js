@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect, useCallback, useRef } from "react";
-import { getData, postFile, getDataCustom } from "../Common/FuncAxios";
+import { getData, getDataCustom } from "../Common/FuncAxios";
 import DataTable from "react-data-table-component";
 import moment from "moment";
 import { Modal } from "bootstrap";

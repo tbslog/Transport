@@ -19,9 +19,24 @@ const CreateTransport = (props) => {
     handleSubmit,
   } = useForm({
     mode: "onChange",
+    defaultValues: {
+      LoaiVanDon: "nhap",
+    },
   });
 
   const Validate = {
+    MaKH: {
+      required: "Không được để trống",
+    },
+    DiemLayHang: {
+      required: "Không được để trống",
+    },
+    DiemTraHang: {
+      required: "Không được để trống",
+    },
+    LoaiVanDon: {
+      required: "Không được để trống",
+    },
     MaCungDuong: {
       required: "Không được để trống",
       maxLength: {
@@ -39,19 +54,6 @@ const CreateTransport = (props) => {
     },
     LoaiHangHoa: {
       required: "Không được để trống",
-    },
-    PTVC: {
-      required: "Không được để trống",
-    },
-    DVT: {
-      required: "Không được để trống",
-    },
-    TongThungHang: {
-      required: "Không được để trống",
-      pattern: {
-        value: /^[0-9]*$/,
-        message: "Chỉ được nhập ký tự là số",
-      },
     },
     TongKhoiLuong: {
       required: "Không được để trống",
@@ -72,13 +74,47 @@ const CreateTransport = (props) => {
   };
 
   const [tabIndex, setTabIndex] = useState(0);
-  const [listPoint, setListPoint] = useState([]);
+  const [listFirstPoint, setListFirstPoint] = useState([]);
+  const [listSecondPoint, setListSecondPoint] = useState([]);
   const [listRoad, setListRoad] = useState([]);
+  const [listCus, setListCus] = useState([]);
 
   useEffect(() => {
     SetIsLoading(true);
     (async () => {
-      let getListRoad = await getData(`Road/GetListRoadOptionSelect`);
+      const getListPoint = await getData("address/GetListAddressSelect");
+      if (getListPoint && getListPoint.length > 0) {
+        var obj = [];
+        getListPoint.map((val) => {
+          obj.push({
+            value: val.maDiaDiem,
+            label: val.maDiaDiem + " - " + val.tenDiaDiem,
+          });
+        });
+        setListFirstPoint(obj);
+        setListSecondPoint(obj);
+      }
+      SetIsLoading(false);
+    })();
+  }, []);
+
+  const handleOnChangePoint = async () => {
+    setListRoad([]);
+    setListCus([]);
+    setValue("MaKH", null);
+    setValue("MaCungDuong", null);
+    var diemdau = watch("DiemLayHang");
+    var diemCuoi = watch("DiemTraHang");
+
+    if (
+      diemdau &&
+      diemCuoi &&
+      Object.keys(diemdau).length > 0 &&
+      Object.keys(diemCuoi).length > 0
+    ) {
+      let getListRoad = await getData(
+        `Road/getListRoadByPoint?diemDau=${diemdau.value}&diemCuoi=${diemCuoi.value}`
+      );
       if (getListRoad && getListRoad.length > 0) {
         let obj = [];
         getListRoad.map((val) => {
@@ -89,9 +125,33 @@ const CreateTransport = (props) => {
         });
         setListRoad(obj);
       }
-      SetIsLoading(false);
-    })();
-  }, []);
+    } else {
+      setListRoad([]);
+      setValue("MaCungDuong", null);
+    }
+  };
+
+  const handleOnChangeRoad = async () => {
+    var cungDuong = watch("MaCungDuong");
+    setListCus([]);
+    setValue("MaKH", null);
+    if (cungDuong && Object.keys(cungDuong).length > 0) {
+      let getListCus = await getData(
+        `BillOfLading/LoadDataHandling?RoadId=${cungDuong.value}`
+      );
+
+      if (getListCus.listKhachHang && getListCus.listKhachHang.length > 0) {
+        let obj = [];
+        getListCus.listKhachHang.map((val) => {
+          obj.push({
+            value: val.maKH,
+            label: val.maKH + " - " + val.tenKH,
+          });
+        });
+        setListCus(obj);
+      }
+    }
+  };
 
   const onSubmit = async (data) => {
     SetIsLoading(true);
@@ -102,12 +162,18 @@ const CreateTransport = (props) => {
       tongThungHang: data.TongThungHang,
       tongKhoiLuong: data.TongKhoiLuong,
       tongTheTich: data.TongTheTich,
+      MaKH: data.MaKH.value,
       thoiGianLayHang: moment(new Date(data.TGLayHang).toISOString()).format(
         "yyyy-MM-DDTHH:mm:ss.SSS"
       ),
       thoiGianTraHang: moment(new Date(data.TGTraHang).toISOString()).format(
         "yyyy-MM-DDTHH:mm:ss.SSS"
       ),
+      ThoiGianLayTraRong: !data.TGLayTraRong
+        ? null
+        : moment(new Date(data.TGLayTraRong).toISOString()).format(
+            "yyyy-MM-DDTHH:mm:ss.SSS"
+          ),
     });
 
     if (create === 1) {
@@ -136,6 +202,76 @@ const CreateTransport = (props) => {
                 <div className="row">
                   <div className="col col-sm">
                     <div className="form-group">
+                      <label htmlFor="DiemLayHang">Điểm Lấy Hàng</label>
+                      <Controller
+                        name="DiemLayHang"
+                        control={control}
+                        render={({ field }) => (
+                          <Select
+                            {...field}
+                            classNamePrefix={"form-control"}
+                            value={field.value}
+                            options={listFirstPoint}
+                            onChange={(field) =>
+                              handleOnChangePoint(
+                                setValue(
+                                  "DiemLayHang",
+                                  {
+                                    ...listFirstPoint.filter(
+                                      (x) => x.value === field.value
+                                    ),
+                                  }[0]
+                                )
+                              )
+                            }
+                          />
+                        )}
+                        rules={Validate.DiemLayHang}
+                      />
+                      {errors.DiemLayHang && (
+                        <span className="text-danger">
+                          {errors.DiemLayHang.message}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="col col-sm">
+                    <div className="form-group">
+                      <label htmlFor="DiemTraHang">Điểm Trả Hàng</label>
+                      <Controller
+                        name="DiemTraHang"
+                        control={control}
+                        render={({ field }) => (
+                          <Select
+                            {...field}
+                            classNamePrefix={"form-control"}
+                            value={field.value}
+                            options={listSecondPoint}
+                            onChange={(field) =>
+                              handleOnChangePoint(
+                                setValue(
+                                  "DiemTraHang",
+                                  {
+                                    ...listSecondPoint.filter(
+                                      (x) => x.value === field.value
+                                    ),
+                                  }[0]
+                                )
+                              )
+                            }
+                          />
+                        )}
+                        rules={Validate.DiemTraHang}
+                      />
+                      {errors.DiemTraHang && (
+                        <span className="text-danger">
+                          {errors.DiemTraHang.message}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="col col-sm">
+                    <div className="form-group">
                       <label htmlFor="MaCungDuong">Cung Đường</label>
                       <Controller
                         name="MaCungDuong"
@@ -146,6 +282,18 @@ const CreateTransport = (props) => {
                             classNamePrefix={"form-control"}
                             value={field.value}
                             options={listRoad}
+                            onChange={(field) =>
+                              handleOnChangeRoad(
+                                setValue(
+                                  "MaCungDuong",
+                                  {
+                                    ...listRoad.filter(
+                                      (x) => x.value === field.value
+                                    ),
+                                  }[0]
+                                )
+                              )
+                            }
                           />
                         )}
                         rules={Validate.MaCungDuong}
@@ -153,6 +301,31 @@ const CreateTransport = (props) => {
                       {errors.MaCungDuong && (
                         <span className="text-danger">
                           {errors.MaCungDuong.message}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                <div className="row">
+                  <div className="col col-sm">
+                    <div className="form-group">
+                      <label htmlFor="MaKH">Khách Hàng</label>
+                      <Controller
+                        name="MaKH"
+                        control={control}
+                        render={({ field }) => (
+                          <Select
+                            {...field}
+                            classNamePrefix={"form-control"}
+                            value={field.value}
+                            options={listCus}
+                          />
+                        )}
+                        rules={Validate.MaKH}
+                      />
+                      {errors.MaKH && (
+                        <span className="text-danger">
+                          {errors.MaKH.message}
                         </span>
                       )}
                     </div>
@@ -179,25 +352,6 @@ const CreateTransport = (props) => {
                   </div>
                 </div>
                 <div className="row">
-                  <div className="col col-sm">
-                    <div className="form-group">
-                      <label htmlFor="TongThungHang">
-                        Tổng Thùng Hàng Đơn Vị PCS(Cái)
-                      </label>
-                      <input
-                        autoComplete="false"
-                        type="text"
-                        className="form-control"
-                        id="TongThungHang"
-                        {...register(`TongThungHang`, Validate.TongThungHang)}
-                      />
-                      {errors.TongThungHang && (
-                        <span className="text-danger">
-                          {errors.TongThungHang.message}
-                        </span>
-                      )}
-                    </div>
-                  </div>
                   <div className="col col-sm">
                     <div className="form-group">
                       <label htmlFor="TongKhoiLuong">
@@ -242,6 +396,38 @@ const CreateTransport = (props) => {
                 <div className="row">
                   <div className="col col-sm">
                     <div className="form-group">
+                      {watch("LoaiVanDon") === "xuat" && (
+                        <label htmlFor="TGLayTraRong">Thời Gian Lấy Rỗng</label>
+                      )}
+                      {watch("LoaiVanDon") === "nhap" && (
+                        <label htmlFor="TGLayTraRong">Thời Gian Trả Rỗng</label>
+                      )}
+                      <div className="input-group ">
+                        <Controller
+                          control={control}
+                          name={`TGLayTraRong`}
+                          render={({ field }) => (
+                            <DatePicker
+                              className="form-control"
+                              showTimeSelect
+                              timeFormat="HH:mm"
+                              dateFormat="dd/MM/yyyy HH:mm"
+                              onChange={(date) => field.onChange(date)}
+                              selected={field.value}
+                            />
+                          )}
+                        />
+                        {errors.TGLayTraRong && (
+                          <span className="text-danger">
+                            {errors.TGLayTraRong.message}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="col col-sm">
+                    <div className="form-group">
                       <label htmlFor="TGLayHang">Thời Gian Lấy Hàng</label>
                       <div className="input-group ">
                         <Controller
@@ -269,7 +455,6 @@ const CreateTransport = (props) => {
                       </div>
                     </div>
                   </div>
-
                   <div className="col col-sm">
                     <div className="form-group">
                       <label htmlFor="TGTraHang">Thời Gian Trả Hàng</label>

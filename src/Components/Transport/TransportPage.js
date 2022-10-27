@@ -57,7 +57,7 @@ const TransportPage = () => {
           type="button"
           className="btn btn-sm btn-default"
         >
-          <i className="fas fa-truck"></i>
+          <i className="fas fa-random"></i>
         </button>
       ),
       ignoreRowClick: true,
@@ -85,11 +85,11 @@ const TransportPage = () => {
       sortable: true,
       width: "auto",
     },
-    {
-      name: "Điểm Lấy Rỗng",
-      selector: (row) => row.diemLayRong,
-      width: "auto",
-    },
+    // {
+    //   name: "Điểm Lấy Rỗng",
+    //   selector: (row) => row.diemLayRong,
+    //   width: "auto",
+    // },
     {
       name: "Điểm Lấy Hàng",
       selector: (row) => row.diemLayHang,
@@ -176,6 +176,7 @@ const TransportPage = () => {
     const datatransport = await getData(
       `BillOfLading/GetListTransport?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}&StatusId=${status}&fromDate=${fromDate}&toDate=${toDate}`
     );
+
     setData(datatransport.data);
     setTotalRows(datatransport.totalRecords);
     setLoading(false);
@@ -200,8 +201,12 @@ const TransportPage = () => {
     setSelectedRows(state.selectedRows);
   }, []);
 
-  const handleEditButtonClick = (value) => {
-    setSelectIdClick(value);
+  const handleEditButtonClick = async (value) => {
+    let getTransportById = await getData(
+      `BillOfLading/GetTransportById?transportId=${value.maVanDon}`
+    );
+
+    setSelectIdClick(getTransportById);
     showModalForm();
   };
 
@@ -379,6 +384,7 @@ const TransportPage = () => {
                       selectIdClick={selectIdClick}
                       reOpenModal={handleEditButtonClick}
                       hideModal={hideModal}
+                      getListTransport={fetchData}
                     />
                   )}
                   {ShowModal === "ListHandling" && (

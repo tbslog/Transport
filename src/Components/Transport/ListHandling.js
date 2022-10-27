@@ -5,6 +5,7 @@ import moment from "moment";
 import { Modal } from "bootstrap";
 import UpdateHandling from "./UpdateHandling";
 import HandlingImage from "./HandlingImage";
+import ConfirmDialog from "../Common/Dialog/ConfirmDialog";
 
 const ListHandling = (props) => {
   const { dataClick } = props;
@@ -12,12 +13,49 @@ const ListHandling = (props) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  const [ShowConfirm, setShowConfirm] = useState(false);
+  const [funcName, setFuncName] = useState("");
+
   const [ShowModal, SetShowModal] = useState("");
   const [modal, setModal] = useState(null);
   const parseExceptionModal = useRef();
   const [selectIdClick, setSelectIdClick] = useState({});
 
   const columns = useMemo(() => [
+    {
+      name: "Hủy Bỏ",
+      cell: (val) => (
+        <>
+          <button
+            onClick={() =>
+              showConfirmDialog(val, setFuncName("CancelHandling"))
+            }
+            type="button"
+            className="btn btn-sm btn-default"
+          >
+            <i className="fas fa-window-close"></i>
+          </button>
+        </>
+      ),
+      ignoreRowClick: true,
+      allowOverflow: true,
+      button: true,
+    },
+    {
+      name: "Bắt Đầu Chạy",
+      cell: (val) => (
+        <button
+          onClick={() => showConfirmDialog(val, setFuncName("StartRuning"))}
+          type="button"
+          className="btn btn-sm btn-default"
+        >
+          <i className="fas fa-shipping-fast"></i>
+        </button>
+      ),
+      ignoreRowClick: true,
+      allowOverflow: true,
+      button: true,
+    },
     {
       name: "Chỉnh Sửa",
       cell: (val) => (
@@ -163,6 +201,60 @@ const ListHandling = (props) => {
     setLoading(false);
   };
 
+  const showConfirmDialog = (val) => {
+    setSelectIdClick(val);
+    setShowConfirm(true);
+  };
+
+  const setRuning = async () => {
+    if (
+      ShowConfirm === true &&
+      selectIdClick &&
+      Object.keys(selectIdClick).length > 0
+    ) {
+      var update = await postData(
+        `BillOfLading/SetRuning?id=${selectIdClick.maDieuPhoi}`
+      );
+
+      if (update === 1) {
+        fetchData(selectIdClick.maVanDon);
+        setShowConfirm(false);
+      } else {
+        setShowConfirm(false);
+      }
+    }
+  };
+
+  const setCancelHandling = async () => {
+    if (
+      ShowConfirm === true &&
+      selectIdClick &&
+      Object.keys(selectIdClick).length > 0
+    ) {
+      var update = await postData(
+        `BillOfLading/CancelHandling?id=${selectIdClick.maDieuPhoi}`
+      );
+
+      if (update === 1) {
+        fetchData(selectIdClick.maVanDon);
+        setShowConfirm(false);
+      } else {
+        setShowConfirm(false);
+      }
+    }
+  };
+
+  const funcAgree = () => {
+    if (funcName && funcName.length > 0) {
+      switch (funcName) {
+        case "StartRuning":
+          return setRuning();
+        case "CancelHandling":
+          return setCancelHandling();
+      }
+    }
+  };
+
   const handleEditButtonClick = (value) => {
     setSelectIdClick(value);
     showModalForm();
@@ -198,47 +290,58 @@ const ListHandling = (props) => {
           </div>
           <div className="card-footer"></div>
         </div>
-        <div
-          className="modal fade"
-          id="modal-xl"
-          data-backdrop="static"
-          ref={parseExceptionModal}
-          aria-labelledby="parseExceptionModal"
-          backdrop="static"
-        >
+        <div>
+          {ShowConfirm === true && (
+            <ConfirmDialog
+              setShowConfirm={setShowConfirm}
+              title={"Bạn có chắc chắn với quyết định này?"}
+              content={""}
+              funcAgree={funcAgree}
+            />
+          )}
+
           <div
-            className="modal-dialog modal-dialog-scrollable"
-            style={{ maxWidth: "90%" }}
+            className="modal fade"
+            id="modal-xl"
+            data-backdrop="static"
+            ref={parseExceptionModal}
+            aria-labelledby="parseExceptionModal"
+            backdrop="static"
           >
-            <div className="modal-content">
-              <div className="modal-header">
-                <button
-                  type="button"
-                  className="close"
-                  data-dismiss="modal"
-                  onClick={() => hideModal()}
-                  aria-label="Close"
-                >
-                  <span aria-hidden="true">×</span>
-                </button>
-              </div>
-              <div className="modal-body">
-                <>
-                  {ShowModal === "Edit" && (
-                    <UpdateHandling
-                      getlistData={fetchData}
-                      selectIdClick={selectIdClick}
-                      hideModal={hideModal}
-                    />
-                  )}
-                  {ShowModal === "Image" && (
-                    <HandlingImage
-                      dataClick={selectIdClick}
-                      hideModal={hideModal}
-                      checkModal={modal}
-                    />
-                  )}
-                </>
+            <div
+              className="modal-dialog modal-dialog-scrollable"
+              style={{ maxWidth: "90%" }}
+            >
+              <div className="modal-content">
+                <div className="modal-header">
+                  <button
+                    type="button"
+                    className="close"
+                    data-dismiss="modal"
+                    onClick={() => hideModal()}
+                    aria-label="Close"
+                  >
+                    <span aria-hidden="true">×</span>
+                  </button>
+                </div>
+                <div className="modal-body">
+                  <>
+                    {ShowModal === "Edit" && (
+                      <UpdateHandling
+                        getlistData={fetchData}
+                        selectIdClick={selectIdClick}
+                        hideModal={hideModal}
+                      />
+                    )}
+                    {ShowModal === "Image" && (
+                      <HandlingImage
+                        dataClick={selectIdClick}
+                        hideModal={hideModal}
+                        checkModal={modal}
+                      />
+                    )}
+                  </>
+                </div>
               </div>
             </div>
           </div>

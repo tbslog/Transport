@@ -10,8 +10,8 @@ const UpdateTransport = (props) => {
 
   const {
     register,
-    reset,
     setValue,
+    clearErrors,
     control,
     watch,
     formState: { errors },
@@ -21,6 +21,18 @@ const UpdateTransport = (props) => {
   });
 
   const Validate = {
+    MaKH: {
+      required: "Không được để trống",
+    },
+    DiemLayHang: {
+      required: "Không được để trống",
+    },
+    DiemTraHang: {
+      required: "Không được để trống",
+    },
+    LoaiVanDon: {
+      required: "Không được để trống",
+    },
     MaCungDuong: {
       required: "Không được để trống",
       maxLength: {
@@ -38,19 +50,6 @@ const UpdateTransport = (props) => {
     },
     LoaiHangHoa: {
       required: "Không được để trống",
-    },
-    PTVC: {
-      required: "Không được để trống",
-    },
-    DVT: {
-      required: "Không được để trống",
-    },
-    TongThungHang: {
-      required: "Không được để trống",
-      pattern: {
-        value: /^[0-9]*$/,
-        message: "Chỉ được nhập ký tự là số",
-      },
     },
     TongKhoiLuong: {
       required: "Không được để trống",
@@ -71,14 +70,142 @@ const UpdateTransport = (props) => {
   };
 
   const [IsLoading, SetIsLoading] = useState(false);
-  const [listPoint, setListPoint] = useState([]);
-  const [listRoad, setListRoad] = useState([]);
   const [contractId, setContractId] = useState("");
+  const [listFirstPoint, setListFirstPoint] = useState([]);
+  const [listSecondPoint, setListSecondPoint] = useState([]);
+  const [listRoad, setListRoad] = useState([]);
+  const [listCus, setListCus] = useState([]);
 
   useEffect(() => {
     SetIsLoading(true);
     (async () => {
-      let getListRoad = await getData(`Road/GetListRoadOptionSelect`);
+      const getListPoint = await getData("address/GetListAddressSelect");
+      if (getListPoint && getListPoint.length > 0) {
+        var obj = [];
+        getListPoint.map((val) => {
+          obj.push({
+            value: val.maDiaDiem,
+            label: val.maDiaDiem + " - " + val.tenDiaDiem,
+          });
+        });
+        setListFirstPoint(obj);
+        setListSecondPoint(obj);
+      }
+      SetIsLoading(false);
+    })();
+  }, []);
+
+  useEffect(() => {
+    clearErrors();
+    if (
+      props &&
+      selectIdClick &&
+      Object.keys(selectIdClick).length > 0 &&
+      listFirstPoint &&
+      listSecondPoint &&
+      listFirstPoint.length > 0 &&
+      listSecondPoint.length > 0
+    ) {
+      SetIsLoading(true);
+      setValue(
+        "MaCungDuong",
+        {
+          ...listRoad.filter((x) => x.value === selectIdClick.maCungDuong),
+        }[0]
+      );
+
+      setContractId(selectIdClick.maVanDon);
+      setValue("MaVanDon", selectIdClick.maVanDon);
+      setValue("TongKhoiLuong", selectIdClick.tongKhoiLuong);
+      setValue("TongTheTich", selectIdClick.tongTheTich);
+      setValue("LoaiVanDon", selectIdClick.loaiVanDon);
+      setValue("TGLayHang", new Date(selectIdClick.thoiGianLayHang));
+      setValue("TGTraHang", new Date(selectIdClick.thoiGianTraHang));
+      setValue("TGLayTraRong", new Date(selectIdClick.thoiGianLayTraRong));
+      setValue(
+        "DiemLayHang",
+        {
+          ...listFirstPoint.filter((x) => x.value === selectIdClick.diemDau),
+        }[0]
+      );
+      setValue(
+        "DiemTraHang",
+        {
+          ...listSecondPoint.filter((x) => x.value === selectIdClick.diemCuoi),
+        }[0]
+      );
+
+      handleOnChangePoint(
+        {
+          ...listFirstPoint.filter((x) => x.value === selectIdClick.diemDau),
+        }[0],
+        {
+          ...listSecondPoint.filter((x) => x.value === selectIdClick.diemCuoi),
+        }[0]
+      );
+
+      SetIsLoading(false);
+    }
+  }, [props, selectIdClick, listFirstPoint, listSecondPoint]);
+
+  useEffect(() => {
+    if (
+      listRoad &&
+      listRoad.length > 0 &&
+      selectIdClick &&
+      Object.keys(selectIdClick).length > 0
+    ) {
+      SetIsLoading(true);
+      setValue(
+        "MaCungDuong",
+        {
+          ...listRoad.filter((x) => x.value === selectIdClick.cungDuong),
+        }[0]
+      );
+
+      handleOnChangeRoad(
+        {
+          ...listRoad.filter((x) => x.value === selectIdClick.cungDuong),
+        }[0]
+      );
+      SetIsLoading(false);
+    }
+  }, [selectIdClick, listRoad]);
+
+  useEffect(() => {
+    if (listCus && listCus.length > 0) {
+      SetIsLoading(true);
+      setValue(
+        "MaKH",
+        {
+          ...listCus.filter((x) => x.value === selectIdClick.maKh),
+        }[0]
+      );
+      SetIsLoading(false);
+    }
+  }, [selectIdClick, listCus]);
+
+  const handleOnChangePoint = async (diemDau, diemCuoi) => {
+    SetIsLoading(true);
+    setListRoad([]);
+    setListCus([]);
+    setValue("MaKH", null);
+    setValue("MaCungDuong", null);
+
+    if (!diemDau && !diemCuoi) {
+      diemDau = watch("DiemLayHang");
+      diemCuoi = watch("DiemTraHang");
+    }
+
+    if (
+      diemDau &&
+      diemCuoi &&
+      Object.keys(diemDau).length > 0 &&
+      Object.keys(diemCuoi).length > 0
+    ) {
+      let getListRoad = await getData(
+        `Road/getListRoadByPoint?diemDau=${diemDau.value}&diemCuoi=${diemCuoi.value}`
+      );
       if (getListRoad && getListRoad.length > 0) {
         let obj = [];
         getListRoad.map((val) => {
@@ -89,29 +216,40 @@ const UpdateTransport = (props) => {
         });
         setListRoad(obj);
       }
-      SetIsLoading(false);
-    })();
-  }, []);
+    } else {
+      setListRoad([]);
+      setValue("MaCungDuong", null);
+    }
 
-  useEffect(() => {
-    if (props && selectIdClick && Object.keys(selectIdClick).length > 0) {
-      setValue(
-        "MaCungDuong",
-        {
-          ...listRoad.filter((x) => x.value === selectIdClick.maCungDuong),
-        }[0]
+    SetIsLoading(false);
+  };
+
+  const handleOnChangeRoad = async (cungDuong) => {
+    SetIsLoading(true);
+    if (!cungDuong) {
+      cungDuong = watch("MaCungDuong");
+    }
+
+    setListCus([]);
+    setValue("MaKH", null);
+    if (cungDuong && Object.keys(cungDuong).length > 0) {
+      let getListCus = await getData(
+        `BillOfLading/LoadDataHandling?RoadId=${cungDuong.value}`
       );
 
-      setContractId(selectIdClick.maVanDon);
-      setValue("MaVanDon", selectIdClick.maVanDon);
-      setValue("TongThungHang", selectIdClick.tongThungHang);
-      setValue("TongKhoiLuong", selectIdClick.tongKhoiLuong);
-      setValue("TongTheTich", selectIdClick.tongTheTich);
-      setValue("LoaiVanDon", selectIdClick.loaiVanDon);
-      setValue("TGLayHang", new Date(selectIdClick.thoiGianLayHang));
-      setValue("TGTraHang", new Date(selectIdClick.thoiGianTraHang));
+      if (getListCus.listKhachHang && getListCus.listKhachHang.length > 0) {
+        let obj = [];
+        getListCus.listKhachHang.map((val) => {
+          obj.push({
+            value: val.maKH,
+            label: val.maKH + " - " + val.tenKH,
+          });
+        });
+        setListCus(obj);
+      }
     }
-  }, [props, selectIdClick, listRoad]);
+    SetIsLoading(false);
+  };
 
   const onSubmit = async (data) => {
     SetIsLoading(true);
@@ -119,17 +257,23 @@ const UpdateTransport = (props) => {
     const Update = await postData(
       `BillOfLading/UpdateTransport?transportId=${contractId}`,
       {
-        loaiVanDon: data.LoaiVanDon,
         maCungDuong: data.MaCungDuong.value,
+        loaiVanDon: data.LoaiVanDon,
         tongThungHang: data.TongThungHang,
         tongKhoiLuong: data.TongKhoiLuong,
         tongTheTich: data.TongTheTich,
+        MaKh: data.MaKH.value,
         thoiGianLayHang: moment(new Date(data.TGLayHang).toISOString()).format(
           "yyyy-MM-DDTHH:mm:ss.SSS"
         ),
         thoiGianTraHang: moment(new Date(data.TGTraHang).toISOString()).format(
           "yyyy-MM-DDTHH:mm:ss.SSS"
         ),
+        ThoiGianLayTraRong: !data.TGLayTraRong
+          ? null
+          : moment(new Date(data.TGLayTraRong).toISOString()).format(
+              "yyyy-MM-DDTHH:mm:ss.SSS"
+            ),
       }
     );
 
@@ -139,10 +283,6 @@ const UpdateTransport = (props) => {
     }
 
     SetIsLoading(false);
-  };
-
-  const handleResetClick = () => {
-    reset();
   };
 
   return (
@@ -159,19 +299,129 @@ const UpdateTransport = (props) => {
               <div className="row">
                 <div className="col col-sm">
                   <div className="form-group">
-                    <label htmlFor="MaVanDon">Mã Vận Đơn</label>
-                    <input
-                      readOnly
-                      autoComplete="false"
-                      type="text"
-                      className="form-control"
-                      id="MaVanDon"
-                      {...register(`MaVanDon`)}
+                    <label htmlFor="DiemLayHang">Điểm Lấy Hàng</label>
+                    <Controller
+                      name="DiemLayHang"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          classNamePrefix={"form-control"}
+                          value={field.value}
+                          options={listFirstPoint}
+                          onChange={(field) =>
+                            handleOnChangePoint(
+                              setValue(
+                                "DiemLayHang",
+                                {
+                                  ...listFirstPoint.filter(
+                                    (x) => x.value === field.value
+                                  ),
+                                }[0]
+                              )
+                            )
+                          }
+                        />
+                      )}
+                      rules={Validate.DiemLayHang}
                     />
-                    {errors.MaVanDon && (
+                    {errors.DiemLayHang && (
                       <span className="text-danger">
-                        {errors.MaVanDon.message}
+                        {errors.DiemLayHang.message}
                       </span>
+                    )}
+                  </div>
+                </div>
+                <div className="col col-sm">
+                  <div className="form-group">
+                    <label htmlFor="DiemTraHang">Điểm Trả Hàng</label>
+                    <Controller
+                      name="DiemTraHang"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          classNamePrefix={"form-control"}
+                          value={field.value}
+                          options={listSecondPoint}
+                          onChange={(field) =>
+                            handleOnChangePoint(
+                              setValue(
+                                "DiemTraHang",
+                                {
+                                  ...listSecondPoint.filter(
+                                    (x) => x.value === field.value
+                                  ),
+                                }[0]
+                              )
+                            )
+                          }
+                        />
+                      )}
+                      rules={Validate.DiemTraHang}
+                    />
+                    {errors.DiemTraHang && (
+                      <span className="text-danger">
+                        {errors.DiemTraHang.message}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className="col col-sm">
+                  <div className="form-group">
+                    <label htmlFor="MaCungDuong">Cung Đường</label>
+                    <Controller
+                      name="MaCungDuong"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          classNamePrefix={"form-control"}
+                          value={field.value}
+                          options={listRoad}
+                          onChange={(field) =>
+                            handleOnChangeRoad(
+                              setValue(
+                                "MaCungDuong",
+                                {
+                                  ...listRoad.filter(
+                                    (x) => x.value === field.value
+                                  ),
+                                }[0]
+                              )
+                            )
+                          }
+                        />
+                      )}
+                      rules={Validate.MaCungDuong}
+                    />
+                    {errors.MaCungDuong && (
+                      <span className="text-danger">
+                        {errors.MaCungDuong.message}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+              <div className="row">
+                <div className="col col-sm">
+                  <div className="form-group">
+                    <label htmlFor="MaKH">Khách Hàng</label>
+                    <Controller
+                      name="MaKH"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          classNamePrefix={"form-control"}
+                          value={field.value}
+                          options={listCus}
+                        />
+                      )}
+                      rules={Validate.MaKH}
+                    />
+                    {errors.MaKH && (
+                      <span className="text-danger">{errors.MaKH.message}</span>
                     )}
                   </div>
                 </div>
@@ -195,169 +445,150 @@ const UpdateTransport = (props) => {
                     )}
                   </div>
                 </div>
+              </div>
+              <div className="row">
                 <div className="col col-sm">
                   <div className="form-group">
-                    <label htmlFor="MaCungDuong">Cung Đường</label>
-                    <Controller
-                      name="MaCungDuong"
-                      control={control}
-                      render={({ field }) => (
-                        <Select
-                          {...field}
-                          classNamePrefix={"form-control"}
-                          value={field.value}
-                          options={listRoad}
-                        />
-                      )}
-                      rules={Validate.MaCungDuong}
+                    <label htmlFor="TongKhoiLuong">
+                      Tổng Khối Lượng (Đơn Vị Tấn)
+                    </label>
+                    <input
+                      autoComplete="false"
+                      type="text"
+                      className="form-control"
+                      id="TongKhoiLuong"
+                      {...register(`TongKhoiLuong`, Validate.TongKhoiLuong)}
                     />
-                    {errors.MaCungDuong && (
+                    {errors.TongKhoiLuong && (
                       <span className="text-danger">
-                        {errors.MaCungDuong.message}
+                        {errors.TongKhoiLuong.message}
                       </span>
                     )}
                   </div>
+                  <br />
                 </div>
-              </div>
-              <>
-                <div className="row">
-                  <div className="col col-sm">
-                    <div className="form-group">
-                      <label htmlFor="TongThungHang">
-                        Tổng Thùng Hàng Đơn Vị PCS(Cái)
-                      </label>
-                      <input
-                        autoComplete="false"
-                        type="text"
-                        className="form-control"
-                        id="TongThungHang"
-                        {...register(`TongThungHang`, Validate.TongThungHang)}
-                      />
-                      {errors.TongThungHang && (
-                        <span className="text-danger">
-                          {errors.TongThungHang.message}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  <div className="col col-sm">
-                    <div className="form-group">
-                      <label htmlFor="TongKhoiLuong">
-                        Tổng Trọng Lượng (Đơn Vị Tấn)
-                      </label>
-                      <input
-                        autoComplete="false"
-                        type="text"
-                        className="form-control"
-                        id="TongKhoiLuong"
-                        {...register(`TongKhoiLuong`, Validate.TongKhoiLuong)}
-                      />
-                      {errors.TongKhoiLuong && (
-                        <span className="text-danger">
-                          {errors.TongKhoiLuong.message}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  <div className="col col-sm">
-                    <div className="form-group">
-                      <label htmlFor="TongTheTich">
-                        Tổng Thể Tích (Đơn Vị m3)
-                      </label>
-                      <input
-                        autoComplete="false"
-                        type="text"
-                        className="form-control"
-                        id="TongTheTich"
-                        {...register(`TongTheTich`, Validate.TongTheTich)}
-                      />
-                      {errors.TongTheTich && (
-                        <span className="text-danger">
-                          {errors.TongTheTich.message}
-                        </span>
-                      )}
-                    </div>
+                <div className="col col-sm">
+                  <div className="form-group">
+                    <label htmlFor="TongTheTich">
+                      Tổng Thể Tích (Đơn Vị m3)
+                    </label>
+                    <input
+                      autoComplete="false"
+                      type="text"
+                      className="form-control"
+                      id="TongTheTich"
+                      {...register(`TongTheTich`, Validate.TongTheTich)}
+                    />
+                    {errors.TongTheTich && (
+                      <span className="text-danger">
+                        {errors.TongTheTich.message}
+                      </span>
+                    )}
                   </div>
                   <br />
                 </div>
-                <div className="row">
-                  <div className="col col-sm">
-                    <div className="form-group">
-                      <label htmlFor="TGLayHang">Thời Gian Lấy Hàng</label>
-                      <div className="input-group ">
-                        <Controller
-                          control={control}
-                          name={`TGLayHang`}
-                          render={({ field }) => (
-                            <DatePicker
-                              className="form-control"
-                              showTimeSelect
-                              timeFormat="HH:mm"
-                              dateFormat="dd/MM/yyyy HH:mm"
-                              onChange={(date) => field.onChange(date)}
-                              selected={field.value}
-                            />
-                          )}
-                          rules={{
-                            required: "không được để trống",
-                          }}
-                        />
-                        {errors.TGLayHang && (
-                          <span className="text-danger">
-                            {errors.TGLayHang.message}
-                          </span>
+              </div>
+              <div className="row">
+                <div className="col col-sm">
+                  <div className="form-group">
+                    {watch("LoaiVanDon") === "xuat" && (
+                      <label htmlFor="TGLayTraRong">Thời Gian Lấy Rỗng</label>
+                    )}
+                    {watch("LoaiVanDon") === "nhap" && (
+                      <label htmlFor="TGLayTraRong">Thời Gian Trả Rỗng</label>
+                    )}
+                    <div className="input-group ">
+                      <Controller
+                        control={control}
+                        name={`TGLayTraRong`}
+                        render={({ field }) => (
+                          <DatePicker
+                            className="form-control"
+                            showTimeSelect
+                            timeFormat="HH:mm"
+                            dateFormat="dd/MM/yyyy HH:mm"
+                            onChange={(date) => field.onChange(date)}
+                            selected={field.value}
+                          />
                         )}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="col col-sm">
-                    <div className="form-group">
-                      <label htmlFor="TGTraHang">Thời Gian Trả Hàng</label>
-                      <div className="input-group ">
-                        <Controller
-                          control={control}
-                          name={`TGTraHang`}
-                          render={({ field }) => (
-                            <DatePicker
-                              className="form-control"
-                              showTimeSelect
-                              timeFormat="HH:mm"
-                              dateFormat="dd/MM/yyyy HH:mm"
-                              onChange={(date) => field.onChange(date)}
-                              selected={field.value}
-                            />
-                          )}
-                          rules={{
-                            required: "không được để trống",
-                          }}
-                        />
-                        {errors.TGTraHang && (
-                          <span className="text-danger">
-                            {errors.TGTraHang.message}
-                          </span>
-                        )}
-                      </div>
+                      />
+                      {errors.TGLayTraRong && (
+                        <span className="text-danger">
+                          {errors.TGLayTraRong.message}
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>
-              </>
+
+                <div className="col col-sm">
+                  <div className="form-group">
+                    <label htmlFor="TGLayHang">Thời Gian Lấy Hàng</label>
+                    <div className="input-group ">
+                      <Controller
+                        control={control}
+                        name={`TGLayHang`}
+                        render={({ field }) => (
+                          <DatePicker
+                            className="form-control"
+                            showTimeSelect
+                            timeFormat="HH:mm"
+                            dateFormat="dd/MM/yyyy HH:mm"
+                            onChange={(date) => field.onChange(date)}
+                            selected={field.value}
+                          />
+                        )}
+                        rules={{
+                          required: "không được để trống",
+                        }}
+                      />
+                      {errors.TGLayHang && (
+                        <span className="text-danger">
+                          {errors.TGLayHang.message}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                <div className="col col-sm">
+                  <div className="form-group">
+                    <label htmlFor="TGTraHang">Thời Gian Trả Hàng</label>
+                    <div className="input-group ">
+                      <Controller
+                        control={control}
+                        name={`TGTraHang`}
+                        render={({ field }) => (
+                          <DatePicker
+                            className="form-control"
+                            showTimeSelect
+                            timeFormat="HH:mm"
+                            dateFormat="dd/MM/yyyy HH:mm"
+                            onChange={(date) => field.onChange(date)}
+                            selected={field.value}
+                          />
+                        )}
+                        rules={{
+                          required: "không được để trống",
+                        }}
+                      />
+                      {errors.TGTraHang && (
+                        <span className="text-danger">
+                          {errors.TGTraHang.message}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
             <div className="card-footer">
               <div>
-                <button
-                  type="button"
-                  onClick={() => handleResetClick()}
-                  className="btn btn-warning"
-                >
-                  Làm mới
-                </button>
                 <button
                   type="submit"
                   className="btn btn-primary"
                   style={{ float: "right" }}
                 >
-                  Cập nhật
+                  Cập Nhật
                 </button>
               </div>
             </div>

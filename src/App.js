@@ -1,7 +1,5 @@
-import { useState, useEffect } from "react";
 import Header from "../src/views/Header/Header";
 import { Routes, Route } from "react-router-dom";
-import { getRouterList } from "./RouterList";
 import HomePage from "./Components/Home/HomePage";
 import AddressPage from "./Components/AddressManage/AddressPage";
 import DriverPage from "./Components/DriverManage/DriverPage";
@@ -17,6 +15,7 @@ import PriceTablePage from "./Components/PriceListManage/PriceTablePage";
 import TransportPage from "./Components/Transport/TransportPage";
 import ProductServicePage from "./Components/ProductService/ProductServicePage";
 import VehiclePage from "./Components/VehicleManage/VehiclePage";
+import RomoocPage from "./Components/RomoocManage/RomoocPage";
 
 function App() {
   return (
@@ -38,6 +37,7 @@ function App() {
                   <Route path="/pricetable" element={<PriceTablePage />} />
                   <Route path="/transport" element={<TransportPage />} />
                   <Route path="/vehicle" element={<VehiclePage />} />
+                  <Route path="/romooc" element={<RomoocPage />} />
                   <Route
                     path="/productService"
                     element={<ProductServicePage />}

@@ -71,7 +71,6 @@ const AddPriceTable = (props) => {
       required: "Không được để trống",
     },
     NgayApDung: {
-      required: "Không được để trống",
       maxLength: {
         value: 10,
         message: "Không được vượt quá 10 ký tự",
@@ -87,7 +86,6 @@ const AddPriceTable = (props) => {
       },
     },
     NgayHetHieuLuc: {
-      required: "Không được để trống",
       maxLength: {
         value: 10,
         message: "Không được vượt quá 10 ký tự",
@@ -374,12 +372,11 @@ const AddPriceTable = (props) => {
         donGia: val.DonGia,
         maDvt: val.MaDVT,
         maLoaiHangHoa: val.MaLoaiHangHoa,
-        ngayApDung: moment(new Date(val.NgayApDung).toISOString()).format(
-          "YYYY-MM-DD"
-        ),
-        ngayHetHieuLuc: moment(
-          new Date(val.NgayHetHieuLuc).toISOString()
-        ).format("YYYY-MM-DD"),
+        ngayHetHieuLuc: !val.NgayHetHieuLuc
+          ? null
+          : moment(new Date(val.NgayHetHieuLuc).toISOString()).format(
+              "YYYY-MM-DD"
+            ),
       });
     });
 
@@ -522,7 +519,6 @@ const AddPriceTable = (props) => {
                         <th>PTVC</th>
                         <th>Loại phương tiện</th>
                         <th>Loại Hàng Hóa</th>
-                        <th>Ngày Áp Dụng</th>
                         <th>Ngày Hết Hiệu Lực</th>
                         <th style={{ width: "40px" }}>
                           <button
@@ -704,7 +700,7 @@ const AddPriceTable = (props) => {
                               )}
                             </div>
                           </td>
-                          <td>
+                          {/* <td>
                             <div className="form-group">
                               <div className="input-group ">
                                 <Controller
@@ -730,7 +726,7 @@ const AddPriceTable = (props) => {
                                 )}
                               </div>
                             </div>
-                          </td>
+                          </td> */}
                           <td>
                             <div className="form-group">
                               <div className="input-group ">

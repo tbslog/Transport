@@ -18,17 +18,19 @@ const UpdateHandling = (props) => {
   } = useForm({
     mode: "onChange",
     defaultValues: {
-      PTVanChuyen: null,
+      HangTau: null,
+      TenTau: null,
       XeVanChuyen: null,
       TaiXe: null,
-      TenTau: null,
-      HangTau: null,
       Romooc: null,
+      PTVanChuyen: null,
+      LoaiHangHoa: null,
+      MaBangGia: null,
       CONTNO: null,
-      SEALNP: null,
       SEALHQ: null,
       KhoiLuong: null,
       TheTich: null,
+      DiemLayRong: null,
       TGLayRong: null,
       TGKeoCont: null,
       TGLech: null,
@@ -37,42 +39,42 @@ const UpdateHandling = (props) => {
       TGLayHang: null,
       TGTraHang: null,
       TGCoMat: null,
-      GhiChu: null,
+      GhiChu: "",
     },
   });
 
   const Validate = {
-    NhaCungCap: {
-      required: "Không được để trống",
-      maxLength: {
-        value: 8,
-        message: "Không được vượt quá 8 ký tự",
-      },
-      minLength: {
-        value: 8,
-        message: "Không được ít hơn 8 ký tự",
-      },
-      pattern: {
-        value: /^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9]+(?<![_.])$/,
-        message: "Không được chứa ký tự đặc biệt",
-      },
-    },
-    MaKh: {
-      required: "Không được để trống",
-      maxLength: {
-        value: 8,
-        message: "Không được vượt quá 8 ký tự",
-      },
-      minLength: {
-        value: 8,
-        message: "Không được ít hơn 8 ký tự",
-      },
-      pattern: {
-        value: /^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9]+(?<![_.])$/,
-        message: "Không được chứa ký tự đặc biệt",
-      },
-    },
-    MaDonHang: { required: "Không được để trống" },
+    // NhaCungCap: {
+    //   required: "Không được để trống",
+    //   maxLength: {
+    //     value: 8,
+    //     message: "Không được vượt quá 8 ký tự",
+    //   },
+    //   minLength: {
+    //     value: 8,
+    //     message: "Không được ít hơn 8 ký tự",
+    //   },
+    //   pattern: {
+    //     value: /^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9]+(?<![_.])$/,
+    //     message: "Không được chứa ký tự đặc biệt",
+    //   },
+    // },
+    // MaKh: {
+    //   required: "Không được để trống",
+    //   maxLength: {
+    //     value: 8,
+    //     message: "Không được vượt quá 8 ký tự",
+    //   },
+    //   minLength: {
+    //     value: 8,
+    //     message: "Không được ít hơn 8 ký tự",
+    //   },
+    //   pattern: {
+    //     value: /^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9]+(?<![_.])$/,
+    //     message: "Không được chứa ký tự đặc biệt",
+    //   },
+    // },
+    // MaDonHang: { required: "Không được để trống" },
     CONTNO: {
       required: "Không được để trống",
       maxLength: {
@@ -110,6 +112,7 @@ const UpdateHandling = (props) => {
       },
     },
     KhoiLuong: {
+      required: "Không được để trống",
       pattern: {
         value:
           /^(?:0\.(?:0[0-9]|[0-9]\d?)|[0-9]\d*(?:\.\d{1,2})?)(?:e[+-]?\d+)?$/,
@@ -117,21 +120,14 @@ const UpdateHandling = (props) => {
       },
     },
     TheTich: {
+      required: "Không được để trống",
       pattern: {
         value:
           /^(?:0\.(?:0[0-9]|[0-9]\d?)|[0-9]\d*(?:\.\d{1,2})?)(?:e[+-]?\d+)?$/,
         message: "Không được chứa ký tự đặc biệt",
       },
     },
-    TGLayRong: {
-      required: "Không được để trống",
-      pattern: {
-        value:
-          /^([1-9]|([012][0-9])|(3[01]))-([0]{0,1}[1-9]|1[012])-\d\d\d\d [012]{0,1}[0-9]:[0-6][0-9]$/,
-        message: "Định dạng ngày không đúng",
-      },
-    },
-    TGTraRong: {
+    TGLayTraRong: {
       required: "Không được để trống",
       pattern: {
         value:
@@ -167,20 +163,6 @@ const UpdateHandling = (props) => {
     TGKeoCont: {
       required: "Không được để trống",
     },
-    GiaThucTe: {
-      pattern: {
-        value: /^(?![_.])(?![_.])(?!.*[_.]{2})[0-9]+(?<![_.])$/,
-        message: "Không được chứa ký tự đặc biệt",
-      },
-      required: "Không được để trống",
-    },
-    GiaThamChieu: {
-      pattern: {
-        value: /^(?![_.])(?![_.])(?!.*[_.]{2})[0-9]+(?<![_.])$/,
-        message: "Không được chứa ký tự đặc biệt",
-      },
-      required: "Không được để trống",
-    },
     PTVanChuyen: {
       required: "Không được để trống",
     },
@@ -205,7 +187,6 @@ const UpdateHandling = (props) => {
   };
 
   const [IsLoading, SetIsLoading] = useState(false);
-  const [listPriceTable, setListPriceTable] = useState([]);
   const [listCustomer, setListCustomer] = useState([]);
   const [listNpp, setListNpp] = useState([]);
   const [listVehicleType, setlistVehicleType] = useState([]);
@@ -219,11 +200,13 @@ const UpdateHandling = (props) => {
 
   useEffect(() => {
     (async () => {
+      SetIsLoading(true);
       let getListVehicleType = await getData("Common/GetListVehicleType");
       let getListGoodsType = await getData("Common/GetListGoodsType");
 
       setlistVehicleType(getListVehicleType);
       setListGoodsType(getListGoodsType);
+      SetIsLoading(false);
     })();
   }, []);
 
@@ -271,12 +254,15 @@ const UpdateHandling = (props) => {
   }, [data, listCustomer, listDriver, listNpp, listRomooc, listVehicle]);
 
   const setValueData = (data) => {
+    SetIsLoading(true);
     setRoadDetail(data.cungDuong);
     setValue(
       "NhaCungCap",
-      {
-        ...listNpp.filter((x) => x.value === data.nhaCungCap),
-      }[0]
+      !data.donViVanTai
+        ? { value: "TBSL", label: "TBS Logistics" }
+        : {
+            ...listNpp.filter((x) => x.value === data.donViVanTai),
+          }[0]
     );
 
     setValue(
@@ -323,13 +309,12 @@ const UpdateHandling = (props) => {
       );
 
       setValue(
-        "TGLayRong",
-        data.thoiGianLayRong === null ? null : new Date(data.thoiGianLayRong)
+        "TGLayTraRong",
+        data.thoiGianLayTraRong === null
+          ? null
+          : new Date(data.thoiGianLayTraRong)
       );
-      setValue(
-        "TGTraRong",
-        data.thoiGianTraRong === null ? null : new Date(data.thoiGianTraRong)
-      );
+
       setValue(
         "TGLech",
         data.thoiGianHanLenh === null ? null : new Date(data.thoiGianHanLenh)
@@ -348,6 +333,8 @@ const UpdateHandling = (props) => {
         data.thoiGianCatMang === null ? null : new Date(data.thoiGianCatMang)
       );
     }
+
+    SetIsLoading(false);
   };
 
   const handleOnchangeListRoad = async (value) => {
@@ -405,76 +392,8 @@ const UpdateHandling = (props) => {
         });
       });
       setListRomooc(objRomooc);
-      setListPriceTable(getlistData.bangGiaVanDon);
     }
-
     SetIsLoading(false);
-  };
-
-  const handleOnChangeFilterArr = (value, nameVar) => {
-    if (nameVar === "PTVanChuyen") {
-      setValue(`PTVanChuyen`, value);
-    }
-    if (nameVar === "LoaiHangHoa") {
-      setValue(`LoaiHangHoa`, value);
-    }
-    if (nameVar === "NhaCungCap") {
-      setValue(
-        `NhaCungCap`,
-        {
-          ...listNpp.filter((x) => x.value === value),
-        }[0]
-      );
-    }
-    if (nameVar === "KhachHang") {
-      setValue(
-        `KhachHang`,
-        {
-          ...listCustomer.filter((x) => x.value === value),
-        }[0]
-      );
-    }
-
-    let data = listPriceTable;
-    let tempData = data;
-
-    let NhaCungCap = watch(`NhaCungCap`);
-    let PTVanChuyen = watch(`PTVanChuyen`);
-    let LoaiHangHoa = watch(`LoaiHangHoa`);
-    let KhachHang = watch(`KhachHang`);
-
-    if (nameVar === "NhaCungCap") {
-      if (NhaCungCap !== null) {
-        if (NhaCungCap.value === "TBSL") {
-          tempData = tempData.filter((x) => x.phanLoaiDoiTac === "KH");
-        } else {
-          tempData = tempData.filter((x) => x.maDoiTac === NhaCungCap.value);
-        }
-      }
-    }
-
-    if (PTVanChuyen !== "") {
-      tempData = tempData.filter((x) => x.ptVanChuyen === PTVanChuyen);
-    }
-
-    if (LoaiHangHoa !== "") {
-      tempData = tempData.filter((x) => x.loaiHangHoa === LoaiHangHoa);
-    }
-    if (NhaCungCap.value === "TBSL") {
-      if (KhachHang !== null) {
-        tempData = tempData.filter((x) => x.maDoiTac === KhachHang.value);
-      }
-    } else {
-      tempData = tempData.filter((x) => x.maDoiTac === NhaCungCap.value);
-    }
-
-    if (tempData && tempData.length === 1) {
-      setValue(`GiaThamChieu`, tempData[0].price);
-      setValue(`MaBangGia`, tempData[0].maBangGia);
-    } else {
-      setValue(`GiaThamChieu`, null);
-      setValue(`MaBangGia`, null);
-    }
   };
 
   const handleResetClick = () => {
@@ -501,16 +420,16 @@ const UpdateHandling = (props) => {
       maTaiXe: data.TaiXe.value,
       tenTau: data.TenTau,
       hangTau: data.HangTau,
-      maRomooc: data.Romooc === null ? null : data.Romooc.value,
+      maRomooc: !data.Romooc ? null : data.Romooc.value,
       contNo: data.CONTNO,
       sealNp: data.SEALNP,
       sealHq: data.SEALHQ,
-      khoiLuong: data.KhoiLuong === "" ? null : data.KhoiLuong,
-      theTich: data.TheTich === "" ? null : data.TheTich,
-      thoiGianLayRong:
-        data.TGLayRong === null
+      khoiLuong: data.KhoiLuong,
+      theTich: data.TheTich,
+      ThoiGianLayTraRong:
+        data.TGLayTraRong === null
           ? null
-          : moment(new Date(data.TGLayRong).toISOString()).format(
+          : moment(new Date(data.TGLayTraRong).toISOString()).format(
               "yyyy-MM-DDTHH:mm:ss.SSS"
             ),
       thoiGianKeoCong:
@@ -531,12 +450,7 @@ const UpdateHandling = (props) => {
           : moment(new Date(data.TGCatMang).toISOString()).format(
               "yyyy-MM-DDTHH:mm:ss.SSS"
             ),
-      thoiGianTraRong:
-        data.TGTraRong === null
-          ? null
-          : moment(new Date(data.TGTraRong).toISOString()).format(
-              "yyyy-MM-DDTHH:mm:ss.SSS"
-            ),
+
       thoiGianLayHang: moment(new Date(data.TGLayHang).toISOString()).format(
         "yyyy-MM-DDTHH:mm:ss.SSS"
       ),
@@ -592,7 +506,12 @@ const UpdateHandling = (props) => {
                 {watch(`PTVanChuyen`) && watch(`PTVanChuyen`).includes("CONT") && (
                   <div className="col col-sm">
                     <div className="form-group">
-                      <label htmlFor="CungDuong">Điểm Lấy Rỗng</label>
+                      {transportType && transportType === "xuat" && (
+                        <label htmlFor="CungDuong">Điểm Lấy Rỗng</label>
+                      )}
+                      {transportType && transportType === "nhap" && (
+                        <label htmlFor="CungDuong">Điểm Trả Rỗng</label>
+                      )}
                       <input
                         autoComplete="false"
                         type="text"
@@ -646,9 +565,6 @@ const UpdateHandling = (props) => {
                           classNamePrefix={"form-control"}
                           value={field.value}
                           options={listNpp}
-                          onChange={(field) =>
-                            handleOnChangeFilterArr(field.value, "NhaCungCap")
-                          }
                         />
                       )}
                       rules={{
@@ -675,9 +591,6 @@ const UpdateHandling = (props) => {
                           classNamePrefix={"form-control"}
                           value={field.value}
                           options={listCustomer}
-                          onChange={(field) =>
-                            handleOnChangeFilterArr(field.value, "KhachHang")
-                          }
                         />
                       )}
                       rules={{
@@ -697,9 +610,6 @@ const UpdateHandling = (props) => {
                     <select
                       className="form-control"
                       {...register(`PTVanChuyen`, Validate.PTVanChuyen)}
-                      onChange={(e) =>
-                        handleOnChangeFilterArr(e.target.value, "PTVanChuyen")
-                      }
                       value={watch(`PTVanChuyen`)}
                       disabled
                     >
@@ -729,9 +639,6 @@ const UpdateHandling = (props) => {
                     <select
                       className="form-control"
                       {...register(`LoaiHangHoa`, Validate.LoaiHangHoa)}
-                      onChange={(e) =>
-                        handleOnChangeFilterArr(e.target.value, "LoaiHangHoa")
-                      }
                       value={watch(`LoaiHangHoa`)}
                       disabled
                     >
@@ -751,54 +658,6 @@ const UpdateHandling = (props) => {
                     {errors.LoaiHangHoa && (
                       <span className="text-danger">
                         {errors.LoaiHangHoa.message}
-                      </span>
-                    )}
-                  </div>
-                </div>
-                <div className="col col-sm" hidden={true}>
-                  <div className="form-group">
-                    <input
-                      autoComplete="false"
-                      type="text"
-                      className="form-control"
-                      id="MaBangGia"
-                      readOnly
-                      {...register(`MaBangGia`)}
-                    />
-                  </div>
-                </div>
-                <div className="col col-sm">
-                  <div className="form-group">
-                    <label htmlFor="GiaThamChieu">Giá Tham Chiếu</label>
-                    <input
-                      autoComplete="false"
-                      type="text"
-                      className="form-control"
-                      id="GiaThamChieu"
-                      readOnly
-                      {...register(`GiaThamChieu`, Validate.GiaThamChieu)}
-                    />
-                    {errors.GiaThamChieu && (
-                      <span className="text-danger">
-                        {errors.GiaThamChieu.message}
-                      </span>
-                    )}
-                  </div>
-                </div>
-                <div className="col col-sm">
-                  <div className="form-group">
-                    <label htmlFor="GiaThucTe">Giá Thực Tế</label>
-                    <input
-                      autoComplete="false"
-                      type="text"
-                      className="form-control"
-                      id="GiaThucTe"
-                      {...register(`GiaThucTe`, Validate.GiaThucTe)}
-                      disabled
-                    />
-                    {errors.GiaThucTe && (
-                      <span className="text-danger">
-                        {errors.GiaThucTe.message}
                       </span>
                     )}
                   </div>
@@ -1072,11 +931,21 @@ const UpdateHandling = (props) => {
                   <div className="row">
                     <div className="col col-sm">
                       <div className="form-group">
-                        <label htmlFor="TGLayRong">Thời gian lấy rỗng</label>
+                        {transportType && transportType === "xuat" && (
+                          <label htmlFor="TGLayTraRong">
+                            Thời Gian Lấy Rỗng
+                          </label>
+                        )}
+                        {transportType && transportType === "nhap" && (
+                          <label htmlFor="TGLayTraRong">
+                            Thời Gian Trả Rỗng
+                          </label>
+                        )}
+
                         <div className="input-group ">
                           <Controller
                             control={control}
-                            name={`TGLayRong`}
+                            name={`TGLayTraRong`}
                             render={({ field }) => (
                               <DatePicker
                                 className="form-control"
@@ -1091,45 +960,14 @@ const UpdateHandling = (props) => {
                               required: "không được để trống",
                             }}
                           />
-                          {errors.TGLayRong && (
+                          {errors.TGLayTraRong && (
                             <span className="text-danger">
-                              {errors.TGLayRong.message}
+                              {errors.TGLayTraRong.message}
                             </span>
                           )}
                         </div>
                       </div>
                     </div>
-                    <div className="col col-sm">
-                      <div className="form-group">
-                        <label htmlFor="TGTraRong">Thời Gian Trả Rỗng</label>
-                        <div className="input-group ">
-                          <Controller
-                            control={control}
-                            name={`TGTraRong`}
-                            render={({ field }) => (
-                              <DatePicker
-                                className="form-control"
-                                showTimeSelect
-                                timeFormat="HH:mm"
-                                dateFormat="dd/MM/yyyy HH:mm"
-                                onChange={(date) => field.onChange(date)}
-                                selected={field.value}
-                              />
-                            )}
-                            rules={{
-                              required: "không được để trống",
-                            }}
-                          />
-                          {errors.TGTraRong && (
-                            <span className="text-danger">
-                              {errors.TGTraRong.message}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="row">
                     <div className="col col-sm">
                       <div className="form-group">
                         <label htmlFor="TGLech">Thời gian hạn lệnh</label>

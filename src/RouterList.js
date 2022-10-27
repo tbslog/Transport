@@ -8,6 +8,7 @@ import PriceTablePage from "./Components/PriceListManage/PriceTablePage";
 import TransportPage from "./Components/Transport/TransportPage";
 import ProductServicePage from "./Components/ProductService/ProductServicePage";
 import VehiclePage from "./Components/VehicleManage/VehiclePage";
+import RomoocPage from "./Components/RomoocManage/RomoocPage";
 
 let routerList = [
   {
@@ -61,7 +62,7 @@ let routerList = [
         name: "Thông tin romooc",
         pathName: "/romooc",
         path: "romooc",
-        element: <DriverPage />,
+        element: <RomoocPage />,
         exact: true,
         child: [],
       },

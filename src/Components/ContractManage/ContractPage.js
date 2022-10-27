@@ -423,7 +423,7 @@ const ContractPage = () => {
               <TabPanel>
                 <div className="container-datatable" style={{ height: "50vm" }}>
                   <DataTable
-                    title="Danh sách hợp đồng nhà phân phối"
+                    title="Danh sách hợp đồng nhà cung cấp"
                     columns={columns}
                     data={data}
                     progressPending={loading}

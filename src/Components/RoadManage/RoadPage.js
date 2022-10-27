@@ -51,10 +51,6 @@ const RoadPage = () => {
       selector: (row) => row.km,
     },
     {
-      name: "Điểm Lấy Rỗng",
-      selector: (row) => row.diemLayRong,
-    },
-    {
       name: "Điểm Đầu",
       selector: (row) => row.diemDau,
     },
