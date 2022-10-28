@@ -15,10 +15,11 @@ namespace TBSLogistics.Service.Repository.PricelistManage
         Task<BoolActionResult> CreatePriceTable(List<CreatePriceListRequest> request);
 
         Task<PagedResponseCustom<GetListPiceTableRequest>> GetListPriceTable(PaginationFilter filter);
-        Task<PagedResponseCustom<GetPriceListRequest>> GetListPriceTableByContractId(string contractId, int PageNumber, int PageSize);
+        Task<PagedResponseCustom<GetPriceListRequest>> GetListPriceTableByContractId(string contractId, string onlyContractId, int PageNumber, int PageSize);
         Task<List<GetPriceListRequest>> GetListPriceTableByCustommerId(string MaKH);
         Task<PagedResponseCustom<ListApprove>> GetListPriceTableApprove(PaginationFilter filter);
-        Task<BoolActionResult> ApprovePriceTable(int Id, int choose);
-
+        Task<BoolActionResult> ApprovePriceTable(ApprovePriceTable request);
+        Task<BoolActionResult> UpdatePriceTable(int id, GetPriceListRequest request);
+        Task<GetPriceListRequest> GetPriceTableById(int id);
     }
 }

@@ -35,18 +35,16 @@ namespace TBSLogistics.Service.Repository.PricelistManage
             {
                 string ErrorValidate = "";
 
-                //foreach (var item in request)
-                //{
-                //    if (item.NgayHetHieuLuc.Value <= item.NgayApDung.Date)
-                //    {
-                //        ErrorValidate += "Ngày hiệu lực không được nhỏ hơn ngày áp dụng";
-                //    }
-
-                //    if (item.NgayApDung.Date > DateTime.Now.Date)
-                //    {
-                //        ErrorValidate += "Ngày áp dụng không được lớn hơn ngày hiện tại";
-                //    }
-                //}
+                foreach (var item in request)
+                {
+                    if (!string.IsNullOrEmpty(item.NgayHetHieuLuc.ToString()))
+                    {
+                        if (item.NgayHetHieuLuc.Value.Date <= DateTime.Now.Date)
+                        {
+                            ErrorValidate += "Ngày hết hiệu lực không được nhỏ hôm nay";
+                        }
+                    }
+                }
 
                 if (ErrorValidate != "")
                 {
@@ -227,7 +225,7 @@ namespace TBSLogistics.Service.Repository.PricelistManage
             };
         }
 
-        public async Task<PagedResponseCustom<GetPriceListRequest>> GetListPriceTableByContractId(string contractId, int PageNumber, int PageSize)
+        public async Task<PagedResponseCustom<GetPriceListRequest>> GetListPriceTableByContractId(string contractId, string onlyContractId, int PageNumber, int PageSize)
         {
             var validFilter = new PaginationFilter(PageNumber, PageSize);
 
@@ -244,27 +242,34 @@ namespace TBSLogistics.Service.Repository.PricelistManage
                           orderby bg.NgayApDung descending
                           select new { bg, hd };
 
-            var checkContractChild = await _context.HopDongVaPhuLuc.Where(x => x.MaHopDong == contractId).FirstOrDefaultAsync();
-
-            if (checkContractChild == null)
+            if (!string.IsNullOrEmpty(onlyContractId))
             {
-                return null;
-            }
-
-            if (checkContractChild.MaHopDongCha == null)
-            {
-                var listContract = getList.Where(x => x.hd.MaHopDong == contractId || x.hd.MaHopDongCha == contractId).Select(x => x.hd.MaHopDong);
-                getList = getList.Where(x => listContract.Contains(x.bg.MaHopDong));
+                getList = getList.Where(x => x.hd.MaHopDong == contractId);
             }
             else
             {
-                var listContract = getList.Where(x => x.hd.MaHopDong == checkContractChild.MaHopDongCha || x.hd.MaHopDongCha == checkContractChild.MaHopDongCha).Select(x => x.hd.MaHopDong);
-                getList = getList.Where(x => listContract.Contains(x.bg.MaHopDong));
+                var checkContractChild = await _context.HopDongVaPhuLuc.Where(x => x.MaHopDong == contractId).FirstOrDefaultAsync();
+
+                if (checkContractChild == null)
+                {
+                    return null;
+                }
+
+                if (checkContractChild.MaHopDongCha == null)
+                {
+                    var listContract = getList.Where(x => x.hd.MaHopDong == contractId || x.hd.MaHopDongCha == contractId).Select(x => x.hd.MaHopDong);
+                    getList = getList.Where(x => listContract.Contains(x.bg.MaHopDong));
+                }
+                else
+                {
+                    var listContract = getList.Where(x => x.hd.MaHopDong == checkContractChild.MaHopDongCha || x.hd.MaHopDongCha == checkContractChild.MaHopDongCha).Select(x => x.hd.MaHopDong);
+                    getList = getList.Where(x => listContract.Contains(x.bg.MaHopDong));
+                }
             }
 
             var gr = from t in getList
                      group t by new { t.bg.MaCungDuong, t.bg.MaDvt, t.bg.MaLoaiHangHoa, t.bg.MaLoaiPhuongTien, t.bg.MaPtvc, t.bg.MaLoaiDoiTac }
-                     into g
+                         into g
                      select new
                      {
                          MaCungDuong = g.Key.MaCungDuong,
@@ -361,7 +366,6 @@ namespace TBSLogistics.Service.Repository.PricelistManage
                           on hd.MaHopDong equals bg.MaHopDong
                           join cd in _context.CungDuong
                           on bg.MaCungDuong equals cd.MaCungDuong
-                          where bg.TrangThai == 3
                           orderby bg.CreatedTime descending
                           select new { kh, hd, bg, cd };
 
@@ -371,6 +375,15 @@ namespace TBSLogistics.Service.Repository.PricelistManage
                 getData = getData.Where(x => x.hd.MaHopDong.Contains(filter.Keyword) || x.hd.MaKh.Contains(filter.Keyword));
             }
 
+            if (filter.AlmostExpired == true)
+            {
+                getData = getData.Where(x => x.bg.TrangThai == 4 && x.bg.NgayHetHieuLuc != null && x.bg.NgayHetHieuLuc.Value.Date < DateTime.Now.AddDays(7).Date);
+            }
+            else
+            {
+                getData = getData.Where(x => x.bg.TrangThai == 3);
+            }
+
             var totalRecords = await getData.CountAsync();
 
             var pagedData = await getData.Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new ListApprove()
@@ -378,6 +391,7 @@ namespace TBSLogistics.Service.Repository.PricelistManage
                 Id = x.bg.Id,
                 MaKh = x.kh.MaKh,
                 TenKh = x.kh.TenKh,
+                DonGia = x.bg.DonGia,
                 MaHopDong = x.hd.MaHopDong,
                 TenHopDong = x.hd.TenHienThi,
                 PTVC = _context.PhuongThucVanChuyen.Where(y => y.MaPtvc == x.bg.MaPtvc).Select(x => x.TenPtvc).FirstOrDefault(),
@@ -400,73 +414,219 @@ namespace TBSLogistics.Service.Repository.PricelistManage
             };
         }
 
-        public async Task<BoolActionResult> ApprovePriceTable(int Id, int choose)
+        public async Task<BoolActionResult> ApprovePriceTable(ApprovePriceTable request)
         {
             try
             {
-                var checkExists = await _context.BangGia.Where(x => x.Id == Id && x.TrangThai == 3).FirstOrDefaultAsync();
 
-                if (checkExists == null)
+                if (request.Result.Count < 1)
                 {
-                    return new BoolActionResult { isSuccess = false, Message = "Bảng giá không tồn tại" };
+                    return new BoolActionResult { isSuccess = false, Message = "Không có bảng giá nào được chọn, vui lòng xem lại" };
                 }
 
-                if (choose == 1)
+                foreach (var item in request.Result)
                 {
-                    checkExists.TrangThai = 5;
-                    _context.BangGia.Update(checkExists);
+                    var checkExists = await _context.BangGia.Where(x => x.Id == item.Id && x.TrangThai == 3).FirstOrDefaultAsync();
 
-                    var result = await _context.SaveChangesAsync();
-
-                    if (result > 0)
+                    if (checkExists == null)
                     {
-                        return new BoolActionResult { isSuccess = true, Message = "Duyệt bảng giá thành công" };
-                    }
-                    else
-                    {
-                        return new BoolActionResult { isSuccess = false, Message = "Duyệt bảng giá thất bại" };
-                    }
-                }
-
-                if (choose == 0)
-                {
-                    var checkOldPriceTable = await _context.BangGia.Where(x =>
-                  x.MaHopDong == checkExists.MaHopDong &&
-                  x.MaPtvc == checkExists.MaPtvc &&
-                  x.MaCungDuong == checkExists.MaCungDuong &&
-                  x.MaLoaiPhuongTien == checkExists.MaLoaiPhuongTien &&
-                  x.MaDvt == checkExists.MaDvt &&
-                  x.MaLoaiHangHoa == checkExists.MaLoaiHangHoa &&
-                  x.MaLoaiDoiTac == checkExists.MaLoaiDoiTac
-                  ).FirstOrDefaultAsync();
-
-                    if (checkOldPriceTable != null)
-                    {
-                        checkOldPriceTable.TrangThai = 2;
-                        _context.BangGia.Update(checkOldPriceTable);
+                        return new BoolActionResult { isSuccess = false, Message = "Tồn tại bảng giá không có trong hệ thống, vui lòng xem lại" };
                     }
 
-                    checkExists.TrangThai = 4;
-                    _context.BangGia.Update(checkExists);
-
-                    var result = await _context.SaveChangesAsync();
-
-                    if (result > 0)
+                    if (item.IsAgree == 1)
                     {
-                        return new BoolActionResult { isSuccess = true, Message = "Duyệt bảng giá thành công" };
+                        checkExists.TrangThai = 5;
+                        _context.BangGia.Update(checkExists);
                     }
-                    else
+
+                    if (item.IsAgree == 0)
                     {
-                        return new BoolActionResult { isSuccess = false, Message = "Duyệt bảng giá thất bại" };
+                        var checkOldPriceTable = await _context.BangGia.Where(x =>
+                      x.MaHopDong == checkExists.MaHopDong &&
+                      x.MaPtvc == checkExists.MaPtvc &&
+                      x.MaCungDuong == checkExists.MaCungDuong &&
+                      x.MaLoaiPhuongTien == checkExists.MaLoaiPhuongTien &&
+                      x.MaDvt == checkExists.MaDvt &&
+                      x.MaLoaiHangHoa == checkExists.MaLoaiHangHoa &&
+                      x.MaLoaiDoiTac == checkExists.MaLoaiDoiTac &&
+                      x.TrangThai == 4
+                      ).FirstOrDefaultAsync();
+
+                        if (checkOldPriceTable != null)
+                        {
+                            checkOldPriceTable.TrangThai = 2;
+                            _context.BangGia.Update(checkOldPriceTable);
+                        }
+
+                        checkExists.TrangThai = 4;
+                        _context.BangGia.Update(checkExists);
                     }
                 }
 
-                return new BoolActionResult { isSuccess = false, Message = "" };
+                var result = await _context.SaveChangesAsync();
+
+                if (result > 0)
+                {
+                    return new BoolActionResult { isSuccess = true, Message = "Duyệt bảng giá thành công" };
+                }
+                else
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Duyệt bảng giá thất bại" };
+                }
             }
             catch (Exception ex)
             {
                 return new BoolActionResult { isSuccess = false, Message = ex.ToString() };
             }
+        }
+
+        public async Task<GetPriceListRequest> GetPriceTableById(int id)
+        {
+            try
+            {
+                var data = from hd in _context.HopDongVaPhuLuc
+                           join bg in _context.BangGia
+                           on hd.MaHopDong equals bg.MaHopDong
+                           where bg.Id == id
+                           select new { hd, bg };
+
+                if (data == null)
+                {
+                    return null;
+                }
+
+                var reuslt = await data.Select(x => new GetPriceListRequest()
+                {
+                    ID = x.bg.Id,
+                    MaHopDong = x.bg.MaHopDong,
+                    SoHopDongCha = x.hd.MaHopDongCha,
+                    MaKh = x.hd.MaKh,
+                    MaCungDuong = x.bg.MaCungDuong,
+                    DonGia = x.bg.DonGia,
+                    MaLoaiPhuongTien = x.bg.MaLoaiPhuongTien,
+                    MaLoaiHangHoa = x.bg.MaLoaiHangHoa,
+                    MaLoaiDoiTac = x.bg.MaLoaiDoiTac,
+                    MaDVT = x.bg.MaDvt,
+                    MaPTVC = x.bg.MaPtvc,
+                    NgayHetHieuLuc = x.bg.NgayHetHieuLuc,
+                }).FirstOrDefaultAsync();
+
+                return reuslt;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        public async Task<BoolActionResult> UpdatePriceTable(int id, GetPriceListRequest request)
+        {
+            try
+            {
+                var findById = await _context.BangGia.Where(x => x.Id == id).FirstOrDefaultAsync();
+
+                if (findById == null)
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Bảng giá không tồn tại" };
+                }
+
+                var checkValid = await ValidateEdit(request.MaHopDong, request.MaPTVC, request.MaCungDuong, request.MaLoaiPhuongTien, request.DonGia, request.MaDVT, request.MaLoaiHangHoa, request.NgayHetHieuLuc);
+
+                if (checkValid != "")
+                {
+                    return new BoolActionResult { isSuccess = false, Message = checkValid };
+                }
+
+                if (findById.TrangThai != 3)
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Không thể chỉnh sửa bảng giá này nữa" };
+                }
+
+                findById.MaHopDong = request.MaHopDong;
+                findById.MaCungDuong = request.MaCungDuong;
+                findById.DonGia = request.DonGia;
+                findById.MaDvt = request.MaDVT;
+                findById.MaPtvc = request.MaPTVC;
+                findById.MaLoaiPhuongTien = request.MaLoaiPhuongTien;
+                findById.MaLoaiHangHoa = request.MaLoaiHangHoa;
+                findById.NgayHetHieuLuc = request.NgayHetHieuLuc;
+
+                _context.Update(findById);
+
+                var result = await _context.SaveChangesAsync();
+
+                if (result > 0)
+                {
+                    return new BoolActionResult { isSuccess = true, Message = "Cập nhật bảng giá thành công" };
+                }
+                else
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Cập nhật bảng giá thất bại" };
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        private async Task<string> ValidateEdit(string MaHopDong, string MaPTVC, string MaCungDuong, string MaLoaiPhuongTien, decimal DonGia, string MaDVT, string MaLoaiHangHoa, DateTime? NgayHetHieuLuc, string ErrorRow = "")
+        {
+            string ErrorValidate = "";
+
+            var checkContract = await _context.HopDongVaPhuLuc.Where(x => x.MaHopDong == MaHopDong).FirstOrDefaultAsync();
+            if (checkContract == null)
+            {
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã hợp đồng không tồn tại \r\n" + System.Environment.NewLine;
+            }
+
+            var checkMaCungDuong = await _context.CungDuong.Where(x => x.MaCungDuong == MaCungDuong).FirstOrDefaultAsync();
+
+            if (checkMaCungDuong == null)
+            {
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã Cung đường không tồn tại \r\n" + System.Environment.NewLine;
+            }
+            var checkMaLoaiPhuongTien = await _context.LoaiPhuongTien.Where(x => x.MaLoaiPhuongTien == MaLoaiPhuongTien).FirstOrDefaultAsync();
+
+            if (checkMaLoaiPhuongTien == null)
+            {
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã Loại Phương Tiện không tồn tại \r\n" + System.Environment.NewLine;
+            }
+
+            if (DonGia < 0)
+            {
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Đơn giá không được để trong và phải lớn hơn 0  \r\n" + System.Environment.NewLine;
+            }
+            //validate MaDVT
+            var checkMaDVT = await _context.DonViTinh.Where(x => x.MaDvt == MaDVT).FirstOrDefaultAsync();
+
+            if (checkMaDVT == null)
+            {
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã Đơn VỊ Tính không tồn tại \r\n" + System.Environment.NewLine;
+            }
+            //validate LoaiHangHoa
+            var checkMaLoaiHangHoa = await _context.LoaiHangHoa.Where(x => x.MaLoaiHangHoa == MaLoaiHangHoa).FirstOrDefaultAsync();
+
+            if (checkMaLoaiHangHoa == null)
+            {
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã Loại Hàng Hóa không tồn tại \r\n" + System.Environment.NewLine;
+            }
+
+            var checkMaPTVC = await _context.PhuongThucVanChuyen.Where(x => x.MaPtvc == MaPTVC).FirstOrDefaultAsync();
+
+            if (checkMaPTVC == null)
+            {
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã Phương Thức Vận Chuyển không tồn tại \r\n" + System.Environment.NewLine;
+            }
+
+            if (NgayHetHieuLuc != null)
+            {
+                if (NgayHetHieuLuc.Value.Date <= DateTime.Now.Date)
+                {
+                    ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Ngày hết hiệu lực không được nhỏ hơn hoặc bằng ngày hiện tại \r\n" + System.Environment.NewLine;
+                }
+            }
+            return ErrorValidate;
         }
     }
 }

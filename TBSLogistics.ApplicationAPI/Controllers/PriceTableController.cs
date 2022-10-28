@@ -56,10 +56,10 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<IActionResult> GetListPriceTableByContractId(string Id, int PageNumber, int PageSize)
+        public async Task<IActionResult> GetListPriceTableByContractId(string Id, int PageNumber, int PageSize, string onlyct = null)
         {
             var route = Request.Path.Value;
-            var pagedData = await _priceTable.GetListPriceTableByContractId(Id, PageNumber, PageSize);
+            var pagedData = await _priceTable.GetListPriceTableByContractId(Id, onlyct, PageNumber, PageSize);
             var pagedReponse = PaginationHelper.CreatePagedReponse<GetPriceListRequest>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _paninationService, route);
             return Ok(pagedReponse);
         }
@@ -86,9 +86,9 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpPost]
         [Route("[action]")]
-        public async Task<IActionResult> ApprovePriceTable(int id, int choose)
+        public async Task<IActionResult> ApprovePriceTable(ApprovePriceTable request)
         {
-            var approve = await _priceTable.ApprovePriceTable(id, choose);
+            var approve = await _priceTable.ApprovePriceTable(request);
 
             if (approve.isSuccess == true)
             {
@@ -97,6 +97,31 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             else
             {
                 return BadRequest(approve.Message);
+            }
+        }
+
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetPriceTableById(int id)
+        {
+            var data = await _priceTable.GetPriceTableById(id);
+
+            return Ok(data);
+        }
+
+        [HttpPost]
+        [Route("[action]")]
+        public async Task<IActionResult> UpdatePriceTable(int id, GetPriceListRequest request)
+        {
+            var update = await _priceTable.UpdatePriceTable(id, request);
+
+            if (update.isSuccess)
+            {
+                return Ok(update.Message);
+            }
+            else
+            {
+                return BadRequest(update.Message);
             }
         }
     }

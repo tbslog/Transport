@@ -151,7 +151,7 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
                             ErrorValidate += "Thùng hàng số " + truck + " Vui lòng chọn điểm trả rỗng \r\n";
                         }
 
-                        if (string.IsNullOrEmpty(item.ThoiGianLayTraRong.ToString()))
+                        if (item.ThoiGianLayTraRong == null)
                         {
                             ErrorValidate += "Thùng hàng số " + truck + " Vui lòng nhập thời trả rỗng \r\n";
                         }
@@ -685,7 +685,7 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
 
                 if (handling.MaLoaiPhuongTien.Contains("CONT"))
                 {
-                    if (string.IsNullOrEmpty(handling.ThoiGianLayTraRong.ToString()))
+                    if (handling.ThoiGianLayTraRong == null)
                     {
                         errs += "Vui lòng không để trống thời gian lấy/trả rỗng";
                     }
@@ -702,7 +702,7 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
                             errs += "Vui lòng không để trống thông tin Tàu";
                         }
 
-                        if (string.IsNullOrEmpty(handling.ThoiGianCatMang.ToString()))
+                        if (handling.ThoiGianCatMang == null)
                         {
                             errs += "Vui lòng không để trống thời gian cắt máng";
                         }
@@ -823,7 +823,7 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
 
                 if (request.PTVanChuyen.Contains("Cont"))
                 {
-                    if (string.IsNullOrEmpty(request.ThoiGianLayTraRong.ToString()))
+                    if (request.ThoiGianLayTraRong == null)
                     {
                         return new BoolActionResult { isSuccess = false, Message = "Không được để trống thời gian lấy/trả rỗng \r\n" };
                     }
@@ -835,7 +835,7 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
                             return new BoolActionResult { isSuccess = false, Message = "Không được để trống hãng tàu và tên tàu \r\n" };
                         }
 
-                        if (string.IsNullOrEmpty(request.ThoiGianCatMang.ToString()))
+                        if (request.ThoiGianCatMang == null)
                         {
                             return new BoolActionResult { isSuccess = false, Message = "Không được để trống thời gian cắt máng \r\n" };
                         }
