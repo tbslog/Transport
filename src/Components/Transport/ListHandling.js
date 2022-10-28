@@ -295,7 +295,9 @@ const ListHandling = (props) => {
             <ConfirmDialog
               setShowConfirm={setShowConfirm}
               title={"Bạn có chắc chắn với quyết định này?"}
-              content={""}
+              content={
+                "Khi thực hiện hành động này sẽ không thể hoàn tác lại được nữa."
+              }
               funcAgree={funcAgree}
             />
           )}

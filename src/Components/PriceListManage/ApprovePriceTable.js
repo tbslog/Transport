@@ -4,6 +4,7 @@ import DataTable from "react-data-table-component";
 import moment from "moment";
 import { Modal } from "bootstrap";
 import DatePicker from "react-datepicker";
+import UpdatePriceTable from "./UpdatePriceTable";
 
 const ApprovePriceTable = (props) => {
   const { getDataApprove } = props;
@@ -21,32 +22,19 @@ const ApprovePriceTable = (props) => {
   const [toDate, setToDate] = useState("");
 
   const [selectedRows, setSelectedRows] = useState([]);
+  const [toggledClearRows, setToggleClearRows] = useState(false);
+  const [selectIdClick, setSelectIdClick] = useState({});
 
   const columns = useMemo(() => [
     {
       cell: (val) => (
         <button
-          title="Duyệt"
-          onClick={() => handleEditButtonApprove(val)}
+          title="Cập nhật"
+          onClick={() => handleEditButtonClick(val, SetShowModal("Edit"))}
           type="button"
           className="btn btn-sm btn-default"
         >
-          <i className="fas fa-check"></i>
-        </button>
-      ),
-      ignoreRowClick: true,
-      allowOverflow: true,
-      button: true,
-    },
-    {
-      cell: (val) => (
-        <button
-          title="Không Duyệt"
-          onClick={() => handleEditButtonDeApprove(val)}
-          type="button"
-          className="btn btn-sm btn-default"
-        >
-          <i className="fas fa-times"></i>
+          <i className="far fa-edit"></i>
         </button>
       ),
       ignoreRowClick: true,
@@ -76,8 +64,12 @@ const ApprovePriceTable = (props) => {
       selector: (row) => row.tenHopDong,
     },
     {
-      name: "Mã Cung Đường",
-      selector: (row) => row.maCungDuong,
+      name: "Đơn Giá",
+      selector: (row) =>
+        row.donGia.toLocaleString("vi-VI", {
+          style: "currency",
+          currency: "VND",
+        }),
     },
     {
       name: "Tên Cung Đường",
@@ -88,7 +80,7 @@ const ApprovePriceTable = (props) => {
       selector: (row) => row.maLoaiPhuongTien,
     },
     {
-      name: "Phương Thức Vận Chuyển",
+      name: "PTVC",
       selector: (row) => row.ptvc,
     },
     {
@@ -96,12 +88,7 @@ const ApprovePriceTable = (props) => {
       selector: (row) => row.maLoaiHangHoa,
     },
     {
-      name: "Thời gian Áp Dụng",
-      selector: (row) => row.ngayApDung,
-      sortable: true,
-    },
-    {
-      name: "Thời gian Hết Hiệu Lực",
+      name: "Thời gian Hạn",
       selector: (row) => row.ngayHetHieuLuc,
       sortable: true,
     },
@@ -134,9 +121,45 @@ const ApprovePriceTable = (props) => {
     })();
   }, [props]);
 
-  const handleChange = useCallback((state) => {
+  const handleChange = (state) => {
     setSelectedRows(state.selectedRows);
-  }, []);
+  };
+
+  const handleEditButtonClick = async (val) => {
+    const getdata = await getData(`PriceTable/GetPriceTableById?id=${val.id}`);
+    setSelectIdClick(getdata);
+    showModalForm();
+  };
+
+  const AcceptPriceTable = async (isAccept) => {
+    if (
+      selectedRows &&
+      selectedRows.length > 0 &&
+      Object.keys(selectedRows).length > 0
+    ) {
+      let arr = [];
+      selectedRows.map((val) => {
+        arr.push({
+          Id: val.id,
+          IsAgree: isAccept,
+        });
+      });
+
+      const SetApprove = await postData(`PriceTable/ApprovePriceTable`, {
+        result: arr,
+      });
+
+      if (SetApprove === 1) {
+        setSelectedRows([]);
+        handleClearRows();
+        fetchData(1);
+      }
+    }
+  };
+
+  const handleClearRows = () => {
+    setToggleClearRows(!toggledClearRows);
+  };
 
   const fetchData = async (page, KeyWord = "", fromDate = "", toDate = "") => {
     setLoading(true);
@@ -169,26 +192,6 @@ const ApprovePriceTable = (props) => {
     setLoading(false);
   };
 
-  const handleEditButtonApprove = async (value) => {
-    const Approve = await postData(
-      `PriceTable/ApprovePriceTable?id=${value.id}&choose=${0}`
-    );
-
-    if (Approve === 1) {
-      setData(data.filter((x) => x.id !== value.id));
-    }
-  };
-
-  const handleEditButtonDeApprove = async (value) => {
-    const DeApprove = await postData(
-      `PriceTable/ApprovePriceTable?id=${value.id}&choose=${1}`
-    );
-
-    if (DeApprove === 1) {
-      setData(data.filter((x) => x.id !== value.id));
-    }
-  };
-
   const handleSearchClick = () => {
     fetchData(1, keySearch, fromDate, toDate);
   };
@@ -209,19 +212,21 @@ const ApprovePriceTable = (props) => {
             <div className="container-fruid">
               <div className="row">
                 <div className="col col-sm">
-                  {/* <button
-                    title="Thêm mới"
+                  <button
                     type="button"
-                    className="btn btn-sm btn-default mx-1"
-                    onClick={() =>
-                      showModalForm(
-                        SetShowModal("Create"),
-                        setSelectIdClick({})
-                      )
-                    }
+                    className="btn btn-sm btn-default"
+                    onClick={() => AcceptPriceTable(0)}
                   >
-                    <i className="fas fa-plus-circle"></i>
-                  </button> */}
+                    <i className="fas fa-thumbs-up"></i>
+                  </button>
+
+                  <button
+                    type="button"
+                    className="btn btn-sm btn-default mx-4"
+                    onClick={() => AcceptPriceTable(1)}
+                  >
+                    <i className="fas fa-thumbs-down"></i>
+                  </button>
                 </div>
                 <div className="col col-sm">
                   <div className="row">
@@ -341,8 +346,10 @@ const ApprovePriceTable = (props) => {
                 progressPending={loading}
                 pagination
                 paginationServer
-                paginationTotalRows={totalRows}
+                selectableRows
                 onSelectedRowsChange={handleChange}
+                clearSelectedRows={toggledClearRows}
+                paginationTotalRows={totalRows}
                 onChangeRowsPerPage={handlePerRowsChange}
                 onChangePage={handlePageChange}
                 highlightOnHover
@@ -404,7 +411,13 @@ const ApprovePriceTable = (props) => {
                 </button>
               </div>
               <div className="modal-body">
-                <></>
+                {ShowModal === "Edit" && (
+                  <UpdatePriceTable
+                    selectIdClick={selectIdClick}
+                    hideModal={hideModal}
+                    refeshData={fetchData}
+                  />
+                )}
               </div>
             </div>
           </div>

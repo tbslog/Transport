@@ -197,6 +197,7 @@ const AddPriceTable = (props) => {
   const [totalRows, setTotalRows] = useState(0);
   const [perPage, setPerPage] = useState(10);
 
+  const [onlyct, setOnlyct] = useState("");
   const [contractId, setContractId] = useState("");
   const [tabIndex, setTabIndex] = useState(0);
   const [listRoad, setListRoad] = useState([]);
@@ -235,7 +236,6 @@ const AddPriceTable = (props) => {
 
       let getListCustommerType = await getData(`Common/GetListCustommerType`);
       setListCustomerType(getListCustommerType);
-
       setListVehicleType(getListVehicleType);
       setListGoodsType(getListGoodsType);
       setListDVT(getListDVT);
@@ -247,7 +247,7 @@ const AddPriceTable = (props) => {
   const handlePerRowsChange = async (newPerPage, page) => {
     SetIsLoading(true);
     const dataCus = await getData(
-      `PriceTable/GetListPriceTableByContractId?Id=${contractId}&PageNumber=${page}&PageSize=${newPerPage}`
+      `PriceTable/GetListPriceTableByContractId?Id=${contractId}&PageNumber=${page}&PageSize=${newPerPage}&onlyct=${onlyct}`
     );
 
     formatTable(dataCus.data);
@@ -255,11 +255,11 @@ const AddPriceTable = (props) => {
     setTotalRows(dataCus.totalRecords);
     SetIsLoading(false);
   };
-  const fetchData = async (page, mahd) => {
+  const fetchData = async (page, mahd, onlyct) => {
     SetIsLoading(true);
 
     const dataCus = await getData(
-      `PriceTable/GetListPriceTableByContractId?Id=${mahd}&PageNumber=${page}&PageSize=${perPage}`
+      `PriceTable/GetListPriceTableByContractId?Id=${mahd}&PageNumber=${page}&PageSize=${perPage}&onlyct=${onlyct}`
     );
     formatTable(dataCus.data);
     setTotalRows(dataCus.totalRecords);
@@ -392,6 +392,13 @@ const AddPriceTable = (props) => {
 
   const HandleOnChangeTabs = (tabIndex) => {
     setTabIndex(tabIndex);
+    if (tabIndex === 2) {
+      setOnlyct("getByContractIdOnly");
+      fetchData(1, contractId, "getByContractIdOnly");
+    } else {
+      setOnlyct("");
+      fetchData(1, contractId, "");
+    }
   };
 
   return (
@@ -402,10 +409,12 @@ const AddPriceTable = (props) => {
       >
         <TabList>
           <Tab>Tạo Bảng giá</Tab>
-          {props.selectIdClick &&
-            Object.keys(props.selectIdClick).length > 0 && (
-              <Tab>Xem Bảng giá</Tab>
-            )}
+          {props.selectIdClick && Object.keys(props.selectIdClick).length > 0 && (
+            <>
+              <Tab>Bảng Giá Hiện Hành</Tab>
+              <Tab>Bảng Giá Hợp Đồng</Tab>
+            </>
+          )}
         </TabList>
 
         <TabPanel>
@@ -798,34 +807,65 @@ const AddPriceTable = (props) => {
 
         {props.selectIdClick && Object.keys(props.selectIdClick).length > 0 && (
           <>
-            <TabPanel>
-              <div className="card card-primary">
-                <div className="card-header">
-                  <h3 className="card-title">Thông tin bảng giá</h3>
-                </div>
-                <div>
-                  <div className="card-body">
-                    <div
-                      className="container-datatable"
-                      style={{ height: "50vm" }}
-                    >
-                      <DataTable
-                        title="Danh sách bảng giá"
-                        columns={columns}
-                        data={data}
-                        progressPending={IsLoading}
-                        pagination
-                        paginationServer
-                        paginationTotalRows={totalRows}
-                        onChangeRowsPerPage={handlePerRowsChange}
-                        onChangePage={handlePageChange}
-                        highlightOnHover
-                      />
+            <div>
+              <TabPanel>
+                <div className="card card-primary">
+                  <div className="card-header">
+                    <h3 className="card-title">Thông tin bảng giá hiện hành</h3>
+                  </div>
+                  <div>
+                    <div className="card-body">
+                      <div
+                        className="container-datatable"
+                        style={{ height: "50vm" }}
+                      >
+                        <DataTable
+                          columns={columns}
+                          data={data}
+                          progressPending={IsLoading}
+                          pagination
+                          paginationServer
+                          paginationTotalRows={totalRows}
+                          onChangeRowsPerPage={handlePerRowsChange}
+                          onChangePage={handlePageChange}
+                          highlightOnHover
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            </TabPanel>
+              </TabPanel>
+            </div>
+
+            <div>
+              <TabPanel>
+                <div className="card card-primary">
+                  <div className="card-header">
+                    <h3 className="card-title">Thông tin bảng giá hợp đồng</h3>
+                  </div>
+                  <div>
+                    <div className="card-body">
+                      <div
+                        className="container-datatable"
+                        style={{ height: "50vm" }}
+                      >
+                        <DataTable
+                          columns={columns}
+                          data={data}
+                          progressPending={IsLoading}
+                          pagination
+                          paginationServer
+                          paginationTotalRows={totalRows}
+                          onChangeRowsPerPage={handlePerRowsChange}
+                          onChangePage={handlePageChange}
+                          highlightOnHover
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </TabPanel>
+            </div>
           </>
         )}
       </Tabs>

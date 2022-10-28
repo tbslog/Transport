@@ -25,7 +25,6 @@ const TransportPage = () => {
 
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
-
   const [listStatus, setListStatus] = useState([]);
 
   const columns = useMemo(() => [
@@ -97,11 +96,6 @@ const TransportPage = () => {
     {
       name: "Điểm Trả Hàng",
       selector: (row) => row.diemTraHang,
-    },
-    {
-      name: "Tổng Thùng Hàng",
-      selector: (row) => row.tongThungHang,
-      sortable: true,
     },
     {
       name: "Tổng Trọng Lượng",
