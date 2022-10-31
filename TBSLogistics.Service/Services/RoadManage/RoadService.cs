@@ -72,7 +72,7 @@ namespace TBSLogistics.Service.Repository.RoadManage
                     return new BoolActionResult { isSuccess = false, Message = "Mã cung đường đã tồn tại" };
                 }
 
-                string checkValidate = await ValiateRoad(request.MaCungDuong, request.TenCungDuong, request.Km, request.DiemDau, request.DiemCuoi,  request.GhiChu, "Create");
+                string checkValidate = await ValiateRoad(request.MaCungDuong, request.TenCungDuong, request.Km, request.DiemDau, request.DiemCuoi, request.GhiChu, "Create");
                 if (!string.IsNullOrEmpty(checkValidate))
                 {
                     return new BoolActionResult { isSuccess = false, Message = checkValidate };
@@ -121,7 +121,7 @@ namespace TBSLogistics.Service.Repository.RoadManage
                     return new BoolActionResult { isSuccess = false, Message = "Mã cung đường không tồn tại" };
                 }
 
-                var checkValidate = await ValiateRoad(MaCungDuong, request.TenCungDuong, request.Km, request.DiemDau, request.DiemCuoi, request.GhiChu,"Update");
+                var checkValidate = await ValiateRoad(MaCungDuong, request.TenCungDuong, request.Km, request.DiemDau, request.DiemCuoi, request.GhiChu, "Update");
                 if (!string.IsNullOrEmpty(checkValidate))
                 {
                     return new BoolActionResult { isSuccess = false, Message = checkValidate };
@@ -167,7 +167,7 @@ namespace TBSLogistics.Service.Repository.RoadManage
                 var getAddress = from diadiem in _context.DiaDiem
                                  join phanloaidd in _context.LoaiDiaDiem
                                  on diadiem.MaLoaiDiaDiem equals phanloaidd.MaLoaiDiaDiem
-                                 
+
                                  select new { diadiem, phanloaidd };
 
                 if (!string.IsNullOrEmpty(filter.Keyword))
@@ -345,7 +345,7 @@ namespace TBSLogistics.Service.Repository.RoadManage
             }
         }
 
-        private async Task<string> ValiateRoad(string MaCungDuong, string TenCungDuong, double SoKM, int DiemDau, int DiemCuoi, string GhiChu,string Action, string ErrorRow = "")
+        private async Task<string> ValiateRoad(string MaCungDuong, string TenCungDuong, double SoKM, int DiemDau, int DiemCuoi, string GhiChu, string Action, string ErrorRow = "")
         {
             string ErrorValidate = "";
 
@@ -402,7 +402,7 @@ namespace TBSLogistics.Service.Repository.RoadManage
             return ErrorValidate;
         }
 
-        public async Task<List<GetRoadRequest>> getListRoadOptionSelect(string MaKH)
+        public async Task<List<GetRoadRequest>> getListRoadOptionSelect(string MaKH, string ContractId)
         {
             var getList = from cd in _context.CungDuong
                           join bg in _context.BangGia
@@ -416,6 +416,11 @@ namespace TBSLogistics.Service.Repository.RoadManage
             if (!string.IsNullOrEmpty(MaKH))
             {
                 getList = getList.Where(x => x.hd.MaKh == MaKH);
+            }
+
+            if (!string.IsNullOrEmpty(ContractId))
+            {
+                getList = getList.Where(x => x.hd.MaHopDong == ContractId);
             }
 
             var list = await getList.GroupBy(x => new { x.cd.MaCungDuong, x.cd.TenCungDuong }).Select(x => new GetRoadRequest()

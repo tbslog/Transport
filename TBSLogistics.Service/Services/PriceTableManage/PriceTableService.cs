@@ -174,7 +174,8 @@ namespace TBSLogistics.Service.Repository.PricelistManage
                           on hd.MaHopDong equals bg.MaHopDong
                           join cd in _context.CungDuong
                           on bg.MaCungDuong equals cd.MaCungDuong
-                          orderby bg.NgayApDung descending
+                          where bg.MaHopDong != "SPDV_TBSL"
+                          orderby bg.Id descending
                           select new { kh, hd, bg, cd };
 
             if (!string.IsNullOrEmpty(filter.Keyword))
@@ -234,13 +235,15 @@ namespace TBSLogistics.Service.Repository.PricelistManage
                           on bg.MaHopDong equals hd.MaHopDong
                           join cd in _context.CungDuong
                           on bg.MaCungDuong equals cd.MaCungDuong
+                          join kh in _context.KhachHang
+                          on hd.MaKh equals kh.MaKh
                           where
                           cd.TrangThai == 1
                           && (bg.NgayHetHieuLuc.Value.Date > DateTime.Now.Date || bg.NgayHetHieuLuc == null)
                           && bg.NgayApDung <= DateTime.Now.Date
                           && bg.TrangThai == 4
                           orderby bg.NgayApDung descending
-                          select new { bg, hd };
+                          select new { bg, hd, kh };
 
             if (!string.IsNullOrEmpty(onlyContractId))
             {
@@ -287,16 +290,18 @@ namespace TBSLogistics.Service.Repository.PricelistManage
 
             var pagedData = await getList.Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new GetPriceListRequest()
             {
+                ID = x.bg.Id,
                 MaKh = x.hd.MaKh,
+                TenKH = x.kh.TenKh,
                 MaHopDong = x.bg.MaHopDong,
                 MaCungDuong = x.bg.MaCungDuong,
                 NgayApDung = x.bg.NgayApDung,
                 NgayHetHieuLuc = x.bg.NgayHetHieuLuc,
                 DonGia = x.bg.DonGia,
-                MaLoaiPhuongTien = x.bg.MaLoaiPhuongTien,
-                MaLoaiHangHoa = x.bg.MaLoaiHangHoa,
-                MaDVT = x.bg.MaDvt,
-                MaPTVC = x.bg.MaPtvc,
+                MaLoaiPhuongTien = _context.LoaiPhuongTien.Where(y => y.MaLoaiPhuongTien == x.bg.MaLoaiPhuongTien).Select(x => x.TenLoaiPhuongTien).FirstOrDefault(),
+                MaLoaiHangHoa = _context.LoaiHangHoa.Where(y => y.MaLoaiHangHoa == x.bg.MaLoaiHangHoa).Select(x => x.TenLoaiHangHoa).FirstOrDefault(),
+                MaDVT = _context.DonViTinh.Where(y => y.MaDvt == x.bg.MaDvt).Select(x => x.TenDvt).FirstOrDefault(),
+                MaPTVC = _context.PhuongThucVanChuyen.Where(y => y.MaPtvc == x.bg.MaPtvc).Select(x => x.TenPtvc).FirstOrDefault(),
                 SoHopDongCha = x.hd.MaHopDongCha == null ? "Hợp Đồng" : "Phụ Lục",
                 MaLoaiDoiTac = x.bg.MaLoaiDoiTac,
                 TrangThai = x.bg.TrangThai,
@@ -454,7 +459,8 @@ namespace TBSLogistics.Service.Repository.PricelistManage
 
                         if (checkOldPriceTable != null)
                         {
-                            checkOldPriceTable.TrangThai = 2;
+                            checkOldPriceTable.TrangThai = 6;
+                            checkOldPriceTable.NgayHetHieuLuc = DateTime.Now;
                             _context.BangGia.Update(checkOldPriceTable);
                         }
 

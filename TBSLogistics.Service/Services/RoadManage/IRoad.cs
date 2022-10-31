@@ -19,7 +19,7 @@ namespace TBSLogistics.Service.Repository.RoadManage
         Task<BoolActionResult> CreateRoad(CreateRoadRequest request);
         Task<BoolActionResult> UpdateRoad(string MaCungDuong, UpdateRoadRequest request);
         Task<PagedResponseCustom<ListRoadRequest>> GetListRoad(PaginationFilter request);
-        Task<List<GetRoadRequest>> getListRoadOptionSelect(string MaKH);
+        Task<List<GetRoadRequest>> getListRoadOptionSelect(string MaKH, string ContractId);
         Task<List<GetRoadRequest>> getListRoadByPoint(int diemDau, int diemCuoi);
         Task<BoolActionResult> ImportExcel(IFormFile file, CancellationToken cancellationToken);
 

@@ -11,7 +11,7 @@ namespace TBSLogistics.Model.Model.SubFeePriceModel
         public long PriceId { get; set; }
         public string ContractId { get; set; }
         public long SfId { get; set; }
-        public byte? GoodsType { get; set; }
+        public string GoodsType { get; set; }
         public int? FirstPlace { get; set; }
         public int? SecondPlace { get; set; }
         public double UnitPrice { get; set; }

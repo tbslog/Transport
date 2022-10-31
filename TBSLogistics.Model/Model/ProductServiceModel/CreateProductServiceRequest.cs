@@ -16,7 +16,7 @@ namespace TBSLogistics.Model.Model.ProductServiceModel
         public string MaDVT { get; set; }
         public string MaLoaiHangHoa { get; set; }
         public string MaLoaiHopDong { get; set; }
-        public DateTime NgayHetHieuLuc { get; set; }
+        public DateTime? NgayHetHieuLuc { get; set; }
         //public DateTime UpdatedTime { get; set; }
         //public DateTime CreatedTime { get; set; }
     }

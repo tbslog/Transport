@@ -12,6 +12,7 @@ namespace TBSLogistics.Model.Model.PriceListModel
         public string MaHopDong { get; set; }
         public string SoHopDongCha { get; set; }
         public string MaKh { get; set; }
+        public string TenKH { get; set; }
         public string MaCungDuong { get; set; }
         public decimal DonGia { get; set; }
         public string MaLoaiPhuongTien { get; set; }

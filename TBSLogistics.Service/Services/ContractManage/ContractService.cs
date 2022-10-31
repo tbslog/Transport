@@ -263,6 +263,7 @@ namespace TBSLogistics.Service.Services.ContractManage
         {
             var getList = from ct in _TMSContext.HopDongVaPhuLuc
                           join kh in _TMSContext.KhachHang on ct.MaKh equals kh.MaKh
+                          where ct.MaHopDong != "SPDV_TBSL"
                           orderby ct.MaHopDong descending
                           select new { ct, kh };
 

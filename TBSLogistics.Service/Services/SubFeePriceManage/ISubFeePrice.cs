@@ -4,7 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TBSLogistics.Model.CommonModel;
+using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.SubFeePriceModel;
+using TBSLogistics.Model.Wrappers;
 
 namespace TBSLogistics.Service.Services.SubFeePriceManage
 {
@@ -14,8 +16,9 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
         Task<BoolActionResult> UpdateSubFeePrice(long id, UpdateSubFeePriceRequest request);
         Task<BoolActionResult> ApproveSubFeePrice(long[] ids, string HDPL);
         Task<GetSubFeePriceRequest> GetSubFeePriceById(long id);
-        Task<List<GetSubFeePriceRequest>> GetListSubFeePrice(string KH, string HDPL, DateTime ngayapdung, byte trangthai);
+        Task<PagedResponseCustom<ListSubFeePriceRequest>> GetListSubFeePrice(PaginationFilter filter);
         Task<BoolActionResult> DisableSubFeePrice(long[] ids, string HDPL);
         Task<BoolActionResult> DeleteSubFeePrice(long[] ids, string HDPL);
+        Task<List<ListSubFee>> GetListSubFeeSelect();
     }
 }

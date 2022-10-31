@@ -43,6 +43,7 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
                                  && (bg.NgayHetHieuLuc.Value.Date > DateTime.Now.Date || bg.NgayHetHieuLuc == null)
                                  && bg.TrangThai == 4
                                  && cd.MaCungDuong == RoadId
+                                 && bg.MaHopDong != "SPDV_TBSL"
                               orderby bg.Id descending
                               select new { cd, bg, hd, kh };
 
@@ -513,9 +514,9 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
                 listData = listData.Where(x => x.transport.MaVanDon.Contains(filter.Keyword));
             }
 
-            if (!string.IsNullOrEmpty(filter.Status))
+            if (!string.IsNullOrEmpty(filter.statusId))
             {
-                listData = listData.Where(x => x.status.StatusId == int.Parse(filter.Status));
+                listData = listData.Where(x => x.status.StatusId == int.Parse(filter.statusId));
             }
 
             if (!string.IsNullOrEmpty(filter.fromDate.ToString()) && !string.IsNullOrEmpty(filter.toDate.ToString()))

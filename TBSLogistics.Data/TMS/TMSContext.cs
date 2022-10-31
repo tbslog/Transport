@@ -31,7 +31,6 @@ namespace TBSLogistics.Data.TMS
         public virtual DbSet<LoaiHangHoa> LoaiHangHoa { get; set; }
         public virtual DbSet<LoaiHopDong> LoaiHopDong { get; set; }
         public virtual DbSet<LoaiKhachHang> LoaiKhachHang { get; set; }
-        public virtual DbSet<LoaiPhuPhi> LoaiPhuPhi { get; set; }
         public virtual DbSet<LoaiPhuongTien> LoaiPhuongTien { get; set; }
         public virtual DbSet<LoaiRomooc> LoaiRomooc { get; set; }
         public virtual DbSet<Log> Log { get; set; }
@@ -43,6 +42,7 @@ namespace TBSLogistics.Data.TMS
         public virtual DbSet<StatusText> StatusText { get; set; }
         public virtual DbSet<SubFee> SubFee { get; set; }
         public virtual DbSet<SubFeePrice> SubFeePrice { get; set; }
+        public virtual DbSet<SubFeeType> SubFeeType { get; set; }
         public virtual DbSet<TaiXe> TaiXe { get; set; }
         public virtual DbSet<ThongBao> ThongBao { get; set; }
         public virtual DbSet<TinhThanh> TinhThanh { get; set; }
@@ -54,7 +54,8 @@ namespace TBSLogistics.Data.TMS
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer("Server=DESKTOP-711TTSG\\HAILE;Database=TMS;Trusted_Connection=True;");
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+                optionsBuilder.UseSqlServer("Server=192.168.3.63;Database=TMS;User Id=haile;Password=123456;");
             }
         }
 
@@ -554,20 +555,6 @@ namespace TBSLogistics.Data.TMS
                     .HasColumnName("TenLoaiKH");
             });
 
-            modelBuilder.Entity<LoaiPhuPhi>(entity =>
-            {
-                entity.HasKey(e => e.MaLoaiPhuPhi)
-                    .HasName("PK_PhanLoai_PhuPhi");
-
-                entity.Property(e => e.MaLoaiPhuPhi)
-                    .HasMaxLength(10)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.TenLoaiPhuPhi)
-                    .IsRequired()
-                    .HasMaxLength(50);
-            });
-
             modelBuilder.Entity<LoaiPhuongTien>(entity =>
             {
                 entity.HasKey(e => e.MaLoaiPhuongTien)
@@ -758,6 +745,12 @@ namespace TBSLogistics.Data.TMS
                     .HasComment("0: deactivated, 1: create new, 2: approved, 3: deleted");
 
                 entity.Property(e => e.SfType).HasColumnName("sfType");
+
+                entity.HasOne(d => d.SfTypeNavigation)
+                    .WithMany(p => p.SubFee)
+                    .HasForeignKey(d => d.SfType)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_SubFee_SubFeeType");
             });
 
             modelBuilder.Entity<SubFeePrice>(entity =>
@@ -775,6 +768,7 @@ namespace TBSLogistics.Data.TMS
                     .HasColumnName("approver");
 
                 entity.Property(e => e.ContractId)
+                    .IsRequired()
                     .HasMaxLength(20)
                     .IsUnicode(false)
                     .HasColumnName("contractID");
@@ -793,7 +787,10 @@ namespace TBSLogistics.Data.TMS
                     .HasColumnName("firstPlace")
                     .HasComment("if the sub-fee is collected on road, need two place; is collected at a place need one place; independent to place  then 2 place-fields are null ");
 
-                entity.Property(e => e.GoodsType).HasColumnName("goodsType");
+                entity.Property(e => e.GoodsType)
+                    .HasMaxLength(10)
+                    .IsUnicode(false)
+                    .HasColumnName("goodsType");
 
                 entity.Property(e => e.SecondPlace).HasColumnName("secondPlace");
 
@@ -804,13 +801,33 @@ namespace TBSLogistics.Data.TMS
                     .HasDefaultValueSql("((1))")
                     .HasComment("0: deactivated, 1: create new, 2: approved, 3: deleted");
 
+                entity.Property(e => e.Status).HasColumnName("status");
+
                 entity.Property(e => e.UnitPrice).HasColumnName("unitPrice");
+
+                entity.HasOne(d => d.Contract)
+                    .WithMany(p => p.SubFeePrice)
+                    .HasForeignKey(d => d.ContractId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_SubFeePrice_HopDongVaPhuLuc");
 
                 entity.HasOne(d => d.Sf)
                     .WithMany(p => p.SubFeePrice)
                     .HasForeignKey(d => d.SfId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_SubFeePrice_SubFee");
+            });
+
+            modelBuilder.Entity<SubFeeType>(entity =>
+            {
+                entity.HasKey(e => e.SfTypeId);
+
+                entity.Property(e => e.SfTypeId).HasColumnName("sfTypeID");
+
+                entity.Property(e => e.SfTypeName)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .HasColumnName("sfTypeName");
             });
 
             modelBuilder.Entity<TaiXe>(entity =>

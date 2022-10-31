@@ -12,6 +12,7 @@ namespace TBSLogistics.Data.TMS
             Attachment = new HashSet<Attachment>();
             BangGia = new HashSet<BangGia>();
             InverseMaHopDongChaNavigation = new HashSet<HopDongVaPhuLuc>();
+            SubFeePrice = new HashSet<SubFeePrice>();
         }
 
         public string MaHopDong { get; set; }
@@ -32,5 +33,6 @@ namespace TBSLogistics.Data.TMS
         public virtual ICollection<Attachment> Attachment { get; set; }
         public virtual ICollection<BangGia> BangGia { get; set; }
         public virtual ICollection<HopDongVaPhuLuc> InverseMaHopDongChaNavigation { get; set; }
+        public virtual ICollection<SubFeePrice> SubFeePrice { get; set; }
     }
 }

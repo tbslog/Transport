@@ -1,18 +1,23 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using TBSLogistics.Data.TMS;
 using TBSLogistics.Model.CommonModel;
+using TBSLogistics.Model.Filter;
+using TBSLogistics.Model.Model.RomoocModel;
 using TBSLogistics.Model.Model.SubFeePriceModel;
 using TBSLogistics.Model.TempModel;
+using TBSLogistics.Model.Wrappers;
 using TBSLogistics.Service.Repository.Common;
 
 namespace TBSLogistics.Service.Services.SubFeePriceManage
 {
-    public class SubFeePriceService: ISubFeePrice
+    public class SubFeePriceService : ISubFeePrice
     {
         private readonly ICommon _common;
         private readonly TMSContext _context;
@@ -38,11 +43,11 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
                 if (request.SfId.ToString() == "")
                 {
                     return new BoolActionResult { isSuccess = false, Message = "Mã phụ phí không tồn tại!" };
-                }    
-                if (request.UnitPrice <= 0 )
+                }
+                if (request.UnitPrice <= 0)
                 {
                     return new BoolActionResult { isSuccess = false, Message = "Đơn giá phải lớn hơn 0" };
-                }    
+                }
                 await _context.AddAsync(new SubFeePrice()
                 {
                     ContractId = request.ContractId,
@@ -56,7 +61,7 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
                     Creator = "admin",
                     Approver = ""
                 });
-                
+
                 var result = await _context.SaveChangesAsync();
 
                 if (result > 0)
@@ -89,7 +94,7 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
                     return new BoolActionResult { isSuccess = false, Message = "Phụ phí không tồn tại" };
                 }
 
-                var checkSFP = await _context.SubFeePrice.Where(x => x.ContractId == request.ContractId && x.SfId == request.SfId && 
+                var checkSFP = await _context.SubFeePrice.Where(x => x.ContractId == request.ContractId && x.SfId == request.SfId &&
                 x.GoodsType == request.GoodsType && x.FirstPlace == request.FirstPlace && x.SecondPlace == request.SecondPlace).FirstOrDefaultAsync();
                 if (checkSFP != null && checkSFP.PriceId != id && checkSFP.SfStateByContract == 1)
                 {
@@ -138,7 +143,7 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
                 {
                     return new BoolActionResult { isSuccess = false, Message = "Input không hợp lệ" };
                 }
-                
+
                 List<long> ListIdError = new List<long>(); //danh sach cac ID khong duoc cap nhat hoac khong ton tai
 
                 if (ids.Length > 0)
@@ -167,7 +172,7 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
                     {
                         await _common.Log("SubFeePriceManage", "UserId: " + TempData.UserID + " approve SubFeePrice with ids: " + ids);
                         return new BoolActionResult { isSuccess = true, Message = "Phê duyệt thành công" };
-                    }    
+                    }
                 }
                 else
                 {
@@ -226,9 +231,9 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
                 if (i == ids.Count - 1)
                 {
                     StringResult = StringResult + ids[i].ToString();
-                }    
+                }
                 else StringResult = StringResult + ids[i].ToString() + ", ";
-            }    
+            }
             return StringResult;
         }
 
@@ -240,7 +245,7 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
                 {
                     return new BoolActionResult { isSuccess = false, Message = "Input không hợp lệ" };
                 }
-                
+
                 List<long> ListIdError = new List<long>(); //danh sach cac ID khong duoc cap nhat hoac khong ton tai
 
                 if (ids.Length > 0)
@@ -389,187 +394,95 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
             }
         }
 
-        public async Task<List<GetSubFeePriceRequest>> GetListSubFeePrice(string KH, string HDPL, DateTime ngayapdung, byte trangthai)
+        public async Task<List<ListSubFee>> GetListSubFeeSelect()
         {
             try
             {
-                //if (id.tostring() != "")
-                //{
-                //var list = await _context.SubFeePrice.Where(x => x.SfStateByContract == 0).Select(x => new GetSubFeePriceRequest()
-                //{
-                //    PriceId = x.PriceId,
-                //    ContractId = x.ContractId,
-                //    SfId = x.SfId,
-                //    GoodsType = x.GoodsType,
-                //    FirstPlace = x.FirstPlace,
-                //    SecondPlace = x.SecondPlace,
-                //    UnitPrice = x.UnitPrice,
-                //    SfStateByContract = x.SfStateByContract,
-                //    Description = x.Description,
-                //    Approver = x.Approver,
-                //    Creator = x.Creator,
-                //    ApprovedDate = x.ApprovedDate,
-                //    DeactiveDate = x.DeactiveDate
-                //}).ToListAsync();
-                //return list;
-                //}
-                if (KH != null)
+                var getList = from sf in _context.SubFee
+                              join
+                              sft in _context.SubFeeType
+                              on sf.SfType equals sft.SfTypeId
+                              orderby sf.SubFeeId
+                              select new { sf, sft };
+
+                var list = await getList.Select(x => new ListSubFee()
                 {
-                    var List_SFP_HDPL = from sfp in _context.SubFeePrice
-                                        join hdpl in _context.HopDongVaPhuLuc on sfp.ContractId equals hdpl.MaHopDong
-                                        select new
-                                        {
-                                            sfp,
-                                            hdpl
-                                        };
+                    SubFeeId = x.sf.SubFeeId,
+                    SubFeeName = x.sf.SfName,
+                    SubFeeDescription = x.sf.SfDescription,
+                    SubFeeTypeName = x.sft.SfTypeName
+                }).ToListAsync();
 
-                    var list = await List_SFP_HDPL.Where(x => x.sfp.SfStateByContract == 2 && x.hdpl.MaKh == KH).Select(x => new GetSubFeePriceRequest()
-                    {
-                        PriceId = x.sfp.PriceId,
-                        ContractId = x.sfp.ContractId,
-                        SfId = x.sfp.SfId,
-                        GoodsType = x.sfp.GoodsType,
-                        FirstPlace = x.sfp.FirstPlace,
-                        SecondPlace = x.sfp.SecondPlace,
-                        UnitPrice = x.sfp.UnitPrice,
-                        SfStateByContract = x.sfp.SfStateByContract,
-                        Description = x.sfp.Description,
-                        Approver = x.sfp.Approver,
-                        Creator = x.sfp.Creator,
-                        ApprovedDate = x.sfp.ApprovedDate,
-                        DeactiveDate = x.sfp.DeactiveDate
-                    }).ToListAsync();
+                return list;
 
-                    if (ngayapdung != DateTime.MinValue && trangthai != 0)
-                    {
-                        var result = list.Where(x => x.ApprovedDate < ngayapdung && x.SfStateByContract == trangthai).ToList();
-                        return result;
-                    }
-                    else if (ngayapdung != DateTime.MinValue)
-                    {
-                        var result = list.Where(x => x.ApprovedDate < ngayapdung).ToList();
-                        return result;
-                    }
-                    else if (trangthai != 0)
-                    {
-                        var result = list.Where(x => x.SfStateByContract == trangthai).ToList();
-                        return result;
-                    }
-                    return list;
-                }
-                else if (HDPL != null)
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public async Task<PagedResponseCustom<ListSubFeePriceRequest>> GetListSubFeePrice(PaginationFilter filter)
+        {
+            try
+            {
+                var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
+                var getList = from sfp in _context.SubFeePrice
+                              join sf in _context.SubFee
+                              on sfp.SfId equals sf.SubFeeId
+                              join sft in _context.SubFeeType
+                              on sf.SfType equals sft.SfTypeId
+                              join hd in _context.HopDongVaPhuLuc
+                              on sfp.ContractId equals hd.MaHopDong
+                              join status in _context.StatusText
+                              on sfp.Status equals status.StatusId
+                              where status.LangId == TempData.LangID
+                              orderby sfp.SfId descending
+                              select new { sfp, sf, sft, hd, status };
+
+                if (!string.IsNullOrEmpty(filter.Keyword))
                 {
-                    if (trangthai != 0)
-                    {
-                        var list = await _context.SubFeePrice.Where(x => x.SfStateByContract == trangthai && x.ContractId == HDPL).Select(x => new GetSubFeePriceRequest()
-                        {
-                            PriceId = x.PriceId,
-                            ContractId = x.ContractId,
-                            SfId = x.SfId,
-                            GoodsType = x.GoodsType,
-                            FirstPlace = x.FirstPlace,
-                            SecondPlace = x.SecondPlace,
-                            UnitPrice = x.UnitPrice,
-                            SfStateByContract = x.SfStateByContract,
-                            Description = x.Description,
-                            Approver = x.Approver,
-                            Creator = x.Creator,
-                            ApprovedDate = x.ApprovedDate,
-                            DeactiveDate = x.DeactiveDate
-                        }).ToListAsync();
-
-                        return list;
-                    }
-                    else
-                    {
-                        var list = await _context.SubFeePrice.Where(x => x.ContractId == HDPL && (x.SfStateByContract == 1 || x.SfStateByContract == 2)).Select(x => new GetSubFeePriceRequest()
-                        {
-                            PriceId = x.PriceId,
-                            ContractId = x.ContractId,
-                            SfId = x.SfId,
-                            GoodsType = x.GoodsType,
-                            FirstPlace = x.FirstPlace,
-                            SecondPlace = x.SecondPlace,
-                            UnitPrice = x.UnitPrice,
-                            SfStateByContract = x.SfStateByContract,
-                            Description = x.Description,
-                            Approver = x.Approver,
-                            Creator = x.Creator,
-                            ApprovedDate = x.ApprovedDate,
-                            DeactiveDate = x.DeactiveDate
-                        }).ToListAsync();
-
-                        return list;
-                    }
+                    getList = getList.Where(x => x.hd.MaHopDong.Contains(filter.Keyword) || x.hd.MaKh.Contains(filter.Keyword));
                 }
-                else if (ngayapdung != DateTime.MinValue)
+
+                if (filter.fromDate.HasValue && filter.toDate.HasValue)
                 {
-                    var list = await _context.SubFeePrice.Where(x => x.ApprovedDate <= ngayapdung && (x.SfStateByContract == 1 || x.SfStateByContract == 2 || (x.SfStateByContract == 0 && x.DeactiveDate > ngayapdung))).Select(x => new GetSubFeePriceRequest()
-                    {
-                        PriceId = x.PriceId,
-                        ContractId = x.ContractId,
-                        SfId = x.SfId,
-                        GoodsType = x.GoodsType,
-                        FirstPlace = x.FirstPlace,
-                        SecondPlace = x.SecondPlace,
-                        UnitPrice = x.UnitPrice,
-                        SfStateByContract = x.SfStateByContract,
-                        Description = x.Description,
-                        Approver = x.Approver,
-                        Creator = x.Creator,
-                        ApprovedDate = x.ApprovedDate,
-                        DeactiveDate = x.DeactiveDate
-                    }).ToListAsync();
-                    return list;
+                    getList = getList.Where(x => x.sfp.ApprovedDate.Value.Date >= filter.fromDate.Value.Date && x.sfp.ApprovedDate.Value.Date <= filter.toDate.Value.Date);
                 }
-                else
-                {
-                    if (trangthai == 0)
-                    {
-                        trangthai = 2;
-                    }
-                    if (trangthai == 7)
-                    {
-                        var list = await _context.SubFeePrice.Where(x => x.SfStateByContract == 1 || x.SfStateByContract == 2).Select(x => new GetSubFeePriceRequest()
-                        {
-                            PriceId = x.PriceId,
-                            ContractId = x.ContractId,
-                            SfId = x.SfId,
-                            GoodsType = x.GoodsType,
-                            FirstPlace = x.FirstPlace,
-                            SecondPlace = x.SecondPlace,
-                            UnitPrice = x.UnitPrice,
-                            SfStateByContract = x.SfStateByContract,
-                            Description = x.Description,
-                            Approver = x.Approver,
-                            Creator = x.Creator,
-                            ApprovedDate = x.ApprovedDate,
-                            DeactiveDate = x.DeactiveDate
-                        }).ToListAsync();
-                        return list;
-                    }
-                    else
-                    {
-                        var list = await _context.SubFeePrice.Where(x => x.SfStateByContract == trangthai).Select(x => new GetSubFeePriceRequest()
-                        {
-                            PriceId = x.PriceId,
-                            ContractId = x.ContractId,
-                            SfId = x.SfId,
-                            GoodsType = x.GoodsType,
-                            FirstPlace = x.FirstPlace,
-                            SecondPlace = x.SecondPlace,
-                            UnitPrice = x.UnitPrice,
-                            SfStateByContract = x.SfStateByContract,
-                            Description = x.Description,
-                            Approver = x.Approver,
-                            Creator = x.Creator,
-                            ApprovedDate = x.ApprovedDate,
-                            DeactiveDate = x.DeactiveDate
-                        }).ToListAsync();
 
-                        return list;
-                    }
+                if (!string.IsNullOrEmpty(filter.statusId))
+                {
+                    getList = getList.Where(x => x.sfp.Status == int.Parse(filter.statusId));
                 }
+
+                var totalCount = await getList.CountAsync();
+
+                var pagedData = await getList.Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new ListSubFeePriceRequest()
+                {
+                    PriceId = x.sfp.PriceId,
+                    CustomerName = x.hd.MaKh,
+                    ContractId = x.hd.MaHopDong,
+                    ContractName = x.hd.TenHienThi,
+                    GoodsType = _context.LoaiHangHoa.Where(y => y.MaLoaiHangHoa == x.sfp.GoodsType).Select(x => x.TenLoaiHangHoa).FirstOrDefault(),
+                    FirstPlace = _context.DiaDiem.Where(y => y.MaDiaDiem == x.sfp.FirstPlace).Select(x => x.TenDiaDiem).FirstOrDefault(),
+                    SecondPlace = _context.DiaDiem.Where(y => y.MaDiaDiem == x.sfp.SecondPlace).Select(x => x.TenDiaDiem).FirstOrDefault(),
+                    sfName = x.sf.SfName,
+                    Status = x.status.StatusContent,
+                    UnitPrice = x.sfp.UnitPrice,
+                    SfStateByContract = x.sfp.SfStateByContract,
+                    Approver = x.sfp.Approver,
+                    ApprovedDate = x.sfp.ApprovedDate,
+                    DeactiveDate = x.sfp.DeactiveDate
+                }).ToListAsync();
+
+                return new PagedResponseCustom<ListSubFeePriceRequest>()
+                {
+                    dataResponse = pagedData,
+                    totalCount = totalCount,
+                    paginationFilter = validFilter
+                };
             }
             catch (Exception ex)
             {

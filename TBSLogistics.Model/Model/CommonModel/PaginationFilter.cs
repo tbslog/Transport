@@ -11,15 +11,11 @@ namespace TBSLogistics.Model.Filter
         public string contractType { get; set; }
         public string contractId { get; set; }
         public string customerId { get; set; }
-        public int? statusId { get; set; }
+        public string statusId { get; set; }
         public DateTime date { get; set; }
-
         public string customerType { get; set; }
         public string customerGroup { get; set; }
-
         public bool AlmostExpired { get; set; }
-
-        public string Status { get; set; }
         public string goodsType { get; set; }
         public string vehicleType { get; set; }
 

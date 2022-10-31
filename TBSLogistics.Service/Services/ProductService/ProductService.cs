@@ -54,14 +54,14 @@ namespace TBSLogistics.Service.Services.ProductServiceManage
                     await _TMSContext.AddAsync(new BangGia()
                     {
                         // ngày hiệu lực phải bằng ngày kí trong bảng phụ lục hợp đồng join bảng lấy ra
-                        MaHopDong = i.MaHopDong,
+                        MaHopDong = "SPDV_TBSL",
                         MaPtvc = i.MaPTVC,
                         MaCungDuong = i.MaCungDuong,
                         MaLoaiPhuongTien = i.MaLoaiPhuongTien,
                         DonGia = i.DonGia,
                         MaDvt = i.MaDVT,
                         MaLoaiHangHoa = i.MaLoaiHangHoa,
-                        MaLoaiDoiTac = i.MaLoaiHopDong,
+                        MaLoaiDoiTac = "NCC",
                         NgayApDung = a.FirstOrDefault(),
                         NgayHetHieuLuc = i.NgayHetHieuLuc,
                         TrangThai = 3,
@@ -196,11 +196,7 @@ namespace TBSLogistics.Service.Services.ProductServiceManage
             {
                 foreach (var item in request)
                 {
-                    if (item.isApprove != 0 && item.isApprove != 1)
-                    {
-                        IdListFail.Add(item.isApprove + ": Sai => Phải ở trạng thái 0( Approve) hoặc 1( Không Approve ) " + " \r\n");
-                        continue;
-                    }
+                  
                     var checkExists = await _TMSContext.BangGia.Where(x => x.Id == item.ID).FirstOrDefaultAsync();
                     if (checkExists == null)
                     {
@@ -447,12 +443,6 @@ namespace TBSLogistics.Service.Services.ProductServiceManage
         {
             try
             {
-                if (filter.statusId == 0)
-                {
-                    filter.statusId = 2;
-                }
-
-
                 var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
                 var listData = from pro in _TMSContext.HopDongVaPhuLuc
                                join bg in _TMSContext.BangGia
@@ -464,43 +454,43 @@ namespace TBSLogistics.Service.Services.ProductServiceManage
                                join tt in _TMSContext.StatusText
                                on bg.TrangThai equals tt.StatusId
                                where tt.LangId == TempData.LangID
+                               && bg.MaHopDong == "SPDV_TBSL"
                                orderby bg.Id descending
                                select new { pro, bg, kh, tt, cd };
 
-
                 if (!string.IsNullOrEmpty(filter.Keyword))
                 {
-                    listData = listData.Where(x => x.bg.MaHopDong.Contains(filter.Keyword) || x.pro.MaKh.Contains(filter.Keyword));
+                    listData = listData.Where(x => x.cd.MaCungDuong.Contains(filter.Keyword) || x.cd.TenCungDuong.Contains(filter.Keyword));
                 }
-                if (filter.statusId == 2)
+
+                if (!string.IsNullOrEmpty(filter.statusId))
                 {
-                    listData = listData.Where(x => x.bg.TrangThai == 4);
-                }
-                if (filter.statusId == 7)
-                {
-                    listData = listData.Where(x => x.bg.TrangThai == 3 || x.bg.TrangThai == 4);
+                    listData = listData.Where(x => x.bg.TrangThai == int.Parse(filter.statusId));
                 }
                 //if (!string.IsNullOrEmpty(filter.Keyword))
                 //{
                 //    listData = listData.Where(x => x.bg.NgayApDung.Date <= filter.fromDate.Value.Date && x.bg.NgayHetHieuLuc.Date > filter.fromDate.Value.Date);
                 //}
+                if (!string.IsNullOrEmpty(filter.vehicleType))
+                {
+                    listData = listData.Where(x => x.bg.MaLoaiPhuongTien == filter.vehicleType);
+                }
 
 
                 var totalCount = await listData.CountAsync();
                 var pagedData = await listData.Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new ListProductServiceRequest()
                 {
                     ID = x.bg.Id,
+                    MaKh = x.kh.MaKh,
                     TenKh = x.kh.TenKh,
                     TenHopDong = x.pro.TenHienThi,
                     TenCungDuong = x.cd.TenCungDuong,
                     MaHopDong = x.bg.MaHopDong,
-                    MaPTVC = x.bg.MaPtvc,
                     MaCungDuong = x.bg.MaCungDuong,
-                    MaLoaiPhuongTien = x.bg.MaLoaiPhuongTien,
-                    DonGia = x.bg.DonGia,
-                    MaDVT = x.bg.MaDvt,
-                    MaLoaiHangHoa = x.bg.MaLoaiHangHoa,
-                    MaLoaiDoiTac = x.bg.MaLoaiDoiTac,
+                    MaLoaiPhuongTien = _TMSContext.LoaiPhuongTien.Where(y => y.MaLoaiPhuongTien == x.bg.MaLoaiPhuongTien).Select(x => x.TenLoaiPhuongTien).FirstOrDefault(),
+                    MaLoaiHangHoa = _TMSContext.LoaiHangHoa.Where(y => y.MaLoaiHangHoa == x.bg.MaLoaiHangHoa).Select(x => x.TenLoaiHangHoa).FirstOrDefault(),
+                    MaDVT = _TMSContext.DonViTinh.Where(y => y.MaDvt == x.bg.MaDvt).Select(x => x.TenDvt).FirstOrDefault(),
+                    MaPTVC = _TMSContext.PhuongThucVanChuyen.Where(y => y.MaPtvc == x.bg.MaPtvc).Select(x => x.TenPtvc).FirstOrDefault(),
                     NgayApDung = x.bg.NgayApDung,
                     NgayHetHieuLuc = x.bg.NgayHetHieuLuc,
                     TrangThai = x.tt.StatusContent,
@@ -669,7 +659,7 @@ namespace TBSLogistics.Service.Services.ProductServiceManage
         //        throw;
         //    }
         //}
-        private async Task<string> ValidateProductService(string MaHopDong, string MaPTVC, string MaCungDuong, string MaLoaiPhuongTien, decimal DonGia, string MaDVT, string MaLoaiHangHoa, string MaLoaiHopDong, DateTime NgayHetHieuLuc, string ErrorRow = "")
+        private async Task<string> ValidateProductService(string MaHopDong, string MaPTVC, string MaCungDuong, string MaLoaiPhuongTien, decimal DonGia, string MaDVT, string MaLoaiHangHoa, string MaLoaiHopDong, DateTime? NgayHetHieuLuc, string ErrorRow = "")
         {
             string ErrorValidate = "";
 
@@ -730,24 +720,17 @@ namespace TBSLogistics.Service.Services.ProductServiceManage
             //if (TrangThai.ToString().Length == 0)
             //{
             //    ErrorValidate += " Không được để trống";
-            var NgayApDung = from j in _TMSContext.HopDongVaPhuLuc
-                             where j.MaHopDong == MaHopDong
-                             select j.ThoiGianBatDau;
-            if (!Regex.IsMatch(NgayHetHieuLuc.ToString("dd/MM/yyyy"), "^(((0[1-9]|[12][0-9]|30)[-/]?(0[13-9]|1[012])|31[-/]?(0[13578]|1[02])|(0[1-9]|1[0-9]|2[0-8])[-/]?02)[-/]?[0-9]{4}|29[-/]?02[-/]?([0-9]{2}(([2468][048]|[02468][48])|[13579][26])|([13579][26]|[02468][048]|0[0-9]|1[0-6])00))$", RegexOptions.IgnoreCase))
-            {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Sai định dạng ngày\r\n" + System.Environment.NewLine;
-            }
-            if (NgayApDung.FirstOrDefault() >= NgayHetHieuLuc)
-            {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Ngày Hết hạn không được có trước ngày áp dụng \r\n" + System.Environment.NewLine;
-            }
-            var checkDateApplication = await _TMSContext.HopDongVaPhuLuc.Where(x => x.ThoiGianBatDau <= NgayApDung.FirstOrDefault()).FirstOrDefaultAsync();
 
-            if (checkDateApplication == null)
-            {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Ngày Áp dụng không được sớm hơn ngày kí hợp đồng  \r\n" + System.Environment.NewLine;
-            }
             //}
+
+            if (NgayHetHieuLuc != null)
+            {
+                if (NgayHetHieuLuc.Value.Date <= DateTime.Now)
+                {
+                    ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Ngày hết hiệu lực không được nhỏ hơn hoặc bằng ngày hiện tại \r\n" + System.Environment.NewLine;
+                }
+            }
+
             var checkExist = await _TMSContext.BangGia.Where(x => x.MaHopDong == MaHopDong && x.MaCungDuong == MaCungDuong && x.MaPtvc == MaPTVC && x.MaDvt == MaDVT && x.MaLoaiDoiTac == MaLoaiHopDong).FirstOrDefaultAsync();
             if (checkExist != null)
             {
@@ -755,20 +738,13 @@ namespace TBSLogistics.Service.Services.ProductServiceManage
             }
             return ErrorValidate;
         }
-        private async Task<string> ValidateEdit(string MaHopDong, string MaPTVC, string MaCungDuong, string MaLoaiPhuongTien, decimal DonGia, string MaDVT, string MaLoaiHangHoa, string MaLoaiHopDong, DateTime NgayHetHieuLuc, string ErrorRow = "")
+        private async Task<string> ValidateEdit(string MaHopDong, string MaPTVC, string MaCungDuong, string MaLoaiPhuongTien, decimal DonGia, string MaDVT, string MaLoaiHangHoa, string MaLoaiHopDong, DateTime? NgayHetHieuLuc, string ErrorRow = "")
         {
             string ErrorValidate = "";
             var checkTrangThai = await _TMSContext.BangGia.Where(x => x.TrangThai == 3).FirstOrDefaultAsync();
             if (checkTrangThai == null)
             {
                 ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Trạng thải phải là tạo mới \r\n" + System.Environment.NewLine;
-            }
-            var NgayApDung = from j in _TMSContext.HopDongVaPhuLuc
-                             where j.MaHopDong == MaHopDong
-                             select j.ThoiGianBatDau;
-            if (NgayApDung.FirstOrDefault() >= NgayHetHieuLuc)
-            {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Ngày Áp dụng không được sớm hơn ngày kí hợp đồng  \r\n" + System.Environment.NewLine;
             }
             var checkMaCungDuong = await _TMSContext.CungDuong.Where(x => x.MaCungDuong == MaCungDuong).FirstOrDefaultAsync();
 
@@ -809,10 +785,6 @@ namespace TBSLogistics.Service.Services.ProductServiceManage
                 ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã Phương Thức Vận Chuyển không tồn tại \r\n" + System.Environment.NewLine;
             }
 
-            if (!Regex.IsMatch(NgayHetHieuLuc.ToString("dd/MM/yyyy"), "^(((0[1-9]|[12][0-9]|30)[-/]?(0[13-9]|1[012])|31[-/]?(0[13578]|1[02])|(0[1-9]|1[0-9]|2[0-8])[-/]?02)[-/]?[0-9]{4}|29[-/]?02[-/]?([0-9]{2}(([2468][048]|[02468][48])|[13579][26])|([13579][26]|[02468][048]|0[0-9]|1[0-6])00))$", RegexOptions.IgnoreCase))
-            {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Sai định dạng ngày\r\n" + System.Environment.NewLine;
-            }
             return ErrorValidate;
 
         }

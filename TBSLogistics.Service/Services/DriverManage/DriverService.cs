@@ -235,7 +235,7 @@ namespace TBSLogistics.Service.Repository.DriverManage
                 }
                 if (!string.IsNullOrEmpty(filter.statusId.ToString()))
                 {
-                    getData = getData.Where(x => x.driver.TrangThai == filter.statusId);
+                    getData = getData.Where(x => x.driver.TrangThai == int.Parse(filter.statusId));
                 }
                 if (!string.IsNullOrEmpty(filter.fromDate.ToString()) && !string.IsNullOrEmpty(filter.toDate.ToString()))
                 {

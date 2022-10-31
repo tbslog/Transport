@@ -3,7 +3,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using TBSLogistics.Model.Filter;
+using TBSLogistics.Model.Model.RomoocModel;
 using TBSLogistics.Model.Model.SubFeePriceModel;
+using TBSLogistics.Model.Wrappers;
+using TBSLogistics.Service.Helpers;
 using TBSLogistics.Service.Panigation;
 using TBSLogistics.Service.Services.SubFeePriceManage;
 
@@ -80,9 +84,20 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<IActionResult> GetListSubFeePrice(string KH, string HDPL, DateTime ngayapdung, byte trangthai)
+        public async Task<IActionResult> GetListSubFeePrice([FromQuery] PaginationFilter filter)
         {
-            var list = await _subFeePrice.GetListSubFeePrice(KH, HDPL, ngayapdung, trangthai);
+            var route = Request.Path.Value;
+            var pagedData = await _subFeePrice.GetListSubFeePrice(filter);
+
+            var pagedReponse = PaginationHelper.CreatePagedReponse<ListSubFeePriceRequest>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _uriService, route);
+            return Ok(pagedReponse);
+        }
+
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetListSubFeeSelect()
+        {
+            var list = await _subFeePrice.GetListSubFeeSelect();
             return Ok(list);
         }
 

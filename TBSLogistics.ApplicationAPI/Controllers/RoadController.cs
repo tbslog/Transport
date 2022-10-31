@@ -99,9 +99,9 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<IActionResult> GetListRoadOptionSelect(string MaKH = null)
+        public async Task<IActionResult> GetListRoadOptionSelect(string MaKH = null,string ContractId = null)
         {
-            var listRoad = await _road.getListRoadOptionSelect(MaKH);
+            var listRoad = await _road.getListRoadOptionSelect(MaKH, ContractId);
             return Ok(listRoad);
         }
 
