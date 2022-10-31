@@ -9,6 +9,7 @@ import TransportPage from "./Components/Transport/TransportPage";
 import ProductServicePage from "./Components/ProductService/ProductServicePage";
 import VehiclePage from "./Components/VehicleManage/VehiclePage";
 import RomoocPage from "./Components/RomoocManage/RomoocPage";
+import SubFeePage from "./Components/SubFee/SubFeePage";
 
 let routerList = [
   {
@@ -139,10 +140,10 @@ let routerList = [
         child: [],
       },
       {
-        name: "Điều Phối",
-        pathName: "/driver",
-        path: "driver",
-        element: <DriverPage />,
+        name: "Phụ Phí",
+        pathName: "/subfee",
+        path: "subfee",
+        element: <SubFeePage />,
         exact: true,
         child: [],
       },

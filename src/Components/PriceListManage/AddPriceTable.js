@@ -3,12 +3,12 @@ import { getData, postData } from "../Common/FuncAxios";
 import { useForm, Controller, useFieldArray } from "react-hook-form";
 import DatePicker from "react-datepicker";
 import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
-import DataTable from "react-data-table-component";
 import moment from "moment";
 import Select from "react-select";
+import PriceListContract from "./PriceListContract";
 
 const AddPriceTable = (props) => {
-  const { getListPriceTable, selectIdClick, listStatus } = props;
+  const { selectIdClick } = props;
   const {
     register,
     reset,
@@ -134,71 +134,7 @@ const AddPriceTable = (props) => {
     },
   };
 
-  const columns = useMemo(() => [
-    {
-      name: "Mã Khách Hàng",
-      selector: (row) => row.maKh,
-      sortable: true,
-    },
-    {
-      name: "Mã Hợp Đồng",
-      selector: (row) => row.maHopDong,
-      sortable: true,
-    },
-    {
-      name: "",
-      selector: (row) => row.soHopDongCha,
-      sortable: true,
-    },
-    {
-      name: "Mã Cung Đường",
-      selector: (row) => row.maCungDuong,
-      sortable: true,
-    },
-    {
-      name: "Đơn Giá",
-      selector: (row) => row.donGia,
-      sortable: true,
-    },
-    {
-      name: "Loại Phương Tiện",
-      selector: (row) => row.maLoaiPhuongTien,
-      sortable: true,
-    },
-    {
-      name: "Loại Hàng Hóa",
-      selector: (row) => row.maLoaiHangHoa,
-      sortable: true,
-    },
-    {
-      name: "Đơn Vị Tính",
-      selector: (row) => row.maDVT,
-      sortable: true,
-    },
-    // {
-    //   name: "Phương Thức Vận Chuyển",
-    //   selector: (row) => row.maPTVC,
-    //   sortable: true,
-    // },
-    {
-      name: "Ngày Áp Dụng",
-      selector: (row) => row.ngayApDung,
-      sortable: true,
-    },
-    {
-      name: "Ngày Hết Hiệu Lực",
-      selector: (row) => row.ngayHetHieuLuc,
-      sortable: true,
-    },
-  ]);
-
   const [IsLoading, SetIsLoading] = useState(false);
-  const [data, setData] = useState([]);
-  const [totalRows, setTotalRows] = useState(0);
-  const [perPage, setPerPage] = useState(10);
-
-  const [onlyct, setOnlyct] = useState("");
-  const [contractId, setContractId] = useState("");
   const [tabIndex, setTabIndex] = useState(0);
   const [listRoad, setListRoad] = useState([]);
   const [listCustomer, setListCustomer] = useState([]);
@@ -208,22 +144,6 @@ const AddPriceTable = (props) => {
   const [listTransportType, setListTransportType] = useState([]);
   const [listContract, setListContract] = useState([]);
   const [listCustomerType, setListCustomerType] = useState([]);
-
-  useEffect(() => {
-    setTabIndex(0);
-    setData([]);
-    if (
-      props &&
-      props.selectIdClick &&
-      Object.keys(props.selectIdClick).length > 0 &&
-      Object.keys(props).length > 0
-    ) {
-      setContractId(selectIdClick.maHopDong);
-      fetchData(1, selectIdClick.maHopDong);
-    } else {
-      handleResetClick();
-    }
-  }, [props, selectIdClick]);
 
   useEffect(() => {
     SetIsLoading(true);
@@ -243,40 +163,6 @@ const AddPriceTable = (props) => {
       SetIsLoading(false);
     })();
   }, []);
-
-  const handlePerRowsChange = async (newPerPage, page) => {
-    SetIsLoading(true);
-    const dataCus = await getData(
-      `PriceTable/GetListPriceTableByContractId?Id=${contractId}&PageNumber=${page}&PageSize=${newPerPage}&onlyct=${onlyct}`
-    );
-
-    formatTable(dataCus.data);
-    setPerPage(newPerPage);
-    setTotalRows(dataCus.totalRecords);
-    SetIsLoading(false);
-  };
-  const fetchData = async (page, mahd, onlyct) => {
-    SetIsLoading(true);
-
-    const dataCus = await getData(
-      `PriceTable/GetListPriceTableByContractId?Id=${mahd}&PageNumber=${page}&PageSize=${perPage}&onlyct=${onlyct}`
-    );
-    formatTable(dataCus.data);
-    setTotalRows(dataCus.totalRecords);
-    SetIsLoading(false);
-  };
-
-  function formatTable(data) {
-    data.map((val) => {
-      val.ngayApDung = moment(val.ngayApDung).format("DD/MM/YYYY");
-      val.ngayHetHieuLuc = moment(val.ngayHetHieuLuc).format("DD/MM/YYYY");
-    });
-    setData(data);
-  }
-
-  const handlePageChange = async (page) => {
-    await fetchData(page, contractId);
-  };
 
   const handleOnchangeListCustomer = (val) => {
     SetIsLoading(true);
@@ -382,23 +268,13 @@ const AddPriceTable = (props) => {
 
     const createPriceTable = await postData("PriceTable/CreatePriceTable", arr);
     if (createPriceTable === 1) {
-      getListPriceTable(1);
-      fetchData(1, selectIdClick.maHopDong);
       reset();
     }
-
     SetIsLoading(false);
   };
 
   const HandleOnChangeTabs = (tabIndex) => {
     setTabIndex(tabIndex);
-    if (tabIndex === 2) {
-      setOnlyct("getByContractIdOnly");
-      fetchData(1, contractId, "getByContractIdOnly");
-    } else {
-      setOnlyct("");
-      fetchData(1, contractId, "");
-    }
   };
 
   return (
@@ -809,61 +685,21 @@ const AddPriceTable = (props) => {
           <>
             <div>
               <TabPanel>
-                <div className="card card-primary">
-                  <div className="card-header">
-                    <h3 className="card-title">Thông tin bảng giá hiện hành</h3>
-                  </div>
-                  <div>
-                    <div className="card-body">
-                      <div
-                        className="container-datatable"
-                        style={{ height: "50vm" }}
-                      >
-                        <DataTable
-                          columns={columns}
-                          data={data}
-                          progressPending={IsLoading}
-                          pagination
-                          paginationServer
-                          paginationTotalRows={totalRows}
-                          onChangeRowsPerPage={handlePerRowsChange}
-                          onChangePage={handlePageChange}
-                          highlightOnHover
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <PriceListContract
+                  selectIdClick={selectIdClick}
+                  onlyCT={""}
+                  title={"Bảng Giá Hiện Hành"}
+                />
               </TabPanel>
             </div>
 
             <div>
               <TabPanel>
-                <div className="card card-primary">
-                  <div className="card-header">
-                    <h3 className="card-title">Thông tin bảng giá hợp đồng</h3>
-                  </div>
-                  <div>
-                    <div className="card-body">
-                      <div
-                        className="container-datatable"
-                        style={{ height: "50vm" }}
-                      >
-                        <DataTable
-                          columns={columns}
-                          data={data}
-                          progressPending={IsLoading}
-                          pagination
-                          paginationServer
-                          paginationTotalRows={totalRows}
-                          onChangeRowsPerPage={handlePerRowsChange}
-                          onChangePage={handlePageChange}
-                          highlightOnHover
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <PriceListContract
+                  selectIdClick={selectIdClick}
+                  onlyCT={"getByContractOnly"}
+                  title={"Bảng Giá Hợp Đồng"}
+                />
               </TabPanel>
             </div>
           </>

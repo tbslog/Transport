@@ -2,8 +2,6 @@ import { useState, useEffect, useMemo } from "react";
 import { getData, postData } from "../Common/FuncAxios";
 import { useForm, Controller, useFieldArray } from "react-hook-form";
 import DatePicker from "react-datepicker";
-import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
-import DataTable from "react-data-table-component";
 import moment from "moment";
 import Select from "react-select";
 
@@ -13,7 +11,6 @@ const CreateProductService = (props) => {
   const {
     register,
     reset,
-    setValue,
     watch,
     control,
     formState: { errors },
@@ -29,7 +26,6 @@ const CreateProductService = (props) => {
           MaPTVC: "",
           MaLoaiPhuongTien: "",
           MaLoaiHangHoa: "",
-          NgayApDung: "",
           NgayHetHieuLuc: "",
         },
       ],
@@ -42,53 +38,10 @@ const CreateProductService = (props) => {
   });
 
   const Validate = {
-    MaHopDong: {
-      required: "Không được để trống",
-      maxLength: {
-        value: 10,
-        message: "Không được vượt quá 10 ký tự",
-      },
-      pattern: {
-        value: /^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9]+(?<![_.])$/,
-        message: "Không được chứa ký tự đặc biệt",
-      },
-    },
-    MaKh: {
-      required: "Không được để trống",
-      maxLength: {
-        value: 8,
-        message: "Không được vượt quá 8 ký tự",
-      },
-      minLength: {
-        value: 8,
-        message: "Không được ít hơn 8 ký tự",
-      },
-      pattern: {
-        value: /^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9]+(?<![_.])$/,
-        message: "Không được chứa ký tự đặc biệt",
-      },
-    },
     MaCungDuong: {
       required: "Không được để trống",
     },
-    NgayApDung: {
-      required: "Không được để trống",
-      maxLength: {
-        value: 10,
-        message: "Không được vượt quá 10 ký tự",
-      },
-      minLength: {
-        value: 10,
-        message: "Không được ít hơn 10 ký tự",
-      },
-      pattern: {
-        value:
-          /^(?:(?:31(\/|-|\.)(?:0?[13578]|1[02]))\1|(?:(?:29|30)(\/|-|\.)(?:0?[13-9]|1[0-2])\2))(?:(?:1[6-9]|[2-9]\d)?\d{2})$|^(?:29(\/|-|\.)0?2\3(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\d|2[0-8])(\/|-|\.)(?:(?:0?[1-9])|(?:1[0-2]))\4(?:(?:1[6-9]|[2-9]\d)?\d{2})$/,
-        message: "Không phải định dạng ngày",
-      },
-    },
     NgayHetHieuLuc: {
-      required: "Không được để trống",
       maxLength: {
         value: 10,
         message: "Không được vượt quá 10 ký tự",
@@ -103,14 +56,7 @@ const CreateProductService = (props) => {
         message: "Không phải định dạng ngày",
       },
     },
-    GiaVND: {
-      pattern: {
-        value: /^[0-9]*$/,
-        message: "Chỉ được nhập ký tự là số",
-      },
-      required: "Không được để trống",
-    },
-    GiaUSD: {
+    DonGia: {
       pattern: {
         value: /^[0-9]*$/,
         message: "Chỉ được nhập ký tự là số",
@@ -188,26 +134,26 @@ const CreateProductService = (props) => {
     let arr = [];
     data.optionRoad.map((val) => {
       arr.push({
-        maHopDong: data.MaHopDong.value,
-        maKh: data.MaKh.value,
+        maHopDong: "SPDV_TBSL",
         maPtvc: val.MaPTVC,
         maCungDuong: val.MaCungDuong.value,
         maLoaiPhuongTien: val.MaLoaiPhuongTien,
-        maLoaiDoiTac: data.PhanLoaiDoiTac,
         donGia: val.DonGia,
         maDvt: val.MaDVT,
         maLoaiHangHoa: val.MaLoaiHangHoa,
-        ngayApDung: moment(new Date(val.NgayApDung).toISOString()).format(
-          "YYYY-MM-DD"
-        ),
-        ngayHetHieuLuc: moment(
-          new Date(val.NgayHetHieuLuc).toISOString()
-        ).format("YYYY-MM-DD"),
+        ngayHetHieuLuc: !val.NgayHetHieuLuc
+          ? null
+          : moment(new Date(val.NgayHetHieuLuc).toISOString()).format(
+              "YYYY-MM-DD"
+            ),
       });
     });
 
-    const createPriceTable = await postData("PriceTable/CreatePriceTable", arr);
-    if (createPriceTable === 1) {
+    const createProductService = await postData(
+      "ProductService/CreateProductService",
+      arr
+    );
+    if (createProductService === 1) {
       getListPriceTable(1);
       reset();
     }
@@ -318,7 +264,6 @@ const CreateProductService = (props) => {
                     <th>PTVC</th>
                     <th>Loại phương tiện</th>
                     <th>Loại Hàng Hóa</th>
-                    <th>Ngày Áp Dụng</th>
                     <th>Ngày Hết Hiệu Lực</th>
                     <th style={{ width: "40px" }}>
                       <button
@@ -492,30 +437,6 @@ const CreateProductService = (props) => {
                               }
                             </span>
                           )}
-                        </div>
-                      </td>
-                      <td>
-                        <div className="form-group">
-                          <div className="input-group ">
-                            <Controller
-                              control={control}
-                              name={`optionRoad.${index}.NgayApDung`}
-                              render={({ field }) => (
-                                <DatePicker
-                                  className="form-control"
-                                  dateFormat="dd/MM/yyyy"
-                                  onChange={(date) => field.onChange(date)}
-                                  selected={field.value}
-                                />
-                              )}
-                              rules={Validate.NgayApDung}
-                            />
-                            {errors.optionRoad?.[index]?.NgayApDung && (
-                              <span className="text-danger">
-                                {errors.optionRoad?.[index]?.NgayApDung.message}
-                              </span>
-                            )}
-                          </div>
                         </div>
                       </td>
                       <td>

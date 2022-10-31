@@ -4,10 +4,9 @@ import DataTable from "react-data-table-component";
 import moment from "moment";
 import { Modal } from "bootstrap";
 import DatePicker from "react-datepicker";
-import CreateProductService from "./CreateProductService";
-import ApprovePriceTable from "../PriceListManage/ApprovePriceTable";
+import CreateSubFee from "./CreateSubFee";
 
-const ProductServicePage = () => {
+const SubFeePage = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [totalRows, setTotalRows] = useState(0);
@@ -24,9 +23,7 @@ const ProductServicePage = () => {
   const [selectedRows, setSelectedRows] = useState([]);
   const [selectIdClick, setSelectIdClick] = useState({});
   const [listStatus, setListStatus] = useState([]);
-  const [listVehicleType, setListVehicleType] = useState([]);
   const [status, setStatus] = useState();
-  const [vehicleType, setVehicleType] = useState("");
 
   const columns = useMemo(() => [
     {
@@ -109,8 +106,7 @@ const ProductServicePage = () => {
     KeyWord = "",
     fromDate = "",
     toDate = "",
-    status = "",
-    vehicleType = ""
+    status = ""
   ) => {
     setLoading(true);
 
@@ -120,7 +116,7 @@ const ProductServicePage = () => {
     fromDate = fromDate === "" ? "" : moment(fromDate).format("YYYY-MM-DD");
     toDate = toDate === "" ? "" : moment(toDate).format("YYYY-MM-DD");
     const dataCus = await getData(
-      `ProductService/GetListProductService?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}&fromDate=${fromDate}&toDate=${toDate}&statusId=${status}&vehicleType=${vehicleType}`
+      `SubFeePrice/GetListSubFeePrice?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}&fromDate=${fromDate}&toDate=${toDate}&statusId=${status}`
     );
 
     formatTable(dataCus.data);
@@ -136,7 +132,7 @@ const ProductServicePage = () => {
     setLoading(true);
 
     const dataCus = await getData(
-      `ProductService/GetListProductService?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}&fromDate=${fromDate}&toDate=${toDate}&statusId=${status}&vehicleType=${vehicleType}`
+      `SubFeePrice/GetListSubFeePrice?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}&fromDate=${fromDate}&toDate=${toDate}&statusId=${status}`
     );
     setPerPage(newPerPage);
     formatTable(dataCus.data);
@@ -148,12 +144,11 @@ const ProductServicePage = () => {
     setLoading(true);
     (async () => {
       let getStatusList = await getDataCustom(`Common/GetListStatus`, [
-        "PriceTable",
+        "SubFee",
       ]);
       setListStatus(getStatusList);
-      let getListVehicleType = await getData("Common/GetListVehicleType");
-      setListVehicleType(getListVehicleType);
     })();
+
     fetchData(1);
     setLoading(false);
   }, []);
@@ -167,26 +162,14 @@ const ProductServicePage = () => {
   }
 
   const handleSearchClick = () => {
-    fetchData(1, keySearch, fromDate, toDate, status, vehicleType);
+    fetchData(1, keySearch, fromDate, toDate, status);
   };
 
   const handleOnChangeStatus = (value) => {
     setLoading(true);
     setStatus(value);
-    fetchData(1, keySearch, fromDate, toDate, value, vehicleType);
+    fetchData(1, keySearch, fromDate, toDate, value);
     setLoading(false);
-  };
-
-  const getDataApprove = async () => {
-    const listApprove = await getData(
-      `PriceTable/GetListPriceTableApprove?PageNumber=1&PageSize=10`
-    );
-    return listApprove;
-  };
-
-  const handleOnChangeVehicleType = (val) => {
-    setVehicleType(val);
-    fetchData(1, keySearch, fromDate, toDate, status, val);
   };
 
   const handleRefeshDataClick = () => {
@@ -252,30 +235,7 @@ const ProductServicePage = () => {
                 </div>
                 <div className="col col-sm">
                   <div className="row">
-                    <div className="col col-sm">
-                      <div className="input-group input-group-sm">
-                        <select
-                          className="form-control form-control-sm"
-                          onChange={(e) =>
-                            handleOnChangeVehicleType(e.target.value)
-                          }
-                          value={vehicleType}
-                        >
-                          <option value="">Loại Phương Tiện</option>
-                          {listVehicleType &&
-                            listVehicleType.map((val) => {
-                              return (
-                                <option
-                                  value={val.maLoaiPhuongTien}
-                                  key={val.maLoaiPhuongTien}
-                                >
-                                  {val.tenLoaiPhuongTien}
-                                </option>
-                              );
-                            })}
-                        </select>
-                      </div>
-                    </div>
+                    <div className="col col-sm"></div>
                     <div className="col col-sm">
                       <div className="input-group input-group-sm">
                         <select
@@ -402,15 +362,14 @@ const ProductServicePage = () => {
               <div className="modal-body">
                 <>
                   {ShowModal === "Create" && (
-                    <CreateProductService
-                      getListPriceTable={fetchData}
+                    <CreateSubFee
+                      getListSubFee={fetchData}
                       selectIdClick={selectIdClick}
-                      listStatus={listStatus}
                     />
                   )}
-                  {ShowModal === "ApprovePriceTable" && (
+                  {/* {ShowModal === "ApprovePriceTable" && (
                     <ApprovePriceTable getDataApprove={getDataApprove} />
-                  )}
+                  )} */}
                 </>
               </div>
             </div>
@@ -421,4 +380,4 @@ const ProductServicePage = () => {
   );
 };
 
-export default ProductServicePage;
+export default SubFeePage;

@@ -16,6 +16,7 @@ import TransportPage from "./Components/Transport/TransportPage";
 import ProductServicePage from "./Components/ProductService/ProductServicePage";
 import VehiclePage from "./Components/VehicleManage/VehiclePage";
 import RomoocPage from "./Components/RomoocManage/RomoocPage";
+import SubFeePage from "./Components/SubFee/SubFeePage";
 
 function App() {
   return (
@@ -38,6 +39,7 @@ function App() {
                   <Route path="/transport" element={<TransportPage />} />
                   <Route path="/vehicle" element={<VehiclePage />} />
                   <Route path="/romooc" element={<RomoocPage />} />
+                  <Route path="/subfee" element={<SubFeePage />} />
                   <Route
                     path="/productService"
                     element={<ProductServicePage />}
