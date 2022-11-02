@@ -1,10 +1,13 @@
-import { useMemo, useState, useEffect, useCallback, useRef } from "react";
-import { getData, getDataCustom } from "../Common/FuncAxios";
+import { useMemo, useState, useEffect, useRef } from "react";
+import { getData, getDataCustom, postData } from "../Common/FuncAxios";
 import DataTable from "react-data-table-component";
 import moment from "moment";
 import { Modal } from "bootstrap";
 import DatePicker from "react-datepicker";
 import CreateSubFee from "./CreateSubFee";
+import ApproveSubFee from "./ApproveSubFee";
+import ConfirmDialog from "../Common/Dialog/ConfirmDialog";
+import { ToastError } from "../Common/FuncToast";
 
 const SubFeePage = () => {
   const [data, setData] = useState([]);
@@ -19,63 +22,73 @@ const SubFeePage = () => {
 
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
-
+  const [toggledClearRows, setToggleClearRows] = useState(false);
   const [selectedRows, setSelectedRows] = useState([]);
   const [selectIdClick, setSelectIdClick] = useState({});
   const [listStatus, setListStatus] = useState([]);
   const [status, setStatus] = useState();
 
+  const [ShowConfirm, setShowConfirm] = useState(false);
+  const [functionSubmit, setFunctionSubmit] = useState("");
+
   const columns = useMemo(() => [
     {
-      omit: true,
-      name: "Id",
-      selector: (row) => row.id,
+      name: "Mã phụ phí",
+      selector: (row) => row.priceId,
+      sortable: true,
+    },
+    {
+      name: "Loại Phụ Phí",
+      selector: (row) => row.sfName,
+      sortable: true,
     },
     {
       name: "Mã Hợp Đồng",
-      selector: (row) => row.maHopDong,
+      selector: (row) => row.contractId,
       sortable: true,
     },
     {
       name: "Tên Hợp Đồng",
-      selector: (row) => row.tenHopDong,
+      selector: (row) => row.contractName,
     },
     {
-      name: "Mã Cung Đường",
-      selector: (row) => row.maCungDuong,
+      name: "Điểm 1",
+      selector: (row) => row.firstPlace,
     },
     {
-      name: "Tên Cung Đường",
-      selector: (row) => row.tenCungDuong,
-    },
-    {
-      name: "Phương Tiện Vận Tải",
-      selector: (row) => row.maLoaiPhuongTien,
-    },
-    {
-      name: "Phương Thức Vận Chuyển",
-      selector: (row) => row.ptvc,
-      omit: true,
+      name: "Điểm 2",
+      selector: (row) => row.secondPlace,
     },
     {
       name: "Loại Hàng Hóa",
-      selector: (row) => row.maLoaiHangHoa,
+      selector: (row) => row.goodsType,
+    },
+    {
+      name: "Đơn Giá",
+      selector: (row) =>
+        row.unitPrice.toLocaleString("vi-VI", {
+          style: "currency",
+          currency: "VND",
+        }),
     },
     {
       name: "Thời gian Áp Dụng",
-      selector: (row) => row.ngayApDung,
+      selector: (row) => row.approvedDate,
       sortable: true,
     },
     {
       name: "Thời gian Hết Hiệu Lực",
-      selector: (row) => row.ngayHetHieuLuc,
+      selector: (row) => row.deactiveDate,
       sortable: true,
     },
-    ,
     {
       name: "Trạng Thái",
-      selector: (row) => row.trangThai,
+      selector: (row) => row.status,
       sortable: true,
+    },
+    {
+      name: "Người Duyệt",
+      selector: (row) => row.approver,
     },
     {
       name: "Thời gian Tạo",
@@ -97,9 +110,12 @@ const SubFeePage = () => {
     modal.hide();
   };
 
-  const handleChange = useCallback((state) => {
+  const handleChange = (state) => {
     setSelectedRows(state.selectedRows);
-  }, []);
+  };
+  const handleClearRows = () => {
+    setToggleClearRows(!toggledClearRows);
+  };
 
   const fetchData = async (
     page,
@@ -155,11 +171,79 @@ const SubFeePage = () => {
 
   function formatTable(data) {
     data.map((val) => {
-      val.ngayApDung = moment(val.ngayApDung).format("DD/MM/YYYY");
-      val.ngayHetHieuLuc = moment(val.ngayHetHieuLuc).format("DD/MM/YYYY");
+      !val.approvedDate
+        ? (val.approvedDate = "")
+        : (val.approvedDate = moment(val.approvedDate).format("DD/MM/YYYY"));
+      !val.deactiveDate
+        ? (val.deactiveDate = "")
+        : (val.deactiveDate = moment(val.deactiveDate).format("DD/MM/YYYY"));
     });
     setData(data);
   }
+
+  const ShowConfirmDialog = () => {
+    if (selectedRows.length < 1) {
+      ToastError("Vui lòng chọn phụ phí trước đã");
+      return;
+    } else {
+      setShowConfirm(true);
+    }
+  };
+
+  const DisableSubFee = async () => {
+    if (
+      selectedRows &&
+      selectedRows.length > 0 &&
+      Object.keys(selectedRows).length > 0
+    ) {
+      let arr = [];
+      selectedRows.map((val) => {
+        arr.push(val.priceId);
+      });
+
+      const SetApprove = await postData(`SubFeePrice/DisableSubFeePrice`, arr);
+
+      if (SetApprove === 1) {
+        fetchData(1);
+      }
+      setSelectedRows([]);
+      handleClearRows();
+      setShowConfirm(false);
+    }
+  };
+
+  const DeleteSubFee = async () => {
+    if (
+      selectedRows &&
+      selectedRows.length > 0 &&
+      Object.keys(selectedRows).length > 0
+    ) {
+      let arr = [];
+      selectedRows.map((val) => {
+        arr.push(val.priceId);
+      });
+
+      const SetApprove = await postData(`SubFeePrice/DeleteSubFeePrice`, arr);
+
+      if (SetApprove === 1) {
+        fetchData(1);
+      }
+      setSelectedRows([]);
+      handleClearRows();
+      setShowConfirm(false);
+    }
+  };
+
+  const funcAgree = () => {
+    if (functionSubmit && functionSubmit.length > 0) {
+      switch (functionSubmit) {
+        case "Disable":
+          return DisableSubFee();
+        case "Delete":
+          return DeleteSubFee();
+      }
+    }
+  };
 
   const handleSearchClick = () => {
     fetchData(1, keySearch, fromDate, toDate, status);
@@ -186,7 +270,7 @@ const SubFeePage = () => {
         <div className="container-fluid">
           <div className="row mb-2">
             <div className="col-sm-6">
-              <h1>Quản Lý Sản Phẩm Dịch Vụ</h1>
+              <h1>Quản Lý Phụ Phí</h1>
             </div>
             {/* <div className="col-sm-6">
                   <ol className="breadcrumb float-sm-right">
@@ -225,12 +309,34 @@ const SubFeePage = () => {
                     className="btn btn-sm btn-default mx-1"
                     onClick={() =>
                       showModalForm(
-                        SetShowModal("ApprovePriceTable"),
+                        SetShowModal("ApproveSubFee"),
                         setSelectIdClick({})
                       )
                     }
                   >
                     <i className="fas fa-check-double"></i>
+                  </button>
+                  <button
+                    title="Bỏ Hiệu Lực"
+                    type="button"
+                    className="btn btn-sm btn-default mx-1"
+                    onClick={() => {
+                      setFunctionSubmit("Disable");
+                      ShowConfirmDialog();
+                    }}
+                  >
+                    <i className="fas fa-eye-slash"></i>
+                  </button>
+                  <button
+                    title="Xóa"
+                    type="button"
+                    className="btn btn-sm btn-default mx-1"
+                    onClick={() => {
+                      setFunctionSubmit("Delete");
+                      ShowConfirmDialog();
+                    }}
+                  >
+                    <i className="fas fa-trash-alt"></i>
                   </button>
                 </div>
                 <div className="col col-sm">
@@ -317,12 +423,14 @@ const SubFeePage = () => {
           <div className="card-body">
             <div className="container-datatable" style={{ height: "50vm" }}>
               <DataTable
-                title="Danh sách Sản Phẩm Dịch Vụ"
+                title="Danh sách Phụ Phí"
                 columns={columns}
                 data={data}
                 progressPending={loading}
                 pagination
                 paginationServer
+                selectableRows
+                clearSelectedRows={toggledClearRows}
                 paginationTotalRows={totalRows}
                 onSelectedRowsChange={handleChange}
                 onChangeRowsPerPage={handlePerRowsChange}
@@ -362,20 +470,27 @@ const SubFeePage = () => {
               <div className="modal-body">
                 <>
                   {ShowModal === "Create" && (
-                    <CreateSubFee
-                      getListSubFee={fetchData}
-                      selectIdClick={selectIdClick}
-                    />
+                    <CreateSubFee getListSubFee={fetchData} />
                   )}
-                  {/* {ShowModal === "ApprovePriceTable" && (
-                    <ApprovePriceTable getDataApprove={getDataApprove} />
-                  )} */}
+                  {ShowModal === "ApproveSubFee" && (
+                    <ApproveSubFee getListSubFee={fetchData} />
+                  )}
                 </>
               </div>
             </div>
           </div>
         </div>
       </section>
+      {ShowConfirm === true && (
+        <ConfirmDialog
+          setShowConfirm={setShowConfirm}
+          title={"Bạn có chắc chắn với quyết định này?"}
+          content={
+            "Khi thực hiện hành động này sẽ không thể hoàn tác lại được nữa."
+          }
+          funcAgree={funcAgree}
+        />
+      )}
     </>
   );
 };

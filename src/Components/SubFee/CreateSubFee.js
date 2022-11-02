@@ -1,12 +1,10 @@
 import { useState, useEffect, useMemo } from "react";
 import { getData, postData } from "../Common/FuncAxios";
 import { useForm, Controller } from "react-hook-form";
-import DatePicker from "react-datepicker";
-import moment from "moment";
 import Select from "react-select";
 
 const CreateSubFee = (props) => {
-  const {} = props;
+  const { getListSubFee } = props;
 
   const {
     register,
@@ -20,24 +18,21 @@ const CreateSubFee = (props) => {
   });
 
   const Validate = {
-    MaSoXe: {
+    PhanLoaiDoiTac: {
+      required: "Không được để trống",
+    },
+    MaKh: { required: "Không được để trống" },
+    MaHopDong: { required: "Không được để trống" },
+    DiemDau: {},
+    DiemCuoi: {},
+    MaLoaiHangHoa: {},
+    LoaiPhuPhi: {
+      required: "Không được để trống",
+    },
+    DonGia: {
       required: "Không được để trống",
       maxLength: {
         value: 10,
-        message: "Không được vượt quá 10 ký tự",
-      },
-      minLength: {
-        value: 6,
-        message: "Không được ít hơn 6 ký tự",
-      },
-      pattern: {
-        value: /^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9]+(?<![_.])$/,
-        message: "Không được chứa ký tự đặc biệt",
-      },
-    },
-    TrongTaiToiDa: {
-      maxLength: {
-        value: 10,
         message: "Không được vượt quá 12 ký tự",
       },
       minLength: {
@@ -48,46 +43,6 @@ const CreateSubFee = (props) => {
         value: /^(?![_.])(?![_.])(?!.*[_.]{2})[0-9]+(?<![_.])$/,
         message: "Không được chứa ký tự đặc biệt",
       },
-    },
-    TrongTaiToiThieu: {
-      maxLength: {
-        value: 10,
-        message: "Không được vượt quá 12 ký tự",
-      },
-      minLength: {
-        value: 1,
-        message: "Không được ít hơn 1 ký tự",
-      },
-      pattern: {
-        value: /^(?![_.])(?![_.])(?!.*[_.]{2})[0-9]+(?<![_.])$/,
-        message: "Không được chứa ký tự đặc biệt",
-      },
-    },
-    TGKhauHao: {
-      maxLength: {
-        value: 10,
-        message: "Không được vượt quá 12 ký tự",
-      },
-      minLength: {
-        value: 1,
-        message: "Không được ít hơn 1 ký tự",
-      },
-      pattern: {
-        value: /^(?![_.])(?![_.])(?!.*[_.]{2})[0-9]+(?<![_.])$/,
-        message: "Không được chứa ký tự đặc biệt",
-      },
-    },
-    LoaiXe: {
-      required: "Không được bỏ trống",
-    },
-    MaGPS: {
-      required: "Không được bỏ trống",
-    },
-    MaGPSMobile: {
-      required: "Không được bỏ trống",
-    },
-    TrangThai: {
-      required: "Không được bỏ trống",
     },
   };
   const [IsLoading, SetIsLoading] = useState(true);
@@ -96,7 +51,6 @@ const CreateSubFee = (props) => {
   const [listGoodTypes, setListGoodsTypes] = useState([]);
   const [listPlace, setListPlace] = useState([]);
   const [listCustomerType, setListCustomerType] = useState([]);
-  const [listRoad, setListRoad] = useState([]);
   const [listSubFee, setListSubFee] = useState([]);
   const [listSubFeeSelect, setListSubFeeSelect] = useState([]);
 
@@ -108,6 +62,20 @@ const CreateSubFee = (props) => {
       let getListGoodsType = await getData("Common/GetListGoodsType");
       setListGoodsTypes(getListGoodsType);
       let getListSubFee = await getData(`SubFeePrice/GetListSubFeeSelect`);
+
+      let getListPlace = await getData(`Address/GetListAddressSelect`);
+
+      if (getListPlace && getListPlace.length > 0) {
+        let obj = [];
+        obj.push({ value: "", label: "-- Để Trống --" });
+        getListPlace.map((val) => {
+          obj.push({
+            value: val.maDiaDiem,
+            label: val.maDiaDiem + " - " + val.tenDiaDiem,
+          });
+        });
+        setListPlace(obj);
+      }
 
       if (getListSubFee && getListSubFee.length > 0) {
         let obj = [];
@@ -128,7 +96,6 @@ const CreateSubFee = (props) => {
     SetIsLoading(true);
 
     setListContract([]);
-    setListRoad([]);
     setValue("MaKh", val);
     setValue("MaHopDong", null);
     setValue("CungDuong", null);
@@ -165,7 +132,7 @@ const CreateSubFee = (props) => {
     SetIsLoading(true);
 
     let getListContract = await getData(
-      `Contract/GetListContractSelect?MaKH=${CusId}`
+      `Contract/GetListContractSelect?MaKH=${CusId}&getProductService=true`
     );
 
     if (getListContract && getListContract.length > 0) {
@@ -182,30 +149,8 @@ const CreateSubFee = (props) => {
     SetIsLoading(false);
   };
 
-  const handleOnChangeContract = async (val) => {
-    SetIsLoading(true);
-    setValue(
-      "MaHopDong",
-      { ...listContract.filter((x) => x.value === val.value) }[0]
-    );
-    let getListRoad = await getData(
-      `Road/GetListRoadOptionSelect?ContractId=${val.value}`
-    );
-    if (getListRoad && getListRoad.length > 0) {
-      let obj = [];
-      obj.push({ label: "-- Bỏ Trống --", val: "" });
-      getListRoad.map((val) => {
-        obj.push({
-          value: val.maCungDuong,
-          label: val.maCungDuong + " - " + val.tenCungDuong,
-        });
-      });
-      setListRoad(obj);
-    }
-    SetIsLoading(false);
-  };
-
   const handleOnchangeListSubFee = async (val) => {
+    setValue("LoaiPhuPhi", val);
     var des = listSubFee.filter((x) => x.subFeeId === val.value)[0];
     setValue("SubFeeDes", des.subFeeDescription);
   };
@@ -215,39 +160,27 @@ const CreateSubFee = (props) => {
     setValue("MaKh", null);
     setValue("MaHopDong", null);
     setValue("CungDuong", null);
-    setListRoad([]);
     setListContract([]);
-    setListRoad([]);
     setListCustomer([]);
   };
 
-  const onSubmit = async (data, e) => {
+  const onSubmit = async (data) => {
     SetIsLoading(true);
 
-    // let arr = [];
-    // data.optionRoad.map((val) => {
-    //   arr.push({
-    //     maHopDong: data.MaHopDong.value,
-    //     maKh: data.MaKh.value,
-    //     maPtvc: val.MaPTVC,
-    //     maCungDuong: val.MaCungDuong.value,
-    //     maLoaiPhuongTien: val.MaLoaiPhuongTien,
-    //     maLoaiDoiTac: data.PhanLoaiDoiTac,
-    //     donGia: val.DonGia,
-    //     maDvt: val.MaDVT,
-    //     maLoaiHangHoa: val.MaLoaiHangHoa,
-    //     ngayHetHieuLuc: !val.NgayHetHieuLuc
-    //       ? null
-    //       : moment(new Date(val.NgayHetHieuLuc).toISOString()).format(
-    //           "YYYY-MM-DD"
-    //         ),
-    //   });
-    // });
+    const createSubFreePrice = await postData("SubFeePrice/CreateSubFeePrice", {
+      ContractId: data.MaHopDong.value,
+      SfId: data.LoaiPhuPhi.value,
+      GoodsType: !data.MaLoaiHangHoa ? null : data.MaLoaiHangHoa,
+      FirstPlace: !data.DiemDau ? null : data.DiemDau.value,
+      SecondPlace: !data.DiemCuoi ? null : data.DiemCuoi.value,
+      UnitPrice: data.DonGia,
+      Description: !data.Description ? "" : data.Description,
+    });
 
-    // const createPriceTable = await postData("PriceTable/CreatePriceTable", arr);
-    // if (createPriceTable === 1) {
-    //   reset();
-    // }
+    if (createSubFreePrice === 1) {
+      getListSubFee(1);
+      reset();
+    }
     SetIsLoading(false);
   };
 
@@ -322,7 +255,6 @@ const CreateSubFee = (props) => {
                         classNamePrefix={"form-control"}
                         value={field.value}
                         options={listContract}
-                        onChange={(field) => handleOnChangeContract(field)}
                       />
                     )}
                   />
@@ -337,27 +269,52 @@ const CreateSubFee = (props) => {
             <div className="row">
               <div className="col col-sm">
                 <div className="form-group">
-                  <label htmlFor="CungDuong">Cung Đường</label>
+                  <label htmlFor="DiemDau">Điểm 1</label>
                   <Controller
-                    name="CungDuong"
+                    name="DiemDau"
                     control={control}
                     render={({ field }) => (
                       <Select
                         {...field}
                         classNamePrefix={"form-control"}
                         value={field.value}
-                        options={listRoad}
+                        options={listPlace}
                       />
                     )}
-                    rules={Validate.CungDuong}
+                    rules={Validate.DiemDau}
                   />
-                  {errors.CungDuong && (
+                  {errors.DiemDau && (
                     <span className="text-danger">
-                      {errors.CungDuong.message}
+                      {errors.DiemDau.message}
                     </span>
                   )}
                 </div>
               </div>
+              <div className="col col-sm">
+                <div className="form-group">
+                  <label htmlFor="DiemCuoi">Điểm 2</label>
+                  <Controller
+                    name="DiemCuoi"
+                    control={control}
+                    render={({ field }) => (
+                      <Select
+                        {...field}
+                        classNamePrefix={"form-control"}
+                        value={field.value}
+                        options={listPlace}
+                      />
+                    )}
+                    rules={Validate.DiemCuoi}
+                  />
+                  {errors.DiemCuoi && (
+                    <span className="text-danger">
+                      {errors.DiemCuoi.DiemCuoi}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+            <div className="row">
               <div className="col col-sm">
                 <div className="form-group">
                   <label htmlFor="MaLoaiHangHoa">Loại Hàng Hóa</label>
@@ -409,6 +366,20 @@ const CreateSubFee = (props) => {
                   )}
                 </div>
               </div>
+              <div className="col col-sm">
+                <div className="form-group">
+                  <label htmlFor="MaLoaiHangHoa">Đơn Giá</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="DonGia"
+                    {...register(`DonGia`, Validate.DonGia)}
+                  />
+                  {errors.DonGia && (
+                    <span className="text-danger">{errors.DonGia.message}</span>
+                  )}
+                </div>
+              </div>
             </div>
             <div className="row">
               <div className="col col-sm">
@@ -430,22 +401,7 @@ const CreateSubFee = (props) => {
                 </div>
               </div>
             </div>
-            <div>
-              <div className="col col-sm">
-                <div className="form-group">
-                  <label htmlFor="MaLoaiHangHoa">Đơn Giá</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="DonGia"
-                    {...register(`DonGia`, Validate.DonGia)}
-                  />
-                  {errors.DonGia && (
-                    <span className="text-danger">{errors.DonGia.message}</span>
-                  )}
-                </div>
-              </div>
-            </div>
+
             <div>
               <div className="col col-sm">
                 <div className="form-group">

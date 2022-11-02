@@ -1,15 +1,15 @@
-import { useMemo, useState, useEffect, useCallback, useRef } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import { getData, postData } from "../Common/FuncAxios";
 import DataTable from "react-data-table-component";
 import moment from "moment";
 import { Modal } from "bootstrap";
-import DatePicker from "react-datepicker";
-import UpdatePriceTable from "./UpdatePriceTable";
-import ConfirmDialog from "../Common/Dialog/ConfirmDialog";
 import { ToastError } from "../Common/FuncToast";
+import DatePicker from "react-datepicker";
+import UpdateSubFee from "./UpdateSubFee";
+import ConfirmDialog from "../Common/Dialog/ConfirmDialog";
 
-const ApprovePriceTable = (props) => {
-  const { getDataApprove } = props;
+const ApproveSubFee = (props) => {
+  const { getListSubFee } = props;
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [totalRows, setTotalRows] = useState(0);
@@ -24,8 +24,8 @@ const ApprovePriceTable = (props) => {
   const [toDate, setToDate] = useState("");
 
   const [selectedRows, setSelectedRows] = useState([]);
-  const [toggledClearRows, setToggleClearRows] = useState(false);
   const [selectIdClick, setSelectIdClick] = useState({});
+  const [toggledClearRows, setToggleClearRows] = useState(false);
 
   const [isAccept, setIsAccept] = useState();
   const [ShowConfirm, setShowConfirm] = useState(false);
@@ -35,7 +35,7 @@ const ApprovePriceTable = (props) => {
       cell: (val) => (
         <button
           title="Cập nhật"
-          onClick={() => handleEditButtonClick(val, SetShowModal("Edit"))}
+          onClick={() => handleEditButtonClick(val, SetShowModal("Update"))}
           type="button"
           className="btn btn-sm btn-default"
         >
@@ -47,62 +47,122 @@ const ApprovePriceTable = (props) => {
       button: true,
     },
     {
-      omit: true,
-      name: "Id",
-      selector: (row) => row.id,
+      name: "Mã Phụ Phí",
+      selector: (row) => row.priceId,
     },
     {
-      name: "Phân Loại Đối Tác",
-      selector: (row) => row.maLoaiDoiTac,
-    },
-    {
-      name: "Tên khách hàng",
-      selector: (row) => row.tenKh,
+      name: "Loại Phụ Phí",
+      selector: (row) => row.sfName,
+      sortable: true,
     },
     {
       name: "Mã Hợp Đồng",
-      selector: (row) => row.maHopDong,
+      selector: (row) => row.contractId,
       sortable: true,
     },
     {
       name: "Tên Hợp Đồng",
-      selector: (row) => row.tenHopDong,
+      selector: (row) => row.contractName,
+    },
+    {
+      name: "Điểm 1",
+      selector: (row) => row.firstPlace,
+    },
+    {
+      name: "Điểm 2",
+      selector: (row) => row.secondPlace,
+    },
+    {
+      name: "Loại Hàng Hóa",
+      selector: (row) => row.goodsType,
     },
     {
       name: "Đơn Giá",
       selector: (row) =>
-        row.donGia.toLocaleString("vi-VI", {
+        row.unitPrice.toLocaleString("vi-VI", {
           style: "currency",
           currency: "VND",
         }),
     },
     {
-      name: "Tên Cung Đường",
-      selector: (row) => row.tenCungDuong,
-    },
-    {
-      name: "Phương Tiện Vận Tải",
-      selector: (row) => row.maLoaiPhuongTien,
-    },
-    {
-      name: "PTVC",
-      selector: (row) => row.ptvc,
-    },
-    {
-      name: "Loại Hàng Hóa",
-      selector: (row) => row.maLoaiHangHoa,
-    },
-    {
-      name: "Thời gian Hạn",
-      selector: (row) => row.ngayHetHieuLuc,
+      name: "Trạng Thái",
+      selector: (row) => row.status,
       sortable: true,
     },
     {
       name: "Thời gian Tạo",
-      selector: (row) => row.thoiGianTao,
+      selector: (row) => moment(row.createdTime).format("DD-MM-YYYY HH:mm:ss"),
       sortable: true,
     },
   ]);
+
+  useEffect(() => {
+    fetchData(1);
+  }, [props]);
+
+  const handleEditButtonClick = async (val) => {
+    if (val && Object.keys(val).length > 0) {
+      let getById = await getData(
+        `SubFeePrice/GetSubFeePriceById?id=${val.priceId}`
+      );
+      setSelectIdClick(getById);
+      showModalForm();
+    }
+  };
+
+  const AcceptSubFee = async (isAccept) => {
+    if (
+      selectedRows &&
+      selectedRows.length > 0 &&
+      Object.keys(selectedRows).length > 0
+    ) {
+      let arr = [];
+      selectedRows.map((val) => {
+        arr.push({
+          SubFeePriceId: val.priceId,
+          Selection: isAccept,
+        });
+      });
+
+      const SetApprove = await postData(`SubFeePrice/ApproveSubFeePrice`, arr);
+
+      if (SetApprove === 1) {
+        fetchData(1);
+        getListSubFee(1);
+      }
+      setSelectedRows([]);
+      handleClearRows();
+      setShowConfirm(false);
+    }
+  };
+
+  const funcAgree = () => {
+    if (
+      isAccept &&
+      isAccept.length > 0 &&
+      selectedRows &&
+      selectedRows.length > 0
+    ) {
+      AcceptSubFee(isAccept);
+    }
+  };
+
+  const ShowConfirmDialog = () => {
+    if (selectedRows.length < 1) {
+      ToastError("Vui lòng chọn phụ phí để duyệt");
+      return;
+    } else {
+      setShowConfirm(true);
+    }
+  };
+
+  const handleChange = (state) => {
+    setSelectedRows(state.selectedRows);
+  };
+
+  const handleClearRows = () => {
+    setToggleClearRows(!toggledClearRows);
+  };
 
   const showModalForm = () => {
     const modal = new Modal(parseExceptionModal.current, {
@@ -117,75 +177,6 @@ const ApprovePriceTable = (props) => {
     modal.hide();
   };
 
-  useEffect(() => {
-    setLoading(true);
-    (async () => {
-      var list = await getDataApprove();
-      setData(list.data);
-      setLoading(false);
-    })();
-  }, [props]);
-
-  const handleChange = (state) => {
-    setSelectedRows(state.selectedRows);
-  };
-
-  const handleEditButtonClick = async (val) => {
-    const getdata = await getData(`PriceTable/GetPriceTableById?id=${val.id}`);
-    setSelectIdClick(getdata);
-    showModalForm();
-  };
-
-  const AcceptPriceTable = async (isAccept) => {
-    if (
-      selectedRows &&
-      selectedRows.length > 0 &&
-      Object.keys(selectedRows).length > 0
-    ) {
-      let arr = [];
-      selectedRows.map((val) => {
-        arr.push({
-          Id: val.id,
-          IsAgree: isAccept,
-        });
-      });
-
-      const SetApprove = await postData(`PriceTable/ApprovePriceTable`, {
-        result: arr,
-      });
-
-      if (SetApprove === 1) {
-        setSelectedRows([]);
-        handleClearRows();
-        fetchData(1);
-      }
-    }
-  };
-
-  const funcAgree = () => {
-    if (
-      isAccept &&
-      isAccept.length > 0 &&
-      selectedRows &&
-      selectedRows.length > 0
-    ) {
-      AcceptPriceTable(isAccept);
-    }
-  };
-
-  const ShowConfirmDialog = () => {
-    if (selectedRows.length < 1) {
-      ToastError("Vui lòng chọn bảng giá để duyệt");
-      return;
-    } else {
-      setShowConfirm(true);
-    }
-  };
-
-  const handleClearRows = () => {
-    setToggleClearRows(!toggledClearRows);
-  };
-
   const fetchData = async (page, KeyWord = "", fromDate = "", toDate = "") => {
     setLoading(true);
 
@@ -195,9 +186,10 @@ const ApprovePriceTable = (props) => {
     fromDate = fromDate === "" ? "" : moment(fromDate).format("YYYY-MM-DD");
     toDate = toDate === "" ? "" : moment(toDate).format("YYYY-MM-DD");
     const dataCus = await getData(
-      `PriceTable/GetListPriceTableApprove?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}&fromDate=${fromDate}&toDate=${toDate}`
+      `SubFeePrice/GetListSubFeePrice?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}&fromDate=${fromDate}&toDate=${toDate}&statusId=13`
     );
-    setData(dataCus.data);
+
+    formatTable(dataCus.data);
     setTotalRows(dataCus.totalRecords);
     setLoading(false);
   };
@@ -210,12 +202,21 @@ const ApprovePriceTable = (props) => {
     setLoading(true);
 
     const dataCus = await getData(
-      `PriceTable/GetListPriceTableApprove?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}&fromDate=${fromDate}&toDate=${toDate}`
+      `SubFeePrice/GetListSubFeePrice?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}&fromDate=${fromDate}&toDate=${toDate}&statusId=13`
     );
     setPerPage(newPerPage);
+    formatTable(dataCus.data);
     setTotalRows(dataCus.totalRecords);
     setLoading(false);
   };
+
+  function formatTable(data) {
+    data.map((val) => {
+      val.ngayApDung = moment(val.ngayApDung).format("DD/MM/YYYY");
+      val.ngayHetHieuLuc = moment(val.ngayHetHieuLuc).format("DD/MM/YYYY");
+    });
+    setData(data);
+  }
 
   const handleSearchClick = () => {
     fetchData(1, keySearch, fromDate, toDate);
@@ -231,6 +232,16 @@ const ApprovePriceTable = (props) => {
 
   return (
     <>
+      <section className="content-header">
+        <div className="container-fluid">
+          <div className="row mb-2">
+            <div className="col-sm-6">
+              <h1>Duyệt Phụ Phí</h1>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section className="content">
         <div className="card">
           <div className="card-header">
@@ -241,8 +252,8 @@ const ApprovePriceTable = (props) => {
                     type="button"
                     className="btn btn-sm btn-default"
                     onClick={() => {
-                      setIsAccept(0);
                       ShowConfirmDialog();
+                      setIsAccept(0);
                     }}
                   >
                     <i className="fas fa-thumbs-up"></i>
@@ -252,63 +263,18 @@ const ApprovePriceTable = (props) => {
                     type="button"
                     className="btn btn-sm btn-default mx-4"
                     onClick={() => {
-                      setIsAccept(1);
                       ShowConfirmDialog();
+                      setIsAccept(1);
                     }}
                   >
                     <i className="fas fa-thumbs-down"></i>
                   </button>
                 </div>
+                <div className="col col-sm"></div>
                 <div className="col col-sm">
                   <div className="row">
-                    <div className="col col-sm">
-                      {/* <div className="input-group input-group-sm">
-                        <select
-                          className="form-control form-control-sm"
-                          onChange={(e) =>
-                            handleOnChangeVehicleType(e.target.value)
-                          }
-                          value={vehicleType}
-                        >
-                          <option value="">Phương tiện vận tải</option>
-                          {listVehicleType &&
-                            listVehicleType.map((val) => {
-                              return (
-                                <option
-                                  value={val.maLoaiPhuongTien}
-                                  key={val.maLoaiPhuongTien}
-                                >
-                                  {val.tenLoaiPhuongTien}
-                                </option>
-                              );
-                            })}
-                        </select>
-                      </div> */}
-                    </div>
-                    <div className="col col-sm">
-                      {/* <div className="input-group input-group-sm">
-                        <select
-                          className="form-control form-control-sm"
-                          onChange={(e) =>
-                            handleOnChangeGoodsType(e.target.value)
-                          }
-                          value={goodsType}
-                        >
-                          <option value="">Loại Hàng Hóa</option>
-                          {listGoodsType &&
-                            listGoodsType.map((val) => {
-                              return (
-                                <option
-                                  value={val.maLoaiHangHoa}
-                                  key={val.maLoaiHangHoa}
-                                >
-                                  {val.tenLoaiHangHoa}
-                                </option>
-                              );
-                            })}
-                        </select>
-                      </div> */}
-                    </div>
+                    <div className="col col-sm"></div>
+                    <div className="col col-sm"></div>
                   </div>
                 </div>
                 <div className="col col-sm">
@@ -371,50 +337,24 @@ const ApprovePriceTable = (props) => {
           <div className="card-body">
             <div className="container-datatable" style={{ height: "50vm" }}>
               <DataTable
-                title="Duyệt Bảng Giá"
+                title="Danh Sách Phụ Phí Chờ Duyệt"
                 columns={columns}
                 data={data}
                 progressPending={loading}
                 pagination
-                paginationServer
                 selectableRows
-                onSelectedRowsChange={handleChange}
-                clearSelectedRows={toggledClearRows}
+                paginationServer
                 paginationTotalRows={totalRows}
+                onSelectedRowsChange={handleChange}
                 onChangeRowsPerPage={handlePerRowsChange}
                 onChangePage={handlePageChange}
+                clearSelectedRows={toggledClearRows}
                 highlightOnHover
-                responsive
-                striped
               />
             </div>
           </div>
           <div className="card-footer">
-            <div className="row">
-              {/* <div className="col-sm-3">
-                <a
-                  title="Tải Template Excel"
-                  href={FileExcelImport}
-                  download="Template Thêm mới Khách hàng.xlsx"
-                  className="btn btn-sm btn-default mx-1"
-                >
-                  <i className="fas fa-download"></i>
-                </a>
-                <div className="upload-btn-wrapper">
-                  <button
-                    className="btn btn-sm btn-default mx-1"
-                    title="Upload file Excel"
-                  >
-                    <i className="fas fa-upload"></i>
-                  </button>
-                  <input
-                    type="file"
-                    name="myfile"
-                    onChange={(e) => handleExcelImportClick(e)}
-                  />
-                </div>
-              </div> */}
-            </div>
+            <div className="row"></div>
           </div>
         </div>
         <div
@@ -442,13 +382,15 @@ const ApprovePriceTable = (props) => {
                 </button>
               </div>
               <div className="modal-body">
-                {ShowModal === "Edit" && (
-                  <UpdatePriceTable
-                    selectIdClick={selectIdClick}
-                    hideModal={hideModal}
-                    refeshData={fetchData}
-                  />
-                )}
+                <>
+                  {ShowModal === "Update" && (
+                    <UpdateSubFee
+                      selectIdClick={selectIdClick}
+                      hideModal={hideModal}
+                      getListSubFee={fetchData}
+                    />
+                  )}
+                </>
               </div>
             </div>
           </div>
@@ -468,4 +410,4 @@ const ApprovePriceTable = (props) => {
   );
 };
 
-export default ApprovePriceTable;
+export default ApproveSubFee;
