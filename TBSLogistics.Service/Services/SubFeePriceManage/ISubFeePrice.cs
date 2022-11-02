@@ -14,11 +14,11 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
     {
         Task<BoolActionResult> CreateSubFeePrice(CreateSubFeePriceRequest request);
         Task<BoolActionResult> UpdateSubFeePrice(long id, UpdateSubFeePriceRequest request);
-        Task<BoolActionResult> ApproveSubFeePrice(long[] ids, string HDPL);
+        Task<BoolActionResult> ApproveSubFeePrice(List<ApproveSubFee> request);
         Task<GetSubFeePriceRequest> GetSubFeePriceById(long id);
         Task<PagedResponseCustom<ListSubFeePriceRequest>> GetListSubFeePrice(PaginationFilter filter);
-        Task<BoolActionResult> DisableSubFeePrice(long[] ids, string HDPL);
-        Task<BoolActionResult> DeleteSubFeePrice(long[] ids, string HDPL);
+        Task<BoolActionResult> DisableSubFeePrice(List<long> ids);
+        Task<BoolActionResult> DeleteSubFeePrice(List<long> ids);
         Task<List<ListSubFee>> GetListSubFeeSelect();
     }
 }

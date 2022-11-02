@@ -126,7 +126,7 @@ namespace TBSLogistics.Service.Services.ContractManage
                     return new BoolActionResult { isSuccess = false, Message = "Thời gian bắt đầu không được lớn hơn hoặc bằng thời gian kết thúc" };
                 }
 
-             
+
                 checkExists.TenHienThi = request.TenHienThi;
                 checkExists.ThoiGianBatDau = request.ThoiGianBatDau;
                 checkExists.ThoiGianKetThuc = request.ThoiGianKetThuc;
@@ -259,11 +259,10 @@ namespace TBSLogistics.Service.Services.ContractManage
             }
         }
 
-        public async Task<List<GetContractById>> GetListContractSelect(string MaKH, bool getChild)
+        public async Task<List<GetContractById>> GetListContractSelect(string MaKH, bool getChild, bool getProductService)
         {
             var getList = from ct in _TMSContext.HopDongVaPhuLuc
                           join kh in _TMSContext.KhachHang on ct.MaKh equals kh.MaKh
-                          where ct.MaHopDong != "SPDV_TBSL"
                           orderby ct.MaHopDong descending
                           select new { ct, kh };
 
@@ -275,6 +274,11 @@ namespace TBSLogistics.Service.Services.ContractManage
             if (getChild == false)
             {
                 getList = getList.Where(x => x.ct.MaHopDongCha == null);
+            }
+
+            if (getProductService == false)
+            {
+                getList = getList.Where(x => x.ct.MaHopDong != "SPDV_TBSL");
             }
 
             var list = await getList.Select(x => new GetContractById()

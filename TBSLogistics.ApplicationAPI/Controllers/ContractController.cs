@@ -87,9 +87,9 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<IActionResult> GetListContractSelect(string MaKH = null, bool getChild = true)
+        public async Task<IActionResult> GetListContractSelect(string MaKH = null, bool getChild = true, bool getProductService = false)
         {
-            var list = await _contract.GetListContractSelect(MaKH, getChild);
+            var list = await _contract.GetListContractSelect(MaKH, getChild, getProductService);
             return Ok(list);
         }
 

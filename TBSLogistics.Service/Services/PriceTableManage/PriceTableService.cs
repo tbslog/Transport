@@ -108,24 +108,24 @@ namespace TBSLogistics.Service.Repository.PricelistManage
                 }
 
 
-                foreach (var item in request)
-                {
-                    var checkPriceTable = await _context.BangGia.Where(x =>
-                    x.MaHopDong == item.MaHopDong &&
-                    x.MaPtvc == item.MaPtvc &&
-                    x.MaCungDuong == item.MaCungDuong &&
-                    x.MaLoaiPhuongTien == item.MaLoaiPhuongTien &&
-                    x.MaDvt == item.MaDvt &&
-                    x.MaLoaiHangHoa == item.MaLoaiHangHoa &&
-                    x.MaLoaiDoiTac == item.MaLoaiDoiTac
-                    ).FirstOrDefaultAsync();
+                //foreach (var item in request)
+                //{
+                //    var checkPriceTable = await _context.BangGia.Where(x =>
+                //    x.MaHopDong == item.MaHopDong &&
+                //    x.MaPtvc == item.MaPtvc &&
+                //    x.MaCungDuong == item.MaCungDuong &&
+                //    x.MaLoaiPhuongTien == item.MaLoaiPhuongTien &&
+                //    x.MaDvt == item.MaDvt &&
+                //    x.MaLoaiHangHoa == item.MaLoaiHangHoa &&
+                //    x.MaLoaiDoiTac == item.MaLoaiDoiTac
+                //    ).FirstOrDefaultAsync();
 
-                    if (checkPriceTable != null)
-                    {
-                        checkPriceTable.TrangThai = 2;
-                        _context.BangGia.Update(checkPriceTable);
-                    }
-                }
+                //    if (checkPriceTable != null)
+                //    {
+                //        checkPriceTable.TrangThai = 2;
+                //        _context.BangGia.Update(checkPriceTable);
+                //    }
+                //}
 
                 await _context.BangGia.AddRangeAsync(request.Select(x => new BangGia
                 {
@@ -543,9 +543,26 @@ namespace TBSLogistics.Service.Repository.PricelistManage
                     return new BoolActionResult { isSuccess = false, Message = checkValid };
                 }
 
+
                 if (findById.TrangThai != 3)
                 {
                     return new BoolActionResult { isSuccess = false, Message = "Không thể chỉnh sửa bảng giá này nữa" };
+                }
+
+                var checkPriceTable = await _context.BangGia.Where(x =>
+                   x.MaHopDong == request.MaHopDong &&
+                   x.DonGia == request.DonGia &&
+                   x.MaPtvc == request.MaPTVC &&
+                   x.MaCungDuong == request.MaCungDuong &&
+                   x.MaLoaiPhuongTien == request.MaLoaiPhuongTien &&
+                   x.MaDvt == request.MaDVT &&
+                   x.MaLoaiHangHoa == request.MaLoaiHangHoa &&
+                   x.TrangThai == 4
+                   ).FirstOrDefaultAsync();
+
+                if (checkPriceTable != null)
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Dữ liệu muốn cập nhật đã tồn tại và đang được áp dụng" };
                 }
 
                 findById.MaHopDong = request.MaHopDong;

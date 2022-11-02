@@ -5,11 +5,9 @@ using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Xml.Linq;
 using TBSLogistics.Data.TMS;
 using TBSLogistics.Model.CommonModel;
 using TBSLogistics.Model.Filter;
-using TBSLogistics.Model.Model.RomoocModel;
 using TBSLogistics.Model.Model.SubFeePriceModel;
 using TBSLogistics.Model.TempModel;
 using TBSLogistics.Model.Wrappers;
@@ -28,23 +26,18 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
             _context = context;
         }
 
-
         public async Task<BoolActionResult> CreateSubFeePrice(CreateSubFeePriceRequest request)
         {
             try
             {
                 var checkExists = await _context.SubFeePrice.Where(x => x.SfId == request.SfId && x.ContractId == request.ContractId && x.GoodsType == request.GoodsType
-                   && x.FirstPlace == request.FirstPlace && x.SecondPlace == request.SecondPlace && x.SfStateByContract == 1).FirstOrDefaultAsync();
+                   && x.FirstPlace == request.FirstPlace && x.SecondPlace == request.SecondPlace && x.UnitPrice == request.UnitPrice).FirstOrDefaultAsync();
 
                 if (checkExists != null)
                 {
                     return new BoolActionResult { isSuccess = false, Message = "Phụ phí đã tồn tại!" };
                 }
-                if (request.SfId.ToString() == "")
-                {
-                    return new BoolActionResult { isSuccess = false, Message = "Mã phụ phí không tồn tại!" };
-                }
-                if (request.UnitPrice <= 0)
+                if (request.UnitPrice < 0)
                 {
                     return new BoolActionResult { isSuccess = false, Message = "Đơn giá phải lớn hơn 0" };
                 }
@@ -56,10 +49,13 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
                     FirstPlace = request.FirstPlace,
                     SecondPlace = request.SecondPlace,
                     UnitPrice = request.UnitPrice,
-                    SfStateByContract = request.SfStateByContract,
+                    SfStateByContract = 2,
+                    Status = 13,
                     Description = request.Description,
                     Creator = "admin",
-                    Approver = ""
+                    Approver = "",
+                    CreatedDate = DateTime.Now,
+                    UpdatedDate = DateTime.Now
                 });
 
                 var result = await _context.SaveChangesAsync();
@@ -75,7 +71,6 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
                 {
                     return new BoolActionResult { isSuccess = false, Message = "Tạo mới phụ phí thất bại" };
                 }
-
             }
             catch (Exception ex)
             {
@@ -89,21 +84,25 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
             try
             {
                 var getSubFeePrice = await _context.SubFeePrice.Where(x => x.PriceId == id).FirstOrDefaultAsync();
+
                 if (getSubFeePrice == null)
                 {
                     return new BoolActionResult { isSuccess = false, Message = "Phụ phí không tồn tại" };
                 }
 
-                var checkSFP = await _context.SubFeePrice.Where(x => x.ContractId == request.ContractId && x.SfId == request.SfId &&
-                x.GoodsType == request.GoodsType && x.FirstPlace == request.FirstPlace && x.SecondPlace == request.SecondPlace).FirstOrDefaultAsync();
-                if (checkSFP != null && checkSFP.PriceId != id && checkSFP.SfStateByContract == 1)
+                if (getSubFeePrice.Status != 13)
                 {
-                    return new BoolActionResult { isSuccess = false, Message = "Đã tồn tại thông tin phụ phí cập nhật" };
+                    return new BoolActionResult { isSuccess = false, Message = "Không thể chỉnh sửa phụ phí này nữa" };
                 }
 
-                if (getSubFeePrice.SfStateByContract == 2)
+                var checkExists = await _context.SubFeePrice.Where(x => x.ContractId == request.ContractId && x.SfId == request.SfId
+                && x.GoodsType == request.GoodsType && x.FirstPlace == request.FirstPlace && x.SecondPlace == request.SecondPlace
+                && x.UnitPrice == request.UnitPrice && x.Status == 14
+                ).FirstOrDefaultAsync();
+
+                if (checkExists != null)
                 {
-                    return new BoolActionResult { isSuccess = false, Message = "Không được phép thay đổi thông tin đã phê duyệt" };
+                    return new BoolActionResult { isSuccess = false, Message = "Phụ phí đã tồn tại" };
                 }
 
                 getSubFeePrice.ContractId = request.ContractId;
@@ -113,6 +112,7 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
                 getSubFeePrice.SecondPlace = request.SecondPlace;
                 getSubFeePrice.UnitPrice = request.UnitPrice;
                 getSubFeePrice.Description = request.Description;
+                getSubFeePrice.UpdatedDate = DateTime.Now;
 
                 _context.Update(getSubFeePrice);
 
@@ -120,7 +120,7 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
 
                 if (result > 0)
                 {
-                    await _common.Log("SubFeePriceManage", "UserId: " + TempData.UserID + " edit SubFeePrice with id: " + request.PriceId);
+                    await _common.Log("SubFeePriceManage", "UserId: " + TempData.UserID + " edit SubFeePrice with id: " + id);
                     return new BoolActionResult { isSuccess = true, Message = "Cập nhật phụ phí thành công" };
                 }
                 else
@@ -135,85 +135,74 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
             }
         }
 
-        public async Task<BoolActionResult> ApproveSubFeePrice(long[] ids, string HDPL)
+        public async Task<BoolActionResult> ApproveSubFeePrice(List<ApproveSubFee> request)
         {
             try
             {
-                if ((ids.Length == 0 && HDPL == null) || (ids.Length > 0 && HDPL != null))
+                if (request.Count < 1)
                 {
                     return new BoolActionResult { isSuccess = false, Message = "Input không hợp lệ" };
                 }
 
-                List<long> ListIdError = new List<long>(); //danh sach cac ID khong duoc cap nhat hoac khong ton tai
+                var Errors = "";
 
-                if (ids.Length > 0)
+                int line = 0;
+
+                foreach (var item in request)
                 {
-                    foreach (long id in ids)
-                    {
-                        var GetSFPById = await _context.SubFeePrice.Where(x => x.PriceId == id).FirstOrDefaultAsync();
-                        if (GetSFPById == null || GetSFPById.SfStateByContract == 0 || GetSFPById.SfStateByContract == 2 || GetSFPById.SfStateByContract == 3)
-                        {
-                            ListIdError.Add(id);
-                        }
-                        else
-                        {
-                            GetSFPById.SfStateByContract = 2;
-                            GetSFPById.Approver = "admin";
-                            GetSFPById.ApprovedDate = DateTime.Now;
-                            _context.Update(GetSFPById);
-                            await _context.SaveChangesAsync();
-                        }
-                    }
-                    if (ListIdError.Count > 0)
-                    {
-                        return new BoolActionResult { isSuccess = false, Message = "Danh sách các ID không được phê duyệt hoặc không tồn tại: " + PrintListIDs(ListIdError) };
-                    }
-                    else
-                    {
-                        await _common.Log("SubFeePriceManage", "UserId: " + TempData.UserID + " approve SubFeePrice with ids: " + ids);
-                        return new BoolActionResult { isSuccess = true, Message = "Phê duyệt thành công" };
-                    }
-                }
-                else
-                {
-                    //Lay cac phu phi chua phe duyet theo hop dong
-                    var SFPbyHDPL = await _context.SubFeePrice.Where(x => x.ContractId == HDPL && x.SfStateByContract == 1).ToListAsync();
+                    line += 1;
+                    var getById = await _context.SubFeePrice.Where(x => x.PriceId == item.SubFeePriceId).FirstOrDefaultAsync();
 
-                    if (SFPbyHDPL.Count == 0)
+                    if (getById == null)
                     {
-                        return new BoolActionResult { isSuccess = false, Message = "Không có phụ phí nào cần phê duyệt" };
+                        Errors += "Mã  phụ phí: " + item.SubFeePriceId + ", không tồn tại trong hệ thống";
+                        continue;
                     }
 
-                    foreach (SubFeePrice sfp in SFPbyHDPL)
+                    if (item.Selection == 1)
                     {
-                        var checkExists = await _context.SubFeePrice.Where(x => x.SfId == sfp.SfId && x.ContractId == sfp.ContractId && x.GoodsType == sfp.GoodsType
-                       && x.FirstPlace == sfp.FirstPlace && x.SecondPlace == sfp.SecondPlace && x.SfStateByContract == 2).FirstOrDefaultAsync();
+                        getById.Status = 15;
+                        _context.Update(getById);
+                    }
+
+                    if (item.Selection == 0)
+                    {
+                        var getContract = await _context.HopDongVaPhuLuc.Where(x => x.MaHopDong == getById.ContractId).FirstOrDefaultAsync();
+                        var getNewestContract = await _context.HopDongVaPhuLuc.Where(x => x.MaKh == getContract.MaKh).OrderByDescending(x => x.ThoiGianBatDau).FirstOrDefaultAsync();
+
+                        if (getNewestContract.MaHopDong != getById.ContractId)
+                        {
+                            Errors += "Mã  phụ phí: " + item.SubFeePriceId + ", không sử dụng Hợp Đồng/Phụ Lục mới nhất, Vui lòng chọn lại Hợp Đồng/Phụ Lục mới nhất \r\n";
+                            continue;
+                        }
+
+                        var checkExists = await _context.SubFeePrice.Where(x => x.ContractId == getById.ContractId && x.SfId == getById.SfId
+                         && x.GoodsType == getById.GoodsType && x.FirstPlace == getById.FirstPlace && x.SecondPlace == getById.SecondPlace
+                         && x.Status == 14).FirstOrDefaultAsync();
 
                         if (checkExists != null)
                         {
-                            ListIdError.Append(checkExists.PriceId);
-                            checkExists.SfStateByContract = 0;
+                            checkExists.Status = 12;
                             checkExists.DeactiveDate = DateTime.Now;
                             _context.Update(checkExists);
-                            await _context.SaveChangesAsync();
                         }
 
-                        sfp.SfStateByContract = 2;
-                        sfp.Approver = "admin";
-                        sfp.ApprovedDate = DateTime.Now;
-                        _context.Update(sfp);
-                        await _context.SaveChangesAsync();
+                        getById.ApprovedDate = DateTime.Now;
+                        getById.Approver = "haile";
+                        getById.Status = 14;
+                        _context.Update(getById);
                     }
+                }
 
-                    //if (ListIdError.Length == 0)
-                    //{
-                    //    return new BoolActionResult { isSuccess = true, Message = "Cập nhật tất cả phụ phí của hợp đồng " + HDPL + " thành công" };
-                    //}
-                    //else
-                    //{
-                    //    return new BoolActionResult { isSuccess = true, Message = "Cập nhật " };
-                    //}
-                    return new BoolActionResult { isSuccess = true, Message = "Phê duyệt tất cả phụ phí của hợp đồng " + HDPL + " thành công" };
+                var result = await _context.SaveChangesAsync();
+
+                if (result > 0)
+                {
+                    return new BoolActionResult { isSuccess = true, Message = Errors == "" ? "Duyệt phụ phí thành công!" : Errors };
+                }
+                else
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Duyệt phụ phí thất bại!," + Errors };
                 }
             }
             catch (Exception ex)
@@ -223,76 +212,47 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
             }
         }
 
-        private string PrintListIDs(List<long> ids)
-        {
-            string StringResult = "";
-            for (int i = 0; i < ids.Count; i++)
-            {
-                if (i == ids.Count - 1)
-                {
-                    StringResult = StringResult + ids[i].ToString();
-                }
-                else StringResult = StringResult + ids[i].ToString() + ", ";
-            }
-            return StringResult;
-        }
-
-        public async Task<BoolActionResult> DisableSubFeePrice(long[] ids, string HDPL)
+        public async Task<BoolActionResult> DisableSubFeePrice(List<long> ids)
         {
             try
             {
-                if ((ids.Length == 0 && HDPL == null) || (ids.Length > 0 && HDPL != null))
+                if (ids.Count < 1)
                 {
                     return new BoolActionResult { isSuccess = false, Message = "Input không hợp lệ" };
                 }
 
-                List<long> ListIdError = new List<long>(); //danh sach cac ID khong duoc cap nhat hoac khong ton tai
+                string errors = "";
 
-                if (ids.Length > 0)
+                foreach (var item in ids)
                 {
-                    foreach (long id in ids)
+                    var checkExists = await _context.SubFeePrice.Where(x => x.PriceId == item).FirstOrDefaultAsync();
+
+                    if (checkExists == null)
                     {
-                        var GetSFPById = await _context.SubFeePrice.Where(x => x.PriceId == id).FirstOrDefaultAsync();
-                        if (GetSFPById == null || GetSFPById.SfStateByContract == 0 || GetSFPById.SfStateByContract == 3)
-                        {
-                            ListIdError.Add(id);
-                        }
-                        else
-                        {
-                            GetSFPById.SfStateByContract = 0;
-                            GetSFPById.DeactiveDate = DateTime.Now;
-                            _context.Update(GetSFPById);
-                            await _context.SaveChangesAsync();
-                        }
+                        errors += "Mã phụ phí:" + item + ", không tồn tại trong hệ thống \r\n";
+                        continue;
                     }
-                    if (ListIdError.Count > 0)
+
+                    if (checkExists.Status != 14)
                     {
-                        return new BoolActionResult { isSuccess = false, Message = "Danh sách các ID không được cập nhật hoặc không tồn tại: " + PrintListIDs(ListIdError) };
+                        errors += "Mã phụ phí:" + item + ", không được áp dụng \r\n";
+                        continue;
                     }
-                    else
-                    {
-                        await _common.Log("SubFeePriceManage", "UserId: " + TempData.UserID + "disable SubFeePrice with ids: " + ids);
-                        return new BoolActionResult { isSuccess = true, Message = "Vô hiệu hóa phụ phí thành công" };
-                    }
+
+                    checkExists.Status = 12;
+                    _context.Update(checkExists);
+                }
+
+                var result = await _context.SaveChangesAsync();
+
+                if (result > 0)
+                {
+                    return new BoolActionResult { isSuccess = true, Message = errors == "" ? "Vô hiệu phụ phí thành công!" : errors };
                 }
                 else
                 {
-                    //Lay cac phu phi co the vo hieu hoa theo hop dong
-                    var SFPbyHDPL = await _context.SubFeePrice.Where(x => x.ContractId == HDPL && (x.SfStateByContract == 1 || x.SfStateByContract == 2)).ToListAsync();
 
-                    if (SFPbyHDPL.Count == 0)
-                    {
-                        return new BoolActionResult { isSuccess = false, Message = "Không có phụ phí nào có thể vô hiệu hóa" };
-                    }
-
-                    foreach (SubFeePrice sfp in SFPbyHDPL)
-                    {
-                        sfp.SfStateByContract = 0;
-                        sfp.DeactiveDate = DateTime.Now;
-                        _context.Update(sfp);
-                        await _context.SaveChangesAsync();
-                    }
-                    return new BoolActionResult { isSuccess = true, Message = "Vô hiệu hóa tất cả phụ phí của hợp đồng " + HDPL + " thành công" };
+                    return new BoolActionResult { isSuccess = false, Message = "Vô hiệu hóa phụ phí thất bại" + errors };
                 }
             }
             catch (Exception ex)
@@ -302,60 +262,47 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
             }
         }
 
-        public async Task<BoolActionResult> DeleteSubFeePrice(long[] ids, string HDPL)
+        public async Task<BoolActionResult> DeleteSubFeePrice(List<long> ids)
         {
             try
             {
-                if ((ids.Length == 0 && HDPL == null) || (ids.Length > 0 && HDPL != null))
+                if (ids.Count < 1)
                 {
                     return new BoolActionResult { isSuccess = false, Message = "Input không hợp lệ" };
                 }
 
-                List<long> ListIdError = new List<long>(); //danh sach cac ID khong duoc cap nhat hoac khong ton tai
+                string errors = "";
 
-                if (ids.Length > 0)
+                foreach (var item in ids)
                 {
-                    foreach (long id in ids)
+                    var checkExists = await _context.SubFeePrice.Where(x => x.PriceId == item).FirstOrDefaultAsync();
+
+                    if (checkExists == null)
                     {
-                        var GetSFPById = await _context.SubFeePrice.Where(x => x.PriceId == id).FirstOrDefaultAsync();
-                        if (GetSFPById == null || GetSFPById.SfStateByContract != 1)
-                        {
-                            ListIdError.Add(id);
-                        }
-                        else
-                        {
-                            GetSFPById.SfStateByContract = 3;
-                            _context.Update(GetSFPById);
-                            await _context.SaveChangesAsync();
-                        }
+                        errors += "Mã phụ phí:" + item + ", không tồn tại trong hệ thống \r\n";
+                        continue;
                     }
-                    if (ListIdError.Count > 0)
+
+                    if (checkExists.Status != 12)
                     {
-                        return new BoolActionResult { isSuccess = false, Message = "Danh sách các ID không được cập nhật hoặc không tồn tại: " + PrintListIDs(ListIdError) };
+                        errors += "Mã phụ phí:" + item + ", không thể xóa \r\n";
+                        continue;
                     }
-                    else
-                    {
-                        await _common.Log("SubFeePriceManage", "UserId: " + TempData.UserID + "delete SubFeePrice with ids: " + ids);
-                        return new BoolActionResult { isSuccess = true, Message = "Xóa phụ phí thành công" };
-                    }
+
+                    checkExists.Status = 16;
+                    _context.Update(checkExists);
+                }
+
+                var result = await _context.SaveChangesAsync();
+
+                if (result > 0)
+                {
+                    return new BoolActionResult { isSuccess = true, Message = errors == "" ? "Xóa phụ phí thành công!" : errors };
                 }
                 else
                 {
-                    //Lay cac phu phi co the xoa theo hop dong
-                    var SFPbyHDPL = await _context.SubFeePrice.Where(x => x.ContractId == HDPL && x.SfStateByContract == 1).ToListAsync();
 
-                    if (SFPbyHDPL.Count == 0)
-                    {
-                        return new BoolActionResult { isSuccess = false, Message = "Không có phụ phí nào của hợp đồng " + HDPL + " có thể xóa" };
-                    }
-
-                    foreach (SubFeePrice sfp in SFPbyHDPL)
-                    {
-                        sfp.SfStateByContract = 0;
-                        _context.Update(sfp);
-                        await _context.SaveChangesAsync();
-                    }
-                    return new BoolActionResult { isSuccess = true, Message = "Xóa tất cả phụ phí của hợp đồng " + HDPL + " thành công" };
+                    return new BoolActionResult { isSuccess = false, Message = "Xóa hóa phụ phí thất bại" + errors };
                 }
             }
             catch (Exception ex)
@@ -367,23 +314,35 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
 
         public async Task<GetSubFeePriceRequest> GetSubFeePriceById(long id)
         {
+            var getById = from sf in _context.SubFee
+                          join sfp in _context.SubFeePrice
+                          on sf.SubFeeId equals sfp.SfId
+                          join hd in _context.HopDongVaPhuLuc
+                          on sfp.ContractId equals hd.MaHopDong
+                          join kh in _context.KhachHang
+                          on hd.MaKh equals kh.MaKh
+                          where sfp.PriceId == id
+                          select new { sf, sfp, hd, kh };
+
+
             try
             {
-                var getSFP = await _context.SubFeePrice.Where(x => x.PriceId == id).Select(x => new GetSubFeePriceRequest()
+                var getSFP = await getById.Select(x => new GetSubFeePriceRequest()
                 {
-                    PriceId = x.PriceId,
-                    ContractId = x.ContractId,
-                    SfId = x.SfId,
-                    GoodsType = x.GoodsType,
-                    FirstPlace = x.FirstPlace,
-                    SecondPlace = x.SecondPlace,
-                    UnitPrice = x.UnitPrice,
-                    SfStateByContract = x.SfStateByContract,
-                    Description = x.Description,
-                    Approver = x.Approver,
-                    Creator = x.Creator,
-                    ApprovedDate = x.ApprovedDate,
-                    DeactiveDate = x.DeactiveDate
+                    PriceId = x.sfp.PriceId,
+                    CustomerType = x.kh.MaLoaiKh,
+                    CustomerId = x.kh.MaKh,
+                    ContractId = x.sfp.ContractId,
+                    SfId = x.sfp.SfId,
+                    GoodsType = x.sfp.GoodsType,
+                    FirstPlace = x.sfp.FirstPlace,
+                    SecondPlace = x.sfp.SecondPlace,
+                    UnitPrice = x.sfp.UnitPrice,
+                    Description = x.sfp.Description,
+                    Approver = x.sfp.Approver,
+                    Creator = x.sfp.Creator,
+                    ApprovedDate = x.sfp.ApprovedDate,
+                    DeactiveDate = x.sfp.DeactiveDate
                 }).FirstOrDefaultAsync();
 
                 return getSFP;
@@ -456,6 +415,11 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
                 {
                     getList = getList.Where(x => x.sfp.Status == int.Parse(filter.statusId));
                 }
+                else
+                {
+                    getList = getList.Where(x => x.sfp.Status != 16 && x.sfp.Status != 15);
+                }
+
 
                 var totalCount = await getList.CountAsync();
 

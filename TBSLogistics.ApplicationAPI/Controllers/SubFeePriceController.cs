@@ -60,9 +60,9 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpPost]
         [Route("[action]")]
-        public async Task<IActionResult> ApproveSubFeePrice(long[] ids, string HDPL)
+        public async Task<IActionResult> ApproveSubFeePrice(List<ApproveSubFee> request)
         {
-            var ApproveSubFeePrice = await _subFeePrice.ApproveSubFeePrice(ids, HDPL);
+            var ApproveSubFeePrice = await _subFeePrice.ApproveSubFeePrice(request);
 
             if (ApproveSubFeePrice.isSuccess == true)
             {
@@ -103,9 +103,9 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpPost]
         [Route("[action]")]
-        public async Task<IActionResult> DisableSubFeePrice(long[] ids, string HDPL)
+        public async Task<IActionResult> DisableSubFeePrice(List<long> ids)
         {
-            var DisableSubFeePrice = await _subFeePrice.DisableSubFeePrice(ids, HDPL);
+            var DisableSubFeePrice = await _subFeePrice.DisableSubFeePrice(ids);
 
             if (DisableSubFeePrice.isSuccess == true)
             {
@@ -119,9 +119,9 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpPost]
         [Route("[action]")]
-        public async Task<IActionResult> DeleteSubFeePrice(long[] ids, string HDPL)
+        public async Task<IActionResult> DeleteSubFeePrice(List<long> ids)
         {
-            var DeleteSubFeePrice = await _subFeePrice.DeleteSubFeePrice(ids, HDPL);
+            var DeleteSubFeePrice = await _subFeePrice.DeleteSubFeePrice(ids);
 
             if (DeleteSubFeePrice.isSuccess == true)
             {
