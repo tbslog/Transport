@@ -67,22 +67,6 @@ const Header = () => {
                 );
               })}
           </ul>
-          {/* SEARCH FORM */}
-          {/* <form className="form-inline ml-0 ml-md-3">
-            <div className="input-group input-group-sm">
-              <input
-                className="form-control form-control-navbar"
-                type="search"
-                placeholder="Search"
-                aria-label="Search"
-              />
-              <div className="input-group-append">
-                <button className="btn btn-navbar" type="submit">
-                  <i className="fas fa-search" />
-                </button>
-              </div>
-            </div>
-          </form> */}
         </div>
         {/* Right navbar links */}
         <ul className="order-1 order-md-3 navbar-nav navbar-no-expand ml-auto">
@@ -181,17 +165,6 @@ const Header = () => {
               </li>
             </ul>
           </li>
-          {/* <li className="nav-item">
-            <a
-              className="nav-link"
-              data-widget="control-sidebar"
-              data-slide="true"
-              href="#"
-              role="button"
-            >
-              <i className="fas fa-th-large" />
-            </a>
-          </li> */}
         </ul>
       </div>
     </nav>

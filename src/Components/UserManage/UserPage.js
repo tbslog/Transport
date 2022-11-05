@@ -1,15 +1,15 @@
-import { useMemo, useState, useEffect, useCallback, useRef } from "react";
-import { getData, postData } from "../Common/FuncAxios";
+import { useMemo, useState, useEffect, useRef } from "react";
+import { getData, getDataCustom, postData } from "../Common/FuncAxios";
 import DataTable from "react-data-table-component";
 import moment from "moment";
 import { Modal } from "bootstrap";
 import DatePicker from "react-datepicker";
-import UpdatePriceTable from "./UpdatePriceTable";
 import ConfirmDialog from "../Common/Dialog/ConfirmDialog";
 import { ToastError } from "../Common/FuncToast";
+import CreateUser from "./CreateUser";
+import UpdateUser from "./UpdateUser";
 
-const ApprovePriceTable = (props) => {
-  const { getDataApprove } = props;
+const UserPage = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [totalRows, setTotalRows] = useState(0);
@@ -22,20 +22,20 @@ const ApprovePriceTable = (props) => {
 
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
-
-  const [selectedRows, setSelectedRows] = useState([]);
   const [toggledClearRows, setToggleClearRows] = useState(false);
+  const [selectedRows, setSelectedRows] = useState([]);
   const [selectIdClick, setSelectIdClick] = useState({});
+  const [listStatus, setListStatus] = useState([]);
+  const [status, setStatus] = useState();
 
-  const [isAccept, setIsAccept] = useState();
   const [ShowConfirm, setShowConfirm] = useState(false);
+  const [functionSubmit, setFunctionSubmit] = useState("");
 
   const columns = useMemo(() => [
     {
       cell: (val) => (
         <button
-          title="Cập nhật"
-          onClick={() => handleEditButtonClick(val, SetShowModal("Edit"))}
+          onClick={() => handleEditButtonClick(val, SetShowModal("UpdateUser"))}
           type="button"
           className="btn btn-sm btn-default"
         >
@@ -47,59 +47,48 @@ const ApprovePriceTable = (props) => {
       button: true,
     },
     {
-      omit: true,
-      name: "Id",
+      name: "id",
       selector: (row) => row.id,
+      omit: true,
     },
     {
-      name: "Phân Loại Đối Tác",
-      selector: (row) => row.maLoaiDoiTac,
-    },
-    {
-      name: "Tên khách hàng",
-      selector: (row) => row.tenKh,
-    },
-    {
-      name: "Mã Hợp Đồng",
-      selector: (row) => row.maHopDong,
+      name: "Tài Khoản",
+      selector: (row) => row.userName,
       sortable: true,
     },
     {
-      name: "Tên Hợp Đồng",
-      selector: (row) => row.tenHopDong,
+      name: "Họ Và Tên",
+      selector: (row) => row.hoVaTen,
+      sortable: true,
     },
     {
-      name: "Đơn Giá",
-      selector: (row) =>
-        row.donGia.toLocaleString("vi-VI", {
-          style: "currency",
-          currency: "VND",
-        }),
+      name: "Mã Nhân Viên",
+      selector: (row) => row.maNhanVien,
     },
     {
-      name: "Tên Cung Đường",
-      selector: (row) => row.tenCungDuong,
+      name: "Bộ Phận",
+      selector: (row) => row.maBoPhan,
     },
     {
-      name: "Phương Tiện Vận Tải",
-      selector: (row) => row.maLoaiPhuongTien,
+      name: "Phân Quyền",
+      selector: (row) => row.roleId,
     },
     {
-      name: "PTVC",
-      selector: (row) => row.ptvc,
+      name: "Trạng Thái",
+      selector: (row) => row.trangThai,
     },
     {
-      name: "Loại Hàng Hóa",
-      selector: (row) => row.maLoaiHangHoa,
+      name: "Người Tạo",
+      selector: (row) => row.nguoiTao,
     },
     {
-      name: "Thời gian Hạn",
-      selector: (row) => row.ngayHetHieuLuc,
+      name: "Thời Cập Nhật",
+      selector: (row) => moment(row.updatedTime).format("DD-MM-YYYY HH:mm:ss"),
       sortable: true,
     },
     {
       name: "Thời gian Tạo",
-      selector: (row) => row.thoiGianTao,
+      selector: (row) => moment(row.createdTime).format("DD-MM-YYYY HH:mm:ss"),
       sortable: true,
     },
   ]);
@@ -117,72 +106,28 @@ const ApprovePriceTable = (props) => {
     modal.hide();
   };
 
-  useEffect(() => {
-    setLoading(true);
-    (async () => {
-      var list = await getDataApprove();
-      setData(list.data);
-      setLoading(false);
-    })();
-  }, [props]);
+  const handleEditButtonClick = async (val) => {
+    var getUser = await getData(`User/GetUser?id=${val.id}`);
+    if (getUser && Object.keys(getUser).length > 0) {
+      setSelectIdClick(getUser);
+      showModalForm();
+    }
+  };
 
   const handleChange = (state) => {
     setSelectedRows(state.selectedRows);
   };
-
-  const handleEditButtonClick = async (val) => {
-    const getdata = await getData(`PriceTable/GetPriceTableById?id=${val.id}`);
-    setSelectIdClick(getdata);
-    showModalForm();
-  };
-
-  const AcceptPriceTable = async (isAccept) => {
-    if (
-      selectedRows &&
-      selectedRows.length > 0 &&
-      Object.keys(selectedRows).length > 0
-    ) {
-      let arr = [];
-      selectedRows.map((val) => {
-        arr.push({
-          Id: val.id,
-          IsAgree: isAccept,
-        });
-      });
-
-      const SetApprove = await postData(`PriceTable/ApprovePriceTable`, {
-        result: arr,
-      });
-
-      if (SetApprove === 1) {
-        fetchData(1);
-      }
-      setSelectedRows([]);
-      handleClearRows();
-      setShowConfirm(false);
-    }
-  };
-
-  const funcAgree = () => {
-    if (selectedRows && selectedRows.length > 0) {
-      AcceptPriceTable(isAccept);
-    }
-  };
-
-  const ShowConfirmDialog = () => {
-    if (selectedRows.length < 1) {
-      ToastError("Vui lòng chọn bảng giá để duyệt");
-      return;
-    } else {
-      setShowConfirm(true);
-    }
-  };
-
   const handleClearRows = () => {
     setToggleClearRows(!toggledClearRows);
   };
 
-  const fetchData = async (page, KeyWord = "", fromDate = "", toDate = "") => {
+  const fetchData = async (
+    page,
+    KeyWord = "",
+    fromDate = "",
+    toDate = "",
+    status = ""
+  ) => {
     setLoading(true);
 
     if (KeyWord !== "") {
@@ -191,9 +136,10 @@ const ApprovePriceTable = (props) => {
     fromDate = fromDate === "" ? "" : moment(fromDate).format("YYYY-MM-DD");
     toDate = toDate === "" ? "" : moment(toDate).format("YYYY-MM-DD");
     const dataCus = await getData(
-      `PriceTable/GetListPriceTableApprove?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}&fromDate=${fromDate}&toDate=${toDate}`
+      `User/GetListUser?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}&fromDate=${fromDate}&toDate=${toDate}&statusId=${status}`
     );
-    setData(dataCus.data);
+
+    formatTable(dataCus.data);
     setTotalRows(dataCus.totalRecords);
     setLoading(false);
   };
@@ -206,15 +152,73 @@ const ApprovePriceTable = (props) => {
     setLoading(true);
 
     const dataCus = await getData(
-      `PriceTable/GetListPriceTableApprove?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}&fromDate=${fromDate}&toDate=${toDate}`
+      `User/GetListUser?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}&fromDate=${fromDate}&toDate=${toDate}&statusId=${status}`
     );
     setPerPage(newPerPage);
+    formatTable(dataCus.data);
     setTotalRows(dataCus.totalRecords);
     setLoading(false);
   };
 
+  const funcAgree = () => {
+    if (functionSubmit && functionSubmit.length > 0) {
+      switch (functionSubmit) {
+        case "Disable":
+          return BlockUser();
+        case "Delete":
+          return DeleteUser();
+      }
+    }
+  };
+
+  const BlockUser = () => {};
+  const DeleteUser = () => {};
+
+  useEffect(() => {
+    setLoading(true);
+    (async () => {
+      let getStatusList = await getDataCustom(`Common/GetListStatus`, [
+        "Common",
+      ]);
+      setListStatus(getStatusList);
+    })();
+
+    fetchData(1);
+    setLoading(false);
+  }, []);
+
+  function formatTable(data) {
+    data.map((val) => {
+      !val.createdTime
+        ? (val.createdTime = "")
+        : (val.createdTime = moment(val.createdTime).format("DD/MM/YYYY"));
+
+      !val.updatedTime
+        ? (val.updatedTime = "")
+        : (val.updatedTime = moment(val.updatedTime).format("DD/MM/YYYY"));
+    });
+
+    setData(data);
+  }
+
+  const ShowConfirmDialog = () => {
+    if (selectedRows.length < 1) {
+      ToastError("Vui lòng chọn người dùng trước đã");
+      return;
+    } else {
+      setShowConfirm(true);
+    }
+  };
+
   const handleSearchClick = () => {
-    fetchData(1, keySearch, fromDate, toDate);
+    fetchData(1, keySearch, fromDate, toDate, status);
+  };
+
+  const handleOnChangeStatus = (value) => {
+    setLoading(true);
+    setStatus(value);
+    fetchData(1, keySearch, fromDate, toDate, value);
+    setLoading(false);
   };
 
   const handleRefeshDataClick = () => {
@@ -227,6 +231,24 @@ const ApprovePriceTable = (props) => {
 
   return (
     <>
+      <section className="content-header">
+        <div className="container-fluid">
+          <div className="row mb-2">
+            <div className="col-sm-6">
+              <h1>Quản Lý Người Dùng</h1>
+            </div>
+            {/* <div className="col-sm-6">
+                  <ol className="breadcrumb float-sm-right">
+                    <li className="breadcrumb-item">
+                      <a href="#">Home</a>
+                    </li>
+                    <li className="breadcrumb-item active">Blank Page</li>
+                  </ol>
+                </div> */}
+          </div>
+        </div>
+      </section>
+
       <section className="content">
         <div className="card">
           <div className="card-header">
@@ -234,76 +256,75 @@ const ApprovePriceTable = (props) => {
               <div className="row">
                 <div className="col col-sm">
                   <button
+                    title="Thêm mới"
                     type="button"
-                    className="btn btn-sm btn-default"
-                    onClick={() => {
-                      setIsAccept(0);
-                      ShowConfirmDialog();
-                    }}
+                    className="btn btn-sm btn-default mx-1"
+                    onClick={() =>
+                      showModalForm(
+                        SetShowModal("Create"),
+                        setSelectIdClick({})
+                      )
+                    }
                   >
-                    <i className="fas fa-thumbs-up"></i>
+                    <i className="fas fa-plus-circle"></i>
                   </button>
-
                   <button
+                    title="Create Role"
                     type="button"
-                    className="btn btn-sm btn-default mx-4"
+                    className="btn btn-sm btn-default mx-1"
+                    onClick={() =>
+                      showModalForm(
+                        SetShowModal("CreateRole"),
+                        setSelectIdClick({})
+                      )
+                    }
+                  >
+                    <i className="fas fa-user-tag"></i>
+                  </button>
+                  <button
+                    title="Block User"
+                    type="button"
+                    className="btn btn-sm btn-default mx-1"
                     onClick={() => {
-                      setIsAccept(1);
+                      setFunctionSubmit("Disable");
                       ShowConfirmDialog();
                     }}
                   >
-                    <i className="fas fa-thumbs-down"></i>
+                    <i className="fas fa-eye-slash"></i>
+                  </button>
+                  <button
+                    title="Delete User"
+                    type="button"
+                    className="btn btn-sm btn-default mx-1"
+                    onClick={() => {
+                      setFunctionSubmit("Delete");
+                      ShowConfirmDialog();
+                    }}
+                  >
+                    <i className="fas fa-trash-alt"></i>
                   </button>
                 </div>
                 <div className="col col-sm">
                   <div className="row">
+                    <div className="col col-sm"></div>
                     <div className="col col-sm">
-                      {/* <div className="input-group input-group-sm">
+                      <div className="input-group input-group-sm">
                         <select
                           className="form-control form-control-sm"
-                          onChange={(e) =>
-                            handleOnChangeVehicleType(e.target.value)
-                          }
-                          value={vehicleType}
+                          onChange={(e) => handleOnChangeStatus(e.target.value)}
+                          value={status}
                         >
-                          <option value="">Phương tiện vận tải</option>
-                          {listVehicleType &&
-                            listVehicleType.map((val) => {
+                          <option value="">Tất Cả Trạng Thái</option>
+                          {listStatus &&
+                            listStatus.map((val) => {
                               return (
-                                <option
-                                  value={val.maLoaiPhuongTien}
-                                  key={val.maLoaiPhuongTien}
-                                >
-                                  {val.tenLoaiPhuongTien}
+                                <option value={val.statusId} key={val.statusId}>
+                                  {val.statusContent}
                                 </option>
                               );
                             })}
                         </select>
-                      </div> */}
-                    </div>
-                    <div className="col col-sm">
-                      {/* <div className="input-group input-group-sm">
-                        <select
-                          className="form-control form-control-sm"
-                          onChange={(e) =>
-                            handleOnChangeGoodsType(e.target.value)
-                          }
-                          value={goodsType}
-                        >
-                          <option value="">Loại Hàng Hóa</option>
-                          {listGoodsType &&
-                            listGoodsType.map((val) => {
-                              return (
-                                <option
-                                  value={val.maLoaiHangHoa}
-                                  key={val.maLoaiHangHoa}
-                                >
-                                  {val.tenLoaiHangHoa}
-                                </option>
-                              );
-                            })}
-                        </select>
-                      </div> */}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -367,50 +388,24 @@ const ApprovePriceTable = (props) => {
           <div className="card-body">
             <div className="container-datatable" style={{ height: "50vm" }}>
               <DataTable
-                title="Duyệt Bảng Giá"
+                title="Danh sách Phụ Phí"
                 columns={columns}
                 data={data}
                 progressPending={loading}
                 pagination
                 paginationServer
                 selectableRows
-                onSelectedRowsChange={handleChange}
                 clearSelectedRows={toggledClearRows}
                 paginationTotalRows={totalRows}
+                onSelectedRowsChange={handleChange}
                 onChangeRowsPerPage={handlePerRowsChange}
                 onChangePage={handlePageChange}
                 highlightOnHover
-                responsive
-                striped
               />
             </div>
           </div>
           <div className="card-footer">
-            <div className="row">
-              {/* <div className="col-sm-3">
-                <a
-                  title="Tải Template Excel"
-                  href={FileExcelImport}
-                  download="Template Thêm mới Khách hàng.xlsx"
-                  className="btn btn-sm btn-default mx-1"
-                >
-                  <i className="fas fa-download"></i>
-                </a>
-                <div className="upload-btn-wrapper">
-                  <button
-                    className="btn btn-sm btn-default mx-1"
-                    title="Upload file Excel"
-                  >
-                    <i className="fas fa-upload"></i>
-                  </button>
-                  <input
-                    type="file"
-                    name="myfile"
-                    onChange={(e) => handleExcelImportClick(e)}
-                  />
-                </div>
-              </div> */}
-            </div>
+            <div className="row"></div>
           </div>
         </div>
         <div
@@ -438,13 +433,18 @@ const ApprovePriceTable = (props) => {
                 </button>
               </div>
               <div className="modal-body">
-                {ShowModal === "Edit" && (
-                  <UpdatePriceTable
-                    selectIdClick={selectIdClick}
-                    hideModal={hideModal}
-                    refeshData={fetchData}
-                  />
-                )}
+                <>
+                  {ShowModal === "Create" && (
+                    <CreateUser getListUser={fetchData} />
+                  )}
+                  {ShowModal === "UpdateUser" && (
+                    <UpdateUser
+                      getListUser={fetchData}
+                      selectIdClick={selectIdClick}
+                      hideModal={hideModal}
+                    />
+                  )}
+                </>
               </div>
             </div>
           </div>
@@ -464,4 +464,4 @@ const ApprovePriceTable = (props) => {
   );
 };
 
-export default ApprovePriceTable;
+export default UserPage;
