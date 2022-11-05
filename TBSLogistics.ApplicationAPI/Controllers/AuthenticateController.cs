@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TBSLogistics.Model.Model.LoginModel;
 using TBSLogistics.Model.TempModel;
-using TBSLogistics.Service.Repository.Authenticate;
+using TBSLogistics.Service.Repository.UserManage;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -20,47 +20,48 @@ namespace TBSLogistics.ApplicationAPI.Controllers
     public class AuthenticateController : ControllerBase
     {
         public IConfiguration _configuration;
-        private readonly IAuthenticate _authenticate;
+        private readonly IUser _user;
 
-        public AuthenticateController(IConfiguration configuration, IAuthenticate authenticate)
+        public AuthenticateController(IConfiguration configuration, IUser user)
         {
             _configuration = configuration;
-            _authenticate = authenticate;
+            _user = user;
         }
 
         [HttpPost]
         [AllowAnonymous]
         public async Task<IActionResult> Login(LoginRequest login)
         {
-            if (string.IsNullOrEmpty(login.Username) || string.IsNullOrEmpty(login.Password))
-            {
-                return BadRequest("Thông tin đăng nhập không đúng");
-            }
+            //if (string.IsNullOrEmpty(login.Username) || string.IsNullOrEmpty(login.Password))
+            //{
+            //    return BadRequest("Thông tin đăng nhập không đúng");
+            //}
 
-            var checkLogin = await _authenticate.checkUser(login);
+            //var checkLogin = await _authenticate.checkUser(login);
 
-            if (checkLogin.isSuccess == true)
-            {
-                var claims = new[]
-                {
-                    new Claim(JwtRegisteredClaimNames.Sub, _configuration["Jwt:Subject"]),
-                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                    new Claim(JwtRegisteredClaimNames.Iat, DateTime.Now.ToString()),
-                    new Claim("Id",login.Username),
-                };
+            //if (checkLogin.isSuccess == true)
+            //{
+            //    var claims = new[]
+            //    {
+            //        new Claim(JwtRegisteredClaimNames.Sub, _configuration["Jwt:Subject"]),
+            //        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            //        new Claim(JwtRegisteredClaimNames.Iat, DateTime.Now.ToString()),
+            //        new Claim("Id",login.Username),
+            //    };
 
-                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
-                var signIn = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-                var token = new JwtSecurityToken(_configuration["Jwt:Issuer"], _configuration["Jwt:Audience"], claims, expires: DateTime.Now.AddHours(2), signingCredentials: signIn);
+            //    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+            //    var signIn = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            //    var token = new JwtSecurityToken(_configuration["Jwt:Issuer"], _configuration["Jwt:Audience"], claims, expires: DateTime.Now.AddHours(2), signingCredentials: signIn);
 
-                await _authenticate.SaveToken(TempData.UserID, new JwtSecurityTokenHandler().WriteToken(token), DateTime.Now.AddHours(3));
+            //    await _authenticate.SaveToken(TempData.UserID, new JwtSecurityTokenHandler().WriteToken(token), DateTime.Now.AddHours(3));
 
-                return Ok(new JwtSecurityTokenHandler().WriteToken(token));
-            }
-            else
-            {
-                return BadRequest(checkLogin.Message);
-            }
+            //    return Ok(new JwtSecurityTokenHandler().WriteToken(token));
+            //}
+            //else
+            //{
+            //    return BadRequest(checkLogin.Message);
+            //}
+            return Ok();
         }
     }
 }

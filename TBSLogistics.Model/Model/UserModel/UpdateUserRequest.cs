@@ -6,11 +6,10 @@ using System.Threading.Tasks;
 
 namespace TBSLogistics.Model.Model.UserModel
 {
-    public class CreateUserRequest
+  public  class UpdateUserRequest
     {
-        public string UserName { get; set; }
-        public string PassWord { get; set; }
         public string HoVaTen { get; set; }
+        public string Password { get; set; }
         public string MaNhanVien { get; set; }
         public string MaBoPhan { get; set; }
         public int RoleId { get; set; }

@@ -233,7 +233,7 @@ namespace TBSLogistics.Service.Repository.DriverManage
                     || x.driver.Cccd.ToLower().Contains(filter.Keyword.ToLower())
                     );
                 }
-                if (!string.IsNullOrEmpty(filter.statusId.ToString()))
+                if (!string.IsNullOrEmpty(filter.statusId))
                 {
                     getData = getData.Where(x => x.driver.TrangThai == int.Parse(filter.statusId));
                 }
@@ -268,7 +268,6 @@ namespace TBSLogistics.Service.Repository.DriverManage
             }
             catch (Exception)
             {
-
                 throw;
             }
 

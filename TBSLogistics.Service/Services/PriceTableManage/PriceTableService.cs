@@ -1,17 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
-using System.Globalization;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using TBSLogistics.Data.TBSLogisticsDbContext;
 using TBSLogistics.Data.TMS;
 using TBSLogistics.Model.CommonModel;
 using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.PriceListModel;
-using TBSLogistics.Model.Model.RoadModel;
 using TBSLogistics.Model.TempModel;
 using TBSLogistics.Model.Wrappers;
 using TBSLogistics.Service.Repository.Common;
@@ -107,7 +102,6 @@ namespace TBSLogistics.Service.Repository.PricelistManage
                     ErrorValidate += "Mã trạng thái không tồn tại: " + String.Join(",", checkExistsStatus);
                 }
 
-
                 //foreach (var item in request)
                 //{
                 //    var checkPriceTable = await _context.BangGia.Where(x =>
@@ -199,8 +193,6 @@ namespace TBSLogistics.Service.Repository.PricelistManage
             }
 
             var totalRecords = await getData.CountAsync();
-
-
 
             var pagedData = await getData.Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new GetListPiceTableRequest()
             {
@@ -331,7 +323,6 @@ namespace TBSLogistics.Service.Repository.PricelistManage
                                  orderby bg.Id descending
                                  select new { bg, hd };
 
-
             var gr = from t in listPriceTable
                      group t by new { t.bg.MaCungDuong, t.bg.MaDvt, t.bg.MaLoaiHangHoa, t.bg.MaLoaiPhuongTien, t.bg.MaPtvc, t.bg.MaLoaiDoiTac }
                      into g
@@ -373,7 +364,6 @@ namespace TBSLogistics.Service.Repository.PricelistManage
                           on bg.MaCungDuong equals cd.MaCungDuong
                           orderby bg.CreatedTime descending
                           select new { kh, hd, bg, cd };
-
 
             if (!string.IsNullOrEmpty(filter.Keyword))
             {
@@ -423,7 +413,6 @@ namespace TBSLogistics.Service.Repository.PricelistManage
         {
             try
             {
-
                 if (request.Result.Count < 1)
                 {
                     return new BoolActionResult { isSuccess = false, Message = "Không có bảng giá nào được chọn, vui lòng xem lại" };
@@ -542,7 +531,6 @@ namespace TBSLogistics.Service.Repository.PricelistManage
                 {
                     return new BoolActionResult { isSuccess = false, Message = checkValid };
                 }
-
 
                 if (findById.TrangThai != 3)
                 {

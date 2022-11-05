@@ -17,10 +17,12 @@ namespace TBSLogistics.Data.TMS
         {
         }
 
+        public virtual DbSet<Account> Account { get; set; }
         public virtual DbSet<Attachment> Attachment { get; set; }
         public virtual DbSet<BangGia> BangGia { get; set; }
         public virtual DbSet<BangGiaDacBiet> BangGiaDacBiet { get; set; }
         public virtual DbSet<BangQuyDoi> BangQuyDoi { get; set; }
+        public virtual DbSet<BoPhan> BoPhan { get; set; }
         public virtual DbSet<CungDuong> CungDuong { get; set; }
         public virtual DbSet<DiaDiem> DiaDiem { get; set; }
         public virtual DbSet<DieuPhoi> DieuPhoi { get; set; }
@@ -34,10 +36,14 @@ namespace TBSLogistics.Data.TMS
         public virtual DbSet<LoaiPhuongTien> LoaiPhuongTien { get; set; }
         public virtual DbSet<LoaiRomooc> LoaiRomooc { get; set; }
         public virtual DbSet<Log> Log { get; set; }
+        public virtual DbSet<NguoiDung> NguoiDung { get; set; }
         public virtual DbSet<NhomKhachHang> NhomKhachHang { get; set; }
+        public virtual DbSet<Permission> Permission { get; set; }
         public virtual DbSet<PhuongThucVanChuyen> PhuongThucVanChuyen { get; set; }
         public virtual DbSet<QuanHuyen> QuanHuyen { get; set; }
         public virtual DbSet<QuocGia> QuocGia { get; set; }
+        public virtual DbSet<Role> Role { get; set; }
+        public virtual DbSet<RoleHasPermission> RoleHasPermission { get; set; }
         public virtual DbSet<Romooc> Romooc { get; set; }
         public virtual DbSet<StatusText> StatusText { get; set; }
         public virtual DbSet<SubFee> SubFee { get; set; }
@@ -46,6 +52,8 @@ namespace TBSLogistics.Data.TMS
         public virtual DbSet<TaiXe> TaiXe { get; set; }
         public virtual DbSet<ThongBao> ThongBao { get; set; }
         public virtual DbSet<TinhThanh> TinhThanh { get; set; }
+        public virtual DbSet<UserHasPermission> UserHasPermission { get; set; }
+        public virtual DbSet<UserHasRole> UserHasRole { get; set; }
         public virtual DbSet<VanDon> VanDon { get; set; }
         public virtual DbSet<XaPhuong> XaPhuong { get; set; }
         public virtual DbSet<XeVanChuyen> XeVanChuyen { get; set; }
@@ -62,6 +70,19 @@ namespace TBSLogistics.Data.TMS
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasAnnotation("Relational:Collation", "SQL_Latin1_General_CP1_CI_AS");
+
+            modelBuilder.Entity<Account>(entity =>
+            {
+                entity.Property(e => e.Id).HasColumnName("ID");
+
+                entity.Property(e => e.PassWord)
+                    .IsRequired()
+                    .HasMaxLength(200);
+
+                entity.Property(e => e.UserName)
+                    .IsRequired()
+                    .HasMaxLength(30);
+            });
 
             modelBuilder.Entity<Attachment>(entity =>
             {
@@ -201,6 +222,24 @@ namespace TBSLogistics.Data.TMS
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnName("MaDTV");
+            });
+
+            modelBuilder.Entity<BoPhan>(entity =>
+            {
+                entity.Property(e => e.Id).HasColumnName("ID");
+
+                entity.Property(e => e.MaBoPhan)
+                    .IsRequired()
+                    .HasMaxLength(20)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.MoTaCongViec)
+                    .IsRequired()
+                    .HasMaxLength(150);
+
+                entity.Property(e => e.TenBoPhan)
+                    .IsRequired()
+                    .HasMaxLength(50);
             });
 
             modelBuilder.Entity<CungDuong>(entity =>
@@ -602,6 +641,47 @@ namespace TBSLogistics.Data.TMS
                     .IsUnicode(false);
             });
 
+            modelBuilder.Entity<NguoiDung>(entity =>
+            {
+                entity.Property(e => e.Id)
+                    .ValueGeneratedNever()
+                    .HasColumnName("ID");
+
+                entity.Property(e => e.CreatedTime)
+                    .HasColumnType("datetime")
+                    .HasColumnName("Created_Time");
+
+                entity.Property(e => e.HoVaTen)
+                    .IsRequired()
+                    .HasMaxLength(40)
+                    .HasDefaultValueSql("(N'')");
+
+                entity.Property(e => e.MaBoPhan)
+                    .IsRequired()
+                    .HasMaxLength(20)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.MaNhanVien)
+                    .IsRequired()
+                    .HasMaxLength(10)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('')");
+
+                entity.Property(e => e.NguoiTao)
+                    .IsRequired()
+                    .HasMaxLength(30);
+
+                entity.Property(e => e.UpdatedTime)
+                    .HasColumnType("datetime")
+                    .HasColumnName("Updated_Time");
+
+                entity.HasOne(d => d.IdNavigation)
+                    .WithOne(p => p.NguoiDung)
+                    .HasForeignKey<NguoiDung>(d => d.Id)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_NguoiDung_Account");
+            });
+
             modelBuilder.Entity<NhomKhachHang>(entity =>
             {
                 entity.HasKey(e => e.MaNhomKh);
@@ -615,6 +695,31 @@ namespace TBSLogistics.Data.TMS
                     .IsRequired()
                     .HasMaxLength(50)
                     .HasColumnName("TenNhomKH");
+            });
+
+            modelBuilder.Entity<Permission>(entity =>
+            {
+                entity.Property(e => e.Id).HasColumnName("ID");
+
+                entity.Property(e => e.Mid)
+                    .IsRequired()
+                    .HasMaxLength(5)
+                    .IsUnicode(false)
+                    .HasColumnName("MId");
+
+                entity.Property(e => e.ParentId)
+                    .HasMaxLength(5)
+                    .IsUnicode(false)
+                    .HasColumnName("ParentID");
+
+                entity.Property(e => e.PermissionName)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.Type)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
             });
 
             modelBuilder.Entity<PhuongThucVanChuyen>(entity =>
@@ -663,6 +768,32 @@ namespace TBSLogistics.Data.TMS
                 entity.Property(e => e.TenQuocGia)
                     .IsRequired()
                     .HasMaxLength(50);
+            });
+
+            modelBuilder.Entity<Role>(entity =>
+            {
+                entity.Property(e => e.Id).HasColumnName("ID");
+
+                entity.Property(e => e.RoleName)
+                    .IsRequired()
+                    .HasMaxLength(50);
+            });
+
+            modelBuilder.Entity<RoleHasPermission>(entity =>
+            {
+                entity.Property(e => e.Id).HasColumnName("ID");
+
+                entity.HasOne(d => d.Permission)
+                    .WithMany(p => p.RoleHasPermission)
+                    .HasForeignKey(d => d.PermissionId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_RoleHasPermission_Permission");
+
+                entity.HasOne(d => d.Role)
+                    .WithMany(p => p.RoleHasPermission)
+                    .HasForeignKey(d => d.RoleId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_RoleHasPermission_Role");
             });
 
             modelBuilder.Entity<Romooc>(entity =>
@@ -917,6 +1048,40 @@ namespace TBSLogistics.Data.TMS
                 entity.Property(e => e.TenTinh)
                     .IsRequired()
                     .HasMaxLength(50);
+            });
+
+            modelBuilder.Entity<UserHasPermission>(entity =>
+            {
+                entity.Property(e => e.Id).HasColumnName("ID");
+
+                entity.HasOne(d => d.Permission)
+                    .WithMany(p => p.UserHasPermission)
+                    .HasForeignKey(d => d.PermissionId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_UserHasPermission_Permission");
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.UserHasPermission)
+                    .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_UserHasPermission_NguoiDung");
+            });
+
+            modelBuilder.Entity<UserHasRole>(entity =>
+            {
+                entity.Property(e => e.Id).HasColumnName("ID");
+
+                entity.HasOne(d => d.Role)
+                    .WithMany(p => p.UserHasRole)
+                    .HasForeignKey(d => d.RoleId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_UserHasRole_Role");
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.UserHasRole)
+                    .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_UserHasRole_NguoiDung");
             });
 
             modelBuilder.Entity<VanDon>(entity =>

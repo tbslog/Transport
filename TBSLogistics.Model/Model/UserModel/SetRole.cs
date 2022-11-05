@@ -6,7 +6,10 @@ using System.Threading.Tasks;
 
 namespace TBSLogistics.Model.Model.UserModel
 {
-  public  class EditUserRequest
+    public class SetRole
     {
+        public string RoleName { get; set; }
+        public int RoleStatus { get; set; }
+        public List<string> Permission { get; set; }
     }
 }

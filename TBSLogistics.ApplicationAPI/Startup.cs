@@ -10,17 +10,16 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
-using TBSLogistics.Data.TBSLogisticsDbContext;
 using TBSLogistics.Data.TMS;
 using TBSLogistics.Service.Panigation;
 using TBSLogistics.Service.Repository.AddressManage;
-using TBSLogistics.Service.Repository.Authenticate;
 using TBSLogistics.Service.Repository.BillOfLadingManage;
 using TBSLogistics.Service.Repository.Common;
 using TBSLogistics.Service.Repository.CustommerManage;
 using TBSLogistics.Service.Repository.DriverManage;
 using TBSLogistics.Service.Repository.PricelistManage;
 using TBSLogistics.Service.Repository.RoadManage;
+using TBSLogistics.Service.Repository.UserManage;
 using TBSLogistics.Service.Repository.VehicleManage;
 using TBSLogistics.Service.Services.ContractManage;
 using TBSLogistics.Service.Services.NotificationManage;
@@ -52,8 +51,6 @@ namespace TBSLogistics.ApplicationAPI
                  });
             });
 
-            services.AddDbContext<TBSTuyenDungContext>(options =>
-            options.UseSqlServer(Configuration["TuyenDung_Local"]));
             services.AddDbContext<TMSContext>(options =>
             options.UseSqlServer(Configuration["TMS_Local"]));
 
@@ -85,7 +82,6 @@ namespace TBSLogistics.ApplicationAPI
             services.AddSingleton(sp => sp.GetRequiredService<ILoggerFactory>().CreateLogger("DefaultLogger"));
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddTransient<ICommon, CommonService>();
-            services.AddTransient<IAuthenticate, AuthenticateService>();
             services.AddTransient<IAddress, AddressService>();
             services.AddTransient<ICustomer, CustomerService>();
             services.AddTransient<IPriceTable, PriceTableService>();
@@ -98,6 +94,7 @@ namespace TBSLogistics.ApplicationAPI
             services.AddTransient<IBillOfLading, BillOfLadingService>();
             services.AddTransient<ISubFeePrice, SubFeePriceService>();
             services.AddTransient<INotification, NotificationService>();
+            services.AddTransient<IUser, UserService>();
 
             services.AddSwaggerGen(option =>
             {

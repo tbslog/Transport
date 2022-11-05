@@ -1,64 +1,129 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using System;
 using System.Threading.Tasks;
+using TBSLogistics.Model.Filter;
+using TBSLogistics.Model.Model.RomoocModel;
 using TBSLogistics.Model.Model.UserModel;
+using TBSLogistics.Service.Helpers;
+using TBSLogistics.Service.Panigation;
+using TBSLogistics.Service.Repository.UserManage;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace TBSLogistics.ApplicationAPI.Controllers
 {
-    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class UserController : ControllerBase
     {
-        // GET: api/<UserController>
-        [HttpGet]
-        public async Task<IActionResult> Get()
-        {
-            string html = "<div class='col-md-6'><form method='post' id='frmUser'>" +
-                "<label>Name</label><input class='form-control' type='text' id ='Name' /> <br>" +
-                "<label>Address</label><input class='form-control' type='text'  id ='Address' /> <br>" +
-                "<label>Email</label><input class='form-control' type='text'  id ='Email' /> <br>" +
-                "<label>Phone</label><input class='form-control' type='number'  id ='Phone' /> <br>" +
-                "<button class='btn btn-primary' type='button' id='btnSubmit' >submit</button>" +
-            "</form>";
+        private readonly IUser _user;
+        private readonly IPaginationService _uriService;
 
-            var Js = JsonConvert.SerializeObject(html);
-            return new JsonResult(Js);
+        public UserController(IUser user, IPaginationService uriService)
+        {
+            _user = user;
+            _uriService = uriService;
         }
 
-        // GET api/<UserController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
-        {
-            return "value";
-        }
-
-        // POST api/<UserController>
         [HttpPost]
-        public async Task<IActionResult> Post(string value)
+        [Route("[action]")]
+        public async Task<IActionResult> CreateUser(CreateUserRequest request)
         {
-            var json = JsonConvert.DeserializeObject<UserRequest>(value);
+            try
+            {
+                var create = await _user.CreateUser(request);
 
-            json.Name = "haile";
-            json.Address = "TBS";
-            json.Email = "haile@gmail.com";
-
-            return new JsonResult(json);
+                if (create.isSuccess)
+                {
+                    return Ok(create.Message);
+                }
+                else
+                {
+                    return BadRequest(create.Message);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
         }
 
-        // PUT api/<UserController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        [HttpPost]
+        [Route("[action]")]
+        public async Task<IActionResult> UpdateUser(int id, UpdateUserRequest request)
         {
+            var update = await _user.UpdateUser(id, request);
+
+            if (update.isSuccess)
+            {
+                return Ok(update.Message);
+            }
+            else
+            {
+                return BadRequest(update.Message);
+            }
         }
 
-        // DELETE api/<UserController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetUser(int id)
         {
+            var user = await _user.GetUser(id);
+            return Ok(user);
+        }
+
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetTreePermission(int id)
+        {
+            var tree = await _user.GetTreePermission(id);
+            return Ok(tree);
+        }
+
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetListUser([FromQuery] PaginationFilter filter)
+        {
+            var route = Request.Path.Value;
+            var pagedData = await _user.GetListUser(filter);
+
+            var pagedReponse = PaginationHelper.CreatePagedReponse<GetUserRequest>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _uriService, route);
+            return Ok(pagedReponse);
+        }
+
+        [HttpPost]
+        [Route("[action]")]
+        public async Task<IActionResult> SetPermissionForRole(SetRole request)
+        {
+            var add = await _user.SetPermissionForRole(request);
+
+            if (add.isSuccess)
+            {
+                return Ok(add.Message);
+            }
+            else
+            {
+                return BadRequest(add.Message);
+            }
+        }
+
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetListRoleSelect()
+        {
+            var list = await _user.GetListRoleSelect();
+            return Ok(list);
+        }
+
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetListDepartmentSelect()
+        {
+            var list = await _user.GetListDepartmentSelect();
+            return Ok(list);
         }
     }
 }
