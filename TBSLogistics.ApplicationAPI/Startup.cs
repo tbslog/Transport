@@ -51,6 +51,8 @@ namespace TBSLogistics.ApplicationAPI
                  });
             });
 
+        
+
             services.AddDbContext<TMSContext>(options =>
             options.UseSqlServer(Configuration["TMS_Local"]));
 
@@ -64,15 +66,14 @@ namespace TBSLogistics.ApplicationAPI
             });
 
             services.AddControllersWithViews();
-
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(option =>
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
             {
-                option.RequireHttpsMetadata = false;
-                option.SaveToken = true;
-                option.TokenValidationParameters = new TokenValidationParameters()
+                options.RequireHttpsMetadata = false;
+                options.SaveToken = true;
+                options.TokenValidationParameters = new TokenValidationParameters()
                 {
-                    ValidateAudience = true,
                     ValidateIssuer = true,
+                    ValidateAudience = true,
                     ValidAudience = Configuration["Jwt:Audience"],
                     ValidIssuer = Configuration["Jwt:Issuer"],
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:Key"]))
@@ -120,7 +121,6 @@ namespace TBSLogistics.ApplicationAPI
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "TBSLogistics.ApplicationAPI v1"));
             }
-
             app.UseHttpsRedirection();
             app.UseRouting();
             app.UseCors(apiCorsPolicy);

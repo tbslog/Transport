@@ -8,7 +8,9 @@ namespace TBSLogistics.Model.Model.UserModel
 {
     public class TreePermission
     {
-        public List<int> IsChecked { get; set; }
+        public string RoleName { get; set; }
+        public int Status { get; set; }
+        public List<string> IsChecked { get; set; }
         public List<ListTree> ListTree { get; set; }
     }
 

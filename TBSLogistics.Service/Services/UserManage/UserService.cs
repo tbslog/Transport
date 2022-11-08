@@ -1,7 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Reflection.Metadata;
+using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -261,19 +265,7 @@ namespace TBSLogistics.Service.Repository.UserManage
         {
             try
             {
-                var checkExists = await _context.Role.Where(x => x.Id == roleId).FirstOrDefaultAsync();
-                if (checkExists == null)
-                {
-                    return null;
-                }
-
-                var getPermissionByRole = await _context.RoleHasPermission.Where(x => x.RoleId == roleId).ToListAsync();
                 var listPermission = await _context.Permission.ToListAsync();
-                var listPermissionOfRole = listPermission.Where(x => getPermissionByRole.Select(y => y.PermissionId).Contains(x.Id)).ToList();
-
-                var getChecked = listPermissionOfRole.Select(x => x.Id).ToList();
-
-
                 var listTree = listPermission.Where(x => x.ParentId == null).Select(o => new ListTree()
                 {
                     Label = o.PermissionName,
@@ -295,9 +287,23 @@ namespace TBSLogistics.Service.Repository.UserManage
                     }).ToList(),
                 }).ToList();
 
+                var checkExists = await _context.Role.Where(x => x.Id == roleId).FirstOrDefaultAsync();
+                if (checkExists == null)
+                {
+                    return new TreePermission()
+                    {
+                        ListTree = listTree
+                    };
+                }
+
+                var getPermissionByRole = await _context.RoleHasPermission.Where(x => x.RoleId == roleId).ToListAsync();
+                var listPermissionOfRole = listPermission.Where(x => getPermissionByRole.Select(y => y.PermissionId).Contains(x.Id)).Select(y => y.Mid).ToList();
+
                 return new TreePermission()
                 {
-                    IsChecked = getChecked,
+                    RoleName = checkExists.RoleName,
+                    Status = checkExists.Status,
+                    IsChecked = listPermissionOfRole,
                     ListTree = listTree
                 };
             }
@@ -409,6 +415,76 @@ namespace TBSLogistics.Service.Repository.UserManage
             return list;
         }
 
+        public async Task<GetUserRequest> GetUserByName(string username)
+        {
+            var Account = await _context.Account.Where(x => x.UserName == username).FirstOrDefaultAsync();
+            var GetById = await _context.NguoiDung.Where(x => x.Id == Account.Id).FirstOrDefaultAsync();
+
+            return new GetUserRequest()
+            {
+                Id = GetById.Id,
+                RoleName = _context.Role.Where(x => x.Id == GetById.RoleId).Select(x => x.RoleName).FirstOrDefault(),
+                UserName = Account.UserName,
+                HoVaTen = GetById.HoVaTen,
+                MaNhanVien = GetById.MaNhanVien,
+                MaBoPhan = GetById.MaBoPhan,
+                TenBoPhan = _context.BoPhan.Where(x => x.MaBoPhan == GetById.MaBoPhan).Select(x => x.TenBoPhan).FirstOrDefault(),
+                RoleId = GetById.RoleId.ToString(),
+                TrangThai = GetById.TrangThai.ToString(),
+            };
+        }
+
+        public async Task<BoolActionResult> ChangePassword(string username, ChangePasswordModel model)
+        {
+            var transaction = _context.Database.BeginTransaction();
+            try
+            {
+             
+
+                var getAccount = await _context.Account.Where(x => x.UserName == username).FirstOrDefaultAsync();
+
+                if (getAccount == null)
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Tài khoản không tồn tại!" };
+                }
+
+                if(getAccount.PassWord == model.OldPassword.ToUpper())
+                {
+                    if (model.NewPassword == model.ReNewPassword)
+                    {
+                        getAccount.PassWord = model.NewPassword.ToUpper();
+                        _context.Update(getAccount);
+                    }
+                    else
+                    {
+                        return new BoolActionResult { isSuccess = false, Message = "Mật khẩu mới và nhập lại mật khẩu không khớp" };
+                    }
+                }
+                else
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Mật khẩu cũ không đúng!" };
+                }
+
+                var result = await _context.SaveChangesAsync();
+
+                transaction.Commit();
+
+                if (result > 0)
+                {
+                    return new BoolActionResult { isSuccess = true, Message = "Đổi Mật Khẩu thành công" };
+                }
+                else
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Đổi Mật Khẩu không thành công" };
+                }
+            }
+            catch (Exception ex)
+            {
+                transaction.Rollback();
+                return new BoolActionResult { isSuccess = false, Message = "Đổi Mật Khẩu không thành công" };
+            }
+        }
+
         private string GetMD5(string str)
         {
             string str_md5_out = string.Empty;
@@ -421,6 +497,41 @@ namespace TBSLogistics.Service.Repository.UserManage
                 str_md5_out = str_md5_out.Replace("-", "");
             }
             return str_md5_out;
+        }
+
+        public async Task<GetUserRequest> CheckLogin(LoginModel model)
+        {
+            try
+            {
+                var checkUser = await _context.Account.Where(x => x.UserName == model.UserName && x.PassWord == model.Password.ToUpper()).FirstOrDefaultAsync();
+
+                if (checkUser == null)
+                {
+                    return null;
+                }
+
+                var getUser = await _context.NguoiDung.Where(x => x.Id == checkUser.Id).FirstOrDefaultAsync();
+
+                if (getUser.TrangThai == 2)
+                {
+                    return null;
+                }
+
+                return new GetUserRequest
+                {
+                    UserName = checkUser.UserName,
+                    Id = checkUser.Id,
+                    HoVaTen = getUser.HoVaTen,
+                    MaBoPhan = getUser.MaBoPhan,
+                    RoleId = getUser.RoleId.ToString(),
+                    TrangThai = getUser.TrangThai.ToString(),
+                };
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
     }
 }

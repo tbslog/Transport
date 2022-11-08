@@ -22,5 +22,9 @@ namespace TBSLogistics.Service.Repository.UserManage
         Task<TreePermission> GetTreePermission(int roleId);
         Task<List<Role>> GetListRoleSelect();
         Task<List<BoPhan>> GetListDepartmentSelect();
+        Task<GetUserRequest> CheckLogin(LoginModel model);
+        Task<GetUserRequest> GetUserByName(string username);
+        Task<BoolActionResult> ChangePassword(string username, ChangePasswordModel model);
+
     }
 }

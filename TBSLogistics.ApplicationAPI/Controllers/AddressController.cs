@@ -17,6 +17,7 @@ using TBSLogistics.Service.Repository.AddressManage;
 
 namespace TBSLogistics.ApplicationAPI.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class AddressController : ControllerBase

@@ -8,6 +8,7 @@ namespace TBSLogistics.Model.Model.UserModel
 {
     public class SetRole
     {
+        public string RoleId { get; set; }
         public string RoleName { get; set; }
         public int RoleStatus { get; set; }
         public List<string> Permission { get; set; }

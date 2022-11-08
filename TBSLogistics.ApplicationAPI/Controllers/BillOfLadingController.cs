@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System.IO;
 using System.Reflection.Metadata.Ecma335;
 using System.Threading.Tasks;
@@ -13,6 +14,7 @@ using TBSLogistics.Service.Repository.Common;
 
 namespace TBSLogistics.ApplicationAPI.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class BillOfLadingController : ControllerBase

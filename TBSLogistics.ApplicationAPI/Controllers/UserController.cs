@@ -1,15 +1,17 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using System;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 using TBSLogistics.Model.Filter;
-using TBSLogistics.Model.Model.RomoocModel;
 using TBSLogistics.Model.Model.UserModel;
 using TBSLogistics.Service.Helpers;
 using TBSLogistics.Service.Panigation;
 using TBSLogistics.Service.Repository.UserManage;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -21,13 +23,16 @@ namespace TBSLogistics.ApplicationAPI.Controllers
     {
         private readonly IUser _user;
         private readonly IPaginationService _uriService;
+        private readonly IConfiguration _config;
 
-        public UserController(IUser user, IPaginationService uriService)
+        public UserController(IUser user, IPaginationService uriService, IConfiguration config)
         {
+            _config = config;
             _user = user;
             _uriService = uriService;
         }
 
+        [Authorize]
         [HttpPost]
         [Route("[action]")]
         public async Task<IActionResult> CreateUser(CreateUserRequest request)
@@ -51,6 +56,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             }
         }
 
+        [Authorize]
         [HttpPost]
         [Route("[action]")]
         public async Task<IActionResult> UpdateUser(int id, UpdateUserRequest request)
@@ -67,6 +73,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             }
         }
 
+        [Authorize]
         [HttpGet]
         [Route("[action]")]
         public async Task<IActionResult> GetUser(int id)
@@ -75,6 +82,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             return Ok(user);
         }
 
+        [Authorize]
         [HttpGet]
         [Route("[action]")]
         public async Task<IActionResult> GetTreePermission(int id)
@@ -83,6 +91,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             return Ok(tree);
         }
 
+        [Authorize]
         [HttpGet]
         [Route("[action]")]
         public async Task<IActionResult> GetListUser([FromQuery] PaginationFilter filter)
@@ -94,6 +103,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             return Ok(pagedReponse);
         }
 
+        [Authorize]
         [HttpPost]
         [Route("[action]")]
         public async Task<IActionResult> SetPermissionForRole(SetRole request)
@@ -110,6 +120,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             }
         }
 
+        [Authorize]
         [HttpGet]
         [Route("[action]")]
         public async Task<IActionResult> GetListRoleSelect()
@@ -118,12 +129,81 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             return Ok(list);
         }
 
+        [Authorize]
         [HttpGet]
         [Route("[action]")]
         public async Task<IActionResult> GetListDepartmentSelect()
         {
             var list = await _user.GetListDepartmentSelect();
             return Ok(list);
+        }
+
+        [Authorize]
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetUserByName(string username)
+        {
+            var user = await _user.GetUserByName(username);
+            return Ok(user);
+        }
+
+        [HttpPost]
+        [Route("[action]")]
+        public async Task<IActionResult> Login(LoginModel _userData)
+        {
+            if (_userData != null && _userData.UserName != null && _userData.Password != null)
+            {
+                var user = await _user.CheckLogin(_userData);
+
+                if (user != null)
+                {
+                    //create claims details based on the user information
+                    var claims = new[] {
+                        new Claim(JwtRegisteredClaimNames.Sub, _config["Jwt:Subject"]),
+                        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                        new Claim(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.ToString()),
+                        new Claim("UserId", user.Id.ToString()),
+                        new Claim("UserName", user.UserName),
+                        new Claim("FullName", user.HoVaTen),
+                        new Claim("Department", user.MaBoPhan),
+                        new Claim("Role", user.RoleId.ToString())
+                    };
+
+                    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
+                    var signIn = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+                    var token = new JwtSecurityToken(
+                        _config["Jwt:Issuer"],
+                        _config["Jwt:Audience"],
+                        claims,
+                        expires: DateTime.UtcNow.AddMinutes(30),
+                        signingCredentials: signIn);
+
+                    return Ok(new JwtSecurityTokenHandler().WriteToken(token));
+                }
+                else
+                {
+                    return BadRequest("Tài khoản hoặc mật khẩu không đúng");
+                }
+            }
+            else
+            {
+                return BadRequest();
+            }
+        }
+
+        [Authorize]
+        [HttpPost]
+        [Route("[action]")]
+        public async Task<IActionResult> ChangePassword(string username, ChangePasswordModel model)
+        {
+            var changePass = await _user.ChangePassword(username, model);
+
+            if (changePass.isSuccess)
+            {
+                return Ok(changePass.Message);
+            }
+
+            return BadRequest(changePass.Message);
         }
     }
 }
