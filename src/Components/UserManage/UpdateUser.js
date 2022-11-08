@@ -7,7 +7,6 @@ const UpdateUser = (props) => {
   const { getListUser, selectIdClick, hideModal } = props;
   const {
     register,
-    reset,
     setValue,
     control,
     formState: { errors },

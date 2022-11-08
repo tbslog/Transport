@@ -135,6 +135,13 @@ let routerList = [
         exact: true,
         child: [],
       },
+      {
+        name: "Phân Quyền",
+        pathName: "/role",
+        path: "role",
+        exact: true,
+        child: [],
+      },
     ],
   },
 ];

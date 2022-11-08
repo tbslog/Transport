@@ -8,6 +8,7 @@ import ConfirmDialog from "../Common/Dialog/ConfirmDialog";
 import { ToastError } from "../Common/FuncToast";
 import CreateUser from "./CreateUser";
 import UpdateUser from "./UpdateUser";
+import RolePage from "../RoleManage/RolePage";
 
 const UserPage = () => {
   const [data, setData] = useState([]);
@@ -274,7 +275,7 @@ const UserPage = () => {
                     className="btn btn-sm btn-default mx-1"
                     onClick={() =>
                       showModalForm(
-                        SetShowModal("CreateRole"),
+                        SetShowModal("RolePage"),
                         setSelectIdClick({})
                       )
                     }
@@ -418,7 +419,7 @@ const UserPage = () => {
         >
           <div
             className="modal-dialog modal-dialog-scrollable"
-            style={{ maxWidth: "95%" }}
+            style={{ maxWidth: "80%" }}
           >
             <div className="modal-content">
               <div className="modal-header">
@@ -444,6 +445,7 @@ const UserPage = () => {
                       hideModal={hideModal}
                     />
                   )}
+                  {ShowModal === "RolePage" && <RolePage />}
                 </>
               </div>
             </div>

@@ -1,14 +1,59 @@
 import axios from "axios";
 import { ToastSuccess, ToastError, ToastWarning } from "../Common/FuncToast";
+import Cookies from "js-cookie";
+import jwt_decode from "jwt-decode";
 
 // const Host = "https://kind-northcutt.112-78-2-40.plesk.page/api/";
 // const Host = "https://api.tbslogistics.com.vn/api/";
 const Host = "http://localhost:8088/api/";
 
+axios.interceptors.request.use(
+  (config) => {
+    let tokens = Cookies.get("token");
+    if (tokens && tokens.length > 0) {
+      const decoded = jwt_decode(tokens);
+      const exp = decoded.exp;
+      const expired = Date.now() >= exp * 1000;
+      if (expired) {
+        Object.keys(Cookies.get()).forEach(function (cookieName) {
+          var neededAttributes = {
+            // Here you pass the same attributes that were used when the cookie was created
+            // and are required when removing the cookie
+          };
+          Cookies.remove(cookieName);
+          return config;
+        });
+      }
+      config.headers["Authorization"] = `Bearer ${tokens}`;
+      return config;
+    }
+    config.headers["Authorization"] = `Bearer ${tokens}`;
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 const getData = async (url) => {
   const get = await axios.get(Host + url);
   var data = get.data;
   return data;
+};
+
+const postLogin = async (url, data, header = null) => {
+  var result = { isSuccess: 0, Message: "" };
+  await axios
+    .post(Host + url, data, header)
+    .then((response) => {
+      Cookies.set("token", response.data);
+      return (result = { isSuccess: 1, Message: "Đăng nhập thành công!" });
+    })
+    .catch((error) => {
+      return (result = { isSuccess: 0, Message: error.response.data });
+    });
+
+  return result;
 };
 
 const getDataCustom = async (url, data, header = null) => {
@@ -138,4 +183,5 @@ export {
   getFile,
   getDataCustom,
   getFileImage,
+  postLogin,
 };
