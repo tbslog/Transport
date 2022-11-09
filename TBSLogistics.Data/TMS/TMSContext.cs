@@ -45,6 +45,7 @@ namespace TBSLogistics.Data.TMS
         public virtual DbSet<Role> Role { get; set; }
         public virtual DbSet<RoleHasPermission> RoleHasPermission { get; set; }
         public virtual DbSet<Romooc> Romooc { get; set; }
+        public virtual DbSet<SfeeByTcommand> SfeeByTcommand { get; set; }
         public virtual DbSet<StatusText> StatusText { get; set; }
         public virtual DbSet<SubFee> SubFee { get; set; }
         public virtual DbSet<SubFeePrice> SubFeePrice { get; set; }
@@ -828,6 +829,34 @@ namespace TBSLogistics.Data.TMS
                     .HasForeignKey(d => d.MaLoaiRomooc)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_ThongTin_Romooc_PhanLoai_Romooc");
+            });
+
+            modelBuilder.Entity<SfeeByTcommand>(entity =>
+            {
+                entity.ToTable("SFeeByTcommand");
+
+                entity.Property(e => e.IdTcommand).HasColumnName("IdTCommand");
+
+                entity.Property(e => e.SfId).HasColumnName("sfID");
+
+                entity.Property(e => e.SfPriceId).HasColumnName("sfPriceId");
+
+                entity.HasOne(d => d.IdTcommandNavigation)
+                    .WithMany(p => p.SfeeByTcommand)
+                    .HasForeignKey(d => d.IdTcommand)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_SFeeByTcommand_DieuPhoi");
+
+                entity.HasOne(d => d.Sf)
+                    .WithMany(p => p.SfeeByTcommand)
+                    .HasForeignKey(d => d.SfId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_SFeeByTcommand_SubFee");
+
+                entity.HasOne(d => d.SfPrice)
+                    .WithMany(p => p.SfeeByTcommand)
+                    .HasForeignKey(d => d.SfPriceId)
+                    .HasConstraintName("FK_SFeeByTcommand_SubFeePrice");
             });
 
             modelBuilder.Entity<StatusText>(entity =>

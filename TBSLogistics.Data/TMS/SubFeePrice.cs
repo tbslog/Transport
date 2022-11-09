@@ -7,6 +7,11 @@ namespace TBSLogistics.Data.TMS
 {
     public partial class SubFeePrice
     {
+        public SubFeePrice()
+        {
+            SfeeByTcommand = new HashSet<SfeeByTcommand>();
+        }
+
         public long PriceId { get; set; }
         public string ContractId { get; set; }
         public long SfId { get; set; }
@@ -26,5 +31,6 @@ namespace TBSLogistics.Data.TMS
 
         public virtual HopDongVaPhuLuc Contract { get; set; }
         public virtual SubFee Sf { get; set; }
+        public virtual ICollection<SfeeByTcommand> SfeeByTcommand { get; set; }
     }
 }

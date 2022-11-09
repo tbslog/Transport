@@ -9,6 +9,7 @@ namespace TBSLogistics.Data.TMS
     {
         public SubFee()
         {
+            SfeeByTcommand = new HashSet<SfeeByTcommand>();
             SubFeePrice = new HashSet<SubFeePrice>();
         }
 
@@ -20,6 +21,7 @@ namespace TBSLogistics.Data.TMS
         public string SfDescription { get; set; }
 
         public virtual SubFeeType SfTypeNavigation { get; set; }
+        public virtual ICollection<SfeeByTcommand> SfeeByTcommand { get; set; }
         public virtual ICollection<SubFeePrice> SubFeePrice { get; set; }
     }
 }

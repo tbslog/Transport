@@ -10,6 +10,7 @@ namespace TBSLogistics.Data.TMS
         public DieuPhoi()
         {
             Attachment = new HashSet<Attachment>();
+            SfeeByTcommand = new HashSet<SfeeByTcommand>();
         }
 
         public long Id { get; set; }
@@ -53,5 +54,6 @@ namespace TBSLogistics.Data.TMS
         public virtual TaiXe MaTaiXeNavigation { get; set; }
         public virtual VanDon MaVanDonNavigation { get; set; }
         public virtual ICollection<Attachment> Attachment { get; set; }
+        public virtual ICollection<SfeeByTcommand> SfeeByTcommand { get; set; }
     }
 }
