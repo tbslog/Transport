@@ -57,6 +57,17 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             return Ok(pagedReponse);
         }
 
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetListHandling([FromQuery] PaginationFilter filter)
+        {
+            var route = Request.Path.Value;
+            var pagedData = await _billOfLading.GetListHandling(filter);
+
+            var pagedReponse = PaginationHelper.CreatePagedReponse<ListHandling>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _paninationService, route);
+            return Ok(pagedReponse);
+        }
+
         [HttpPost]
         [Route("[action]")]
         public async Task<IActionResult> CreateTransport(CreateTransport request)

@@ -27,8 +27,9 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
         Task<List<Attachment>> GetListImageByHandlingId(int handlingId);
         Task<BoolActionResult> DeleteImageById(int imageId);
         Task<BoolActionResult> SetRunning(int id);
-            Task<BoolActionResult> CancelHandling(int id);
+        Task<BoolActionResult> CancelHandling(int id);
         Task<Attachment> GetImageById(int id);
+        Task<PagedResponseCustom<ListHandling>> GetListHandling(PaginationFilter filter);
 
     }
 }

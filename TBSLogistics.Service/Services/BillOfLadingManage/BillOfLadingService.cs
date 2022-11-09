@@ -601,6 +601,74 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
             }
         }
 
+        public async Task<PagedResponseCustom<ListHandling>> GetListHandling(PaginationFilter filter)
+        {
+            var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
+
+            var listData = from vd in _context.VanDon
+                           join
+                           dp in _context.DieuPhoi
+                           on vd.MaVanDon equals dp.MaVanDon
+                           join bg in _context.BangGia
+                           on dp.IdbangGia equals bg.Id
+                           join tt in _context.StatusText
+                           on dp.TrangThai equals tt.StatusId
+                           where tt.LangId == TempData.LangID
+                           orderby dp.Id
+                           select new { vd, dp, bg, tt };
+
+            if (!string.IsNullOrEmpty(filter.Keyword))
+            {
+                listData = listData.Where(x => x.vd.MaVanDon.Contains(filter.Keyword) || x.dp.MaSoXe.Contains(filter.Keyword));
+            }
+
+            if (!string.IsNullOrEmpty(filter.statusId))
+            {
+                listData = listData.Where(x => x.tt.StatusId == int.Parse(filter.statusId));
+            }
+
+            if (!string.IsNullOrEmpty(filter.fromDate.ToString()) && !string.IsNullOrEmpty(filter.toDate.ToString()))
+            {
+                listData = listData.Where(x => x.vd.ThoiGianTaoDon.Date >= filter.fromDate.Value.Date && x.vd.ThoiGianTaoDon.Date <= filter.toDate.Value.Date);
+            }
+
+            var totalCount = await listData.CountAsync();
+
+            var pagedData = await listData.Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new ListHandling()
+            {
+                CungDuong = _context.CungDuong.Where(y => y.MaCungDuong == x.vd.MaCungDuong).Select(x => x.TenCungDuong).FirstOrDefault(),
+                MaVanDon = x.dp.MaVanDon,
+                PhanLoaiVanDon = x.vd.LoaiVanDon,
+                MaDieuPhoi = x.dp.Id,
+                DiemLayRong = _context.DiaDiem.Where(y => y.MaDiaDiem == x.dp.DiemLayTraRong).Select(x => x.TenDiaDiem).FirstOrDefault(),
+                MaSoXe = x.dp.MaSoXe,
+                TenTaiXe = _context.TaiXe.Where(y => y.MaTaiXe == x.dp.MaTaiXe).Select(y => y.HoVaTen).FirstOrDefault(),
+                SoDienThoai = _context.TaiXe.Where(y=>y.MaTaiXe == x.dp.MaTaiXe).Select(y=>y.SoDienThoai).FirstOrDefault(),
+                PTVanChuyen = x.bg.MaLoaiPhuongTien,
+                TenTau = x.dp.Tau,
+                HangTau = x.dp.HangTau,
+                MaRomooc = x.dp.MaRomooc,
+                ContNo = x.dp.ContNo,
+                KhoiLuong = x.dp.KhoiLuong,
+                TheTich = x.dp.TheTich,
+                ThoiGianLayTraRong = x.dp.ThoiGianLayTraRong,
+                ThoiGianKeoCong = x.dp.ThoiGianKeoCong,
+                ThoiGianHanLenh = x.dp.ThoiGianHanLenh,
+                ThoiGianCoMat = x.dp.ThoiGianCoMat,
+                ThoiGianCatMang = x.dp.ThoiGianCatMang,
+                ThoiGianLayHang = x.dp.ThoiGianLayHang,
+                ThoiGianTraHang = x.dp.ThoiGianTraHang,
+                TrangThai = x.tt.StatusContent
+            }).ToListAsync();
+
+            return new PagedResponseCustom<ListHandling>()
+            {
+                dataResponse = pagedData,
+                totalCount = totalCount,
+                paginationFilter = validFilter
+            };
+        }
+
         public async Task<GetHandling> GetHandlingById(int id)
         {
             try

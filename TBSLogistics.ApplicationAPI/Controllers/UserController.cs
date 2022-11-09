@@ -175,7 +175,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
                         _config["Jwt:Issuer"],
                         _config["Jwt:Audience"],
                         claims,
-                        expires: DateTime.UtcNow.AddMinutes(30),
+                        expires: DateTime.UtcNow.AddMinutes(60),
                         signingCredentials: signIn);
 
                     return Ok(new JwtSecurityTokenHandler().WriteToken(token));

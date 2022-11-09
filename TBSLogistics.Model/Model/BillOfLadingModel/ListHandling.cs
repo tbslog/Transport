@@ -8,11 +8,13 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
 {
     public  class ListHandling
     {
+       public string CungDuong { get; set; }
         public string MaVanDon { get; set; }
         public string PhanLoaiVanDon { get; set; }
         public long MaDieuPhoi { get; set; }
         public string MaSoXe { get; set; }
         public string TenTaiXe { get; set; }
+        public string SoDienThoai { get; set; }
         public string PTVanChuyen { get; set; }
         public string TenTau { get; set; }
         public string HangTau { get; set; }
