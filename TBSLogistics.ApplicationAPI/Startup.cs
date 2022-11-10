@@ -25,6 +25,7 @@ using TBSLogistics.Service.Services.ContractManage;
 using TBSLogistics.Service.Services.NotificationManage;
 using TBSLogistics.Service.Services.ProductServiceManage;
 using TBSLogistics.Service.Services.RomoocManage;
+using TBSLogistics.Service.Services.SFeeByTcommandManage;
 using TBSLogistics.Service.Services.SubFeePriceManage;
 
 namespace TBSLogistics.ApplicationAPI
@@ -96,6 +97,7 @@ namespace TBSLogistics.ApplicationAPI
             services.AddTransient<ISubFeePrice, SubFeePriceService>();
             services.AddTransient<INotification, NotificationService>();
             services.AddTransient<IUser, UserService>();
+            services.AddTransient<ISFeeByTcommand, SFeeByTcommandService>();
 
             services.AddSwaggerGen(option =>
             {
