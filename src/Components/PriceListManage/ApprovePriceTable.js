@@ -9,7 +9,7 @@ import ConfirmDialog from "../Common/Dialog/ConfirmDialog";
 import { ToastError } from "../Common/FuncToast";
 
 const ApprovePriceTable = (props) => {
-  const { getDataApprove } = props;
+  const { getDataApprove, checkShowModal } = props;
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [totalRows, setTotalRows] = useState(0);
@@ -119,12 +119,14 @@ const ApprovePriceTable = (props) => {
 
   useEffect(() => {
     setLoading(true);
-    (async () => {
-      var list = await getDataApprove();
-      setData(list.data);
-      setLoading(false);
-    })();
-  }, [props]);
+    if (checkShowModal && Object.keys(checkShowModal).length > 0) {
+      (async () => {
+        var list = await getDataApprove();
+        setData(list.data);
+        setLoading(false);
+      })();
+    }
+  }, [props, checkShowModal]);
 
   const handleChange = (state) => {
     setSelectedRows(state.selectedRows);

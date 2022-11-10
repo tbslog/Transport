@@ -78,9 +78,16 @@ let routerList = [
     exact: false,
     child: [
       {
-        name: "Vận Đơn & Điều Phối",
+        name: "Vận Đơn",
         pathName: "/transport",
         path: "transport",
+        exact: true,
+        child: [],
+      },
+      {
+        name: "Điều Phối",
+        pathName: "/handling",
+        path: "handling",
         exact: true,
         child: [],
       },

@@ -448,7 +448,10 @@ const PriceTablePage = () => {
                     />
                   )}
                   {ShowModal === "ApprovePriceTable" && (
-                    <ApprovePriceTable getDataApprove={getDataApprove} />
+                    <ApprovePriceTable
+                      getDataApprove={getDataApprove}
+                      checkShowModal={modal}
+                    />
                   )}
                 </>
               </div>

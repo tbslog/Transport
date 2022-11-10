@@ -9,7 +9,7 @@ import UpdateSubFee from "./UpdateSubFee";
 import ConfirmDialog from "../Common/Dialog/ConfirmDialog";
 
 const ApproveSubFee = (props) => {
-  const { getListSubFee } = props;
+  const { getListSubFee, checkShowModal } = props;
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [totalRows, setTotalRows] = useState(0);
@@ -97,8 +97,10 @@ const ApproveSubFee = (props) => {
   ]);
 
   useEffect(() => {
-    fetchData(1);
-  }, [props]);
+    if (checkShowModal && Object.keys(checkShowModal).length > 0) {
+      fetchData(1);
+    }
+  }, [props, checkShowModal]);
 
   const handleEditButtonClick = async (val) => {
     if (val && Object.keys(val).length > 0) {
@@ -137,12 +139,7 @@ const ApproveSubFee = (props) => {
   };
 
   const funcAgree = () => {
-    if (
-      isAccept &&
-      isAccept.length > 0 &&
-      selectedRows &&
-      selectedRows.length > 0
-    ) {
+    if (selectedRows && selectedRows.length > 0) {
       AcceptSubFee(isAccept);
     }
   };

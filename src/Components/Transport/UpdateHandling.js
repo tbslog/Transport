@@ -228,8 +228,6 @@ const UpdateHandling = (props) => {
         );
         setData(data);
         handleOnchangeListRoad(data);
-
-        SetIsLoading(false);
       })();
     }
   }, [props, selectIdClick, listVehicleType, listGoodsType]);
@@ -254,7 +252,6 @@ const UpdateHandling = (props) => {
   }, [data, listCustomer, listDriver, listNpp, listRomooc, listVehicle]);
 
   const setValueData = (data) => {
-    SetIsLoading(true);
     setRoadDetail(data.cungDuong);
     setValue(
       "NhaCungCap",
@@ -333,7 +330,6 @@ const UpdateHandling = (props) => {
         data.thoiGianCatMang === null ? null : new Date(data.thoiGianCatMang)
       );
     }
-
     SetIsLoading(false);
   };
 

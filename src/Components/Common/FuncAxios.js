@@ -2,6 +2,7 @@ import axios from "axios";
 import { ToastSuccess, ToastError, ToastWarning } from "../Common/FuncToast";
 import Cookies from "js-cookie";
 import jwt_decode from "jwt-decode";
+import { Buffer } from "buffer";
 
 // const Host = "https://kind-northcutt.112-78-2-40.plesk.page/api/";
 // const Host = "https://api.tbslogistics.com.vn/api/";
@@ -27,13 +28,76 @@ axios.interceptors.request.use(
       config.headers["Authorization"] = `Bearer ${tokens}`;
       return config;
     }
-    config.headers["Authorization"] = `Bearer ${tokens}`;
     return config;
   },
   (error) => {
     return Promise.reject(error);
   }
 );
+
+axios.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  async (error) => {
+    if (
+      error.response.status === 401 &&
+      error.response.statusText === "Unauthorized"
+    ) {
+      // handle error: inform user, go to login, etc
+      Object.keys(Cookies.get()).forEach(function (cookieName) {
+        var neededAttributes = {
+          // Here you pass the same attributes that were used when the cookie was created
+          // and are required when removing the cookie
+        };
+        Cookies.remove(cookieName);
+      });
+      return window.location.reload();
+    } else {
+      return Promise.reject(error);
+    }
+  }
+);
+
+const onRequestFailure = async (err) => {
+  const { response } = err;
+  if (
+    response.status === 401 &&
+    err &&
+    err.config &&
+    !err.config.__isRetryRequest
+  ) {
+    if (this.isRefreshing) {
+      try {
+        const token = await new Promise((resolve, reject) => {
+          this.failedRequests.push({ resolve, reject });
+        });
+        err.config.headers.Authorization = `Bearer ${token}`;
+        return this.client(err.config);
+      } catch (e) {
+        return e;
+      }
+    }
+    this.isRefreshing = true;
+    err.config.__isRetryRequest = true;
+    return new Promise((resolve, reject) => {
+      this.tokenService
+        .refreshAccessToken()
+        .then((token) => {
+          this.tokenService.setAccessToken(token);
+          err.config.headers.Authorization = `Bearer ${token}`;
+          this.isRefreshing = false;
+          this.processQueue(null, token);
+          resolve(this.client(err.config));
+        })
+        .catch((e) => {
+          this.processQueue(e, null);
+          reject(err.response);
+        });
+    });
+  }
+  throw response;
+};
 
 const getData = async (url) => {
   const get = await axios.get(Host + url);
@@ -95,9 +159,11 @@ const getFileImage = async (url) => {
       }
     )
     .then((response) => {
-      let base64string = btoa(
-        String.fromCharCode(...new Uint8Array(response.data))
-      );
+      // let base64string = btoa(
+      //   String.fromCharCode(...new Uint8Array(response.data))
+      // );
+      let base64string = Buffer.from(response.data).toString("base64");
+
       let contentType = response.headers["content-type"];
       src = "data:" + contentType + ";base64," + base64string;
       return src;

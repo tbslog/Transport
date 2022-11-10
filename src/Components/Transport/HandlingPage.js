@@ -1,15 +1,21 @@
 import { useMemo, useState, useEffect, useCallback, useRef } from "react";
-import { getData, postData, postFile } from "../Common/FuncAxios";
+import {
+  getData,
+  postData,
+  postFile,
+  getDataCustom,
+} from "../Common/FuncAxios";
 import DataTable from "react-data-table-component";
 import moment from "moment";
 import { Modal } from "bootstrap";
+import DatePicker from "react-datepicker";
 import UpdateHandling from "./UpdateHandling";
 import HandlingImage from "./HandlingImage";
 import ConfirmDialog from "../Common/Dialog/ConfirmDialog";
+import AddSubFeeByHandling from "./AddSubFeeByHandling";
+import ApproveSubFeeByHandling from "./ApproveSubFeeByHandling";
 
-const ListHandling = (props) => {
-  const { dataClick } = props;
-
+const HandlingPage = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -21,20 +27,33 @@ const ListHandling = (props) => {
   const parseExceptionModal = useRef();
   const [selectIdClick, setSelectIdClick] = useState({});
 
+  const [totalRows, setTotalRows] = useState(0);
+  const [selectedRows, setSelectedRows] = useState([]);
+  const [perPage, setPerPage] = useState(10);
+  const [keySearch, setKeySearch] = useState("");
+  const [listStatus, setListStatus] = useState([]);
+  const [status, setStatus] = useState("");
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
+
   const columns = useMemo(() => [
     {
-      name: "Hủy Bỏ",
+      name: "Hủy Chuyến",
       cell: (val) => (
         <>
-          <button
-            onClick={() =>
-              showConfirmDialog(val, setFuncName("CancelHandling"))
-            }
-            type="button"
-            className="btn btn-sm btn-default"
-          >
-            <i className="fas fa-window-close"></i>
-          </button>
+          {val.statusId === 19 ? (
+            <button
+              onClick={() =>
+                showConfirmDialog(val, setFuncName("CancelHandling"))
+              }
+              type="button"
+              className="btn btn-sm btn-default"
+            >
+              <i className="fas fa-window-close"></i>
+            </button>
+          ) : (
+            <span></span>
+          )}
         </>
       ),
       ignoreRowClick: true,
@@ -42,6 +61,7 @@ const ListHandling = (props) => {
       button: true,
     },
     {
+      name: "Điều Xe",
       cell: (val) => <> {renderButton(val)}</>,
       ignoreRowClick: true,
       allowOverflow: true,
@@ -56,6 +76,21 @@ const ListHandling = (props) => {
           className="btn btn-sm btn-default"
         >
           <i className="far fa-edit"></i>
+        </button>
+      ),
+      ignoreRowClick: true,
+      allowOverflow: true,
+      button: true,
+    },
+    {
+      name: "Phụ Phí",
+      cell: (val) => (
+        <button
+          onClick={() => handleEditButtonClick(val, SetShowModal("addSubFee"))}
+          type="button"
+          className="btn btn-sm btn-default"
+        >
+          <i className="fas fa-file-invoice-dollar"></i>
         </button>
       ),
       ignoreRowClick: true,
@@ -152,35 +187,30 @@ const ListHandling = (props) => {
       sortable: true,
     },
     {
+      name: "statusId",
+      selector: (row) => row.statusId,
+      omit: true,
+    },
+    {
       name: "Thời Gian Lập Đơn",
       selector: (row) =>
         moment(row.thoiGianTaoDon).format("DD/MM/YYYY HH:mm:ss"),
       sortable: true,
     },
-    {
-      name: "statusId",
-      selector: (row) => row.statusId,
-      omit: true,
-    },
   ]);
 
-  const handleUploadImage = async (val, e) => {
-    let files = e.target.files;
-    const transportId = val.maVanDon;
-    const handlingId = val.maDieuPhoi;
+  useEffect(() => {
+    setLoading(true);
+    (async () => {
+      let getStatusList = await getDataCustom(`Common/GetListStatus`, [
+        "Handling",
+      ]);
+      setListStatus(getStatusList);
+    })();
 
-    let arrfiles = [];
-
-    for (let i = 0; i <= files.length - 1; i++) {
-      arrfiles.push(files[i]);
-    }
-
-    const uploadFiles = await postFile("BillOfLading/UploadFile", {
-      files: arrfiles,
-      transportId: transportId,
-      handlingId: handlingId,
-    });
-  };
+    fetchData(1);
+    setLoading(false);
+  }, []);
 
   const renderButton = (val) => {
     switch (val.statusId) {
@@ -247,19 +277,65 @@ const ListHandling = (props) => {
     }
   };
 
-  useEffect(() => {
-    if (props && dataClick && Object.keys(dataClick).length > 0) {
-      fetchData(dataClick.maVanDon);
-    }
-  }, [props, dataClick]);
-
-  const fetchData = async (transportId) => {
+  const fetchData = async (
+    page,
+    KeyWord = "",
+    fromDate = "",
+    toDate = "",
+    status = ""
+  ) => {
     setLoading(true);
-    const datatransport = await getData(
-      `BillOfLading/GetListHandlingByTransportId?transportId=${transportId}`
+
+    if (KeyWord !== "") {
+      KeyWord = keySearch;
+    }
+    fromDate = fromDate === "" ? "" : moment(fromDate).format("YYYY-MM-DD");
+    toDate = toDate === "" ? "" : moment(toDate).format("YYYY-MM-DD");
+    const dataCus = await getData(
+      `BillOfLading/GetListHandling?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}&fromDate=${fromDate}&toDate=${toDate}&statusId=${status}`
     );
-    setData(datatransport);
+
+    setData(dataCus.data);
+    setTotalRows(dataCus.totalRecords);
     setLoading(false);
+  };
+
+  const handlePageChange = async (page) => {
+    await fetchData(page);
+  };
+
+  const handlePerRowsChange = async (newPerPage, page) => {
+    setLoading(true);
+
+    const dataCus = await getData(
+      `BillOfLading/GetListHandling?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}&fromDate=${fromDate}&toDate=${toDate}&statusId=${status}`
+    );
+    setPerPage(newPerPage);
+    setData(dataCus.data);
+    setTotalRows(dataCus.totalRecords);
+    setLoading(false);
+  };
+
+  const handleChange = useCallback((state) => {
+    setSelectedRows(state.selectedRows);
+  }, []);
+
+  const handleUploadImage = async (val, e) => {
+    let files = e.target.files;
+    const transportId = val.maVanDon;
+    const handlingId = val.maDieuPhoi;
+
+    let arrfiles = [];
+
+    for (let i = 0; i <= files.length - 1; i++) {
+      arrfiles.push(files[i]);
+    }
+
+    const uploadFiles = await postFile("BillOfLading/UploadFile", {
+      files: arrfiles,
+      transportId: transportId,
+      handlingId: handlingId,
+    });
   };
 
   const showConfirmDialog = (val) => {
@@ -278,7 +354,7 @@ const ListHandling = (props) => {
       );
 
       if (update === 1) {
-        fetchData(selectIdClick.maVanDon);
+        fetchData(1);
         setShowConfirm(false);
       } else {
         setShowConfirm(false);
@@ -297,7 +373,7 @@ const ListHandling = (props) => {
       );
 
       if (update === 1) {
-        fetchData(selectIdClick.maVanDon);
+        fetchData(1);
         setShowConfirm(false);
       } else {
         setShowConfirm(false);
@@ -321,6 +397,23 @@ const ListHandling = (props) => {
     showModalForm();
   };
 
+  const handleSearchClick = () => {
+    fetchData(1, keySearch, fromDate, toDate, status);
+  };
+
+  const handleOnChangeStatus = (value) => {
+    setStatus(value);
+    fetchData(1, keySearch, fromDate, toDate, value);
+  };
+
+  const handleRefeshDataClick = () => {
+    setKeySearch("");
+    setFromDate("");
+    setToDate("");
+    setPerPage(10);
+    fetchData(1);
+  };
+
   const showModalForm = () => {
     const modal = new Modal(parseExceptionModal.current, {
       keyboard: false,
@@ -336,15 +429,137 @@ const ListHandling = (props) => {
 
   return (
     <>
+      <section className="content-header">
+        <div className="container-fluid">
+          <div className="row mb-2">
+            <div className="col-sm-6">
+              <h1>Quản Lý Phụ Phí</h1>
+            </div>
+            {/* <div className="col-sm-6">
+                  <ol className="breadcrumb float-sm-right">
+                    <li className="breadcrumb-item">
+                      <a href="#">Home</a>
+                    </li>
+                    <li className="breadcrumb-item active">Blank Page</li>
+                  </ol>
+                </div> */}
+          </div>
+        </div>
+      </section>
+
       <section className="content">
         <div className="card">
+          <div className="card-header">
+            <div className="container-fruid">
+              <div className="row">
+                <div className="col col-sm">
+                  <button
+                    title="Approve List"
+                    type="button"
+                    className="btn btn-sm btn-default mx-1"
+                    onClick={() =>
+                      showModalForm(
+                        SetShowModal("ApproveSubFee"),
+                        setSelectIdClick({})
+                      )
+                    }
+                  >
+                    <i className="fas fa-check-double"></i>
+                  </button>
+                </div>
+                <div className="col col-sm">
+                  <div className="row">
+                    <div className="col col-sm"></div>
+                    <div className="col col-sm">
+                      <div className="input-group input-group-sm">
+                        <select
+                          className="form-control form-control-sm"
+                          onChange={(e) => handleOnChangeStatus(e.target.value)}
+                          value={status}
+                        >
+                          <option value="">Tất Cả Trạng Thái</option>
+                          {listStatus &&
+                            listStatus.map((val) => {
+                              return (
+                                <option value={val.statusId} key={val.statusId}>
+                                  {val.statusContent}
+                                </option>
+                              );
+                            })}
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="col col-sm">
+                  <div className="row">
+                    <div className="col col-sm">
+                      <div className="input-group input-group-sm">
+                        <DatePicker
+                          selected={fromDate}
+                          onChange={(date) => setFromDate(date)}
+                          dateFormat="dd/MM/yyyy"
+                          className="form-control form-control-sm"
+                          placeholderText="Từ ngày"
+                          value={fromDate}
+                        />
+                      </div>
+                    </div>
+                    <div className="col col-sm">
+                      <div className="input-group input-group-sm">
+                        <DatePicker
+                          selected={toDate}
+                          onChange={(date) => setToDate(date)}
+                          dateFormat="dd/MM/yyyy"
+                          className="form-control form-control-sm"
+                          placeholderText="Đến Ngày"
+                          value={toDate}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="col col-sm ">
+                  <div className="input-group input-group-sm">
+                    <input
+                      type="text"
+                      className="form-control"
+                      value={keySearch}
+                      onChange={(e) => setKeySearch(e.target.value)}
+                    />
+                    <span className="input-group-append">
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-default"
+                        onClick={() => handleSearchClick()}
+                      >
+                        <i className="fas fa-search"></i>
+                      </button>
+                    </span>
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-default mx-2"
+                      onClick={() => handleRefeshDataClick()}
+                    >
+                      <i className="fas fa-sync-alt"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
           <div className="card-body">
             <div className="container-datatable" style={{ height: "50vm" }}>
               <DataTable
-                title={"Mã Vận Đơn: " + dataClick.maVanDon}
                 columns={columns}
                 data={data}
                 progressPending={loading}
+                pagination
+                paginationServer
+                paginationTotalRows={totalRows}
+                onSelectedRowsChange={handleChange}
+                onChangeRowsPerPage={handlePerRowsChange}
+                onChangePage={handlePageChange}
                 highlightOnHover
               />
             </div>
@@ -403,6 +618,12 @@ const ListHandling = (props) => {
                         checkModal={modal}
                       />
                     )}
+                    {ShowModal === "addSubFee" && (
+                      <AddSubFeeByHandling dataClick={selectIdClick} />
+                    )}
+                    {ShowModal === "ApproveSubFee" && (
+                      <ApproveSubFeeByHandling CheckModalShow={modal} />
+                    )}
                   </>
                 </div>
               </div>
@@ -414,4 +635,4 @@ const ListHandling = (props) => {
   );
 };
 
-export default ListHandling;
+export default HandlingPage;
