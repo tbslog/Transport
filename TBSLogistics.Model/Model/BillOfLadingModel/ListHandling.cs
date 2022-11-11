@@ -32,5 +32,6 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
         public DateTime ThoiGianLayHang { get; set; }
         public DateTime ThoiGianTraHang { get; set; }
         public string TrangThai { get; set; }
+        public int statusId { get; set; }
     }
 }

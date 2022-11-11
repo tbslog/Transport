@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
+using System.Runtime.Intrinsics.Arm;
 using System.Text;
 using System.Threading.Tasks;
 using TBSLogistics.Data.TMS;
@@ -451,6 +452,178 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
             catch (Exception ex)
             {
                 throw;
+            }
+        }
+
+        public async Task<PagedResponseCustom<ListSubFeeIncurred>> GetListSubFeeIncurredApprove(PaginationFilter filter)
+        {
+            var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
+
+            var getList = from dp in _context.DieuPhoi
+                          join sfc in _context.SfeeByTcommand
+                          on dp.Id equals sfc.IdTcommand
+                          join sf in _context.SubFee
+                          on sfc.SfId equals sf.SubFeeId
+                          join status in _context.StatusText
+                          on sfc.ApproveStatus equals status.StatusId
+                          where sfc.ApproveStatus == 13
+                          && status.LangId == TempData.LangID
+                          orderby sfc.CreatedDate descending
+                          select new { dp, sfc, sf, status };
+
+            if (!string.IsNullOrEmpty(filter.Keyword))
+            {
+                getList = getList.Where(x => x.dp.MaVanDon.Contains(filter.Keyword) || x.dp.MaSoXe.Contains(filter.Keyword));
+            }
+
+            if (filter.fromDate.HasValue && filter.toDate.HasValue)
+            {
+                getList = getList.Where(x => x.sfc.CreatedDate.Date >= filter.fromDate.Value.Date && x.sfc.CreatedDate.Date <= filter.toDate.Value.Date);
+            }
+
+            var totalCount = await getList.CountAsync();
+
+            var pagedData = await getList.Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new ListSubFeeIncurred()
+            {
+                Id = x.sfc.Id,
+                MaVanDon = x.dp.MaVanDon,
+                MaSoXe = x.dp.MaSoXe,
+                TaiXe = _context.TaiXe.Where(y => y.MaTaiXe == x.dp.MaTaiXe).Select(x => x.HoVaTen).FirstOrDefault(),
+                SubFee = x.sf.SfName,
+                Price = x.sfc.FinalPrice,
+                TrangThai = x.status.StatusContent,
+                CreatedDate = x.sfc.CreatedDate
+            }).ToListAsync();
+
+            return new PagedResponseCustom<ListSubFeeIncurred>()
+            {
+                dataResponse = pagedData,
+                totalCount = totalCount,
+                paginationFilter = validFilter
+            };
+        }
+
+        public async Task<List<ListSubFeeIncurred>> GetListSubFeeIncurredByHandling(int id)
+        {
+            var getList = from dp in _context.DieuPhoi
+                          join sfc in _context.SfeeByTcommand
+                          on dp.Id equals sfc.IdTcommand
+                          join sf in _context.SubFee
+                          on sfc.SfId equals sf.SubFeeId
+                          join status in _context.StatusText
+                          on sfc.ApproveStatus equals status.StatusId
+                          where sfc.ApproveStatus == 14 && sfc.IdTcommand == id
+                          && status.LangId == TempData.LangID
+                          orderby sfc.CreatedDate descending
+                          select new { dp, sfc, sf, status };
+
+            var data = await getList.Select(x => new ListSubFeeIncurred()
+            {
+                Id = x.sfc.Id,
+                MaVanDon = x.dp.MaVanDon,
+                MaSoXe = x.dp.MaSoXe,
+                TaiXe = _context.TaiXe.Where(y => y.MaTaiXe == x.dp.MaTaiXe).Select(x => x.HoVaTen).FirstOrDefault(),
+                SubFee = x.sf.SfName,
+                Price = x.sfc.FinalPrice,
+                TrangThai = x.status.StatusContent,
+                ApprovedDate = x.sfc.ApprovedDate.Value,
+                CreatedDate = x.sfc.CreatedDate,
+            }).ToListAsync();
+
+            return data;
+        }
+
+        public async Task<GetSubFeeIncurred> GetSubFeeIncurredById(int id)
+        {
+            var data = from dp in _context.DieuPhoi
+                       join sfc in _context.SfeeByTcommand
+                       on dp.Id equals sfc.IdTcommand
+                       join sf in _context.SubFee
+                       on sfc.SfId equals sf.SubFeeId
+                       where sfc.Id == id
+                       orderby sfc.CreatedDate descending
+                       select new { dp, sfc, sf };
+
+            var result = await data.FirstOrDefaultAsync();
+
+            return new GetSubFeeIncurred
+            {
+                MaVanDon = result.dp.MaVanDon,
+                TaiXe = _context.TaiXe.Where(y => y.MaTaiXe == result.dp.MaTaiXe).Select(x => x.HoVaTen).FirstOrDefault(),
+                MaSoXe = result.dp.MaSoXe,
+                Romooc = result.dp.MaRomooc,
+                LoaiPhuongTien = result.dp.MaLoaiPhuongTien,
+                PhuPhi = result.sf.SfName,
+                FinalPrice = result.sfc.FinalPrice,
+                Note = result.sfc.Note,
+                CreatedDate = result.sfc.CreatedDate,
+            };
+        }
+
+        public async Task<BoolActionResult> ApproveSubFeeIncurred(List<ApproveSubFee> request)
+        {
+            try
+            {
+                if (request.Count < 1)
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Input không hợp lệ" };
+                }
+
+                var Errors = "";
+
+                int line = 0;
+
+                foreach (var item in request)
+                {
+                    line += 1;
+                    var getById = await _context.SfeeByTcommand.Where(x => x.Id == item.SubFeePriceId).FirstOrDefaultAsync();
+
+                    if (getById == null)
+                    {
+                        Errors += "Mã  phụ phí: " + item.SubFeePriceId + ", không tồn tại trong hệ thống";
+                        continue;
+                    }
+
+                    if (item.Selection == 1)
+                    {
+                        getById.ApproveStatus = 15;
+                        _context.Update(getById);
+                    }
+
+                    if (item.Selection == 0)
+                    {
+                        //var checkExists = await _context.SfeeByTcommand.Where(x => x.IdTcommand == getById.IdTcommand
+                        //&& x.SfId == getById.SfId
+                        //&& x.SfPriceId == getById.SfPriceId).FirstOrDefaultAsync();
+
+                        //if (checkExists != null)
+                        //{
+                        //    checkExists.ApproveStatus = 12;
+                        //    checkExists.ApprovedDate = DateTime.Now;
+                        //    _context.Update(checkExists);
+                        //}
+
+                        getById.ApprovedDate = DateTime.Now;
+                        getById.ApproveStatus = 14;
+                        _context.Update(getById);
+                    }
+                }
+
+                var result = await _context.SaveChangesAsync();
+
+                if (result > 0)
+                {
+                    return new BoolActionResult { isSuccess = true, Message = Errors == "" ? "Duyệt phụ phí phát sinh thành công!" : Errors };
+                }
+                else
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Duyệt phụ phí phát sinh thất bại!," + Errors };
+                }
+            }
+            catch (Exception ex)
+            {
+                await _common.Log("SubFeePriceManage", "UserId: " + TempData.UserID + " approve SubFeePrice with ERROR: " + ex.ToString());
+                return new BoolActionResult { isSuccess = false, Message = ex.ToString(), DataReturn = "Exception" };
             }
         }
     }

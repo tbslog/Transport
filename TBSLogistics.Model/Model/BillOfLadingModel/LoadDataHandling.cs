@@ -34,6 +34,7 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
     {
         public string MaSoXe { get; set; }
         public string MaLoaiPhuongTien { get; set; }
+        public string TrangThai { get; set; }
     }
 
     public class RomoocTransport
