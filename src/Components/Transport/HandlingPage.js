@@ -15,7 +15,9 @@ import ConfirmDialog from "../Common/Dialog/ConfirmDialog";
 import AddSubFeeByHandling from "./AddSubFeeByHandling";
 import ApproveSubFeeByHandling from "./ApproveSubFeeByHandling";
 
-const HandlingPage = () => {
+const HandlingPage = (props) => {
+  const { dataClick } = props;
+
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -35,6 +37,7 @@ const HandlingPage = () => {
   const [status, setStatus] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
+  const [transportId, setTransportId] = useState("");
 
   const columns = useMemo(() => [
     {
@@ -200,15 +203,22 @@ const HandlingPage = () => {
   ]);
 
   useEffect(() => {
+    if (props && dataClick && Object.keys(dataClick).length > 0) {
+      setTransportId(dataClick.maVanDon);
+      fetchData(dataClick.maVanDon, 1);
+    }
+  }, [props, dataClick]);
+
+  useEffect(() => {
     setLoading(true);
     (async () => {
       let getStatusList = await getDataCustom(`Common/GetListStatus`, [
         "Handling",
       ]);
       setListStatus(getStatusList);
+      setTransportId("");
+      fetchData("", 1);
     })();
-
-    fetchData(1);
     setLoading(false);
   }, []);
 
@@ -278,6 +288,7 @@ const HandlingPage = () => {
   };
 
   const fetchData = async (
+    transportId,
     page,
     KeyWord = "",
     fromDate = "",
@@ -292,7 +303,7 @@ const HandlingPage = () => {
     fromDate = fromDate === "" ? "" : moment(fromDate).format("YYYY-MM-DD");
     toDate = toDate === "" ? "" : moment(toDate).format("YYYY-MM-DD");
     const dataCus = await getData(
-      `BillOfLading/GetListHandling?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}&fromDate=${fromDate}&toDate=${toDate}&statusId=${status}`
+      `BillOfLading/GetListHandling?transportId=${transportId}&PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}&fromDate=${fromDate}&toDate=${toDate}&statusId=${status}`
     );
 
     setData(dataCus.data);
@@ -301,14 +312,14 @@ const HandlingPage = () => {
   };
 
   const handlePageChange = async (page) => {
-    await fetchData(page);
+    await fetchData(transportId, page);
   };
 
   const handlePerRowsChange = async (newPerPage, page) => {
     setLoading(true);
 
     const dataCus = await getData(
-      `BillOfLading/GetListHandling?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}&fromDate=${fromDate}&toDate=${toDate}&statusId=${status}`
+      `BillOfLading/GetListHandling?transportId=${transportId}&PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}&fromDate=${fromDate}&toDate=${toDate}&statusId=${status}`
     );
     setPerPage(newPerPage);
     setData(dataCus.data);
@@ -354,7 +365,7 @@ const HandlingPage = () => {
       );
 
       if (update === 1) {
-        fetchData(1);
+        fetchData(transportId, 1);
         setShowConfirm(false);
       } else {
         setShowConfirm(false);
@@ -373,7 +384,7 @@ const HandlingPage = () => {
       );
 
       if (update === 1) {
-        fetchData(1);
+        fetchData(transportId, 1);
         setShowConfirm(false);
       } else {
         setShowConfirm(false);
@@ -398,12 +409,12 @@ const HandlingPage = () => {
   };
 
   const handleSearchClick = () => {
-    fetchData(1, keySearch, fromDate, toDate, status);
+    fetchData(transportId, 1, keySearch, fromDate, toDate, status);
   };
 
   const handleOnChangeStatus = (value) => {
     setStatus(value);
-    fetchData(1, keySearch, fromDate, toDate, value);
+    fetchData(transportId, 1, keySearch, fromDate, toDate, value);
   };
 
   const handleRefeshDataClick = () => {
@@ -411,7 +422,7 @@ const HandlingPage = () => {
     setFromDate("");
     setToDate("");
     setPerPage(10);
-    fetchData(1);
+    fetchData(transportId, 1);
   };
 
   const showModalForm = () => {
@@ -433,7 +444,7 @@ const HandlingPage = () => {
         <div className="container-fluid">
           <div className="row mb-2">
             <div className="col-sm-6">
-              <h1>Quản Lý Phụ Phí</h1>
+              <h1>Quản Lý Điều Phối</h1>
             </div>
             {/* <div className="col-sm-6">
                   <ol className="breadcrumb float-sm-right">

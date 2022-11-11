@@ -422,30 +422,26 @@ const UpdateHandling = (props) => {
       sealHq: data.SEALHQ,
       khoiLuong: data.KhoiLuong,
       theTich: data.TheTich,
-      ThoiGianLayTraRong:
-        data.TGLayTraRong === null
-          ? null
-          : moment(new Date(data.TGLayTraRong).toISOString()).format(
-              "yyyy-MM-DDTHH:mm:ss.SSS"
-            ),
-      thoiGianKeoCong:
-        data.TGKeoCont === null
-          ? null
-          : moment(new Date(data.TGKeoCont).toISOString()).format(
-              "yyyy-MM-DDTHH:mm:ss.SSS"
-            ),
-      thoiGianHanLenh:
-        data.TGLech === null
-          ? null
-          : moment(new Date(data.TGLech).toISOString()).format(
-              "yyyy-MM-DDTHH:mm:ss.SSS"
-            ),
-      thoiGianCatMang:
-        data.TGCatMang === null
-          ? null
-          : moment(new Date(data.TGCatMang).toISOString()).format(
-              "yyyy-MM-DDTHH:mm:ss.SSS"
-            ),
+      ThoiGianLayTraRong: !data.TGLayTraRong
+        ? null
+        : moment(new Date(data.TGLayTraRong).toISOString()).format(
+            "yyyy-MM-DDTHH:mm:ss.SSS"
+          ),
+      thoiGianKeoCong: !data.TGKeoCont
+        ? null
+        : moment(new Date(data.TGKeoCont).toISOString()).format(
+            "yyyy-MM-DDTHH:mm:ss.SSS"
+          ),
+      thoiGianHanLenh: !data.TGLech
+        ? null
+        : moment(new Date(data.TGLech).toISOString()).format(
+            "yyyy-MM-DDTHH:mm:ss.SSS"
+          ),
+      thoiGianCatMang: !data.TGCatMang
+        ? null
+        : moment(new Date(data.TGCatMang).toISOString()).format(
+            "yyyy-MM-DDTHH:mm:ss.SSS"
+          ),
 
       thoiGianLayHang: moment(new Date(data.TGLayHang).toISOString()).format(
         "yyyy-MM-DDTHH:mm:ss.SSS"
@@ -465,7 +461,7 @@ const UpdateHandling = (props) => {
     );
 
     if (update === 1) {
-      getlistData(selectIdClick.maVanDon);
+      getlistData(selectIdClick.maVanDon, 1);
       hideModal();
     }
 

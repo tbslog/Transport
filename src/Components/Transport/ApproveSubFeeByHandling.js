@@ -31,21 +31,21 @@ const ApproveSubFeeByHandling = (props) => {
   const [ShowConfirm, setShowConfirm] = useState(false);
 
   const columns = useMemo(() => [
-    {
-      cell: (val) => (
-        <button
-          title="Cập nhật"
-          onClick={() => handleEditButtonClick(val, SetShowModal("Update"))}
-          type="button"
-          className="btn btn-sm btn-default"
-        >
-          <i className="far fa-edit"></i>
-        </button>
-      ),
-      ignoreRowClick: true,
-      allowOverflow: true,
-      button: true,
-    },
+    // {
+    //   cell: (val) => (
+    //     <button
+    //       title="Cập nhật"
+    //       onClick={() => handleEditButtonClick(val, SetShowModal("Update"))}
+    //       type="button"
+    //       className="btn btn-sm btn-default"
+    //     >
+    //       <i className="far fa-edit"></i>
+    //     </button>
+    //   ),
+    //   ignoreRowClick: true,
+    //   allowOverflow: true,
+    //   button: true,
+    // },
     {
       name: "id",
       selector: (row) => row.id,
@@ -99,7 +99,7 @@ const ApproveSubFeeByHandling = (props) => {
   const handleEditButtonClick = async (val) => {
     if (val && Object.keys(val).length > 0) {
       let getById = await getData(
-        `SubFeePrice/GetSubFeeIncurredById?id=${val.id}`
+        `SFeeByTcommand/GetSubFeeIncurredById?id=${val.id}`
       );
       setSelectIdClick(getById);
       showModalForm();
@@ -115,13 +115,15 @@ const ApproveSubFeeByHandling = (props) => {
       let arr = [];
       selectedRows.map((val) => {
         arr.push({
-          SubFeePriceId: val.priceId,
-          Selection: isAccept,
+          ID: val.id,
+          isApprove: isAccept,
         });
       });
 
+      console.log(arr);
+
       const SetApprove = await postData(
-        `SubFeePrice/ApproveSubFeeIncurred`,
+        `SFeeByTcommand/ApproveSubFeeIncurred`,
         arr
       );
 
@@ -179,7 +181,7 @@ const ApproveSubFeeByHandling = (props) => {
     fromDate = fromDate === "" ? "" : moment(fromDate).format("YYYY-MM-DD");
     toDate = toDate === "" ? "" : moment(toDate).format("YYYY-MM-DD");
     const dataCus = await getData(
-      `SubFeePrice/GetListSubFeeIncurred?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}&fromDate=${fromDate}&toDate=${toDate}`
+      `SFeeByTcommand/GetListSubFeeIncurredApprove?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}&fromDate=${fromDate}&toDate=${toDate}`
     );
 
     formatTable(dataCus.data);
@@ -195,7 +197,7 @@ const ApproveSubFeeByHandling = (props) => {
     setLoading(true);
 
     const dataCus = await getData(
-      `SubFeePrice/GetListSubFeeIncurred?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}&fromDate=${fromDate}&toDate=${toDate}`
+      `SFeeByTcommand/GetListSubFeeIncurredApprove?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}&fromDate=${fromDate}&toDate=${toDate}`
     );
     setPerPage(newPerPage);
     formatTable(dataCus.data);

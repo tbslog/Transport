@@ -7,7 +7,7 @@ import DatePicker from "react-datepicker";
 import CreateTransport from "./CreateTransport";
 import UpdateTransport from "./UpdateTransport";
 import CreateHandling from "./CreateHandling";
-import ListHandling from "./ListHandling";
+import HandlingPage from "./HandlingPage";
 
 const TransportPage = () => {
   const [data, setData] = useState([]);
@@ -382,7 +382,7 @@ const TransportPage = () => {
                     />
                   )}
                   {ShowModal === "ListHandling" && (
-                    <ListHandling
+                    <HandlingPage
                       dataClick={selectIdClick}
                       hideModal={hideModal}
                     />

@@ -71,38 +71,51 @@ const AddSubFeeByHandling = (props) => {
 
   const columns = useMemo(() => [
     {
-      //   name: "Xem Hình",
-      cell: (val) => (
-        <button
-          onClick={() => handleEditButtonClick(val, SetShowModal("Update"))}
-          type="button"
-          className="btn btn-sm btn-default"
-        >
-          <i className="far fa-edit"></i>
-        </button>
-      ),
-      ignoreRowClick: true,
-      allowOverflow: true,
-      button: true,
-    },
-
-    {
       selector: (row) => row.id,
       omit: true,
     },
     {
-      //   name: "Tên Hình",
-      selector: (row) => row.fileName,
+      name: "Mã Vận Đơn",
+      selector: (row) => row.maVanDon,
       sortable: true,
     },
     {
-      name: "",
-      selector: (row) => row.fileType,
+      name: "Loại Phụ Phí",
+      selector: (row) => row.subFee,
       sortable: true,
     },
     {
-      //   name: "Thời Gian Upload",
-      selector: (row) => moment(row.uploadedTime).format("DD/MM/YYYY HH:mm:ss"),
+      name: "Đơn Giá",
+      selector: (row) =>
+        row.price.toLocaleString("vi-VI", {
+          style: "currency",
+          currency: "VND",
+        }),
+      sortable: true,
+    },
+    {
+      name: "Mã Số Xe",
+      selector: (row) => row.maSoXe,
+      sortable: true,
+    },
+    {
+      name: "Tài Xế",
+      selector: (row) => row.taiXe,
+      sortable: true,
+    },
+    {
+      name: "Trạng Thái",
+      selector: (row) => row.trangThai,
+      sortable: true,
+    },
+    {
+      name: "Thời Gian Tạo",
+      selector: (row) => moment(row.createdDate).format("DD/MM/YYYY HH:mm:ss"),
+      sortable: true,
+    },
+    {
+      name: "Thời Gian Duyệt",
+      selector: (row) => moment(row.approveDate).format("DD/MM/YYYY HH:mm:ss"),
       sortable: true,
     },
   ]);
@@ -125,7 +138,7 @@ const AddSubFeeByHandling = (props) => {
   const fetchData = async (maDieuPhoi) => {
     SetIsLoading(true);
     const data = await getData(
-      `SubFeePrice/GetListSubFeeIncurredByHandling?id=${maDieuPhoi}`
+      `SFeeByTcommand/GetListSubFeeIncurredByHandling?id=${maDieuPhoi}`
     );
     setData(data);
     SetIsLoading(false);
@@ -140,25 +153,40 @@ const AddSubFeeByHandling = (props) => {
 
     let arr = [];
     data.optionSubFee.map((val) => {
-      if (val.IsApprove === false) {
-        arr.push({
-          MaPhuPhi: val.MaPhuPhi.value,
-          DonGia: val.DonGia,
-          GhiChu: val.GhiChu,
-        });
-      }
+      arr.push({
+        IdTcommand: dataClick.maDieuPhoi,
+        SfId: val.MaPhuPhi.value,
+        SfPriceId: null,
+        Price: 0,
+        FinalPrice: val.DonGia,
+        Note: val.GhiChu,
+      });
     });
 
-    // const createPriceTable = await postData("PriceTable/CreatePriceTable", arr);
-    // if (createPriceTable === 1) {
-    //   reset();
-    // }
+    if (arr && arr.length > 1) {
+      const createPriceTable = await postData(
+        "SFeeByTcommand/CreateSFeeByTCommand",
+        arr
+      );
+
+      if (createPriceTable === 1) {
+        reset();
+        setValue("optionSubFee", [
+          {
+            MaPhuPhi: null,
+            DonGia: null,
+            GhiChu: null,
+          },
+        ]);
+      }
+    }
 
     SetIsLoading(false);
   };
 
   const handleResetClick = () => {
     reset();
+    hideModal();
   };
 
   const HandleOnChangeTabs = (tabIndex) => {
@@ -173,7 +201,7 @@ const AddSubFeeByHandling = (props) => {
       >
         <TabList>
           <Tab>Thêm phụ phí phát sinh</Tab>
-          <Tab>Danh sách phụ phí phát sinh</Tab>
+          <Tab>Danh sách phụ phí phát sinh (Đã Duyệt)</Tab>
         </TabList>
 
         <TabPanel>
@@ -337,7 +365,6 @@ const AddSubFeeByHandling = (props) => {
               <div className="card-header">
                 <h3 className="card-title">Danh sách phụ phí phát sinh</h3>
               </div>
-              <div>{IsLoading === true && <div>Loading...</div>}</div>
               <section className="content">
                 <div className="card">
                   <div className="card-body">
