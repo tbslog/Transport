@@ -134,48 +134,5 @@ namespace TBSLogistics.ApplicationAPI.Controllers
                 return BadRequest(DeleteSubFeePrice.Message);
             }
         }
-
-        [HttpGet]
-        [Route("[action]")]
-        public async Task<IActionResult> GetListSubFeeIncurredApprove([FromQuery] PaginationFilter filter)
-        {
-            var route = Request.Path.Value;
-            var pagedData = await _subFeePrice.GetListSubFeeIncurredApprove(filter);
-
-            var pagedReponse = PaginationHelper.CreatePagedReponse<ListSubFeeIncurred>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _uriService, route);
-            return Ok(pagedReponse);
-        }
-
-        [HttpGet]
-        [Route("[action]")]
-        public async Task<IActionResult> GetSubFeeIncurredById(int id)
-        {
-            var data = await _subFeePrice.GetSubFeeIncurredById(id);
-            return Ok(data);
-        }
-
-        [HttpPost]
-        [Route("[action]")]
-        public async Task<IActionResult> ApproveSubFeeIncurred(List<ApproveSubFee> request)
-        {
-            var ApproveSubFeePrice = await _subFeePrice.ApproveSubFeeIncurred(request);
-
-            if (ApproveSubFeePrice.isSuccess == true)
-            {
-                return Ok(ApproveSubFeePrice.Message);
-            }
-            else
-            {
-                return BadRequest(ApproveSubFeePrice.Message);
-            }
-        }
-
-        [HttpGet]
-        [Route("[action]")]
-        public async Task<IActionResult> GetListSubFeeIncurredByHandling(int id)
-        {
-            var list = await _subFeePrice.GetListSubFeeIncurredByHandling(id);
-            return Ok(list);    
-        }
     }
 }

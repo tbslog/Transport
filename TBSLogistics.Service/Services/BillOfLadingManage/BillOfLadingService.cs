@@ -553,56 +553,7 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
             };
         }
 
-        public async Task<List<ListHandling>> GetListHandlingByTransportId(string transPortId)
-        {
-            try
-            {
-                var data = from vd in _context.VanDon
-                           join
-                           dp in _context.DieuPhoi
-                           on vd.MaVanDon equals dp.MaVanDon
-                           join bg in _context.BangGia
-                           on dp.IdbangGia equals bg.Id
-                           join tt in _context.StatusText
-                           on dp.TrangThai equals tt.StatusId
-                           where vd.MaVanDon == transPortId
-                           && tt.LangId == TempData.LangID
-                           orderby dp.Id
-                           select new { vd, dp, bg, tt };
-
-                return await data.Select(x => new ListHandling()
-                {
-                    MaVanDon = x.dp.MaVanDon,
-                    PhanLoaiVanDon = x.vd.LoaiVanDon,
-                    MaDieuPhoi = x.dp.Id,
-                    DiemLayRong = _context.DiaDiem.Where(y => y.MaDiaDiem == x.dp.DiemLayTraRong).Select(x => x.TenDiaDiem).FirstOrDefault(),
-                    MaSoXe = x.dp.MaSoXe,
-                    TenTaiXe = _context.TaiXe.Where(y => y.MaTaiXe == x.dp.MaTaiXe).Select(y => y.HoVaTen).FirstOrDefault(),
-                    PTVanChuyen = x.bg.MaLoaiPhuongTien,
-                    TenTau = x.dp.Tau,
-                    HangTau = x.dp.HangTau,
-                    MaRomooc = x.dp.MaRomooc,
-                    ContNo = x.dp.ContNo,
-                    KhoiLuong = x.dp.KhoiLuong,
-                    TheTich = x.dp.TheTich,
-                    ThoiGianLayTraRong = x.dp.ThoiGianLayTraRong,
-                    ThoiGianKeoCong = x.dp.ThoiGianKeoCong,
-                    ThoiGianHanLenh = x.dp.ThoiGianHanLenh,
-                    ThoiGianCoMat = x.dp.ThoiGianCoMat,
-                    ThoiGianCatMang = x.dp.ThoiGianCatMang,
-                    ThoiGianLayHang = x.dp.ThoiGianLayHang,
-                    ThoiGianTraHang = x.dp.ThoiGianTraHang,
-                    TrangThai = x.tt.StatusContent,
-                    statusId = x.tt.StatusId
-                }).ToListAsync();
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
-        }
-
-        public async Task<PagedResponseCustom<ListHandling>> GetListHandling(PaginationFilter filter)
+        public async Task<PagedResponseCustom<ListHandling>> GetListHandling(string transportId, PaginationFilter filter)
         {
             var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
 
@@ -617,6 +568,11 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
                            where tt.LangId == TempData.LangID
                            orderby dp.Id
                            select new { vd, dp, bg, tt };
+
+            if (!string.IsNullOrEmpty(transportId))
+            {
+                listData = listData.Where(x => x.dp.MaVanDon == transportId);
+            }
 
             if (!string.IsNullOrEmpty(filter.Keyword))
             {
@@ -788,6 +744,7 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
                 if (handling.TrangThai == 18)
                 {
                     handling.TrangThai = 20;
+                    handling.ThoiGianHoanThanh = DateTime.Now;
                     _context.Update(handling);
 
                     var result1 = await _context.SaveChangesAsync();
@@ -797,6 +754,7 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
                         if (checkAllHandling.Where(x => x.TrangThai == 20 || x.TrangThai == 21).Count() == checkAllHandling.Count())
                         {
                             getTransport.TrangThai = 22;
+                            getTransport.ThoiGianHoanThanh = DateTime.Now;
                             _context.Update(getTransport);
 
                             var result = await _context.SaveChangesAsync();
@@ -1169,7 +1127,5 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
 
             return new BoolActionResult { isSuccess = true, Message = "Upload hình ảnh thành công" };
         }
-
-
     }
 }

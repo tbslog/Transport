@@ -4,8 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TBSLogistics.Model.CommonModel;
+using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.SFeeByTcommand;
 using TBSLogistics.Model.Model.SFeeByTcommandModel;
+using TBSLogistics.Model.Model.SubFeePriceModel;
+using TBSLogistics.Model.Wrappers;
 
 namespace TBSLogistics.Service.Services.SFeeByTcommandManage
 {
@@ -13,8 +16,11 @@ namespace TBSLogistics.Service.Services.SFeeByTcommandManage
     {
         Task<BoolActionResult> CreateSFeeByTCommand(List<CreateSFeeByTCommandRequest> request);
         Task<BoolActionResult> DeleteSFeeByTCommand(DeleteSFeeByTCommand request);
-        Task<List<GetListSubFeeByHandling>> GetListSubFeeByHandling(long IdTcommand1);
-        Task<BoolActionResult> ApproveSFeeByTCommand(List<ApproveSFeeByTCommand> request);
+
+        Task<PagedResponseCustom<ListSubFeeIncurred>> GetListSubFeeIncurredApprove(PaginationFilter filter);
+        Task<GetSubFeeIncurred> GetSubFeeIncurredById(int id);
+        Task<BoolActionResult> ApproveSubFeeIncurred(List<ApproveSFeeByTCommand> request);
+        Task<List<ListSubFeeIncurred>> GetListSubFeeIncurredByHandling(int id);
 
 
     }

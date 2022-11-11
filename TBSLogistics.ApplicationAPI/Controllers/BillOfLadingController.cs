@@ -14,7 +14,6 @@ using TBSLogistics.Service.Repository.Common;
 
 namespace TBSLogistics.ApplicationAPI.Controllers
 {
-    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class BillOfLadingController : ControllerBase
@@ -59,10 +58,10 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<IActionResult> GetListHandling([FromQuery] PaginationFilter filter)
+        public async Task<IActionResult> GetListHandling([FromQuery] PaginationFilter filter, string transportId = null)
         {
             var route = Request.Path.Value;
-            var pagedData = await _billOfLading.GetListHandling(filter);
+            var pagedData = await _billOfLading.GetListHandling(transportId, filter);
 
             var pagedReponse = PaginationHelper.CreatePagedReponse<ListHandling>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _paninationService, route);
             return Ok(pagedReponse);
@@ -114,15 +113,6 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             {
                 return BadRequest(update.Message);
             }
-        }
-
-        [HttpGet]
-        [Route("[action]")]
-        public async Task<IActionResult> GetListHandlingByTransportId(string transportId)
-        {
-            var list = await _billOfLading.GetListHandlingByTransportId(transportId);
-
-            return Ok(list);
         }
 
         [HttpGet]

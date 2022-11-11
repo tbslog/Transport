@@ -1,0 +1,66 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace TBSLogistics.Model.Model.BillModel
+{
+    public class GetBill
+    {
+        public List<ListVanDon> BillReuslt { get; set; }
+    }
+
+    public class ListVanDon
+    {
+        public string MaVanDon { get; set; }
+        public string MaKh { get; set; }
+        public string TenKh { get; set; }
+        public string LoaiVanDon { get; set; }
+        public string MaCungDuong { get; set; }
+        public string TenCungDuong { get; set; }
+        public string DiemLayHang { get; set; }
+        public string DiemTraHang { get; set; }
+        public double TongTheTich { get; set; }
+        public double TongKhoiLuong { get; set; }
+        public List<ListHandling> listHandling { get; set; }
+    }
+
+    public class ListHandling
+    {
+        public string MaSoXe { get; set; }
+        public string DiemLayRong { get; set; }
+     
+        public string MaRomooc { get; set; }
+        public string TaiXe { get; set; }
+        public string LoaiHangHoa { get; set; }
+        public string LoaiPhuongTien { get; set; }
+        public string DonViTinh { get; set; }
+        public string DonViVanTai { get; set; }
+        public decimal DonGia { get; set; }
+        public double? KhoiLuong { get; set; }
+        public double? TheTich { get; set; }
+
+        public List<ListSubFeeByContract> listSubFeeByContract { get; set; }
+        public List<ListSubFeeIncurred> listSubFeeIncurreds { get; set; }
+    }
+
+    public class ListSubFeeByContract
+    {
+        public string ContractId { get; set; }
+        public string ContractName { get; set; }
+        public string sfName { get; set; }
+        public string goodsType { get; set; }
+        public string firstPlace { get; set; }
+        public string secondPlace { get; set; }
+        public double unitPrice { get; set; }
+    }
+
+    public class ListSubFeeIncurred
+    {
+        public string sfName { get; set; }
+        public double Price { get; set; }
+        public string Note { get; set; }
+    }
+
+}

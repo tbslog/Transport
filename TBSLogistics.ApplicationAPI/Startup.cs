@@ -21,6 +21,7 @@ using TBSLogistics.Service.Repository.PricelistManage;
 using TBSLogistics.Service.Repository.RoadManage;
 using TBSLogistics.Service.Repository.UserManage;
 using TBSLogistics.Service.Repository.VehicleManage;
+using TBSLogistics.Service.Services.Bill;
 using TBSLogistics.Service.Services.ContractManage;
 using TBSLogistics.Service.Services.NotificationManage;
 using TBSLogistics.Service.Services.ProductServiceManage;
@@ -98,6 +99,7 @@ namespace TBSLogistics.ApplicationAPI
             services.AddTransient<INotification, NotificationService>();
             services.AddTransient<IUser, UserService>();
             services.AddTransient<ISFeeByTcommand, SFeeByTcommandService>();
+            services.AddTransient<IBill,BillService>();
 
             services.AddSwaggerGen(option =>
             {

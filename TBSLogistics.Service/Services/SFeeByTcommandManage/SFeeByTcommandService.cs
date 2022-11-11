@@ -7,11 +7,14 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TBSLogistics.Data.TMS;
 using TBSLogistics.Model.CommonModel;
+using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.PriceListModel;
 using TBSLogistics.Model.Model.ProductServiceModel;
 using TBSLogistics.Model.Model.SFeeByTcommand;
 using TBSLogistics.Model.Model.SFeeByTcommandModel;
+using TBSLogistics.Model.Model.SubFeePriceModel;
 using TBSLogistics.Model.TempModel;
+using TBSLogistics.Model.Wrappers;
 using TBSLogistics.Service.Repository.Common;
 
 namespace TBSLogistics.Service.Services.SFeeByTcommandManage
@@ -20,18 +23,17 @@ namespace TBSLogistics.Service.Services.SFeeByTcommandManage
     {
 
         private readonly ICommon _common;
-        private readonly TMSContext _TMSContext;
+        private readonly TMSContext _context;
 
         public SFeeByTcommandService(ICommon common, TMSContext context)
         {
             _common = common;
-            _TMSContext = context;
+            _context = context;
         }
         public async Task<BoolActionResult> CreateSFeeByTCommand(List<CreateSFeeByTCommandRequest> request)
         {
             try
             {
-                List<string> IdList = new List<string>();
                 List<string> IdListFail = new List<string>();
 
                 foreach (var i in request)
@@ -39,35 +41,16 @@ namespace TBSLogistics.Service.Services.SFeeByTcommandManage
                     string ErrorValidate = await Validate(i.IdTcommand, i.SfId, i.SfPriceId, i.Price, i.FinalPrice);
                     if (ErrorValidate != "")
                     {
-                        IdListFail.Add(" Bản Ghi:" + i.IdTcommand + " -" + i.SfId + " -" + i.SfPriceId + " -" + i.Price + " -" + i.FinalPrice + " \r\n" + ErrorValidate + " \r\n");
-
+                        IdListFail.Add(" Bản Ghi:" + i.IdTcommand + " -" + i.SfId + " -" + i.SfPriceId + " -" + i.Price + " -" + i.FinalPrice + " </br>" + ErrorValidate + " </br>");
                         continue;
                     }
-                    var checkSFeeByTcommand = await _TMSContext.SfeeByTcommand.Where(x => x.IdTcommand == i.IdTcommand && x.SfId == i.SfId && x.ApproveStatus == 13 && x.SfPriceId == i.SfPriceId).FirstOrDefaultAsync();
+                    var checkSFeeByTcommand = await _context.SfeeByTcommand.Where(x => x.IdTcommand == i.IdTcommand && x.SfId == i.SfId && x.ApproveStatus == 13 && x.SfPriceId == i.SfPriceId).FirstOrDefaultAsync();
                     if (checkSFeeByTcommand != null)
                     {
-
-                        checkSFeeByTcommand.Price = i.Price;
-                        checkSFeeByTcommand.FinalPrice = i.FinalPrice;
-                        checkSFeeByTcommand.Note = i.Note;
-
-                        _TMSContext.Update(checkSFeeByTcommand);
-                        var result = await _TMSContext.SaveChangesAsync();
-
-                        if (result > 0)
-                        {
-                            await _common.Log("SFeeByTcommandManage", "UserId: " + TempData.UserID + " Edit SFeeByTcommand with Id: " + checkSFeeByTcommand.Id);
-                            IdList.Add(" Cập nhật thành công! " + checkSFeeByTcommand.Id + "-" + i.Price + "-" + i.IdTcommand + "-" + i.SfId + " \r\n");
-                            continue;
-                        }
-                        else
-                        {
-                            IdListFail.Add(" Tạo mới thất bại ! " + checkSFeeByTcommand.Id + "-" + i.Price + "-" + i.IdTcommand + "-" + i.SfId + "-" + "lỗi SQL" + " \r\n");
-                            continue;
-                        }
-
+                        IdListFail.Add(" Phụ phí " + await _context.SubFee.Where(x => x.SubFeeId == i.SfId).Select(x => x.SfName).FirstOrDefaultAsync() + " đã tồn tại và đang chờ duyệt </br>");
+                        continue;
                     }
-                    await _TMSContext.AddAsync(new SfeeByTcommand()
+                    await _context.AddAsync(new SfeeByTcommand()
                     {
                         IdTcommand = i.IdTcommand,
                         SfId = i.SfId,
@@ -79,32 +62,16 @@ namespace TBSLogistics.Service.Services.SFeeByTcommandManage
                         CreatedDate = DateTime.Now,
                         ApprovedDate = null
                     });
-                    var result1 = await _TMSContext.SaveChangesAsync();
-
-                    if (result1 > 0)
-                    {
-                        await _common.Log("SFeeByTcommandManage", "UserId: " + TempData.UserID + " Edit SFeeByTcommand with Id: ");
-                        IdList.Add(" Thêm phụ phí phát sinh thành công! " + i.Price + "-" + i.IdTcommand + "-" + i.SfId + "-" + i.SfPriceId + " \r\n");
-                        continue;
-
-                    }
-                    else
-                    {
-                        IdListFail.Add("Thêm phụ phí phát sinh thất bại! " + i.Price + "-" + i.IdTcommand + "-" + i.SfId + "-" + i.SfPriceId + "-" + "lỗi SQL" + " \r\n");
-                        continue;
-                    }
                 }
-                if (IdList.Count > 0)
+
+                var result1 = await _context.SaveChangesAsync();
+                if (result1 > 0)
                 {
-                    string a = string.Join(",", IdList);
-                    string b = string.Join(",", IdListFail);
-                    await _common.Log("SFeeByTcommandManage", "UserId: " + TempData.UserID + " create new SFeeByTcommand : ");
-                    return new BoolActionResult { isSuccess = true, Message = a + " \r\n" + b + " \r\n" };
+                    return new BoolActionResult { isSuccess = true, Message = "Thêm phụ phí phát sinh thành công! </br>" + (IdListFail.Count == 0 ? "" : string.Join(",", IdListFail)) };
                 }
                 else
                 {
-                    string b = string.Join(",", IdListFail);
-                    return new BoolActionResult { isSuccess = false, Message = b };
+                    return new BoolActionResult { isSuccess = false, Message = "Thêm phụ phí phát sinh thất bại!  </br>" + (IdListFail.Count == 0 ? "" : string.Join(",", IdListFail)) };
                 }
             }
             catch (Exception ex)
@@ -115,7 +82,7 @@ namespace TBSLogistics.Service.Services.SFeeByTcommandManage
         }
         public async Task<BoolActionResult> DeleteSFeeByTCommand(DeleteSFeeByTCommand request)
         {
-            var checkExists = await _TMSContext.SfeeByTcommand.Where(x => x.Id == request.Id).FirstOrDefaultAsync();
+            var checkExists = await _context.SfeeByTcommand.Where(x => x.Id == request.Id).FirstOrDefaultAsync();
             if (checkExists == null)
             {
                 return new BoolActionResult { isSuccess = false, Message = "ID: " + request.Id + "không tồn tại  " };
@@ -125,8 +92,8 @@ namespace TBSLogistics.Service.Services.SFeeByTcommandManage
                 return new BoolActionResult { isSuccess = false, Message = "ID: " + request.Id + "Phụ phát sinh không phải là trạng thái chờ duyệt, không thể xóa " };
             }
             checkExists.ApproveStatus = 16;
-            _TMSContext.Update(checkExists);
-            var result = await _TMSContext.SaveChangesAsync();
+            _context.Update(checkExists);
+            var result = await _context.SaveChangesAsync();
             if (result > 0)
             {
                 await _common.Log("SFeeByTcommandManage", "UserId: " + TempData.UserID + " Delete  SFeeByTcommand with Id: " + request.Id);
@@ -137,139 +104,200 @@ namespace TBSLogistics.Service.Services.SFeeByTcommandManage
                 return new BoolActionResult { isSuccess = false, Message = "Phụ phát sinh thất bại!" };
             }
         }
-        public async Task<BoolActionResult> ApproveSFeeByTCommand(List<ApproveSFeeByTCommand> request)
-        {
-            List<string> IdList = new List<string>();
-            List<string> IdListFail = new List<string>();
-            try
-            {
-                foreach (var item in request)
-                {
-
-                    var checkExists = await _TMSContext.SfeeByTcommand.Where(x => x.Id == item.ID).FirstOrDefaultAsync();
-                    if (checkExists == null)
-                    {
-                        IdListFail.Add("Phụ phí phát sinh ID:" + item + " này không tồn tại " + " \r\n");
-                        continue;
-
-                    }
-                    var checkTT = await _TMSContext.SfeeByTcommand.Where(x => x.Id == item.ID && x.ApproveStatus == 13).FirstOrDefaultAsync();
-                    if (checkTT == null)
-                    {
-                        IdListFail.Add("Phụ phí phát sinh ID:" + item.ID + " phải ở trạng thái tạo mới  " + " \r\n");
-                        continue;
-
-                    }
-                    if (item.isApprove == 0)
-                    {
-                        checkTT.ApproveStatus = 14;
-                        checkTT.ApprovedDate= DateTime.Now;
-                        _TMSContext.Update(checkTT);
-                        var result = await _TMSContext.SaveChangesAsync();
-                        if (result > 0)
-                        {
-                            IdList.Add("Approve thành công Phụ phí phát sinh ID :" + item.ID + " \r\n");
-                            continue;
-                        }
-                        else
-                        {
-                            IdListFail.Add("Approve thất bại Phụ phí phát sinh ID" + item.ID + " \r\n");
-                            continue;
-
-                        }
-                    }
-                    if (item.isApprove == 1)
-                    {
-                        checkTT.ApproveStatus = 15;
-                        _TMSContext.Update(checkTT);
-                        var result = await _TMSContext.SaveChangesAsync();
-                        if (result > 0)
-                        {
-                            IdList.Add("Không Duyệt thành công Phụ phí phát sinh ID :" + item.ID + " \r\n");
-                            continue;
-                        }
-                        else
-                        {
-                            IdListFail.Add("Không Duyệt thất bại Phụ phí phát sinh ID" + item.ID + " \r\n");
-                            continue;
-
-                        }
-                    }
-                }
-                if (IdList.Count > 0)
-                {
-                    string a = string.Join(",", IdList);
-                    string b = string.Join(",", IdListFail);
-                    await _common.Log("SFeeByTcommandManage", "UserId: " + TempData.UserID + " Approve SFeeByTcommand Id: ");
-                    return new BoolActionResult { isSuccess = true, Message = a + " \r\n" + b + " \r\n" };
-                }
-                else
-                {
-                    string a = string.Join(",", IdListFail);
-                    return new BoolActionResult { isSuccess = false, Message = a + " \r\n" };
-                }
-            }
-            catch (Exception ex)
-            {
-                await _common.Log("SFeeByTcommandManage", "UserId: " + TempData.UserID + " Approve SFeeByTcommand has ERROR: " + ex.ToString());
-                return new BoolActionResult { isSuccess = false, Message = ex.ToString(), DataReturn = "Exception" };
-            }
-        }
-        public async Task<List<GetListSubFeeByHandling>> GetListSubFeeByHandling(long IdTcommand1)
-        {
-            try
-            {
-                var result = await _TMSContext.SfeeByTcommand.Where(x => x.IdTcommand == IdTcommand1).ToArrayAsync();
-                var list = result.Select(x => new GetListSubFeeByHandling()
-               
-                {
-                    Id = x.Id,
-                    IdTcommand = x.IdTcommand,
-                    SfId = x.SfId,
-                    SfPriceId = x.SfPriceId,
-                    Price = x.Price,
-                    FinalPrice = x.FinalPrice,
-                    ApproveStatus =  _TMSContext.StatusText.Where(y => y.StatusId == x.ApproveStatus).Select(x=>x.StatusContent).FirstOrDefault(),
-                    Note = x.Note,
-                    CreatedDate = x.CreatedDate,
-                    ApprovedDate = x.ApprovedDate
-                });
-                return list.ToList();
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
-        }
         private async Task<string> Validate(long IdTcommand, long SfId, long? SfPriceId, double Price, double FinalPrice, string ErrorRow = "")
         {
             string ErrorValidate = "";
 
-            var checkSubFeeId = await _TMSContext.SubFee.Where(x => x.SubFeeId == SfId).FirstOrDefaultAsync();
+            var checkSubFeeId = await _context.SubFee.Where(x => x.SubFeeId == SfId).FirstOrDefaultAsync();
             if (checkSubFeeId == null)
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã Phụ Phí: " + SfId + " không tồn tại \r\n" + System.Environment.NewLine;
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã Phụ Phí: " + SfId + " không tồn tại </br>";
             }
-            var checkIdTcommand =await _TMSContext.DieuPhoi.Where(x => x.Id == IdTcommand).FirstOrDefaultAsync();
+
+            var checkIdTcommand = await _context.DieuPhoi.Where(x => x.Id == IdTcommand).FirstOrDefaultAsync();
             if (checkIdTcommand == null)
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã Điều Phối: " + IdTcommand + " không tồn tại \r\n" + System.Environment.NewLine;
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã Điều Phối: " + IdTcommand + " không tồn tại </br>";
             }
-            var checktt = await _TMSContext.SfeeByTcommand.Where(x=>x.IdTcommand ==IdTcommand && x.SfId == SfId && x.SfPriceId==SfPriceId && x.ApproveStatus==14).FirstOrDefaultAsync();
 
-            if (checktt != null)
-            {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " Bản Ghi:" + IdTcommand + " -" + SfId + " -" + SfPriceId + " đã tồn tại và được duyệt ! \r\n" + System.Environment.NewLine;
-            }
-            if (!Regex.IsMatch(Price.ToString(), "^\\d*(\\.\\d+)?$"))
-            {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Giá: " + Price + " Phải là số và không được Âm (-) ! \r\n" + System.Environment.NewLine;
-            }
             if (!Regex.IsMatch(FinalPrice.ToString(), "^\\d*(\\.\\d+)?$"))
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Giá: " + FinalPrice + " Phải là số và không được Âm (-) ! \r\n" + System.Environment.NewLine;
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Giá: " + FinalPrice + " Phải là số và không được Âm (-) ! </br>";
             }
             return ErrorValidate;
+        }
+        public async Task<PagedResponseCustom<ListSubFeeIncurred>> GetListSubFeeIncurredApprove( PaginationFilter filter)
+        {
+            var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
+
+            var getList = from dp in _context.DieuPhoi
+                          join sfc in _context.SfeeByTcommand
+                          on dp.Id equals sfc.IdTcommand
+                          join sf in _context.SubFee
+                          on sfc.SfId equals sf.SubFeeId
+                          join status in _context.StatusText
+                          on sfc.ApproveStatus equals status.StatusId
+                          where sfc.ApproveStatus == 13
+                          && status.LangId == TempData.LangID
+                          orderby sfc.CreatedDate descending
+                          select new { dp, sfc, sf, status };
+
+          
+
+            if (!string.IsNullOrEmpty(filter.Keyword))
+            {
+                getList = getList.Where(x => x.dp.MaVanDon.Contains(filter.Keyword) || x.dp.MaSoXe.Contains(filter.Keyword));
+            }
+
+            if (filter.fromDate.HasValue && filter.toDate.HasValue)
+            {
+                getList = getList.Where(x => x.sfc.CreatedDate.Date >= filter.fromDate.Value.Date && x.sfc.CreatedDate.Date <= filter.toDate.Value.Date);
+            }
+
+            var totalCount = await getList.CountAsync();
+
+            var pagedData = await getList.Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new ListSubFeeIncurred()
+            {
+                Id = x.sfc.Id,
+                MaVanDon = x.dp.MaVanDon,
+                MaSoXe = x.dp.MaSoXe,
+                TaiXe = _context.TaiXe.Where(y => y.MaTaiXe == x.dp.MaTaiXe).Select(x => x.HoVaTen).FirstOrDefault(),
+                SubFee = x.sf.SfName,
+                Price = x.sfc.FinalPrice,
+                TrangThai = x.status.StatusContent,
+                CreatedDate = x.sfc.CreatedDate
+            }).ToListAsync();
+
+            return new PagedResponseCustom<ListSubFeeIncurred>()
+            {
+                dataResponse = pagedData,
+                totalCount = totalCount,
+                paginationFilter = validFilter
+            };
+        }
+        public async Task<List<ListSubFeeIncurred>> GetListSubFeeIncurredByHandling(int id)
+        {
+            var getList = from dp in _context.DieuPhoi
+                          join sfc in _context.SfeeByTcommand
+                          on dp.Id equals sfc.IdTcommand
+                          join sf in _context.SubFee
+                          on sfc.SfId equals sf.SubFeeId
+                          join status in _context.StatusText
+                          on sfc.ApproveStatus equals status.StatusId
+                          where sfc.ApproveStatus == 14 && sfc.IdTcommand == id
+                          && status.LangId == TempData.LangID
+                          orderby sfc.CreatedDate descending
+                          select new { dp, sfc, sf, status };
+
+            var data = await getList.Select(x => new ListSubFeeIncurred()
+            {
+                Id = x.sfc.Id,
+                MaVanDon = x.dp.MaVanDon,
+                MaSoXe = x.dp.MaSoXe,
+                TaiXe = _context.TaiXe.Where(y => y.MaTaiXe == x.dp.MaTaiXe).Select(x => x.HoVaTen).FirstOrDefault(),
+                SubFee = x.sf.SfName,
+                Price = x.sfc.FinalPrice,
+                TrangThai = x.status.StatusContent,
+                ApprovedDate = x.sfc.ApprovedDate.Value,
+                CreatedDate = x.sfc.CreatedDate,
+            }).ToListAsync();
+
+            return data;
+        }
+        public async Task<GetSubFeeIncurred> GetSubFeeIncurredById(int id)
+        {
+            var data = from dp in _context.DieuPhoi
+                       join sfc in _context.SfeeByTcommand
+                       on dp.Id equals sfc.IdTcommand
+                       join sf in _context.SubFee
+                       on sfc.SfId equals sf.SubFeeId
+                       where sfc.Id == id
+                       orderby sfc.CreatedDate descending
+                       select new { dp, sfc, sf };
+
+            var result = await data.FirstOrDefaultAsync();
+
+            return new GetSubFeeIncurred
+            {
+                MaVanDon = result.dp.MaVanDon,
+                TaiXe = _context.TaiXe.Where(y => y.MaTaiXe == result.dp.MaTaiXe).Select(x => x.HoVaTen).FirstOrDefault(),
+                MaSoXe = result.dp.MaSoXe,
+                Romooc = result.dp.MaRomooc,
+                LoaiPhuongTien = result.dp.MaLoaiPhuongTien,
+                PhuPhi = result.sf.SfName,
+                FinalPrice = result.sfc.FinalPrice,
+                Note = result.sfc.Note,
+                CreatedDate = result.sfc.CreatedDate,
+            };
+        }
+        public async Task<BoolActionResult> ApproveSubFeeIncurred(List<ApproveSFeeByTCommand> request)
+        {
+            var transaction = _context.Database.BeginTransaction();
+            try
+            {
+                if (request.Count < 1)
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Input không hợp lệ" };
+                }
+
+                var Errors = "";
+
+                int line = 0;
+
+                foreach (var item in request)
+                {
+                    line += 1;
+                    var getById = await _context.SfeeByTcommand.Where(x => x.Id == item.ID).FirstOrDefaultAsync();
+
+                    if (getById == null)
+                    {
+                        Errors += "Mã  phụ phí: " + item.ID + ", không tồn tại trong hệ thống";
+                        continue;
+                    }
+
+                    if (item.isApprove == 1)
+                    {
+                        getById.ApproveStatus = 15;
+                        _context.Update(getById);
+                    }
+
+                    if (item.isApprove == 0)
+                    {
+                        //var checkExists = await _context.SfeeByTcommand.Where(x => x.IdTcommand == getById.IdTcommand
+                        //&& x.SfId == getById.SfId
+                        //&& x.SfPriceId == getById.SfPriceId).FirstOrDefaultAsync();
+
+                        //if (checkExists != null)
+                        //{
+                        //    checkExists.ApproveStatus = 12;
+                        //    checkExists.ApprovedDate = DateTime.Now;
+                        //    _context.Update(checkExists);
+                        //}
+
+                        getById.ApprovedDate = DateTime.Now;
+                        getById.ApproveStatus = 14;
+                        _context.Update(getById);
+                    }
+                }
+
+                var result = await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                if (result > 0)
+                {
+                    return new BoolActionResult { isSuccess = true, Message = Errors == "" ? "Duyệt phụ phí phát sinh thành công!" : Errors };
+                }
+                else
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Duyệt phụ phí phát sinh thất bại!," + Errors };
+                }
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                await _common.Log("SubFeePriceManage", "UserId: " + TempData.UserID + " approve SubFeePrice with ERROR: " + ex.ToString());
+                return new BoolActionResult { isSuccess = false, Message = ex.ToString(), DataReturn = "Exception" };
+            }
         }
     }
 }

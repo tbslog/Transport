@@ -20,9 +20,5 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
         Task<BoolActionResult> DisableSubFeePrice(List<long> ids);
         Task<BoolActionResult> DeleteSubFeePrice(List<long> ids);
         Task<List<ListSubFee>> GetListSubFeeSelect();
-        Task<PagedResponseCustom<ListSubFeeIncurred>> GetListSubFeeIncurredApprove( PaginationFilter filter);
-        Task<GetSubFeeIncurred> GetSubFeeIncurredById(int id);
-        Task<BoolActionResult> ApproveSubFeeIncurred(List<ApproveSubFee> request);
-        Task<List<ListSubFeeIncurred>> GetListSubFeeIncurredByHandling(int id);
     }
 }

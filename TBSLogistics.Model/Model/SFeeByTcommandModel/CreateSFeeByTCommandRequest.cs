@@ -16,6 +16,5 @@ namespace TBSLogistics.Model.Model.SFeeByTcommandModel
         public int ApproveStatus { get; set; }
         public string Note { get; set; }
         public DateTime CreatedDate { get; set; }
-        public DateTime? ApprovedDate { get; set; }
     }
 }
