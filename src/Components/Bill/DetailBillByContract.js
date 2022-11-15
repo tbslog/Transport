@@ -4,25 +4,21 @@ import { Modal } from "bootstrap";
 import Logo from "../../Image/Logo/logo2x.png";
 import "./bill.css";
 
-const DetailBill = (props) => {
-  const { customerId, ky } = props;
+const DetailBillByTransport = (props) => {
+  const { dataClick, ky } = props;
   const [dataBill, setDataBill] = useState([]);
 
-  useEffect(
-    () => {
-      if (props && customerId && ky) {
-        let data = getDataBill(customerId, ky);
-      }
-    },
-    props,
-    ky,
-    customerId
-  );
+  useEffect(() => {
+    if (props && ky && dataClick && Object.keys(dataClick).length > 0) {
+      console.log(dataClick);
+      let data = getDataBill(dataClick.maKh, dataClick.maVanDon, ky);
+    }
+  }, [props, ky, dataClick]);
 
-  const getDataBill = async (customerId, ky) => {
+  const getDataBill = async (customerId, transportId, ky) => {
     if (customerId && ky) {
       var dataBill = await getData(
-        `Bills/GetBillByCustomerId?customerId=${customerId}&ky=${ky}`
+        `Bills/GetBillByTransportId?customerId=${customerId}&transportId=${transportId}&ky=${ky}`
       );
 
       if (dataBill.billReuslt && dataBill.billReuslt.length > 0) {
@@ -451,4 +447,4 @@ const DetailBill = (props) => {
   );
 };
 
-export default DetailBill;
+export default DetailBillByTransport;

@@ -114,17 +114,26 @@ const AddContract = (props) => {
     TrangThai: {
       required: "Không được để trống",
     },
-    PhuPhi: {
+    NgayThanhToan: {
+      required: "Không được để trống",
+      maxLength: {
+        value: 2,
+        message: "Không được vượt quá 2 ký tự",
+      },
       pattern: {
         value: /^[0-9]*$/,
         message: "Chỉ được nhập ký tự là số",
+      },
+      validate: (value) => {
+        if (parseInt(value) > 31 || parseInt(value) < 1) {
+          return "Không tồn tại ngày " + value;
+        }
       },
     },
   };
 
   const [tabIndex, setTabIndex] = useState(0);
   const [listContractType, setListContractType] = useState([]);
-  const [listTransportType, setListTransportType] = useState([]);
   const [listStatusType, setListStatusType] = useState([]);
   const [listCustomer, setListCustomer] = useState([]);
   const [listContract, setListContract] = useState([]);
@@ -153,8 +162,6 @@ const AddContract = (props) => {
         setListCustomer(obj);
       }
 
-      const getListTransportType = await getData("Common/GetListTransportType");
-      setListTransportType(getListTransportType);
       setListStatusType(props.listStatus);
       SetIsLoading(false);
     })();
@@ -204,8 +211,9 @@ const AddContract = (props) => {
         thoiGianKetThuc: moment(
           new Date(data.NgayKetThuc).toISOString()
         ).format("YYYY-MM-DD"),
+        NgayThanhToan: !data.NgayThanhToan ? null : data.NgayThanhToan,
         ghiChu: data.GhiChu,
-        trangThai: data.TrangThai,
+        // trangThai: data.TrangThai,
         file: data.FileContact[0],
       },
       {
@@ -414,7 +422,7 @@ const AddContract = (props) => {
                                 <DatePicker
                                   className="form-control"
                                   dateFormat="dd/MM/yyyy"
-                                  placeholderText="Chọn ngày bắt đầu"
+                                  placeholderText="Chọn Ngày kết thúc"
                                   onChange={(date) => field.onChange(date)}
                                   selected={field.value}
                                 />
@@ -427,6 +435,26 @@ const AddContract = (props) => {
                               </span>
                             )}
                           </div>
+                        </div>
+                      </div>
+                      <div className="col col-sm">
+                        <div className="form-group">
+                          <label htmlFor="NgayThanhToan">Ngày Thanh Toán</label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            id="NgayThanhToan"
+                            placeholder="Ngày Thanh Toán"
+                            {...register(
+                              "NgayThanhToan",
+                              Validate.NgayThanhToan
+                            )}
+                          />
+                          {errors.NgayThanhToan && (
+                            <span className="text-danger">
+                              {errors.NgayThanhToan.message}
+                            </span>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -461,7 +489,7 @@ const AddContract = (props) => {
                       )}
                     </div>
 
-                    <div className="form-group">
+                    {/* <div className="form-group">
                       <label htmlFor="TrangThai">Trạng thái</label>
                       <select
                         className="form-control"
@@ -482,7 +510,7 @@ const AddContract = (props) => {
                           {errors.TrangThai.message}
                         </span>
                       )}
-                    </div>
+                    </div> */}
                   </div>
                   <div className="card-footer">
                     <div>
@@ -709,7 +737,7 @@ const AddContract = (props) => {
                                 <DatePicker
                                   className="form-control"
                                   dateFormat="dd/MM/yyyy"
-                                  placeholderText="Chọn ngày bắt đầu"
+                                  placeholderText="Chọn Ngày kết thúc"
                                   onChange={(date) => field.onChange(date)}
                                   selected={field.value}
                                 />
@@ -724,6 +752,26 @@ const AddContract = (props) => {
                           </div>
                         </div>
                       </div>
+                      {/* <div className="col col-sm">
+                        <div className="form-group">
+                          <label htmlFor="NgayThanhToan">Ngày Thanh Toán</label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            id="NgayThanhToan"
+                            placeholder="Ngày Thanh Toán"
+                            {...register(
+                              "NgayThanhToan",
+                              Validate.NgayThanhToan
+                            )}
+                          />
+                          {errors.NgayThanhToan && (
+                            <span className="text-danger">
+                              {errors.NgayThanhToan.message}
+                            </span>
+                          )}
+                        </div>
+                      </div> */}
                     </div>
                     {/* <div className="form-group">
                       <label htmlFor="PhuPhi">Phụ Phí</label>
@@ -769,7 +817,7 @@ const AddContract = (props) => {
                         </span>
                       )}
                     </div>
-
+                    {/* 
                     <div className="form-group">
                       <label htmlFor="TrangThai">Trạng thái</label>
                       <select
@@ -791,7 +839,7 @@ const AddContract = (props) => {
                           {errors.TrangThai.message}
                         </span>
                       )}
-                    </div>
+                    </div> */}
                   </div>
                   <div className="card-footer">
                     <div>

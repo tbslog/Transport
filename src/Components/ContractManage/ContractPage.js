@@ -202,7 +202,7 @@ const ContractPage = () => {
       setListContractType(getListContractType);
 
       let getStatusList = await getDataCustom(`Common/GetListStatus`, [
-        "common",
+        "Contract",
       ]);
       setListStatus(getStatusList);
     })();

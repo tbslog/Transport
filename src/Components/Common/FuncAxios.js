@@ -59,46 +59,6 @@ axios.interceptors.response.use(
   }
 );
 
-const onRequestFailure = async (err) => {
-  const { response } = err;
-  if (
-    response.status === 401 &&
-    err &&
-    err.config &&
-    !err.config.__isRetryRequest
-  ) {
-    if (this.isRefreshing) {
-      try {
-        const token = await new Promise((resolve, reject) => {
-          this.failedRequests.push({ resolve, reject });
-        });
-        err.config.headers.Authorization = `Bearer ${token}`;
-        return this.client(err.config);
-      } catch (e) {
-        return e;
-      }
-    }
-    this.isRefreshing = true;
-    err.config.__isRetryRequest = true;
-    return new Promise((resolve, reject) => {
-      this.tokenService
-        .refreshAccessToken()
-        .then((token) => {
-          this.tokenService.setAccessToken(token);
-          err.config.headers.Authorization = `Bearer ${token}`;
-          this.isRefreshing = false;
-          this.processQueue(null, token);
-          resolve(this.client(err.config));
-        })
-        .catch((e) => {
-          this.processQueue(e, null);
-          reject(err.response);
-        });
-    });
-  }
-  throw response;
-};
-
 const getData = async (url) => {
   const get = await axios.get(Host + url);
   var data = get.data;
