@@ -8,6 +8,7 @@ namespace TBSLogistics.Model.Model.ContractModel
 {
     public class GetContractById
     {
+        public int? NgayThanhToan { get; set; }
         public string MaHopDong { get; set; }
         public string SoHopDongCha { get; set; }
         public string TenHienThi { get; set; }

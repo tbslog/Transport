@@ -11,7 +11,9 @@ namespace TBSLogistics.Service.Services.Bill
 {
     public interface IBill
     {
-        Task<GetBill> GetBillByCustomerId(string customerId, DateTime fromDate, DateTime toDate);
-        Task<PagedResponseCustom<ListCustomerHasBill>> GetListCustomerHasBill(PaginationFilter filter);
+        Task<GetBill> GetBillByCustomerId(string customerId,int ky);
+        Task<PagedResponseCustom<ListVanDon>> GetListTransportByCustomerId(string customerId, int ky, PaginationFilter filter);
+        Task<GetBill> GetBillByTransportId(string customerId, string transportId, int ky);
+        Task<List<KyThanhToan>> GetListKyThanhToan(string customerId);
     }
 }

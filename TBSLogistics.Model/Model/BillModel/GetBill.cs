@@ -11,6 +11,18 @@ namespace TBSLogistics.Model.Model.BillModel
         public List<ListVanDon> BillReuslt { get; set; }
     }
 
+    public class GetBillByTransport
+    {
+        public List<ListHandling> listHandlings { get; set; }
+    }
+
+    public class KyThanhToan
+    {
+        public int Ky { get; set;}
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
+    }
+
     public class ListVanDon
     {
         public string MaVanDon { get; set; }
@@ -30,7 +42,6 @@ namespace TBSLogistics.Model.Model.BillModel
     {
         public string MaSoXe { get; set; }
         public string DiemLayRong { get; set; }
-     
         public string MaRomooc { get; set; }
         public string TaiXe { get; set; }
         public string LoaiHangHoa { get; set; }

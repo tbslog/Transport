@@ -78,6 +78,7 @@ namespace TBSLogistics.Service.Services.ContractManage
                     MaHopDongCha = request.SoHopDongCha,
                     ThoiGianBatDau = request.ThoiGianBatDau,
                     ThoiGianKetThuc = request.ThoiGianKetThuc,
+                    NgayThanhToan =request.NgayThanhToan,
                     MaKh = request.MaKh,
                     GhiChu = request.GhiChu,
                     MaPhuPhi = request.PhuPhi,
@@ -126,7 +127,7 @@ namespace TBSLogistics.Service.Services.ContractManage
                     return new BoolActionResult { isSuccess = false, Message = "Thời gian bắt đầu không được lớn hơn hoặc bằng thời gian kết thúc" };
                 }
 
-
+                checkExists.NgayThanhToan = request.NgayThanhToan;
                 checkExists.TenHienThi = request.TenHienThi;
                 checkExists.ThoiGianBatDau = request.ThoiGianBatDau;
                 checkExists.ThoiGianKetThuc = request.ThoiGianKetThuc;
@@ -170,6 +171,7 @@ namespace TBSLogistics.Service.Services.ContractManage
 
                 return new GetContractById()
                 {
+                    NgayThanhToan = getContractById.NgayThanhToan,
                     MaHopDong = getContractById.MaHopDong,
                     SoHopDongCha = getContractById.MaHopDongCha,
                     TenHienThi = getContractById.TenHienThi,
@@ -235,6 +237,7 @@ namespace TBSLogistics.Service.Services.ContractManage
 
                 var pagedData = await listData.Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new ListContract()
                 {
+                    NgayThanhToan  = x.contract.NgayThanhToan,
                     MaHopDong = x.contract.MaHopDong,
                     TenHienThi = x.contract.TenHienThi,
                     SoHopDongCha = x.contract.MaHopDongCha == null ? "Hợp Đồng" : "Phụ Lục",

@@ -20,6 +20,7 @@ namespace TBSLogistics.Data.TMS
         public string TenHienThi { get; set; }
         public string MaKh { get; set; }
         public string MaLoaiHopDong { get; set; }
+        public int? NgayThanhToan { get; set; }
         public DateTime ThoiGianBatDau { get; set; }
         public DateTime ThoiGianKetThuc { get; set; }
         public string GhiChu { get; set; }

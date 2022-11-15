@@ -31,22 +31,39 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<IActionResult> GetListCustomerHasBill([FromQuery] PaginationFilter filter)
+        public async Task<IActionResult> GetListTransportByCustomerId(string customerId, int ky, [FromQuery] PaginationFilter filter)
         {
             var route = Request.Path.Value;
-            var pagedData = await _bill.GetListCustomerHasBill(filter);
+            var pagedData = await _bill.GetListTransportByCustomerId(customerId, ky, filter);
 
-            var pagedReponse = PaginationHelper.CreatePagedReponse<ListCustomerHasBill>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _uriService, route);
+            var pagedReponse = PaginationHelper.CreatePagedReponse<ListVanDon>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _uriService, route);
             return Ok(pagedReponse);
         }
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<IActionResult> GetBillByCustomerId(string customerId, DateTime fromDate, DateTime toDate)
+        public async Task<IActionResult> GetBillByCustomerId(string customerId, int ky)
         {
-            var billResult = await _bill.GetBillByCustomerId(customerId, fromDate, toDate);
+            var billResult = await _bill.GetBillByCustomerId(customerId, ky);
 
             return Ok(billResult);
+        }
+
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetBillByTransportId(string customerId, string transportId, int ky)
+        {
+            var data = await _bill.GetBillByTransportId(customerId, transportId, ky); 
+            return Ok(data);
+        }
+
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetListKy(string customerId)
+        {
+            var data = await _bill.GetListKyThanhToan(customerId);
+
+            return Ok(data);
         }
     }
 }
