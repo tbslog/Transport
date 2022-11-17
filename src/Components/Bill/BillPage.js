@@ -133,7 +133,6 @@ const BillPage = () => {
   }, []);
 
   const handleButtonClick = async (value) => {
-    console.log(value);
     setSelectIdClick(value);
     showModalForm();
   };
@@ -193,7 +192,7 @@ const BillPage = () => {
                         className="btn btn-sm btn-default"
                         onClick={() => handleSearchByContractId()}
                       >
-                        <i className="fas fa-search"></i>
+                        <i className="fas fa-arrow-circle-right"></i>
                       </button>
                     </span>
                   </div>
@@ -306,7 +305,7 @@ const BillPage = () => {
         >
           <div
             className="modal-dialog modal-dialog-scrollable"
-            style={{ maxWidth: "90%" }}
+            style={{ maxWidth: "95%" }}
           >
             <div className="modal-content">
               <div className="modal-header">

@@ -207,7 +207,7 @@ const HandlingPage = (props) => {
       setTransportId(dataClick.maVanDon);
       fetchData(dataClick.maVanDon, 1);
     }
-  }, [props, dataClick]);
+  }, [props, dataClick, listStatus]);
 
   useEffect(() => {
     setLoading(true);

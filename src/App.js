@@ -21,6 +21,7 @@ import DriverPage from "./Components/DriverManage/DriverPage";
 import CustommerPage from "./Components/CustommerManage/CustommerPage";
 import HandlingPage from "./Components/Transport/HandlingPage";
 import BillPage from "./Components/Bill/BillPage";
+import ReportPage from "./Components/Report/ReportPage";
 
 function App() {
   return (
@@ -45,6 +46,7 @@ function App() {
               <Route path="/handling" element={<HandlingPage />} />
               <Route path="/productService" element={<ProductServicePage />} />
               <Route path="/bill" element={<BillPage />} />
+              <Route path="/report" element={<ReportPage />} />
             </Route>
             <Route element={<LoginPage />} path="/login"></Route>
           </Routes>

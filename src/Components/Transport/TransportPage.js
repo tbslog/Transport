@@ -72,6 +72,10 @@ const TransportPage = () => {
       selector: (row) => row.loaiVanDon,
     },
     {
+      name: "Khách Hàng",
+      selector: (row) => row.tenKH,
+    },
+    {
       name: "Mã Cung Đường",
       selector: (row) => row.maCungDuong,
       sortable: true,

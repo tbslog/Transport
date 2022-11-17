@@ -120,8 +120,6 @@ const ApproveSubFeeByHandling = (props) => {
         });
       });
 
-      console.log(arr);
-
       const SetApprove = await postData(
         `SFeeByTcommand/ApproveSubFeeIncurred`,
         arr

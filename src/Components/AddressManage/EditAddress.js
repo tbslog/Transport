@@ -277,33 +277,23 @@ const EditAddress = (props) => {
                     )}
                   </div>
                 </div>
+                <div className="col col-sm">
+                  <div className="form-group">
+                    <label htmlFor="GPS">Mã GPS</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="GPS"
+                      placeholder="Nhập mã GPS"
+                      {...register("GPS", Validate.MaGPS)}
+                    />
+                    {errors.GPS && (
+                      <span className="text-danger">{errors.GPS.message}</span>
+                    )}
+                  </div>
+                </div>
               </div>
-              <div className="form-group">
-                <label htmlFor="GPS">Mã GPS</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="GPS"
-                  placeholder="Nhập mã GPS"
-                  {...register("GPS", Validate.MaGPS)}
-                />
-                {errors.GPS && (
-                  <span className="text-danger">{errors.GPS.message}</span>
-                )}
-              </div>
-              <div className="form-group">
-                <label htmlFor="Sonha">Số nhà</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="Sonha"
-                  placeholder="Nhập số nhà"
-                  {...register("SoNha", Validate.SoNha)}
-                />
-                {errors.SoNha && (
-                  <span className="text-danger">{errors.SoNha.message}</span>
-                )}
-              </div>
+
               <div className="row">
                 <div className="col-sm">
                   <div className="form-group">
@@ -372,6 +362,23 @@ const EditAddress = (props) => {
                     {errors.MaPhuong && (
                       <span className="text-danger">
                         {errors.MaPhuong.message}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className="col col-sm">
+                  <div className="form-group">
+                    <label htmlFor="Sonha">Số nhà</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="Sonha"
+                      placeholder="Nhập số nhà"
+                      {...register("SoNha", Validate.SoNha)}
+                    />
+                    {errors.SoNha && (
+                      <span className="text-danger">
+                        {errors.SoNha.message}
                       </span>
                     )}
                   </div>

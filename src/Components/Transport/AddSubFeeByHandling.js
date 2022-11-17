@@ -85,6 +85,11 @@ const AddSubFeeByHandling = (props) => {
       sortable: true,
     },
     {
+      name: "Phân Loại",
+      selector: (row) => row.type,
+      sortable: true,
+    },
+    {
       name: "Đơn Giá",
       selector: (row) =>
         row.price.toLocaleString("vi-VI", {
