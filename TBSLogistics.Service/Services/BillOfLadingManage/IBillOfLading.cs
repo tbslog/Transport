@@ -8,13 +8,14 @@ using TBSLogistics.Data.TMS;
 using TBSLogistics.Model.CommonModel;
 using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.BillOfLadingModel;
+using TBSLogistics.Model.Model.RoadModel;
 using TBSLogistics.Model.Wrappers;
 
 namespace TBSLogistics.Service.Repository.BillOfLadingManage
 {
     public interface IBillOfLading
     {
-        Task<LoadDataHandling> LoadDataHandling(string RoadId);
+        Task<LoadDataHandling> LoadDataHandling();
         Task<BoolActionResult> CreateHandling(CreateHandling request);
         Task<BoolActionResult> CreateTransport(CreateTransport request);
         Task<BoolActionResult> UpdateTransport(string transPortId, UpdateTransport request);
@@ -29,6 +30,7 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
         Task<BoolActionResult> CancelHandling(int id);
         Task<Attachment> GetImageById(int id);
         Task<PagedResponseCustom<ListHandling>> GetListHandling(string transportId, PaginationFilter filter);
+        Task<ListPoint> LoadDataRoadTransportByCusId(string customerId);
 
     }
 }

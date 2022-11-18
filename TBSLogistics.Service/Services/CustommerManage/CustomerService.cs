@@ -206,14 +206,22 @@ namespace TBSLogistics.Service.Repository.CustommerManage
             }).FirstOrDefaultAsync();
         }
 
-        public async Task<List<GetCustomerRequest>> getListCustomerOptionSelect()
+        public async Task<List<GetCustomerRequest>> getListCustomerOptionSelect(string type)
         {
+
             var getList = await _TMSContext.KhachHang.Where(x => x.TrangThai == 1).Select(x => new GetCustomerRequest()
             {
                 MaKh = x.MaKh,
                 TenKh = x.TenKh,
                 LoaiKH = x.MaLoaiKh,
             }).ToListAsync();
+
+            if (!string.IsNullOrEmpty(type))
+            {
+                getList = getList.Where(x => x.LoaiKH == type).ToList();
+            }
+
+            
 
             return getList;
         }

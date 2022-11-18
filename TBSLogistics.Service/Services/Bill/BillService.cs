@@ -89,7 +89,7 @@ namespace TBSLogistics.Service.Services.Bill
                         LoaiPhuongTien = _context.LoaiPhuongTien.Where(y => y.MaLoaiPhuongTien == x.MaLoaiPhuongTien).Select(x => x.TenLoaiPhuongTien).FirstOrDefault(),
                         DonViTinh = _context.DonViTinh.Where(y => y.MaDvt == x.MaDvt).Select(x => x.TenDvt).FirstOrDefault(),
                         DonViVanTai = _context.KhachHang.Where(y => y.MaKh == x.DonViVanTai).Select(x => x.TenKh).FirstOrDefault(),
-                        DonGia = x.GiaThamChieu,
+                        DonGiaKH = x.DonGiaKh,
                         KhoiLuong = x.KhoiLuong,
                         TheTich = x.TheTich,
                         listSubFeeByContract = getListSubFeeByContract.Where(y => (y.sfPice.GoodsType == x.MaLoaiHangHoa)
@@ -188,7 +188,7 @@ namespace TBSLogistics.Service.Services.Bill
                         LoaiPhuongTien = _context.LoaiPhuongTien.Where(y => y.MaLoaiPhuongTien == x.MaLoaiPhuongTien).Select(x => x.TenLoaiPhuongTien).FirstOrDefault(),
                         DonViTinh = _context.DonViTinh.Where(y => y.MaDvt == x.MaDvt).Select(x => x.TenDvt).FirstOrDefault(),
                         DonViVanTai = _context.KhachHang.Where(y => y.MaKh == x.DonViVanTai).Select(x => x.TenKh).FirstOrDefault(),
-                        DonGia = x.GiaThamChieu,
+                        DonGiaKH = x.DonGiaKh,
                         KhoiLuong = x.KhoiLuong,
                         TheTich = x.TheTich,
                         listSubFeeByContract = getListSubFeeByContract.Where(y => (y.sfPice.GoodsType == x.MaLoaiHangHoa)

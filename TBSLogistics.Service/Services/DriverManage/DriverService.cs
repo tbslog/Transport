@@ -211,7 +211,8 @@ namespace TBSLogistics.Service.Repository.DriverManage
             return list.Select(x => new GetDriverRequest()
             {
                 MaTaiXe = x.MaTaiXe,
-                HoVaTen = x.HoVaTen
+                HoVaTen = x.HoVaTen,
+                MaLoaiPhuongTien = x.MaLoaiPhuongTien,
             }).ToList();
 
         }

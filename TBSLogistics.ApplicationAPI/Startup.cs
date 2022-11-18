@@ -25,6 +25,7 @@ using TBSLogistics.Service.Services.Bill;
 using TBSLogistics.Service.Services.ContractManage;
 using TBSLogistics.Service.Services.NotificationManage;
 using TBSLogistics.Service.Services.ProductServiceManage;
+using TBSLogistics.Service.Services.Report;
 using TBSLogistics.Service.Services.RomoocManage;
 using TBSLogistics.Service.Services.SFeeByTcommandManage;
 using TBSLogistics.Service.Services.SubFeePriceManage;
@@ -53,11 +54,7 @@ namespace TBSLogistics.ApplicationAPI
                  });
             });
 
-        
-
-            services.AddDbContext<TMSContext>(options =>
-            options.UseSqlServer(Configuration["TMS_Local"]));
-
+            services.AddDbContext<TMSContext>(options => options.UseSqlServer(Configuration["TMS_Local"]));
             services.AddHttpContextAccessor();
             services.AddSingleton<IPaginationService>(o =>
             {
@@ -99,7 +96,8 @@ namespace TBSLogistics.ApplicationAPI
             services.AddTransient<INotification, NotificationService>();
             services.AddTransient<IUser, UserService>();
             services.AddTransient<ISFeeByTcommand, SFeeByTcommandService>();
-            services.AddTransient<IBill,BillService>();
+            services.AddTransient<IBill, BillService>();
+            services.AddTransient<IReport, ReportService>();
 
             services.AddSwaggerGen(option =>
             {

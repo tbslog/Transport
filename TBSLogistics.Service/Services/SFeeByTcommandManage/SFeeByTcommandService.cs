@@ -126,7 +126,7 @@ namespace TBSLogistics.Service.Services.SFeeByTcommandManage
             }
             return ErrorValidate;
         }
-        public async Task<PagedResponseCustom<ListSubFeeIncurred>> GetListSubFeeIncurredApprove( PaginationFilter filter)
+        public async Task<PagedResponseCustom<ListSubFeeIncurred>> GetListSubFeeIncurredApprove(PaginationFilter filter)
         {
             var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
 
@@ -142,7 +142,7 @@ namespace TBSLogistics.Service.Services.SFeeByTcommandManage
                           orderby sfc.CreatedDate descending
                           select new { dp, sfc, sf, status };
 
-          
+
 
             if (!string.IsNullOrEmpty(filter.Keyword))
             {
@@ -177,23 +177,63 @@ namespace TBSLogistics.Service.Services.SFeeByTcommandManage
         }
         public async Task<List<ListSubFeeIncurred>> GetListSubFeeIncurredByHandling(int id)
         {
-            var getList = from dp in _context.DieuPhoi
-                          join sfc in _context.SfeeByTcommand
-                          on dp.Id equals sfc.IdTcommand
-                          join sf in _context.SubFee
-                          on sfc.SfId equals sf.SubFeeId
-                          join status in _context.StatusText
-                          on sfc.ApproveStatus equals status.StatusId
-                          where sfc.ApproveStatus == 14 && sfc.IdTcommand == id
-                          && status.LangId == TempData.LangID
-                          orderby sfc.CreatedDate descending
-                          select new { dp, sfc, sf, status };
+            var getHandling = await _context.DieuPhoi.Where(x => x.Id == id).FirstOrDefaultAsync();
+            var getTransport = await _context.VanDon.Where(x => x.MaVanDon == getHandling.MaVanDon).FirstOrDefaultAsync();
+            var getRoad = await _context.CungDuong.Where(x => x.MaCungDuong == getTransport.MaCungDuong).FirstOrDefaultAsync();
+            var getListSubFeeByContract = from kh in _context.KhachHang
+                                          join hd in _context.HopDongVaPhuLuc
+                                          on kh.MaKh equals hd.MaKh
+                                          join sfPice in _context.SubFeePrice
+                                          on hd.MaHopDong equals sfPice.ContractId
+                                          join sf in _context.SubFee
+                                          on sfPice.SfId equals sf.SubFeeId
+                                          join tt in _context.StatusText
+                                          on sfPice.Status equals tt.StatusId
+                                          where sfPice.Status == 14
+                                          && tt.LangId == TempData.LangID
+                                          && kh.MaKh == getTransport.MaKh
+                                          select new { kh, hd, sfPice, sf, tt };
 
-            var data = await getList.Select(x => new ListSubFeeIncurred()
+            getListSubFeeByContract.Where(y => (y.sfPice.GoodsType == getHandling.MaLoaiHangHoa)
+                        || (y.sfPice.FirstPlace == getHandling.DiemLayTraRong)
+                        || (y.sfPice.FirstPlace == getRoad.DiemDau && y.sfPice.SecondPlace == getRoad.DiemCuoi));
+
+
+            var dataSubFeeIncurred = from dp in _context.DieuPhoi
+                                     join sfc in _context.SfeeByTcommand
+                                     on dp.Id equals sfc.IdTcommand
+                                     join sf in _context.SubFee
+                                     on sfc.SfId equals sf.SubFeeId
+                                     join status in _context.StatusText
+                                     on sfc.ApproveStatus equals status.StatusId
+                                     where sfc.ApproveStatus == 14 && sfc.IdTcommand == id
+                                     && status.LangId == TempData.LangID
+                                     orderby sfc.CreatedDate descending
+                                     select new { dp, sfc, sf, status };
+
+
+            var dataSubFeeByContract = await getListSubFeeByContract.Select(x => new ListSubFeeIncurred()
+            {
+                Id = x.sfPice.PriceId,
+                MaVanDon = getHandling.MaVanDon,
+                MaSoXe = null,
+                TaiXe = null,
+                SubFee = x.sf.SfName,
+                Type = "Phụ phí theo hợp đồng",
+                Price = x.sfPice.UnitPrice,
+                TrangThai = x.tt.StatusContent,
+                ApprovedDate = x.sfPice.ApprovedDate,
+                CreatedDate = x.sfPice.CreatedDate,
+
+            }).ToListAsync();
+
+       
+            var listDataSubFeeIncurred = await dataSubFeeIncurred.Select(x => new ListSubFeeIncurred()
             {
                 Id = x.sfc.Id,
                 MaVanDon = x.dp.MaVanDon,
                 MaSoXe = x.dp.MaSoXe,
+                Type = "Phụ Phí Phát Sinh",
                 TaiXe = _context.TaiXe.Where(y => y.MaTaiXe == x.dp.MaTaiXe).Select(x => x.HoVaTen).FirstOrDefault(),
                 SubFee = x.sf.SfName,
                 Price = x.sfc.FinalPrice,
@@ -201,6 +241,8 @@ namespace TBSLogistics.Service.Services.SFeeByTcommandManage
                 ApprovedDate = x.sfc.ApprovedDate.Value,
                 CreatedDate = x.sfc.CreatedDate,
             }).ToListAsync();
+
+            var data = dataSubFeeByContract.Concat(listDataSubFeeIncurred).ToList();
 
             return data;
         }

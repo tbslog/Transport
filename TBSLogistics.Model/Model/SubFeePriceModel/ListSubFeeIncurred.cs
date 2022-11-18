@@ -14,6 +14,7 @@ namespace TBSLogistics.Model.Model.SubFeePriceModel
         public string TaiXe { get; set; }
         public string SubFee { get; set; }
         public double Price { get; set; }
+        public string Type { get; set; }
         public string TrangThai { get; set; }
         public DateTime? ApprovedDate { get; set; }
         public DateTime CreatedDate { get; set; }

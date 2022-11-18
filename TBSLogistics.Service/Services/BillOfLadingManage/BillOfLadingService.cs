@@ -11,9 +11,12 @@ using TBSLogistics.Data.TMS;
 using TBSLogistics.Model.CommonModel;
 using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.BillOfLadingModel;
+using TBSLogistics.Model.Model.RoadModel;
 using TBSLogistics.Model.TempModel;
 using TBSLogistics.Model.Wrappers;
 using TBSLogistics.Service.Repository.Common;
+using TBSLogistics.Service.Repository.RoadManage;
+using TBSLogistics.Service.Services.RomoocManage;
 
 namespace TBSLogistics.Service.Repository.BillOfLadingManage
 {
@@ -28,8 +31,15 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
             _context = context;
         }
 
-        public async Task<LoadDataHandling> LoadDataHandling(string RoadId)
+        public async Task<ListPoint> LoadDataRoadTransportByCusId(string customerId)
         {
+            var checkCus = await _context.KhachHang.Where(x => x.MaKh == customerId && x.MaLoaiKh == "KH").FirstOrDefaultAsync();
+
+            if (checkCus == null)
+            {
+                return null;
+            }
+
             var getListRoad = from cd in _context.CungDuong
                               join bg in _context.BangGia
                               on cd.MaCungDuong equals bg.MaCungDuong
@@ -42,32 +52,57 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
                                  bg.NgayApDung.Date <= DateTime.Now.Date
                                  && (bg.NgayHetHieuLuc.Value.Date > DateTime.Now.Date || bg.NgayHetHieuLuc == null)
                                  && bg.TrangThai == 4
-                                 && cd.MaCungDuong == RoadId
-                                 && bg.MaHopDong != "SPDV_TBSL"
-                              orderby bg.Id descending
-                              select new { cd, bg, hd, kh };
+                                 && kh.MaKh == customerId
+                              select new { cd };
 
             var gr = from t in getListRoad
-                     group t by new { t.kh.MaKh }
-                    into g
+                     group t by new { t.cd.MaCungDuong }
+                   into g
                      select new
                      {
-                         MaKH = g.Key.MaKh,
-                         Id = (from t2 in g select t2.bg.Id).Max(),
+                         MaCungDuong = g.Key.MaCungDuong,
                      };
 
-            getListRoad = getListRoad.Where(x => gr.Select(y => y.Id).Contains(x.bg.Id));
+            var listRoad = await _context.CungDuong.Where(x => gr.Select(y => y.MaCungDuong).Contains(x.MaCungDuong)).ToListAsync();
 
+
+            return new ListPoint()
+            {
+                DiemDau = listRoad.Select(x => x.DiemDau).Select(x => new Point()
+                {
+                    MaDiaDiem = x,
+                    TenDiaDiem = _context.DiaDiem.Where(y => y.MaDiaDiem == x).Select(y => y.TenDiaDiem).FirstOrDefault()
+                }).ToList(),
+                DiemCuoi = listRoad.Select(x => x.DiemCuoi).Select(x => new Point()
+                {
+                    MaDiaDiem = x,
+                    TenDiaDiem = _context.DiaDiem.Where(y => y.MaDiaDiem == x).Select(y => y.TenDiaDiem).FirstOrDefault()
+                }).ToList(),
+                CungDuong = listRoad.Select(x => new Road()
+                {
+                    DiemCuoi = x.DiemCuoi,
+                    DiemDau = x.DiemDau,
+                    MaCungDuong = x.MaCungDuong,
+                    TenCungDuong = x.TenCungDuong,
+                    KM = x.Km,
+                }).ToList()
+            };
+
+
+        }
+
+        public async Task<LoadDataHandling> LoadDataHandling()
+        {
             var listRomooc = from rm in _context.Romooc join lrm in _context.LoaiRomooc on rm.MaLoaiRomooc equals lrm.MaLoaiRomooc select new { rm, lrm };
 
             var result = new LoadDataHandling()
             {
-                ListNhaPhanPhoi = await getListRoad.Where(x => x.bg.MaLoaiDoiTac == "NCC").GroupBy(x => new { x.kh.MaKh, x.kh.TenKh }).Select(x => new NhaPhanPhoiSelect()
+                ListNhaPhanPhoi = await _context.KhachHang.Where(x => x.MaLoaiKh == "NCC").GroupBy(x => new { x.MaKh, x.TenKh }).Select(x => new NhaPhanPhoiSelect()
                 {
                     MaNPP = x.Key.MaKh,
                     TenNPP = x.Key.TenKh
                 }).ToListAsync(),
-                ListKhachHang = await getListRoad.Where(x => x.bg.MaLoaiDoiTac == "KH").GroupBy(x => new { x.kh.MaKh, x.kh.TenKh }).Select(x => new KhachHangSelect()
+                ListKhachHang = await _context.KhachHang.Where(x => x.MaLoaiKh == "KH").GroupBy(x => new { x.MaKh, x.TenKh }).Select(x => new KhachHangSelect()
                 {
                     MaKH = x.Key.MaKh,
                     TenKH = x.Key.TenKh
@@ -220,8 +255,7 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
                     var checkPriceTable = from bg in _context.BangGia
                                           join hd in _context.HopDongVaPhuLuc
                                           on bg.MaHopDong equals hd.MaHopDong
-                                          where hd.MaKh == (item.DonViVanTai.Contains("TBSL") ? transport.MaKh : item.DonViVanTai)
-                                          && bg.MaLoaiDoiTac == (item.DonViVanTai.Contains("TBSL") ? "KH" : "NCC")
+                                          where (hd.MaKh == transport.MaKh || hd.MaKh == item.DonViVanTai)
                                           && bg.MaCungDuong == transport.MaCungDuong
                                           && bg.TrangThai == 4
                                           && bg.NgayApDung.Date <= DateTime.Now.Date
@@ -232,11 +266,8 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
                                           && bg.MaPtvc == item.MaPTVC
                                           select bg;
 
-                    var list = checkPriceTable.ToQueryString();
-
-                    if (checkPriceTable.Count() == 1)
+                    if (checkPriceTable.Count() == 2)
                     {
-                        var getPriceTable = await checkPriceTable.FirstOrDefaultAsync();
                         if (item.MaLoaiPhuongTien.Contains("TRUCK"))
                         {
                             await _context.DieuPhoi.AddAsync(new DieuPhoi()
@@ -251,8 +282,10 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
                                 MaPtvc = item.MaPTVC,
                                 HangTau = null,
                                 Tau = null,
-                                IdbangGia = getPriceTable.Id,
-                                GiaThamChieu = getPriceTable.DonGia,
+                                BangGiaNcc = checkPriceTable.Where(x => x.MaLoaiDoiTac == "NCC").Select(x => x.Id).FirstOrDefault(),
+                                DonGiaNcc = checkPriceTable.Where(x => x.MaLoaiDoiTac == "NCC").Select(x => x.DonGia).FirstOrDefault(),
+                                BangGiaKh = checkPriceTable.Where(x => x.MaLoaiDoiTac == "KH").Select(x => x.Id).FirstOrDefault(),
+                                DonGiaKh = checkPriceTable.Where(x => x.MaLoaiDoiTac == "KH").Select(x => x.DonGia).FirstOrDefault(),
                                 MaRomooc = null,
                                 ContNo = null,
                                 SealNp = item.SealNp,
@@ -261,14 +294,7 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
                                 TheTich = item.TheTich,
                                 GhiChu = item.GhiChu,
                                 DiemLayTraRong = null,
-                                ThoiGianHaCong = null,
-                                ThoiGianLayTraRong = null,
-                                ThoiGianKeoCong = null,
-                                ThoiGianHanLenh = null,
-                                ThoiGianCoMat = item.ThoiGianCoMat,
-                                ThoiGianCatMang = null,
-                                ThoiGianLayHang = item.ThoiGianLayHang,
-                                ThoiGianTraHang = item.ThoiGianTraHang,
+
                                 TrangThai = 19,
                                 CreatedTime = DateTime.Now,
                             });
@@ -287,8 +313,10 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
                                 MaPtvc = item.MaPTVC,
                                 HangTau = item.HangTau,
                                 Tau = item.TenTau,
-                                IdbangGia = getPriceTable.Id,
-                                GiaThamChieu = getPriceTable.DonGia,
+                                BangGiaNcc = checkPriceTable.Where(x => x.MaLoaiDoiTac == "NCC").Select(x => x.Id).FirstOrDefault(),
+                                DonGiaNcc = checkPriceTable.Where(x => x.MaLoaiDoiTac == "NCC").Select(x => x.DonGia).FirstOrDefault(),
+                                BangGiaKh = checkPriceTable.Where(x => x.MaLoaiDoiTac == "KH").Select(x => x.Id).FirstOrDefault(),
+                                DonGiaKh = checkPriceTable.Where(x => x.MaLoaiDoiTac == "KH").Select(x => x.DonGia).FirstOrDefault(),
                                 MaRomooc = item.MaRomooc,
                                 ContNo = item.ContNo,
                                 SealNp = item.SealNp,
@@ -297,14 +325,7 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
                                 TheTich = item.TheTich,
                                 GhiChu = item.GhiChu,
                                 DiemLayTraRong = item.DiemLayTraRong,
-                                ThoiGianHaCong = item.ThoiGianHaCong,
-                                ThoiGianLayTraRong = item.ThoiGianLayTraRong,
-                                ThoiGianKeoCong = item.ThoiGianKeoCong,
-                                ThoiGianHanLenh = item.ThoiGianHanLenh,
-                                ThoiGianCoMat = item.ThoiGianCoMat,
-                                ThoiGianCatMang = item.ThoiGianCatMang,
-                                ThoiGianLayHang = item.ThoiGianLayHang,
-                                ThoiGianTraHang = item.ThoiGianTraHang,
+
                                 TrangThai = 19,
                                 CreatedTime = DateTime.Now,
                             });
@@ -336,6 +357,7 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
 
         public async Task<BoolActionResult> CreateTransport(CreateTransport request)
         {
+            var transaction = _context.Database.BeginTransaction();
             try
             {
                 if (request.MaCungDuong.Length != 10)
@@ -361,6 +383,26 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
                     return new BoolActionResult { isSuccess = false, Message = "Khách hàng không tồn tại" };
                 }
 
+                if (request.LoaiVanDon == "nhap")
+                {
+                    if (request.ThoiGianHanLenh == null || request.ThoiGianCoMat == null)
+                    {
+                        return new BoolActionResult { isSuccess = false, Message = "Không để trống thời gian hạn lệnh hoặc thời gian có mặt" };
+                    }
+                }
+                else
+                {
+                    if (request.ThoiGianHaCang == null)
+                    {
+                        return new BoolActionResult { isSuccess = false, Message = "Không để trống thời gian hạ cảng" };
+                    }
+                }
+
+                if (request.TongKhoiLuong < 1 || request.TongTheTich < 1 || request.TongThungHang < 1)
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Tổng khối lượng, tổng thể tích, tổng thùng hàng không được nhỏ hơn 1" };
+                }
+
                 var getMaxTransportID = await _context.VanDon.OrderByDescending(x => x.MaVanDon).Select(x => x.MaVanDon).FirstOrDefaultAsync();
                 string transPortId = "";
 
@@ -375,13 +417,18 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
 
                 await _context.VanDon.AddRangeAsync(new VanDon()
                 {
+                    MaKh = request.MaKH,
                     MaVanDon = transPortId,
+                    MaVanDonKh = request.MaVanDonKH,
+                    TongThungHang = request.TongThungHang,
                     LoaiVanDon = request.LoaiVanDon,
                     MaCungDuong = request.MaCungDuong,
                     TongKhoiLuong = request.TongKhoiLuong,
                     TongTheTich = request.TongTheTich,
                     ThoiGianLayTraRong = request.ThoiGianLayTraRong,
-                    MaKh = request.MaKH,
+                    ThoiGianCoMat = request.ThoiGianCoMat,
+                    ThoiGianHanLenh = request.ThoiGianHanLenh,
+                    ThoiGianHaCang = request.ThoiGianHaCang,
                     ThoiGianLayHang = request.ThoiGianLayHang,
                     ThoiGianTraHang = request.ThoiGianTraHang,
                     TrangThai = 8,
@@ -393,15 +440,39 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
 
                 if (result > 0)
                 {
-                    return new BoolActionResult { isSuccess = true, Message = "Tạo vận đơn thành công" };
+                    for (int i = 0; i < request.TongThungHang; i++)
+                    {
+                        await _context.DieuPhoi.AddAsync(new DieuPhoi()
+                        {
+                            MaVanDon = transPortId,
+                            TrangThai = 19,
+                            CreatedTime = DateTime.Now,
+                        });
+                    }
+
+                    var resultDP = await _context.SaveChangesAsync();
+
+                    transaction.Commit();
+
+                    if (resultDP > 0)
+                    {
+                        return new BoolActionResult { isSuccess = true, Message = "Tạo vận đơn Thành Công!" };
+                    }
+                    else
+                    {
+                        transaction.Rollback();
+                        return new BoolActionResult { isSuccess = false, Message = "Tạo vận đơn thất Bại" };
+                    }
                 }
                 else
                 {
+                    transaction.Rollback();
                     return new BoolActionResult { isSuccess = false, Message = "Tạo vận đơn thất Bại" };
                 }
             }
             catch (Exception ex)
             {
+                transaction.Rollback();
                 return new BoolActionResult { isSuccess = false, Message = ex.ToString() };
             }
         }
@@ -418,6 +489,7 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
 
                 return await getTransport.Select(x => new GetTransport()
                 {
+                    MaVanDonKH = x.transport.MaVanDonKh,
                     DiemDau = x.road.DiemDau,
                     DiemCuoi = x.road.DiemCuoi,
                     MaVanDon = x.transport.MaVanDon,
@@ -429,9 +501,12 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
                     DiemTraHang = _context.DiaDiem.Where(y => y.MaDiaDiem == x.road.DiemCuoi).Select(y => y.TenDiaDiem).FirstOrDefault(),
                     TongKhoiLuong = x.transport.TongKhoiLuong,
                     TongTheTich = x.transport.TongTheTich,
+                    TongThungHang = x.transport.TongThungHang,
+                    ThoiGianCoMat = x.transport.ThoiGianCoMat,
+                    ThoiGianHaCang = x.transport.ThoiGianHaCang,
+                    ThoiGianHanLenh = x.transport.ThoiGianHanLenh,
                     ThoiGianLayHang = x.transport.ThoiGianLayHang,
                     ThoiGianTraHang = x.transport.ThoiGianTraHang,
-                    ThoiGianTaoDon = x.transport.ThoiGianTaoDon,
                 }).FirstOrDefaultAsync();
             }
             catch (Exception ex)
@@ -442,6 +517,9 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
 
         public async Task<BoolActionResult> UpdateTransport(string transPortId, UpdateTransport request)
         {
+
+            var transaction = _context.Database.BeginTransaction();
+
             try
             {
                 var checkTransport = await _context.VanDon.Where(x => x.MaVanDon == transPortId).FirstOrDefaultAsync();
@@ -462,7 +540,7 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
                     return new BoolActionResult { isSuccess = false, Message = "Vận đơn này không thể sửa nữa" };
                 }
 
-                checkTransport.LoaiVanDon = request.LoaiVanDon;
+                checkTransport.MaVanDonKh = request.MaVanDonKH;
                 checkTransport.MaCungDuong = request.MaCungDuong;
                 checkTransport.MaKh = request.MaKh;
                 checkTransport.TongKhoiLuong = request.TongKhoiLuong;
@@ -470,6 +548,42 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
                 checkTransport.ThoiGianLayHang = request.ThoiGianLayHang;
                 checkTransport.ThoiGianTraHang = request.ThoiGianTraHang;
                 checkTransport.ThoiGianLayTraRong = request.ThoiGianLayTraRong;
+                checkTransport.ThoiGianCoMat = request.ThoiGianCoMat;
+                checkTransport.ThoiGianHaCang = request.ThoiGianHaCang;
+                checkTransport.ThoiGianHanLenh = request.ThoiGianHanLenh;
+                checkTransport.UpdatedTime = DateTime.Now;
+
+                if (checkTransport.TongThungHang != request.TongThungHang)
+                {
+                    if (checkTransport.TongThungHang > request.TongThungHang)
+                    {
+                        int num = checkTransport.TongThungHang - request.TongThungHang;
+
+                        var getListHandling = await _context.DieuPhoi.Where(x => x.MaVanDon == transPortId && x.TrangThai == 19).Take(num).ToListAsync();
+
+                        if (getListHandling.Count < num)
+                        {
+                            return new BoolActionResult { isSuccess = false, Message = "không thể chỉnh lại tổng thùng hàng vì lệnh điều phối đã được thực hiện" };
+                        }
+                        _context.DieuPhoi.RemoveRange(getListHandling);
+
+                    }
+                    else
+                    {
+                        int num = request.TongThungHang - checkTransport.TongThungHang;
+
+                        for (int i = 0; i < num; i++)
+                        {
+                            await _context.DieuPhoi.AddAsync(new DieuPhoi()
+                            {
+                                MaVanDon = transPortId,
+                                TrangThai = 19,
+                                CreatedTime = DateTime.Now,
+                            });
+                        }
+                    }
+                    checkTransport.TongThungHang = request.TongThungHang;
+                }
 
                 _context.VanDon.Update(checkTransport);
 
@@ -477,6 +591,7 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
 
                 if (result > 0)
                 {
+                    transaction.Commit();
                     return new BoolActionResult { isSuccess = true, Message = "Cập nhật vận đơn thành công" };
                 }
                 else
@@ -486,6 +601,7 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
             }
             catch (Exception ex)
             {
+                transaction.Rollback();
                 return new BoolActionResult { isSuccess = false, Message = ex.ToString() };
             }
         }
@@ -538,11 +654,7 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
                 DiemTraHang = _context.DiaDiem.Where(y => y.MaDiaDiem == x.road.DiemCuoi).Select(y => y.TenDiaDiem).FirstOrDefault(),
                 TongKhoiLuong = x.transport.TongKhoiLuong,
                 TongTheTich = x.transport.TongTheTich,
-                ThoiGianLayHang = x.transport.ThoiGianLayHang,
-                ThoiGianTraHang = x.transport.ThoiGianTraHang,
-                TrangThai = x.status.StatusContent,
-                MaTrangThai = x.status.StatusId,
-                ThoiGianTaoDon = x.transport.ThoiGianTaoDon,
+
             }).ToListAsync();
 
             return new PagedResponseCustom<ListTransport>()
@@ -562,11 +674,10 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
                            dp in _context.DieuPhoi
                            on vd.MaVanDon equals dp.MaVanDon
                            join bg in _context.BangGia
-                           on dp.IdbangGia equals bg.Id
+                           on dp.BangGiaKh equals bg.Id
                            join tt in _context.StatusText
                            on dp.TrangThai equals tt.StatusId
                            where tt.LangId == TempData.LangID
-                           orderby dp.Id
                            select new { vd, dp, bg, tt };
 
             if (!string.IsNullOrEmpty(transportId))
@@ -589,9 +700,37 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
                 listData = listData.Where(x => x.vd.ThoiGianTaoDon.Date >= filter.fromDate.Value.Date && x.vd.ThoiGianTaoDon.Date <= filter.toDate.Value.Date);
             }
 
-            var totalCount = await listData.CountAsync();
+            var getListHandlingNew = from vd in _context.VanDon
+                                     join dp in _context.DieuPhoi
+                                     on vd.MaVanDon equals dp.MaVanDon
+                                     join tt in _context.StatusText
+                                     on dp.TrangThai equals tt.StatusId
+                                     where tt.LangId == TempData.LangID
+                                     && tt.StatusId == 19
+                                     select new { vd, dp, tt };
 
-            var pagedData = await listData.Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new ListHandling()
+            var listHandlingNew = await getListHandlingNew.Select(x => new ListHandling()
+            {
+                CungDuong = _context.CungDuong.Where(y => y.MaCungDuong == x.vd.MaCungDuong).Select(x => x.TenCungDuong).FirstOrDefault(),
+                MaVanDon = x.dp.MaVanDon,
+                PhanLoaiVanDon = x.vd.LoaiVanDon,
+                MaDieuPhoi = x.dp.Id,
+                DiemLayRong = "",
+                MaSoXe = "",
+                TenTaiXe = "",
+                SoDienThoai = "",
+                PTVanChuyen = "",
+                TenTau = "",
+                HangTau = "",
+                MaRomooc = "",
+                ContNo = "",
+                KhoiLuong = null,
+                TheTich = null,
+                TrangThai = x.tt.StatusContent,
+                statusId = x.tt.StatusId,
+            }).ToListAsync();
+
+            var listHandling = await listData.Select(x => new ListHandling()
             {
                 CungDuong = _context.CungDuong.Where(y => y.MaCungDuong == x.vd.MaCungDuong).Select(x => x.TenCungDuong).FirstOrDefault(),
                 MaVanDon = x.dp.MaVanDon,
@@ -608,20 +747,19 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
                 ContNo = x.dp.ContNo,
                 KhoiLuong = x.dp.KhoiLuong,
                 TheTich = x.dp.TheTich,
-                ThoiGianLayTraRong = x.dp.ThoiGianLayTraRong,
-                ThoiGianKeoCong = x.dp.ThoiGianKeoCong,
-                ThoiGianHanLenh = x.dp.ThoiGianHanLenh,
-                ThoiGianCoMat = x.dp.ThoiGianCoMat,
-                ThoiGianCatMang = x.dp.ThoiGianCatMang,
-                ThoiGianLayHang = x.dp.ThoiGianLayHang,
-                ThoiGianTraHang = x.dp.ThoiGianTraHang,
                 TrangThai = x.tt.StatusContent,
                 statusId = x.tt.StatusId
             }).ToListAsync();
 
+            var data = listHandlingNew.Concat(listHandling);
+
+            var totalCount = data.Count();
+
+            var pagedData = data.Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).OrderByDescending(x => x.MaVanDon);
+
             return new PagedResponseCustom<ListHandling>()
             {
-                dataResponse = pagedData,
+                dataResponse = pagedData.OrderByDescending(x => x.MaVanDon).ToList(),
                 totalCount = totalCount,
                 paginationFilter = validFilter
             };
@@ -635,14 +773,12 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
                                   join
                                   dp in _context.DieuPhoi
                                   on vd.MaVanDon equals dp.MaVanDon
-                                  join bg in _context.BangGia
-                                  on dp.IdbangGia equals bg.Id
                                   where dp.Id == id
-                                  select new { vd, dp, bg };
+                                  select new { vd, dp };
 
                 var data = await getHandling.FirstOrDefaultAsync();
 
-                var getRoad = await _context.CungDuong.Where(x => x.MaCungDuong == data.bg.MaCungDuong).FirstOrDefaultAsync();
+                var getRoad = await _context.CungDuong.Where(x => x.MaCungDuong == data.vd.MaCungDuong).FirstOrDefaultAsync();
 
                 var RoadDetail = new RoadDetail()
                 {
@@ -666,11 +802,9 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
                     MaSoXe = data.dp.MaSoXe,
                     MaTaiXe = data.dp.MaTaiXe,
                     DonViVanTai = data.dp.DonViVanTai,
-                    PTVanChuyen = data.bg.MaLoaiPhuongTien,
+                    PTVanChuyen = data.dp.MaLoaiPhuongTien,
                     TenTau = data.dp.Tau,
                     HangTau = data.dp.HangTau,
-                    IdbangGia = data.bg.Id,
-                    LoaiHangHoa = data.bg.MaLoaiHangHoa,
                     MaRomooc = data.dp.MaRomooc,
                     DiemLayRong = data.dp.DiemLayTraRong,
                     ContNo = data.dp.ContNo,
@@ -679,14 +813,6 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
                     KhoiLuong = data.dp.KhoiLuong,
                     TheTich = data.dp.TheTich,
                     GhiChu = data.dp.GhiChu,
-                    ThoiGianLayTraRong = data.dp.ThoiGianLayTraRong,
-                    ThoiGianHaCong = data.dp.ThoiGianHaCong,
-                    ThoiGianKeoCong = data.dp.ThoiGianKeoCong,
-                    ThoiGianHanLenh = data.dp.ThoiGianHanLenh,
-                    ThoiGianCoMat = data.dp.ThoiGianCoMat,
-                    ThoiGianCatMang = data.dp.ThoiGianCatMang,
-                    ThoiGianLayHang = data.dp.ThoiGianLayHang,
-                    ThoiGianTraHang = data.dp.ThoiGianTraHang,
                 };
             }
             catch (Exception)
@@ -976,28 +1102,23 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
                 checkById.KhoiLuong = request.KhoiLuong;
                 checkById.TheTich = request.TheTich;
                 checkById.GhiChu = request.GhiChu;
-                checkById.ThoiGianCoMat = request.ThoiGianCoMat;
-                checkById.ThoiGianLayHang = request.ThoiGianLayHang;
-                checkById.ThoiGianTraHang = request.ThoiGianTraHang;
+
 
                 var checkTransportType = await _context.VanDon.Where(x => x.MaVanDon == checkById.MaVanDon).FirstOrDefaultAsync();
                 if (checkTransportType.LoaiVanDon == "xuat")
                 {
                     checkById.Tau = request.TenTau;
                     checkById.HangTau = request.HangTau;
-                    checkById.ThoiGianCatMang = request.ThoiGianCatMang;
+
                 }
 
-                var checkVehicleType = await _context.BangGia.Where(x => x.Id == checkById.IdbangGia).FirstOrDefaultAsync();
+                var checkVehicleType = await _context.BangGia.Where(x => x.Id == checkById.BangGiaKh).FirstOrDefaultAsync();
                 if (checkVehicleType.MaLoaiPhuongTien.Contains("CONT"))
                 {
                     checkById.MaRomooc = request.MaRomooc;
                     checkById.ContNo = request.ContNo;
                     checkById.SealHq = request.SealHq;
-                    checkById.ThoiGianLayTraRong = request.ThoiGianLayTraRong;
-                    checkById.ThoiGianHaCong = request.ThoiGianHaCong;
-                    checkById.ThoiGianKeoCong = request.ThoiGianKeoCong;
-                    checkById.ThoiGianHanLenh = request.ThoiGianHanLenh;
+
                 }
 
                 _context.DieuPhoi.Update(checkById);

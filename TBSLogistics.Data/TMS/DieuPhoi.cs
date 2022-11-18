@@ -22,8 +22,10 @@ namespace TBSLogistics.Data.TMS
         public string MaLoaiPhuongTien { get; set; }
         public string MaDvt { get; set; }
         public string DonViVanTai { get; set; }
-        public long IdbangGia { get; set; }
-        public decimal GiaThamChieu { get; set; }
+        public long? BangGiaKh { get; set; }
+        public long? BangGiaNcc { get; set; }
+        public decimal? DonGiaKh { get; set; }
+        public decimal? DonGiaNcc { get; set; }
         public string Tau { get; set; }
         public string HangTau { get; set; }
         public string MaRomooc { get; set; }
@@ -34,22 +36,21 @@ namespace TBSLogistics.Data.TMS
         public double? TheTich { get; set; }
         public string GhiChu { get; set; }
         public int? DiemLayTraRong { get; set; }
-        public DateTime? ThoiGianLayTraRong { get; set; }
-        public DateTime? ThoiGianHaCong { get; set; }
-        public DateTime? ThoiGianKeoCong { get; set; }
-        public DateTime? ThoiGianHanLenh { get; set; }
-        public DateTime ThoiGianCoMat { get; set; }
-        public DateTime? ThoiGianCatMang { get; set; }
-        public DateTime ThoiGianLayHang { get; set; }
-        public DateTime ThoiGianTraHang { get; set; }
+        public DateTime? ThoiGianLayHangThucTe { get; set; }
+        public DateTime? ThoiGianTraHangThucTe { get; set; }
+        public DateTime? ThoiGianLayTraRongThucTe { get; set; }
+        public DateTime? ThoiGianCoMatThucTe { get; set; }
+        public DateTime? ThoiGianHanLenhThucTe { get; set; }
+        public DateTime? ThoiGianHaCangThucTe { get; set; }
         public DateTime? ThoiGianHoanThanh { get; set; }
         public int TrangThai { get; set; }
         public DateTime CreatedTime { get; set; }
         public DateTime? UpdatedTime { get; set; }
         public DateTime? DeletedTime { get; set; }
 
+        public virtual BangGia BangGiaKhNavigation { get; set; }
+        public virtual BangGia BangGiaNccNavigation { get; set; }
         public virtual KhachHang DonViVanTaiNavigation { get; set; }
-        public virtual BangGia IdbangGiaNavigation { get; set; }
         public virtual Romooc MaRomoocNavigation { get; set; }
         public virtual XeVanChuyen MaSoXeNavigation { get; set; }
         public virtual TaiXe MaTaiXeNavigation { get; set; }

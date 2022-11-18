@@ -9,7 +9,8 @@ namespace TBSLogistics.Data.TMS
     {
         public BangGia()
         {
-            DieuPhoi = new HashSet<DieuPhoi>();
+            DieuPhoiBangGiaKhNavigation = new HashSet<DieuPhoi>();
+            DieuPhoiBangGiaNccNavigation = new HashSet<DieuPhoi>();
         }
 
         public long Id { get; set; }
@@ -30,6 +31,7 @@ namespace TBSLogistics.Data.TMS
 
         public virtual CungDuong MaCungDuongNavigation { get; set; }
         public virtual HopDongVaPhuLuc MaHopDongNavigation { get; set; }
-        public virtual ICollection<DieuPhoi> DieuPhoi { get; set; }
+        public virtual ICollection<DieuPhoi> DieuPhoiBangGiaKhNavigation { get; set; }
+        public virtual ICollection<DieuPhoi> DieuPhoiBangGiaNccNavigation { get; set; }
     }
 }

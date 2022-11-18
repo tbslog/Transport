@@ -320,40 +320,43 @@ namespace TBSLogistics.Data.TMS
             {
                 entity.Property(e => e.Id).HasColumnName("ID");
 
+                entity.Property(e => e.BangGiaKh).HasColumnName("BangGiaKH");
+
+                entity.Property(e => e.BangGiaNcc).HasColumnName("BangGiaNCC");
+
                 entity.Property(e => e.ContNo)
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnName("Cont_No");
 
+                entity.Property(e => e.DonGiaKh)
+                    .HasColumnType("decimal(18, 0)")
+                    .HasColumnName("DonGiaKH");
+
+                entity.Property(e => e.DonGiaNcc)
+                    .HasColumnType("decimal(18, 0)")
+                    .HasColumnName("DonGiaNCC");
+
                 entity.Property(e => e.DonViVanTai)
-                    .IsRequired()
                     .HasMaxLength(8)
                     .IsUnicode(false);
 
-                entity.Property(e => e.GiaThamChieu).HasColumnType("decimal(18, 0)");
-
                 entity.Property(e => e.HangTau).HasMaxLength(50);
 
-                entity.Property(e => e.IdbangGia).HasColumnName("IDBangGia");
-
                 entity.Property(e => e.MaDvt)
-                    .IsRequired()
                     .HasMaxLength(10)
                     .IsUnicode(false)
                     .HasColumnName("MaDVT");
 
                 entity.Property(e => e.MaLoaiHangHoa)
-                    .IsRequired()
                     .HasMaxLength(10)
                     .IsUnicode(false);
 
                 entity.Property(e => e.MaLoaiPhuongTien)
-                    .IsRequired()
                     .HasMaxLength(10)
                     .IsUnicode(false);
 
                 entity.Property(e => e.MaPtvc)
-                    .IsRequired()
                     .HasMaxLength(10)
                     .IsUnicode(false)
                     .HasColumnName("MaPTVC");
@@ -363,12 +366,10 @@ namespace TBSLogistics.Data.TMS
                     .IsUnicode(false);
 
                 entity.Property(e => e.MaSoXe)
-                    .IsRequired()
                     .HasMaxLength(10)
                     .IsUnicode(false);
 
                 entity.Property(e => e.MaTaiXe)
-                    .IsRequired()
                     .HasMaxLength(12)
                     .IsUnicode(false);
 
@@ -389,17 +390,20 @@ namespace TBSLogistics.Data.TMS
 
                 entity.Property(e => e.Tau).HasMaxLength(50);
 
+                entity.HasOne(d => d.BangGiaKhNavigation)
+                    .WithMany(p => p.DieuPhoiBangGiaKhNavigation)
+                    .HasForeignKey(d => d.BangGiaKh)
+                    .HasConstraintName("FK_DieuPhoi_BangGia");
+
+                entity.HasOne(d => d.BangGiaNccNavigation)
+                    .WithMany(p => p.DieuPhoiBangGiaNccNavigation)
+                    .HasForeignKey(d => d.BangGiaNcc)
+                    .HasConstraintName("FK_DieuPhoi_BangGia1");
+
                 entity.HasOne(d => d.DonViVanTaiNavigation)
                     .WithMany(p => p.DieuPhoi)
                     .HasForeignKey(d => d.DonViVanTai)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_DieuPhoi_KhachHang");
-
-                entity.HasOne(d => d.IdbangGiaNavigation)
-                    .WithMany(p => p.DieuPhoi)
-                    .HasForeignKey(d => d.IdbangGia)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_DieuPhoi_BangGia");
 
                 entity.HasOne(d => d.MaRomoocNavigation)
                     .WithMany(p => p.DieuPhoi)
@@ -409,13 +413,11 @@ namespace TBSLogistics.Data.TMS
                 entity.HasOne(d => d.MaSoXeNavigation)
                     .WithMany(p => p.DieuPhoi)
                     .HasForeignKey(d => d.MaSoXe)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_DieuPhoi_XeVanChuyen");
 
                 entity.HasOne(d => d.MaTaiXeNavigation)
                     .WithMany(p => p.DieuPhoi)
                     .HasForeignKey(d => d.MaTaiXe)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_DieuPhoi_TaiXe");
 
                 entity.HasOne(d => d.MaVanDonNavigation)
@@ -1137,6 +1139,11 @@ namespace TBSLogistics.Data.TMS
                     .HasMaxLength(8)
                     .IsUnicode(false)
                     .HasColumnName("MaKH");
+
+                entity.Property(e => e.MaVanDonKh)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("MaVanDonKH");
             });
 
             modelBuilder.Entity<XaPhuong>(entity =>

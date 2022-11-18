@@ -10,6 +10,7 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
     {
         public string MaVanDon { get; set; }
         public string MaKh { get; set; }
+        public string MaVanDonKH { get; set; }
 
         public int DiemDau { get; set; }
         public int DiemCuoi { get; set; }
@@ -19,10 +20,13 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
         public string CungDuong { get; set; }
         public double TongKhoiLuong { get; set; }
         public double TongTheTich { get; set; }
+        public int TongThungHang { get; set; }
 
-        public DateTime? ThoiGianLayTraRong { get; set; }
+        public DateTime ThoiGianLayTraRong { get; set; }
         public DateTime ThoiGianLayHang { get; set; }
         public DateTime ThoiGianTraHang { get; set; }
-        public DateTime ThoiGianTaoDon { get; set; }
+        public DateTime? ThoiGianHaCang { get; set; }
+        public DateTime? ThoiGianCoMat { get; set; }
+        public DateTime? ThoiGianHanLenh { get; set; }
     }
 }

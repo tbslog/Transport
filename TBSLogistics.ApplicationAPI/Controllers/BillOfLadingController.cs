@@ -31,9 +31,9 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<IActionResult> LoadDataHandling(string RoadId)
+        public async Task<IActionResult> LoadDataHandling()
         {
-            var data = await _billOfLading.LoadDataHandling(RoadId);
+            var data = await _billOfLading.LoadDataHandling();
             return Ok(data);
         }
 
@@ -213,6 +213,14 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             memory.Position = 0;
 
             return File(memory, "application/octet-stream", image.FileName);
+        }
+
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> LoadDataRoadTransportByCusId(string id)
+        {
+            var list = await _billOfLading.LoadDataRoadTransportByCusId(id);
+            return Ok(list);
         }
 
         [HttpPost]
