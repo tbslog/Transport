@@ -174,16 +174,7 @@ const HandlingPage = (props) => {
       selector: (row) => row.theTich,
       sortable: true,
     },
-    {
-      name: "Thời Gian Lấy Hàng",
-      selector: (row) => moment(row.thoiGianLayHang).format("DD/MM/YYYY HH:mm"),
-      sortable: true,
-    },
-    {
-      name: "Thời Gian Trả Hàng",
-      selector: (row) => moment(row.thoiGianTraHang).format("DD/MM/YYYY HH:mm"),
-      sortable: true,
-    },
+
     {
       name: "Trạng Thái",
       selector: (row) => row.trangThai,
@@ -224,7 +215,7 @@ const HandlingPage = (props) => {
 
   const renderButton = (val) => {
     switch (val.statusId) {
-      case 19:
+      case 27:
         return val.ptVanChuyen.includes("CONT") ? (
           <button
             title="Đi Lấy Rỗng"

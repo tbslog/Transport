@@ -4,7 +4,6 @@ import { useForm, Controller, useFieldArray } from "react-hook-form";
 import DatePicker from "react-datepicker";
 import Select from "react-select";
 import moment from "moment";
-import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
 
 const CreateTransport = (props) => {
   const { getListTransport } = props;
@@ -55,6 +54,19 @@ const CreateTransport = (props) => {
     LoaiHangHoa: {
       required: "Không được để trống",
     },
+    TongThungHang: {
+      required: "Không được để trống",
+      pattern: {
+        value:
+          /^(?:0\.(?:0[0-9]|[0-9]\d?)|[0-9]\d*(?:\.\d{1,2})?)(?:e[+-]?\d+)?$/,
+        message: "Phải là số",
+      },
+      validate: (value) => {
+        if (parseInt(value) < 1) {
+          return "Không được nhỏ hơn 1";
+        }
+      },
+    },
     TongKhoiLuong: {
       required: "Không được để trống",
       pattern: {
@@ -73,35 +85,105 @@ const CreateTransport = (props) => {
     },
   };
 
-  const [tabIndex, setTabIndex] = useState(0);
   const [listFirstPoint, setListFirstPoint] = useState([]);
   const [listSecondPoint, setListSecondPoint] = useState([]);
   const [listRoad, setListRoad] = useState([]);
+  const [arrRoad, setArrRoad] = useState([]);
   const [listCus, setListCus] = useState([]);
 
   useEffect(() => {
     SetIsLoading(true);
     (async () => {
-      const getListPoint = await getData("address/GetListAddressSelect");
-      if (getListPoint && getListPoint.length > 0) {
-        var obj = [];
-        getListPoint.map((val) => {
-          obj.push({
-            value: val.maDiaDiem,
-            label: val.maDiaDiem + " - " + val.tenDiaDiem,
-          });
+      const getListCus = await getData(
+        `Customer/GetListCustomerOptionSelect?type=KH`
+      );
+
+      if (getListCus && getListCus.length > 0) {
+        let arr = [];
+        getListCus.map((val) => {
+          arr.push({ label: val.maKh + " - " + val.tenKh, value: val.maKh });
         });
-        setListFirstPoint(obj);
-        setListSecondPoint(obj);
+        setListCus(arr);
+      } else {
+        setListCus([]);
       }
       SetIsLoading(false);
     })();
   }, []);
 
-  const handleOnChangePoint = async () => {
-    setListRoad([]);
-    setListCus([]);
-    setValue("MaKH", null);
+  const handleOnChangeCustomer = async (val) => {
+    if (val && Object.keys(val).length > 0) {
+      setValue("MaKH", val);
+      setValue("MaCungDuong", null);
+      setValue("DiemLayHang", null);
+      setValue("DiemTraHang", null);
+
+      const getListRoad = await getData(
+        `BillOfLading/LoadDataRoadTransportByCusId?id=${val.value}`
+      );
+
+      if (getListRoad && Object.keys(getListRoad).length > 0) {
+        if (getListRoad.cungDuong && getListRoad.cungDuong.length > 0) {
+          let arr = [];
+          getListRoad.cungDuong.map((val) => {
+            arr.push({
+              label: val.tenCungDuong + " - " + val.km + " KM",
+              value: val.maCungDuong,
+            });
+          });
+          setArrRoad(getListRoad.cungDuong);
+          setListRoad(arr);
+        } else {
+          setListRoad([]);
+        }
+
+        if (getListRoad.diemDau && getListRoad.diemDau.length > 0) {
+          let arr = [];
+          getListRoad.diemDau.map((val) => {
+            arr.push({
+              label: val.tenDiaDiem,
+              value: val.maDiaDiem,
+            });
+          });
+          setListFirstPoint(arr);
+        } else {
+          setListFirstPoint([]);
+        }
+
+        if (getListRoad.diemCuoi && getListRoad.diemCuoi.length > 0) {
+          let arr = [];
+          getListRoad.diemCuoi.map((val) => {
+            arr.push({
+              label: val.tenDiaDiem,
+              value: val.maDiaDiem,
+            });
+          });
+          setListSecondPoint(arr);
+        } else {
+          setListSecondPoint([]);
+        }
+      }
+    }
+  };
+
+  const handleOnChangeRoad = (val) => {
+    if (val && Object.keys(val).length > 0) {
+      setValue("MaCungDuong", val);
+      const point = arrRoad.filter((x) => x.maCungDuong === val.value)[0];
+      setValue(
+        "DiemLayHang",
+        listFirstPoint.filter((x) => x.value === point.diemDau)[0]
+      );
+      setValue(
+        "DiemTraHang",
+        listSecondPoint.filter((x) => x.value === point.diemCuoi)[0]
+      );
+    } else {
+      setValue("MaCungDuong", null);
+    }
+  };
+
+  const handleOnChangePoint = () => {
     setValue("MaCungDuong", null);
     var diemdau = watch("DiemLayHang");
     var diemCuoi = watch("DiemTraHang");
@@ -112,68 +194,61 @@ const CreateTransport = (props) => {
       Object.keys(diemdau).length > 0 &&
       Object.keys(diemCuoi).length > 0
     ) {
-      let getListRoad = await getData(
-        `Road/getListRoadByPoint?diemDau=${diemdau.value}&diemCuoi=${diemCuoi.value}`
-      );
-      if (getListRoad && getListRoad.length > 0) {
-        let obj = [];
-        getListRoad.map((val) => {
-          obj.push({
-            value: val.maCungDuong,
-            label: val.maCungDuong + " - " + val.tenCungDuong,
-          });
-        });
-        setListRoad(obj);
+      const filterRoad = arrRoad.filter(
+        (x) => x.diemDau === diemdau.value && x.diemCuoi === diemCuoi.value
+      )[0];
+
+      if (filterRoad && Object.keys(filterRoad).length > 0) {
+        setValue(
+          "MaCungDuong",
+          { ...listRoad.filter((x) => x.value === filterRoad.maCungDuong) }[0]
+        );
       }
     } else {
-      setListRoad([]);
       setValue("MaCungDuong", null);
     }
   };
 
-  const handleOnChangeRoad = async () => {
-    var cungDuong = watch("MaCungDuong");
-    setListCus([]);
-    setValue("MaKH", null);
-    if (cungDuong && Object.keys(cungDuong).length > 0) {
-      let getListCus = await getData(
-        `BillOfLading/LoadDataHandling?RoadId=${cungDuong.value}`
-      );
-
-      if (getListCus.listKhachHang && getListCus.listKhachHang.length > 0) {
-        let obj = [];
-        getListCus.listKhachHang.map((val) => {
-          obj.push({
-            value: val.maKH,
-            label: val.maKH + " - " + val.tenKH,
-          });
-        });
-        setListCus(obj);
-      }
-    }
+  const handleOnchangeTransportType = (val) => {
+    reset();
+    setValue("LoaiVanDon", val);
   };
 
   const onSubmit = async (data) => {
     SetIsLoading(true);
 
     const create = await postData("BillOfLading/CreateTransport", {
-      maCungDuong: data.MaCungDuong.value,
-      loaiVanDon: data.LoaiVanDon,
-      tongThungHang: data.TongThungHang,
-      tongKhoiLuong: data.TongKhoiLuong,
-      tongTheTich: data.TongTheTich,
+      MaVanDonKH: data.MaVDKH,
+      MaCungDuong: data.MaCungDuong.value,
+      LoaiVanDon: data.LoaiVanDon,
+      TongKhoiLuong: data.TongKhoiLuong,
+      TongTheTich: data.TongTheTich,
       MaKH: data.MaKH.value,
+      TongThungHang: data.TongThungHang,
+      ThoiGianHaCang: !data.TGHaCang
+        ? null
+        : moment(new Date(data.TGHaCang).toISOString()).format(
+            "yyyy-MM-DDTHH:mm:ss.SSS"
+          ),
+      ThoiGianCoMat: !data.TGCoMat
+        ? null
+        : moment(new Date(data.TGCoMat).toISOString()).format(
+            "yyyy-MM-DDTHH:mm:ss.SSS"
+          ),
+      ThoiGianHanLenh: !data.TGHanLenh
+        ? null
+        : moment(new Date(data.TGHanLenh).toISOString()).format(
+            "yyyy-MM-DDTHH:mm:ss.SSS"
+          ),
       thoiGianLayHang: moment(new Date(data.TGLayHang).toISOString()).format(
         "yyyy-MM-DDTHH:mm:ss.SSS"
       ),
       thoiGianTraHang: moment(new Date(data.TGTraHang).toISOString()).format(
         "yyyy-MM-DDTHH:mm:ss.SSS"
       ),
-      ThoiGianLayTraRong: !data.TGLayTraRong
-        ? null
-        : moment(new Date(data.TGLayTraRong).toISOString()).format(
-            "yyyy-MM-DDTHH:mm:ss.SSS"
-          ),
+      ThoiGianLayTraRong: moment(
+        new Date(data.TGLayTraRong).toISOString()
+      ).format("yyyy-MM-DDTHH:mm:ss.SSS"),
     });
 
     if (create === 1) {
@@ -187,327 +262,450 @@ const CreateTransport = (props) => {
   const handleResetClick = () => {
     reset();
   };
+
   return (
     <>
-      {tabIndex === 0 && (
-        <div className="card card-primary">
-          <div className="card-header">
-            <h3 className="card-title">Form Thêm Mới Vận Đơn</h3>
-          </div>
-          <div>{IsLoading === true && <div>Loading...</div>}</div>
-
-          {IsLoading === false && (
-            <form onSubmit={handleSubmit(onSubmit)}>
-              <div className="card-body">
-                <div className="row">
-                  <div className="col col-sm">
-                    <div className="form-group">
-                      <label htmlFor="DiemLayHang">Điểm Lấy Hàng</label>
-                      <Controller
-                        name="DiemLayHang"
-                        control={control}
-                        render={({ field }) => (
-                          <Select
-                            {...field}
-                            classNamePrefix={"form-control"}
-                            value={field.value}
-                            options={listFirstPoint}
-                            onChange={(field) =>
-                              handleOnChangePoint(
-                                setValue(
-                                  "DiemLayHang",
-                                  {
-                                    ...listFirstPoint.filter(
-                                      (x) => x.value === field.value
-                                    ),
-                                  }[0]
-                                )
-                              )
-                            }
-                          />
-                        )}
-                        rules={Validate.DiemLayHang}
-                      />
-                      {errors.DiemLayHang && (
-                        <span className="text-danger">
-                          {errors.DiemLayHang.message}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  <div className="col col-sm">
-                    <div className="form-group">
-                      <label htmlFor="DiemTraHang">Điểm Trả Hàng</label>
-                      <Controller
-                        name="DiemTraHang"
-                        control={control}
-                        render={({ field }) => (
-                          <Select
-                            {...field}
-                            classNamePrefix={"form-control"}
-                            value={field.value}
-                            options={listSecondPoint}
-                            onChange={(field) =>
-                              handleOnChangePoint(
-                                setValue(
-                                  "DiemTraHang",
-                                  {
-                                    ...listSecondPoint.filter(
-                                      (x) => x.value === field.value
-                                    ),
-                                  }[0]
-                                )
-                              )
-                            }
-                          />
-                        )}
-                        rules={Validate.DiemTraHang}
-                      />
-                      {errors.DiemTraHang && (
-                        <span className="text-danger">
-                          {errors.DiemTraHang.message}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  <div className="col col-sm">
-                    <div className="form-group">
-                      <label htmlFor="MaCungDuong">Cung Đường</label>
-                      <Controller
-                        name="MaCungDuong"
-                        control={control}
-                        render={({ field }) => (
-                          <Select
-                            {...field}
-                            classNamePrefix={"form-control"}
-                            value={field.value}
-                            options={listRoad}
-                            onChange={(field) =>
-                              handleOnChangeRoad(
-                                setValue(
-                                  "MaCungDuong",
-                                  {
-                                    ...listRoad.filter(
-                                      (x) => x.value === field.value
-                                    ),
-                                  }[0]
-                                )
-                              )
-                            }
-                          />
-                        )}
-                        rules={Validate.MaCungDuong}
-                      />
-                      {errors.MaCungDuong && (
-                        <span className="text-danger">
-                          {errors.MaCungDuong.message}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-                <div className="row">
-                  <div className="col col-sm">
-                    <div className="form-group">
-                      <label htmlFor="MaKH">Khách Hàng</label>
-                      <Controller
-                        name="MaKH"
-                        control={control}
-                        render={({ field }) => (
-                          <Select
-                            {...field}
-                            classNamePrefix={"form-control"}
-                            value={field.value}
-                            options={listCus}
-                          />
-                        )}
-                        rules={Validate.MaKH}
-                      />
-                      {errors.MaKH && (
-                        <span className="text-danger">
-                          {errors.MaKH.message}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  <div className="col col-sm">
-                    <div className="form-group">
-                      <label htmlFor="LoaiVanDon">Phân Loại Vận Đơn</label>
-                      <select
-                        className="form-control"
-                        {...register("LoaiVanDon", Validate.LoaiVanDon)}
-                        value={watch("LoaiVanDon")}
-                      >
-                        <option defaultValue={true} value="nhap">
-                          Vận Đơn Nhập
-                        </option>
-                        <option value="xuat">Vận Đơn Xuất</option>
-                      </select>
-                      {errors.LoaiVanDon && (
-                        <span className="text-danger">
-                          {errors.LoaiVanDon.message}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-                <div className="row">
-                  <div className="col col-sm">
-                    <div className="form-group">
-                      <label htmlFor="TongKhoiLuong">
-                        Tổng Khối Lượng (Đơn Vị Tấn)
-                      </label>
-                      <input
-                        autoComplete="false"
-                        type="text"
-                        className="form-control"
-                        id="TongKhoiLuong"
-                        {...register(`TongKhoiLuong`, Validate.TongKhoiLuong)}
-                      />
-                      {errors.TongKhoiLuong && (
-                        <span className="text-danger">
-                          {errors.TongKhoiLuong.message}
-                        </span>
-                      )}
-                    </div>
-                    <br />
-                  </div>
-                  <div className="col col-sm">
-                    <div className="form-group">
-                      <label htmlFor="TongTheTich">
-                        Tổng Thể Tích (Đơn Vị m3)
-                      </label>
-                      <input
-                        autoComplete="false"
-                        type="text"
-                        className="form-control"
-                        id="TongTheTich"
-                        {...register(`TongTheTich`, Validate.TongTheTich)}
-                      />
-                      {errors.TongTheTich && (
-                        <span className="text-danger">
-                          {errors.TongTheTich.message}
-                        </span>
-                      )}
-                    </div>
-                    <br />
-                  </div>
-                </div>
-                <div className="row">
-                  <div className="col col-sm">
-                    <div className="form-group">
-                      {watch("LoaiVanDon") === "xuat" && (
-                        <label htmlFor="TGLayTraRong">Thời Gian Lấy Rỗng</label>
-                      )}
-                      {watch("LoaiVanDon") === "nhap" && (
-                        <label htmlFor="TGLayTraRong">Thời Gian Trả Rỗng</label>
-                      )}
-                      <div className="input-group ">
-                        <Controller
-                          control={control}
-                          name={`TGLayTraRong`}
-                          render={({ field }) => (
-                            <DatePicker
-                              className="form-control"
-                              showTimeSelect
-                              timeFormat="HH:mm"
-                              dateFormat="dd/MM/yyyy HH:mm"
-                              onChange={(date) => field.onChange(date)}
-                              selected={field.value}
-                            />
-                          )}
-                        />
-                        {errors.TGLayTraRong && (
-                          <span className="text-danger">
-                            {errors.TGLayTraRong.message}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="col col-sm">
-                    <div className="form-group">
-                      <label htmlFor="TGLayHang">Thời Gian Lấy Hàng</label>
-                      <div className="input-group ">
-                        <Controller
-                          control={control}
-                          name={`TGLayHang`}
-                          render={({ field }) => (
-                            <DatePicker
-                              className="form-control"
-                              showTimeSelect
-                              timeFormat="HH:mm"
-                              dateFormat="dd/MM/yyyy HH:mm"
-                              onChange={(date) => field.onChange(date)}
-                              selected={field.value}
-                            />
-                          )}
-                          rules={{
-                            required: "không được để trống",
-                          }}
-                        />
-                        {errors.TGLayHang && (
-                          <span className="text-danger">
-                            {errors.TGLayHang.message}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col col-sm">
-                    <div className="form-group">
-                      <label htmlFor="TGTraHang">Thời Gian Trả Hàng</label>
-                      <div className="input-group ">
-                        <Controller
-                          control={control}
-                          name={`TGTraHang`}
-                          render={({ field }) => (
-                            <DatePicker
-                              className="form-control"
-                              showTimeSelect
-                              timeFormat="HH:mm"
-                              dateFormat="dd/MM/yyyy HH:mm"
-                              onChange={(date) => field.onChange(date)}
-                              selected={field.value}
-                            />
-                          )}
-                          rules={{
-                            required: "không được để trống",
-                          }}
-                        />
-                        {errors.TGTraHang && (
-                          <span className="text-danger">
-                            {errors.TGTraHang.message}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="card-footer">
-                <div>
-                  <button
-                    type="button"
-                    onClick={() => handleResetClick()}
-                    className="btn btn-warning"
-                  >
-                    Làm mới
-                  </button>
-                  <button
-                    type="submit"
-                    className="btn btn-primary"
-                    style={{ float: "right" }}
-                  >
-                    Thêm mới
-                  </button>
-                </div>
-              </div>
-            </form>
-          )}
+      <div className="card card-primary">
+        <div className="card-header">
+          <h3 className="card-title">Form Thêm Mới Vận Đơn</h3>
         </div>
-      )}
+        <div>{IsLoading === true && <div>Loading...</div>}</div>
+
+        {IsLoading === false && (
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <div className="card-body">
+              <div className="row">
+                <div className="col col-sm">
+                  <div className="form-group">
+                    <label htmlFor="MaKH">Khách Hàng</label>
+                    <Controller
+                      name="MaKH"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          classNamePrefix={"form-control"}
+                          value={field.value}
+                          options={listCus}
+                          onChange={(field) => handleOnChangeCustomer(field)}
+                        />
+                      )}
+                      rules={Validate.MaKH}
+                    />
+                    {errors.MaKH && (
+                      <span className="text-danger">{errors.MaKH.message}</span>
+                    )}
+                  </div>
+                </div>
+                <div className="col col-sm">
+                  <div className="form-group">
+                    <label htmlFor="MaVDKH">Mã Vận Đơn Của Khách Hàng</label>
+                    <input
+                      autoComplete="false"
+                      type="text"
+                      className="form-control"
+                      id="MaVDKH"
+                      {...register(`MaVDKH`, Validate.MaVDKH)}
+                    />
+                    {errors.MaVDKH && (
+                      <span className="text-danger">
+                        {errors.MaVDKH.message}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className="col col-sm">
+                  <div className="form-group">
+                    <label htmlFor="LoaiVanDon">Phân Loại Vận Đơn</label>
+                    <select
+                      className="form-control"
+                      {...register("LoaiVanDon", Validate.LoaiVanDon)}
+                      value={watch("LoaiVanDon")}
+                      onChange={(e) =>
+                        handleOnchangeTransportType(e.target.value)
+                      }
+                    >
+                      <option value="nhap">Vận Đơn Nhập</option>
+                      <option value="xuat">Vận Đơn Xuất</option>
+                    </select>
+                    {errors.LoaiVanDon && (
+                      <span className="text-danger">
+                        {errors.LoaiVanDon.message}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+              <div className="row">
+                <div className="col col-sm">
+                  <div className="form-group">
+                    <label htmlFor="DiemLayHang">Điểm Lấy Hàng</label>
+                    <Controller
+                      name="DiemLayHang"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          classNamePrefix={"form-control"}
+                          value={field.value}
+                          options={listFirstPoint}
+                          onChange={(field) =>
+                            handleOnChangePoint(
+                              setValue(
+                                "DiemLayHang",
+                                {
+                                  ...listFirstPoint.filter(
+                                    (x) => x.value === field.value
+                                  ),
+                                }[0]
+                              )
+                            )
+                          }
+                        />
+                      )}
+                      rules={Validate.DiemLayHang}
+                    />
+                    {errors.DiemLayHang && (
+                      <span className="text-danger">
+                        {errors.DiemLayHang.message}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className="col col-sm">
+                  <div className="form-group">
+                    <label htmlFor="DiemTraHang">Điểm Trả Hàng</label>
+                    <Controller
+                      name="DiemTraHang"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          classNamePrefix={"form-control"}
+                          value={field.value}
+                          options={listSecondPoint}
+                          onChange={(field) =>
+                            handleOnChangePoint(
+                              setValue(
+                                "DiemTraHang",
+                                {
+                                  ...listSecondPoint.filter(
+                                    (x) => x.value === field.value
+                                  ),
+                                }[0]
+                              )
+                            )
+                          }
+                        />
+                      )}
+                      rules={Validate.DiemTraHang}
+                    />
+                    {errors.DiemTraHang && (
+                      <span className="text-danger">
+                        {errors.DiemTraHang.message}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className="col col-sm">
+                  <div className="form-group">
+                    <label htmlFor="MaCungDuong">Cung Đường</label>
+                    <Controller
+                      name="MaCungDuong"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          classNamePrefix={"form-control"}
+                          value={field.value}
+                          options={listRoad}
+                          onChange={(field) => handleOnChangeRoad(field)}
+                        />
+                      )}
+                      rules={Validate.MaCungDuong}
+                    />
+                    {errors.MaCungDuong && (
+                      <span className="text-danger">
+                        {errors.MaCungDuong.message}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="row">
+                <div className="col col-sm">
+                  <div className="form-group">
+                    <label htmlFor="TongThungHang">Tổng Số Thùng Hàng</label>
+                    <input
+                      autoComplete="false"
+                      type="text"
+                      className="form-control"
+                      id="TongThungHang"
+                      {...register(`TongThungHang`, Validate.TongThungHang)}
+                    />
+                    {errors.TongThungHang && (
+                      <span className="text-danger">
+                        {errors.TongThungHang.message}
+                      </span>
+                    )}
+                  </div>
+                  <br />
+                </div>
+                <div className="col col-sm">
+                  <div className="form-group">
+                    <label htmlFor="TongKhoiLuong">
+                      Tổng Khối Lượng (Đơn Vị Tấn)
+                    </label>
+                    <input
+                      autoComplete="false"
+                      type="text"
+                      className="form-control"
+                      id="TongKhoiLuong"
+                      {...register(`TongKhoiLuong`, Validate.TongKhoiLuong)}
+                    />
+                    {errors.TongKhoiLuong && (
+                      <span className="text-danger">
+                        {errors.TongKhoiLuong.message}
+                      </span>
+                    )}
+                  </div>
+                  <br />
+                </div>
+                <div className="col col-sm">
+                  <div className="form-group">
+                    <label htmlFor="TongTheTich">
+                      Tổng Thể Tích (Đơn Vị m3)
+                    </label>
+                    <input
+                      autoComplete="false"
+                      type="text"
+                      className="form-control"
+                      id="TongTheTich"
+                      {...register(`TongTheTich`, Validate.TongTheTich)}
+                    />
+                    {errors.TongTheTich && (
+                      <span className="text-danger">
+                        {errors.TongTheTich.message}
+                      </span>
+                    )}
+                  </div>
+                  <br />
+                </div>
+              </div>
+              <div className="row">
+                <div className="col col-sm">
+                  <div className="form-group">
+                    {watch("LoaiVanDon") === "xuat" && (
+                      <label htmlFor="TGLayTraRong">Thời Gian Lấy Rỗng</label>
+                    )}
+                    {watch("LoaiVanDon") === "nhap" && (
+                      <label htmlFor="TGLayTraRong">Thời Gian Trả Rỗng</label>
+                    )}
+                    <div className="input-group ">
+                      <Controller
+                        control={control}
+                        name={`TGLayTraRong`}
+                        render={({ field }) => (
+                          <DatePicker
+                            className="form-control"
+                            showTimeSelect
+                            timeFormat="HH:mm"
+                            dateFormat="dd/MM/yyyy HH:mm"
+                            onChange={(date) => field.onChange(date)}
+                            selected={field.value}
+                          />
+                        )}
+                        rules={{
+                          required: "không được để trống",
+                        }}
+                      />
+                      {errors.TGLayTraRong && (
+                        <span className="text-danger">
+                          {errors.TGLayTraRong.message}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {watch("LoaiVanDon") === "xuat" && (
+                  <div className="col col-sm">
+                    <div className="form-group">
+                      <label htmlFor="TGHaCang">Thời Gian Hạ Cảng</label>
+                      <div className="input-group ">
+                        <Controller
+                          control={control}
+                          name={`TGHaCang`}
+                          render={({ field }) => (
+                            <DatePicker
+                              className="form-control"
+                              showTimeSelect
+                              timeFormat="HH:mm"
+                              dateFormat="dd/MM/yyyy HH:mm"
+                              onChange={(date) => field.onChange(date)}
+                              selected={field.value}
+                            />
+                          )}
+                          rules={{
+                            required: "không được để trống",
+                          }}
+                        />
+                        {errors.TGHaCang && (
+                          <span className="text-danger">
+                            {errors.TGHaCang.message}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {watch("LoaiVanDon") === "nhap" && (
+                  <>
+                    <div className="col col-sm">
+                      <div className="form-group">
+                        <label htmlFor="TGCoMat">Thời Gian Có Mặt</label>
+                        <div className="input-group ">
+                          <Controller
+                            control={control}
+                            name={`TGCoMat`}
+                            render={({ field }) => (
+                              <DatePicker
+                                className="form-control"
+                                showTimeSelect
+                                timeFormat="HH:mm"
+                                dateFormat="dd/MM/yyyy HH:mm"
+                                onChange={(date) => field.onChange(date)}
+                                selected={field.value}
+                              />
+                            )}
+                            rules={{
+                              required: "không được để trống",
+                            }}
+                          />
+                          {errors.TGCoMat && (
+                            <span className="text-danger">
+                              {errors.TGCoMat.message}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="col col-sm">
+                      <div className="form-group">
+                        <label htmlFor="TGHanLenh">Thời Gian Hạn Lệnh</label>
+                        <div className="input-group ">
+                          <Controller
+                            control={control}
+                            name={`TGHanLenh`}
+                            render={({ field }) => (
+                              <DatePicker
+                                className="form-control"
+                                showTimeSelect
+                                timeFormat="HH:mm"
+                                dateFormat="dd/MM/yyyy HH:mm"
+                                onChange={(date) => field.onChange(date)}
+                                selected={field.value}
+                              />
+                            )}
+                            rules={{
+                              required: "không được để trống",
+                            }}
+                          />
+                          {errors.TGHanLenh && (
+                            <span className="text-danger">
+                              {errors.TGHanLenh.message}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+              <div className="row">
+                <div className="col col-sm">
+                  <div className="form-group">
+                    <label htmlFor="TGLayHang">Thời Gian Lấy Hàng</label>
+                    <div className="input-group ">
+                      <Controller
+                        control={control}
+                        name={`TGLayHang`}
+                        render={({ field }) => (
+                          <DatePicker
+                            className="form-control"
+                            showTimeSelect
+                            timeFormat="HH:mm"
+                            dateFormat="dd/MM/yyyy HH:mm"
+                            onChange={(date) => field.onChange(date)}
+                            selected={field.value}
+                          />
+                        )}
+                        rules={{
+                          required: "không được để trống",
+                        }}
+                      />
+                      {errors.TGLayHang && (
+                        <span className="text-danger">
+                          {errors.TGLayHang.message}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                <div className="col col-sm">
+                  <div className="form-group">
+                    <label htmlFor="TGTraHang">Thời Gian Trả Hàng</label>
+                    <div className="input-group ">
+                      <Controller
+                        control={control}
+                        name={`TGTraHang`}
+                        render={({ field }) => (
+                          <DatePicker
+                            className="form-control"
+                            showTimeSelect
+                            timeFormat="HH:mm"
+                            dateFormat="dd/MM/yyyy HH:mm"
+                            onChange={(date) => field.onChange(date)}
+                            selected={field.value}
+                          />
+                        )}
+                        rules={{
+                          required: "không được để trống",
+                        }}
+                      />
+                      {errors.TGTraHang && (
+                        <span className="text-danger">
+                          {errors.TGTraHang.message}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="card-footer">
+              <div>
+                <button
+                  type="button"
+                  onClick={() => handleResetClick()}
+                  className="btn btn-warning"
+                >
+                  Làm mới
+                </button>
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  style={{ float: "right" }}
+                >
+                  Thêm mới
+                </button>
+              </div>
+            </div>
+          </form>
+        )}
+      </div>
     </>
   );
 };

@@ -4,7 +4,6 @@ import Cookies from "js-cookie";
 import jwt_decode from "jwt-decode";
 import { Buffer } from "buffer";
 
-// const Host = "https://kind-northcutt.112-78-2-40.plesk.page/api/";
 // const Host = "https://api.tbslogistics.com.vn/api/";
 const Host = "http://localhost:8088/api/";
 

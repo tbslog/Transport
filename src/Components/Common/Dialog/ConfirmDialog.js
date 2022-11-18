@@ -10,6 +10,7 @@ const ConfirmDialog = (props) => {
   }, [setShowConfirm, title, content]);
 
   const [show, setShow] = useState(false);
+
   const handleClose = () => {
     setShow(false);
     setShowConfirm(false);

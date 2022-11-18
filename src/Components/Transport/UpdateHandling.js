@@ -185,7 +185,7 @@ const UpdateHandling = (props) => {
     //   required: "Không được để trống",
     // },
   };
-
+  const [listPoint, setListPoint] = useState([]);
   const [IsLoading, SetIsLoading] = useState(false);
   const [listCustomer, setListCustomer] = useState([]);
   const [listNpp, setListNpp] = useState([]);
@@ -197,6 +197,7 @@ const UpdateHandling = (props) => {
   const [transportType, setTransportType] = useState("");
   const [data, setData] = useState({});
   const [roadDetail, setRoadDetail] = useState({});
+  const [listSupplier, setListSupplier] = useState([]);
 
   useEffect(() => {
     (async () => {
@@ -204,6 +205,83 @@ const UpdateHandling = (props) => {
       let getListVehicleType = await getData("Common/GetListVehicleType");
       let getListGoodsType = await getData("Common/GetListGoodsType");
 
+      const getListPoint = await getData("address/GetListAddressSelect");
+      if (getListPoint && getListPoint.length > 0) {
+        var obj = [];
+        getListPoint.map((val) => {
+          obj.push({
+            value: val.maDiaDiem,
+            label: val.maDiaDiem + " - " + val.tenDiaDiem,
+          });
+        });
+        setListPoint(obj);
+      }
+
+      let getDataHandling = await getData("BillOfLading/LoadDataHandling");
+      if (getDataHandling && Object.keys(getDataHandling).length > 0) {
+        console.log(getDataHandling);
+
+        if (
+          getDataHandling.listNhaPhanPhoi &&
+          getDataHandling.listNhaPhanPhoi.length > 0
+        ) {
+          let arr = [];
+          getDataHandling.listNhaPhanPhoi.map((val) => {
+            arr.push({ label: val.tenNPP, value: val.maNPP });
+          });
+          setListSupplier(arr);
+        }
+
+        if (
+          getDataHandling.listKhachHang &&
+          getDataHandling.listKhachHang.length > 0
+        ) {
+          let arr = [];
+          getDataHandling.listKhachHang.map((val) => {
+            arr.push({ label: val.tenKH, value: val.maKH });
+          });
+          setListCustomer(arr);
+        }
+
+        if (
+          getDataHandling.listXeVanChuyen &&
+          getDataHandling.listXeVanChuyen.length > 0
+        ) {
+          let arr = [];
+          getDataHandling.listXeVanChuyen.map((val) => {
+            arr.push({
+              label: val.maSoXe + " - " + val.maLoaiPhuongTien,
+              value: val.maSoXe,
+            });
+          });
+          setListVehicle(arr);
+        }
+
+        if (getDataHandling.listTaiXe && getDataHandling.listTaiXe.length > 0) {
+          let arr = [];
+          getDataHandling.listTaiXe.map((val) => {
+            arr.push({
+              label: val.maTaiXe + " - " + val.tenTaiXe,
+              value: val.maTaiXe,
+            });
+          });
+          setListDriver(arr);
+        }
+
+        if (
+          getDataHandling.listRomooc &&
+          getDataHandling.listRomooc.length > 0
+        ) {
+          let arr = [];
+          getDataHandling.listRomooc.map((val) => {
+            arr.push({
+              label: val.maRomooc + " - " + val.tenLoaiRomooc,
+              value: val.maRomooc,
+            });
+          });
+          setListRomooc(arr);
+        }
+      }
       setlistVehicleType(getListVehicleType);
       setListGoodsType(getListGoodsType);
       SetIsLoading(false);
@@ -220,38 +298,32 @@ const UpdateHandling = (props) => {
       listVehicleType.length > 0 &&
       listGoodsType.length > 0
     ) {
-      SetIsLoading(true);
-      handleResetClick();
       (async () => {
         let data = await getData(
           `BillOfLading/GetHandlingById?id=${selectIdClick.maDieuPhoi}`
         );
         setData(data);
-        handleOnchangeListRoad(data);
       })();
     }
-  }, [props, selectIdClick, listVehicleType, listGoodsType]);
+  }, [props, selectIdClick, listVehicleType, listGoodsType, listPoint]);
 
   useEffect(() => {
     if (
       Object.keys(data).length > 0 &&
       data &&
-      listCustomer &&
       listDriver &&
-      listNpp &&
       listRomooc &&
       listVehicle &&
-      listCustomer.length > 0 &&
       listDriver.length > 0 &&
-      listNpp.length > 0 &&
       listRomooc.length > 0 &&
       listVehicle.length > 0
     ) {
       setValueData(data);
     }
-  }, [data, listCustomer, listDriver, listNpp, listRomooc, listVehicle]);
+  }, [data, listDriver, listRomooc, listVehicle]);
 
   const setValueData = (data) => {
+    console.log(data.cungDuong);
     setRoadDetail(data.cungDuong);
     setValue(
       "NhaCungCap",
@@ -295,100 +367,41 @@ const UpdateHandling = (props) => {
     setValue("TGTraHang", new Date(data.thoiGianTraHang));
     setValue("SEALNP", data.sealNp);
 
-    if (data.ptVanChuyen.includes("CONT")) {
-      setValue("CONTNO", data.contNo);
-      setValue("SEALHQ", data.sealHq);
-      setValue(
-        "Romooc",
-        {
-          ...listRomooc.filter((x) => x.value === data.maRomooc),
-        }[0]
-      );
+    // if (data.ptVanChuyen.includes("CONT")) {
+    //   setValue("CONTNO", data.contNo);
+    //   setValue("SEALHQ", data.sealHq);
+    //   setValue(
+    //     "Romooc",
+    //     {
+    //       ...listRomooc.filter((x) => x.value === data.maRomooc),
+    //     }[0]
+    //   );
 
-      setValue(
-        "TGLayTraRong",
-        data.thoiGianLayTraRong === null
-          ? null
-          : new Date(data.thoiGianLayTraRong)
-      );
+    //   setValue(
+    //     "TGLayTraRong",
+    //     data.thoiGianLayTraRong === null
+    //       ? null
+    //       : new Date(data.thoiGianLayTraRong)
+    //   );
 
-      setValue(
-        "TGLech",
-        data.thoiGianHanLenh === null ? null : new Date(data.thoiGianHanLenh)
-      );
-      setValue(
-        "TGKeoCont",
-        data.thoiGianKeoCong === null ? null : new Date(data.thoiGianKeoCong)
-      );
-    }
+    //   setValue(
+    //     "TGLech",
+    //     data.thoiGianHanLenh === null ? null : new Date(data.thoiGianHanLenh)
+    //   );
+    //   setValue(
+    //     "TGKeoCont",
+    //     data.thoiGianKeoCong === null ? null : new Date(data.thoiGianKeoCong)
+    //   );
+    // }
 
-    if (data.phanLoaiVanDon === "xuat") {
-      setValue("HangTau", data.hangTau);
-      setValue("TenTau", data.tenTau);
-      setValue(
-        "TGCatMang",
-        data.thoiGianCatMang === null ? null : new Date(data.thoiGianCatMang)
-      );
-    }
-    SetIsLoading(false);
-  };
-
-  const handleOnchangeListRoad = async (value) => {
-    SetIsLoading(true);
-    const getlistData = await getData(
-      `BillOfLading/LoadDataHandling?RoadId=${value.maCungDuong}`
-    );
-
-    if (getlistData && Object.keys(getlistData).length > 0) {
-      let objCustomer = [];
-      getlistData.listKhachHang.map((val) => {
-        objCustomer.push({
-          value: val.maKH,
-          label: val.maKH + " - " + val.tenKH,
-        });
-      });
-      setListCustomer(objCustomer);
-
-      let objNpp = [];
-      objNpp.push({ value: "TBSL", label: "TBS Logistics" });
-      getlistData.listNhaPhanPhoi.map((val) => {
-        objNpp.push({
-          value: val.maNPP,
-          label: val.maNPP + " - " + val.tenNPP,
-        });
-      });
-      setListNpp(objNpp);
-
-      let objDriver = [];
-      getlistData.listTaiXe.map((val) => {
-        objDriver.push({
-          value: val.maTaiXe,
-          label: val.maTaiXe + " - " + val.tenTaiXe,
-        });
-      });
-      setListDriver(objDriver);
-
-      let objVehicle = [];
-      getlistData.listXeVanChuyen
-        .filter((x) => x.maLoaiPhuongTien === value.ptVanChuyen)
-        .map((val) => {
-          objVehicle.push({
-            value: val.maSoXe,
-            label: val.maSoXe + " - " + val.maLoaiPhuongTien,
-          });
-        });
-
-      setListVehicle(objVehicle);
-
-      let objRomooc = [];
-      getlistData.listRomooc.map((val) => {
-        objRomooc.push({
-          value: val.maRomooc,
-          label: val.maRomooc + " - " + val.tenLoaiRomooc,
-        });
-      });
-      setListRomooc(objRomooc);
-    }
+    // if (data.phanLoaiVanDon === "xuat") {
+    //   setValue("HangTau", data.hangTau);
+    //   setValue("TenTau", data.tenTau);
+    //   setValue(
+    //     "TGCatMang",
+    //     data.thoiGianCatMang === null ? null : new Date(data.thoiGianCatMang)
+    //   );
+    // }
     SetIsLoading(false);
   };
 
@@ -482,6 +495,32 @@ const UpdateHandling = (props) => {
               <div className="row">
                 <div className="col col-sm">
                   <div className="form-group">
+                    <label htmlFor="KhachHang">Khách Hàng</label>
+                    <Controller
+                      name={`KhachHang`}
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          isDisabled={true}
+                          {...field}
+                          classNamePrefix={"form-control"}
+                          value={field.value}
+                          options={listCustomer}
+                        />
+                      )}
+                      rules={{
+                        required: "không được để trống",
+                      }}
+                    />
+                    {errors.KhachHang && (
+                      <span className="text-danger">
+                        {errors.KhachHang.message}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className="col col-sm">
+                  <div className="form-group">
                     <label htmlFor="CungDuong">Cung Đường</label>
                     <input
                       autoComplete="false"
@@ -495,26 +534,6 @@ const UpdateHandling = (props) => {
                     />
                   </div>
                 </div>
-                {watch(`PTVanChuyen`) && watch(`PTVanChuyen`).includes("CONT") && (
-                  <div className="col col-sm">
-                    <div className="form-group">
-                      {transportType && transportType === "xuat" && (
-                        <label htmlFor="CungDuong">Điểm Lấy Rỗng</label>
-                      )}
-                      {transportType && transportType === "nhap" && (
-                        <label htmlFor="CungDuong">Điểm Trả Rỗng</label>
-                      )}
-                      <input
-                        autoComplete="false"
-                        type="text"
-                        className="form-control"
-                        id="CungDuong"
-                        readOnly
-                        value={roadDetail.diemLayRong}
-                      />
-                    </div>
-                  </div>
-                )}
 
                 <div className="col col-sm">
                   <div className="form-group">
@@ -552,11 +571,10 @@ const UpdateHandling = (props) => {
                       control={control}
                       render={({ field }) => (
                         <Select
-                          isDisabled={true}
                           {...field}
                           classNamePrefix={"form-control"}
                           value={field.value}
-                          options={listNpp}
+                          options={listSupplier}
                         />
                       )}
                       rules={{
@@ -570,32 +588,38 @@ const UpdateHandling = (props) => {
                     )}
                   </div>
                 </div>
-                <div className="col col-sm">
-                  <div className="form-group">
-                    <label htmlFor="KhachHang">Khách Hàng</label>
-                    <Controller
-                      name={`KhachHang`}
-                      control={control}
-                      render={({ field }) => (
-                        <Select
-                          isDisabled={true}
-                          {...field}
-                          classNamePrefix={"form-control"}
-                          value={field.value}
-                          options={listCustomer}
-                        />
+                {watch(`PTVanChuyen`) && watch(`PTVanChuyen`).includes("CONT") && (
+                  <div className="col col-sm">
+                    <div className="form-group">
+                      {transportType && transportType === "xuat" && (
+                        <label htmlFor="DiemLayTraRong">Điểm Lấy Rỗng</label>
                       )}
-                      rules={{
-                        required: "không được để trống",
-                      }}
-                    />
-                    {errors.KhachHang && (
-                      <span className="text-danger">
-                        {errors.KhachHang.message}
-                      </span>
-                    )}
+                      {transportType && transportType === "nhap" && (
+                        <label htmlFor="DiemLayTraRong">Điểm Trả Rỗng</label>
+                      )}
+                      <Controller
+                        name={`DiemLayTraRong`}
+                        control={control}
+                        render={({ field }) => (
+                          <Select
+                            {...field}
+                            classNamePrefix={"form-control"}
+                            value={field.value}
+                            options={listPoint}
+                          />
+                        )}
+                        rules={{
+                          required: "không được để trống",
+                        }}
+                      />
+                      {errors.DiemLayTraRong && (
+                        <span className="text-danger">
+                          {errors.DiemLayTraRong.message}
+                        </span>
+                      )}
+                    </div>
                   </div>
-                </div>
+                )}
                 <div className="col col-sm">
                   <div className="form-group">
                     <label htmlFor="PTVanChuyen">Phương tiện vận chuyển</label>
@@ -603,7 +627,6 @@ const UpdateHandling = (props) => {
                       className="form-control"
                       {...register(`PTVanChuyen`, Validate.PTVanChuyen)}
                       value={watch(`PTVanChuyen`)}
-                      disabled
                     >
                       <option value="">Chọn phương Tiện Vận Chuyển</option>
                       {listVehicleType &&
@@ -632,7 +655,6 @@ const UpdateHandling = (props) => {
                       className="form-control"
                       {...register(`LoaiHangHoa`, Validate.LoaiHangHoa)}
                       value={watch(`LoaiHangHoa`)}
-                      disabled
                     >
                       <option value="">Chọn Loại Hàng Hóa</option>
                       {listGoodsType &&

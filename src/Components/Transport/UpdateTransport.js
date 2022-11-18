@@ -12,6 +12,7 @@ const UpdateTransport = (props) => {
     register,
     setValue,
     clearErrors,
+    reset,
     control,
     watch,
     formState: { errors },
@@ -51,6 +52,19 @@ const UpdateTransport = (props) => {
     LoaiHangHoa: {
       required: "Không được để trống",
     },
+    TongThungHang: {
+      required: "Không được để trống",
+      pattern: {
+        value:
+          /^(?:0\.(?:0[0-9]|[0-9]\d?)|[0-9]\d*(?:\.\d{1,2})?)(?:e[+-]?\d+)?$/,
+        message: "Phải là số",
+      },
+      validate: (value) => {
+        if (parseInt(value) < 1) {
+          return "Không được nhỏ hơn 1";
+        }
+      },
+    },
     TongKhoiLuong: {
       required: "Không được để trống",
       pattern: {
@@ -75,205 +89,226 @@ const UpdateTransport = (props) => {
   const [listSecondPoint, setListSecondPoint] = useState([]);
   const [listRoad, setListRoad] = useState([]);
   const [listCus, setListCus] = useState([]);
+  const [arrRoad, setArrRoad] = useState([]);
 
   useEffect(() => {
     SetIsLoading(true);
     (async () => {
-      const getListPoint = await getData("address/GetListAddressSelect");
-      if (getListPoint && getListPoint.length > 0) {
-        var obj = [];
-        getListPoint.map((val) => {
-          obj.push({
-            value: val.maDiaDiem,
-            label: val.maDiaDiem + " - " + val.tenDiaDiem,
-          });
+      const getListCus = await getData(
+        `Customer/GetListCustomerOptionSelect?type=KH`
+      );
+
+      if (getListCus && getListCus.length > 0) {
+        let arr = [];
+        getListCus.map((val) => {
+          arr.push({ label: val.maKh + " - " + val.tenKh, value: val.maKh });
         });
-        setListFirstPoint(obj);
-        setListSecondPoint(obj);
+        setListCus(arr);
+      } else {
+        setListCus([]);
       }
       SetIsLoading(false);
     })();
   }, []);
 
   useEffect(() => {
-    clearErrors();
     if (
+      listCus &&
+      listCus.length > 0 &&
       props &&
-      selectIdClick &&
-      Object.keys(selectIdClick).length > 0 &&
-      listFirstPoint &&
-      listSecondPoint &&
-      listFirstPoint.length > 0 &&
-      listSecondPoint.length > 0
-    ) {
-      SetIsLoading(true);
-      setValue(
-        "MaCungDuong",
-        {
-          ...listRoad.filter((x) => x.value === selectIdClick.maCungDuong),
-        }[0]
-      );
-
-      setContractId(selectIdClick.maVanDon);
-      setValue("MaVanDon", selectIdClick.maVanDon);
-      setValue("TongKhoiLuong", selectIdClick.tongKhoiLuong);
-      setValue("TongTheTich", selectIdClick.tongTheTich);
-      setValue("LoaiVanDon", selectIdClick.loaiVanDon);
-      setValue("TGLayHang", new Date(selectIdClick.thoiGianLayHang));
-      setValue("TGTraHang", new Date(selectIdClick.thoiGianTraHang));
-      setValue("TGLayTraRong", new Date(selectIdClick.thoiGianLayTraRong));
-      setValue(
-        "DiemLayHang",
-        {
-          ...listFirstPoint.filter((x) => x.value === selectIdClick.diemDau),
-        }[0]
-      );
-      setValue(
-        "DiemTraHang",
-        {
-          ...listSecondPoint.filter((x) => x.value === selectIdClick.diemCuoi),
-        }[0]
-      );
-
-      handleOnChangePoint(
-        {
-          ...listFirstPoint.filter((x) => x.value === selectIdClick.diemDau),
-        }[0],
-        {
-          ...listSecondPoint.filter((x) => x.value === selectIdClick.diemCuoi),
-        }[0]
-      );
-
-      SetIsLoading(false);
-    }
-  }, [props, selectIdClick, listFirstPoint, listSecondPoint]);
-
-  useEffect(() => {
-    if (
-      listRoad &&
-      listRoad.length > 0 &&
       selectIdClick &&
       Object.keys(selectIdClick).length > 0
     ) {
-      SetIsLoading(true);
+      setValue("MaVDKH", selectIdClick.maVanDonKH);
+      setValue("LoaiVanDon", selectIdClick.loaiVanDon);
+      setValue("TongKhoiLuong", selectIdClick.tongKhoiLuong);
+      setValue("TongTheTich", selectIdClick.tongTheTich);
+      setValue(
+        "MaKH",
+        { ...listCus.filter((x) => x.value === selectIdClick.maKh) }[0]
+      );
+
+      handleOnChangeCustomer(
+        { ...listCus.filter((x) => x.value === selectIdClick.maKh) }[0]
+      );
+
+      setValue("TongThungHang", selectIdClick.tongThungHang);
+
+      if (selectIdClick.loaiVanDon === "xuat") {
+        setValue("TGHaCang", new Date(selectIdClick.thoiGianHaCang));
+      } else {
+        setValue("TGCoMat", new Date(selectIdClick.thoiGianCoMat));
+        setValue("TGHanLenh", new Date(selectIdClick.thoiGianHanLenh));
+      }
+
+      setValue("TGTraHang", new Date(selectIdClick.thoiGianTraHang));
+      setValue("TGLayHang", new Date(selectIdClick.thoiGianLayHang));
+      setValue("TGLayTraRong", new Date(selectIdClick.thoiGianLayTraRong));
+    }
+  }, [listCus, props, selectIdClick]);
+
+  useEffect(() => {
+    if (
+      arrRoad &&
+      arrRoad.length > 0 &&
+      listRoad &&
+      listRoad.length > 0 &&
+      listFirstPoint &&
+      listFirstPoint.length > 0 &&
+      listSecondPoint &&
+      listSecondPoint.length > 0
+    ) {
       setValue(
         "MaCungDuong",
-        {
-          ...listRoad.filter((x) => x.value === selectIdClick.cungDuong),
-        }[0]
+        { ...listRoad.filter((x) => x.value === selectIdClick.cungDuong) }[0]
       );
 
       handleOnChangeRoad(
-        {
-          ...listRoad.filter((x) => x.value === selectIdClick.cungDuong),
-        }[0]
+        { ...listRoad.filter((x) => x.value === selectIdClick.cungDuong) }[0]
       );
-      SetIsLoading(false);
     }
-  }, [selectIdClick, listRoad]);
+  }, [arrRoad, listRoad, listFirstPoint, listSecondPoint]);
 
-  useEffect(() => {
-    if (listCus && listCus.length > 0) {
-      SetIsLoading(true);
-      setValue(
-        "MaKH",
-        {
-          ...listCus.filter((x) => x.value === selectIdClick.maKh),
-        }[0]
-      );
-      SetIsLoading(false);
-    }
-  }, [selectIdClick, listCus]);
-
-  const handleOnChangePoint = async (diemDau, diemCuoi) => {
-    SetIsLoading(true);
-    setListRoad([]);
-    setListCus([]);
-    setValue("MaKH", null);
-    setValue("MaCungDuong", null);
-
-    if (!diemDau && !diemCuoi) {
-      diemDau = watch("DiemLayHang");
-      diemCuoi = watch("DiemTraHang");
-    }
-
-    if (
-      diemDau &&
-      diemCuoi &&
-      Object.keys(diemDau).length > 0 &&
-      Object.keys(diemCuoi).length > 0
-    ) {
-      let getListRoad = await getData(
-        `Road/getListRoadByPoint?diemDau=${diemDau.value}&diemCuoi=${diemCuoi.value}`
-      );
-      if (getListRoad && getListRoad.length > 0) {
-        let obj = [];
-        getListRoad.map((val) => {
-          obj.push({
-            value: val.maCungDuong,
-            label: val.maCungDuong + " - " + val.tenCungDuong,
-          });
-        });
-        setListRoad(obj);
-      }
-    } else {
-      setListRoad([]);
+  const handleOnChangeCustomer = async (val) => {
+    if (val && Object.keys(val).length > 0) {
+      setValue("MaKH", val);
       setValue("MaCungDuong", null);
-    }
+      setValue("DiemLayHang", null);
+      setValue("DiemTraHang", null);
 
-    SetIsLoading(false);
+      const getListRoad = await getData(
+        `BillOfLading/LoadDataRoadTransportByCusId?id=${val.value}`
+      );
+
+      if (getListRoad && Object.keys(getListRoad).length > 0) {
+        if (getListRoad.cungDuong && getListRoad.cungDuong.length > 0) {
+          let arr = [];
+          getListRoad.cungDuong.map((val) => {
+            arr.push({
+              label: val.tenCungDuong + " - " + val.km + " KM",
+              value: val.maCungDuong,
+            });
+          });
+          setArrRoad(getListRoad.cungDuong);
+          setListRoad(arr);
+        } else {
+          setListRoad([]);
+        }
+
+        if (getListRoad.diemDau && getListRoad.diemDau.length > 0) {
+          let arr = [];
+          getListRoad.diemDau.map((val) => {
+            arr.push({
+              label: val.tenDiaDiem,
+              value: val.maDiaDiem,
+            });
+          });
+          setListFirstPoint(arr);
+        } else {
+          setListFirstPoint([]);
+        }
+
+        if (getListRoad.diemCuoi && getListRoad.diemCuoi.length > 0) {
+          let arr = [];
+          getListRoad.diemCuoi.map((val) => {
+            arr.push({
+              label: val.tenDiaDiem,
+              value: val.maDiaDiem,
+            });
+          });
+          setListSecondPoint(arr);
+        } else {
+          setListSecondPoint([]);
+        }
+      }
+    }
   };
 
-  const handleOnChangeRoad = async (cungDuong) => {
-    SetIsLoading(true);
-    if (!cungDuong) {
-      cungDuong = watch("MaCungDuong");
-    }
-
-    setListCus([]);
-    setValue("MaKH", null);
-    if (cungDuong && Object.keys(cungDuong).length > 0) {
-      let getListCus = await getData(
-        `BillOfLading/LoadDataHandling?RoadId=${cungDuong.value}`
+  const handleOnChangeRoad = (val) => {
+    if (val && Object.keys(val).length > 0) {
+      setValue("MaCungDuong", val);
+      const point = arrRoad.filter((x) => x.maCungDuong === val.value)[0];
+      setValue(
+        "DiemLayHang",
+        listFirstPoint.filter((x) => x.value === point.diemDau)[0]
       );
-
-      if (getListCus.listKhachHang && getListCus.listKhachHang.length > 0) {
-        let obj = [];
-        getListCus.listKhachHang.map((val) => {
-          obj.push({
-            value: val.maKH,
-            label: val.maKH + " - " + val.tenKH,
-          });
-        });
-        setListCus(obj);
-      }
+      setValue(
+        "DiemTraHang",
+        listSecondPoint.filter((x) => x.value === point.diemCuoi)[0]
+      );
+    } else {
+      setValue("MaCungDuong", null);
     }
-    SetIsLoading(false);
+  };
+
+  const handleOnChangePoint = () => {
+    setValue("MaCungDuong", null);
+    var diemdau = watch("DiemLayHang");
+    var diemCuoi = watch("DiemTraHang");
+
+    if (
+      diemdau &&
+      diemCuoi &&
+      Object.keys(diemdau).length > 0 &&
+      Object.keys(diemCuoi).length > 0
+    ) {
+      const filterRoad = arrRoad.filter(
+        (x) => x.diemDau === diemdau.value && x.diemCuoi === diemCuoi.value
+      )[0];
+
+      if (filterRoad && Object.keys(filterRoad).length > 0) {
+        setValue(
+          "MaCungDuong",
+          { ...listRoad.filter((x) => x.value === filterRoad.maCungDuong) }[0]
+        );
+      }
+    } else {
+      setValue("MaCungDuong", null);
+    }
+  };
+
+  const handleOnchangeTransportType = (val) => {
+    reset();
+    setValue("LoaiVanDon", val);
   };
 
   const onSubmit = async (data) => {
     SetIsLoading(true);
 
     const Update = await postData(
-      `BillOfLading/UpdateTransport?transportId=${contractId}`,
+      `BillOfLading/UpdateTransport?transportId=${selectIdClick.maVanDon}`,
       {
-        maCungDuong: data.MaCungDuong.value,
-        loaiVanDon: data.LoaiVanDon,
-        tongThungHang: data.TongThungHang,
-        tongKhoiLuong: data.TongKhoiLuong,
-        tongTheTich: data.TongTheTich,
-        MaKh: data.MaKH.value,
-        thoiGianLayHang: moment(new Date(data.TGLayHang).toISOString()).format(
-          "yyyy-MM-DDTHH:mm:ss.SSS"
-        ),
-        thoiGianTraHang: moment(new Date(data.TGTraHang).toISOString()).format(
-          "yyyy-MM-DDTHH:mm:ss.SSS"
-        ),
-        ThoiGianLayTraRong: !data.TGLayTraRong
+        MaVanDonKH: data.MaVDKH,
+        MaCungDuong: data.MaCungDuong.value,
+        LoaiVanDon: data.LoaiVanDon,
+        TongKhoiLuong: data.TongKhoiLuong,
+        TongTheTich: data.TongTheTich,
+        MaKH: data.MaKH.value,
+        TongThungHang: data.TongThungHang,
+        ThoiGianHaCang: !data.TGHaCang
           ? null
-          : moment(new Date(data.TGLayTraRong).toISOString()).format(
+          : moment(new Date(data.TGHaCang).toISOString()).format(
               "yyyy-MM-DDTHH:mm:ss.SSS"
             ),
+        ThoiGianCoMat: !data.TGCoMat
+          ? null
+          : moment(new Date(data.TGCoMat).toISOString()).format(
+              "yyyy-MM-DDTHH:mm:ss.SSS"
+            ),
+        ThoiGianHanLenh: !data.TGHanLenh
+          ? null
+          : moment(new Date(data.TGHanLenh).toISOString()).format(
+              "yyyy-MM-DDTHH:mm:ss.SSS"
+            ),
+        ThoiGianLayHang: moment(new Date(data.TGLayHang).toISOString()).format(
+          "yyyy-MM-DDTHH:mm:ss.SSS"
+        ),
+        ThoiGianTraHang: moment(new Date(data.TGTraHang).toISOString()).format(
+          "yyyy-MM-DDTHH:mm:ss.SSS"
+        ),
+        ThoiGianLayTraRong: moment(
+          new Date(data.TGLayTraRong).toISOString()
+        ).format("yyyy-MM-DDTHH:mm:ss.SSS"),
       }
     );
 
@@ -296,6 +331,69 @@ const UpdateTransport = (props) => {
         {IsLoading === false && (
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="card-body">
+              <div className="row">
+                <div className="col col-sm">
+                  <div className="form-group">
+                    <label htmlFor="MaKH">Khách Hàng</label>
+                    <Controller
+                      name="MaKH"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          classNamePrefix={"form-control"}
+                          value={field.value}
+                          options={listCus}
+                          onChange={(field) => handleOnChangeCustomer(field)}
+                        />
+                      )}
+                      rules={Validate.MaKH}
+                    />
+                    {errors.MaKH && (
+                      <span className="text-danger">{errors.MaKH.message}</span>
+                    )}
+                  </div>
+                </div>
+                <div className="col col-sm">
+                  <div className="form-group">
+                    <label htmlFor="MaVDKH">Mã Vận Đơn Của Khách Hàng</label>
+                    <input
+                      autoComplete="false"
+                      type="text"
+                      className="form-control"
+                      id="MaVDKH"
+                      {...register(`MaVDKH`, Validate.MaVDKH)}
+                    />
+                    {errors.MaVDKH && (
+                      <span className="text-danger">
+                        {errors.MaVDKH.message}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className="col col-sm">
+                  <div className="form-group">
+                    <label htmlFor="LoaiVanDon">Phân Loại Vận Đơn</label>
+                    <select
+                      disabled={true}
+                      className="form-control"
+                      {...register("LoaiVanDon", Validate.LoaiVanDon)}
+                      value={watch("LoaiVanDon")}
+                      onChange={(e) =>
+                        handleOnchangeTransportType(e.target.value)
+                      }
+                    >
+                      <option value="nhap">Vận Đơn Nhập</option>
+                      <option value="xuat">Vận Đơn Xuất</option>
+                    </select>
+                    {errors.LoaiVanDon && (
+                      <span className="text-danger">
+                        {errors.LoaiVanDon.message}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
               <div className="row">
                 <div className="col col-sm">
                   <div className="form-group">
@@ -379,18 +477,7 @@ const UpdateTransport = (props) => {
                           classNamePrefix={"form-control"}
                           value={field.value}
                           options={listRoad}
-                          onChange={(field) =>
-                            handleOnChangeRoad(
-                              setValue(
-                                "MaCungDuong",
-                                {
-                                  ...listRoad.filter(
-                                    (x) => x.value === field.value
-                                  ),
-                                }[0]
-                              )
-                            )
-                          }
+                          onChange={(field) => handleOnChangeRoad(field)}
                         />
                       )}
                       rules={Validate.MaCungDuong}
@@ -403,50 +490,26 @@ const UpdateTransport = (props) => {
                   </div>
                 </div>
               </div>
+
               <div className="row">
                 <div className="col col-sm">
                   <div className="form-group">
-                    <label htmlFor="MaKH">Khách Hàng</label>
-                    <Controller
-                      name="MaKH"
-                      control={control}
-                      render={({ field }) => (
-                        <Select
-                          {...field}
-                          classNamePrefix={"form-control"}
-                          value={field.value}
-                          options={listCus}
-                        />
-                      )}
-                      rules={Validate.MaKH}
-                    />
-                    {errors.MaKH && (
-                      <span className="text-danger">{errors.MaKH.message}</span>
-                    )}
-                  </div>
-                </div>
-                <div className="col col-sm">
-                  <div className="form-group">
-                    <label htmlFor="LoaiVanDon">Phân Loại Vận Đơn</label>
-                    <select
+                    <label htmlFor="TongThungHang">Tổng Số Thùng Hàng</label>
+                    <input
+                      autoComplete="false"
+                      type="text"
                       className="form-control"
-                      {...register("LoaiVanDon", Validate.LoaiVanDon)}
-                      value={watch("LoaiVanDon")}
-                    >
-                      <option defaultValue={true} value="nhap">
-                        Vận Đơn Nhập
-                      </option>
-                      <option value="xuat">Vận Đơn Xuất</option>
-                    </select>
-                    {errors.LoaiVanDon && (
+                      id="TongThungHang"
+                      {...register(`TongThungHang`, Validate.TongThungHang)}
+                    />
+                    {errors.TongThungHang && (
                       <span className="text-danger">
-                        {errors.LoaiVanDon.message}
+                        {errors.TongThungHang.message}
                       </span>
                     )}
                   </div>
+                  <br />
                 </div>
-              </div>
-              <div className="row">
                 <div className="col col-sm">
                   <div className="form-group">
                     <label htmlFor="TongKhoiLuong">
@@ -511,6 +574,9 @@ const UpdateTransport = (props) => {
                             selected={field.value}
                           />
                         )}
+                        rules={{
+                          required: "không được để trống",
+                        }}
                       />
                       {errors.TGLayTraRong && (
                         <span className="text-danger">
@@ -521,6 +587,102 @@ const UpdateTransport = (props) => {
                   </div>
                 </div>
 
+                {watch("LoaiVanDon") === "xuat" && (
+                  <div className="col col-sm">
+                    <div className="form-group">
+                      <label htmlFor="TGHaCang">Thời Gian Hạ Cảng</label>
+                      <div className="input-group ">
+                        <Controller
+                          control={control}
+                          name={`TGHaCang`}
+                          render={({ field }) => (
+                            <DatePicker
+                              className="form-control"
+                              showTimeSelect
+                              timeFormat="HH:mm"
+                              dateFormat="dd/MM/yyyy HH:mm"
+                              onChange={(date) => field.onChange(date)}
+                              selected={field.value}
+                            />
+                          )}
+                          rules={{
+                            required: "không được để trống",
+                          }}
+                        />
+                        {errors.TGHaCang && (
+                          <span className="text-danger">
+                            {errors.TGHaCang.message}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {watch("LoaiVanDon") === "nhap" && (
+                  <>
+                    <div className="col col-sm">
+                      <div className="form-group">
+                        <label htmlFor="TGCoMat">Thời Gian Có Mặt</label>
+                        <div className="input-group ">
+                          <Controller
+                            control={control}
+                            name={`TGCoMat`}
+                            render={({ field }) => (
+                              <DatePicker
+                                className="form-control"
+                                showTimeSelect
+                                timeFormat="HH:mm"
+                                dateFormat="dd/MM/yyyy HH:mm"
+                                onChange={(date) => field.onChange(date)}
+                                selected={field.value}
+                              />
+                            )}
+                            rules={{
+                              required: "không được để trống",
+                            }}
+                          />
+                          {errors.TGCoMat && (
+                            <span className="text-danger">
+                              {errors.TGCoMat.message}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="col col-sm">
+                      <div className="form-group">
+                        <label htmlFor="TGHanLenh">Thời Gian Hạn Lệnh</label>
+                        <div className="input-group ">
+                          <Controller
+                            control={control}
+                            name={`TGHanLenh`}
+                            render={({ field }) => (
+                              <DatePicker
+                                className="form-control"
+                                showTimeSelect
+                                timeFormat="HH:mm"
+                                dateFormat="dd/MM/yyyy HH:mm"
+                                onChange={(date) => field.onChange(date)}
+                                selected={field.value}
+                              />
+                            )}
+                            rules={{
+                              required: "không được để trống",
+                            }}
+                          />
+                          {errors.TGHanLenh && (
+                            <span className="text-danger">
+                              {errors.TGHanLenh.message}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+              <div className="row">
                 <div className="col col-sm">
                   <div className="form-group">
                     <label htmlFor="TGLayHang">Thời Gian Lấy Hàng</label>
@@ -588,7 +750,7 @@ const UpdateTransport = (props) => {
                   className="btn btn-primary"
                   style={{ float: "right" }}
                 >
-                  Cập Nhật
+                  Cập nhật
                 </button>
               </div>
             </div>
