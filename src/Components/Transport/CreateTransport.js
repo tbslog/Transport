@@ -214,10 +214,29 @@ const CreateTransport = (props) => {
     setValue("LoaiVanDon", val);
   };
 
+  const handleOnChangeVehicleType = (val) => {
+    setValue("LoaiThungHang", val);
+
+    setValue("TGHaCang", null);
+    setValue("TGCoMat", null);
+    setValue("TGHanLenh", null);
+    setValue("TGLayTraRong", null);
+  };
+
   const onSubmit = async (data) => {
     SetIsLoading(true);
 
+    if (watch("LoaiThungHang") === "TRUCK") {
+      setValue("TGHaCang", null);
+      setValue("TGCoMat", null);
+      setValue("TGHanLenh", null);
+      setValue("TGLayTraRong", null);
+    }
+
     const create = await postData("BillOfLading/CreateTransport", {
+      LoaiThungHang: data.LoaiThungHang,
+      HangTau: data.HangTau,
+      TenTau: data.TenTau,
       MaVanDonKH: data.MaVDKH,
       MaCungDuong: data.MaCungDuong.value,
       LoaiVanDon: data.LoaiVanDon,
@@ -225,6 +244,11 @@ const CreateTransport = (props) => {
       TongTheTich: data.TongTheTich,
       MaKH: data.MaKH.value,
       TongThungHang: data.TongThungHang,
+      ThoiGianLayTraRong: !data.TGLayTraRong
+        ? null
+        : moment(new Date(data.TGLayTraRong).toISOString()).format(
+            "yyyy-MM-DDTHH:mm:ss.SSS"
+          ),
       ThoiGianHaCang: !data.TGHaCang
         ? null
         : moment(new Date(data.TGHaCang).toISOString()).format(
@@ -246,9 +270,6 @@ const CreateTransport = (props) => {
       thoiGianTraHang: moment(new Date(data.TGTraHang).toISOString()).format(
         "yyyy-MM-DDTHH:mm:ss.SSS"
       ),
-      ThoiGianLayTraRong: moment(
-        new Date(data.TGLayTraRong).toISOString()
-      ).format("yyyy-MM-DDTHH:mm:ss.SSS"),
     });
 
     if (create === 1) {
@@ -277,6 +298,27 @@ const CreateTransport = (props) => {
               <div className="row">
                 <div className="col col-sm">
                   <div className="form-group">
+                    <label htmlFor="LoaiVanDon">Phân Loại Vận Đơn</label>
+                    <select
+                      className="form-control"
+                      {...register("LoaiVanDon", Validate.LoaiVanDon)}
+                      value={watch("LoaiVanDon")}
+                      onChange={(e) =>
+                        handleOnchangeTransportType(e.target.value)
+                      }
+                    >
+                      <option value="nhap">Vận Đơn Nhập</option>
+                      <option value="xuat">Vận Đơn Xuất</option>
+                    </select>
+                    {errors.LoaiVanDon && (
+                      <span className="text-danger">
+                        {errors.LoaiVanDon.message}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className="col col-sm">
+                  <div className="form-group">
                     <label htmlFor="MaKH">Khách Hàng</label>
                     <Controller
                       name="MaKH"
@@ -297,6 +339,7 @@ const CreateTransport = (props) => {
                     )}
                   </div>
                 </div>
+
                 <div className="col col-sm">
                   <div className="form-group">
                     <label htmlFor="MaVDKH">Mã Vận Đơn Của Khách Hàng</label>
@@ -314,27 +357,46 @@ const CreateTransport = (props) => {
                     )}
                   </div>
                 </div>
-                <div className="col col-sm">
-                  <div className="form-group">
-                    <label htmlFor="LoaiVanDon">Phân Loại Vận Đơn</label>
-                    <select
-                      className="form-control"
-                      {...register("LoaiVanDon", Validate.LoaiVanDon)}
-                      value={watch("LoaiVanDon")}
-                      onChange={(e) =>
-                        handleOnchangeTransportType(e.target.value)
-                      }
-                    >
-                      <option value="nhap">Vận Đơn Nhập</option>
-                      <option value="xuat">Vận Đơn Xuất</option>
-                    </select>
-                    {errors.LoaiVanDon && (
-                      <span className="text-danger">
-                        {errors.LoaiVanDon.message}
-                      </span>
-                    )}
-                  </div>
-                </div>
+              </div>
+              <div className="row">
+                {watch("LoaiVanDon") && watch("LoaiVanDon") === "xuat" && (
+                  <>
+                    <div className="col col-sm">
+                      <div className="form-group">
+                        <label htmlFor="HangTau">Hãng Tàu</label>
+                        <input
+                          autoComplete="false"
+                          type="text"
+                          className="form-control"
+                          id="TongThungHang"
+                          {...register(`HangTau`, Validate.HangTau)}
+                        />
+                        {errors.HangTau && (
+                          <span className="text-danger">
+                            {errors.HangTau.message}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="col col-sm">
+                      <div className="form-group">
+                        <label htmlFor="TenTau">Tên Tàu</label>
+                        <input
+                          autoComplete="false"
+                          type="text"
+                          className="form-control"
+                          id="TenTau"
+                          {...register(`TenTau`, Validate.TenTau)}
+                        />
+                        {errors.TenTau && (
+                          <span className="text-danger">
+                            {errors.TenTau.message}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
               <div className="row">
                 <div className="col col-sm">
@@ -436,6 +498,29 @@ const CreateTransport = (props) => {
               <div className="row">
                 <div className="col col-sm">
                   <div className="form-group">
+                    <label htmlFor="LoaiThungHang">Loại Thùng Hàng</label>
+                    <select
+                      className="form-control"
+                      {...register("LoaiThungHang", Validate.LoaiThungHang)}
+                      value={watch("LoaiThungHang")}
+                      onChange={(e) =>
+                        handleOnChangeVehicleType(e.target.value)
+                      }
+                    >
+                      <option value={""}>--Chọn Loại Thùng Hàng--</option>
+                      <option value="CONT">CONT</option>
+                      <option value="TRUCK">TRUCK</option>
+                      <option value="CONT&TRUCK">CONT & TRUCK</option>
+                    </select>
+                    {errors.LoaiThungHang && (
+                      <span className="text-danger">
+                        {errors.LoaiThungHang.message}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className="col col-sm">
+                  <div className="form-group">
                     <label htmlFor="TongThungHang">Tổng Số Thùng Hàng</label>
                     <input
                       autoComplete="false"
@@ -493,137 +578,147 @@ const CreateTransport = (props) => {
                   <br />
                 </div>
               </div>
-              <div className="row">
-                <div className="col col-sm">
-                  <div className="form-group">
+              {watch("LoaiThungHang") &&
+                watch("LoaiThungHang").includes("CONT") && (
+                  <div className="row">
+                    <div className="col col-sm">
+                      <div className="form-group">
+                        {watch("LoaiVanDon") === "xuat" && (
+                          <label htmlFor="TGLayTraRong">
+                            Thời Gian Lấy Rỗng
+                          </label>
+                        )}
+                        {watch("LoaiVanDon") === "nhap" && (
+                          <label htmlFor="TGLayTraRong">
+                            Thời Gian Trả Rỗng
+                          </label>
+                        )}
+                        <div className="input-group ">
+                          <Controller
+                            control={control}
+                            name={`TGLayTraRong`}
+                            render={({ field }) => (
+                              <DatePicker
+                                className="form-control"
+                                showTimeSelect
+                                timeFormat="HH:mm"
+                                dateFormat="dd/MM/yyyy HH:mm"
+                                onChange={(date) => field.onChange(date)}
+                                selected={field.value}
+                              />
+                            )}
+                            rules={{
+                              required: "không được để trống",
+                            }}
+                          />
+                          {errors.TGLayTraRong && (
+                            <span className="text-danger">
+                              {errors.TGLayTraRong.message}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
                     {watch("LoaiVanDon") === "xuat" && (
-                      <label htmlFor="TGLayTraRong">Thời Gian Lấy Rỗng</label>
-                    )}
-                    {watch("LoaiVanDon") === "nhap" && (
-                      <label htmlFor="TGLayTraRong">Thời Gian Trả Rỗng</label>
-                    )}
-                    <div className="input-group ">
-                      <Controller
-                        control={control}
-                        name={`TGLayTraRong`}
-                        render={({ field }) => (
-                          <DatePicker
-                            className="form-control"
-                            showTimeSelect
-                            timeFormat="HH:mm"
-                            dateFormat="dd/MM/yyyy HH:mm"
-                            onChange={(date) => field.onChange(date)}
-                            selected={field.value}
-                          />
-                        )}
-                        rules={{
-                          required: "không được để trống",
-                        }}
-                      />
-                      {errors.TGLayTraRong && (
-                        <span className="text-danger">
-                          {errors.TGLayTraRong.message}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {watch("LoaiVanDon") === "xuat" && (
-                  <div className="col col-sm">
-                    <div className="form-group">
-                      <label htmlFor="TGHaCang">Thời Gian Hạ Cảng</label>
-                      <div className="input-group ">
-                        <Controller
-                          control={control}
-                          name={`TGHaCang`}
-                          render={({ field }) => (
-                            <DatePicker
-                              className="form-control"
-                              showTimeSelect
-                              timeFormat="HH:mm"
-                              dateFormat="dd/MM/yyyy HH:mm"
-                              onChange={(date) => field.onChange(date)}
-                              selected={field.value}
+                      <div className="col col-sm">
+                        <div className="form-group">
+                          <label htmlFor="TGHaCang">Thời Gian Hạ Cảng</label>
+                          <div className="input-group ">
+                            <Controller
+                              control={control}
+                              name={`TGHaCang`}
+                              render={({ field }) => (
+                                <DatePicker
+                                  className="form-control"
+                                  showTimeSelect
+                                  timeFormat="HH:mm"
+                                  dateFormat="dd/MM/yyyy HH:mm"
+                                  onChange={(date) => field.onChange(date)}
+                                  selected={field.value}
+                                />
+                              )}
+                              rules={{
+                                required: "không được để trống",
+                              }}
                             />
-                          )}
-                          rules={{
-                            required: "không được để trống",
-                          }}
-                        />
-                        {errors.TGHaCang && (
-                          <span className="text-danger">
-                            {errors.TGHaCang.message}
-                          </span>
-                        )}
+                            {errors.TGHaCang && (
+                              <span className="text-danger">
+                                {errors.TGHaCang.message}
+                              </span>
+                            )}
+                          </div>
+                        </div>
                       </div>
-                    </div>
+                    )}
+
+                    {watch("LoaiVanDon") === "nhap" && (
+                      <>
+                        <div className="col col-sm">
+                          <div className="form-group">
+                            <label htmlFor="TGCoMat">Thời Gian Có Mặt</label>
+                            <div className="input-group ">
+                              <Controller
+                                control={control}
+                                name={`TGCoMat`}
+                                render={({ field }) => (
+                                  <DatePicker
+                                    className="form-control"
+                                    showTimeSelect
+                                    timeFormat="HH:mm"
+                                    dateFormat="dd/MM/yyyy HH:mm"
+                                    onChange={(date) => field.onChange(date)}
+                                    selected={field.value}
+                                  />
+                                )}
+                                rules={{
+                                  required: "không được để trống",
+                                }}
+                              />
+                              {errors.TGCoMat && (
+                                <span className="text-danger">
+                                  {errors.TGCoMat.message}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="col col-sm">
+                          <div className="form-group">
+                            <label htmlFor="TGHanLenh">
+                              Thời Gian Hạn Lệnh
+                            </label>
+                            <div className="input-group ">
+                              <Controller
+                                control={control}
+                                name={`TGHanLenh`}
+                                render={({ field }) => (
+                                  <DatePicker
+                                    className="form-control"
+                                    showTimeSelect
+                                    timeFormat="HH:mm"
+                                    dateFormat="dd/MM/yyyy HH:mm"
+                                    onChange={(date) => field.onChange(date)}
+                                    selected={field.value}
+                                  />
+                                )}
+                                rules={{
+                                  required: "không được để trống",
+                                }}
+                              />
+                              {errors.TGHanLenh && (
+                                <span className="text-danger">
+                                  {errors.TGHanLenh.message}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </>
+                    )}
                   </div>
                 )}
 
-                {watch("LoaiVanDon") === "nhap" && (
-                  <>
-                    <div className="col col-sm">
-                      <div className="form-group">
-                        <label htmlFor="TGCoMat">Thời Gian Có Mặt</label>
-                        <div className="input-group ">
-                          <Controller
-                            control={control}
-                            name={`TGCoMat`}
-                            render={({ field }) => (
-                              <DatePicker
-                                className="form-control"
-                                showTimeSelect
-                                timeFormat="HH:mm"
-                                dateFormat="dd/MM/yyyy HH:mm"
-                                onChange={(date) => field.onChange(date)}
-                                selected={field.value}
-                              />
-                            )}
-                            rules={{
-                              required: "không được để trống",
-                            }}
-                          />
-                          {errors.TGCoMat && (
-                            <span className="text-danger">
-                              {errors.TGCoMat.message}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="col col-sm">
-                      <div className="form-group">
-                        <label htmlFor="TGHanLenh">Thời Gian Hạn Lệnh</label>
-                        <div className="input-group ">
-                          <Controller
-                            control={control}
-                            name={`TGHanLenh`}
-                            render={({ field }) => (
-                              <DatePicker
-                                className="form-control"
-                                showTimeSelect
-                                timeFormat="HH:mm"
-                                dateFormat="dd/MM/yyyy HH:mm"
-                                onChange={(date) => field.onChange(date)}
-                                selected={field.value}
-                              />
-                            )}
-                            rules={{
-                              required: "không được để trống",
-                            }}
-                          />
-                          {errors.TGHanLenh && (
-                            <span className="text-danger">
-                              {errors.TGHanLenh.message}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </>
-                )}
-              </div>
               <div className="row">
                 <div className="col col-sm">
                   <div className="form-group">

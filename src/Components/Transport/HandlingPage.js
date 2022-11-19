@@ -44,7 +44,7 @@ const HandlingPage = (props) => {
       name: "Hủy Chuyến",
       cell: (val) => (
         <>
-          {val.statusId === 19 ? (
+          {val.statusId === 27 || val.statusId === 19 ? (
             <button
               onClick={() =>
                 showConfirmDialog(val, setFuncName("CancelHandling"))
@@ -590,7 +590,7 @@ const HandlingPage = (props) => {
           >
             <div
               className="modal-dialog modal-dialog-scrollable"
-              style={{ maxWidth: "90%" }}
+              style={{ maxWidth: "95%" }}
             >
               <div className="modal-content">
                 <div className="modal-header">
