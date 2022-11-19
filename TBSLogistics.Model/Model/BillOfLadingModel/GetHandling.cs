@@ -34,13 +34,18 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
         public string GhiChu { get; set; }
         public int? DiemLayRong { get; set; }
         public DateTime? ThoiGianLayTraRong { get; set; }
-        public DateTime? ThoiGianHaCong { get; set; }
-        public DateTime? ThoiGianKeoCong { get; set; }
+        public DateTime? ThoiGianHaCang { get; set; }
         public DateTime? ThoiGianHanLenh { get; set; }
-        public DateTime ThoiGianCoMat { get; set; }
-        public DateTime? ThoiGianCatMang { get; set; }
+        public DateTime? ThoiGianCoMat { get; set; }
         public DateTime ThoiGianLayHang { get; set; }
         public DateTime ThoiGianTraHang { get; set; }
+
+        public DateTime? ThoiGianLayTraRongThucTe { get; set; }
+        public DateTime? ThoiGianHaCangThucTe { get; set; }
+        public DateTime? ThoiGianHanLenhThucTe { get; set; }
+        public DateTime? ThoiGianCoMatThucTe { get; set; }
+        public DateTime? ThoiGianLayHangThucTe { get; set; }
+        public DateTime? ThoiGianTraHangThucTe { get; set; }
     }
 
     public class RoadDetail

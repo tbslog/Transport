@@ -26,8 +26,6 @@ namespace TBSLogistics.Data.TMS
         public long? BangGiaNcc { get; set; }
         public decimal? DonGiaKh { get; set; }
         public decimal? DonGiaNcc { get; set; }
-        public string Tau { get; set; }
-        public string HangTau { get; set; }
         public string MaRomooc { get; set; }
         public string ContNo { get; set; }
         public string SealNp { get; set; }
@@ -40,8 +38,6 @@ namespace TBSLogistics.Data.TMS
         public DateTime? ThoiGianTraHangThucTe { get; set; }
         public DateTime? ThoiGianLayTraRongThucTe { get; set; }
         public DateTime? ThoiGianCoMatThucTe { get; set; }
-        public DateTime? ThoiGianHanLenhThucTe { get; set; }
-        public DateTime? ThoiGianHaCangThucTe { get; set; }
         public DateTime? ThoiGianHoanThanh { get; set; }
         public int TrangThai { get; set; }
         public DateTime CreatedTime { get; set; }
