@@ -242,7 +242,8 @@ const ApproveSubFeeByHandling = (props) => {
                 <div className="col col-sm">
                   <button
                     type="button"
-                    className="btn btn-sm btn-default"
+                    className="btn btn-title btn-sm btn-default"
+                    gloss="Duyệt Phụ Phí"
                     onClick={() => {
                       ShowConfirmDialog();
                       setIsAccept(0);
@@ -253,7 +254,8 @@ const ApproveSubFeeByHandling = (props) => {
 
                   <button
                     type="button"
-                    className="btn btn-sm btn-default mx-4"
+                    className="btn btn-title btn-sm btn-default mx-4"
+                    gloss="Không Duyệt Phụ Phí"
                     onClick={() => {
                       ShowConfirmDialog();
                       setIsAccept(1);

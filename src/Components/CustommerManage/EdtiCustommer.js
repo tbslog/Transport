@@ -223,7 +223,7 @@ const EditCustommer = (props) => {
               <div className="row">
                 <div className="col-sm">
                   <div className="form-group">
-                    <label htmlFor="MaKH">Mã khách hàng</label>
+                    <label htmlFor="MaKH">Mã khách hàng(*)</label>
                     <input
                       autoComplete="false"
                       type="text"
@@ -254,7 +254,7 @@ const EditCustommer = (props) => {
                 </div>
                 <div className="col-sm">
                   <div className="form-group">
-                    <label htmlFor="TenKH">Tên khách hàng</label>
+                    <label htmlFor="TenKH">Tên khách hàng(*)</label>
                     <input
                       type="text"
                       className="form-control"
@@ -290,7 +290,7 @@ const EditCustommer = (props) => {
               <div className="row">
                 <div className="col-sm">
                   <div className="form-group">
-                    <label htmlFor="Email">Địa chỉ Email</label>
+                    <label htmlFor="Email">Địa chỉ Email(*)</label>
                     <input
                       type="text "
                       className="form-control"
@@ -321,7 +321,7 @@ const EditCustommer = (props) => {
                 </div>
                 <div className="col-sm">
                   <div className="form-group">
-                    <label htmlFor="MST">Mã số thuế</label>
+                    <label htmlFor="MST">Mã số thuế(*)</label>
                     <input
                       type="text "
                       className="form-control"
@@ -351,7 +351,7 @@ const EditCustommer = (props) => {
                 </div>
                 <div className="col-sm">
                   <div className="form-group">
-                    <label htmlFor="SDT">Số điện thoại</label>
+                    <label htmlFor="SDT">Số điện thoại(*)</label>
                     <input
                       type="text"
                       className="form-control"
@@ -381,7 +381,7 @@ const EditCustommer = (props) => {
                 </div>
                 <div className="col-sm">
                   <div className="form-group">
-                    <label htmlFor="GPS">Tọa Độ GPS</label>
+                    <label htmlFor="GPS">Tọa Độ GPS(*)</label>
                     <input
                       type="text"
                       className="form-control"
@@ -410,7 +410,7 @@ const EditCustommer = (props) => {
                 <div className="col-sm">
                   {" "}
                   <div className="form-group">
-                    <label htmlFor="NhomKH">Nhóm khách hàng</label>
+                    <label htmlFor="NhomKH">Nhóm khách hàng(*)</label>
                     <select
                       className="form-control"
                       {...register("NhomKH", {
@@ -437,7 +437,7 @@ const EditCustommer = (props) => {
                 <div className="col-sm">
                   {" "}
                   <div className="form-group">
-                    <label htmlFor="LoaiKH">Phân Loại khách hàng</label>
+                    <label htmlFor="LoaiKH">Phân Loại khách hàng(*)</label>
                     <select
                       className="form-control"
                       {...register("LoaiKH", {
@@ -464,7 +464,7 @@ const EditCustommer = (props) => {
               </div>
 
               <div className="form-group">
-                <label htmlFor="Tinh">Loại địa điểm</label>
+                <label htmlFor="Tinh">Loại địa điểm(*)</label>
                 <Controller
                   name="MaLoaiDiaDiem"
                   control={control}
@@ -485,6 +485,77 @@ const EditCustommer = (props) => {
                 )}
               </div>
               <div className="row">
+                <div className="col-sm">
+                  <div className="form-group">
+                    <label htmlFor="Tinh">Tỉnh(*)</label>
+                    <Controller
+                      name="MaTinh"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          classNamePrefix={"form-control"}
+                          value={field.value}
+                          options={ListProvince}
+                          onChange={(field) => HandleChangeProvince(field)}
+                        />
+                      )}
+                      rules={{ required: "không được để trống" }}
+                    />
+                    {errors.MaTinh && (
+                      <span className="text-danger">
+                        {errors.MaTinh.message}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className="col-sm">
+                  <div className="form-group">
+                    <label htmlFor="SDT">Huyện(*)</label>
+                    <Controller
+                      name="MaHuyen"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          classNamePrefix={"form-control"}
+                          value={field.value}
+                          options={ListDistrict}
+                          onChange={(field) => HandleOnchangeDistrict(field)}
+                        />
+                      )}
+                      rules={{ required: "không được để trống" }}
+                    />
+                    {errors.MaHuyen && (
+                      <span className="text-danger">
+                        {errors.MaHuyen.message}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className="col-sm">
+                  <div className="form-group">
+                    <label htmlFor="SDT">Phường(*)</label>
+                    <Controller
+                      name="MaPhuong"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          classNamePrefix={"form-control"}
+                          value={field.value}
+                          options={ListWard}
+                        />
+                      )}
+                      rules={{ required: "không được để trống" }}
+                    />
+                    {errors.MaPhuong && (
+                      <span className="text-danger">
+                        {errors.MaPhuong.message}
+                      </span>
+                    )}
+                  </div>
+                </div>
                 <div className="col-sm">
                   <div className="form-group">
                     <label htmlFor="Sonha">Số nhà</label>
@@ -511,80 +582,9 @@ const EditCustommer = (props) => {
                     )}
                   </div>
                 </div>
-                <div className="col-sm">
-                  <div className="form-group">
-                    <label htmlFor="Tinh">Tỉnh</label>
-                    <Controller
-                      name="MaTinh"
-                      control={control}
-                      render={({ field }) => (
-                        <Select
-                          {...field}
-                          classNamePrefix={"form-control"}
-                          value={field.value}
-                          options={ListProvince}
-                          onChange={(field) => HandleChangeProvince(field)}
-                        />
-                      )}
-                      rules={{ required: "không được để trống" }}
-                    />
-                    {errors.MaTinh && (
-                      <span className="text-danger">
-                        {errors.MaTinh.message}
-                      </span>
-                    )}
-                  </div>
-                </div>
-                <div className="col-sm">
-                  <div className="form-group">
-                    <label htmlFor="SDT">Huyện</label>
-                    <Controller
-                      name="MaHuyen"
-                      control={control}
-                      render={({ field }) => (
-                        <Select
-                          {...field}
-                          classNamePrefix={"form-control"}
-                          value={field.value}
-                          options={ListDistrict}
-                          onChange={(field) => HandleOnchangeDistrict(field)}
-                        />
-                      )}
-                      rules={{ required: "không được để trống" }}
-                    />
-                    {errors.MaHuyen && (
-                      <span className="text-danger">
-                        {errors.MaHuyen.message}
-                      </span>
-                    )}
-                  </div>
-                </div>
-                <div className="col-sm">
-                  <div className="form-group">
-                    <label htmlFor="SDT">Phường</label>
-                    <Controller
-                      name="MaPhuong"
-                      control={control}
-                      render={({ field }) => (
-                        <Select
-                          {...field}
-                          classNamePrefix={"form-control"}
-                          value={field.value}
-                          options={ListWard}
-                        />
-                      )}
-                      rules={{ required: "không được để trống" }}
-                    />
-                    {errors.MaPhuong && (
-                      <span className="text-danger">
-                        {errors.MaPhuong.message}
-                      </span>
-                    )}
-                  </div>
-                </div>
               </div>
               <div className="form-group">
-                <label htmlFor="TrangThai">Trạng thái</label>
+                <label htmlFor="TrangThai">Trạng thái(*)</label>
                 <select
                   className="form-control"
                   {...register("TrangThai", {

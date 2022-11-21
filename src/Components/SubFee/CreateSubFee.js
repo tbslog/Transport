@@ -197,7 +197,7 @@ const CreateSubFee = (props) => {
             <div className="row">
               <div className="col col-sm">
                 <div className="form-group">
-                  <label htmlFor="PhanLoaiDoiTac">Phân Loại Đối Tác</label>
+                  <label htmlFor="PhanLoaiDoiTac">Phân Loại Đối Tác(*)</label>
                   <select
                     className="form-control"
                     {...register("PhanLoaiDoiTac", Validate.PhanLoaiDoiTac)}
@@ -222,7 +222,9 @@ const CreateSubFee = (props) => {
               </div>
               <div className="col col-sm">
                 <div className="form-group">
-                  <label htmlFor="KhachHang">Khách Hàng / Nhà Cung Cấp</label>
+                  <label htmlFor="KhachHang">
+                    Khách Hàng / Nhà Cung Cấp(*)
+                  </label>
                   <Controller
                     name="MaKh"
                     control={control}
@@ -244,7 +246,7 @@ const CreateSubFee = (props) => {
               </div>
               <div className="col col-sm">
                 <div className="form-group">
-                  <label htmlFor="MaHopDong">Hợp Đồng</label>
+                  <label htmlFor="MaHopDong">Hợp Đồng(*)</label>
                   <Controller
                     name="MaHopDong"
                     rules={Validate.MaHopDong}
@@ -344,7 +346,7 @@ const CreateSubFee = (props) => {
               </div>
               <div className="col col-sm">
                 <div className="form-group">
-                  <label htmlFor="LoaiPhuPhi">Loại Phụ Phí</label>
+                  <label htmlFor="LoaiPhuPhi">Loại Phụ Phí(*)</label>
                   <Controller
                     name="LoaiPhuPhi"
                     control={control}
@@ -368,7 +370,7 @@ const CreateSubFee = (props) => {
               </div>
               <div className="col col-sm">
                 <div className="form-group">
-                  <label htmlFor="MaLoaiHangHoa">Đơn Giá</label>
+                  <label htmlFor="MaLoaiHangHoa">Đơn Giá(*)</label>
                   <input
                     type="text"
                     className="form-control"

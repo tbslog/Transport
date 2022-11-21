@@ -307,7 +307,7 @@ const AddPriceTable = (props) => {
                     <div className="col col-sm">
                       <div className="form-group">
                         <label htmlFor="PhanLoaiDoiTac">
-                          Phân Loại Đối Tác
+                          Phân Loại Đối Tác(*)
                         </label>
                         <select
                           className="form-control"
@@ -339,7 +339,7 @@ const AddPriceTable = (props) => {
                     <div className="col col-sm">
                       <div className="form-group">
                         <label htmlFor="KhachHang">
-                          Khách Hàng / Nhà Cung Cấp
+                          Khách Hàng / Nhà Cung Cấp(*)
                         </label>
                         <Controller
                           name="MaKh"
@@ -366,7 +366,7 @@ const AddPriceTable = (props) => {
                     </div>
                     <div className="col col-sm">
                       <div className="form-group">
-                        <label htmlFor="MaHopDong">Hợp Đồng</label>
+                        <label htmlFor="MaHopDong">Hợp Đồng(*)</label>
                         <Controller
                           name="MaHopDong"
                           rules={Validate.MaHopDong}
@@ -398,12 +398,12 @@ const AddPriceTable = (props) => {
                     <thead>
                       <tr>
                         <th style={{ width: "10px" }}></th>
-                        <th>Cung Đường</th>
-                        <th>Đơn Giá</th>
-                        <th>Đơn vị tính</th>
-                        <th>PTVC</th>
-                        <th>Loại phương tiện</th>
-                        <th>Loại Hàng Hóa</th>
+                        <th>Cung Đường(*)</th>
+                        <th>Đơn Giá(*)</th>
+                        <th>Đơn vị tính(*)</th>
+                        <th>PTVC(*)</th>
+                        <th>Loại phương tiện(*)</th>
+                        <th>Loại Hàng Hóa(*)</th>
                         <th>Ngày Hết Hiệu Lực</th>
                         <th style={{ width: "40px" }}>
                           <button

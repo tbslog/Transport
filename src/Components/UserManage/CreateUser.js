@@ -160,7 +160,7 @@ const CreateUser = (props) => {
             <div className="row">
               <div className="col col-sm">
                 <div className="form-group">
-                  <label htmlFor="MaNhanVien">Mã Nhân Viên</label>
+                  <label htmlFor="MaNhanVien">Mã Nhân Viên(*)</label>
                   <input
                     type="text"
                     className="form-control"
@@ -176,7 +176,7 @@ const CreateUser = (props) => {
               </div>
               <div className="col col-sm">
                 <div className="form-group">
-                  <label htmlFor="FullName">Họ Và Tên</label>
+                  <label htmlFor="FullName">Họ Và Tên(*)</label>
                   <input
                     type="text"
                     className="form-control"
@@ -192,7 +192,7 @@ const CreateUser = (props) => {
               </div>
               <div className="col col-sm">
                 <div className="form-group">
-                  <label htmlFor="BoPhan">Bộ Phận</label>
+                  <label htmlFor="BoPhan">Bộ Phận(*)</label>
                   <Controller
                     name="BoPhan"
                     rules={Validate.BoPhan}
@@ -216,7 +216,7 @@ const CreateUser = (props) => {
             <div className="row">
               <div className="col col-sm">
                 <div className="form-group">
-                  <label htmlFor="Username">Tài Khoản</label>
+                  <label htmlFor="Username">Tài Khoản(*)</label>
                   <input
                     type="text"
                     className="form-control"
@@ -232,7 +232,7 @@ const CreateUser = (props) => {
               </div>
               <div className="col col-sm">
                 <div className="form-group">
-                  <label htmlFor="Password">Mật Khẩu</label>
+                  <label htmlFor="Password">Mật Khẩu(*)</label>
                   <input
                     type="password"
                     className="form-control"
@@ -250,7 +250,7 @@ const CreateUser = (props) => {
             <div className="row">
               <div className="col col-sm">
                 <div className="form-group">
-                  <label htmlFor="Role">Phân Quyền</label>
+                  <label htmlFor="Role">Phân Quyền(*)</label>
                   <Controller
                     name="Role"
                     control={control}
@@ -271,7 +271,7 @@ const CreateUser = (props) => {
               </div>
               <div className="col col-sm">
                 <div className="form-group">
-                  <label htmlFor="TrangThai">Trạng Thái</label>
+                  <label htmlFor="TrangThai">Trạng Thái(*)</label>
                   <select
                     className="form-control"
                     {...register(`TrangThai`, Validate.TrangThai)}

@@ -237,7 +237,8 @@ const ApprovePriceTable = (props) => {
                 <div className="col col-sm">
                   <button
                     type="button"
-                    className="btn btn-sm btn-default"
+                    className="btn btn-title btn-sm btn-default mx-1"
+                    gloss="Duyệt Bảng Giá"
                     onClick={() => {
                       setIsAccept(0);
                       ShowConfirmDialog();
@@ -248,7 +249,8 @@ const ApprovePriceTable = (props) => {
 
                   <button
                     type="button"
-                    className="btn btn-sm btn-default mx-4"
+                    className="btn btn-title btn-sm btn-default mx-4"
+                    gloss="Không Duyệt Bảng Giá"
                     onClick={() => {
                       setIsAccept(1);
                       ShowConfirmDialog();
@@ -382,8 +384,9 @@ const ApprovePriceTable = (props) => {
                 onChangeRowsPerPage={handlePerRowsChange}
                 onChangePage={handlePageChange}
                 highlightOnHover
-                responsive
                 striped
+                direction="auto"
+                responsive
               />
             </div>
           </div>

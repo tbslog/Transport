@@ -185,7 +185,7 @@ const UpdateUser = (props) => {
             <div className="row">
               <div className="col col-sm">
                 <div className="form-group">
-                  <label htmlFor="MaNhanVien">Mã Nhân Viên</label>
+                  <label htmlFor="MaNhanVien">Mã Nhân Viên(*)</label>
                   <input
                     type="text"
                     className="form-control"
@@ -201,7 +201,7 @@ const UpdateUser = (props) => {
               </div>
               <div className="col col-sm">
                 <div className="form-group">
-                  <label htmlFor="FullName">Họ Và Tên</label>
+                  <label htmlFor="FullName">Họ Và Tên(*)</label>
                   <input
                     type="text"
                     className="form-control"
@@ -217,7 +217,7 @@ const UpdateUser = (props) => {
               </div>
               <div className="col col-sm">
                 <div className="form-group">
-                  <label htmlFor="BoPhan">Bộ Phận</label>
+                  <label htmlFor="BoPhan">Bộ Phận(*)</label>
                   <Controller
                     name="BoPhan"
                     rules={Validate.BoPhan}
@@ -241,7 +241,7 @@ const UpdateUser = (props) => {
             <div className="row">
               <div className="col col-sm">
                 <div className="form-group">
-                  <label htmlFor="Username">Tài Khoản</label>
+                  <label htmlFor="Username">Tài Khoản(*)</label>
                   <input
                     type="text"
                     className="form-control"
@@ -276,7 +276,7 @@ const UpdateUser = (props) => {
             <div className="row">
               <div className="col col-sm">
                 <div className="form-group">
-                  <label htmlFor="SetRole">Phân Quyền</label>
+                  <label htmlFor="SetRole">Phân Quyền(*)</label>
                   <Controller
                     name="SetRole"
                     control={control}
@@ -299,7 +299,7 @@ const UpdateUser = (props) => {
               </div>
               <div className="col col-sm">
                 <div className="form-group">
-                  <label htmlFor="TrangThai">Trạng Thái</label>
+                  <label htmlFor="TrangThai">Trạng Thái(*)</label>
                   <select
                     className="form-control"
                     {...register(`TrangThai`, Validate.TrangThai)}

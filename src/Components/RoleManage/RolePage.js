@@ -16,7 +16,8 @@ const RolePage = () => {
         <button
           onClick={() => handleEditButtonClick(val, SetShowModal("UpdateRole"))}
           type="button"
-          className="btn btn-sm btn-default"
+          className="btn btn-title btn-sm btn-default mx-1"
+          gloss="Cập Nhật Role"
         >
           <i className="far fa-edit"></i>
         </button>
@@ -138,7 +139,8 @@ const RolePage = () => {
                   <button
                     title="Thêm mới"
                     type="button"
-                    className="btn btn-sm btn-default mx-1"
+                    className="btn btn-title btn-sm btn-default mx-1"
+                    gloss="Tạo Mới Role"
                     onClick={() => showModalForm(SetShowModal("Create"))}
                   >
                     <i className="fas fa-plus-circle"></i>
@@ -162,6 +164,9 @@ const RolePage = () => {
                 data={data}
                 progressPending={loading}
                 highlightOnHover
+                striped
+                direction="auto"
+                responsive
               />
             </div>
           </div>

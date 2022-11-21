@@ -228,7 +228,7 @@ const EditContract = (props) => {
                   <div className="row">
                     <div className="col col-sm">
                       <div className="form-group">
-                        <label htmlFor="MaHopDong">Mã Hợp Đồng</label>
+                        <label htmlFor="MaHopDong">Mã Hợp Đồng(*)</label>
                         <input
                           readOnly
                           autoComplete="false"
@@ -247,7 +247,7 @@ const EditContract = (props) => {
                     </div>
                     <div className="col col-sm">
                       <div className="form-group">
-                        <label htmlFor="TenHopDong">Tên Hợp Đồng</label>
+                        <label htmlFor="TenHopDong">Tên Hợp Đồng(*)</label>
                         <input
                           type="text"
                           className="form-control"
@@ -266,7 +266,7 @@ const EditContract = (props) => {
                   <div className="row">
                     <div className="col col-sm">
                       <div className="form-group">
-                        <label htmlFor="MaKh">Mã Khách Hàng</label>
+                        <label htmlFor="MaKh">Mã Khách Hàng(*)</label>
                         <input
                           type="text "
                           className="form-control"
@@ -342,7 +342,7 @@ const EditContract = (props) => {
                   <div className="row">
                     <div className="col col-sm">
                       <div className="form-group">
-                        <label htmlFor="NgayBatDau">Ngày bắt đầu</label>
+                        <label htmlFor="NgayBatDau">Ngày bắt đầu(*)</label>
                         <div className="input-group ">
                           <Controller
                             control={control}
@@ -368,7 +368,7 @@ const EditContract = (props) => {
                     </div>
                     <div className="col col-sm">
                       <div className="form-group">
-                        <label htmlFor="NgayKetThuc">Ngày kết thúc</label>
+                        <label htmlFor="NgayKetThuc">Ngày kết thúc(*)</label>
                         <div className="input-group ">
                           <Controller
                             control={control}
@@ -435,7 +435,6 @@ const EditContract = (props) => {
                           onClick={() => handleDownloadContact()}
                         >
                           <i className="fas fa-file-download">
-                            {" "}
                             Tải tệp hợp đồng
                           </i>
                         </button>
@@ -444,7 +443,7 @@ const EditContract = (props) => {
                   )}
 
                   <div className="form-group">
-                    <label htmlFor="TrangThai">Trạng thái</label>
+                    <label htmlFor="TrangThai">Trạng thái(*)</label>
                     <select
                       className="form-control"
                       {...register("TrangThai", Validate.TrangThai)}
@@ -496,7 +495,7 @@ const EditContract = (props) => {
                   <div className="row">
                     <div className="col col-sm">
                       <div className="form-group">
-                        <label htmlFor="MaHopDong">Mã Hợp Đồng</label>
+                        <label htmlFor="MaHopDong">Mã Hợp Đồng(*)</label>
                         <input
                           readOnly
                           autoComplete="false"
@@ -515,7 +514,7 @@ const EditContract = (props) => {
                     </div>
                     <div className="col col-sm">
                       <div className="form-group">
-                        <label htmlFor="TenHopDong">Tên Hợp Đồng</label>
+                        <label htmlFor="TenHopDong">Tên Hợp Đồng(*)</label>
                         <input
                           type="text"
                           className="form-control"
@@ -534,7 +533,7 @@ const EditContract = (props) => {
                   <div className="row">
                     <div className="col col-sm">
                       <div className="form-group">
-                        <label htmlFor="MaKh">Mã Khách Hàng</label>
+                        <label htmlFor="MaKh">Mã Khách Hàng(*)</label>
                         <input
                           readOnly
                           autoComplete="false"
@@ -553,7 +552,7 @@ const EditContract = (props) => {
                     </div>
                     <div className="col col-sm">
                       <div className="form-group">
-                        <label htmlFor="SoHopDongCha">Số hợp đồng cha</label>
+                        <label htmlFor="SoHopDongCha">Số hợp đồng cha(*)</label>
                         <input
                           readOnly
                           autoComplete="false"
@@ -630,7 +629,7 @@ const EditContract = (props) => {
                   <div className="row">
                     <div className="col col-sm">
                       <div className="form-group">
-                        <label htmlFor="NgayBatDau">Ngày bắt đầu</label>
+                        <label htmlFor="NgayBatDau">Ngày bắt đầu(*)</label>
                         <div className="input-group ">
                           <Controller
                             control={control}
@@ -656,7 +655,7 @@ const EditContract = (props) => {
                     </div>
                     <div className="col col-sm">
                       <div className="form-group">
-                        <label htmlFor="NgayKetThuc">Ngày kết thúc</label>
+                        <label htmlFor="NgayKetThuc">Ngày kết thúc(*)</label>
                         <div className="input-group ">
                           <Controller
                             control={control}
@@ -732,7 +731,7 @@ const EditContract = (props) => {
                   </div>
 
                   <div className="form-group">
-                    <label htmlFor="TrangThai">Trạng thái</label>
+                    <label htmlFor="TrangThai">Trạng thái(*)</label>
                     <select
                       className="form-control"
                       {...register("TrangThai", Validate.TrangThai)}

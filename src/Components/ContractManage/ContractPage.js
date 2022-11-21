@@ -40,7 +40,8 @@ const ContractPage = () => {
         <button
           onClick={() => handleEditButtonClick(val, SetShowModal("Edit"))}
           type="button"
-          className="btn btn-sm btn-default"
+          className="btn btn-title btn-sm btn-default mx-1"
+          gloss="Cập Nhật Thông Tin"
         >
           <i className="far fa-edit"></i>
         </button>
@@ -72,7 +73,8 @@ const ContractPage = () => {
             handleOnclickPriceTable(val, SetShowModal("PriceTable"))
           }
           type="button"
-          className="btn btn-sm btn-default"
+          className="btn btn-title btn-sm btn-default mx-1"
+          gloss="Xem Bảng Giá"
         >
           <i className="fas fa-money-check-alt"></i>
         </button>
@@ -299,7 +301,8 @@ const ContractPage = () => {
                 <div className="col-sm-3">
                   <button
                     type="button"
-                    className="btn btn-sm btn-default mx-1"
+                    className="btn btn-title btn-sm btn-default mx-1"
+                    gloss="Tạo Mới Hợp Hồng"
                     onClick={() => showModalForm(SetShowModal("Create"))}
                   >
                     <i className="fas fa-plus-circle"></i>
@@ -412,11 +415,13 @@ const ContractPage = () => {
                     pagination
                     paginationServer
                     paginationTotalRows={totalRows}
-                    selectableRows
                     onSelectedRowsChange={handleChange}
                     onChangeRowsPerPage={handlePerRowsChange}
                     onChangePage={handlePageChange}
                     highlightOnHover
+                    striped
+                    direction="auto"
+                    responsive
                   />
                 </div>
               </TabPanel>
@@ -430,11 +435,13 @@ const ContractPage = () => {
                     pagination
                     paginationServer
                     paginationTotalRows={totalRows}
-                    selectableRows
                     onSelectedRowsChange={handleChange}
                     onChangeRowsPerPage={handlePerRowsChange}
                     onChangePage={handlePageChange}
                     highlightOnHover
+                    striped
+                    direction="auto"
+                    responsive
                   />
                 </div>
               </TabPanel>

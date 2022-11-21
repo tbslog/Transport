@@ -29,7 +29,8 @@ const RoadPage = () => {
         <button
           onClick={() => handleEditButtonClick(val, SetShowModal("Edit"))}
           type="button"
-          className="btn btn-sm btn-default"
+          className="btn btn-title btn-sm btn-default mx-1"
+          gloss="Cập Nhật Thông Tin"
         >
           <i className="far fa-edit"></i>
         </button>
@@ -202,7 +203,8 @@ const RoadPage = () => {
                 <div className="col-sm-3">
                   <button
                     type="button"
-                    className="btn btn-sm btn-default mx-1"
+                    className="btn btn-title btn-sm btn-default mx-1"
+                    gloss="Thêm Mới Cung Đường"
                     onClick={() => showModalForm(SetShowModal("Create"))}
                   >
                     <i className="fas fa-plus-circle"></i>
@@ -249,17 +251,19 @@ const RoadPage = () => {
                 pagination
                 paginationServer
                 paginationTotalRows={totalRows}
-                selectableRows
                 onSelectedRowsChange={handleChange}
                 onChangeRowsPerPage={handlePerRowsChange}
                 onChangePage={handlePageChange}
                 highlightOnHover
+                striped
+                direction="auto"
+                responsive
               />
             </div>
           </div>
           <div className="card-footer">
             <div className="row">
-              <div className="col-sm-3">
+              {/* <div className="col-sm-3">
                 <a
                   href={ExcelAddNewRoad}
                   download="Template Thêm mới cung đường.xlsx"
@@ -277,7 +281,7 @@ const RoadPage = () => {
                     onChange={(e) => handleExcelImportClick(e)}
                   />
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>

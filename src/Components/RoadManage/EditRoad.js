@@ -196,7 +196,7 @@ const EditRoad = (props) => {
                 </div>
                 <div className="col col-sm">
                   <div className="form-group">
-                    <label htmlFor="TenCungDuong">Tên cung đường</label>
+                    <label htmlFor="TenCungDuong">Tên cung đường(*)</label>
                     <input
                       type="text"
                       className="form-control"
@@ -214,7 +214,7 @@ const EditRoad = (props) => {
               </div>
 
               <div className="form-group">
-                <label htmlFor="SoKM">Số KM</label>
+                <label htmlFor="SoKM">Số KM(*)</label>
                 <input
                   type="text "
                   className="form-control"

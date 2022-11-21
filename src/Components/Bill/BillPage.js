@@ -37,7 +37,8 @@ const BillPage = () => {
             handleButtonClick(val, SetShowModal("DetailBillByTransport"))
           }
           type="button"
-          className="btn btn-sm btn-default"
+          className="btn btn-title btn-sm btn-default mx-1"
+          gloss="Xem Hóa Đơn "
         >
           <i className="fas fa-file-invoice-dollar"></i>
         </button>
@@ -209,7 +210,8 @@ const BillPage = () => {
                     <div className="col-sm-3">
                       <button
                         type="button"
-                        className="btn btn-sm btn-default mx-1"
+                        className="btn btn-title btn-sm btn-default mx-1"
+                        gloss="Xem Hóa Đơn Kỳ"
                         onClick={() =>
                           showModalForm(SetShowModal("DetailBill"))
                         }
@@ -290,6 +292,9 @@ const BillPage = () => {
                 onChangeRowsPerPage={handlePerRowsChange}
                 onChangePage={handlePageChange}
                 highlightOnHover
+                striped
+                direction="auto"
+                responsive
               />
             </div>
           </div>

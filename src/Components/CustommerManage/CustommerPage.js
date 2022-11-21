@@ -27,15 +27,16 @@ const CustommerPage = () => {
   const [listCustomerType, setListCustomerType] = useState([]);
   const [listStatus, setListStatus] = useState([]);
   const [ListTypeAddress, SetListTypeAddress] = useState([]);
+  const [cusType, setCusType] = useState("");
 
   const columns = useMemo(() => [
     {
       cell: (val) => (
         <button
-          title="Cập nhật"
           onClick={() => handleEditButtonClick(val, SetShowModal("Edit"))}
           type="button"
-          className="btn btn-sm btn-default"
+          className="btn btn-title btn-sm btn-default mx-1"
+          gloss="Cập Nhật Thông Tin"
         >
           <i className="far fa-edit"></i>
         </button>
@@ -241,6 +242,10 @@ const CustommerPage = () => {
     await fetchData(1);
   };
 
+  const handleOnChangeCusType = (val) => {
+    setCusType(val);
+  };
+
   return (
     <>
       <section className="content-header">
@@ -268,16 +273,32 @@ const CustommerPage = () => {
               <div className="row">
                 <div className="col-sm-3">
                   <button
-                    title="Thêm mới"
                     type="button"
-                    className="btn btn-sm btn-default mx-1"
+                    className="btn btn-title btn-sm btn-default mx-1"
+                    gloss="Thêm Mới Khách Hàng"
                     onClick={() => showModalForm(SetShowModal("Create"))}
                   >
                     <i className="fas fa-plus-circle"></i>
                   </button>
                 </div>
                 <div className="col-sm-3"></div>
-                <div className="col-sm-3"></div>
+                <div className="col-sm-3">
+                  <select
+                    className="form-control form-control-sm"
+                    onChange={(e) => handleOnChangeCusType(e.target.value)}
+                    value={cusType}
+                  >
+                    {listCustomerType &&
+                      listCustomerType.length > 0 &&
+                      listCustomerType.map((val) => {
+                        return (
+                          <option key={val.maLoaiKh} value={val.maLoaiKh}>
+                            {val.tenLoaiKh}
+                          </option>
+                        );
+                      })}
+                  </select>
+                </div>
                 <div className="col-sm-3 ">
                   <div className="input-group input-group-sm">
                     <input
@@ -317,17 +338,19 @@ const CustommerPage = () => {
                 pagination
                 paginationServer
                 paginationTotalRows={totalRows}
-                selectableRows
                 onSelectedRowsChange={handleChange}
                 onChangeRowsPerPage={handlePerRowsChange}
                 onChangePage={handlePageChange}
                 highlightOnHover
+                striped
+                direction="auto"
+                responsive
               />
             </div>
           </div>
           <div className="card-footer">
             <div className="row">
-              <div className="col-sm-3">
+              {/* <div className="col-sm-3">
                 <a
                   title="Tải Template Excel"
                   href={FileExcelImport}
@@ -349,7 +372,7 @@ const CustommerPage = () => {
                     onChange={(e) => handleExcelImportClick(e)}
                   />
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>

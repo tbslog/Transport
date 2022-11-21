@@ -41,96 +41,77 @@ const HandlingPage = (props) => {
 
   const columns = useMemo(() => [
     {
-      name: "Hủy Chuyến",
       cell: (val) => (
-        <>
-          {val.statusId === 27 || val.statusId === 19 ? (
+        <div>
+          <>
+            {val.statusId === 27 || val.statusId === 19 ? (
+              <button
+                onClick={() =>
+                  showConfirmDialog(val, setFuncName("CancelHandling"))
+                }
+                type="button"
+                className="btn btn-title btn-sm btn-default mx-1"
+                gloss="Hủy Chuyến"
+              >
+                <i className="fas fa-window-close"></i>
+              </button>
+            ) : (
+              <span></span>
+            )}
+          </>
+          <>{renderButton(val)}</>
+          <>
+            <button
+              onClick={() => handleEditButtonClick(val, SetShowModal("Edit"))}
+              type="button"
+              className="btn btn-title btn-sm btn-default mx-1"
+              gloss="Chỉnh Sửa"
+            >
+              <i className="far fa-edit"></i>
+            </button>
+          </>
+          <>
             <button
               onClick={() =>
-                showConfirmDialog(val, setFuncName("CancelHandling"))
+                handleEditButtonClick(val, SetShowModal("addSubFee"))
               }
               type="button"
-              className="btn btn-sm btn-default"
+              className="btn btn-title btn-sm btn-default mx-1"
+              gloss="Phụ Phí Phát Sinh"
             >
-              <i className="fas fa-window-close"></i>
+              <i className="fas fa-file-invoice-dollar"></i>
             </button>
-          ) : (
-            <span></span>
-          )}
-        </>
-      ),
-      ignoreRowClick: true,
-      allowOverflow: true,
-      button: true,
-    },
-    {
-      name: "Điều Xe",
-      cell: (val) => <> {renderButton(val)}</>,
-      ignoreRowClick: true,
-      allowOverflow: true,
-      button: true,
-    },
-    {
-      name: "Chỉnh Sửa",
-      cell: (val) => (
-        <button
-          onClick={() => handleEditButtonClick(val, SetShowModal("Edit"))}
-          type="button"
-          className="btn btn-sm btn-default"
-        >
-          <i className="far fa-edit"></i>
-        </button>
-      ),
-      ignoreRowClick: true,
-      allowOverflow: true,
-      button: true,
-    },
-    {
-      name: "Phụ Phí",
-      cell: (val) => (
-        <button
-          onClick={() => handleEditButtonClick(val, SetShowModal("addSubFee"))}
-          type="button"
-          className="btn btn-sm btn-default"
-        >
-          <i className="fas fa-file-invoice-dollar"></i>
-        </button>
-      ),
-      ignoreRowClick: true,
-      allowOverflow: true,
-      button: true,
-    },
-    {
-      name: "Xem Hình",
-      cell: (val) => (
-        <button
-          onClick={() => handleEditButtonClick(val, SetShowModal("Image"))}
-          type="button"
-          className="btn btn-sm btn-default"
-        >
-          <i className="fas fa-images"></i>
-        </button>
-      ),
-      ignoreRowClick: true,
-      allowOverflow: true,
-      button: true,
-    },
-    {
-      name: "Đẩy Hình",
-      cell: (val) => (
-        <div className="upload-btn-wrapper">
-          <button className="btn btn-sm btn-default mx-1">
-            <i className="fas fa-file-upload"></i>
-          </button>
-          <input
-            type="file"
-            name="myfile"
-            multiple
-            accept="image/png, image/jpg, image/jpeg"
-            onChange={(e) => handleUploadImage(val, e)}
-          />
+          </>
+          <>
+            <button
+              onClick={() => handleEditButtonClick(val, SetShowModal("Image"))}
+              type="button"
+              className="btn btn-title btn-sm btn-default mx-1"
+              gloss="Xem Hình Ảnh"
+            >
+              <i className="fas fa-images"></i>
+            </button>
+          </>
+          <>
+            <div
+              className="upload-btn-wrapper mx-1 btn-title"
+              gloss="Upload Hình Ảnh"
+            >
+              <button className="btn btn-sm btn-default mx-1">
+                <i className="fas fa-file-upload"></i>
+              </button>
+              <input
+                type="file"
+                name="myfile"
+                multiple
+                accept="image/png, image/jpg, image/jpeg"
+                onChange={(e) => handleUploadImage(val, e)}
+              />
+            </div>
+          </>
         </div>
       ),
+      width: "250px",
       ignoreRowClick: true,
       allowOverflow: true,
       button: true,
@@ -156,11 +137,11 @@ const HandlingPage = (props) => {
     },
     {
       name: "Tài Xế",
-      selector: (row) => row.tenTaiXe,
+      selector: (row) => <div className="warp-text">{row.tenTaiXe}</div>,
       sortable: true,
     },
     {
-      name: "Loại Phương Tiện",
+      name: <div>Loại Phương Tiện</div>,
       selector: (row) => row.ptVanChuyen,
       sortable: true,
     },
@@ -177,7 +158,7 @@ const HandlingPage = (props) => {
 
     {
       name: "Trạng Thái",
-      selector: (row) => row.trangThai,
+      selector: (row) => <div className="warp-text">{row.trangThai}</div>,
       sortable: true,
     },
     {
@@ -187,8 +168,11 @@ const HandlingPage = (props) => {
     },
     {
       name: "Thời Gian Lập Đơn",
-      selector: (row) =>
-        moment(row.thoiGianTaoDon).format("DD/MM/YYYY HH:mm:ss"),
+      selector: (row) => (
+        <div className="warp-text">
+          {moment(row.thoiGianTaoDon).format("DD/MM/YYYY HH:mm:ss")}
+        </div>
+      ),
       sortable: true,
     },
   ]);
@@ -221,7 +205,8 @@ const HandlingPage = (props) => {
             title="Đi Lấy Rỗng"
             onClick={() => showConfirmDialog(val, setFuncName("StartRuning"))}
             type="button"
-            className="btn btn-sm btn-default"
+            className="btn btn-title btn-sm btn-default mx-1"
+            gloss="Đi Lấy Rỗng"
           >
             <i className="fas fa-cube"></i>
           </button>
@@ -230,7 +215,8 @@ const HandlingPage = (props) => {
             title="Đi Giao Hàng"
             onClick={() => showConfirmDialog(val, setFuncName("StartRuning"))}
             type="button"
-            className="btn btn-sm btn-default"
+            className="btn btn-title btn-sm btn-default mx-1"
+            gloss="Đi Giao Hàng"
           >
             <i className="fas fa-shipping-fast"></i>
           </button>
@@ -241,7 +227,8 @@ const HandlingPage = (props) => {
             title="Đi Giao Hàng"
             onClick={() => showConfirmDialog(val, setFuncName("StartRuning"))}
             type="button"
-            className="btn btn-sm btn-default"
+            className="btn btn-title btn-sm btn-default mx-1"
+            gloss="Đi Giao Hàng"
           >
             <i className="fas fa-shipping-fast"></i>
           </button>
@@ -252,7 +239,8 @@ const HandlingPage = (props) => {
             title="Hoàn Thành Chuyến"
             onClick={() => showConfirmDialog(val, setFuncName("StartRuning"))}
             type="button"
-            className="btn btn-sm btn-default"
+            className="btn btn-title btn-sm btn-default mx-1"
+            gloss="Hoàn Thành Chuyến"
           >
             <i className="fas fa-check"></i>
           </button>
@@ -261,7 +249,7 @@ const HandlingPage = (props) => {
         return (
           <>
             <span>
-              <i className="fas fa-window-close"></i>
+              <i className="fas fa-window-close mx-1"></i>
             </span>
           </>
         );
@@ -269,7 +257,7 @@ const HandlingPage = (props) => {
         return (
           <>
             <span>
-              <i className="fas fa-check"></i>
+              <i className="fas fa-check mx-1"></i>
             </span>
           </>
         );
@@ -356,7 +344,7 @@ const HandlingPage = (props) => {
       );
 
       if (update === 1) {
-        fetchData(transportId, 1);
+        fetchData(transportId, 1, keySearch, fromDate, toDate, status);
         setShowConfirm(false);
       } else {
         setShowConfirm(false);
@@ -375,7 +363,7 @@ const HandlingPage = (props) => {
       );
 
       if (update === 1) {
-        fetchData(transportId, 1);
+        fetchData(transportId, 1, keySearch, fromDate, toDate, status);
         setShowConfirm(false);
       } else {
         setShowConfirm(false);
@@ -413,7 +401,11 @@ const HandlingPage = (props) => {
     setFromDate("");
     setToDate("");
     setPerPage(10);
-    fetchData(transportId, 1);
+    fetchData("", 1);
+  };
+
+  const refeshData = () => {
+    fetchData(transportId, 1, keySearch, fromDate, toDate, status);
   };
 
   const showModalForm = () => {
@@ -456,9 +448,9 @@ const HandlingPage = (props) => {
               <div className="row">
                 <div className="col col-sm">
                   <button
-                    title="Approve List"
+                    className="btn btn-title btn-sm btn-default mx-1"
+                    gloss="Duyệt Phụ Phí"
                     type="button"
-                    className="btn btn-sm btn-default mx-1"
                     onClick={() =>
                       showModalForm(
                         SetShowModal("ApproveSubFee"),
@@ -563,6 +555,9 @@ const HandlingPage = (props) => {
                 onChangeRowsPerPage={handlePerRowsChange}
                 onChangePage={handlePageChange}
                 highlightOnHover
+                striped
+                direction="auto"
+                responsive
               />
             </div>
           </div>
@@ -608,7 +603,7 @@ const HandlingPage = (props) => {
                   <>
                     {ShowModal === "Edit" && (
                       <UpdateHandling
-                        getlistData={fetchData}
+                        getlistData={refeshData}
                         selectIdClick={selectIdClick}
                         hideModal={hideModal}
                       />

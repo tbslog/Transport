@@ -184,7 +184,7 @@ const CreateVehicle = (props) => {
                 </div>
                 <div className="col col-sm">
                   <div className="form-group">
-                    <label htmlFor="LoaiXe">Phân Loại Xe</label>
+                    <label htmlFor="LoaiXe">Phân Loại Xe(*)</label>
                     <select
                       className="form-control"
                       {...register("LoaiXe", Validate.LoaiXe)}
@@ -213,7 +213,7 @@ const CreateVehicle = (props) => {
               <div className="row">
                 <div className="col-sm">
                   <div className="form-group">
-                    <label htmlFor="MaSoXe">Mã Số Xe</label>
+                    <label htmlFor="MaSoXe">Mã Số Xe(*)</label>
                     <input
                       autoComplete="false"
                       type="text"
@@ -269,7 +269,7 @@ const CreateVehicle = (props) => {
               <div className="row">
                 <div className="col-sm">
                   <div className="form-group">
-                    <label htmlFor="MaGPS">Mã GPS</label>
+                    <label htmlFor="MaGPS">Mã GPS(*)</label>
                     <input
                       type="text"
                       className="form-control"
@@ -285,7 +285,7 @@ const CreateVehicle = (props) => {
                 </div>
                 <div className="col-sm">
                   <div className="form-group">
-                    <label htmlFor="MaGPSMobile">Mã GPS Mobile</label>
+                    <label htmlFor="MaGPSMobile">Mã GPS Mobile(*)</label>
                     <input
                       type="text"
                       className="form-control"
@@ -373,7 +373,7 @@ const CreateVehicle = (props) => {
               </div> */}
 
               <div className="form-group">
-                <label htmlFor="TrangThai">Trạng Thái</label>
+                <label htmlFor="TrangThai">Trạng Thái(*)</label>
                 <select
                   className="form-control"
                   {...register("TrangThai", Validate.TrangThai)}

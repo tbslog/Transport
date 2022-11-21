@@ -135,7 +135,7 @@ const AddRoad = (props) => {
               <div className="row">
                 <div className="col-sm">
                   <div className="form-group">
-                    <label htmlFor="MaCungDuong">Mã cung đường</label>
+                    <label htmlFor="MaCungDuong">Mã cung đường(*)</label>
                     <input
                       autoComplete="false"
                       type="text"
@@ -153,7 +153,7 @@ const AddRoad = (props) => {
                 </div>
                 <div className="col-sm">
                   <div className="form-group">
-                    <label htmlFor="TenCungDuong">Tên cung đường</label>
+                    <label htmlFor="TenCungDuong">Tên cung đường(*)</label>
                     <input
                       type="text"
                       className="form-control"
@@ -172,7 +172,7 @@ const AddRoad = (props) => {
               <div className="row">
                 <div className="col-sm">
                   <div className="form-group">
-                    <label htmlFor="DiemDau">Điểm đầu</label>
+                    <label htmlFor="DiemDau">Điểm đầu(*)</label>
                     <Controller
                       name="DiemDau"
                       control={control}
@@ -195,7 +195,7 @@ const AddRoad = (props) => {
                 </div>
                 <div className="col-sm">
                   <div className="form-group">
-                    <label htmlFor="DiemCuoi">Điểm cuối</label>
+                    <label htmlFor="DiemCuoi">Điểm cuối(*)</label>
                     <Controller
                       name="DiemCuoi"
                       control={control}
@@ -218,7 +218,7 @@ const AddRoad = (props) => {
                 </div>
               </div>
               <div className="form-group">
-                <label htmlFor="SoKM">Số KM</label>
+                <label htmlFor="SoKM">Số KM(*)</label>
                 <input
                   type="text "
                   className="form-control"
@@ -244,7 +244,7 @@ const AddRoad = (props) => {
                 )}
               </div>
               <div className="form-group">
-                <label htmlFor="TrangThai">Trạng Thái</label>
+                <label htmlFor="TrangThai">Trạng Thái(*)</label>
                 <select
                   className="form-control"
                   {...register("TrangThai", Validate.TrangThai)}

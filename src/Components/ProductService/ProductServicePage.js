@@ -224,9 +224,9 @@ const ProductServicePage = () => {
               <div className="row">
                 <div className="col col-sm">
                   <button
-                    title="Thêm mới"
                     type="button"
-                    className="btn btn-sm btn-default mx-1"
+                    className="btn btn-title btn-sm btn-default mx-1"
+                    gloss="Thêm Mới SPDV"
                     onClick={() =>
                       showModalForm(
                         SetShowModal("Create"),
@@ -237,9 +237,9 @@ const ProductServicePage = () => {
                     <i className="fas fa-plus-circle"></i>
                   </button>
                   <button
-                    title="Approve List"
                     type="button"
-                    className="btn btn-sm btn-default mx-1"
+                    className="btn btn-title btn-sm btn-default mx-1"
+                    gloss="Duyệt SPDV"
                     onClick={() =>
                       showModalForm(
                         SetShowModal("ApprovePriceTable"),
@@ -368,6 +368,9 @@ const ProductServicePage = () => {
                 onChangeRowsPerPage={handlePerRowsChange}
                 onChangePage={handlePageChange}
                 highlightOnHover
+                striped
+                direction="auto"
+                responsive
               />
             </div>
           </div>

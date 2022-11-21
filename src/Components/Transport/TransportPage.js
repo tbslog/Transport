@@ -1,12 +1,11 @@
 import { useMemo, useState, useEffect, useCallback, useRef } from "react";
-import { getData, postFile, getDataCustom } from "../Common/FuncAxios";
+import { getData, getDataCustom } from "../Common/FuncAxios";
 import DataTable from "react-data-table-component";
 import moment from "moment";
 import { Modal } from "bootstrap";
 import DatePicker from "react-datepicker";
 import CreateTransport from "./CreateTransport";
 import UpdateTransport from "./UpdateTransport";
-import CreateHandling from "./CreateHandling";
 import HandlingPage from "./HandlingPage";
 
 const TransportPage = () => {
@@ -26,6 +25,7 @@ const TransportPage = () => {
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [listStatus, setListStatus] = useState([]);
+  const [status, setStatus] = useState("");
 
   const columns = useMemo(() => [
     {
@@ -33,7 +33,8 @@ const TransportPage = () => {
         <button
           onClick={() => handleEditButtonClick(val, SetShowModal("Edit"))}
           type="button"
-          className="btn btn-sm btn-default"
+          className="btn btn-title btn-sm btn-default mx-1"
+          gloss="Chỉnh Sửa"
         >
           <i className="far fa-edit"></i>
         </button>
@@ -42,27 +43,27 @@ const TransportPage = () => {
       allowOverflow: true,
       button: true,
     },
-    {
-      cell: (val) => (
-        <button
-          onClick={() =>
-            handleEditButtonClick(
-              val,
-              val.maTrangThai === 8
-                ? SetShowModal("Handling")
-                : SetShowModal("ListHandling")
-            )
-          }
-          type="button"
-          className="btn btn-sm btn-default"
-        >
-          <i className="fas fa-random"></i>
-        </button>
-      ),
-      ignoreRowClick: true,
-      allowOverflow: true,
-      button: true,
-    },
+    // {
+    //   cell: (val) => (
+    //     <button
+    //       onClick={() =>
+    //         handleEditButtonClick(
+    //           val,
+    //           val.maTrangThai === 8
+    //             ? SetShowModal("Handling")
+    //             : SetShowModal("ListHandling")
+    //         )
+    //       }
+    //       type="button"
+    //       className="btn btn-sm btn-default"
+    //     >
+    //       <i className="fas fa-random"></i>
+    //     </button>
+    //   ),
+    //   ignoreRowClick: true,
+    //   allowOverflow: true,
+    //   button: true,
+    // },
     {
       name: "Mã Vận Đơn",
       selector: (row) => row.maVanDon,
@@ -72,8 +73,8 @@ const TransportPage = () => {
       selector: (row) => row.loaiVanDon,
     },
     {
-      name: "Khách Hàng",
-      selector: (row) => row.tenKH,
+      name: <div>Khách Hàng</div>,
+      selector: (row) => <div className="text-wrap">{row.tenKH}</div>,
     },
     {
       name: "Mã Cung Đường",
@@ -83,8 +84,8 @@ const TransportPage = () => {
       omit: true,
     },
     {
-      name: "Tên Cung Đường",
-      selector: (row) => row.tenCungDuong,
+      name: <div>Tên Cung Đường</div>,
+      selector: (row) => <div className="text-wrap">{row.tenCungDuong}</div>,
       sortable: true,
       width: "auto",
     },
@@ -94,31 +95,67 @@ const TransportPage = () => {
     //   width: "auto",
     // },
     {
-      name: "Điểm Lấy Hàng",
-      selector: (row) => row.diemLayHang,
+      name: <div>Điểm Lấy Hàng</div>,
+      selector: (row) => <div className="text-wrap">{row.diemLayHang}</div>,
     },
     {
-      name: "Điểm Trả Hàng",
+      name: <div>Tổng Trọng Lượng</div>,
       selector: (row) => row.diemTraHang,
     },
     {
-      name: "Tổng Trọng Lượng",
+      name: <div>Tổng Trọng Lượng</div>,
       selector: (row) => row.tongKhoiLuong,
       sortable: true,
+      Cell: ({ row }) => <div className="text-wrap">{row.tongKhoiLuong}</div>,
     },
     {
-      name: "Tổng Thể Tích",
+      name: <div>Tổng Thể Tích</div>,
       selector: (row) => row.tongTheTich,
       sortable: true,
     },
     {
-      name: "Thời Gian Lấy Hàng",
-      selector: (row) => moment(row.thoiGianLayHang).format("DD/MM/YYYY HH:mm"),
+      name: <div>Thời Gian Có Mặt</div>,
+      selector: (row) => (
+        <div className="text-wrap">
+          {moment(row.thoiGianCoMat).format("DD/MM/YYYY HH:mm")}
+        </div>
+      ),
       sortable: true,
     },
     {
-      name: "Thời Gian Trả Hàng",
-      selector: (row) => moment(row.thoiGianTraHang).format("DD/MM/YYYY HH:mm"),
+      name: <div>Thời Gian Lấy/Trả Rỗng</div>,
+      selector: (row) => (
+        <div className="text-wrap">
+          {moment(row.thoiGianLayTraRong).format("DD/MM/YYYY HH:mm")}
+        </div>
+      ),
+      sortable: true,
+    },
+    {
+      name: <div>Thời Gian Hạn Lệnh</div>,
+      selector: (row) => (
+        <div className="text-wrap">
+          {moment(row.thoiGianHanLenh).format("DD/MM/YYYY HH:mm")}
+        </div>
+      ),
+      sortable: true,
+    },
+    {
+      name: <div>Thời Gian Lấy Hàng</div>,
+      selector: (row) => (
+        <div className="text-wrap">
+          {moment(row.thoiGianLayHang).format("DD/MM/YYYY HH:mm")}
+        </div>
+      ),
+      sortable: true,
+    },
+    {
+      name: <div>Thời Gian Trả Hàng</div>,
+      selector: (row) => (
+        <div className="text-wrap">
+          {moment(row.thoiGianTraHang).format("DD/MM/YYYY HH:mm")}
+        </div>
+      ),
       sortable: true,
     },
     {
@@ -127,14 +164,18 @@ const TransportPage = () => {
       omit: true,
     },
     {
-      name: "Trạng Thái",
-      selector: (row) => row.trangThai,
+      name: <div>Trạng Thái</div>,
+      selector: (row) => <div className="text-wrap">{row.trangThai}</div>,
       sortable: true,
     },
     {
-      name: "Thời Gian Lập Đơn",
-      selector: (row) =>
-        moment(row.thoiGianTaoDon).format("DD/MM/YYYY HH:mm:ss"),
+      name: <div>Thời Gian Lập Đơn</div>,
+
+      selector: (row) => (
+        <div className="text-wrap">
+          {moment(row.thoiGianTaoDon).format("DD/MM/YYYY HH:mm")}
+        </div>
+      ),
       sortable: true,
     },
   ]);
@@ -181,14 +222,20 @@ const TransportPage = () => {
   };
 
   const handlePageChange = async (page) => {
-    await fetchData(page);
+    fetchData(
+      page,
+      keySearch,
+      !fromDate ? "" : moment(fromDate).format("YYYY-MM-DD"),
+      !toDate ? "" : moment(toDate).format("YYYY-MM-DD"),
+      status
+    );
   };
 
   const handlePerRowsChange = async (newPerPage, page) => {
     setLoading(true);
 
     const datatransport = await getData(
-      `BillOfLading/GetListTransport?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}`
+      `BillOfLading/GetListTransport?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}&StatusId=${status}&fromDate=${fromDate}&toDate=${toDate}`
     );
     setData(datatransport);
     setPerPage(newPerPage);
@@ -213,8 +260,14 @@ const TransportPage = () => {
       1,
       keySearch,
       !fromDate ? "" : moment(fromDate).format("YYYY-MM-DD"),
-      !toDate ? "" : moment(toDate).format("YYYY-MM-DD")
+      !toDate ? "" : moment(toDate).format("YYYY-MM-DD"),
+      status
     );
+  };
+
+  const handleOnChangeStatus = (val) => {
+    setStatus(val);
+    fetchData(1, keySearch, fromDate, toDate, val);
   };
 
   const handleRefeshDataClick = () => {
@@ -252,7 +305,8 @@ const TransportPage = () => {
                 <div className="col-sm-3">
                   <button
                     type="button"
-                    className="btn btn-sm btn-default mx-1"
+                    className="btn btn-title btn-sm btn-default mx-1"
+                    gloss="Tạo Vận Đơn"
                     onClick={() => showModalForm(SetShowModal("Create"))}
                   >
                     <i className="fas fa-plus-circle"></i>
@@ -261,7 +315,25 @@ const TransportPage = () => {
                 <div className="col-sm-3">
                   <div className="row">
                     <div className="col col-sm"></div>
-                    <div className="col col-sm"></div>
+                    <div className="col col-sm">
+                      <div className="input-group input-group-sm">
+                        <select
+                          className="form-control form-control-sm"
+                          onChange={(e) => handleOnChangeStatus(e.target.value)}
+                          value={status}
+                        >
+                          <option value="">Tất Cả Trạng Thái</option>
+                          {listStatus &&
+                            listStatus.map((val) => {
+                              return (
+                                <option value={val.statusId} key={val.statusId}>
+                                  {val.statusContent}
+                                </option>
+                              );
+                            })}
+                        </select>
+                      </div>
+                    </div>
                   </div>
                 </div>
                 <div className="col-sm-3">
@@ -326,6 +398,8 @@ const TransportPage = () => {
             <div className="container-datatable" style={{ height: "50vm" }}>
               <DataTable
                 title="Danh sách vận đơn"
+                direction="auto"
+                responsive
                 columns={columns}
                 data={data}
                 progressPending={loading}
@@ -336,6 +410,7 @@ const TransportPage = () => {
                 onChangeRowsPerPage={handlePerRowsChange}
                 onChangePage={handlePageChange}
                 highlightOnHover
+                striped
               />
             </div>
           </div>
@@ -377,14 +452,7 @@ const TransportPage = () => {
                       hideModal={hideModal}
                     />
                   )}
-                  {ShowModal === "Handling" && (
-                    <CreateHandling
-                      selectIdClick={selectIdClick}
-                      reOpenModal={handleEditButtonClick}
-                      hideModal={hideModal}
-                      getListTransport={fetchData}
-                    />
-                  )}
+
                   {ShowModal === "ListHandling" && (
                     <HandlingPage
                       dataClick={selectIdClick}

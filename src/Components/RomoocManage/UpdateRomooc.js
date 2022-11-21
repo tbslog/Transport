@@ -123,7 +123,7 @@ const UpdateRomooc = (props) => {
               <div className="row">
                 <div className="col-sm">
                   <div className="form-group">
-                    <label htmlFor="MaRomooc">Mã Romooc</label>
+                    <label htmlFor="MaRomooc">Mã Romooc(*)</label>
                     <input
                       disabled={true}
                       autoComplete="false"
@@ -137,7 +137,7 @@ const UpdateRomooc = (props) => {
 
                 <div className="col-sm">
                   <div className="form-group">
-                    <label htmlFor="SoGuRomooc">Số Gù Romooc</label>
+                    <label htmlFor="SoGuRomooc">Số Gù Romooc(*)</label>
                     <input
                       type="text"
                       className="form-control"
@@ -155,7 +155,7 @@ const UpdateRomooc = (props) => {
               <div className="row">
                 <div className="col-sm">
                   <div className="form-group">
-                    <label htmlFor="KetCauSan">Kếu Cấu Sàn</label>
+                    <label htmlFor="KetCauSan">Kếu Cấu Sàn(*)</label>
                     <input
                       type="text"
                       className="form-control"
@@ -171,7 +171,7 @@ const UpdateRomooc = (props) => {
                 </div>
                 <div className="col-sm">
                   <div className="form-group">
-                    <label htmlFor="ThongSoKyThuat">Thông Số Kỹ Thuật</label>
+                    <label htmlFor="ThongSoKyThuat">Thông Số Kỹ Thuật(*)</label>
                     <input
                       type="text"
                       className="form-control"
@@ -187,7 +187,7 @@ const UpdateRomooc = (props) => {
                 </div>
                 <div className="col col-sm">
                   <div className="form-group">
-                    <label htmlFor="LoaiRomooc">Phân Loại Romooc</label>
+                    <label htmlFor="LoaiRomooc">Phân Loại Romooc(*)</label>
                     <select
                       className="form-control"
                       {...register("LoaiRomooc", Validate.LoaiRomooc)}
@@ -227,7 +227,7 @@ const UpdateRomooc = (props) => {
                 )}
               </div> */}
               <div className="form-group">
-                <label htmlFor="TrangThai">Trạng Thái</label>
+                <label htmlFor="TrangThai">Trạng Thái(*)</label>
                 <select
                   className="form-control"
                   {...register("TrangThai", Validate.TrangThai)}

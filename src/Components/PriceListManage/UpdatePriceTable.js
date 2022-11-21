@@ -309,7 +309,7 @@ const UpdatePriceTable = (props) => {
               <div className="row">
                 <div className="col col-sm">
                   <div className="form-group">
-                    <label htmlFor="PhanLoaiDoiTac">Phân Loại Đối Tác</label>
+                    <label htmlFor="PhanLoaiDoiTac">Phân Loại Đối Tác(*)</label>
                     <select
                       disabled={true}
                       className="form-control"
@@ -337,7 +337,9 @@ const UpdatePriceTable = (props) => {
                 </div>
                 <div className="col col-sm">
                   <div className="form-group">
-                    <label htmlFor="KhachHang">Khách Hàng / Nhà Cung Cấp</label>
+                    <label htmlFor="KhachHang">
+                      Khách Hàng / Nhà Cung Cấp(*)
+                    </label>
                     <Controller
                       name="MaKh"
                       control={control}
@@ -362,7 +364,7 @@ const UpdatePriceTable = (props) => {
                 </div>
                 <div className="col col-sm">
                   <div className="form-group">
-                    <label htmlFor="MaHopDong">Hợp Đồng</label>
+                    <label htmlFor="MaHopDong">Hợp Đồng(*)</label>
                     <Controller
                       name="MaHopDong"
                       rules={Validate.MaHopDong}
@@ -393,12 +395,12 @@ const UpdatePriceTable = (props) => {
               >
                 <thead>
                   <tr>
-                    <th>Cung Đường</th>
-                    <th>Đơn Giá</th>
-                    <th>Đơn vị tính</th>
-                    <th>Phương Thức Vận Chuyển</th>
-                    <th>Loại phương tiện</th>
-                    <th>Loại Hàng Hóa</th>
+                    <th>Cung Đường(*)</th>
+                    <th>Đơn Giá(*)</th>
+                    <th>Đơn vị tính(*)</th>
+                    <th>Phương Thức Vận Chuyển(*)</th>
+                    <th>Loại phương tiện(*)</th>
+                    <th>Loại Hàng Hóa(*)</th>
                     <th>Ngày Hết Hiệu Lực</th>
                   </tr>
                 </thead>

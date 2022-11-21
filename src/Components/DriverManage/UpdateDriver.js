@@ -10,7 +10,6 @@ const UpdateDriver = (props) => {
   const [IsLoading, SetIsLoading] = useState(true);
   const {
     register,
-    reset,
     setValue,
     control,
     formState: { errors },
@@ -173,7 +172,7 @@ const UpdateDriver = (props) => {
               <div className="row">
                 <div className="col col-sm">
                   <div className="form-group">
-                    <label htmlFor="NCC">Đơn Vị Quản Lý</label>
+                    <label htmlFor="NCC">Đơn Vị Quản Lý(*)</label>
                     <Controller
                       name="NCC"
                       control={control}
@@ -185,7 +184,7 @@ const UpdateDriver = (props) => {
                           options={listNCC}
                         />
                       )}
-                      rules={Validate.NCC}
+                      rules={{ required: "không được để trống" }}
                     />
                     {errors.NCC && (
                       <span className="text-danger">{errors.NCC.message}</span>
@@ -194,7 +193,7 @@ const UpdateDriver = (props) => {
                 </div>
                 <div className="col col-sm">
                   <div className="form-group">
-                    <label htmlFor="LoaiXe">Loại Xe Lái</label>
+                    <label htmlFor="LoaiXe">Loại Xe Lái(*)</label>
                     <select
                       className="form-control"
                       {...register("LoaiXe", Validate.LoaiXe)}
@@ -223,7 +222,7 @@ const UpdateDriver = (props) => {
               <div className="row">
                 <div className="col-sm">
                   <div className="form-group">
-                    <label htmlFor="MaTaiXe">Mã Tài Xế</label>
+                    <label htmlFor="MaTaiXe">Mã Tài Xế(*)</label>
                     <input
                       autoComplete="false"
                       type="text"
@@ -241,7 +240,7 @@ const UpdateDriver = (props) => {
                 </div>
                 <div className="col-sm">
                   <div className="form-group">
-                    <label htmlFor="TenTaiXe">Tên Tài Xế</label>
+                    <label htmlFor="TenTaiXe">Tên Tài Xế(*)</label>
                     <input
                       type="text"
                       className="form-control"
@@ -257,7 +256,7 @@ const UpdateDriver = (props) => {
                 </div>
                 <div className="col col-sm">
                   <div className="form-group">
-                    <label htmlFor="NgaySinh">Ngày Sinh</label>
+                    <label htmlFor="NgaySinh">Ngày Sinh(*)</label>
                     <div className="input-group ">
                       <Controller
                         control={control}
@@ -286,7 +285,7 @@ const UpdateDriver = (props) => {
               <div className="row">
                 <div className="col-sm">
                   <div className="form-group">
-                    <label htmlFor="CCCD">CCCD</label>
+                    <label htmlFor="CCCD">CCCD(*)</label>
                     <input
                       type="text"
                       className="form-control"
@@ -300,7 +299,7 @@ const UpdateDriver = (props) => {
                 </div>
                 <div className="col-sm">
                   <div className="form-group">
-                    <label htmlFor="SoDienThoai">Số Điện Thoại</label>
+                    <label htmlFor="SoDienThoai">Số Điện Thoại(*)</label>
                     <input
                       type="text"
                       className="form-control"
@@ -329,7 +328,7 @@ const UpdateDriver = (props) => {
                 )}
               </div>
               <div className="form-group">
-                <label htmlFor="TrangThai">Trạng Thái</label>
+                <label htmlFor="TrangThai">Trạng Thái(*)</label>
                 <select
                   className="form-control"
                   {...register("TrangThai", Validate.TrangThai)}

@@ -94,7 +94,7 @@ const CreateRole = (props) => {
             <div className="row">
               <div className="col col-sm">
                 <div className="form-group">
-                  <label htmlFor="RoleName">Tên Role</label>
+                  <label htmlFor="RoleName">Tên Role(*)</label>
                   <input
                     type="text"
                     className="form-control"
@@ -112,7 +112,7 @@ const CreateRole = (props) => {
             <div className="row">
               <div className="col col-sm">
                 <div className="form-group">
-                  <label htmlFor="TrangThai">Trạng Thái</label>
+                  <label htmlFor="TrangThai">Trạng Thái(*)</label>
                   <select
                     className="form-control"
                     {...register(`TrangThai`, Validate.TrangThai)}
@@ -136,7 +136,7 @@ const CreateRole = (props) => {
             </div>
             <div className="row">
               <div className="form-group">
-                <label htmlFor="TrangThai">Phân Quyền</label>
+                <label htmlFor="TrangThai">Phân Quyền(*)</label>
                 <CheckboxTree
                   iconsClass="fa5"
                   nodes={nodes}

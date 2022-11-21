@@ -38,7 +38,8 @@ const UserPage = () => {
         <button
           onClick={() => handleEditButtonClick(val, SetShowModal("UpdateUser"))}
           type="button"
-          className="btn btn-sm btn-default"
+          className="btn btn-title btn-sm btn-default mx-1"
+          gloss="Cập Nhật Thông Tin "
         >
           <i className="far fa-edit"></i>
         </button>
@@ -259,7 +260,8 @@ const UserPage = () => {
                   <button
                     title="Thêm mới"
                     type="button"
-                    className="btn btn-sm btn-default mx-1"
+                    className="btn btn-title btn-sm btn-default mx-1"
+                    gloss="Tạo Mới Người Dùng"
                     onClick={() =>
                       showModalForm(
                         SetShowModal("Create"),
@@ -272,7 +274,8 @@ const UserPage = () => {
                   <button
                     title="Create Role"
                     type="button"
-                    className="btn btn-sm btn-default mx-1"
+                    className="btn btn-title btn-sm btn-default mx-1"
+                    gloss="Quản Lý Role"
                     onClick={() =>
                       showModalForm(
                         SetShowModal("RolePage"),
@@ -285,7 +288,8 @@ const UserPage = () => {
                   <button
                     title="Block User"
                     type="button"
-                    className="btn btn-sm btn-default mx-1"
+                    className="btn btn-title btn-sm btn-default mx-1"
+                    gloss="Khóa Người Dùng"
                     onClick={() => {
                       setFunctionSubmit("Disable");
                       ShowConfirmDialog();
@@ -296,7 +300,8 @@ const UserPage = () => {
                   <button
                     title="Delete User"
                     type="button"
-                    className="btn btn-sm btn-default mx-1"
+                    className="btn btn-title btn-sm btn-default mx-1"
+                    gloss="Xóa Người Dùng"
                     onClick={() => {
                       setFunctionSubmit("Delete");
                       ShowConfirmDialog();
@@ -389,7 +394,7 @@ const UserPage = () => {
           <div className="card-body">
             <div className="container-datatable" style={{ height: "50vm" }}>
               <DataTable
-                title="Danh sách Phụ Phí"
+                title="Danh sách Người Dùng"
                 columns={columns}
                 data={data}
                 progressPending={loading}
@@ -402,6 +407,9 @@ const UserPage = () => {
                 onChangeRowsPerPage={handlePerRowsChange}
                 onChangePage={handlePageChange}
                 highlightOnHover
+                striped
+                direction="auto"
+                responsive
               />
             </div>
           </div>

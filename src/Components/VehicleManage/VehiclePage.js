@@ -28,7 +28,8 @@ const VehiclePage = () => {
         <button
           onClick={() => handleEditButtonClick(val, SetShowModal("Edit"))}
           type="button"
-          className="btn btn-sm btn-default"
+          className="btn btn-title btn-sm btn-default mx-1"
+          gloss="Cập Nhật Thông Tin"
         >
           <i className="far fa-edit"></i>
         </button>
@@ -201,7 +202,8 @@ const VehiclePage = () => {
                 <div className="col-sm-3">
                   <button
                     type="button"
-                    className="btn btn-sm btn-default mx-1"
+                    className="btn btn-title btn-sm btn-default mx-1"
+                    gloss="Tạo Mới Phương Tiện"
                     onClick={() => showModalForm(SetShowModal("Create"))}
                   >
                     <i className="fas fa-plus-circle"></i>
@@ -252,6 +254,9 @@ const VehiclePage = () => {
                 onChangeRowsPerPage={handlePerRowsChange}
                 onChangePage={handlePageChange}
                 highlightOnHover
+                striped
+                direction="auto"
+                responsive
               />
             </div>
           </div>

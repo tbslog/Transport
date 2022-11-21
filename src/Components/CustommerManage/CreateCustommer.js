@@ -17,6 +17,106 @@ const CreateCustommer = (props) => {
     mode: "onChange",
   });
 
+  const Validate = {
+    MaKH: {
+      required: "Không được để trống",
+      maxLength: {
+        value: 8,
+        message: "Không được vượt quá 8 ký tự",
+      },
+      minLength: {
+        value: 8,
+        message: "Không được ít hơn 8 ký tự",
+      },
+      pattern: {
+        value: /^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9]+(?<![_.])$/,
+        message: "Không được chứa ký tự đặc biệt",
+      },
+    },
+    TenKH: {
+      required: "Không được để trống",
+      maxLength: {
+        value: 50,
+        message: "Không được vượt quá 50 ký tự",
+      },
+      minLength: {
+        value: 1,
+        message: "Không được ít hơn 1 ký tự",
+      },
+      pattern: {
+        value:
+          /^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9 aAàÀảẢãÃáÁạẠăĂằẰẳẲẵẴắẮặẶâÂầẦẩẨẫẪấẤậẬbBcCdDđĐeEèÈẻẺẽẼéÉẹẸêÊềỀểỂễỄếẾệỆ fFgGhHiIìÌỉỈĩĨíÍịỊjJkKlLmMnNoOòÒỏỎõÕóÓọỌôÔồỒổỔỗỖốỐộỘơƠờỜởỞỡỠớỚợỢpPqQrRsStTu UùÙủỦũŨúÚụỤưƯừỪửỬữỮứỨựỰvVwWxXyYỳỲỷỶỹỸýÝỵỴzZ]+(?<![_.])$/,
+        message: "Tên khách hàng không được chứa ký tự đặc biệt",
+      },
+    },
+    Email: {
+      required: "Không được để trống",
+      maxLength: {
+        value: 100,
+        message: "Không được vượt quá 100 ký tự",
+      },
+      minLength: {
+        value: 3,
+        message: "Không được ít hơn 3 ký tự",
+      },
+      pattern: {
+        value: /^([\w\.\-]+)@([\w\-]+)((\.(\w){2,3})+)$/,
+        message: "Không phải Email",
+      },
+    },
+    MST: {
+      required: "Không được để trống",
+      maxLength: {
+        value: 50,
+        message: "Không được vượt quá 50 ký tự",
+      },
+      minLength: {
+        value: 1,
+        message: "Không được ít hơn 1 ký tự",
+      },
+      pattern: {
+        value: /^(?![_.])(?![_.])(?!.*[_.]{2})[0-9]+(?<![_.])$/,
+        message: "Mã số thuế chỉ được chứa ký tự là số",
+      },
+    },
+    SDT: {
+      required: "Không được để trống",
+      maxLength: {
+        value: 50,
+        message: "Không được vượt quá 20 ký tự",
+      },
+      minLength: {
+        value: 10,
+        message: "Không được ít hơn 10 ký tự",
+      },
+      pattern: {
+        value: /^(?![_.])(?![_.])(?!.*[_.]{2})[0-9]+(?<![_.])$/,
+        message: "Số điện thoại chỉ được chứa ký tự là số",
+      },
+    },
+    GPS: {
+      required: "Không được để trống",
+      maxLength: {
+        value: 50,
+        message: "Không được vượt quá 50 ký tự",
+      },
+      minLength: {
+        value: 1,
+        message: "Không được ít hơn 1 ký tự",
+      },
+    },
+    SoNha: {
+      maxLength: {
+        value: 100,
+        message: "Không được vượt quá 100 ký tự",
+      },
+      minLength: {
+        value: 1,
+        message: "Không được ít hơn 1 ký tự",
+      },
+    },
+  };
+
   const [listStatusType, setListStatusType] = useState([]);
   const [listCustomerGroup, setListCustomerGroup] = useState([]);
   const [listCustomerType, setListCustomerType] = useState([]);
@@ -187,29 +287,14 @@ const CreateCustommer = (props) => {
               <div className="row">
                 <div className="col-sm">
                   <div className="form-group">
-                    <label htmlFor="MaKH">Mã khách hàng</label>
+                    <label htmlFor="MaKH">Mã khách hàng(*)</label>
                     <input
                       autoComplete="false"
                       type="text"
                       className="form-control"
                       id="MaKH"
                       placeholder="Nhập mã khách hàng"
-                      {...register("MaKH", {
-                        required: "Không được để trống",
-                        maxLength: {
-                          value: 8,
-                          message: "Không được vượt quá 8 ký tự",
-                        },
-                        minLength: {
-                          value: 8,
-                          message: "Không được ít hơn 8 ký tự",
-                        },
-                        pattern: {
-                          value:
-                            /^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9]+(?<![_.])$/,
-                          message: "Không được chứa ký tự đặc biệt",
-                        },
-                      })}
+                      {...register("MaKH", Validate.MaKH)}
                     />
                     {errors.MaKH && (
                       <span className="text-danger">{errors.MaKH.message}</span>
@@ -218,29 +303,13 @@ const CreateCustommer = (props) => {
                 </div>
                 <div className="col-sm">
                   <div className="form-group">
-                    <label htmlFor="TenKH">Tên khách hàng</label>
+                    <label htmlFor="TenKH">Tên khách hàng(*)</label>
                     <input
                       type="text"
                       className="form-control"
                       id="TenKH"
                       placeholder="Nhập tên khách hàng"
-                      {...register("TenKH", {
-                        required: "Không được để trống",
-                        maxLength: {
-                          value: 50,
-                          message: "Không được vượt quá 50 ký tự",
-                        },
-                        minLength: {
-                          value: 1,
-                          message: "Không được ít hơn 1 ký tự",
-                        },
-                        pattern: {
-                          value:
-                            /^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9 aAàÀảẢãÃáÁạẠăĂằẰẳẲẵẴắẮặẶâÂầẦẩẨẫẪấẤậẬbBcCdDđĐeEèÈẻẺẽẼéÉẹẸêÊềỀểỂễỄếẾệỆ fFgGhHiIìÌỉỈĩĨíÍịỊjJkKlLmMnNoOòÒỏỎõÕóÓọỌôÔồỒổỔỗỖốỐộỘơƠờỜởỞỡỠớỚợỢpPqQrRsStTu UùÙủỦũŨúÚụỤưƯừỪửỬữỮứỨựỰvVwWxXyYỳỲỷỶỹỸýÝỵỴzZ]+(?<![_.])$/,
-                          message:
-                            "Tên khách hàng không được chứa ký tự đặc biệt",
-                        },
-                      })}
+                      {...register("TenKH", Validate.TenKH)}
                     />
                     {errors.TenKH && (
                       <span className="text-danger">
@@ -254,27 +323,13 @@ const CreateCustommer = (props) => {
               <div className="row">
                 <div className="col-sm">
                   <div className="form-group">
-                    <label htmlFor="Email">Địa chỉ Email</label>
+                    <label htmlFor="Email">Địa chỉ Email(*)</label>
                     <input
                       type="text "
                       className="form-control"
                       id="Email"
                       placeholder="Nhập địa chỉ Email"
-                      {...register("Email", {
-                        required: "Không được để trống",
-                        maxLength: {
-                          value: 100,
-                          message: "Không được vượt quá 100 ký tự",
-                        },
-                        minLength: {
-                          value: 3,
-                          message: "Không được ít hơn 3 ký tự",
-                        },
-                        pattern: {
-                          value: /^([\w\.\-]+)@([\w\-]+)((\.(\w){2,3})+)$/,
-                          message: "Không phải Email",
-                        },
-                      })}
+                      {...register("Email", Validate.Email)}
                     />
                     {errors.Email && (
                       <span className="text-danger">
@@ -285,28 +340,13 @@ const CreateCustommer = (props) => {
                 </div>
                 <div className="col-sm">
                   <div className="form-group">
-                    <label htmlFor="MST">Mã số thuế</label>
+                    <label htmlFor="MST">Mã số thuế(*)</label>
                     <input
                       type="text "
                       className="form-control"
                       id="MST"
                       placeholder="Nhập mã số thuế"
-                      {...register("MST", {
-                        required: "Không được để trống",
-                        maxLength: {
-                          value: 50,
-                          message: "Không được vượt quá 50 ký tự",
-                        },
-                        minLength: {
-                          value: 1,
-                          message: "Không được ít hơn 1 ký tự",
-                        },
-                        pattern: {
-                          value:
-                            /^(?![_.])(?![_.])(?!.*[_.]{2})[0-9]+(?<![_.])$/,
-                          message: "Mã số thuế chỉ được chứa ký tự là số",
-                        },
-                      })}
+                      {...register("MST", Validate.MST)}
                     />
                     {errors.MST && (
                       <span className="text-danger">{errors.MST.message}</span>
@@ -315,28 +355,13 @@ const CreateCustommer = (props) => {
                 </div>
                 <div className="col-sm">
                   <div className="form-group">
-                    <label htmlFor="SDT">Số điện thoại</label>
+                    <label htmlFor="SDT">Số điện thoại(*)</label>
                     <input
                       type="text"
                       className="form-control"
                       id="SDT"
                       placeholder="Nhập số điện thoại"
-                      {...register("SDT", {
-                        required: "Không được để trống",
-                        maxLength: {
-                          value: 50,
-                          message: "Không được vượt quá 20 ký tự",
-                        },
-                        minLength: {
-                          value: 10,
-                          message: "Không được ít hơn 10 ký tự",
-                        },
-                        pattern: {
-                          value:
-                            /^(?![_.])(?![_.])(?!.*[_.]{2})[0-9]+(?<![_.])$/,
-                          message: "Số điện thoại chỉ được chứa ký tự là số",
-                        },
-                      })}
+                      {...register("SDT", Validate.SDT)}
                     />
                     {errors.SDT && (
                       <span className="text-danger">{errors.SDT.message}</span>
@@ -347,9 +372,8 @@ const CreateCustommer = (props) => {
 
               <div className="row">
                 <div className="col-sm">
-                  {" "}
                   <div className="form-group">
-                    <label htmlFor="NhomKH">Nhóm khách hàng</label>
+                    <label htmlFor="NhomKH">Nhóm khách hàng(*)</label>
                     <select
                       className="form-control"
                       {...register("NhomKH", {
@@ -374,9 +398,8 @@ const CreateCustommer = (props) => {
                   </div>
                 </div>
                 <div className="col-sm">
-                  {" "}
                   <div className="form-group">
-                    <label htmlFor="LoaiKH">Phân Loại Đối Tác</label>
+                    <label htmlFor="LoaiKH">Phân Loại Đối Tác(*)</label>
                     <select
                       className="form-control"
                       {...register("LoaiKH", {
@@ -405,7 +428,7 @@ const CreateCustommer = (props) => {
               <div className="row">
                 <div className="col col-sm">
                   <div className="form-group">
-                    <label htmlFor="Tinh">Phân Loại Địa Điểm</label>
+                    <label htmlFor="Tinh">Phân Loại Địa Điểm(*)</label>
                     <Controller
                       name="MaLoaiDiaDiem"
                       control={control}
@@ -428,23 +451,13 @@ const CreateCustommer = (props) => {
                 </div>
                 <div className="col-sm">
                   <div className="form-group">
-                    <label htmlFor="GPS">Tọa Độ GPS</label>
+                    <label htmlFor="GPS">Tọa Độ GPS(*)</label>
                     <input
                       type="text"
                       className="form-control"
                       id="GPS"
                       placeholder="Nhập mã GPS"
-                      {...register("GPS", {
-                        required: "Không được để trống",
-                        maxLength: {
-                          value: 50,
-                          message: "Không được vượt quá 50 ký tự",
-                        },
-                        minLength: {
-                          value: 1,
-                          message: "Không được ít hơn 1 ký tự",
-                        },
-                      })}
+                      {...register("GPS", Validate.GPS)}
                     />
                     {errors.GPS && (
                       <span className="text-danger">{errors.GPS.message}</span>
@@ -456,33 +469,7 @@ const CreateCustommer = (props) => {
               <div className="row">
                 <div className="col-sm">
                   <div className="form-group">
-                    <label htmlFor="Sonha">Số nhà</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      id="Sonha"
-                      placeholder="Nhập số nhà"
-                      {...register("SoNha", {
-                        maxLength: {
-                          value: 100,
-                          message: "Không được vượt quá 100 ký tự",
-                        },
-                        minLength: {
-                          value: 1,
-                          message: "Không được ít hơn 1 ký tự",
-                        },
-                      })}
-                    />
-                    {errors.SoNha && (
-                      <span className="text-danger">
-                        {errors.SoNha.message}
-                      </span>
-                    )}
-                  </div>
-                </div>
-                <div className="col-sm">
-                  <div className="form-group">
-                    <label htmlFor="Tinh">Tỉnh</label>
+                    <label htmlFor="Tinh">Tỉnh(*)</label>
                     <Controller
                       name="MaTinh"
                       control={control}
@@ -506,7 +493,7 @@ const CreateCustommer = (props) => {
                 </div>
                 <div className="col-sm">
                   <div className="form-group">
-                    <label htmlFor="SDT">Huyện</label>
+                    <label htmlFor="SDT">Huyện(*)</label>
                     <Controller
                       name="MaHuyen"
                       control={control}
@@ -530,7 +517,7 @@ const CreateCustommer = (props) => {
                 </div>
                 <div className="col-sm">
                   <div className="form-group">
-                    <label htmlFor="SDT">Phường</label>
+                    <label htmlFor="SDT">Phường(*)</label>
                     <Controller
                       name="MaPhuong"
                       control={control}
@@ -551,9 +538,26 @@ const CreateCustommer = (props) => {
                     )}
                   </div>
                 </div>
+                <div className="col-sm">
+                  <div className="form-group">
+                    <label htmlFor="Sonha">Số nhà</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="Sonha"
+                      placeholder="Nhập số nhà"
+                      {...register("SoNha", Validate.SoNha)}
+                    />
+                    {errors.SoNha && (
+                      <span className="text-danger">
+                        {errors.SoNha.message}
+                      </span>
+                    )}
+                  </div>
+                </div>
               </div>
               <div className="form-group">
-                <label htmlFor="TrangThai">Trạng thái</label>
+                <label htmlFor="TrangThai">Trạng thái(*)</label>
                 <select
                   className="form-control"
                   {...register("TrangThai", {

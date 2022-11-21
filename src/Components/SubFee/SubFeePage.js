@@ -291,9 +291,9 @@ const SubFeePage = () => {
               <div className="row">
                 <div className="col col-sm">
                   <button
-                    title="Thêm mới"
                     type="button"
-                    className="btn btn-sm btn-default mx-1"
+                    className="btn btn-title btn-sm btn-default mx-1"
+                    gloss="Thêm Mới Phụ Phí"
                     onClick={() =>
                       showModalForm(
                         SetShowModal("Create"),
@@ -304,9 +304,9 @@ const SubFeePage = () => {
                     <i className="fas fa-plus-circle"></i>
                   </button>
                   <button
-                    title="Approve List"
                     type="button"
-                    className="btn btn-sm btn-default mx-1"
+                    className="btn btn-title btn-sm btn-default mx-1"
+                    gloss="Duyệt Phụ Phí"
                     onClick={() =>
                       showModalForm(
                         SetShowModal("ApproveSubFee"),
@@ -317,9 +317,9 @@ const SubFeePage = () => {
                     <i className="fas fa-check-double"></i>
                   </button>
                   <button
-                    title="Bỏ Hiệu Lực"
                     type="button"
-                    className="btn btn-sm btn-default mx-1"
+                    className="btn btn-title btn-sm btn-default mx-1"
+                    gloss="Vô Hiệu Phụ Phí"
                     onClick={() => {
                       setFunctionSubmit("Disable");
                       ShowConfirmDialog();
@@ -328,9 +328,9 @@ const SubFeePage = () => {
                     <i className="fas fa-eye-slash"></i>
                   </button>
                   <button
-                    title="Xóa"
                     type="button"
-                    className="btn btn-sm btn-default mx-1"
+                    className="btn btn-title btn-sm btn-default mx-1"
+                    gloss="Xóa Phụ Phí"
                     onClick={() => {
                       setFunctionSubmit("Delete");
                       ShowConfirmDialog();
@@ -436,6 +436,9 @@ const SubFeePage = () => {
                 onChangeRowsPerPage={handlePerRowsChange}
                 onChangePage={handlePageChange}
                 highlightOnHover
+                striped
+                direction="auto"
+                responsive
               />
             </div>
           </div>

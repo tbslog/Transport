@@ -37,7 +37,8 @@ const ApproveSubFee = (props) => {
           title="Cập nhật"
           onClick={() => handleEditButtonClick(val, SetShowModal("Update"))}
           type="button"
-          className="btn btn-sm btn-default"
+          className="btn btn-title btn-sm btn-default mx-1"
+          gloss="Cập Nhật Thông Tin"
         >
           <i className="far fa-edit"></i>
         </button>
@@ -247,7 +248,8 @@ const ApproveSubFee = (props) => {
                 <div className="col col-sm">
                   <button
                     type="button"
-                    className="btn btn-sm btn-default"
+                    className="btn btn-title btn-sm btn-default "
+                    gloss="Duyệt Phụ Phí"
                     onClick={() => {
                       ShowConfirmDialog();
                       setIsAccept(0);
@@ -258,7 +260,8 @@ const ApproveSubFee = (props) => {
 
                   <button
                     type="button"
-                    className="btn btn-sm btn-default mx-4"
+                    className="btn btn-title btn-sm btn-default mx-4"
+                    gloss="Không Duyệt Phụ Phí"
                     onClick={() => {
                       ShowConfirmDialog();
                       setIsAccept(1);
@@ -347,6 +350,9 @@ const ApproveSubFee = (props) => {
                 onChangePage={handlePageChange}
                 clearSelectedRows={toggledClearRows}
                 highlightOnHover
+                striped
+                direction="auto"
+                responsive
               />
             </div>
           </div>

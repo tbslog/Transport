@@ -298,7 +298,7 @@ const CreateTransport = (props) => {
               <div className="row">
                 <div className="col col-sm">
                   <div className="form-group">
-                    <label htmlFor="LoaiVanDon">Phân Loại Vận Đơn</label>
+                    <label htmlFor="LoaiVanDon">Phân Loại Vận Đơn(*)</label>
                     <select
                       className="form-control"
                       {...register("LoaiVanDon", Validate.LoaiVanDon)}
@@ -319,7 +319,7 @@ const CreateTransport = (props) => {
                 </div>
                 <div className="col col-sm">
                   <div className="form-group">
-                    <label htmlFor="MaKH">Khách Hàng</label>
+                    <label htmlFor="MaKH">Khách Hàng(*)</label>
                     <Controller
                       name="MaKH"
                       control={control}
@@ -401,7 +401,7 @@ const CreateTransport = (props) => {
               <div className="row">
                 <div className="col col-sm">
                   <div className="form-group">
-                    <label htmlFor="DiemLayHang">Điểm Lấy Hàng</label>
+                    <label htmlFor="DiemLayHang">Điểm Lấy Hàng(*)</label>
                     <Controller
                       name="DiemLayHang"
                       control={control}
@@ -436,7 +436,7 @@ const CreateTransport = (props) => {
                 </div>
                 <div className="col col-sm">
                   <div className="form-group">
-                    <label htmlFor="DiemTraHang">Điểm Trả Hàng</label>
+                    <label htmlFor="DiemTraHang">Điểm Trả Hàng(*)</label>
                     <Controller
                       name="DiemTraHang"
                       control={control}
@@ -471,7 +471,7 @@ const CreateTransport = (props) => {
                 </div>
                 <div className="col col-sm">
                   <div className="form-group">
-                    <label htmlFor="MaCungDuong">Cung Đường</label>
+                    <label htmlFor="MaCungDuong">Cung Đường(*)</label>
                     <Controller
                       name="MaCungDuong"
                       control={control}
@@ -498,7 +498,7 @@ const CreateTransport = (props) => {
               <div className="row">
                 <div className="col col-sm">
                   <div className="form-group">
-                    <label htmlFor="LoaiThungHang">Loại Thùng Hàng</label>
+                    <label htmlFor="LoaiThungHang">Loại Thùng Hàng(*)</label>
                     <select
                       className="form-control"
                       {...register("LoaiThungHang", Validate.LoaiThungHang)}
@@ -521,7 +521,7 @@ const CreateTransport = (props) => {
                 </div>
                 <div className="col col-sm">
                   <div className="form-group">
-                    <label htmlFor="TongThungHang">Tổng Số Thùng Hàng</label>
+                    <label htmlFor="TongThungHang">Tổng Số Thùng Hàng(*)</label>
                     <input
                       autoComplete="false"
                       type="text"
@@ -540,7 +540,7 @@ const CreateTransport = (props) => {
                 <div className="col col-sm">
                   <div className="form-group">
                     <label htmlFor="TongKhoiLuong">
-                      Tổng Khối Lượng (Đơn Vị Tấn)
+                      Tổng Khối Lượng (Đơn Vị Tấn)(*)
                     </label>
                     <input
                       autoComplete="false"
@@ -560,7 +560,7 @@ const CreateTransport = (props) => {
                 <div className="col col-sm">
                   <div className="form-group">
                     <label htmlFor="TongTheTich">
-                      Tổng Thể Tích (Đơn Vị m3)
+                      Tổng Thể Tích (Đơn Vị m3)(*)
                     </label>
                     <input
                       autoComplete="false"
@@ -585,12 +585,12 @@ const CreateTransport = (props) => {
                       <div className="form-group">
                         {watch("LoaiVanDon") === "xuat" && (
                           <label htmlFor="TGLayTraRong">
-                            Thời Gian Lấy Rỗng
+                            Thời Gian Lấy Rỗng(*)
                           </label>
                         )}
                         {watch("LoaiVanDon") === "nhap" && (
                           <label htmlFor="TGLayTraRong">
-                            Thời Gian Trả Rỗng
+                            Thời Gian Trả Rỗng(*)
                           </label>
                         )}
                         <div className="input-group ">
@@ -623,7 +623,7 @@ const CreateTransport = (props) => {
                     {watch("LoaiVanDon") === "xuat" && (
                       <div className="col col-sm">
                         <div className="form-group">
-                          <label htmlFor="TGHaCang">Thời Gian Hạ Cảng</label>
+                          <label htmlFor="TGHaCang">Thời Gian Hạ Cảng(*)</label>
                           <div className="input-group ">
                             <Controller
                               control={control}
@@ -656,7 +656,7 @@ const CreateTransport = (props) => {
                       <>
                         <div className="col col-sm">
                           <div className="form-group">
-                            <label htmlFor="TGCoMat">Thời Gian Có Mặt</label>
+                            <label htmlFor="TGCoMat">Thời Gian Có Mặt(*)</label>
                             <div className="input-group ">
                               <Controller
                                 control={control}
@@ -686,7 +686,7 @@ const CreateTransport = (props) => {
                         <div className="col col-sm">
                           <div className="form-group">
                             <label htmlFor="TGHanLenh">
-                              Thời Gian Hạn Lệnh
+                              Thời Gian Hạn Lệnh(*)
                             </label>
                             <div className="input-group ">
                               <Controller
@@ -722,7 +722,7 @@ const CreateTransport = (props) => {
               <div className="row">
                 <div className="col col-sm">
                   <div className="form-group">
-                    <label htmlFor="TGLayHang">Thời Gian Lấy Hàng</label>
+                    <label htmlFor="TGLayHang">Thời Gian Lấy Hàng(*)</label>
                     <div className="input-group ">
                       <Controller
                         control={control}
@@ -751,7 +751,7 @@ const CreateTransport = (props) => {
                 </div>
                 <div className="col col-sm">
                   <div className="form-group">
-                    <label htmlFor="TGTraHang">Thời Gian Trả Hàng</label>
+                    <label htmlFor="TGTraHang">Thời Gian Trả Hàng(*)</label>
                     <div className="input-group ">
                       <Controller
                         control={control}

@@ -328,7 +328,8 @@ const AddSubFeeByHandling = (props) => {
                               {index >= 1 && (
                                 <button
                                   type="button"
-                                  className="btn btn-sm btn-default"
+                                  className="btn btn-title btn-sm btn-default mx-1"
+                                  gloss="Xóa Dòng"
                                   onClick={() => remove(index)}
                                 >
                                   <i className="fas fa-minus"></i>

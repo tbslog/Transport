@@ -216,7 +216,7 @@ const CreateAddress = (props) => {
               <div className="row">
                 <div className="col-sm">
                   <div className="form-group">
-                    <label htmlFor="Tinh">Loại địa điểm</label>
+                    <label htmlFor="Tinh">Loại địa điểm(*)</label>
                     <Controller
                       name="MaLoaiDiaDiem"
                       control={control}
@@ -239,7 +239,7 @@ const CreateAddress = (props) => {
                 </div>
                 <div className="col-sm">
                   <div className="form-group">
-                    <label htmlFor="TenDiaDiem">Tên địa điểm</label>
+                    <label htmlFor="TenDiaDiem">Tên địa điểm(*)</label>
                     <input
                       type="text"
                       className="form-control"
@@ -256,7 +256,7 @@ const CreateAddress = (props) => {
                 </div>
                 <div className="col col-sm">
                   <div className="form-group">
-                    <label htmlFor="GPS">Tọa Độ GPS</label>
+                    <label htmlFor="GPS">Tọa Độ GPS(*)</label>
                     <input
                       type="text"
                       className="form-control"
@@ -274,7 +274,7 @@ const CreateAddress = (props) => {
               <div className="row">
                 <div className="col-sm">
                   <div className="form-group">
-                    <label htmlFor="Tinh">Tỉnh</label>
+                    <label htmlFor="Tinh">Tỉnh(*)</label>
                     <Controller
                       name="MaTinh"
                       control={control}
@@ -298,7 +298,7 @@ const CreateAddress = (props) => {
                 </div>
                 <div className="col-sm">
                   <div className="form-group">
-                    <label htmlFor="SDT">Huyện</label>
+                    <label htmlFor="SDT">Huyện(*)</label>
                     <Controller
                       name="MaHuyen"
                       control={control}
@@ -322,7 +322,7 @@ const CreateAddress = (props) => {
                 </div>
                 <div className="col-sm">
                   <div className="form-group">
-                    <label htmlFor="SDT">Phường</label>
+                    <label htmlFor="SDT">Phường(*)</label>
                     <Controller
                       name="MaPhuong"
                       control={control}

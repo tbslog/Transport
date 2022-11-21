@@ -38,21 +38,21 @@ const PriceTablePage = () => {
   };
 
   const columns = useMemo(() => [
-    {
-      cell: (val) => (
-        <button
-          title="Cập nhật"
-          onClick={() => handleEditButtonClick(val, SetShowModal("Create"))}
-          type="button"
-          className="btn btn-sm btn-default"
-        >
-          <i className="far fa-edit"></i>
-        </button>
-      ),
-      ignoreRowClick: true,
-      allowOverflow: true,
-      button: true,
-    },
+    // {
+    //   cell: (val) => (
+    //     <button
+    //       title="Cập nhật"
+    //       onClick={() => handleEditButtonClick(val, SetShowModal("Create"))}
+    //       type="button"
+    //       className="btn btn-sm btn-default"
+    //     >
+    //       <i className="far fa-edit"></i>
+    //     </button>
+    //   ),
+    //   ignoreRowClick: true,
+    //   allowOverflow: true,
+    //   button: true,
+    // },
 
     {
       name: "Mã Hợp Đồng",
@@ -232,9 +232,9 @@ const PriceTablePage = () => {
               <div className="row">
                 <div className="col col-sm">
                   <button
-                    title="Thêm mới"
                     type="button"
-                    className="btn btn-sm btn-default mx-1"
+                    className="btn btn-title btn-sm btn-default mx-1"
+                    gloss="Thêm Mới Bảng Giá"
                     onClick={() =>
                       showModalForm(
                         SetShowModal("Create"),
@@ -245,9 +245,9 @@ const PriceTablePage = () => {
                     <i className="fas fa-plus-circle"></i>
                   </button>
                   <button
-                    title="Approve List"
                     type="button"
-                    className="btn btn-sm btn-default mx-1"
+                    className="btn btn-title btn-sm btn-default mx-1"
+                    gloss="Duyệt Bảng Giá"
                     onClick={() =>
                       showModalForm(
                         SetShowModal("ApprovePriceTable"),
@@ -378,11 +378,13 @@ const PriceTablePage = () => {
                 paginationServer
                 paginationTotalRows={totalRows}
                 paginationComponentOptions={paginationComponentOptions}
-                selectableRows
                 onSelectedRowsChange={handleChange}
                 onChangeRowsPerPage={handlePerRowsChange}
                 onChangePage={handlePageChange}
                 highlightOnHover
+                striped
+                direction="auto"
+                responsive
               />
             </div>
           </div>

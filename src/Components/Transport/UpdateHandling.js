@@ -94,6 +94,7 @@ const UpdateHandling = (props) => {
       required: "Không được để trống",
     },
   };
+
   const [listPoint, setListPoint] = useState([]);
   const [IsLoading, SetIsLoading] = useState(false);
   const [listCustomer, setListCustomer] = useState([]);
@@ -375,7 +376,7 @@ const UpdateHandling = (props) => {
     );
 
     if (update === 1) {
-      getlistData("", 1);
+      getlistData();
       hideModal();
     }
 
@@ -396,7 +397,7 @@ const UpdateHandling = (props) => {
               <div className="row">
                 <div className="col col-sm">
                   <div className="form-group">
-                    <label htmlFor="KhachHang">Khách Hàng</label>
+                    <label htmlFor="KhachHang">Khách Hàng(*)</label>
                     <Controller
                       name={`KhachHang`}
                       control={control}
@@ -422,7 +423,7 @@ const UpdateHandling = (props) => {
                 </div>
                 <div className="col col-sm">
                   <div className="form-group">
-                    <label htmlFor="CungDuong">Cung Đường</label>
+                    <label htmlFor="CungDuong">Cung Đường(*)</label>
                     <input
                       autoComplete="false"
                       type="text"
@@ -437,7 +438,7 @@ const UpdateHandling = (props) => {
                 </div>
                 <div className="col col-sm">
                   <div className="form-group">
-                    <label htmlFor="CungDuong">Điểm Lấy Hàng</label>
+                    <label htmlFor="CungDuong">Điểm Lấy Hàng(*)</label>
                     <input
                       autoComplete="false"
                       type="text"
@@ -450,7 +451,7 @@ const UpdateHandling = (props) => {
                 </div>
                 <div className="col col-sm">
                   <div className="form-group">
-                    <label htmlFor="CungDuong">Điểm Trả Hàng</label>
+                    <label htmlFor="CungDuong">Điểm Trả Hàng(*)</label>
                     <input
                       autoComplete="false"
                       type="text"
@@ -499,7 +500,7 @@ const UpdateHandling = (props) => {
                     <div className="col col-sm">
                       <div className="form-group">
                         <label htmlFor="TGLayTraRong">
-                          Thời Gian Lấy/Trả Rỗng
+                          Thời Gian Lấy/Trả Rỗng(*)
                         </label>
                         <div className="input-group ">
                           <Controller
@@ -524,7 +525,9 @@ const UpdateHandling = (props) => {
                       <>
                         <div className="col col-sm">
                           <div className="form-group">
-                            <label htmlFor="TGHaCang">Thời Gian Hạ Cảng</label>
+                            <label htmlFor="TGHaCang">
+                              Thời Gian Hạ Cảng(*)
+                            </label>
                             <div className="input-group ">
                               <Controller
                                 control={control}
@@ -549,7 +552,7 @@ const UpdateHandling = (props) => {
                       <>
                         <div className="col col-sm">
                           <div className="form-group">
-                            <label htmlFor="TGCoMat">Thời Gian Có Mặt</label>
+                            <label htmlFor="TGCoMat">Thời Gian Có Mặt(*)</label>
                             <div className="input-group ">
                               <Controller
                                 control={control}
@@ -572,7 +575,7 @@ const UpdateHandling = (props) => {
                         <div className="col col-sm">
                           <div className="form-group">
                             <label htmlFor="TGHanLenh">
-                              Thời Gian Hạn Lệnh
+                              Thời Gian Hạn Lệnh(*)
                             </label>
                             <div className="input-group ">
                               <Controller
@@ -600,7 +603,7 @@ const UpdateHandling = (props) => {
 
                 <div className="col col-sm">
                   <div className="form-group">
-                    <label htmlFor="TGLayHang">Thời Gian Lấy Hàng</label>
+                    <label htmlFor="TGLayHang">Thời Gian Lấy Hàng(*)</label>
                     <div className="input-group ">
                       <Controller
                         control={control}
@@ -622,7 +625,7 @@ const UpdateHandling = (props) => {
                 </div>
                 <div className="col col-sm">
                   <div className="form-group">
-                    <label htmlFor="TGTraHang">Thời Gian Trả Hàng</label>
+                    <label htmlFor="TGTraHang">Thời Gian Trả Hàng(*)</label>
                     <div className="input-group ">
                       <Controller
                         control={control}
@@ -646,7 +649,7 @@ const UpdateHandling = (props) => {
               <div className="row">
                 <div className="col col-sm">
                   <div className="form-group">
-                    <label htmlFor="NhaCungCap">Đơn Vị Vận Tải</label>
+                    <label htmlFor="NhaCungCap">Đơn Vị Vận Tải(*)</label>
                     <Controller
                       name={`NhaCungCap`}
                       control={control}
@@ -672,7 +675,9 @@ const UpdateHandling = (props) => {
 
                 <div className="col col-sm">
                   <div className="form-group">
-                    <label htmlFor="PTVanChuyen">Phương tiện vận chuyển</label>
+                    <label htmlFor="PTVanChuyen">
+                      Phương tiện vận chuyển(*)
+                    </label>
                     <select
                       className="form-control"
                       {...register(`PTVanChuyen`, Validate.PTVanChuyen)}
@@ -700,7 +705,7 @@ const UpdateHandling = (props) => {
                 </div>
                 <div className="col col-sm">
                   <div className="form-group">
-                    <label htmlFor="LoaiHangHoa">Loại Hàng Hóa</label>
+                    <label htmlFor="LoaiHangHoa">Loại Hàng Hóa(*)</label>
                     <select
                       className="form-control"
                       {...register(`LoaiHangHoa`, Validate.LoaiHangHoa)}
@@ -730,7 +735,7 @@ const UpdateHandling = (props) => {
               <div className="row">
                 <div className="col col-sm">
                   <div className="form-group">
-                    <label htmlFor="XeVanChuyen">Xe Vận Chuyển</label>
+                    <label htmlFor="XeVanChuyen">Xe Vận Chuyển(*)</label>
                     <Controller
                       name={`XeVanChuyen`}
                       control={control}
@@ -755,7 +760,7 @@ const UpdateHandling = (props) => {
                 </div>
                 <div className="col col-sm">
                   <div className="form-group">
-                    <label htmlFor="TaiXe">Tài Xế</label>
+                    <label htmlFor="TaiXe">Tài Xế(*)</label>
                     <Controller
                       name={`TaiXe`}
                       control={control}
@@ -807,59 +812,44 @@ const UpdateHandling = (props) => {
               </div>
               <div className="row">
                 {watch(`PTVanChuyen`) && watch(`PTVanChuyen`).includes("CONT") && (
-                  <div className="col col-sm">
-                    <div className="form-group">
-                      {transportType && transportType === "xuat" && (
-                        <label htmlFor="DiemLayTraRong">Điểm Lấy Rỗng</label>
-                      )}
-                      {transportType && transportType === "nhap" && (
-                        <label htmlFor="DiemLayTraRong">Điểm Trả Rỗng</label>
-                      )}
-                      <Controller
-                        name={`DiemLayTraRong`}
-                        control={control}
-                        render={({ field }) => (
-                          <Select
-                            {...field}
-                            classNamePrefix={"form-control"}
-                            value={field.value}
-                            options={listPoint}
-                          />
-                        )}
-                        rules={{
-                          required: "không được để trống",
-                        }}
-                      />
-                      {errors.DiemLayTraRong && (
-                        <span className="text-danger">
-                          {errors.DiemLayTraRong.message}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                )}
-                <div className="col col-sm">
-                  <div className="form-group">
-                    <label htmlFor="SEALNP">SEAL NP</label>
-                    <input
-                      autoComplete="false"
-                      type="text"
-                      className="form-control"
-                      id="SEALNP"
-                      {...register(`SEALNP`, Validate.SEALNP)}
-                    />
-                    {errors.SEALNP && (
-                      <span className="text-danger">
-                        {errors.SEALNP.message}
-                      </span>
-                    )}
-                  </div>
-                </div>
-                {watch(`PTVanChuyen`) && watch(`PTVanChuyen`).includes("CONT") && (
                   <>
                     <div className="col col-sm">
                       <div className="form-group">
-                        <label htmlFor="CONTNO">CONT NO</label>
+                        {transportType && transportType === "xuat" && (
+                          <label htmlFor="DiemLayTraRong">
+                            Điểm Lấy Rỗng(*)
+                          </label>
+                        )}
+                        {transportType && transportType === "nhap" && (
+                          <label htmlFor="DiemLayTraRong">
+                            Điểm Trả Rỗng(*)
+                          </label>
+                        )}
+                        <Controller
+                          name={`DiemLayTraRong`}
+                          control={control}
+                          render={({ field }) => (
+                            <Select
+                              {...field}
+                              classNamePrefix={"form-control"}
+                              value={field.value}
+                              options={listPoint}
+                            />
+                          )}
+                          rules={{
+                            required: "không được để trống",
+                          }}
+                        />
+                        {errors.DiemLayTraRong && (
+                          <span className="text-danger">
+                            {errors.DiemLayTraRong.message}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="col col-sm">
+                      <div className="form-group">
+                        <label htmlFor="CONTNO">CONT NO(*)</label>
                         <input
                           autoComplete="false"
                           type="text"
@@ -896,7 +886,25 @@ const UpdateHandling = (props) => {
 
                 <div className="col col-sm">
                   <div className="form-group">
-                    <label htmlFor="KhoiLuong">Khối Lượng</label>
+                    <label htmlFor="SEALNP">SEAL NP</label>
+                    <input
+                      autoComplete="false"
+                      type="text"
+                      className="form-control"
+                      id="SEALNP"
+                      {...register(`SEALNP`, Validate.SEALNP)}
+                    />
+                    {errors.SEALNP && (
+                      <span className="text-danger">
+                        {errors.SEALNP.message}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="col col-sm">
+                  <div className="form-group">
+                    <label htmlFor="KhoiLuong">Khối Lượng(*)</label>
                     <input
                       autoComplete="false"
                       type="text"
@@ -913,7 +921,7 @@ const UpdateHandling = (props) => {
                 </div>
                 <div className="col col-sm">
                   <div className="form-group">
-                    <label htmlFor="TheTich">Thể tích</label>
+                    <label htmlFor="TheTich">Thể tích(*)</label>
                     <input
                       autoComplete="false"
                       type="text"
@@ -934,7 +942,7 @@ const UpdateHandling = (props) => {
                 <div className="col col-sm">
                   <div className="form-group">
                     <label htmlFor="TGLayHangThucTe">
-                      Thời Gian Lấy Hàng Thực Tế
+                      Thời Gian Lấy Hàng Thực Tế(*)
                     </label>
                     <div className="input-group ">
                       <Controller
@@ -962,7 +970,7 @@ const UpdateHandling = (props) => {
                 <div className="col col-sm">
                   <div className="form-group">
                     <label htmlFor="TGTraHangThucTe">
-                      Thời Gian Trả Hàng Thực Tế
+                      Thời Gian Trả Hàng Thực Tế(*)
                     </label>
                     <div className="input-group ">
                       <Controller
@@ -995,12 +1003,12 @@ const UpdateHandling = (props) => {
                       <div className="form-group">
                         {transportType && transportType === "xuat" && (
                           <label htmlFor="TGLayTraRongThucTe">
-                            Thời Gian Lấy Rỗng Thực Tế
+                            Thời Gian Lấy Rỗng Thực Tế(*)
                           </label>
                         )}
                         {transportType && transportType === "nhap" && (
                           <label htmlFor="TGLayTraRongThucTe">
-                            Thời Gian Trả Rỗng Thực Tế
+                            Thời Gian Trả Rỗng Thực Tế(*)
                           </label>
                         )}
 
@@ -1031,7 +1039,7 @@ const UpdateHandling = (props) => {
                       <div className="col col-sm">
                         <div className="form-group">
                           <label htmlFor="TGHaCangThucTe">
-                            Thời Gian Hạ Cảng Thực Tế
+                            Thời Gian Hạ Cảng Thực Tế(*)
                           </label>
                           <div className="input-group ">
                             <Controller
@@ -1061,7 +1069,7 @@ const UpdateHandling = (props) => {
                         <div className="col col-sm">
                           <div className="form-group">
                             <label htmlFor="TGCoMatThucTe">
-                              Thời Gian Có Mặt Thực Tế
+                              Thời Gian Có Mặt Thực Tế(*)
                             </label>
                             <div className="input-group ">
                               <Controller

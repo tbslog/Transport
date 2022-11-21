@@ -114,6 +114,9 @@ const AddContract = (props) => {
     TrangThai: {
       required: "Không được để trống",
     },
+    FileContact: {
+      required: "Không được để trống",
+    },
     NgayThanhToan: {
       required: "Không được để trống",
       maxLength: {
@@ -266,7 +269,7 @@ const AddContract = (props) => {
                       <div className="col col-sm">
                         <div className="form-group">
                           <label htmlFor="KhachHang">
-                            Khách Hàng/ Nhà Cung Cấp
+                            Khách Hàng/ Nhà Cung Cấp(*)
                           </label>
                           <Controller
                             name="MaKh"
@@ -290,7 +293,7 @@ const AddContract = (props) => {
                       </div>
                       <div className="col col-sm">
                         <div className="form-group">
-                          <label htmlFor="MaHopDong">Mã Hợp Đồng</label>
+                          <label htmlFor="MaHopDong">Mã Hợp Đồng(*)</label>
                           <input
                             autoComplete="false"
                             type="text"
@@ -308,7 +311,7 @@ const AddContract = (props) => {
                       </div>
                       <div className="col col-sm">
                         <div className="form-group">
-                          <label htmlFor="TenHopDong">Tên Hợp Đồng</label>
+                          <label htmlFor="TenHopDong">Tên Hợp Đồng(*)</label>
                           <input
                             type="text"
                             className="form-control"
@@ -387,7 +390,7 @@ const AddContract = (props) => {
                     <div className="row">
                       <div className="col col-sm">
                         <div className="form-group">
-                          <label htmlFor="NgayBatDau">Ngày bắt đầu</label>
+                          <label htmlFor="NgayBatDau">Ngày bắt đầu(*)</label>
                           <div className="input-group ">
                             <Controller
                               control={control}
@@ -413,7 +416,7 @@ const AddContract = (props) => {
                       </div>
                       <div className="col col-sm">
                         <div className="form-group">
-                          <label htmlFor="NgayKetThuc">Ngày kết thúc</label>
+                          <label htmlFor="NgayKetThuc">Ngày kết thúc(*)</label>
                           <div className="input-group ">
                             <Controller
                               control={control}
@@ -439,7 +442,9 @@ const AddContract = (props) => {
                       </div>
                       <div className="col col-sm">
                         <div className="form-group">
-                          <label htmlFor="NgayThanhToan">Ngày Thanh Toán</label>
+                          <label htmlFor="NgayThanhToan">
+                            Ngày Thanh Toán(*)
+                          </label>
                           <input
                             type="text"
                             className="form-control"
@@ -476,7 +481,9 @@ const AddContract = (props) => {
                     </div>
 
                     <div className="form-group">
-                      <label htmlFor="FileContact">Tải lên tệp Hợp Đồng</label>
+                      <label htmlFor="FileContact">
+                        Tải lên tệp Hợp Đồng(*)
+                      </label>
                       <input
                         type="file"
                         className="form-control-file"
@@ -550,7 +557,7 @@ const AddContract = (props) => {
                       <div className="col col-sm">
                         <div className="form-group">
                           <label htmlFor="KhachHang">
-                            Khách Hàng/ Nhà Cung Cấp
+                            Khách Hàng/ Nhà Cung Cấp(*)
                           </label>
                           <Controller
                             name="MaKh"
@@ -580,7 +587,9 @@ const AddContract = (props) => {
                       </div>
                       <div className="col col-sm">
                         <div className="form-group">
-                          <label htmlFor="SoHopDongCha">Số hợp đồng cha</label>
+                          <label htmlFor="SoHopDongCha">
+                            Số Hợp Đồng Cha(*)
+                          </label>
                           <Controller
                             name="SoHopDongCha"
                             control={control}
@@ -603,7 +612,9 @@ const AddContract = (props) => {
                       </div>
                       <div className="col col-sm">
                         <div className="form-group">
-                          <label htmlFor="MaHopDong">Mã Phụ Lục Hợp Đồng</label>
+                          <label htmlFor="MaHopDong">
+                            Mã Phụ Lục Hợp Đồng(*)
+                          </label>
                           <input
                             autoComplete="false"
                             type="text"
@@ -622,7 +633,7 @@ const AddContract = (props) => {
                       <div className="col col-sm">
                         <div className="form-group">
                           <label htmlFor="TenHopDong">
-                            Tên Phụ Lục Hợp Đồng
+                            Tên Phụ Lục Hợp Đồng(*)
                           </label>
                           <input
                             type="text"
@@ -702,7 +713,7 @@ const AddContract = (props) => {
                     <div className="row">
                       <div className="col col-sm">
                         <div className="form-group">
-                          <label htmlFor="NgayBatDau">Ngày bắt đầu</label>
+                          <label htmlFor="NgayBatDau">Ngày bắt đầu(*)</label>
                           <div className="input-group ">
                             <Controller
                               control={control}
@@ -728,7 +739,7 @@ const AddContract = (props) => {
                       </div>
                       <div className="col col-sm">
                         <div className="form-group">
-                          <label htmlFor="NgayKetThuc">Ngày kết thúc</label>
+                          <label htmlFor="NgayKetThuc">Ngày kết thúc(*)</label>
                           <div className="input-group ">
                             <Controller
                               control={control}
@@ -805,7 +816,9 @@ const AddContract = (props) => {
                     </div>
 
                     <div className="form-group">
-                      <label htmlFor="FileContact">Tải lên tệp Hợp Đồng</label>
+                      <label htmlFor="FileContact">
+                        Tải lên tệp Hợp Đồng(*)
+                      </label>
                       <input
                         type="file"
                         className="form-control-file"

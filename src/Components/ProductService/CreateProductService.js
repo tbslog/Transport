@@ -258,12 +258,12 @@ const CreateProductService = (props) => {
                 <thead>
                   <tr>
                     <th style={{ width: "10px" }}></th>
-                    <th>Cung Đường</th>
-                    <th>Đơn Giá</th>
-                    <th>Đơn vị tính</th>
-                    <th>PTVC</th>
-                    <th>Loại phương tiện</th>
-                    <th>Loại Hàng Hóa</th>
+                    <th>Cung Đường(*)</th>
+                    <th>Đơn Giá(*)</th>
+                    <th>Đơn vị tính(*)</th>
+                    <th>PTVC(*)</th>
+                    <th>Loại phương tiện(*)</th>
+                    <th>Loại Hàng Hóa(*)</th>
                     <th>Ngày Hết Hiệu Lực</th>
                     <th style={{ width: "40px" }}>
                       <button

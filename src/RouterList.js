@@ -1,5 +1,48 @@
 let routerList = [
   {
+    name: "Thiết Lập",
+    pathName: "",
+    element: undefined,
+    exact: false,
+    child: [
+      {
+        name: "Cung Đường",
+        pathName: "/road",
+        path: "road",
+        exact: true,
+        child: [],
+      },
+      {
+        name: "Địa Điểm",
+        pathName: "/address",
+        path: "address",
+        exact: true,
+        child: [],
+      },
+      {
+        name: "Thông tin tài xế",
+        pathName: "/driver",
+        path: "driver",
+        exact: true,
+        child: [],
+      },
+      {
+        name: "Thông tin xe",
+        pathName: "/vehicle",
+        path: "vehicle",
+        exact: true,
+        child: [],
+      },
+      {
+        name: "Thông tin romooc",
+        pathName: "/romooc",
+        path: "romooc",
+        exact: true,
+        child: [],
+      },
+    ],
+  },
+  {
     name: "KH/NCC",
     pathName: "",
     element: undefined,
@@ -42,35 +85,7 @@ let routerList = [
       },
     ],
   },
-  {
-    name: "Phương Tiện",
-    pathName: "",
-    element: undefined,
-    exact: false,
-    child: [
-      {
-        name: "Thông tin tài xế",
-        pathName: "/driver",
-        path: "driver",
-        exact: true,
-        child: [],
-      },
-      {
-        name: "Thông tin xe",
-        pathName: "/vehicle",
-        path: "vehicle",
-        exact: true,
-        child: [],
-      },
-      {
-        name: "Thông tin romooc",
-        pathName: "/romooc",
-        path: "romooc",
-        exact: true,
-        child: [],
-      },
-    ],
-  },
+
   {
     name: "Vận Hành",
     pathName: "",
@@ -88,20 +103,6 @@ let routerList = [
         name: "Điều Phối",
         pathName: "/handling",
         path: "handling",
-        exact: true,
-        child: [],
-      },
-      {
-        name: "Cung Đường",
-        pathName: "/road",
-        path: "road",
-        exact: true,
-        child: [],
-      },
-      {
-        name: "Địa Điểm",
-        pathName: "/address",
-        path: "address",
         exact: true,
         child: [],
       },

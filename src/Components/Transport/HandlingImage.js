@@ -46,7 +46,8 @@ const HandlingImage = (props) => {
         <button
           onClick={() => handleEditButtonClick(val, SetShowModal("ShowImage"))}
           type="button"
-          className="btn btn-sm btn-default"
+          className="btn btn-title btn-sm btn-default mx-1"
+          gloss="Xem Hình Ảnh"
         >
           <i className="far fa-eye"></i>
         </button>
@@ -61,7 +62,8 @@ const HandlingImage = (props) => {
         <button
           onClick={() => handleDeleteImage(val)}
           type="button"
-          className="btn btn-sm btn-default"
+          className="btn btn-title btn-sm btn-default mx-1"
+          gloss="Xóa Hình Ảnh"
         >
           <i className="fas fa-trash"></i>
         </button>
