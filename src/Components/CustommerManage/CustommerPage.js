@@ -27,7 +27,7 @@ const CustommerPage = () => {
   const [listCustomerType, setListCustomerType] = useState([]);
   const [listStatus, setListStatus] = useState([]);
   const [ListTypeAddress, SetListTypeAddress] = useState([]);
-  const [cusType, setCusType] = useState("");
+  const [cusType, setCusType] = useState("KH");
 
   const columns = useMemo(() => [
     {
@@ -132,7 +132,7 @@ const CustommerPage = () => {
     SetAddress(dataCus.address);
   };
 
-  const fetchData = async (page, KeyWord = "") => {
+  const fetchData = async (page, KeyWord = "", cusType = "") => {
     setLoading(true);
 
     if (KeyWord !== "") {
@@ -140,7 +140,7 @@ const CustommerPage = () => {
     }
 
     const dataCus = await getData(
-      `Customer/GetListCustomer?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}`
+      `Customer/GetListCustomer?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}&customerType=${cusType}`
     );
 
     formatTable(dataCus.data);
@@ -177,10 +177,7 @@ const CustommerPage = () => {
 
       let getListCustommerType = await getData(`Common/GetListCustommerType`);
       setListCustomerType(getListCustommerType);
-
-      let dataCus = await getData(
-        `Customer/GetListCustomer?PageNumber=1&PageSize=10`
-      );
+      fetchData(1, "", "KH");
 
       const getListTypeAddress = await getData("address/GetListAddressType");
       if (getListTypeAddress && getListTypeAddress.length > 0) {
@@ -200,8 +197,6 @@ const CustommerPage = () => {
       ]);
       setListStatus(getStatusList);
 
-      formatTable(dataCus.data);
-      setTotalRows(dataCus.totalRecords);
       setLoading(false);
     })();
   }, []);
@@ -234,7 +229,7 @@ const CustommerPage = () => {
       ToastWarning("Vui lòng  nhập thông tin tìm kiếm");
       return;
     }
-    await fetchData(1, keySearch);
+    await fetchData(1, keySearch, cusType);
   };
 
   const handleRefeshDataClick = async () => {
@@ -244,6 +239,7 @@ const CustommerPage = () => {
 
   const handleOnChangeCusType = (val) => {
     setCusType(val);
+    fetchData(1, keySearch, val);
   };
 
   return (
@@ -288,6 +284,7 @@ const CustommerPage = () => {
                     onChange={(e) => handleOnChangeCusType(e.target.value)}
                     value={cusType}
                   >
+                    <option value={""}>Tất Cả</option>
                     {listCustomerType &&
                       listCustomerType.length > 0 &&
                       listCustomerType.map((val) => {

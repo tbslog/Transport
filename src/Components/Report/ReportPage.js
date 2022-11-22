@@ -6,13 +6,16 @@ import DatePicker from "react-datepicker";
 import ChartDate from "../Chart/ChartDate";
 
 const ReportPage = () => {
-  const [dataMonth, setDataMonth] = useState([]);
+  const [dataMonthTransport, setDataMonthTransport] = useState([]);
+  const [dataMonthRevenue, setDataMonthRevenue] = useState([]);
   const [month, setMonth] = useState();
   const [isLoading, SetIsLoading] = useState(false);
-  const [totalT, setTotalT] = useState({});
+  const [totalT, setTotalT] = useState([]);
+  const [totalRevenue, setTotalRevenue] = useState([]);
 
   useEffect(() => {
     GetDataTransportByMonth(new Date());
+    GetDataRevenueByMonth(new Date());
   }, []);
 
   const GetDataTransportByMonth = async (val) => {
@@ -27,15 +30,34 @@ const ReportPage = () => {
       GetReportTransportByMonth &&
       Object.keys(GetReportTransportByMonth).length > 0
     ) {
-      setTotalT({
-        TotalTransport: GetReportTransportByMonth.totalTransport,
-        TotalHandling: GetReportTransportByMonth.totalHandling,
-      });
-      setDataMonth(GetReportTransportByMonth);
+      setDataMonthTransport(GetReportTransportByMonth);
+      setTotalT(GetReportTransportByMonth.totalReports);
     } else {
-      setDataMonth([]);
+      setDataMonthTransport([]);
+      setTotalT([]);
     }
 
+    SetIsLoading(false);
+  };
+
+  const GetDataRevenueByMonth = async (val) => {
+    SetIsLoading(true);
+    setMonth(new Date(val));
+    const GetReportRevenueByMonth = await getData(
+      `Report/GetReportRevenue?dateTime=${moment(new Date(val)).format(
+        "YYYY-MM-DD"
+      )}`
+    );
+    if (
+      GetReportRevenueByMonth &&
+      Object.keys(GetReportRevenueByMonth).length > 0
+    ) {
+      setDataMonthRevenue(GetReportRevenueByMonth);
+      setTotalRevenue(GetReportRevenueByMonth.totalReports);
+    } else {
+      setDataMonthRevenue([]);
+      setTotalRevenue([]);
+    }
     SetIsLoading(false);
   };
 
@@ -107,12 +129,15 @@ const ReportPage = () => {
                 <div className="card-body">
                   <div className="d-flex">
                     <p className="d-flex flex-column">
-                      <span className="text-bold">
-                        Tổng Số Vận Đơn: {totalT.TotalTransport}
-                      </span>
-                      <span className="text-bold">
-                        Tổng Số Vận Chuyến: {totalT.TotalHandling}
-                      </span>
+                      {totalT &&
+                        totalT.length > 0 &&
+                        totalT.map((val, index) => {
+                          return (
+                            <span key={index} className="text-bold">
+                              {val.title}: {val.totalInt}
+                            </span>
+                          );
+                        })}
                     </p>
                   </div>
                   {/* /.d-flex */}
@@ -129,9 +154,91 @@ const ReportPage = () => {
                       {isLoading === true ? (
                         <div>Loading Data...</div>
                       ) : (
-                        dataMonth &&
-                        Object.keys(dataMonth).length > 0 && (
-                          <ChartDate arrData={dataMonth}></ChartDate>
+                        dataMonthTransport &&
+                        Object.keys(dataMonthTransport).length > 0 && (
+                          <ChartDate
+                            arrData={dataMonthTransport}
+                            type={"int"}
+                          ></ChartDate>
+                        )
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="col-sm-6">
+              <div className="card">
+                <div className="card-header border-0">
+                  <div className="d-flex justify-content-between">
+                    <div className="col col-12">
+                      <div className="row">
+                        <div className="col col-8">
+                          <h3 className="card-title text-bold text-lg">
+                            Thống kê Chi Phí,Lợi Nhuận, Doanh Thu Theo Tháng
+                          </h3>
+                        </div>
+                        <div className="form-group">
+                          <div className="row">
+                            <div className="col col-sm">
+                              <label htmlFor="month">Chọn Tháng:</label>
+                            </div>
+                            <div className="col col-sm">
+                              <DatePicker
+                                selected={month}
+                                onChange={(date) => GetDataRevenueByMonth(date)}
+                                dateFormat="MM/yyyy"
+                                className="form-control form-control-sm"
+                                placeholderText="Chọn Tháng"
+                                value={month}
+                                showMonthYearPicker
+                                showFullMonthYearPicker
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="card-body">
+                  <div className="d-flex">
+                    <p className="d-flex flex-column">
+                      {totalRevenue &&
+                        totalRevenue.length > 0 &&
+                        totalRevenue.map((val, index) => {
+                          return (
+                            <span key={index} className="text-bold">
+                              {val.title}:{" "}
+                              {val.totalDouble.toLocaleString("vi-VI", {
+                                style: "currency",
+                                currency: "VND",
+                              })}
+                            </span>
+                          );
+                        })}
+                    </p>
+                  </div>
+                  {/* /.d-flex */}
+                  <div className="position-relative mb-4">
+                    <div className="chartjs-size-monitor">
+                      <div className="chartjs-size-monitor-expand">
+                        <div />
+                      </div>
+                      <div className="chartjs-size-monitor-shrink">
+                        <div />
+                      </div>
+                    </div>
+                    <div>
+                      {isLoading === true ? (
+                        <div>Loading Data...</div>
+                      ) : (
+                        dataMonthRevenue &&
+                        Object.keys(dataMonthRevenue).length > 0 && (
+                          <ChartDate
+                            arrData={dataMonthRevenue}
+                            type={"double"}
+                          ></ChartDate>
                         )
                       )}
                     </div>

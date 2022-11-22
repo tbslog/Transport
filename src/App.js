@@ -5,6 +5,7 @@ import "react-toastify/dist/ReactToastify.css";
 import "react-datepicker/dist/react-datepicker.css";
 import "react-tabs/style/react-tabs.css";
 import "./Css/ButtonTitle.scss";
+import "./Css/Datatable.scss";
 import PrivateRoutes from "./Components/utils/PrivateRoutes";
 import PriceTablePage from "./Components/PriceListManage/PriceTablePage";
 import TransportPage from "./Components/Transport/TransportPage";

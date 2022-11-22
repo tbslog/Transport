@@ -12,48 +12,57 @@ const PriceListContract = (props) => {
       selector: (row) => row.id,
     },
     {
-      name: "Mã Khách Hàng",
-      selector: (row) => row.maKh,
+      name: <div>Mã Khách Hàng</div>,
+      selector: (row) => <div className="text-warp">{row.maKh}</div>,
       sortable: true,
     },
     {
-      name: "Tên Khách Hàng",
-      selector: (row) => row.tenKH,
+      name: <div>Tên Khách Hàng</div>,
+      selector: (row) => <div className="text-warp">{row.tenKH}</div>,
       sortable: true,
     },
     {
-      name: "Mã Hợp Đồng",
-      selector: (row) => row.maHopDong,
+      name: <div>Mã Hợp Đồng</div>,
+      selector: (row) => <div className="text-warp">{row.maHopDong}</div>,
       sortable: true,
     },
     {
       name: "",
-      selector: (row) => row.soHopDongCha,
+      selector: (row) => <div className="text-warp">{row.soHopDongCha}</div>,
       sortable: true,
     },
     {
-      name: "Mã Cung Đường",
-      selector: (row) => row.maCungDuong,
+      name: <div>Mã Cung Đường</div>,
+      selector: (row) => <div className="text-warp">{row.maCungDuong}</div>,
       sortable: true,
     },
     {
-      name: "Đơn Giá",
-      selector: (row) => row.donGia,
+      name: <div>Đơn Giá</div>,
+      selector: (row) => (
+        <div className="text-warp">
+          {row.donGia.toLocaleString("vi-VI", {
+            style: "currency",
+            currency: "VND",
+          })}
+        </div>
+      ),
       sortable: true,
     },
     {
-      name: "Loại Phương Tiện",
-      selector: (row) => row.maLoaiPhuongTien,
+      name: <div>Loại Phương Tiện</div>,
+      selector: (row) => (
+        <div className="text-warp">{row.maLoaiPhuongTien}</div>
+      ),
       sortable: true,
     },
     {
-      name: "Loại Hàng Hóa",
-      selector: (row) => row.maLoaiHangHoa,
+      name: <div>Loại Hàng Hóa</div>,
+      selector: (row) => <div className="text-warp">{row.maLoaiHangHoa}</div>,
       sortable: true,
     },
     {
-      name: "Đơn Vị Tính",
-      selector: (row) => row.maDVT,
+      name: <div>Đơn Vị Tính</div>,
+      selector: (row) => <div className="text-warp">{row.maDVT}</div>,
       sortable: true,
     },
     // {
@@ -62,13 +71,13 @@ const PriceListContract = (props) => {
     //   sortable: true,
     // },
     {
-      name: "Ngày Áp Dụng",
-      selector: (row) => row.ngayApDung,
+      name: <div>Ngày Áp Dụng</div>,
+      selector: (row) => <div className="text-warp">{row.ngayApDung}</div>,
       sortable: true,
     },
     {
-      name: "Ngày Hết Hiệu Lực",
-      selector: (row) => row.ngayHetHieuLuc,
+      name: <div>Ngày Hết Hiệu Lực</div>,
+      selector: (row) => <div className="text-warp">{row.ngayHetHieuLuc}</div>,
       sortable: true,
     },
   ]);

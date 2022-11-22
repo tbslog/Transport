@@ -32,6 +32,7 @@ const HandlingPage = (props) => {
   const [totalRows, setTotalRows] = useState(0);
   const [selectedRows, setSelectedRows] = useState([]);
   const [perPage, setPerPage] = useState(10);
+  const [page, setPage] = useState(1);
   const [keySearch, setKeySearch] = useState("");
   const [listStatus, setListStatus] = useState([]);
   const [status, setStatus] = useState("");
@@ -291,7 +292,8 @@ const HandlingPage = (props) => {
   };
 
   const handlePageChange = async (page) => {
-    await fetchData(transportId, page);
+    setPage(page);
+    fetchData(transportId, page, keySearch, fromDate, toDate, status);
   };
 
   const handlePerRowsChange = async (newPerPage, page) => {
@@ -344,7 +346,7 @@ const HandlingPage = (props) => {
       );
 
       if (update === 1) {
-        fetchData(transportId, 1, keySearch, fromDate, toDate, status);
+        fetchData(transportId, page, keySearch, fromDate, toDate, status);
         setShowConfirm(false);
       } else {
         setShowConfirm(false);
@@ -363,7 +365,7 @@ const HandlingPage = (props) => {
       );
 
       if (update === 1) {
-        fetchData(transportId, 1, keySearch, fromDate, toDate, status);
+        fetchData(transportId, page, keySearch, fromDate, toDate, status);
         setShowConfirm(false);
       } else {
         setShowConfirm(false);
@@ -388,12 +390,12 @@ const HandlingPage = (props) => {
   };
 
   const handleSearchClick = () => {
-    fetchData(transportId, 1, keySearch, fromDate, toDate, status);
+    fetchData(transportId, page, keySearch, fromDate, toDate, status);
   };
 
   const handleOnChangeStatus = (value) => {
     setStatus(value);
-    fetchData(transportId, 1, keySearch, fromDate, toDate, value);
+    fetchData(transportId, page, keySearch, fromDate, toDate, value);
   };
 
   const handleRefeshDataClick = () => {
@@ -405,7 +407,7 @@ const HandlingPage = (props) => {
   };
 
   const refeshData = () => {
-    fetchData(transportId, 1, keySearch, fromDate, toDate, status);
+    fetchData(transportId, page, keySearch, fromDate, toDate, status);
   };
 
   const showModalForm = () => {

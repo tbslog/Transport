@@ -112,7 +112,6 @@ const ContractPage = () => {
     {
       name: "Trạng thái",
       selector: (row) => row.trangThai,
-      format: (row) => (row.trangThai == 1 ? "Active" : "Disable"),
     },
     {
       name: "Thời Gian Bắt Đầu",

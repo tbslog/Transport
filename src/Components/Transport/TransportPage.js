@@ -65,12 +65,12 @@ const TransportPage = () => {
     //   button: true,
     // },
     {
-      name: "Mã Vận Đơn",
-      selector: (row) => row.maVanDon,
+      name: <div>Mã Vận Đơn</div>,
+      selector: (row) => <div className="text-wrap">{row.maVanDon}</div>,
     },
     {
-      name: "Loại Vận Đơn",
-      selector: (row) => row.loaiVanDon,
+      name: <div>Loại Vận Đơn</div>,
+      selector: (row) => <div className="text-wrap">{row.loaiVanDon}</div>,
     },
     {
       name: <div>Khách Hàng</div>,

@@ -33,38 +33,38 @@ const SubFeePage = () => {
 
   const columns = useMemo(() => [
     {
-      name: "Mã phụ phí",
+      name: <div>Mã phụ phí</div>,
       selector: (row) => row.priceId,
       sortable: true,
     },
     {
-      name: "Loại Phụ Phí",
+      name: <div>Loại Phụ Phí</div>,
       selector: (row) => row.sfName,
       sortable: true,
     },
     {
-      name: "Mã Hợp Đồng",
+      name: <div>Mã Hợp Đồng</div>,
       selector: (row) => row.contractId,
       sortable: true,
     },
     {
-      name: "Tên Hợp Đồng",
+      name: <div>Tên Hợp Đồng</div>,
       selector: (row) => row.contractName,
     },
     {
-      name: "Điểm 1",
+      name: <div>Điểm 1</div>,
       selector: (row) => row.firstPlace,
     },
     {
-      name: "Điểm 2",
+      name: <div>Điểm 2</div>,
       selector: (row) => row.secondPlace,
     },
     {
-      name: "Loại Hàng Hóa",
+      name: <div>Loại Hàng Hóa</div>,
       selector: (row) => row.goodsType,
     },
     {
-      name: "Đơn Giá",
+      name: <div>Đơn Giá</div>,
       selector: (row) =>
         row.unitPrice.toLocaleString("vi-VI", {
           style: "currency",
@@ -72,26 +72,26 @@ const SubFeePage = () => {
         }),
     },
     {
-      name: "Thời gian Áp Dụng",
+      name: <div>Thời gian Áp Dụng</div>,
       selector: (row) => row.approvedDate,
       sortable: true,
     },
     {
-      name: "Thời gian Hết Hiệu Lực",
+      name: <div>Thời gian Hết Hiệu Lực</div>,
       selector: (row) => row.deactiveDate,
       sortable: true,
     },
     {
-      name: "Trạng Thái",
+      name: <div>Trạng Thái</div>,
       selector: (row) => row.status,
       sortable: true,
     },
     {
-      name: "Người Duyệt",
+      name: <div>Người Duyệt</div>,
       selector: (row) => row.approver,
     },
     {
-      name: "Thời gian Tạo",
+      name: <div>Thời gian Tạo</div>,
       selector: (row) => moment(row.createdTime).format("DD-MM-YYYY HH:mm:ss"),
       sortable: true,
     },

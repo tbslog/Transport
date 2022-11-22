@@ -23,27 +23,40 @@ const Chart = (props) => {
     Legend
   );
 
-  const { arrData } = props;
+  const { arrData, type } = props;
   const [datasets, setDatasets] = useState([]);
   const [title, setTitle] = useState("");
   const [labels, setLabels] = useState([]);
   const chartRef = useRef();
 
   const onClick = (event) => {
-    console.log(getElementAtEvent(chartRef.current, event));
+    // console.log(getElementAtEvent(chartRef.current, event));
   };
 
   useEffect(() => {
-    if (arrData && Object.keys(arrData).length > 0 && props) {
+    if (arrData && Object.keys(arrData).length > 0 && props && type) {
       const arr = [];
-      arrData.data.map((val) => {
-        arr.push({
-          label: val.name,
-          data: formatDate(val.arrData, arrData.labels),
-          borderColor: val.color,
-          backgroundColor: val.color,
+      if (type === "int") {
+        arrData.data.map((val) => {
+          arr.push({
+            label: val.name,
+            data: formatDate(val.dataInt, arrData.labels),
+            borderColor: val.color,
+            backgroundColor: val.color,
+          });
         });
-      });
+      }
+
+      if (type === "double") {
+        arrData.data.map((val) => {
+          arr.push({
+            label: val.name,
+            data: formatDate(val.dataDouble, arrData.labels),
+            borderColor: val.color,
+            backgroundColor: val.color,
+          });
+        });
+      }
 
       setDatasets(arr);
       setTitle(arrData.title);
@@ -53,7 +66,7 @@ const Chart = (props) => {
       setTitle("");
       setLabels([]);
     }
-  }, [arrData, props]);
+  }, [arrData, props, type]);
 
   const options = {
     responsive: true,
@@ -73,7 +86,12 @@ const Chart = (props) => {
     labels.map((val) => {
       data.map((val1) => {
         if (val === val1.date) {
-          arrCount.push(val1.count);
+          if (type === "int") {
+            arrCount.push(val1.count);
+          }
+          if (type === "double") {
+            arrCount.push(val1.value);
+          }
         }
       });
     });
