@@ -78,7 +78,7 @@ namespace TBSLogistics.Service.Services.ContractManage
                     MaHopDongCha = request.SoHopDongCha,
                     ThoiGianBatDau = request.ThoiGianBatDau,
                     ThoiGianKetThuc = request.ThoiGianKetThuc,
-                    NgayThanhToan =request.NgayThanhToan,
+                    NgayThanhToan = request.NgayThanhToan,
                     MaKh = request.MaKh,
                     GhiChu = request.GhiChu,
                     MaPhuPhi = request.PhuPhi,
@@ -200,11 +200,15 @@ namespace TBSLogistics.Service.Services.ContractManage
                 var listData = from contract in _TMSContext.HopDongVaPhuLuc
                                join cus in _TMSContext.KhachHang
                                on contract.MaKh equals cus.MaKh
+                               join tt in _TMSContext.StatusText
+                               on contract.TrangThai equals tt.StatusId
+                               where tt.LangId == TempData.LangID
                                orderby contract.UpdatedTime descending
                                select new
                                {
                                    contract,
                                    cus,
+                                   tt
                                };
 
                 if (!string.IsNullOrEmpty(filter.Keyword))
@@ -237,14 +241,14 @@ namespace TBSLogistics.Service.Services.ContractManage
 
                 var pagedData = await listData.Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new ListContract()
                 {
-                    NgayThanhToan  = x.contract.NgayThanhToan,
+                    NgayThanhToan = x.contract.NgayThanhToan,
                     MaHopDong = x.contract.MaHopDong,
                     TenHienThi = x.contract.TenHienThi,
                     SoHopDongCha = x.contract.MaHopDongCha == null ? "Hợp Đồng" : "Phụ Lục",
                     MaKh = x.contract.MaKh,
                     TenKH = x.cus.TenKh,
                     PhanLoaiHopDong = x.contract.MaLoaiHopDong,
-                    TrangThai = x.contract.TrangThai,
+                    TrangThai = x.tt.StatusContent,
                     ThoiGianBatDau = x.contract.ThoiGianBatDau,
                     ThoiGianKetThuc = x.contract.ThoiGianKetThuc,
                 }).ToListAsync();

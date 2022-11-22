@@ -10,5 +10,6 @@ namespace TBSLogistics.Service.Services.Report
     public interface IReport
     {
         Task<GetDataReport> GetReportTransportByMonth(DateTime dateTime);
+        Task<GetDataReport> GetRevenue(DateTime dateTime);
     }
 }

@@ -26,5 +26,13 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
             return Ok(data);
         }
+
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetReportRevenue(DateTime dateTime)
+        {
+            var data = await _report.GetRevenue(dateTime);
+            return Ok(data);
+        }
     }
 }

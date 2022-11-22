@@ -16,7 +16,7 @@ namespace TBSLogistics.Model.Model.ContractModel
         public string MaKh { get; set; }
         public string TenKH { get; set; }
         public string PhanLoaiHopDong { get; set; }
-        public int TrangThai { get; set; }
+        public string TrangThai { get; set; }
         public DateTime ThoiGianBatDau { get; set; }
         public DateTime ThoiGianKetThuc { get; set; }
     }
