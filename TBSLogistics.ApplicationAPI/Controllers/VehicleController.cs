@@ -8,6 +8,7 @@ using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.VehicleModel;
 using TBSLogistics.Service.Helpers;
 using TBSLogistics.Service.Panigation;
+using TBSLogistics.Service.Repository.Common;
 using TBSLogistics.Service.Repository.VehicleManage;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -21,9 +22,11 @@ namespace TBSLogistics.ApplicationAPI.Controllers
     {
         private readonly IVehicle _vehicle;
         private readonly IPaginationService _uriService;
+        private readonly ICommon _common;
 
-        public VehicleController(IVehicle vehicle,IPaginationService uriService)
+        public VehicleController(IVehicle vehicle,IPaginationService uriService,ICommon common)
         {
+            _common= common;
             _uriService = uriService;
             _vehicle = vehicle;
         }
@@ -32,6 +35,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> CreateVehicle(CreateVehicleRequest request)
         {
+            var checkPermission = await _common.CheckPermission("N0003");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
             var create = await _vehicle.CreateVehicle(request);
 
             if (create.isSuccess == true)
@@ -48,6 +57,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> EditVehicle(string vehicleId, EditVehicleRequest request)
         {
+            var checkPermission = await _common.CheckPermission("N0002");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
             var Edit = await _vehicle.EditVehicle(vehicleId, request);
 
             if (Edit.isSuccess == true)
@@ -79,6 +94,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> GetVehicleById(string vehicleId)
         {
+            var checkPermission = await _common.CheckPermission("N0002");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
             var vehicle = await _vehicle.GetVehicleById(vehicleId);
             return Ok(vehicle);
         }
@@ -87,6 +108,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> GetListVehicle([FromQuery] PaginationFilter filter)
         {
+            var checkPermission = await _common.CheckPermission("N0001");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
             var route = Request.Path.Value;
             var pagedData = await _vehicle.getListVehicle(filter);
 

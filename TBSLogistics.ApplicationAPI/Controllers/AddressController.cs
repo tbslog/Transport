@@ -12,6 +12,7 @@ using TBSLogistics.Model.Model.AddressModel;
 using TBSLogistics.Service.Helpers;
 using TBSLogistics.Service.Panigation;
 using TBSLogistics.Service.Repository.AddressManage;
+using TBSLogistics.Service.Repository.Common;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -24,9 +25,11 @@ namespace TBSLogistics.ApplicationAPI.Controllers
     {
         private readonly IAddress _address;
         private readonly IPaginationService _uriService;
+        private readonly ICommon _common;
 
-        public AddressController(IAddress address, IPaginationService uriService)
+        public AddressController(IAddress address, IPaginationService uriService,ICommon common)
         {
+            _common = common;
             _address = address;
             _uriService = uriService;
         }
@@ -35,6 +38,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> CreateAddress(CreateAddressRequest request)
         {
+            var checkPermission = await _common.CheckPermission("L0001");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
             var CreateAddress = await _address.CreateAddress(request);
 
             if (CreateAddress.isSuccess == true)
@@ -51,6 +60,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> EditAddress(int Id, UpdateAddressRequest request)
         {
+            var checkPermission = await _common.CheckPermission("L0003");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
             var EditAddress = await _address.EditAddress(Id, request);
 
             if (EditAddress.isSuccess == true)
@@ -67,6 +82,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> GetAddressById(int Id)
         {
+            var checkPermission = await _common.CheckPermission("L0003");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
             var address = await _address.GetAddressById(Id);
             return Ok(address);
         }
@@ -75,6 +96,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> GetListAddress([FromQuery] PaginationFilter filter)
         {
+            var checkPermission = await _common.CheckPermission("L0002");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
             var route = Request.Path.Value;
             var pagedData = await _address.GetListAddress(filter);
 

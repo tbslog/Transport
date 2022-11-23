@@ -21,5 +21,6 @@ namespace TBSLogistics.Service.Repository.Common
 
         Task<BoolActionResult> AddAttachment(Attachment attachment);
         Task<Attachment> GetAttachmentById(int id);
+        Task<BoolActionResult> CheckPermission(string permissionId);
     }
 }

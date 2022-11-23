@@ -8,6 +8,7 @@ using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.DriverModel;
 using TBSLogistics.Service.Helpers;
 using TBSLogistics.Service.Panigation;
+using TBSLogistics.Service.Repository.Common;
 using TBSLogistics.Service.Repository.DriverManage;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -21,9 +22,11 @@ namespace TBSLogistics.ApplicationAPI.Controllers
     {
         private readonly IDriver _driver;
         private readonly IPaginationService _uriService;
+        private readonly ICommon _common;
 
-        public DriverController(IDriver driver, IPaginationService uriService)
+        public DriverController(IDriver driver, IPaginationService uriService,ICommon common)
         {
+            _common = common;
             _driver = driver;
             _uriService = uriService;
         }
@@ -32,6 +35,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> CreateDriver(CreateDriverRequest request)
         {
+            var checkPermission = await _common.CheckPermission("M0002");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
             var create = await _driver.CreateDriver(request);
 
             if (create.isSuccess == true)
@@ -48,6 +57,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> EditDriver(string driverId, EditDriverRequest request)
         {
+            var checkPermission = await _common.CheckPermission("M0003");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
             var update = await _driver.EditDriver(driverId, request);
 
             if (update.isSuccess == true)
@@ -80,6 +95,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> getDriverById(string driverId)
         {
+            var checkPermission = await _common.CheckPermission("M0003");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
             var driver = await _driver.GetDriverById(driverId);
             return Ok(driver);
         }
@@ -106,6 +127,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> GetListDriver([FromQuery] PaginationFilter filter)
         {
+            var checkPermission = await _common.CheckPermission("M0001");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
             var route = Request.Path.Value;
             var pagedData = await _driver.getListDriver(filter);
 

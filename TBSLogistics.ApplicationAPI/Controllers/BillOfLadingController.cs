@@ -14,13 +14,14 @@ using TBSLogistics.Service.Repository.Common;
 
 namespace TBSLogistics.ApplicationAPI.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class BillOfLadingController : ControllerBase
     {
         private readonly IBillOfLading _billOfLading;
-        private IPaginationService _paninationService;
-        private ICommon _common;
+        private readonly IPaginationService _paninationService;
+        private readonly ICommon _common;
 
         public BillOfLadingController(IBillOfLading billOfLading, IPaginationService paginationService, ICommon common)
         {
@@ -41,6 +42,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> GetTransportById(string transportId)
         {
+            var checkPermission = await _common.CheckPermission("E0002");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
             var data = await _billOfLading.GetTransportById(transportId);
             return Ok(data);
         }
@@ -49,6 +56,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> GetListTransport([FromQuery] PaginationFilter filter)
         {
+            var checkPermission = await _common.CheckPermission("E0003");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
             var route = Request.Path.Value;
             var pagedData = await _billOfLading.GetListTransport(filter);
 
@@ -60,6 +73,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> GetListHandling([FromQuery] PaginationFilter filter, string transportId = null)
         {
+            var checkPermission = await _common.CheckPermission("F0003");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
             var route = Request.Path.Value;
             var pagedData = await _billOfLading.GetListHandling(transportId, filter);
 
@@ -71,23 +90,13 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> CreateTransport(CreateTransport request)
         {
+            var checkPermission = await _common.CheckPermission("E0001");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
             var create = await _billOfLading.CreateTransport(request);
-
-            if (create.isSuccess)
-            {
-                return Ok(create.Message);
-            }
-            else
-            {
-                return BadRequest(create.Message);
-            }
-        }
-
-        [HttpPost]
-        [Route("[action]")]
-        public async Task<IActionResult> CreateHanling(CreateHandling request)
-        {
-            var create = await _billOfLading.CreateHandling(request);
 
             if (create.isSuccess)
             {
@@ -103,6 +112,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> UpdateTransport(string transportId, UpdateTransport request)
         {
+            var checkPermission = await _common.CheckPermission("E0002");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
             var update = await _billOfLading.UpdateTransport(transportId, request);
 
             if (update.isSuccess)
@@ -119,6 +134,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> GetHandlingById(int id)
         {
+            var checkPermission = await _common.CheckPermission("F0001");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
             var data = await _billOfLading.GetHandlingById(id);
             return Ok(data);
         }
@@ -127,6 +148,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> SetRuning(int id)
         {
+            var checkPermission = await _common.CheckPermission("F0007");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
             var update = await _billOfLading.SetRunning(id);
 
             if (update.isSuccess)
@@ -143,6 +170,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> CancelHandling(int id)
         {
+            var checkPermission = await _common.CheckPermission("F0002");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
             var update = await _billOfLading.CancelHandling(id);
 
             if (update.isSuccess)
@@ -159,6 +192,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> UpdateHandling(int id, UpdateHandling request)
         {
+            var checkPermission = await _common.CheckPermission("F0001");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
             var update = await _billOfLading.UpdateHandling(id, request);
 
             if (update.isSuccess)
@@ -175,6 +214,11 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> GetListImage(int handlingId)
         {
+            var checkPermission = await _common.CheckPermission("F0004");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
             var list = await _billOfLading.GetListImageByHandlingId(handlingId);
             return Ok(list);
         }
@@ -183,6 +227,11 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> DeleteImage(int fileId)
         {
+            var checkPermission = await _common.CheckPermission("F0005");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
             var del = await _billOfLading.DeleteImageById(fileId);
 
             if (del.isSuccess)
@@ -199,6 +248,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> GetImageById(int id)
         {
+            var checkPermission = await _common.CheckPermission("F0004");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
             var image = await _billOfLading.GetImageById(id);
 
             var filePath = Path.Combine(Directory.GetCurrentDirectory(), image.FilePath);
@@ -227,6 +282,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> UploadFile([FromForm] UploadImagesHandling request)
         {
+            var checkPermission = await _common.CheckPermission("F0006");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
             var uploadFile = await _billOfLading.UploadFile(request);
 
             if (uploadFile.isSuccess)

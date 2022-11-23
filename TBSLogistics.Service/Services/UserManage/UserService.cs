@@ -124,6 +124,28 @@ namespace TBSLogistics.Service.Repository.UserManage
             }
         }
 
+        public async Task<BoolActionResult> BlockUsers(List<int> userIds)
+        {
+            var checkUser = await _context.NguoiDung.Where(x => userIds.Contains(x.Id)).ToListAsync();
+
+            foreach (var user in checkUser)
+            {
+                user.TrangThai = user.TrangThai == 1 ? 2 : 1;
+            }
+
+            _context.UpdateRange(checkUser);
+
+            var result = await _context.SaveChangesAsync();
+            if (result > 0)
+            {
+                return new BoolActionResult { isSuccess = true, Message = "Ok" };
+            }
+            else
+            {
+                return new BoolActionResult { isSuccess = false, Message = "Errors" };
+            }
+        }
+
         public async Task<BoolActionResult> CreateUser(CreateUserRequest request)
         {
             using var transaction = _context.Database.BeginTransaction();
@@ -278,11 +300,6 @@ namespace TBSLogistics.Service.Repository.UserManage
                         {
                             Label = y.PermissionName,
                             Value = y.Mid,
-                            Children = listPermission.Where(u => u.ParentId == y.Mid).Select(u => new ListTree()
-                            {
-                                Label = u.PermissionName,
-                                Value = u.Mid,
-                            }).ToList(),
                         }).ToList(),
                     }).ToList(),
                 }).ToList();
@@ -439,7 +456,7 @@ namespace TBSLogistics.Service.Repository.UserManage
             var transaction = _context.Database.BeginTransaction();
             try
             {
-             
+
 
                 var getAccount = await _context.Account.Where(x => x.UserName == username).FirstOrDefaultAsync();
 
@@ -448,7 +465,7 @@ namespace TBSLogistics.Service.Repository.UserManage
                     return new BoolActionResult { isSuccess = false, Message = "Tài khoản không tồn tại!" };
                 }
 
-                if(getAccount.PassWord == model.OldPassword.ToUpper())
+                if (getAccount.PassWord == model.OldPassword.ToUpper())
                 {
                     if (model.NewPassword == model.ReNewPassword)
                     {
@@ -529,7 +546,6 @@ namespace TBSLogistics.Service.Repository.UserManage
             }
             catch (Exception)
             {
-
                 throw;
             }
         }

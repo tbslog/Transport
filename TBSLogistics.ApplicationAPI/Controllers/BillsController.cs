@@ -9,6 +9,7 @@ using TBSLogistics.Model.Model.BillModel;
 using TBSLogistics.Service.Helpers;
 using TBSLogistics.Service.Panigation;
 using TBSLogistics.Service.Repository.AddressManage;
+using TBSLogistics.Service.Repository.Common;
 using TBSLogistics.Service.Services.Bill;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -23,9 +24,11 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         private readonly IBill _bill;
         private readonly IPaginationService _uriService;
+        private readonly ICommon _common;
 
-        public BillsController(IBill bill, IPaginationService uriService)
+        public BillsController(IBill bill, IPaginationService uriService, ICommon common)
         {
+            _common = common;
             _uriService = uriService;
             _bill = bill;
         }
@@ -35,6 +38,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> GetListTransportByCustomerId(string customerId, int ky, [FromQuery] PaginationFilter filter)
         {
+            var checkPermission = await _common.CheckPermission("G0001");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
             var route = Request.Path.Value;
             var pagedData = await _bill.GetListTransportByCustomerId(customerId, ky, filter);
 
@@ -46,6 +55,11 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> GetBillByCustomerId(string customerId, int ky)
         {
+            var checkPermission = await _common.CheckPermission("G0001");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
             var billResult = await _bill.GetBillByCustomerId(customerId, ky);
 
             return Ok(billResult);
@@ -55,7 +69,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> GetBillByTransportId(string customerId, string transportId, int ky)
         {
-            var data = await _bill.GetBillByTransportId(customerId, transportId, ky); 
+            var checkPermission = await _common.CheckPermission("G0001");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+            var data = await _bill.GetBillByTransportId(customerId, transportId, ky);
             return Ok(data);
         }
 
@@ -63,6 +82,11 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> GetListKy(string customerId)
         {
+            var checkPermission = await _common.CheckPermission("G0001");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
             var data = await _bill.GetListKyThanhToan(customerId);
 
             return Ok(data);

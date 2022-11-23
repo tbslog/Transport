@@ -3,14 +3,17 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
+using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.UserModel;
+using TBSLogistics.Model.TempModel;
 using TBSLogistics.Service.Helpers;
 using TBSLogistics.Service.Panigation;
+using TBSLogistics.Service.Repository.Common;
 using TBSLogistics.Service.Repository.UserManage;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -24,9 +27,11 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         private readonly IUser _user;
         private readonly IPaginationService _uriService;
         private readonly IConfiguration _config;
+        private readonly ICommon _common;
 
-        public UserController(IUser user, IPaginationService uriService, IConfiguration config)
+        public UserController(IUser user, IPaginationService uriService, IConfiguration config, ICommon common)
         {
+            _common = common;
             _config = config;
             _user = user;
             _uriService = uriService;
@@ -39,6 +44,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         {
             try
             {
+                var checkPermission = await _common.CheckPermission("I0002");
+                if (checkPermission.isSuccess == false)
+                {
+                    return BadRequest(checkPermission.Message);
+                }
+
                 var create = await _user.CreateUser(request);
 
                 if (create.isSuccess)
@@ -61,6 +72,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> UpdateUser(int id, UpdateUserRequest request)
         {
+            var checkPermission = await _common.CheckPermission("I0003");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
             var update = await _user.UpdateUser(id, request);
 
             if (update.isSuccess)
@@ -87,8 +104,37 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> GetTreePermission(int id)
         {
+            var checkPermission = await _common.CheckPermission("J0001");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
             var tree = await _user.GetTreePermission(id);
             return Ok(tree);
+        }
+
+        [Authorize]
+        [HttpPost]
+        [Route("[action]")]
+        public async Task<IActionResult> BlockUsers(List<int> ids)
+        {
+            var checkPermission = await _common.CheckPermission("I0004");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
+            var blockUser = await _user.BlockUsers(ids);
+
+            if (blockUser.isSuccess)
+            {
+                return Ok(blockUser.Message);
+            }
+            else
+            {
+                return BadRequest(blockUser.Message);
+            }
         }
 
         [Authorize]
@@ -96,6 +142,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> GetListUser([FromQuery] PaginationFilter filter)
         {
+            var checkPermission = await _common.CheckPermission("I0001");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
             var route = Request.Path.Value;
             var pagedData = await _user.GetListUser(filter);
 
@@ -108,6 +160,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> SetPermissionForRole(SetRole request)
         {
+            var checkPermission = await _common.CheckPermission("J0001");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
             var add = await _user.SetPermissionForRole(request);
 
             if (add.isSuccess)
@@ -125,6 +183,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> GetListRoleSelect()
         {
+            var checkPermission = await _common.CheckPermission("I0003");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
             var list = await _user.GetListRoleSelect();
             return Ok(list);
         }
@@ -157,6 +221,8 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
                 if (user != null)
                 {
+                    TempData.UserID = user.Id;
+                    TempData.UserName = user.UserName;
                     //create claims details based on the user information
                     var claims = new[] {
                         new Claim(JwtRegisteredClaimNames.Sub, _config["Jwt:Subject"]),

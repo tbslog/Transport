@@ -27,17 +27,26 @@ namespace TBSLogistics.ApplicationAPI.Controllers
     {
         private ICustomer _customer;
         private IPaginationService _uriService;
+        private ICommon _common;
 
-        public CustomerController(ICustomer customer, IPaginationService uriService)
+        public CustomerController(ICustomer customer, IPaginationService uriService, ICommon common)
         {
             _customer = customer;
             _uriService = uriService;
+            _common = common;
         }
 
         [HttpPost]
         [Route("[action]")]
         public async Task<IActionResult> CreateCustomer(CreateCustomerRequest request)
         {
+            var checkPermission = await _common.CheckPermission("A0003");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
+
             var Create = await _customer.CreateCustomer(request);
 
             if (Create.isSuccess == true)
@@ -54,6 +63,13 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> UpdateCustomer(string Id, EditCustomerRequest request)
         {
+            var checkPermission = await _common.CheckPermission("A0004");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
+
             var Edit = await _customer.EditCustomer(Id, request);
 
             if (Edit.isSuccess == true)
@@ -70,6 +86,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> GetListCustomer([FromQuery] PaginationFilter filter)
         {
+            var checkPermission = await _common.CheckPermission("A0002");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
             var route = Request.Path.Value;
             var pagedData = await _customer.getListCustommer(filter);
 
@@ -89,6 +111,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> GetCustomerById(string Id)
         {
+            var checkPermission = await _common.CheckPermission("A0004");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
             var Custommer = await _customer.GetCustomerById(Id);
             return Ok(Custommer);
         }

@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TBSLogistics.Data.TMS;
 using TBSLogistics.Model.CommonModel;
+using TBSLogistics.Model.TempModel;
 
 namespace TBSLogistics.Service.Repository.Common
 {
@@ -132,6 +133,32 @@ namespace TBSLogistics.Service.Repository.Common
             }
 
             return getAttachment;
+        }
+
+        public async Task<BoolActionResult> CheckPermission(string permissionId)
+        {
+            var user = await _context.NguoiDung.Where(x => x.Id == TempData.UserID).FirstOrDefaultAsync();
+
+            if (user.TrangThai == 2)
+            {
+                return new BoolActionResult { isSuccess = false, Message = "Tài khoản đã bị khóa" };
+            }
+
+            var checkPermission = from per in _context.Permission
+                                  join rolehasper in _context.RoleHasPermission
+                                  on per.Id equals rolehasper.PermissionId
+                                  where rolehasper.RoleId == user.RoleId
+                                  && per.Mid == permissionId
+                                  select per;
+
+            if (checkPermission.ToList().Count > 0)
+            {
+                return new BoolActionResult { isSuccess = true };
+            }
+            else
+            {
+                return new BoolActionResult { isSuccess = false, Message = "Bạn không có quyền hạn này" };
+            }
         }
     }
 }

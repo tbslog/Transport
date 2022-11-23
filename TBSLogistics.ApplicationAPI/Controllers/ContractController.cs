@@ -40,6 +40,13 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> CreateContract([FromForm] CreateContract request)
         {
+
+            var checkPermission = await _common.CheckPermission("B0001");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
             var createContract = await _contract.CreateContract(request);
 
             if (createContract.isSuccess == true)
@@ -56,6 +63,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> UpdateContract(string Id, [FromForm] EditContract request)
         {
+            var checkPermission = await _common.CheckPermission("B0002");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
             var editContract = await _contract.EditContract(Id, request);
 
             if (editContract.isSuccess == true)
@@ -72,6 +85,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> GetContractById(string Id)
         {
+            var checkPermission = await _common.CheckPermission("B0002");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
             var contract = await _contract.GetContractById(Id);
             return Ok(contract);
         }
@@ -80,6 +99,13 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> GetListContract([FromQuery] PaginationFilter filter)
         {
+            var checkPermission = await _common.CheckPermission("B0004");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
+
             var route = Request.Path.Value;
             var pagedData = await _contract.GetListContract(filter);
 
@@ -99,6 +125,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> DownloadFile(int fileId)
         {
+            var checkPermission = await _common.CheckPermission("B0003");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
             var getFilePath = await _common.GetAttachmentById(fileId);
 
             if (getFilePath == null)

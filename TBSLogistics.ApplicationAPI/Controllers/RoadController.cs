@@ -10,6 +10,7 @@ using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.RoadModel;
 using TBSLogistics.Service.Helpers;
 using TBSLogistics.Service.Panigation;
+using TBSLogistics.Service.Repository.Common;
 using TBSLogistics.Service.Repository.RoadManage;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -21,12 +22,13 @@ namespace TBSLogistics.ApplicationAPI.Controllers
     [ApiController]
     public class RoadController : ControllerBase
     {
-
         private readonly IRoad _road;
-        private IPaginationService _uriService;
+        private readonly IPaginationService _uriService;
+        private readonly ICommon _common;
 
-        public RoadController(IRoad road, IPaginationService uriService)
+        public RoadController(IRoad road, IPaginationService uriService,ICommon common)
         {
+            _common = common;
             _road = road;
             _uriService = uriService;
         }
@@ -35,6 +37,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> CreateRoad(CreateRoadRequest request)
         {
+            var checkPermission = await _common.CheckPermission("K0001");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
             var create = await _road.CreateRoad(request);
 
             if (create.isSuccess == true)
@@ -51,6 +59,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> UpdateRoad(string Id, UpdateRoadRequest request)
         {
+            var checkPermission = await _common.CheckPermission("K0003");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
             var Update = await _road.UpdateRoad(Id, request);
 
             if (Update.isSuccess == true)
@@ -67,6 +81,11 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> GetRoadById(string Id)
         {
+            var checkPermission = await _common.CheckPermission("K0003");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
             var getById = await _road.GetRoadById(Id);
 
             return Ok(getById);
@@ -92,6 +111,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> GetListRoad([FromQuery] PaginationFilter filter)
         {
+            var checkPermission = await _common.CheckPermission("K0002");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
             var route = Request.Path.Value;
             var pagedData = await _road.GetListRoad(filter);
 

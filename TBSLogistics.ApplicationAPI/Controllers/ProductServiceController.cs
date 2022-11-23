@@ -7,6 +7,7 @@ using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.ProductServiceModel;
 using TBSLogistics.Service.Helpers;
 using TBSLogistics.Service.Panigation;
+using TBSLogistics.Service.Repository.Common;
 using TBSLogistics.Service.Services.ProductServiceManage;
 
 namespace TBSLogistics.ApplicationAPI.Controllers
@@ -16,12 +17,14 @@ namespace TBSLogistics.ApplicationAPI.Controllers
     [ApiController]
     public class ProductServiceController : ControllerBase
     {
-        private IProduct _product;
+        private readonly IProduct _product;
         private readonly IPaginationService _pagination;
+        private readonly ICommon _common;
 
-        public ProductServiceController(IProduct product, IPaginationService pagination)
+        public ProductServiceController(IProduct product, IPaginationService pagination,ICommon common)
         {
             _product = product;
+            _common = common;
             _pagination = pagination;
         }
 
@@ -29,6 +32,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> CreateProductService(List<CreateProductServiceRequest> request)
         {
+            var checkPermission = await _common.CheckPermission("C0003");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
             var Create = await _product.CreateProductService(request);
 
             if (Create.isSuccess == true)
@@ -45,6 +54,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> UpdateProductService([FromForm] EditProductServiceRequest request)
         {
+            var checkPermission = await _common.CheckPermission("C0004");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
             var editProductService = await _product.EditProductServiceRequest(request);
             if (editProductService.isSuccess == true)
             {
@@ -73,6 +88,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> ApproveProductServiceRequestById(List<ApproveProductServiceRequestById> id)
         {
+            var checkPermission = await _common.CheckPermission("C0002");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
             var approveProductService = await _product.ApproveProductServiceRequestById(id);
             if (approveProductService.isSuccess == true)
             {
@@ -109,6 +130,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> GetListProductService([FromQuery] PaginationFilter filter)
         {
+            var checkPermission = await _common.CheckPermission("C0001");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
             var route = Request.Path.Value;
             var pagedData = await _product.GetListProductService(filter);
             var pagedReponse = PaginationHelper.CreatePagedReponse<ListProductServiceRequest>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _pagination, route);
