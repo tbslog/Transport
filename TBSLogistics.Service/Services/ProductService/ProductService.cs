@@ -40,12 +40,13 @@ namespace TBSLogistics.Service.Services.ProductServiceManage
                         IdListFail.Add(i.MaHopDong + " \r\n" + ErrorValidate + " \r\n");
                         continue;
                     }
-                    var checkExists2 = await _TMSContext.BangGia.Where(x => x.MaHopDong == i.MaHopDong && x.MaCungDuong == i.MaCungDuong && x.MaPtvc == i.MaPTVC && x.MaLoaiPhuongTien == i.MaLoaiPhuongTien).FirstOrDefaultAsync();
-                    if (checkExists2 != null)
-                    {
-                        IdListFail.Add(" hợp đồng này đã tồn tại" + " \r\n" + i.MaHopDong + i.MaPTVC + i.MaCungDuong + i.MaLoaiPhuongTien);
-                        continue;
-                    }
+
+                    //var checkExists2 = await _TMSContext.BangGia.Where(x => x.MaHopDong == i.MaHopDong && x.MaCungDuong == i.MaCungDuong && x.MaPtvc == i.MaPTVC && x.MaLoaiPhuongTien == i.MaLoaiPhuongTien).FirstOrDefaultAsync();
+                    //if (checkExists2 != null)
+                    //{
+                    //    IdListFail.Add(" hợp đồng này đã tồn tại" + " \r\n" + i.MaHopDong + i.MaPTVC + i.MaCungDuong + i.MaLoaiPhuongTien);
+                    //    continue;
+                    //}
 
                     var a = from j in _TMSContext.HopDongVaPhuLuc
                             where j.MaHopDong == i.MaHopDong

@@ -221,7 +221,7 @@ namespace TBSLogistics.Service.Services.RomoocManage
 
             if (!Regex.IsMatch(MaRomooc, "^(?![_.])(?![_.])(?!.*[_.]{2})[A-Z0-9]+(?<![_.])$"))
             {
-                ErrorValidate += " - Mã Tài Xế khÔng được chứa ký tự đặc biệt \r\n" + System.Environment.NewLine;
+                ErrorValidate += " - Mã Roomoc không được có dấu và phải viết hoa \r\n" + System.Environment.NewLine;
             }
             var checkTT = await _TMScontext.LoaiRomooc.Where(x => x.MaLoaiRomooc == MaLoaiRomooc).FirstOrDefaultAsync();
             if (checkTT == null)

@@ -13,13 +13,13 @@ namespace TBSLogistics.Model.Model.ContractModel
         public string SoHopDongCha { get; set; }
         public string TenHienThi { get; set; }
         public string MaKh { get; set; }
-        public int NgayThanhToan { get; set; }
+        public int? NgayThanhToan { get; set; }
         public string PhanLoaiHopDong { get; set; }
         public DateTime ThoiGianBatDau { get; set; }
         public DateTime ThoiGianKetThuc { get; set; }
         public string GhiChu { get; set; }
         public IFormFile File { get; set; }
-        public string? PhuPhi { get; set; }
+        public string PhuPhi { get; set; }
         public int TrangThai { get; set; }
     }
 }

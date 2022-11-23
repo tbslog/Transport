@@ -48,7 +48,7 @@ namespace TBSLogistics.Model.Model.BillModel
         public string LoaiPhuongTien { get; set; }
         public string DonViTinh { get; set; }
         public string DonViVanTai { get; set; }
-        public decimal? DonGiaKH { get; set; }
+        public decimal? DonGia { get; set; }
         public double? KhoiLuong { get; set; }
         public double? TheTich { get; set; }
 

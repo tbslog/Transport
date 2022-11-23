@@ -49,6 +49,11 @@ namespace TBSLogistics.Service.Services.ContractManage
 
                 if (string.IsNullOrEmpty(request.SoHopDongCha))
                 {
+                    if (request.NgayThanhToan == null)
+                    {
+                        return new BoolActionResult { isSuccess = false, Message = "Không được bỏ trống ngày thanh toán" };
+                    }
+
                     var checkContractCustommer = await _TMSContext.HopDongVaPhuLuc.Where(x => x.MaKh == request.MaKh && x.MaHopDong == null).FirstOrDefaultAsync();
                     if (checkContractCustommer != null)
                     {
@@ -57,6 +62,7 @@ namespace TBSLogistics.Service.Services.ContractManage
                 }
                 else
                 {
+                    request.NgayThanhToan = null;
                     var checkChildContract = await _TMSContext.HopDongVaPhuLuc.Where(x => x.MaHopDong == request.SoHopDongCha && x.MaHopDongCha == null).FirstOrDefaultAsync();
                     if (checkChildContract == null)
                     {
@@ -82,7 +88,7 @@ namespace TBSLogistics.Service.Services.ContractManage
                     MaKh = request.MaKh,
                     GhiChu = request.GhiChu,
                     MaPhuPhi = request.PhuPhi,
-                    TrangThai = request.TrangThai,
+                    TrangThai = 24,
                     UpdatedTime = DateTime.Now,
                     CreatedTime = DateTime.Now
                 });
@@ -125,6 +131,18 @@ namespace TBSLogistics.Service.Services.ContractManage
                 if (request.ThoiGianBatDau >= request.ThoiGianKetThuc)
                 {
                     return new BoolActionResult { isSuccess = false, Message = "Thời gian bắt đầu không được lớn hơn hoặc bằng thời gian kết thúc" };
+                }
+
+                if (!string.IsNullOrEmpty(checkExists.MaHopDongCha))
+                {
+                    if (request.NgayThanhToan == null)
+                    {
+                        return new BoolActionResult { isSuccess = false, Message = "Không được bỏ trống ngày thanh toán" };
+                    }
+                }
+                else
+                {
+                    request.NgayThanhToan = null;
                 }
 
                 checkExists.NgayThanhToan = request.NgayThanhToan;
