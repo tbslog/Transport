@@ -44,7 +44,6 @@ const EditAddress = (props) => {
       },
     },
     SoNha: {
-      required: "Không được để trống",
       maxLength: {
         value: 100,
         message: "Không được vượt quá 100 ký tự",
@@ -229,7 +228,7 @@ const EditAddress = (props) => {
     <>
       <div className="card card-primary">
         <div className="card-header">
-          <h3 className="card-title">Form Thêm Mới Địa Điểm</h3>
+          <h3 className="card-title">Form Cập Nhật Địa Điểm</h3>
         </div>
         <div>{IsLoading === true && <div>Loading...</div>}</div>
 

@@ -168,7 +168,7 @@ const AddSubFeeByHandling = (props) => {
       });
     });
 
-    if (arr && arr.length > 1) {
+    if (arr && arr.length > 0) {
       const createPriceTable = await postData(
         "SFeeByTcommand/CreateSFeeByTCommand",
         arr

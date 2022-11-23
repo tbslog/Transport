@@ -4,7 +4,7 @@ import Cookies from "js-cookie";
 import jwt_decode from "jwt-decode";
 import { Buffer } from "buffer";
 
-// const Host = "https://api.tbslogistics.com.vn/api/";
+//const Host = "https://api.tbslogistics.com.vn/api/";
 const Host = "http://localhost:8088/api/";
 
 axios.interceptors.request.use(
@@ -59,8 +59,16 @@ axios.interceptors.response.use(
 );
 
 const getData = async (url) => {
-  const get = await axios.get(Host + url);
-  var data = get.data;
+  let data;
+  await axios
+    .get(Host + url)
+    .then((response) => {
+      data = response.data;
+    })
+    .catch((error) => {
+      ToastError(`${error.response.data}`);
+    });
+
   return data;
 };
 
@@ -81,9 +89,14 @@ const postLogin = async (url, data, header = null) => {
 
 const getDataCustom = async (url, data, header = null) => {
   let dataReturn = [];
-  await axios.post(Host + url, data, header).then((response) => {
-    dataReturn = response.data;
-  });
+  await axios
+    .post(Host + url, data, header)
+    .then((response) => {
+      dataReturn = response.data;
+    })
+    .catch((error) => {
+      ToastError(`${error.response.data}`);
+    });
   return dataReturn;
 };
 
@@ -102,6 +115,9 @@ const getFile = async (url, fileName) => {
       link.setAttribute("download", `${fileName}`);
       document.body.appendChild(link);
       link.click();
+    })
+    .catch((error) => {
+      ToastError(`${error.response.data}`);
     });
 };
 
@@ -128,7 +144,7 @@ const getFileImage = async (url) => {
       return src;
     })
     .catch((error) => {
-      console.error(error);
+      ToastError(`${error.response.data}`);
     });
 
   return src;

@@ -167,13 +167,6 @@ const UpdateRole = (props) => {
           <div className="card-footer">
             <div>
               <button
-                type="button"
-                onClick={() => handleResetClick()}
-                className="btn btn-warning"
-              >
-                Làm mới
-              </button>
-              <button
                 type="submit"
                 className="btn btn-primary"
                 style={{ float: "right" }}

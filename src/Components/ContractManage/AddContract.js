@@ -200,7 +200,6 @@ const AddContract = (props) => {
 
   const onSubmit = async (data) => {
     SetIsLoading(true);
-
     var create = await postData(
       "Contract/CreateContract",
       {
@@ -208,13 +207,14 @@ const AddContract = (props) => {
         soHopDongCha: tabIndex === 0 ? null : data.SoHopDongCha.value,
         tenHienThi: data.TenHopDong,
         maKh: data.MaKh.value,
+        NgayThanhToan: tabIndex === 1 ? 0 : data.NgayThanhToan,
         thoiGianBatDau: moment(new Date(data.NgayBatDau).toISOString()).format(
           "YYYY-MM-DD"
         ),
         thoiGianKetThuc: moment(
           new Date(data.NgayKetThuc).toISOString()
         ).format("YYYY-MM-DD"),
-        NgayThanhToan: !data.NgayThanhToan ? null : data.NgayThanhToan,
+
         ghiChu: data.GhiChu,
         // trangThai: data.TrangThai,
         file: data.FileContact[0],
@@ -240,7 +240,8 @@ const AddContract = (props) => {
   };
 
   const HandleOnChangeTabs = (tabIndex) => {
-    setTabIndex(tabIndex, reset());
+    reset();
+    setTabIndex(tabIndex);
   };
 
   return (

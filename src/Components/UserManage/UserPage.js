@@ -173,7 +173,28 @@ const UserPage = () => {
     }
   };
 
-  const BlockUser = () => {};
+  const BlockUser = async () => {
+    if (
+      selectedRows &&
+      selectedRows.length > 0 &&
+      Object.keys(selectedRows).length > 0
+    ) {
+      let arr = [];
+      selectedRows.map((val) => {
+        arr.push(val.id);
+      });
+
+      const BlockUser = await postData(`User/BlockUsers`, arr);
+
+      if (BlockUser === 1) {
+        fetchData(1);
+      }
+      setSelectedRows([]);
+      handleClearRows();
+      setShowConfirm(false);
+    }
+  };
+
   const DeleteUser = () => {};
 
   useEffect(() => {

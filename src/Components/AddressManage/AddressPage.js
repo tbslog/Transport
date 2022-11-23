@@ -13,6 +13,7 @@ const AddressPage = () => {
   const [loading, setLoading] = useState(false);
   const [totalRows, setTotalRows] = useState(0);
   const [perPage, setPerPage] = useState(10);
+  const [page, setPage] = useState(0);
   const [keySearch, setKeySearch] = useState("");
 
   const [ShowModal, SetShowModal] = useState("");
@@ -99,6 +100,7 @@ const AddressPage = () => {
   };
 
   const handlePageChange = async (page) => {
+    setPage(page);
     await fetchData(page);
   };
 
@@ -120,9 +122,7 @@ const AddressPage = () => {
 
   useEffect(() => {
     setLoading(true);
-
     fetchData(1);
-
     setLoading(false);
   }, []);
 
@@ -150,7 +150,7 @@ const AddressPage = () => {
       ToastWarning("Vui lòng  nhập thông tin tìm kiếm");
       return;
     }
-    await fetchData(1, keySearch);
+    await fetchData(page, keySearch);
   };
 
   const handleRefeshDataClick = async () => {
@@ -164,7 +164,7 @@ const AddressPage = () => {
         <div className="container-fluid">
           <div className="row mb-2">
             <div className="col-sm-6">
-              <h1>Quản lý địa chỉ</h1>
+              <h1>Quản Lý Địa Điểm</h1>
             </div>
             {/* <div className="col-sm-6">
               <ol className="breadcrumb float-sm-right">

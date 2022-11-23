@@ -211,7 +211,11 @@ const UpdateHandling = (props) => {
           `BillOfLading/GetHandlingById?id=${selectIdClick.maDieuPhoi}`
         );
 
-        setData(data);
+        if (data && Object.keys(data).length > 0) {
+          setData(data);
+        } else {
+          setData({});
+        }
       })();
     }
   }, [props, selectIdClick, listVehicleType, listGoodsType, listPoint]);

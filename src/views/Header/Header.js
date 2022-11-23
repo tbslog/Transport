@@ -114,8 +114,7 @@ const Header = () => {
           </div>
           {/* Right navbar links */}
           <ul className="order-1 order-md-3 navbar-nav navbar-no-expand ml-auto">
-            {/* Notifications Dropdown Menu */}
-            <li className="nav-item dropdown">
+            {/* <li className="nav-item dropdown">
               <a className="nav-link" data-toggle="dropdown" href="#">
                 <i className="far fa-bell" />
                 <span className="badge badge-warning navbar-badge">15</span>
@@ -145,7 +144,6 @@ const Header = () => {
                 </a>
               </div>
             </li>
-            {/* Messages Dropdown Menu */}
             <li className="nav-item dropdown">
               <a className="nav-link" data-toggle="dropdown" href="#">
                 <i className="fas fa-comments" />
@@ -171,7 +169,6 @@ const Header = () => {
                 <div className="dropdown-divider" />
               </div>
             </li>
-            {/* lang dropdown menu */}
             <li className="nav-item dropdown">
               <a className="nav-link" data-toggle="dropdown" href="#">
                 <i className="flag-icon flag-icon-vn" />
@@ -184,8 +181,7 @@ const Header = () => {
                   <i className="flag-icon flag-icon-us mr-2" /> English
                 </a>
               </div>
-            </li>
-            {/* user dropdown menu */}
+            </li> */}
             <li className="nav-item dropdown user-menu">
               <a
                 href="#"

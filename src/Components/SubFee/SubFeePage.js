@@ -113,6 +113,7 @@ const SubFeePage = () => {
   const handleChange = (state) => {
     setSelectedRows(state.selectedRows);
   };
+
   const handleClearRows = () => {
     setToggleClearRows(!toggledClearRows);
   };
