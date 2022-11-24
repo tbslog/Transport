@@ -5,20 +5,19 @@ import Logo from "../../Image/Logo/logo2x.png";
 import "./bill.css";
 
 const DetailBillByTransport = (props) => {
-  const { dataClick, ky } = props;
+  const { dataClick } = props;
   const [dataBill, setDataBill] = useState([]);
 
   useEffect(() => {
-    if (props && ky && dataClick && Object.keys(dataClick).length > 0) {
-      console.log(dataClick);
-      let data = getDataBill(dataClick.maKh, dataClick.maVanDon, ky);
+    if (props && dataClick && Object.keys(dataClick).length > 0) {
+      let data = getDataBill(dataClick.maKh, dataClick.maVanDon);
     }
-  }, [props, ky, dataClick]);
+  }, [props, dataClick]);
 
-  const getDataBill = async (customerId, transportId, ky) => {
-    if (customerId && ky) {
+  const getDataBill = async (customerId, transportId) => {
+    if (customerId) {
       var dataBill = await getData(
-        `Bills/GetBillByTransportId?customerId=${customerId}&transportId=${transportId}&ky=${ky}`
+        `Bills/GetBillByTransportId?customerId=${customerId}&transportId=${transportId}`
       );
 
       if (dataBill.billReuslt && dataBill.billReuslt.length > 0) {
@@ -55,12 +54,12 @@ const DetailBillByTransport = (props) => {
     <>
       <div>
         <div className="page-content">
-          <div className="page-header text-blue-d2">
-            {/* <h1 className="page-title text-secondary-d1">
+          {/* <div className="page-header text-blue-d2">
+            <h1 className="page-title text-secondary-d1">
               <img src={Logo}></img>
-            </h1> */}
+            </h1>
             <div className="page-tools">
-              {/* <div className="action-buttons">
+              <div className="action-buttons">
                 <a
                   className="btn bg-white btn-light mx-1px text-95"
                   href="#"
@@ -77,16 +76,16 @@ const DetailBillByTransport = (props) => {
                   <i className="mr-1 fa fa-file-pdf-o text-danger-m1 text-120 w-2" />
                   Export
                 </a>
-              </div> */}
+              </div>
             </div>
-          </div>
+          </div> */}
           <div className="col-12">
             <div className="row mt-4">
               <div className="col-12 col-lg-12">
                 <div className="row">
                   <div className="col-12">
                     <div className="text-center text-150">
-                      <h1 className="text-default-d3">CEVA</h1>
+                      <h1 className="text-default-d3">{dataClick.khachHang}</h1>
                     </div>
                   </div>
                 </div>

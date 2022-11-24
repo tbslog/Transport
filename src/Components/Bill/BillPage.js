@@ -13,6 +13,7 @@ const BillPage = () => {
   const [loading, setLoading] = useState(false);
   const [totalRows, setTotalRows] = useState(0);
   const [perPage, setPerPage] = useState(10);
+  const [page, setPage] = useState(0);
   const [keySearch, setKeySearch] = useState("");
 
   const [ShowModal, SetShowModal] = useState("");
@@ -24,13 +25,10 @@ const BillPage = () => {
 
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
-  const [customerId, setCustomerId] = useState("");
-  const [listky, setListKy] = useState([]);
-  const [ky, setKy] = useState(1);
 
   const columns = useMemo(() => [
     {
-      name: "Xem Chi Tiết",
+      name: <div>Hóa Đơn Vận Đơn</div>,
       cell: (val) => (
         <button
           onClick={() =>
@@ -48,42 +46,88 @@ const BillPage = () => {
       button: true,
     },
     {
+      name: "Mã Chuyến",
+      selector: (row) => row.maChuyen,
+    },
+    {
       name: "Mã Vận Đơn",
       selector: (row) => row.maVanDon,
     },
     {
-      name: "Loại Vận Đơn",
-      selector: (row) => row.loaiVanDon,
+      name: "Loại Hàng Hóa",
+      selector: (row) => row.loaiHangHoa,
     },
     {
-      name: "Mã Khách Hàng",
+      name: <div>Loại Phương Tiện</div>,
+      selector: (row) => row.loaiPhuongTien,
+    },
+
+    {
+      name: <div>Mã Khách Hàng</div>,
       selector: (row) => row.maKh,
+      omit: true,
     },
     {
-      name: "Tên Khách Hàng",
-      selector: (row) => row.tenKh,
+      name: <div>Khách Hàng</div>,
+      selector: (row) => row.khachHang,
     },
     {
-      name: "Mã Cung Đường",
-      selector: (row) => row.maCungDuong,
+      name: <div>Đơn Vị Vận Tải</div>,
+      selector: (row) => row.donViVanTai,
     },
     {
-      name: "Điểm Lấy Hàng",
-      selector: (row) => row.diemLayHang,
+      name: <div>Đơn Giá KH</div>,
+      selector: (row) =>
+        row.donGiaKH.toLocaleString("vi-VI", {
+          style: "currency",
+          currency: "VND",
+        }),
     },
     {
-      name: "Điểm Trả Hàng",
-      selector: (row) => row.diemTraHang,
+      name: <div>Đơn Giá NCC</div>,
+      selector: (row) =>
+        row.donGiaNCC.toLocaleString("vi-VI", {
+          style: "currency",
+          currency: "VND",
+        }),
     },
     {
-      name: "Tổng Khối Lượng",
-      selector: (row) => row.tongKhoiLuong,
+      name: "Doanh Thu",
+      selector: (row) =>
+        row.doanhThu.toLocaleString("vi-VI", {
+          style: "currency",
+          currency: "VND",
+        }),
     },
     {
-      name: "Tổng Thể Tích",
-      selector: (row) => row.tongTheTich,
+      name: "Lợi Nhuận",
+      selector: (row) =>
+        row.loiNhuan.toLocaleString("vi-VI", {
+          style: "currency",
+          currency: "VND",
+        }),
+    },
+    {
+      name: "Phụ Phí HĐ",
+      selector: (row) =>
+        row.chiPhiHopDong.toLocaleString("vi-VI", {
+          style: "currency",
+          currency: "VND",
+        }),
+    },
+    {
+      name: <div>Phụ Phí Phát Sinh</div>,
+      selector: (row) =>
+        row.chiPhiPhatSinh.toLocaleString("vi-VI", {
+          style: "currency",
+          currency: "VND",
+        }),
     },
   ]);
+
+  useEffect(() => {
+    fetchData(1);
+  }, []);
 
   const showModalForm = () => {
     const modal = new Modal(parseExceptionModal.current, {
@@ -98,15 +142,16 @@ const BillPage = () => {
     modal.hide();
   };
 
-  const fetchData = async (page, KeyWord = "", customerId, ky) => {
-    if (!customerId || !ky) {
-      ToastError("Vui lòng chọn kỳ thanh toán và mã khách hàng");
-      return;
-    }
-
+  const fetchData = async (page, KeyWord = "", fromDate, toDate) => {
     setLoading(true);
+    if (KeyWord !== "") {
+      KeyWord = keySearch;
+    }
+    fromDate = !fromDate ? "" : moment(fromDate).format("YYYY-MM-DD");
+    toDate = !toDate ? "" : moment(toDate).format("YYYY-MM-DD");
+
     const dataBills = await getData(
-      `Bills/GetListTransportByCustomerId?customerId=${customerId}&ky=${ky}&PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}`
+      `Bills/GetListBillHandling?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}&fromDate=${fromDate}&toDate=${toDate}`
     );
 
     setData(dataBills.data);
@@ -114,15 +159,16 @@ const BillPage = () => {
     setLoading(false);
   };
 
-  const handlePageChange = async (page) => {
-    await fetchData(page, "", fromDate, toDate, customerId, ky);
+  const handlePageChange = (page) => {
+    setPage(page);
+    fetchData(page, keySearch, fromDate, toDate);
   };
 
   const handlePerRowsChange = async (newPerPage, page) => {
     setLoading(true);
 
     const dataBills = await getData(
-      `Bills/GetListTransportByCustomerId?customerId=${customerId}&ky=${ky}&PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}`
+      `Bills/GetListBillHandling?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}&fromDate=${fromDate}&toDate=${toDate}`
     );
     setData(dataBills);
     setPerPage(newPerPage);
@@ -138,17 +184,17 @@ const BillPage = () => {
     showModalForm();
   };
 
-  const handleSearchByContractId = async () => {
-    if (customerId) {
-      const getListKy = await getData(
-        `Bills/GetListKy?customerId=${customerId}`
-      );
-      setListKy(getListKy);
-    }
-  };
+  // const handleSearchByContractId = async () => {
+  //   if (customerId) {
+  //     const getListKy = await getData(
+  //       `Bills/GetListKy?customerId=${customerId}`
+  //     );
+  //     setListKy(getListKy);
+  //   }
+  // };
 
   const handleSearchClick = () => {
-    fetchData(1, keySearch, customerId, ky);
+    fetchData(1);
   };
 
   const handleRefeshDataClick = () => {
@@ -164,7 +210,7 @@ const BillPage = () => {
         <div className="container-fluid">
           <div className="row mb-2">
             <div className="col-sm-6">
-              <h1>Danh sách hóa đơn</h1>
+              <h1>Danh sách Chuyến Đã Hoàn Thành</h1>
             </div>
           </div>
         </div>
@@ -177,107 +223,111 @@ const BillPage = () => {
               <div className="row">
                 <div className="col-sm-3"></div>
                 <div className="col-sm-3"></div>
-                <div className="col-sm-3"></div>
+                <div className="col-sm-3">
+                  <div className="row">
+                    <div className="col col-sm">
+                      <div className="input-group input-group-sm">
+                        <DatePicker
+                          selected={fromDate}
+                          onChange={(date) => setFromDate(date)}
+                          dateFormat="dd/MM/yyyy"
+                          className="form-control form-control-sm"
+                          placeholderText="Từ ngày"
+                          value={fromDate}
+                        />
+                      </div>
+                    </div>
+                    <div className="col col-sm">
+                      <div className="input-group input-group-sm">
+                        <DatePicker
+                          selected={toDate}
+                          onChange={(date) => setToDate(date)}
+                          dateFormat="dd/MM/yyyy"
+                          className="form-control form-control-sm"
+                          placeholderText="Đến Ngày"
+                          value={toDate}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
                 <div className="col-sm-3 ">
                   <div className="input-group input-group-sm">
                     <input
-                      placeholder="Nhập Mã Khách Hàng"
+                      placeholder="Tìm Kiếm"
                       type="text"
                       className="form-control"
-                      value={customerId}
-                      onChange={(e) => setCustomerId(e.target.value)}
+                      value={keySearch}
+                      onChange={(e) => setKeySearch(e.target.value)}
                     />
                     <span className="input-group-append">
                       <button
                         type="button"
                         className="btn btn-sm btn-default"
-                        onClick={() => handleSearchByContractId()}
+                        onClick={() => handleSearchClick()}
                       >
-                        <i className="fas fa-arrow-circle-right"></i>
+                        <i className="fas fa-search"></i>
                       </button>
                     </span>
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-default mx-2"
+                      onClick={() => handleRefeshDataClick()}
+                    >
+                      <i className="fas fa-sync-alt"></i>
+                    </button>
                   </div>
                 </div>
               </div>
             </div>
           </div>
 
-          {listky && listky.length > 0 && (
-            <div className="card-header">
-              <div className="container-fruid">
-                <div className="row">
+          {/* <div className="card-header">
+            <div className="container-fruid">
+              <div className="row">
+                <div className="col-sm-3">
                   <div className="col-sm-3">
-                    <div className="col-sm-3">
-                      <button
-                        type="button"
-                        className="btn btn-title btn-sm btn-default mx-1"
-                        gloss="Xem Hóa Đơn Kỳ"
-                        onClick={() =>
-                          showModalForm(SetShowModal("DetailBill"))
-                        }
-                      >
-                        <i className="fas fa-money-bill-alt"></i>
-                      </button>
-                    </div>
+                    <button
+                      type="button"
+                      className="btn btn-title btn-sm btn-default mx-1"
+                      gloss="Xem Hóa Đơn Kỳ"
+                      onClick={() => showModalForm(SetShowModal("DetailBill"))}
+                    >
+                      <i className="fas fa-money-bill-alt"></i>
+                    </button>
                   </div>
-                  <div className="col-sm-3">
-                    <div className="row">
-                      <div className="col col-sm"></div>
-                      <div className="col col-sm"></div>
-                    </div>
+                </div>
+                <div className="col-sm-3">
+                  <div className="row">
+                    <div className="col col-sm"></div>
+                    <div className="col col-sm"></div>
                   </div>
-                  <div className="col-sm-3">
-                    <div className="row">
-                      <div className="col col-sm">
-                        <div className="input-group input-group-sm">
-                          <select
-                            className="form-control form-control-sm"
-                            onChange={(e) => setKy(e.target.value)}
-                            value={ky}
-                          >
-                            {listky.map((val) => {
-                              return (
-                                <option value={val.ky} key={val.ky}>
-                                  {"Kỳ Thanh Toán: " + val.ky}
-                                </option>
-                              );
-                            })}
-                          </select>
-                        </div>
+                </div>
+                <div className="col-sm-3">
+                  <div className="row">
+                    <div className="col col-sm">
+                      <div className="input-group input-group-sm">
+                        <select
+                          className="form-control form-control-sm"
+                          onChange={(e) => setKy(e.target.value)}
+                          value={ky}
+                        >
+                          {listky.map((val) => {
+                            return (
+                              <option value={val.ky} key={val.ky}>
+                                {"Kỳ Thanh Toán: " + val.ky}
+                              </option>
+                            );
+                          })}
+                        </select>
                       </div>
                     </div>
                   </div>
-                  <div className="col-sm-3 ">
-                    <div className="input-group input-group-sm">
-                      <input
-                        placeholder="Tìm Kiếm"
-                        type="text"
-                        className="form-control"
-                        value={keySearch}
-                        onChange={(e) => setKeySearch(e.target.value)}
-                      />
-                      <span className="input-group-append">
-                        <button
-                          type="button"
-                          className="btn btn-sm btn-default"
-                          onClick={() => handleSearchClick()}
-                        >
-                          <i className="fas fa-search"></i>
-                        </button>
-                      </span>
-                      <button
-                        type="button"
-                        className="btn btn-sm btn-default mx-2"
-                        onClick={() => handleRefeshDataClick()}
-                      >
-                        <i className="fas fa-sync-alt"></i>
-                      </button>
-                    </div>
-                  </div>
                 </div>
+                <div className="col-sm-3 "></div>
               </div>
             </div>
-          )}
+          </div> */}
 
           <div className="card-body">
             <div className="container-datatable" style={{ height: "50vm" }}>
@@ -326,11 +376,11 @@ const BillPage = () => {
               </div>
               <div className="modal-body">
                 <>
-                  {ShowModal === "DetailBill" && (
+                  {/* {ShowModal === "DetailBill" && (
                     <DetailBill customerId={customerId} ky={ky} />
-                  )}
+                  )} */}
                   {ShowModal === "DetailBillByTransport" && (
-                    <DetailBillByTransport dataClick={selectIdClick} ky={ky} />
+                    <DetailBillByTransport dataClick={selectIdClick} />
                   )}
                 </>
               </div>

@@ -43,20 +43,20 @@ let routerList = [
     ],
   },
   {
-    name: "KH/NCC",
+    name: "Đối Tác",
     pathName: "",
     element: undefined,
     exact: false,
     child: [
       {
-        name: "Thông Tin Chung",
+        name: "Thông Tin Đối Tác",
         pathName: "/custommer",
         path: "custommer",
         exact: true,
         child: [],
       },
       {
-        name: "Hợp đồng & phụ lục",
+        name: "Hợp đồng & Phụ Lục",
         pathName: "/Contract",
         path: "contract",
         exact: true,

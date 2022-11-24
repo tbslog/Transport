@@ -60,6 +60,12 @@ const ApprovePriceTable = (props) => {
       selector: (row) => row.tenKh,
     },
     {
+      selector: (row) => row.maNcc,
+    },
+    {
+      selector: (row) => row.maKh,
+    },
+    {
       name: "Mã Hợp Đồng",
       selector: (row) => row.maHopDong,
       sortable: true,

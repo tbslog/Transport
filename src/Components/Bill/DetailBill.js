@@ -91,7 +91,7 @@ const DetailBill = (props) => {
                   <div className="row">
                     <div className="col-12">
                       <div className="text-center text-150">
-                        <h1 className="text-default-d3">CEVA</h1>
+                        <h1 className="text-default-d3">{customerId}</h1>
                       </div>
                     </div>
                   </div>
