@@ -13,7 +13,8 @@ namespace TBSLogistics.Service.Services.Bill
     {
         Task<GetBill> GetBillByCustomerId(string customerId,int ky);
         Task<PagedResponseCustom<ListVanDon>> GetListTransportByCustomerId(string customerId, int ky, PaginationFilter filter);
-        Task<GetBill> GetBillByTransportId(string customerId, string transportId, int ky);
+        Task<GetBill> GetBillByTransportId(string customerId, string transportId);
         Task<List<KyThanhToan>> GetListKyThanhToan(string customerId);
+        Task<PagedResponseCustom<ListBillHandling>> GetListBillHandling(PaginationFilter filter);
     }
 }

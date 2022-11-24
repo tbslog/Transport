@@ -189,7 +189,7 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
                         }
 
                         getById.ApprovedDate = DateTime.Now;
-                        getById.Approver = "haile";
+                        getById.Approver = TempData.UserName;
                         getById.Status = 14;
                         _context.Update(getById);
                     }

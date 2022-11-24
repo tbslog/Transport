@@ -194,7 +194,7 @@ namespace TBSLogistics.Service.Services.SFeeByTcommandManage
                                           && kh.MaKh == getTransport.MaKh
                                           select new { kh, hd, sfPice, sf, tt };
 
-            getListSubFeeByContract.Where(y => (y.sfPice.GoodsType == getHandling.MaLoaiHangHoa)
+            getListSubFeeByContract = getListSubFeeByContract.Where(y => (y.sfPice.GoodsType == getHandling.MaLoaiHangHoa)
                         || (y.sfPice.FirstPlace == getHandling.DiemLayTraRong)
                         || (y.sfPice.FirstPlace == getRoad.DiemDau && y.sfPice.SecondPlace == getRoad.DiemCuoi));
 
@@ -227,7 +227,7 @@ namespace TBSLogistics.Service.Services.SFeeByTcommandManage
 
             }).ToListAsync();
 
-       
+
             var listDataSubFeeIncurred = await dataSubFeeIncurred.Select(x => new ListSubFeeIncurred()
             {
                 Id = x.sfc.Id,

@@ -16,7 +16,7 @@ using TBSLogistics.Service.Services.Bill;
 
 namespace TBSLogistics.ApplicationAPI.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class BillsController : ControllerBase
@@ -67,15 +67,27 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<IActionResult> GetBillByTransportId(string customerId, string transportId, int ky)
+        public async Task<IActionResult> GetBillByTransportId(string customerId, string transportId)
         {
-            var checkPermission = await _common.CheckPermission("G0001");
-            if (checkPermission.isSuccess == false)
-            {
-                return BadRequest(checkPermission.Message);
-            }
-            var data = await _bill.GetBillByTransportId(customerId, transportId, ky);
+            //var checkPermission = await _common.CheckPermission("G0001");
+            //if (checkPermission.isSuccess == false)
+            //{
+            //    return BadRequest(checkPermission.Message);
+            //}
+
+            var data = await _bill.GetBillByTransportId(customerId, transportId);
             return Ok(data);
+        }
+
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetListBillHandling([FromQuery] PaginationFilter filter)
+        {
+            var route = Request.Path.Value;
+            var pagedData = await _bill.GetListBillHandling(filter);
+
+            var pagedReponse = PaginationHelper.CreatePagedReponse<ListBillHandling>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _uriService, route);
+            return Ok(pagedReponse);
         }
 
         [HttpGet]

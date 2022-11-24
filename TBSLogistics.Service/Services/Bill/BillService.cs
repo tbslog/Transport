@@ -41,7 +41,11 @@ namespace TBSLogistics.Service.Services.Bill
                 var kyThanhToan = checkexists.Where(x => x.Ky == ky).FirstOrDefault();
 
                 var getlistHandling = from dp in _context.DieuPhoi
-                                      where dp.TrangThai == 20
+                                      join vd in _context.VanDon
+                                      on dp.MaVanDon equals vd.MaVanDon
+                                      where
+                                      (vd.MaKh == customerId || dp.DonViVanTai == customerId)
+                                      && dp.TrangThai == 20
                                       && dp.ThoiGianHoanThanh.Value.Date >= kyThanhToan.StartDate
                                       && dp.ThoiGianHoanThanh.Value.Date <= kyThanhToan.EndDate
                                       select dp;
@@ -51,7 +55,7 @@ namespace TBSLogistics.Service.Services.Bill
                                        on kh.MaKh equals vd.MaKh
                                        join cd in _context.CungDuong
                                        on vd.MaCungDuong equals cd.MaCungDuong
-                                       where vd.MaKh == customerId
+                                       where getlistHandling.Select(x => x.MaVanDon).Contains(vd.MaVanDon)
                                        orderby vd.ThoiGianHoanThanh
                                        select new { kh, vd, cd };
 
@@ -121,28 +125,19 @@ namespace TBSLogistics.Service.Services.Bill
             }
             catch (Exception ex)
             {
-
                 throw;
             }
         }
 
-        public async Task<GetBill> GetBillByTransportId(string customerId, string transportId, int ky)
+        public async Task<GetBill> GetBillByTransportId(string customerId, string transportId)
         {
             try
             {
-                var checkexists = await GetListKyThanhToan(customerId);
-
-                if (checkexists == null)
-                {
-                    return null;
-                }
-
-                var kyThanhToan = checkexists.Where(x => x.Ky == ky).FirstOrDefault();
-
                 var getlistHandling = from dp in _context.DieuPhoi
-                                      where dp.TrangThai == 20
-                                      && dp.ThoiGianHoanThanh.Value.Date >= kyThanhToan.StartDate.Date
-                                      && dp.ThoiGianHoanThanh.Value.Date <= kyThanhToan.EndDate.Date
+                                      join vd in _context.VanDon
+                                      on dp.MaVanDon equals vd.MaVanDon
+                                      where (vd.MaKh == customerId || dp.DonViVanTai == customerId)
+                                      && dp.TrangThai == 20
                                       select dp;
 
                 var getDataTransport = from kh in _context.KhachHang
@@ -150,8 +145,6 @@ namespace TBSLogistics.Service.Services.Bill
                                        on kh.MaKh equals vd.MaKh
                                        join cd in _context.CungDuong
                                        on vd.MaCungDuong equals cd.MaCungDuong
-                                       where vd.MaKh == customerId
-                                       && vd.MaVanDon == transportId
                                        orderby vd.ThoiGianHoanThanh
                                        select new { kh, vd, cd };
 
@@ -166,12 +159,12 @@ namespace TBSLogistics.Service.Services.Bill
                                               && kh.MaKh == customerId
                                               select new { kh, hd, sfPice, sf };
 
-                var getListTransport = await getDataTransport.Where(x => getlistHandling.Select(s => s.MaVanDon).Contains(x.vd.MaVanDon)).OrderBy(x => x.vd.MaVanDon).Select(z => new ListVanDon()
+                var getListTransport = await getDataTransport.Where(x => x.vd.MaVanDon == transportId).Select(z => new ListVanDon()
                 {
                     DiemLayHang = _context.DiaDiem.Where(y => y.MaDiaDiem == z.cd.DiemDau).Select(x => x.TenDiaDiem).FirstOrDefault(),
                     DiemTraHang = _context.DiaDiem.Where(y => y.MaDiaDiem == z.cd.DiemCuoi).Select(x => x.TenDiaDiem).FirstOrDefault(),
                     MaVanDon = z.vd.MaVanDon,
-                    MaKh = z.vd.MaKh,
+                    MaKh = z.kh.MaKh,
                     TenKh = z.kh.TenKh,
                     LoaiVanDon = z.vd.LoaiVanDon,
                     MaCungDuong = z.cd.MaCungDuong,
@@ -217,12 +210,9 @@ namespace TBSLogistics.Service.Services.Bill
                 {
                     BillReuslt = getListTransport
                 };
-
-
             }
             catch (Exception ex)
             {
-
                 throw;
             }
         }
@@ -242,7 +232,11 @@ namespace TBSLogistics.Service.Services.Bill
 
 
             var getlistHandling = from dp in _context.DieuPhoi
-                                  where dp.TrangThai == 20
+                                  join vd in _context.VanDon
+                                  on dp.MaVanDon equals vd.MaVanDon
+                                  where
+                                  (vd.MaKh == customerId || dp.DonViVanTai == customerId)
+                                  && dp.TrangThai == 20
                                   && dp.ThoiGianHoanThanh.Value.Date >= kyThanhToan.StartDate.Date
                                   && dp.ThoiGianHoanThanh.Value.Date <= kyThanhToan.EndDate.Date
                                   select dp;
@@ -252,8 +246,7 @@ namespace TBSLogistics.Service.Services.Bill
                            on kh.MaKh equals vd.MaKh
                            join cd in _context.CungDuong
                            on vd.MaCungDuong equals cd.MaCungDuong
-                           where vd.MaKh == customerId
-                           && getlistHandling.Select(x => x.MaVanDon).Contains(vd.MaVanDon)
+                           where getlistHandling.Select(x => x.MaVanDon).Contains(vd.MaVanDon)
                            orderby vd.ThoiGianHoanThanh
                            select new { kh, vd, cd };
 
@@ -267,7 +260,7 @@ namespace TBSLogistics.Service.Services.Bill
             var pagedData = await listData.Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new ListVanDon()
             {
                 MaVanDon = x.vd.MaVanDon,
-                MaKh = x.vd.MaKh,
+                MaKh = x.kh.MaKh,
                 TenKh = x.kh.TenKh,
                 LoaiVanDon = x.vd.LoaiVanDon,
                 MaCungDuong = x.vd.MaCungDuong,
@@ -324,6 +317,71 @@ namespace TBSLogistics.Service.Services.Bill
             }
 
             return listKy;
+        }
+
+        public async Task<PagedResponseCustom<ListBillHandling>> GetListBillHandling(PaginationFilter filter)
+        {
+            var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
+
+            var getlistHandling = from dp in _context.DieuPhoi
+                                  join vd in _context.VanDon
+                                  on dp.MaVanDon equals vd.MaVanDon
+                                  join cd in _context.CungDuong
+                                  on vd.MaCungDuong equals cd.MaCungDuong
+                                  where dp.TrangThai == 20
+                                  select new { dp, vd, cd };
+
+            var getListSubFeeByContract = from kh in _context.KhachHang
+                                          join hd in _context.HopDongVaPhuLuc
+                                          on kh.MaKh equals hd.MaKh
+                                          join sfPice in _context.SubFeePrice
+                                          on hd.MaHopDong equals sfPice.ContractId
+                                          join sf in _context.SubFee
+                                          on sfPice.SfId equals sf.SubFeeId
+                                          where sfPice.Status == 14
+                                          select new { kh, hd, sfPice, sf };
+
+            if (!string.IsNullOrEmpty(filter.fromDate.ToString()) && !string.IsNullOrEmpty(filter.toDate.ToString()))
+            {
+                getlistHandling = getlistHandling.Where(x => x.dp.ThoiGianHoanThanh.Value >= filter.fromDate.Value && x.dp.ThoiGianHoanThanh.Value <= filter.toDate.Value);
+            }
+
+            if (!string.IsNullOrEmpty(filter.customerId))
+            {
+                getlistHandling = getlistHandling.Where(x => x.dp.DonViVanTai == filter.customerId || x.vd.MaKh == filter.customerId);
+            }
+
+            var totalCount = await getlistHandling.CountAsync();
+
+            var pagedData = await getlistHandling.Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new ListBillHandling()
+            {
+                MaChuyen = x.dp.Id,
+                MaVanDon = x.dp.MaVanDon,
+                LoaiHangHoa = x.dp.MaLoaiHangHoa,
+                LoaiPhuongTien = x.dp.MaLoaiPhuongTien,
+                MaNcc = x.dp.DonViVanTai,
+                MaKh = x.vd.MaKh,
+                KhachHang = _context.KhachHang.Where(y => y.MaKh == x.vd.MaKh).Select(y => y.TenKh).FirstOrDefault(),
+                DonViVanTai = _context.KhachHang.Where(y => y.MaKh == x.dp.DonViVanTai).Select(y => y.TenKh).FirstOrDefault(),
+                DonGiaKH = x.dp.DonGiaKh.Value,
+                DonGiaNCC = x.dp.DonGiaNcc.Value,
+                DoanhThu = x.dp.DonGiaNcc.Value + x.dp.DonGiaKh.Value,
+                LoiNhuan = x.dp.DonGiaNcc.Value - x.dp.DonGiaKh.Value,
+                ChiPhiHopDong = (decimal)getListSubFeeByContract.Where(y => y.kh.MaKh == x.vd.MaKh &&
+                ((y.sfPice.GoodsType == x.dp.MaLoaiHangHoa)
+                        || (y.sfPice.FirstPlace == x.dp.DiemLayTraRong)
+                        || (y.sfPice.FirstPlace == x.cd.DiemDau && y.sfPice.SecondPlace == x.cd.DiemCuoi))
+                ).Sum(y => y.sfPice.UnitPrice),
+                ChiPhiPhatSinh = ((decimal)_context.SfeeByTcommand.Where(y => y.IdTcommand == x.dp.Id && y.ApproveStatus == 14).Sum(y => y.FinalPrice)),
+            }).OrderByDescending(x => x.MaChuyen).ToListAsync();
+
+            return new PagedResponseCustom<ListBillHandling>()
+            {
+                dataResponse = pagedData,
+                totalCount = totalCount,
+                paginationFilter = validFilter
+            };
+
         }
     }
 }
