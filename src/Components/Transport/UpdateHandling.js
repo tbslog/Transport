@@ -68,6 +68,7 @@ const UpdateHandling = (props) => {
       },
     },
     KhoiLuong: {
+      required: "Không được để trống",
       pattern: {
         value:
           /^(?:0\.(?:0[0-9]|[0-9]\d?)|[0-9]\d*(?:\.\d{1,2})?)(?:e[+-]?\d+)?$/,
@@ -75,6 +76,7 @@ const UpdateHandling = (props) => {
       },
     },
     TheTich: {
+      required: "Không được để trống",
       pattern: {
         value:
           /^(?:0\.(?:0[0-9]|[0-9]\d?)|[0-9]\d*(?:\.\d{1,2})?)(?:e[+-]?\d+)?$/,
@@ -258,7 +260,9 @@ const UpdateHandling = (props) => {
         ...listPoint.filter((x) => x.value === data.diemLayRong),
       }[0]
     );
-
+    setValue("TongKhoiLuong", data.tongKhoiLuong);
+    setValue("TongTheTich", data.tongTheTich);
+    setValue("GhiChuVanDon", data.ghiChuVanDon);
     setValue("CONTNO", data.contNo);
     setValue("SEALNP", data.sealNp);
     setValue("SEALHQ", data.sealHq);
@@ -499,6 +503,32 @@ const UpdateHandling = (props) => {
                     </div>
                   </>
                 )}
+                <div className="col col-sm">
+                  <div className="form-group">
+                    <label htmlFor="TongKhoiLuong">Tổng Khối Lượng</label>
+                    <input
+                      {...register(`TongKhoiLuong`)}
+                      autoComplete="false"
+                      type="text"
+                      className="form-control"
+                      id="TongKhoiLuong"
+                      readOnly
+                    />
+                  </div>
+                </div>
+                <div className="col col-sm">
+                  <div className="form-group">
+                    <label htmlFor="TongTheTich">Tổng Thể Tích </label>
+                    <input
+                      {...register(`TongTheTich`)}
+                      autoComplete="false"
+                      type="text"
+                      className="form-control"
+                      id="TongTheTich"
+                      readOnly
+                    />
+                  </div>
+                </div>
                 {watch(`PTVanChuyen`) && watch(`PTVanChuyen`).includes("CONT") && (
                   <>
                     <div className="col col-sm">
@@ -646,6 +676,21 @@ const UpdateHandling = (props) => {
                           />
                         )}
                       />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="row">
+                <div className="col col-12">
+                  <div className="form-group">
+                    <label htmlFor="GhiChuVanDon">Ghi Chú Vận Đơn</label>
+                    <div className="input-group ">
+                      <textarea
+                        readOnly={true}
+                        className="form-control"
+                        rows={3}
+                        {...register(`GhiChuVanDon`)}
+                      ></textarea>
                     </div>
                   </div>
                 </div>

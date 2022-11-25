@@ -141,7 +141,7 @@ const UpdateTransport = (props) => {
         setValue("TGCoMat", new Date(selectIdClick.thoiGianCoMat));
         setValue("TGHanLenh", new Date(selectIdClick.thoiGianHanLenh));
       }
-
+      setValue("GhiChu", selectIdClick.ghiChu);
       setValue("TGTraHang", new Date(selectIdClick.thoiGianTraHang));
       setValue("TGLayHang", new Date(selectIdClick.thoiGianLayHang));
       setValue("TGLayTraRong", new Date(selectIdClick.thoiGianLayTraRong));
@@ -297,6 +297,7 @@ const UpdateTransport = (props) => {
         TongKhoiLuong: data.TongKhoiLuong,
         TongTheTich: data.TongTheTich,
         MaKH: data.MaKH.value,
+        GhiChu: data.GhiChu,
         TongThungHang: data.TongThungHang,
         ThoiGianHaCang: !data.TGHaCang
           ? null
@@ -824,6 +825,20 @@ const UpdateTransport = (props) => {
                           {errors.TGTraHang.message}
                         </span>
                       )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="row">
+                <div className="col col-12">
+                  <div className="form-group">
+                    <label htmlFor="GhiChu">Ghi Chú</label>
+                    <div className="input-group ">
+                      <textarea
+                        className="form-control"
+                        rows={3}
+                        {...register(`GhiChu`)}
+                      ></textarea>
                     </div>
                   </div>
                 </div>

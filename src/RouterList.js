@@ -6,16 +6,16 @@ let routerList = [
     exact: false,
     child: [
       {
-        name: "Cung Đường",
-        pathName: "/road",
-        path: "road",
+        name: "Địa Điểm",
+        pathName: "/address",
+        path: "address",
         exact: true,
         child: [],
       },
       {
-        name: "Địa Điểm",
-        pathName: "/address",
-        path: "address",
+        name: "Cung Đường",
+        pathName: "/road",
+        path: "road",
         exact: true,
         child: [],
       },

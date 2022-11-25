@@ -12,6 +12,7 @@ const PriceTablePage = () => {
   const [loading, setLoading] = useState(false);
   const [totalRows, setTotalRows] = useState(0);
   const [perPage, setPerPage] = useState(10);
+  const [page, setPage] = useState(0);
   const [keySearch, setKeySearch] = useState("");
 
   const [ShowModal, SetShowModal] = useState("");
@@ -129,7 +130,8 @@ const PriceTablePage = () => {
   };
 
   const handlePageChange = async (page) => {
-    await fetchData(page);
+    setPage(page);
+    fetchData(page, keySearch, fromDate, toDate, vehicleType, goodsType);
   };
 
   const handlePerRowsChange = async (newPerPage, page) => {
@@ -175,27 +177,29 @@ const PriceTablePage = () => {
   const handleOnChangeVehicleType = (value) => {
     setLoading(true);
     setVehicleType(value);
-    fetchData(1, keySearch, fromDate, toDate, value, goodsType);
+    fetchData(page, keySearch, fromDate, toDate, value, goodsType);
     setLoading(false);
   };
 
   const handleOnChangeGoodsType = (value) => {
     setLoading(true);
     setGoodsType(value);
-    fetchData(1, keySearch, fromDate, toDate, vehicleType, value);
+    fetchData(page, keySearch, fromDate, toDate, vehicleType, value);
     setLoading(false);
   };
 
   const handleSearchClick = () => {
-    fetchData(1, keySearch, fromDate, toDate, vehicleType, goodsType);
+    fetchData(page, keySearch, fromDate, toDate, vehicleType, goodsType);
   };
 
   const handleRefeshDataClick = () => {
+    fetchData(1);
+    setPerPage(10);
     setKeySearch("");
     setFromDate("");
     setToDate("");
-    setPerPage(10);
-    fetchData(1);
+    setGoodsType("");
+    setVehicleType("");
   };
 
   const getDataApprove = async () => {

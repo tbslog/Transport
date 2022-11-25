@@ -45,6 +45,34 @@ const HandlingPage = (props) => {
       cell: (val) => (
         <div>
           <>
+            {val.statusId === 19 ? (
+              <>
+                <button
+                  onClick={() =>
+                    showConfirmDialog(val, setFuncName("CloneHandling"))
+                  }
+                  type="button"
+                  className="btn btn-title btn-sm btn-default mx-1"
+                  gloss="Sao Chép"
+                >
+                  <i className="far fa-clone"></i>
+                </button>
+                <button
+                  onClick={() =>
+                    showConfirmDialog(val, setFuncName("RemoveHandling"))
+                  }
+                  type="button"
+                  className="btn btn-title btn-sm btn-default mx-1"
+                  gloss="Xóa"
+                >
+                  <i className="fas fa-trash-alt"></i>
+                </button>
+              </>
+            ) : (
+              <span></span>
+            )}
+          </>
+          <>
             {val.statusId === 27 || val.statusId === 19 ? (
               <button
                 onClick={() =>
@@ -90,7 +118,7 @@ const HandlingPage = (props) => {
               className="btn btn-title btn-sm btn-default mx-1"
               gloss="Xem Hình Ảnh"
             >
-              <i className="fas fa-images"></i>
+              <i className="fas fa-image"></i>
             </button>
           </>
           <>
@@ -112,7 +140,7 @@ const HandlingPage = (props) => {
           </>
         </div>
       ),
-      width: "250px",
+      width: "300px",
       ignoreRowClick: true,
       allowOverflow: true,
       button: true,
@@ -380,6 +408,48 @@ const HandlingPage = (props) => {
           return setRuning();
         case "CancelHandling":
           return setCancelHandling();
+        case "CloneHandling":
+          return CloneHandling();
+        case "RemoveHandling":
+          return RemoveHandling();
+      }
+    }
+  };
+
+  const CloneHandling = async () => {
+    if (
+      ShowConfirm === true &&
+      selectIdClick &&
+      Object.keys(selectIdClick).length > 0
+    ) {
+      var update = await postData(
+        `BillOfLading/CloneHandling?id=${selectIdClick.maDieuPhoi}`
+      );
+
+      if (update === 1) {
+        fetchData(transportId, page, keySearch, fromDate, toDate, status);
+        setShowConfirm(false);
+      } else {
+        setShowConfirm(false);
+      }
+    }
+  };
+
+  const RemoveHandling = async () => {
+    if (
+      ShowConfirm === true &&
+      selectIdClick &&
+      Object.keys(selectIdClick).length > 0
+    ) {
+      var update = await postData(
+        `BillOfLading/RemoveHandling?id=${selectIdClick.maDieuPhoi}`
+      );
+
+      if (update === 1) {
+        fetchData(transportId, page, keySearch, fromDate, toDate, status);
+        setShowConfirm(false);
+      } else {
+        setShowConfirm(false);
       }
     }
   };

@@ -244,6 +244,7 @@ const CreateTransport = (props) => {
       TongTheTich: data.TongTheTich,
       MaKH: data.MaKH.value,
       TongThungHang: data.TongThungHang,
+      GhiChu: data.GhiChu,
       ThoiGianLayTraRong: !data.TGLayTraRong
         ? null
         : moment(new Date(data.TGLayTraRong).toISOString()).format(
@@ -775,6 +776,20 @@ const CreateTransport = (props) => {
                           {errors.TGTraHang.message}
                         </span>
                       )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="row">
+                <div className="col col-12">
+                  <div className="form-group">
+                    <label htmlFor="GhiChu">Ghi Chú</label>
+                    <div className="input-group ">
+                      <textarea
+                        className="form-control"
+                        rows={3}
+                        {...register(`GhiChu`)}
+                      ></textarea>
                     </div>
                   </div>
                 </div>
