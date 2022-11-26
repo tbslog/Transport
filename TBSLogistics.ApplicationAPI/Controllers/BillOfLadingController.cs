@@ -225,6 +225,50 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpPost]
         [Route("[action]")]
+        public async Task<IActionResult> CloneHandling(int id)
+        {
+            var checkPermission = await _common.CheckPermission("F0001");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
+            var copy = await _billOfLading.CloneHandling(id);
+
+            if (copy.isSuccess)
+            {
+                return Ok(copy.Message);
+            }
+            else
+            {
+                return BadRequest(copy.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("[action]")]
+        public async Task<IActionResult> RemoveHandling(int id)
+        {
+            var checkPermission = await _common.CheckPermission("F0001");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
+            var remove = await _billOfLading.RemoveHandling(id);
+
+            if (remove.isSuccess)
+            {
+                return Ok(remove.Message);
+            }
+            else
+            {
+                return BadRequest(remove.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("[action]")]
         public async Task<IActionResult> DeleteImage(int fileId)
         {
             var checkPermission = await _common.CheckPermission("F0005");

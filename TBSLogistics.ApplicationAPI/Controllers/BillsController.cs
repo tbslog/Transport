@@ -16,7 +16,7 @@ using TBSLogistics.Service.Services.Bill;
 
 namespace TBSLogistics.ApplicationAPI.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class BillsController : ControllerBase
@@ -69,11 +69,11 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> GetBillByTransportId(string customerId, string transportId)
         {
-            //var checkPermission = await _common.CheckPermission("G0001");
-            //if (checkPermission.isSuccess == false)
-            //{
-            //    return BadRequest(checkPermission.Message);
-            //}
+            var checkPermission = await _common.CheckPermission("G0001");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
 
             var data = await _bill.GetBillByTransportId(customerId, transportId);
             return Ok(data);
@@ -83,6 +83,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> GetListBillHandling([FromQuery] PaginationFilter filter)
         {
+            var checkPermission = await _common.CheckPermission("G0001");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
             var route = Request.Path.Value;
             var pagedData = await _bill.GetListBillHandling(filter);
 

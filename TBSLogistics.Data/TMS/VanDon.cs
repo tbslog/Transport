@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 
-#nullable disable
-
 namespace TBSLogistics.Data.TMS
 {
     public partial class VanDon
@@ -31,6 +29,7 @@ namespace TBSLogistics.Data.TMS
         public DateTime ThoiGianTraHang { get; set; }
         public DateTime ThoiGianTaoDon { get; set; }
         public DateTime? ThoiGianHoanThanh { get; set; }
+        public string GhiChu { get; set; }
         public int TrangThai { get; set; }
         public DateTime? UpdatedTime { get; set; }
         public DateTime CreatedTime { get; set; }

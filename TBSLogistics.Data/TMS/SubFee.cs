@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 
-#nullable disable
-
 namespace TBSLogistics.Data.TMS
 {
     public partial class SubFee
@@ -16,6 +14,9 @@ namespace TBSLogistics.Data.TMS
         public long SubFeeId { get; set; }
         public string SfName { get; set; }
         public long SfType { get; set; }
+        /// <summary>
+        /// 0: deactivated, 1: create new, 2: approved, 3: deleted
+        /// </summary>
         public byte SfState { get; set; }
         public string Creator { get; set; }
         public string SfDescription { get; set; }

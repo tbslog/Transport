@@ -174,7 +174,7 @@ namespace TBSLogistics.Service.Repository.PricelistManage
 
             if (!string.IsNullOrEmpty(filter.Keyword))
             {
-                getData = getData.Where(x => x.hd.MaHopDong == filter.Keyword);
+                getData = getData.Where(x => x.hd.MaHopDong.Contains(filter.Keyword));
             }
 
             if (!string.IsNullOrEmpty(filter.fromDate.ToString()) && !string.IsNullOrEmpty(filter.toDate.ToString()))

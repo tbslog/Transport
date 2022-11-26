@@ -9,6 +9,8 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
     public class GetHandling
     {
         public RoadDetail CungDuong { get; set; }
+        public double TongKhoiLuong { get; set; }
+        public double TongTheTich { get; set; }
         public string PhanLoaiVanDon { get; set; }
         public string MaLoaiHangHoa { get; set; }
         public string MaPTVC { get; set; }
@@ -32,6 +34,7 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
         public double? KhoiLuong { get; set; }
         public double? TheTich { get; set; }
         public string GhiChu { get; set; }
+        public string GhiChuVanDon { get; set; }
         public int? DiemLayRong { get; set; }
         public DateTime? ThoiGianLayTraRong { get; set; }
         public DateTime? ThoiGianHaCang { get; set; }

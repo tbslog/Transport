@@ -15,8 +15,6 @@ using TBSLogistics.Model.Model.RoadModel;
 using TBSLogistics.Model.TempModel;
 using TBSLogistics.Model.Wrappers;
 using TBSLogistics.Service.Repository.Common;
-using TBSLogistics.Service.Repository.RoadManage;
-using TBSLogistics.Service.Services.RomoocManage;
 
 namespace TBSLogistics.Service.Repository.BillOfLadingManage
 {
@@ -460,6 +458,7 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
                     ThoiGianHaCang = request.ThoiGianHaCang,
                     ThoiGianLayHang = request.ThoiGianLayHang,
                     ThoiGianTraHang = request.ThoiGianTraHang,
+                    GhiChu = request.GhiChu,
                     TrangThai = 8,
                     ThoiGianTaoDon = DateTime.Now,
                     CreatedTime = DateTime.Now
@@ -539,7 +538,8 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
                     ThoiGianTraHang = x.transport.ThoiGianTraHang,
                     ThoiGianTaoDon = x.transport.ThoiGianTaoDon,
                     HangTau = x.transport.HangTau,
-                    TenTau = x.transport.Tau
+                    TenTau = x.transport.Tau,
+                    GhiChu = x.transport.GhiChu,
                 }).FirstOrDefaultAsync();
             }
             catch (Exception ex)
@@ -635,6 +635,7 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
                 checkTransport.ThoiGianHaCang = request.ThoiGianHaCang;
                 checkTransport.ThoiGianHanLenh = request.ThoiGianHanLenh;
                 checkTransport.UpdatedTime = DateTime.Now;
+                checkTransport.GhiChu = request.GhiChu;
 
                 if (checkTransport.TongThungHang != request.TongThungHang)
                 {
@@ -846,7 +847,6 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
 
                 return new GetHandling()
                 {
-
                     CungDuong = RoadDetail,
                     PhanLoaiVanDon = data.vd.LoaiVanDon,
                     MaLoaiHangHoa = data.dp.MaLoaiHangHoa,
@@ -866,10 +866,12 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
                     ContNo = data.dp.ContNo,
                     SealNp = data.dp.SealNp,
                     SealHq = data.dp.SealHq,
+                    TongKhoiLuong = data.vd.TongKhoiLuong,
+                    TongTheTich = data.vd.TongTheTich,
                     KhoiLuong = data.dp.KhoiLuong,
                     TheTich = data.dp.TheTich,
                     GhiChu = data.dp.GhiChu,
-
+                    GhiChuVanDon = data.vd.GhiChu,
                     ThoiGianLayTraRong = data.vd.ThoiGianLayTraRong,
                     ThoiGianHaCang = data.vd.ThoiGianHaCang,
                     ThoiGianHanLenh = data.vd.ThoiGianHanLenh,
@@ -907,7 +909,6 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
                     if (handling.ThoiGianTraHangThucTe == null)
                     {
                         return new BoolActionResult { isSuccess = false, Message = "Vui Lòng Cập Nhật Thời Gian Trả Hàng thực tế " };
-
                     }
                     if (handling.ThoiGianLayHangThucTe == null)
                     {
@@ -921,7 +922,6 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
                             return new BoolActionResult { isSuccess = false, Message = "Vui Lòng Cập Nhật Thời Gian Lấy/Trả rỗng thực tế " };
                         }
                     }
-
 
                     handling.TrangThai = 20;
                     handling.ThoiGianHoanThanh = DateTime.Now;
@@ -970,7 +970,6 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
                     {
                         return new BoolActionResult { isSuccess = false, Message = "Vui Lòng Cập Nhật Thể Tích trước đã" };
                     }
-
 
                     handling.TrangThai = 18;
                     _context.Update(handling);
@@ -1327,6 +1326,85 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
                     }
 
                     return new BoolActionResult { isSuccess = false, Message = "Không có bảng giá khách hàng lẫn nhà cung cấp" };
+                }
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return new BoolActionResult { isSuccess = false, Message = ex.ToString() };
+            }
+        }
+
+        public async Task<BoolActionResult> CloneHandling(int id)
+        {
+            var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                var checkHangling = await _context.DieuPhoi.Where(x => x.Id == id).FirstOrDefaultAsync();
+
+                if (checkHangling.TrangThai != 19)
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Không thể copy dữ liệu điều phối này" };
+                }
+
+                await _context.DieuPhoi.AddAsync(new DieuPhoi()
+                {
+                    MaVanDon = checkHangling.MaVanDon,
+                    TrangThai = checkHangling.TrangThai,
+                    CreatedTime = DateTime.Now,
+                });
+
+                var result = await _context.SaveChangesAsync();
+
+                if (result > 0)
+                {
+                    await transaction.CommitAsync();
+                    return new BoolActionResult { isSuccess = true, Message = "Copy dữ liệu điều phối thành công!" };
+                }
+                else
+                {
+                    await transaction.RollbackAsync();
+                    return new BoolActionResult { isSuccess = false, Message = "Copy dữ liệu điều phối thất bại!" };
+                }
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return new BoolActionResult { isSuccess = false, Message = ex.ToString() };
+            }
+        }
+
+        public async Task<BoolActionResult> RemoveHandling(int id)
+        {
+            var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                var checkHangling = await _context.DieuPhoi.Where(x => x.Id == id).FirstOrDefaultAsync();
+
+                if (checkHangling.TrangThai != 19)
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Không thể xóa điều phối này" };
+                }
+
+                var checkCount = await _context.DieuPhoi.Where(x => x.MaVanDon == checkHangling.MaVanDon).ToListAsync();
+                if (checkCount.Count <= 1)
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Không thể xóa điều phối này" };
+                }
+
+                _context.DieuPhoi.Remove(checkHangling);
+
+                var result = await _context.SaveChangesAsync();
+
+                if (result > 0)
+                {
+                    await transaction.CommitAsync();
+                    return new BoolActionResult { isSuccess = true, Message = "Xóa dữ liệu điều phối thành công!" };
+                }
+                else
+                {
+                    await transaction.RollbackAsync();
+                    return new BoolActionResult { isSuccess = false, Message = "Xóa dữ liệu điều phối thất bại!" };
                 }
             }
             catch (Exception ex)

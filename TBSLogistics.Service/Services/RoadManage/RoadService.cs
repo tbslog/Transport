@@ -404,6 +404,19 @@ namespace TBSLogistics.Service.Repository.RoadManage
 
         public async Task<List<GetRoadRequest>> getListRoadOptionSelect(string MaKH, string ContractId)
         {
+
+            if (string.IsNullOrEmpty(MaKH) && string.IsNullOrEmpty(ContractId))
+            {
+                var listRoad = await _context.CungDuong.Select(x => new GetRoadRequest()
+                {
+                    MaCungDuong = x.MaCungDuong,
+                    TenCungDuong = x.TenCungDuong,
+                }).ToListAsync();
+
+                return listRoad;
+            }
+
+
             var getList = from cd in _context.CungDuong
                           join bg in _context.BangGia
                           on cd.MaCungDuong equals bg.MaCungDuong

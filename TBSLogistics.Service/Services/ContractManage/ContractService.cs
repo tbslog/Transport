@@ -99,7 +99,7 @@ namespace TBSLogistics.Service.Services.ContractManage
                 {
                     if (request.File != null)
                     {
-                        await UploadFile(request.File, request.TenHienThi, request.MaHopDong);
+                        await UploadFile(request.File, request.MaHopDong);
                     }
 
                     await _common.Log("ContractManage", "UserId: " + TempData.UserID + " create new Contract with Id: " + request.MaHopDong);
@@ -133,7 +133,7 @@ namespace TBSLogistics.Service.Services.ContractManage
                     return new BoolActionResult { isSuccess = false, Message = "Thời gian bắt đầu không được lớn hơn hoặc bằng thời gian kết thúc" };
                 }
 
-                if (!string.IsNullOrEmpty(checkExists.MaHopDongCha))
+                if (string.IsNullOrEmpty(checkExists.MaHopDongCha))
                 {
                     if (request.NgayThanhToan == null)
                     {
@@ -161,7 +161,7 @@ namespace TBSLogistics.Service.Services.ContractManage
                 {
                     if (request.File != null)
                     {
-                        await UploadFile(request.File, request.TenHienThi, id);
+                        await UploadFile(request.File, id);
                     }
 
                     await _common.Log("ContractManage", "UserId: " + TempData.UserID + " Update  Contract with Id: " + id);
@@ -316,9 +316,9 @@ namespace TBSLogistics.Service.Services.ContractManage
             return list;
         }
 
-        private async Task<BoolActionResult> UploadFile(IFormFile file, string cusName, string maHopDong)
+        private async Task<BoolActionResult> UploadFile(IFormFile file, string maHopDong)
         {
-            var PathFolder = $"Contract/{cusName}";
+            var PathFolder = $"Contract/{maHopDong}";
 
             var originalFileName = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.Trim('"');
             var reNameFile = originalFileName.Replace(originalFileName.Substring(0, originalFileName.LastIndexOf('.')), Guid.NewGuid().ToString());

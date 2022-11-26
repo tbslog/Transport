@@ -31,6 +31,7 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
         Task<Attachment> GetImageById(int id);
         Task<PagedResponseCustom<ListHandling>> GetListHandling(string transportId, PaginationFilter filter);
         Task<ListPoint> LoadDataRoadTransportByCusId(string customerId);
-
+        Task<BoolActionResult> CloneHandling(int id);
+        Task<BoolActionResult> RemoveHandling(int id);
     }
 }

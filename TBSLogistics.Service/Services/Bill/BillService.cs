@@ -365,7 +365,6 @@ namespace TBSLogistics.Service.Services.Bill
                 DonViVanTai = _context.KhachHang.Where(y => y.MaKh == x.dp.DonViVanTai).Select(y => y.TenKh).FirstOrDefault(),
                 DonGiaKH = x.dp.DonGiaKh.Value,
                 DonGiaNCC = x.dp.DonGiaNcc.Value,
-                DoanhThu = x.dp.DonGiaNcc.Value + x.dp.DonGiaKh.Value,
                 LoiNhuan = x.dp.DonGiaNcc.Value - x.dp.DonGiaKh.Value,
                 ChiPhiHopDong = (decimal)getListSubFeeByContract.Where(y => y.kh.MaKh == x.vd.MaKh &&
                 ((y.sfPice.GoodsType == x.dp.MaLoaiHangHoa)
@@ -373,6 +372,22 @@ namespace TBSLogistics.Service.Services.Bill
                         || (y.sfPice.FirstPlace == x.cd.DiemDau && y.sfPice.SecondPlace == x.cd.DiemCuoi))
                 ).Sum(y => y.sfPice.UnitPrice),
                 ChiPhiPhatSinh = ((decimal)_context.SfeeByTcommand.Where(y => y.IdTcommand == x.dp.Id && y.ApproveStatus == 14).Sum(y => y.FinalPrice)),
+            }).Select(x => new ListBillHandling()
+            {
+                MaVanDon = x.MaVanDon,
+                MaChuyen = x.MaChuyen,
+                LoaiHangHoa = x.LoaiHangHoa,
+                LoaiPhuongTien = x.LoaiPhuongTien,
+                MaNcc = x.MaNcc,
+                MaKh = x.MaKh,
+                KhachHang = x.KhachHang,
+                DonViVanTai = x.DonViVanTai,
+                DonGiaKH = x.DonGiaKH,
+                DonGiaNCC = x.DonGiaNCC,
+                DoanhThu = x.DonGiaKH.Value + x.ChiPhiPhatSinh + x.ChiPhiHopDong,
+                LoiNhuan=x.LoiNhuan,
+                ChiPhiHopDong = x.ChiPhiHopDong,
+                ChiPhiPhatSinh = x.ChiPhiPhatSinh,
             }).OrderByDescending(x => x.MaChuyen).ToListAsync();
 
             return new PagedResponseCustom<ListBillHandling>()

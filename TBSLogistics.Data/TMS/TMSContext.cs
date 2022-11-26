@@ -1,10 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Configuration;
-
-#nullable disable
 
 namespace TBSLogistics.Data.TMS
 {
@@ -66,18 +65,16 @@ namespace TBSLogistics.Data.TMS
             if (!optionsBuilder.IsConfigured)
             {
                 IConfigurationRoot configuration = new ConfigurationBuilder()
-                               .SetBasePath(Directory.GetCurrentDirectory())
-                               .AddJsonFile("appsettings.json")
-                               .Build();
+                                .SetBasePath(Directory.GetCurrentDirectory())
+                                .AddJsonFile("appsettings.json")
+                                .Build();
 
-                optionsBuilder.UseSqlServer(configuration.GetConnectionString("TMS_Local"));
+                optionsBuilder.UseSqlServer(configuration.GetConnectionString("TMS_Cloud"));
             }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.HasAnnotation("Relational:Collation", "SQL_Latin1_General_CP1_CI_AS");
-
             modelBuilder.Entity<Account>(entity =>
             {
                 entity.Property(e => e.Id).HasColumnName("ID");
