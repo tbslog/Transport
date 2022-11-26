@@ -640,7 +640,7 @@ const AddContract = (props) => {
                             type="text"
                             className="form-control"
                             id="TenHopDong"
-                            placeholder="Nhập tên khách hàng"
+                            placeholder="Nhập tên phụ lục hợp đồng"
                             {...register("TenHopDong", Validate.TenHopDong)}
                           />
                           {errors.TenHopDong && (

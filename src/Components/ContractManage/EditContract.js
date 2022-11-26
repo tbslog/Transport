@@ -141,6 +141,7 @@ const EditContract = (props) => {
       } else {
         setIsContract(true);
       }
+      setValue("NgayThanhToan", props.selectIdClick.ngayThanhToan);
       setValue("MaHopDong", props.selectIdClick.maHopDong);
       setValue("TenHopDong", props.selectIdClick.tenHienThi);
       setValue("MaKh", props.selectIdClick.maKh);
@@ -180,6 +181,7 @@ const EditContract = (props) => {
     var update = await postData(
       `Contract/UpdateContract?Id=${data.MaHopDong}`,
       {
+        NgayThanhToan: !data.NgayThanhToan ? null : data.NgayThanhToan,
         tenHienThi: data.TenHopDong,
         thoiGianBatDau: moment(new Date(data.NgayBatDau).toISOString()).format(
           "YYYY-MM-DD"
@@ -252,7 +254,7 @@ const EditContract = (props) => {
                           type="text"
                           className="form-control"
                           id="TenHopDong"
-                          placeholder="Nhập tên khách hàng"
+                          placeholder="Nhập tên hợp đồng"
                           {...register("TenHopDong", Validate.TenHopDong)}
                         />
                         {errors.TenHopDong && (
@@ -278,6 +280,25 @@ const EditContract = (props) => {
                         {errors.MaKh && (
                           <span className="text-danger">
                             {errors.MaKh.message}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="col col-sm">
+                      <div className="form-group">
+                        <label htmlFor="NgayThanhToan">
+                          Ngày Thanh Toán(*)
+                        </label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          id="NgayThanhToan"
+                          placeholder="Ngày Thanh Toán"
+                          {...register("NgayThanhToan", Validate.NgayThanhToan)}
+                        />
+                        {errors.NgayThanhToan && (
+                          <span className="text-danger">
+                            {errors.NgayThanhToan.message}
                           </span>
                         )}
                       </div>
@@ -519,7 +540,7 @@ const EditContract = (props) => {
                           type="text"
                           className="form-control"
                           id="TenHopDong"
-                          placeholder="Nhập tên khách hàng"
+                          placeholder="Nhập tên hợp đồng"
                           {...register("TenHopDong", Validate.TenHopDong)}
                         />
                         {errors.TenHopDong && (
