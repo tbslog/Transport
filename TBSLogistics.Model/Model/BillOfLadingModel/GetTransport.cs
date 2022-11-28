@@ -20,10 +20,14 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
         public string CungDuong { get; set; }
         public double TongKhoiLuong { get; set; }
         public double TongTheTich { get; set; }
+        public double TongSoKhoi { get; set; }
         public int TongThungHang { get; set; }
         public string HangTau { get; set; }
         public string TenTau { get; set; }
         public string GhiChu { get; set; }
+
+        public List<arrHandling> arrHandlings { get; set; }
+
         public DateTime ThoiGianTaoDon { get; set; }
 
         public DateTime? ThoiGianLayTraRong { get; set; }
@@ -33,4 +37,6 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
         public DateTime? ThoiGianCoMat { get; set; }
         public DateTime? ThoiGianHanLenh { get; set; }
     }
+
+ 
 }

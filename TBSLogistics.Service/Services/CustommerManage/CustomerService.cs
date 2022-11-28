@@ -221,8 +221,6 @@ namespace TBSLogistics.Service.Repository.CustommerManage
                 getList = getList.Where(x => x.LoaiKH == type).ToList();
             }
 
-            
-
             return getList;
         }
 

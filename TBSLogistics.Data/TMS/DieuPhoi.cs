@@ -20,16 +20,17 @@ namespace TBSLogistics.Data.TMS
         public string MaLoaiPhuongTien { get; set; }
         public string MaDvt { get; set; }
         public string DonViVanTai { get; set; }
-        public long? BangGiaKh { get; set; }
-        public long? BangGiaNcc { get; set; }
-        public decimal? DonGiaKh { get; set; }
-        public decimal? DonGiaNcc { get; set; }
+        public long BangGiaKh { get; set; }
+        public long BangGiaNcc { get; set; }
+        public decimal DonGiaKh { get; set; }
+        public decimal DonGiaNcc { get; set; }
         public string MaRomooc { get; set; }
         public string ContNo { get; set; }
         public string SealNp { get; set; }
         public string SealHq { get; set; }
-        public double? KhoiLuong { get; set; }
-        public double? TheTich { get; set; }
+        public double SoKhoi { get; set; }
+        public double KhoiLuong { get; set; }
+        public double TheTich { get; set; }
         public string GhiChu { get; set; }
         public int? DiemLayTraRong { get; set; }
         public DateTime? ThoiGianLayHangThucTe { get; set; }

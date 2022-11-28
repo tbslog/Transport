@@ -142,7 +142,7 @@ namespace TBSLogistics.Service.Services.Report
                       totalPrice = _context.SubFeePrice.Where(y =>
                       _context.HopDongVaPhuLuc.Where(z => z.MaKh == x.vd.MaKh && z.ThoiGianBatDau.Date <= DateTime.Now.Date && (z.ThoiGianKetThuc.Date > DateTime.Now.Date))
                       .Select(z => z.MaHopDong).Contains(y.ContractId) && y.Status == 14).Sum(y => y.UnitPrice) +
-                    _context.SfeeByTcommand.Where(y => y.IdTcommand == x.dp.Id && y.ApproveStatus == 14).Sum(y => y.FinalPrice) + ((double)x.dp.DonGiaKh.Value),
+                    _context.SfeeByTcommand.Where(y => y.IdTcommand == x.dp.Id && y.ApproveStatus == 14).Sum(y => y.FinalPrice) + ((double)x.dp.DonGiaKh),
                   }).ToListAsync();
             var listRevenue = revenue.GroupBy(x => x.Date).Select(x => new
             {
@@ -162,7 +162,7 @@ namespace TBSLogistics.Service.Services.Report
 
             var Profit = await getData.Where(x => getAllDaysInMonth.Select(y => y.Date).Contains(x.dp.ThoiGianHoanThanh.Value.Date))
                 .GroupBy(x => new { x.dp.ThoiGianHoanThanh.Value.Date })
-                .Select(x => new { date = x.Key.Date, sumProfit = x.Sum(x => x.dp.DonGiaNcc.Value - x.dp.DonGiaKh.Value) }).Select(x => new arrDouble()
+                .Select(x => new { date = x.Key.Date, sumProfit = x.Sum(x => x.dp.DonGiaNcc - x.dp.DonGiaKh) }).Select(x => new arrDouble()
                 {
                     date = x.date,
                     value = ((double)x.sumProfit),

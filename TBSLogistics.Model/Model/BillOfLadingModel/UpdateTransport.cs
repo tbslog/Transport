@@ -17,8 +17,11 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
         public string MaCungDuong { get; set; }
         public double TongKhoiLuong { get; set; }
         public double TongTheTich { get; set; }
+        public double TongSoKhoi { get; set; }
         public int TongThungHang { get; set; }
         public string GhiChu { get; set; }
+
+        public List<arrHandling> arrHandlings { get; set; }
 
         public DateTime? ThoiGianLayTraRong { get; set; }
         public DateTime ThoiGianLayHang { get; set; }
