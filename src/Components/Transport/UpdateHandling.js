@@ -272,6 +272,7 @@ const UpdateHandling = (props) => {
     setValue("LoaiHangHoa", data.maLoaiHangHoa);
     setValue("KhoiLuong", data.khoiLuong);
     setValue("TheTich", data.theTich);
+    setValue("SoKhoi", data.soKhoi);
     setValue(
       "TaiXe",
       {
@@ -696,6 +697,39 @@ const UpdateHandling = (props) => {
                 </div>
               </div>
               <div className="row">
+                {watch(`PTVanChuyen`) && watch(`PTVanChuyen`).includes("CONT") && (
+                  <div className="col col-sm">
+                    <div className="form-group">
+                      {transportType && transportType === "xuat" && (
+                        <label htmlFor="DiemLayTraRong">Điểm Lấy Rỗng(*)</label>
+                      )}
+                      {transportType && transportType === "nhap" && (
+                        <label htmlFor="DiemLayTraRong">Điểm Trả Rỗng(*)</label>
+                      )}
+                      <Controller
+                        name={`DiemLayTraRong`}
+                        control={control}
+                        render={({ field }) => (
+                          <Select
+                            isDisabled={true}
+                            {...field}
+                            classNamePrefix={"form-control"}
+                            value={field.value}
+                            options={listPoint}
+                          />
+                        )}
+                        rules={{
+                          required: "không được để trống",
+                        }}
+                      />
+                      {errors.DiemLayTraRong && (
+                        <span className="text-danger">
+                          {errors.DiemLayTraRong.message}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
                 <div className="col col-sm">
                   <div className="form-group">
                     <label htmlFor="NhaCungCap">Đơn Vị Vận Tải(*)</label>
@@ -704,6 +738,7 @@ const UpdateHandling = (props) => {
                       control={control}
                       render={({ field }) => (
                         <Select
+                          isDisabled={true}
                           {...field}
                           classNamePrefix={"form-control"}
                           value={field.value}
@@ -731,6 +766,7 @@ const UpdateHandling = (props) => {
                       className="form-control"
                       {...register(`PTVanChuyen`, Validate.PTVanChuyen)}
                       value={watch(`PTVanChuyen`)}
+                      disabled={true}
                     >
                       <option value="">Chọn phương Tiện Vận Chuyển</option>
                       {listVehicleType &&
@@ -759,6 +795,7 @@ const UpdateHandling = (props) => {
                       className="form-control"
                       {...register(`LoaiHangHoa`, Validate.LoaiHangHoa)}
                       value={watch(`LoaiHangHoa`)}
+                      disabled={true}
                     >
                       <option value="">Chọn Loại Hàng Hóa</option>
                       {listGoodsType &&
@@ -776,6 +813,62 @@ const UpdateHandling = (props) => {
                     {errors.LoaiHangHoa && (
                       <span className="text-danger">
                         {errors.LoaiHangHoa.message}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+              <div className="row">
+                <div className="col col-sm">
+                  <div className="form-group">
+                    <label htmlFor="KhoiLuong">Khối Lượng(*)</label>
+                    <input
+                      disabled={true}
+                      autoComplete="false"
+                      type="text"
+                      className="form-control"
+                      id="KhoiLuong"
+                      {...register(`KhoiLuong`, Validate.KhoiLuong)}
+                    />
+                    {errors.KhoiLuong && (
+                      <span className="text-danger">
+                        {errors.KhoiLuong.message}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className="col col-sm">
+                  <div className="form-group">
+                    <label htmlFor="TheTich">Thể tích(*)</label>
+                    <input
+                      disabled={true}
+                      autoComplete="false"
+                      type="text"
+                      className="form-control"
+                      id="TheTich"
+                      {...register(`TheTich`, Validate.TheTich)}
+                    />
+                    {errors.TheTich && (
+                      <span className="text-danger">
+                        {errors.TheTich.message}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className="col col-sm">
+                  <div className="form-group">
+                    <label htmlFor="SoKhoi">Số Khối(*)</label>
+                    <input
+                      disabled={true}
+                      autoComplete="false"
+                      type="text"
+                      className="form-control"
+                      id="SoKhoi"
+                      {...register(`SoKhoi`, Validate.SoKhoi)}
+                    />
+                    {errors.SoKhoi && (
+                      <span className="text-danger">
+                        {errors.SoKhoi.message}
                       </span>
                     )}
                   </div>
@@ -864,40 +957,6 @@ const UpdateHandling = (props) => {
                   <>
                     <div className="col col-sm">
                       <div className="form-group">
-                        {transportType && transportType === "xuat" && (
-                          <label htmlFor="DiemLayTraRong">
-                            Điểm Lấy Rỗng(*)
-                          </label>
-                        )}
-                        {transportType && transportType === "nhap" && (
-                          <label htmlFor="DiemLayTraRong">
-                            Điểm Trả Rỗng(*)
-                          </label>
-                        )}
-                        <Controller
-                          name={`DiemLayTraRong`}
-                          control={control}
-                          render={({ field }) => (
-                            <Select
-                              {...field}
-                              classNamePrefix={"form-control"}
-                              value={field.value}
-                              options={listPoint}
-                            />
-                          )}
-                          rules={{
-                            required: "không được để trống",
-                          }}
-                        />
-                        {errors.DiemLayTraRong && (
-                          <span className="text-danger">
-                            {errors.DiemLayTraRong.message}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    <div className="col col-sm">
-                      <div className="form-group">
                         <label htmlFor="CONTNO">CONT NO(*)</label>
                         <input
                           autoComplete="false"
@@ -946,41 +1005,6 @@ const UpdateHandling = (props) => {
                     {errors.SEALNP && (
                       <span className="text-danger">
                         {errors.SEALNP.message}
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                <div className="col col-sm">
-                  <div className="form-group">
-                    <label htmlFor="KhoiLuong">Khối Lượng(*)</label>
-                    <input
-                      autoComplete="false"
-                      type="text"
-                      className="form-control"
-                      id="KhoiLuong"
-                      {...register(`KhoiLuong`, Validate.KhoiLuong)}
-                    />
-                    {errors.KhoiLuong && (
-                      <span className="text-danger">
-                        {errors.KhoiLuong.message}
-                      </span>
-                    )}
-                  </div>
-                </div>
-                <div className="col col-sm">
-                  <div className="form-group">
-                    <label htmlFor="TheTich">Thể tích(*)</label>
-                    <input
-                      autoComplete="false"
-                      type="text"
-                      className="form-control"
-                      id="TheTich"
-                      {...register(`TheTich`, Validate.TheTich)}
-                    />
-                    {errors.TheTich && (
-                      <span className="text-danger">
-                        {errors.TheTich.message}
                       </span>
                     )}
                   </div>
@@ -1085,34 +1109,35 @@ const UpdateHandling = (props) => {
                       </div>
                     </div>
                     {transportType && transportType === "xuat" ? (
-                      <div className="col col-sm">
-                        <div className="form-group">
-                          <label htmlFor="TGHaCangThucTe">
-                            Thời Gian Hạ Cảng Thực Tế(*)
-                          </label>
-                          <div className="input-group ">
-                            <Controller
-                              control={control}
-                              name={`TGHaCangThucTe`}
-                              render={({ field }) => (
-                                <DatePicker
-                                  className="form-control"
-                                  showTimeSelect
-                                  timeFormat="HH:mm"
-                                  dateFormat="dd/MM/yyyy HH:mm"
-                                  onChange={(date) => field.onChange(date)}
-                                  selected={field.value}
-                                />
-                              )}
-                            />
-                            {errors.TGHaCangThucTe && (
-                              <span className="text-danger">
-                                {errors.TGHaCangThucTe.message}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </div>
+                      // <div className="col col-sm">
+                      //   <div className="form-group">
+                      //     <label htmlFor="TGHaCangThucTe">
+                      //       Thời Gian Hạ Cảng Thực Tế(*)
+                      //     </label>
+                      //     <div className="input-group ">
+                      //       <Controller
+                      //         control={control}
+                      //         name={`TGHaCangThucTe`}
+                      //         render={({ field }) => (
+                      //           <DatePicker
+                      //             className="form-control"
+                      //             showTimeSelect
+                      //             timeFormat="HH:mm"
+                      //             dateFormat="dd/MM/yyyy HH:mm"
+                      //             onChange={(date) => field.onChange(date)}
+                      //             selected={field.value}
+                      //           />
+                      //         )}
+                      //       />
+                      //       {errors.TGHaCangThucTe && (
+                      //         <span className="text-danger">
+                      //           {errors.TGHaCangThucTe.message}
+                      //         </span>
+                      //       )}
+                      //     </div>
+                      //   </div>
+                      // </div>
+                      <></>
                     ) : (
                       <>
                         <div className="col col-sm">

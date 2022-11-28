@@ -4,6 +4,7 @@ import { useForm, Controller, useFieldArray } from "react-hook-form";
 import DatePicker from "react-datepicker";
 import Select from "react-select";
 import moment from "moment";
+import { ToastError } from "../Common/FuncToast";
 
 const UpdateTransport = (props) => {
   const { getListTransport, selectIdClick, hideModal } = props;
@@ -19,6 +20,11 @@ const UpdateTransport = (props) => {
     handleSubmit,
   } = useForm({
     mode: "onChange",
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control, // control props comes from useForm (optional: if you are using FormContext)
+    name: "optionHandling", // unique name for your Field Array
   });
 
   const Validate = {
@@ -84,28 +90,62 @@ const UpdateTransport = (props) => {
   };
 
   const [IsLoading, SetIsLoading] = useState(false);
-  const [contractId, setContractId] = useState("");
+
   const [listFirstPoint, setListFirstPoint] = useState([]);
   const [listSecondPoint, setListSecondPoint] = useState([]);
   const [listRoad, setListRoad] = useState([]);
   const [listCus, setListCus] = useState([]);
   const [arrRoad, setArrRoad] = useState([]);
+  const [listPoint, setListPoint] = useState([]);
+  const [listSupplier, setListSupplier] = useState([]);
+  const [listVehicleType, setlistVehicleType] = useState([]);
+  const [listGoodsType, setListGoodsType] = useState([]);
 
   useEffect(() => {
     SetIsLoading(true);
     (async () => {
-      const getListCus = await getData(
-        `Customer/GetListCustomerOptionSelect?type=KH`
-      );
-
+      const getListCus = await getData(`Customer/GetListCustomerOptionSelect`);
       if (getListCus && getListCus.length > 0) {
-        let arr = [];
-        getListCus.map((val) => {
-          arr.push({ label: val.maKh + " - " + val.tenKh, value: val.maKh });
-        });
-        setListCus(arr);
+        let arrKh = [];
+        let arrSupplier = [];
+        getListCus
+          .filter((x) => x.loaiKH === "KH")
+          .map((val) => {
+            arrKh.push({
+              label: val.maKh + " - " + val.tenKh,
+              value: val.maKh,
+            });
+          });
+        getListCus
+          .filter((x) => x.loaiKH === "NCC")
+          .map((val) => {
+            arrSupplier.push({
+              label: val.maKh + " - " + val.tenKh,
+              value: val.maKh,
+            });
+          });
+        setListCus(arrKh);
+        setListSupplier(arrSupplier);
       } else {
         setListCus([]);
+        setListSupplier([]);
+      }
+
+      let getListVehicleType = await getData("Common/GetListVehicleType");
+      let getListGoodsType = await getData("Common/GetListGoodsType");
+      setlistVehicleType(getListVehicleType);
+      setListGoodsType(getListGoodsType);
+
+      const getListPoint = await getData("address/GetListAddressSelect");
+      if (getListPoint && getListPoint.length > 0) {
+        var obj = [];
+        getListPoint.map((val) => {
+          obj.push({
+            value: val.maDiaDiem,
+            label: val.maDiaDiem + " - " + val.tenDiaDiem,
+          });
+        });
+        setListPoint(obj);
       }
       SetIsLoading(false);
     })();
@@ -117,13 +157,43 @@ const UpdateTransport = (props) => {
       listCus.length > 0 &&
       props &&
       selectIdClick &&
-      Object.keys(selectIdClick).length > 0
+      Object.keys(selectIdClick).length > 0 &&
+      listSupplier &&
+      listPoint &&
+      listVehicleType &&
+      listGoodsType &&
+      listSupplier.length > 0 &&
+      listPoint.length > 0 &&
+      listVehicleType.length > 0 &&
+      listGoodsType.length > 0
     ) {
+      let arrHandlings = [];
+      if (selectIdClick.arrHandlings && selectIdClick.arrHandlings.length > 0) {
+        selectIdClick.arrHandlings.map((val) => {
+          arrHandlings.push({
+            DonViVanTai: {
+              ...listSupplier.filter((x) => x.value === val.donViVanTai),
+            }[0],
+            LoaiHangHoa: val.loaiHangHoa,
+            PTVanChuyen: val.ptVanChuyen,
+            KhoiLuong: val.khoiLuong,
+            TheTich: val.theTich,
+            SoKhoi: val.soKhoi,
+            DiemLayTraRong: !val.diemLayTraRong
+              ? null
+              : {
+                  ...listPoint.filter((x) => x.value === val.diemLayTraRong),
+                }[0],
+          });
+        });
+      }
+
+      setValue("optionHandling", arrHandlings);
       setValue("MaVDKH", selectIdClick.maVanDonKH);
       setValue("LoaiVanDon", selectIdClick.loaiVanDon);
       setValue("TongKhoiLuong", selectIdClick.tongKhoiLuong);
       setValue("TongTheTich", selectIdClick.tongTheTich);
-      setValue("LoaiThungHang", selectIdClick.loaiThungHang);
+
       setValue(
         "MaKH",
         { ...listCus.filter((x) => x.value === selectIdClick.maKh) }[0]
@@ -133,7 +203,7 @@ const UpdateTransport = (props) => {
         { ...listCus.filter((x) => x.value === selectIdClick.maKh) }[0]
       );
 
-      setValue("TongThungHang", selectIdClick.tongThungHang);
+      setValue("TongSoKhoi", selectIdClick.tongSoKhoi);
 
       if (selectIdClick.loaiVanDon === "xuat") {
         setValue("TGHaCang", new Date(selectIdClick.thoiGianHaCang));
@@ -146,7 +216,16 @@ const UpdateTransport = (props) => {
       setValue("TGLayHang", new Date(selectIdClick.thoiGianLayHang));
       setValue("TGLayTraRong", new Date(selectIdClick.thoiGianLayTraRong));
     }
-  }, [listCus, props, selectIdClick]);
+  }, [
+    listCus,
+    listSupplier,
+    listPoint,
+    listVehicleType,
+    listGoodsType,
+    props,
+    selectIdClick,
+    setValue,
+  ]);
 
   useEffect(() => {
     if (
@@ -242,15 +321,6 @@ const UpdateTransport = (props) => {
     }
   };
 
-  const handleOnChangeVehicleType = (val) => {
-    setValue("LoaiThungHang", val);
-
-    setValue("TGHaCang", null);
-    setValue("TGCoMat", null);
-    setValue("TGHanLenh", null);
-    setValue("TGLayTraRong", null);
-  };
-
   const handleOnChangePoint = () => {
     setValue("MaCungDuong", null);
     var diemdau = watch("DiemLayHang");
@@ -285,10 +355,30 @@ const UpdateTransport = (props) => {
   const onSubmit = async (data) => {
     SetIsLoading(true);
 
+    let arr = [];
+    data.optionHandling.map((val) => {
+      arr.push({
+        DonViVanTai: !val.DonViVanTai ? null : val.DonViVanTai.value,
+        DiemLayTraRong: !val.DiemLayTraRong ? null : val.DiemLayTraRong.value,
+        LoaiHangHoa: val.LoaiHangHoa,
+        PTVanChuyen: val.PTVanChuyen,
+        KhoiLuong: val.KhoiLuong,
+        TheTich: val.TheTich,
+        SoKhoi: val.TheTich,
+        MaPtvc: "Road",
+        DonViTinh: "CHUYEN",
+      });
+    });
+
+    if (arr && arr.length < 1) {
+      ToastError("Vui lòng điền đầy đủ thông tin");
+      return;
+    }
+
     const Update = await postData(
       `BillOfLading/UpdateTransport?transportId=${selectIdClick.maVanDon}`,
       {
-        LoaiThungHang: data.LoaiThungHang,
+        arrHandlings: arr,
         HangTau: data.HangTau,
         TenTau: data.TenTau,
         MaVanDonKH: data.MaVDKH,
@@ -296,6 +386,7 @@ const UpdateTransport = (props) => {
         LoaiVanDon: data.LoaiVanDon,
         TongKhoiLuong: data.TongKhoiLuong,
         TongTheTich: data.TongTheTich,
+        TongSoKhoi: data.TongSoKhoi,
         MaKH: data.MaKH.value,
         GhiChu: data.GhiChu,
         TongThungHang: data.TongThungHang,
@@ -392,7 +483,7 @@ const UpdateTransport = (props) => {
 
                 <div className="col col-sm">
                   <div className="form-group">
-                    <label htmlFor="MaVDKH">Mã Vận Đơn Của Khách Hàng(*)</label>
+                    <label htmlFor="MaVDKH">Mã Vận Đơn Của Khách Hàng</label>
                     <input
                       autoComplete="false"
                       type="text"
@@ -544,49 +635,7 @@ const UpdateTransport = (props) => {
                   </div>
                 </div>
               </div>
-
               <div className="row">
-                <div className="col col-sm">
-                  <div className="form-group">
-                    <label htmlFor="LoaiThungHang">Loại Thùng Hàng(*)</label>
-                    <select
-                      className="form-control"
-                      {...register("LoaiThungHang", Validate.LoaiThungHang)}
-                      value={watch("LoaiThungHang")}
-                      onChange={(e) =>
-                        handleOnChangeVehicleType(e.target.value)
-                      }
-                    >
-                      <option value={""}>--Chọn Loại Thùng Hàng--</option>
-                      <option value="CONT">CONT</option>
-                      <option value="TRUCK">TRUCK</option>
-                      <option value="CONT&TRUCK">CONT & TRUCK</option>
-                    </select>
-                    {errors.LoaiThungHang && (
-                      <span className="text-danger">
-                        {errors.LoaiThungHang.message}
-                      </span>
-                    )}
-                  </div>
-                </div>
-                <div className="col col-sm">
-                  <div className="form-group">
-                    <label htmlFor="TongThungHang">Tổng Số Thùng Hàng(*)</label>
-                    <input
-                      autoComplete="false"
-                      type="text"
-                      className="form-control"
-                      id="TongThungHang"
-                      {...register(`TongThungHang`, Validate.TongThungHang)}
-                    />
-                    {errors.TongThungHang && (
-                      <span className="text-danger">
-                        {errors.TongThungHang.message}
-                      </span>
-                    )}
-                  </div>
-                  <br />
-                </div>
                 <div className="col col-sm">
                   <div className="form-group">
                     <label htmlFor="TongKhoiLuong">
@@ -627,9 +676,272 @@ const UpdateTransport = (props) => {
                   </div>
                   <br />
                 </div>
+                <div className="col col-sm">
+                  <div className="form-group">
+                    <label htmlFor="TongSoKhoi">
+                      Tổng Số Khối (Đơn Vị PCS)(*)
+                    </label>
+                    <input
+                      autoComplete="false"
+                      type="text"
+                      className="form-control"
+                      id="TongSoKhoi"
+                      {...register(`TongSoKhoi`, Validate.TongSoKhoi)}
+                    />
+                    {errors.TongSoKhoi && (
+                      <span className="text-danger">
+                        {errors.TongSoKhoi.message}
+                      </span>
+                    )}
+                  </div>
+                  <br />
+                </div>
               </div>
-              {watch("LoaiThungHang") &&
-                watch("LoaiThungHang").includes("CONT") && (
+              <div className="row">
+                <table
+                  className="table table-sm table-bordered "
+                  style={{
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  <thead>
+                    <tr>
+                      <th style={{ width: "40px" }}></th>
+                      <th></th>
+                      <th style={{ width: "40px" }}>
+                        <button
+                          className="form-control form-control-sm"
+                          type="button"
+                          onClick={() => append(watch(`optionHandling`)[0])}
+                        >
+                          <i className="fas fa-plus"></i>
+                        </button>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {fields.map((value, index) => (
+                      <tr key={index}>
+                        <td>{index + 1}</td>
+                        <td>
+                          <div className="row">
+                            <div className="col-sm">
+                              <div className="form-group">
+                                <Controller
+                                  name={`optionHandling.${index}.DonViVanTai`}
+                                  control={control}
+                                  render={({ field }) => (
+                                    <Select
+                                      {...field}
+                                      classNamePrefix={"form-control"}
+                                      value={field.value}
+                                      options={listSupplier}
+                                    />
+                                  )}
+                                  rules={{ required: "không được để trống" }}
+                                />
+                                {errors.optionHandling?.[index]
+                                  ?.DonViVanTai && (
+                                  <span className="text-danger">
+                                    {
+                                      errors.optionHandling?.[index]
+                                        ?.DonViVanTai.message
+                                    }
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            <div className="col-sm">
+                              <div className="form-group">
+                                <select
+                                  className="form-control"
+                                  {...register(
+                                    `optionHandling.${index}.LoaiHangHoa`,
+                                    Validate.LoaiHangHoa
+                                  )}
+                                >
+                                  <option value="">Chọn Loại Hàng Hóa</option>
+                                  {listGoodsType &&
+                                    listGoodsType.map((val) => {
+                                      return (
+                                        <option
+                                          value={val.maLoaiHangHoa}
+                                          key={val.maLoaiHangHoa}
+                                        >
+                                          {val.tenLoaiHangHoa}
+                                        </option>
+                                      );
+                                    })}
+                                </select>
+                                {errors.optionHandling?.[index]
+                                  ?.LoaiHangHoa && (
+                                  <span className="text-danger">
+                                    {
+                                      errors.optionHandling?.[index]
+                                        ?.LoaiHangHoa.message
+                                    }
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            <div className="col-sm">
+                              <div className="form-group">
+                                <select
+                                  className="form-control"
+                                  {...register(
+                                    `optionHandling.${index}.PTVanChuyen`,
+                                    Validate.PTVanChuyen
+                                  )}
+                                >
+                                  <option value="">Chọn Phương Tiện</option>
+                                  {listVehicleType &&
+                                    listVehicleType.map((val) => {
+                                      return (
+                                        <option
+                                          value={val.maLoaiPhuongTien}
+                                          key={val.maLoaiPhuongTien}
+                                        >
+                                          {val.tenLoaiPhuongTien}
+                                        </option>
+                                      );
+                                    })}
+                                </select>
+                                {errors.optionHandling?.[index]
+                                  ?.PTVanChuyen && (
+                                  <span className="text-danger">
+                                    {
+                                      errors.optionHandling?.[index]
+                                        ?.PTVanChuyen.message
+                                    }
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            {watch(`optionHandling.${index}.PTVanChuyen`) &&
+                              watch(
+                                `optionHandling.${index}.PTVanChuyen`
+                              ).includes("CONT") && (
+                                <div className="col col-sm">
+                                  <div className="form-group">
+                                    <Controller
+                                      name={`optionHandling.${index}.DiemLayTraRong`}
+                                      control={control}
+                                      render={({ field }) => (
+                                        <Select
+                                          {...field}
+                                          classNamePrefix={"form-control"}
+                                          value={field.value}
+                                          options={listPoint}
+                                        />
+                                      )}
+                                      rules={{
+                                        required: "không được để trống",
+                                      }}
+                                    />
+                                    {errors.optionHandling?.[index]
+                                      ?.DiemLayTraRong && (
+                                      <span className="text-danger">
+                                        {
+                                          errors.optionHandling?.[index]
+                                            ?.DiemLayTraRong.message
+                                        }
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                              )}
+                            <div className="col-sm">
+                              <div className="form-group">
+                                <input
+                                  type="text"
+                                  className="form-control"
+                                  placeholder="Khối Lượng"
+                                  id="KhoiLuong"
+                                  {...register(
+                                    `optionHandling.${index}.KhoiLuong`,
+                                    Validate.KhoiLuong
+                                  )}
+                                />
+                                {errors.optionHandling?.[index]?.KhoiLuong && (
+                                  <span className="text-danger">
+                                    {
+                                      errors.optionHandling?.[index]?.KhoiLuong
+                                        .message
+                                    }
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            <div className="col-sm">
+                              <div className="form-group">
+                                <input
+                                  type="text"
+                                  className="form-control"
+                                  placeholder="Thể Tích"
+                                  id="TheTich"
+                                  {...register(
+                                    `optionHandling.${index}.TheTich`,
+                                    Validate.TheTich
+                                  )}
+                                />
+                                {errors.optionHandling?.[index]?.TheTich && (
+                                  <span className="text-danger">
+                                    {
+                                      errors.optionHandling?.[index]?.TheTich
+                                        .message
+                                    }
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            <div className="col-sm">
+                              <div className="form-group">
+                                <input
+                                  type="text"
+                                  className="form-control"
+                                  placeholder="Số Khối"
+                                  id="SoKhoi"
+                                  {...register(
+                                    `optionHandling.${index}.SoKhoi`,
+                                    Validate.SoKhoi
+                                  )}
+                                />
+                                {errors.optionHandling?.[index]?.SoKhoi && (
+                                  <span className="text-danger">
+                                    {
+                                      errors.optionHandling?.[index]?.SoKhoi
+                                        .message
+                                    }
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                        <td>
+                          <div className="form-group">
+                            {index >= 1 && (
+                              <button
+                                type="button"
+                                className="btn btn-sm btn-default mx-1"
+                                onClick={() => remove(index)}
+                              >
+                                <i className="fas fa-minus"></i>
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {watch(`optionHandling`) &&
+                watch(`optionHandling`).length > 0 &&
+                watch(`optionHandling`).filter((x) =>
+                  x.PTVanChuyen.includes("CONT")
+                ).length > 0 && (
                   <div className="row">
                     <div className="col col-sm">
                       <div className="form-group">
@@ -669,7 +981,6 @@ const UpdateTransport = (props) => {
                         </div>
                       </div>
                     </div>
-
                     {watch("LoaiVanDon") === "xuat" && (
                       <div className="col col-sm">
                         <div className="form-group">
@@ -701,7 +1012,6 @@ const UpdateTransport = (props) => {
                         </div>
                       </div>
                     )}
-
                     {watch("LoaiVanDon") === "nhap" && (
                       <>
                         <div className="col col-sm">

@@ -44,7 +44,7 @@ const HandlingPage = (props) => {
     {
       cell: (val) => (
         <div>
-          <>
+          {/* <>
             {val.statusId === 19 ? (
               <>
                 <button
@@ -71,7 +71,7 @@ const HandlingPage = (props) => {
             ) : (
               <span></span>
             )}
-          </>
+          </> */}
           <>
             {val.statusId === 27 || val.statusId === 19 ? (
               <button
@@ -140,7 +140,7 @@ const HandlingPage = (props) => {
           </>
         </div>
       ),
-      width: "300px",
+      width: "250px",
       ignoreRowClick: true,
       allowOverflow: true,
       button: true,
