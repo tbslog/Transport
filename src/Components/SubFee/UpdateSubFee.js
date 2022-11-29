@@ -247,6 +247,8 @@ const UpdateSubFee = (props) => {
     setValue("MaKh", null);
     setValue("MaHopDong", null);
     setValue("CungDuong", null);
+    setValue("LoaiPhuPhi", null);
+
     setListContract([]);
     setListCustomer([]);
   };

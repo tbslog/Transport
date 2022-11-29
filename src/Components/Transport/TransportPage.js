@@ -94,14 +94,14 @@ const TransportPage = () => {
     //   selector: (row) => row.diemLayRong,
     //   width: "auto",
     // },
-    {
-      name: <div>Điểm Lấy Hàng</div>,
-      selector: (row) => <div className="text-wrap">{row.diemLayHang}</div>,
-    },
-    {
-      name: <div>Tổng Trọng Lượng</div>,
-      selector: (row) => row.diemTraHang,
-    },
+    // {
+    //   name: <div>Điểm Lấy Hàng</div>,
+    //   selector: (row) => <div className="text-wrap">{row.diemLayHang}</div>,
+    // },
+    // {
+    //   name: <div>Tổng Trọng Lượng</div>,
+    //   selector: (row) => row.diemTraHang,
+    // },
     {
       name: <div>Tổng Trọng Lượng</div>,
       selector: (row) => row.tongKhoiLuong,
@@ -112,6 +112,12 @@ const TransportPage = () => {
       name: <div>Tổng Thể Tích</div>,
       selector: (row) => row.tongTheTich,
       sortable: true,
+    },
+    {
+      name: <div>Tổng Số Khối</div>,
+      selector: (row) => row.tongSoKhoi,
+      sortable: true,
+      Cell: ({ row }) => <div className="text-wrap">{row.tongSoKhoi}</div>,
     },
     {
       name: <div>Thời Gian Có Mặt</div>,

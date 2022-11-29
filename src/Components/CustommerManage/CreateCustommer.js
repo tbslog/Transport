@@ -150,7 +150,7 @@ const CreateCustommer = (props) => {
       },
     });
     if (post === 1) {
-      props.getListUser(1);
+      props.getListUser();
       reset();
     }
 

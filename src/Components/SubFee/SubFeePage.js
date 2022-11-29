@@ -39,7 +39,7 @@ const SubFeePage = () => {
     },
     {
       name: <div>Loại Phụ Phí</div>,
-      selector: (row) => row.sfName,
+      selector: (row) => <div className="text-wrap">{row.sfName}</div>,
       sortable: true,
     },
     {
@@ -49,15 +49,15 @@ const SubFeePage = () => {
     },
     {
       name: <div>Tên Hợp Đồng</div>,
-      selector: (row) => row.contractName,
+      selector: (row) => <div className="text-wrap">{row.contractName}</div>,
     },
     {
-      name: <div>Điểm 1</div>,
-      selector: (row) => row.firstPlace,
+      name: "Điểm 1",
+      selector: (row) => <div className="text-wrap">{row.firstPlace}</div>,
     },
     {
-      name: <div>Điểm 2</div>,
-      selector: (row) => row.secondPlace,
+      name: "Điểm 2",
+      selector: (row) => <div className="text-wrap">{row.secondPlace}</div>,
     },
     {
       name: <div>Loại Hàng Hóa</div>,
@@ -92,7 +92,11 @@ const SubFeePage = () => {
     },
     {
       name: <div>Thời gian Tạo</div>,
-      selector: (row) => moment(row.createdTime).format("DD-MM-YYYY HH:mm:ss"),
+      selector: (row) => (
+        <div className="text-wrap">
+          {moment(row.createdTime).format("DD-MM-YYYY HH:mm:ss")}
+        </div>
+      ),
       sortable: true,
     },
   ]);

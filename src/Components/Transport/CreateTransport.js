@@ -366,6 +366,14 @@ const CreateTransport = (props) => {
 
   const handleResetClick = () => {
     reset();
+    setValue("MaKH", null);
+    setValue("MaCungDuong", null);
+    setValue("DiemLayHang", null);
+    setValue("DiemTraHang", null);
+    setListFirstPoint([]);
+    setListSecondPoint([]);
+    setListRoad([]);
+    setArrRoad([]);
   };
 
   return (
@@ -681,7 +689,14 @@ const CreateTransport = (props) => {
                                       options={listSupplier}
                                     />
                                   )}
-                                  rules={{ required: "không được để trống" }}
+                                  rules={{
+                                    required: "không được để trống",
+                                    validate: (value) => {
+                                      if (!value.value) {
+                                        return "không được để trống";
+                                      }
+                                    },
+                                  }}
                                 />
                                 {errors.optionHandling?.[index]
                                   ?.DonViVanTai && (
@@ -779,6 +794,11 @@ const CreateTransport = (props) => {
                                       )}
                                       rules={{
                                         required: "không được để trống",
+                                        validate: (value) => {
+                                          if (!value.value) {
+                                            return "không được để trống";
+                                          }
+                                        },
                                       }}
                                     />
                                     {errors.optionHandling?.[index]

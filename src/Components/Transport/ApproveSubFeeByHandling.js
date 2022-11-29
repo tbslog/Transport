@@ -57,7 +57,7 @@ const ApproveSubFeeByHandling = (props) => {
     },
     {
       name: "Loại Phụ Phí",
-      selector: (row) => row.subFee,
+      selector: (row) => <div className="text-wrap">{row.subFee}</div>,
       sortable: true,
     },
     {

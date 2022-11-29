@@ -13,6 +13,7 @@ const CustommerPage = () => {
   const [loading, setLoading] = useState(false);
   const [totalRows, setTotalRows] = useState(0);
   const [perPage, setPerPage] = useState(10);
+  const [page, setPage] = useState(0);
   const [keySearch, setKeySearch] = useState("");
 
   const [ShowModal, SetShowModal] = useState("");
@@ -149,19 +150,24 @@ const CustommerPage = () => {
   };
 
   const handlePageChange = async (page) => {
-    await fetchData(page);
+    setPage(page);
+    await fetchData(page, perPage, keySearch, cusType);
   };
 
   const handlePerRowsChange = async (newPerPage, page) => {
     setLoading(true);
 
     const dataCus = await getData(
-      `Customer/GetListCustomer?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}`
+      `Customer/GetListCustomer?PageNumber=${page}&PageSize=${perPage}&KeyWord=${keySearch}&customerType=${cusType}`
     );
 
     formatTable(dataCus.data);
     setPerPage(newPerPage);
     setLoading(false);
+  };
+
+  const ReloadData = () => {
+    fetchData(page, perPage, cusType);
   };
 
   const hideModal = () => {
@@ -403,7 +409,7 @@ const CustommerPage = () => {
                     <EditCustommer
                       selectIdClick={selectIdClick}
                       Address={Address}
-                      getListUser={fetchData}
+                      getListUser={ReloadData}
                       listCusGroup={listCustomerGroup}
                       listCusType={listCustomerType}
                       listStatus={listStatus}
@@ -413,7 +419,7 @@ const CustommerPage = () => {
                   )}
                   {ShowModal === "Create" && (
                     <CreateCustommer
-                      getListUser={fetchData}
+                      getListUser={ReloadData}
                       listCusGroup={listCustomerGroup}
                       listCusType={listCustomerType}
                       listStatus={listStatus}

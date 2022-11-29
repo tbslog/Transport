@@ -192,6 +192,10 @@ const PriceTablePage = () => {
     fetchData(page, keySearch, fromDate, toDate, vehicleType, goodsType);
   };
 
+  const ReloadData = () => {
+    fetchData(page, keySearch, fromDate, toDate, vehicleType, goodsType);
+  };
+
   const handleRefeshDataClick = () => {
     fetchData(1);
     setPerPage(10);
@@ -448,13 +452,13 @@ const PriceTablePage = () => {
                 <>
                   {ShowModal === "Create" && (
                     <AddPriceTable
-                      getListPriceTable={fetchData}
                       selectIdClick={selectIdClick}
                       listStatus={listStatus}
                     />
                   )}
                   {ShowModal === "ApprovePriceTable" && (
                     <ApprovePriceTable
+                      reLoadData={ReloadData}
                       getDataApprove={getDataApprove}
                       checkShowModal={modal}
                     />

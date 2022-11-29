@@ -166,7 +166,7 @@ const HandlingPage = (props) => {
     },
     {
       name: "Tài Xế",
-      selector: (row) => <div className="warp-text">{row.tenTaiXe}</div>,
+      selector: (row) => <div className="text-wrap">{row.tenTaiXe}</div>,
       sortable: true,
     },
     {
@@ -184,10 +184,14 @@ const HandlingPage = (props) => {
       selector: (row) => row.theTich,
       sortable: true,
     },
-
+    {
+      name: "Số Khối",
+      selector: (row) => row.soKhoi,
+      sortable: true,
+    },
     {
       name: "Trạng Thái",
-      selector: (row) => <div className="warp-text">{row.trangThai}</div>,
+      selector: (row) => <div className="text-wrap">{row.trangThai}</div>,
       sortable: true,
     },
     {
@@ -196,9 +200,9 @@ const HandlingPage = (props) => {
       omit: true,
     },
     {
-      name: "Thời Gian Lập Đơn",
+      name: <div>Thời Gian Tạo</div>,
       selector: (row) => (
-        <div className="warp-text">
+        <div className="text-wrap">
           {moment(row.thoiGianTaoDon).format("DD/MM/YYYY HH:mm:ss")}
         </div>
       ),

@@ -738,7 +738,14 @@ const UpdateTransport = (props) => {
                                       options={listSupplier}
                                     />
                                   )}
-                                  rules={{ required: "không được để trống" }}
+                                  rules={{
+                                    required: "không được để trống",
+                                    validate: (value) => {
+                                      if (!value.value) {
+                                        return "không được để trống";
+                                      }
+                                    },
+                                  }}
                                 />
                                 {errors.optionHandling?.[index]
                                   ?.DonViVanTai && (
@@ -836,6 +843,11 @@ const UpdateTransport = (props) => {
                                       )}
                                       rules={{
                                         required: "không được để trống",
+                                        validate: (value) => {
+                                          if (!value.value) {
+                                            return "không được để trống";
+                                          }
+                                        },
                                       }}
                                     />
                                     {errors.optionHandling?.[index]

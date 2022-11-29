@@ -9,7 +9,7 @@ import ConfirmDialog from "../Common/Dialog/ConfirmDialog";
 import { ToastError } from "../Common/FuncToast";
 
 const ApprovePriceTable = (props) => {
-  const { getDataApprove, checkShowModal } = props;
+  const { getDataApprove, checkShowModal, reLoadData } = props;
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [totalRows, setTotalRows] = useState(0);
@@ -52,27 +52,22 @@ const ApprovePriceTable = (props) => {
       selector: (row) => row.id,
     },
     {
-      name: "Phân Loại Đối Tác",
+      name: <div>Phân Loại Đối Tác</div>,
       selector: (row) => row.maLoaiDoiTac,
     },
     {
-      name: "Tên khách hàng",
-      selector: (row) => row.tenKh,
+      name: <div>Tên khách hàng</div>,
+      selector: (row) => <div className="text-wrap">{row.tenKh}</div>,
     },
+
     {
-      selector: (row) => row.maNcc,
-    },
-    {
-      selector: (row) => row.maKh,
-    },
-    {
-      name: "Mã Hợp Đồng",
-      selector: (row) => row.maHopDong,
+      name: <div>Mã Hợp Đồng</div>,
+      selector: (row) => <div className="text-wrap">{row.maHopDong}</div>,
       sortable: true,
     },
     {
-      name: "Tên Hợp Đồng",
-      selector: (row) => row.tenHopDong,
+      name: <div>Tên Hợp Đồng</div>,
+      selector: (row) => <div className="text-wrap">{row.tenHopDong}</div>,
     },
     {
       name: "Đơn Giá",
@@ -83,11 +78,11 @@ const ApprovePriceTable = (props) => {
         }),
     },
     {
-      name: "Tên Cung Đường",
-      selector: (row) => row.tenCungDuong,
+      name: <div>Tên Cung Đường</div>,
+      selector: (row) => <div className="text-wrap">{row.tenCungDuong}</div>,
     },
     {
-      name: "Phương Tiện Vận Tải",
+      name: <div>Phương Tiện Vận Tải</div>,
       selector: (row) => row.maLoaiPhuongTien,
     },
     {
@@ -95,17 +90,12 @@ const ApprovePriceTable = (props) => {
       selector: (row) => row.ptvc,
     },
     {
-      name: "Loại Hàng Hóa",
+      name: <div>Loại Hàng Hóa</div>,
       selector: (row) => row.maLoaiHangHoa,
     },
     {
-      name: "Thời gian Hạn",
-      selector: (row) => row.ngayHetHieuLuc,
-      sortable: true,
-    },
-    {
       name: "Thời gian Tạo",
-      selector: (row) => row.thoiGianTao,
+      selector: (row) => <div className="text-wrap">{row.thoiGianTao}</div>,
       sortable: true,
     },
   ]);
@@ -163,6 +153,7 @@ const ApprovePriceTable = (props) => {
       });
 
       if (SetApprove === 1) {
+        reLoadData();
         fetchData(1);
       }
       setSelectedRows([]);

@@ -67,7 +67,7 @@ const CreateSubFee = (props) => {
 
       if (getListPlace && getListPlace.length > 0) {
         let obj = [];
-        obj.push({ value: "", label: "-- Để Trống --" });
+        obj.push({ value: null, label: "-- Để Trống --" });
         getListPlace.map((val) => {
           obj.push({
             value: val.maDiaDiem,
@@ -99,6 +99,7 @@ const CreateSubFee = (props) => {
     setValue("MaKh", val);
     setValue("MaHopDong", null);
     setValue("CungDuong", null);
+
     getListContract(val.value);
 
     SetIsLoading(false);
@@ -160,6 +161,8 @@ const CreateSubFee = (props) => {
     setValue("MaKh", null);
     setValue("MaHopDong", null);
     setValue("CungDuong", null);
+    setValue("LoaiPhuPhi", null);
+
     setListContract([]);
     setListCustomer([]);
   };

@@ -53,7 +53,7 @@ const ApproveSubFee = (props) => {
     },
     {
       name: "Loại Phụ Phí",
-      selector: (row) => row.sfName,
+      selector: (row) => <div className="text-wrap">{row.sfName}</div>,
       sortable: true,
     },
     {
@@ -67,11 +67,11 @@ const ApproveSubFee = (props) => {
     },
     {
       name: "Điểm 1",
-      selector: (row) => row.firstPlace,
+      selector: (row) => <div className="text-wrap">{row.firstPlace}</div>,
     },
     {
       name: "Điểm 2",
-      selector: (row) => row.secondPlace,
+      selector: (row) => <div className="text-wrap">{row.secondPlace}</div>,
     },
     {
       name: "Loại Hàng Hóa",

@@ -56,7 +56,7 @@ const EditCustommer = (props) => {
     );
 
     if (put === 1) {
-      props.getListUser(1);
+      props.getListUser();
       props.hideModal();
     }
 
