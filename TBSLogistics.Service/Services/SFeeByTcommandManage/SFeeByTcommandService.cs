@@ -194,9 +194,11 @@ namespace TBSLogistics.Service.Services.SFeeByTcommandManage
                                           && kh.MaKh == getTransport.MaKh
                                           select new { kh, hd, sfPice, sf, tt };
 
-            getListSubFeeByContract = getListSubFeeByContract.Where(y => (y.sfPice.GoodsType == getHandling.MaLoaiHangHoa)
-                        || (y.sfPice.FirstPlace == getHandling.DiemLayTraRong)
-                        || (y.sfPice.FirstPlace == getRoad.DiemDau && y.sfPice.SecondPlace == getRoad.DiemCuoi));
+            getListSubFeeByContract = getListSubFeeByContract.Where(y => 
+                           (y.sfPice.GoodsType == getHandling.MaLoaiHangHoa)
+                        || (y.sfPice.FirstPlace == getHandling.DiemLayTraRong && y.sfPice.SecondPlace == null)
+                        || (y.sfPice.FirstPlace == getRoad.DiemDau && y.sfPice.SecondPlace == getRoad.DiemCuoi)
+                        || (y.sfPice.GoodsType == null && y.sfPice.FirstPlace == null && y.sfPice.SecondPlace == null));
 
 
             var dataSubFeeIncurred = from dp in _context.DieuPhoi

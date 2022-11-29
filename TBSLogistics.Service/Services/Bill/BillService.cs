@@ -2,18 +2,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using System.Xml.Linq;
 using TBSLogistics.Data.TMS;
 using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.BillModel;
-using TBSLogistics.Model.Model.BillOfLadingModel;
-using TBSLogistics.Model.TempModel;
 using TBSLogistics.Model.Wrappers;
 using TBSLogistics.Service.Repository.Common;
-using TBSLogistics.Service.Services.RomoocManage;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace TBSLogistics.Service.Services.Bill
 {
@@ -27,6 +21,7 @@ namespace TBSLogistics.Service.Services.Bill
             _context = context;
             _common = common;
         }
+
         public async Task<GetBill> GetBillByCustomerId(string customerId, int ky)
         {
             try
@@ -70,7 +65,6 @@ namespace TBSLogistics.Service.Services.Bill
                                               && kh.MaKh == customerId
                                               select new { kh, hd, sfPice, sf };
 
-
                 var getListTransport = await getDataTransport.Where(x => getlistHandling.Select(s => s.MaVanDon).Contains(x.vd.MaVanDon)).OrderBy(x => x.vd.MaVanDon).Select(z => new ListVanDon()
                 {
                     DiemLayHang = _context.DiaDiem.Where(y => y.MaDiaDiem == z.cd.DiemDau).Select(x => x.TenDiaDiem).FirstOrDefault(),
@@ -97,8 +91,9 @@ namespace TBSLogistics.Service.Services.Bill
                         KhoiLuong = x.KhoiLuong,
                         TheTich = x.TheTich,
                         listSubFeeByContract = getListSubFeeByContract.Where(y => (y.sfPice.GoodsType == x.MaLoaiHangHoa)
-                        || (y.sfPice.FirstPlace == x.DiemLayTraRong)
+                        || (y.sfPice.FirstPlace == x.DiemLayTraRong && y.sfPice.SecondPlace == null)
                         || (y.sfPice.FirstPlace == z.cd.DiemDau && y.sfPice.SecondPlace == z.cd.DiemCuoi)
+                        || (y.sfPice.GoodsType == null && y.sfPice.FirstPlace == null && y.sfPice.SecondPlace == null)
                         ).OrderBy(x => x.sfPice).Select(x => new ListSubFeeByContract()
                         {
                             ContractId = x.hd.MaHopDong,
@@ -184,9 +179,11 @@ namespace TBSLogistics.Service.Services.Bill
                         DonGia = _context.KhachHang.Where(x => x.MaKh == customerId).Select(x => x.MaLoaiKh).FirstOrDefault() == "NCC" ? x.DonGiaNcc : x.DonGiaKh,
                         KhoiLuong = x.KhoiLuong,
                         TheTich = x.TheTich,
-                        listSubFeeByContract = getListSubFeeByContract.Where(y => (y.sfPice.GoodsType == x.MaLoaiHangHoa)
-                        || (y.sfPice.FirstPlace == x.DiemLayTraRong)
+                        listSubFeeByContract = getListSubFeeByContract.Where(y =>
+                           (y.sfPice.GoodsType == x.MaLoaiHangHoa)
+                        || (y.sfPice.FirstPlace == x.DiemLayTraRong && y.sfPice.SecondPlace == null)
                         || (y.sfPice.FirstPlace == z.cd.DiemDau && y.sfPice.SecondPlace == z.cd.DiemCuoi)
+                        || (y.sfPice.GoodsType == null && y.sfPice.FirstPlace == null && y.sfPice.SecondPlace == null)
                         ).OrderBy(x => x.sfPice).Select(x => new ListSubFeeByContract()
                         {
                             ContractId = x.hd.MaHopDong,
@@ -229,7 +226,6 @@ namespace TBSLogistics.Service.Services.Bill
             var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
 
             var kyThanhToan = checkexists.Where(x => x.Ky == ky).FirstOrDefault();
-
 
             var getlistHandling = from dp in _context.DieuPhoi
                                   join vd in _context.VanDon
@@ -298,7 +294,6 @@ namespace TBSLogistics.Service.Services.Bill
                 allDates.Add(date);
             }
 
-
             var listKy = new List<KyThanhToan>();
             int count = 0;
             foreach (var date in allDates)
@@ -365,11 +360,12 @@ namespace TBSLogistics.Service.Services.Bill
                 DonViVanTai = _context.KhachHang.Where(y => y.MaKh == x.dp.DonViVanTai).Select(y => y.TenKh).FirstOrDefault(),
                 DonGiaKH = x.dp.DonGiaKh,
                 DonGiaNCC = x.dp.DonGiaNcc,
-                LoiNhuan = x.dp.DonGiaNcc - x.dp.DonGiaKh,
+                LoiNhuan = x.dp.DonGiaKh - x.dp.DonGiaNcc,
                 ChiPhiHopDong = (decimal)getListSubFeeByContract.Where(y => y.kh.MaKh == x.vd.MaKh &&
                 ((y.sfPice.GoodsType == x.dp.MaLoaiHangHoa)
-                        || (y.sfPice.FirstPlace == x.dp.DiemLayTraRong)
-                        || (y.sfPice.FirstPlace == x.cd.DiemDau && y.sfPice.SecondPlace == x.cd.DiemCuoi))
+                        || (y.sfPice.FirstPlace == x.dp.DiemLayTraRong && y.sfPice.SecondPlace == null)
+                        || (y.sfPice.FirstPlace == x.cd.DiemDau && y.sfPice.SecondPlace == x.cd.DiemCuoi)
+                        || (y.sfPice.GoodsType == null && y.sfPice.FirstPlace == null && y.sfPice.SecondPlace == null))
                 ).Sum(y => y.sfPice.UnitPrice),
                 ChiPhiPhatSinh = ((decimal)_context.SfeeByTcommand.Where(y => y.IdTcommand == x.dp.Id && y.ApproveStatus == 14).Sum(y => y.FinalPrice)),
             }).Select(x => new ListBillHandling()
@@ -385,7 +381,7 @@ namespace TBSLogistics.Service.Services.Bill
                 DonGiaKH = x.DonGiaKH,
                 DonGiaNCC = x.DonGiaNCC,
                 DoanhThu = x.DonGiaKH.Value + x.ChiPhiPhatSinh + x.ChiPhiHopDong,
-                LoiNhuan=x.LoiNhuan,
+                LoiNhuan = x.LoiNhuan,
                 ChiPhiHopDong = x.ChiPhiHopDong,
                 ChiPhiPhatSinh = x.ChiPhiPhatSinh,
             }).OrderByDescending(x => x.MaChuyen).ToListAsync();
@@ -396,7 +392,6 @@ namespace TBSLogistics.Service.Services.Bill
                 totalCount = totalCount,
                 paginationFilter = validFilter
             };
-
         }
     }
 }

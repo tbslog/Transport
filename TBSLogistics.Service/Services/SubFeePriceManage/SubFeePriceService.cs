@@ -42,6 +42,22 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
                 {
                     return new BoolActionResult { isSuccess = false, Message = "Đơn giá phải lớn hơn 0" };
                 }
+
+                if (!string.IsNullOrEmpty(request.GoodsType))
+                {
+                    var checkGoodsType = await _context.LoaiHangHoa.Where(x => x.MaLoaiHangHoa == request.GoodsType).FirstOrDefaultAsync();
+
+                    if (checkGoodsType == null)
+                    {
+                        return new BoolActionResult { isSuccess = false, Message = "Loại Hàng Hóa không tồn tại" };
+                    }
+                }
+                else
+                {
+                    request.GoodsType = null;
+                }
+              
+
                 await _context.AddAsync(new SubFeePrice()
                 {
                     ContractId = request.ContractId,

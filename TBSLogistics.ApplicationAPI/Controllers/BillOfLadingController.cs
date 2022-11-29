@@ -14,7 +14,7 @@ using TBSLogistics.Service.Repository.Common;
 
 namespace TBSLogistics.ApplicationAPI.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class BillOfLadingController : ControllerBase

@@ -162,7 +162,7 @@ namespace TBSLogistics.Service.Services.Report
 
             var Profit = await getData.Where(x => getAllDaysInMonth.Select(y => y.Date).Contains(x.dp.ThoiGianHoanThanh.Value.Date))
                 .GroupBy(x => new { x.dp.ThoiGianHoanThanh.Value.Date })
-                .Select(x => new { date = x.Key.Date, sumProfit = x.Sum(x => x.dp.DonGiaNcc - x.dp.DonGiaKh) }).Select(x => new arrDouble()
+                .Select(x => new { date = x.Key.Date, sumProfit = x.Sum(x =>  x.dp.DonGiaKh - x.dp.DonGiaNcc) }).Select(x => new arrDouble()
                 {
                     date = x.date,
                     value = ((double)x.sumProfit),

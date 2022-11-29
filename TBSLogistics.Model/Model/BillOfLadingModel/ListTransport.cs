@@ -19,6 +19,7 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
         public int TongThungHang { get; set; }
         public double TongTheTich { get; set; }
         public double TongKhoiLuong { get; set; }
+        public double TongSoKhoi { get; set; }
         public DateTime ThoiGianLayHang { get; set; }
         public DateTime ThoiGianTraHang { get; set; }
         public DateTime ThoiGianTaoDon { get; set; }

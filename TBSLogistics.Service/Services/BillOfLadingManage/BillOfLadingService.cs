@@ -402,7 +402,7 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
                     }
                 }
 
-                if (request.TongKhoiLuong < 1 || request.TongTheTich < 1 || request.TongSoKhoi <1)
+                if (request.TongKhoiLuong < 1 || request.TongTheTich < 1 || request.TongSoKhoi < 1)
                 {
                     return new BoolActionResult { isSuccess = false, Message = "Tổng khối lượng, tổng thể tích, tổng thùng hàng không được nhỏ hơn 1" };
                 }
@@ -441,6 +441,7 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
 
                 await _context.VanDon.AddRangeAsync(new VanDon()
                 {
+                    TongSoKhoi = request.TongSoKhoi,
                     MaKh = request.MaKH,
                     HangTau = request.HangTau,
                     Tau = request.TenTau,
@@ -1011,6 +1012,7 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
                 TenCungDuong = x.road.TenCungDuong,
                 DiemLayHang = _context.DiaDiem.Where(y => y.MaDiaDiem == x.road.DiemDau).Select(y => y.TenDiaDiem).FirstOrDefault(),
                 DiemTraHang = _context.DiaDiem.Where(y => y.MaDiaDiem == x.road.DiemCuoi).Select(y => y.TenDiaDiem).FirstOrDefault(),
+                TongSoKhoi = x.transport.TongSoKhoi,
                 TongKhoiLuong = x.transport.TongKhoiLuong,
                 TongTheTich = x.transport.TongTheTich,
                 ThoiGianLayHang = x.transport.ThoiGianLayHang,
@@ -1083,6 +1085,7 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
                 MaRomooc = x.dp.MaRomooc,
                 ContNo = x.dp.ContNo,
                 KhoiLuong = x.dp.KhoiLuong,
+                SoKhoi = x.dp.SoKhoi,
                 TheTich = x.dp.TheTich,
                 TrangThai = x.tt.StatusContent,
                 statusId = x.tt.StatusId,
@@ -1385,6 +1388,11 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
                     return new BoolActionResult { isSuccess = false, Message = "Mã điều phối không tồn tại" };
                 }
 
+                if (checkById.TrangThai == 20)
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Không thể cập nhật chuyến này nữa" };
+                }
+
                 var getTransport = await _context.VanDon.Where(x => x.MaVanDon == checkById.MaVanDon).FirstOrDefaultAsync();
 
                 //var checkVehicleType = await _context.LoaiPhuongTien.Where(x => x.MaLoaiPhuongTien == request.PTVanChuyen).Select(x => x.TenLoaiPhuongTien).FirstOrDefaultAsync();
@@ -1463,6 +1471,9 @@ namespace TBSLogistics.Service.Repository.BillOfLadingManage
                     checkById.TrangThai = 27;
                     getTransport.TrangThai = 9;
                 }
+
+                checkById.UpdatedTime = DateTime.Now;
+
                 _context.Update(getTransport);
                 _context.Update(checkById);
 

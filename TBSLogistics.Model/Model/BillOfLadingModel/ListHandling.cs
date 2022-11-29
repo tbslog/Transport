@@ -21,8 +21,9 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
         public string MaRomooc { get; set; }
         public string ContNo { get; set; }
         public string DiemLayRong { get; set; }
-        public double? KhoiLuong { get; set; }
-        public double? TheTich { get; set; }
+        public double KhoiLuong { get; set; }
+        public double TheTich { get; set; }
+        public double SoKhoi { get; set; }
         public DateTime? ThoiGianLayTraRong { get; set; }
         public DateTime? ThoiGianHaCong { get; set; }
         public DateTime? ThoiGianKeoCong { get; set; }
