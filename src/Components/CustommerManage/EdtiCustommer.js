@@ -610,15 +610,12 @@ const EditCustommer = (props) => {
             </div>
             <div className="card-footer">
               <div>
-                <button type="button" className="btn btn-warning">
-                  Làm mới
-                </button>
                 <button
                   type="submit"
                   className="btn btn-primary"
                   style={{ float: "right" }}
                 >
-                  Thêm mới
+                  Cập Nhật
                 </button>
               </div>
             </div>

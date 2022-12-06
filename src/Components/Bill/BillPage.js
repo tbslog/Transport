@@ -69,59 +69,77 @@ const BillPage = () => {
     },
     {
       name: <div>Khách Hàng</div>,
-      selector: (row) => row.khachHang,
+      selector: (row) => <div className="text-wrap">{row.khachHang}</div>,
     },
     {
       name: <div>Đơn Vị Vận Tải</div>,
-      selector: (row) => row.donViVanTai,
+      selector: (row) => <div className="text-wrap">{row.donViVanTai}</div>,
     },
     {
       name: <div>Đơn Giá KH</div>,
-      selector: (row) =>
-        row.donGiaKH.toLocaleString("vi-VI", {
-          style: "currency",
-          currency: "VND",
-        }),
+      selector: (row) => (
+        <div className="text-wrap">
+          {row.donGiaKH.toLocaleString("vi-VI", {
+            style: "currency",
+            currency: "VND",
+          })}
+        </div>
+      ),
     },
     {
       name: <div>Đơn Giá NCC</div>,
-      selector: (row) =>
-        row.donGiaNCC.toLocaleString("vi-VI", {
-          style: "currency",
-          currency: "VND",
-        }),
+      selector: (row) => (
+        <div className="text-wrap">
+          {row.donGiaNCC.toLocaleString("vi-VI", {
+            style: "currency",
+            currency: "VND",
+          })}
+        </div>
+      ),
     },
     {
       name: "Doanh Thu",
-      selector: (row) =>
-        row.doanhThu.toLocaleString("vi-VI", {
-          style: "currency",
-          currency: "VND",
-        }),
+      selector: (row) => (
+        <div className="text-wrap">
+          {row.doanhThu.toLocaleString("vi-VI", {
+            style: "currency",
+            currency: "VND",
+          })}
+        </div>
+      ),
     },
     {
       name: "Lợi Nhuận",
-      selector: (row) =>
-        row.loiNhuan.toLocaleString("vi-VI", {
-          style: "currency",
-          currency: "VND",
-        }),
+      selector: (row) => (
+        <div className="text-wrap">
+          {row.loiNhuan.toLocaleString("vi-VI", {
+            style: "currency",
+            currency: "VND",
+          })}
+        </div>
+      ),
     },
     {
       name: "Phụ Phí HĐ",
-      selector: (row) =>
-        row.chiPhiHopDong.toLocaleString("vi-VI", {
-          style: "currency",
-          currency: "VND",
-        }),
+      selector: (row) => (
+        <div className="text-wrap">
+          {row.chiPhiHopDong.toLocaleString("vi-VI", {
+            style: "currency",
+            currency: "VND",
+          })}
+        </div>
+      ),
     },
     {
       name: <div>Phụ Phí Phát Sinh</div>,
-      selector: (row) =>
-        row.chiPhiPhatSinh.toLocaleString("vi-VI", {
-          style: "currency",
-          currency: "VND",
-        }),
+      selector: (row) => (
+        <div className="text-wrap">
+          {row.chiPhiPhatSinh.toLocaleString("vi-VI", {
+            style: "currency",
+            currency: "VND",
+          })}
+        </div>
+      ),
     },
   ]);
 

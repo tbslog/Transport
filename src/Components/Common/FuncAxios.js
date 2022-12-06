@@ -1,5 +1,5 @@
 import axios from "axios";
-import { ToastSuccess, ToastError, ToastWarning } from "../Common/FuncToast";
+import { ToastSuccess, ToastError } from "../Common/FuncToast";
 import Cookies from "js-cookie";
 import jwt_decode from "jwt-decode";
 import { Buffer } from "buffer";
@@ -40,8 +40,9 @@ axios.interceptors.response.use(
   },
   async (error) => {
     if (
-      error.response.status === 401 &&
-      error.response.statusText === "Unauthorized"
+      (error.response.status === 401 &&
+        error.response.statusText === "Unauthorized") ||
+      error.response.status === 500
     ) {
       // handle error: inform user, go to login, etc
       Object.keys(Cookies.get()).forEach(function (cookieName) {
@@ -51,6 +52,7 @@ axios.interceptors.response.use(
         };
         Cookies.remove(cookieName);
       });
+      ToastError("Phiên đăng nhập đã hết hạn");
       return window.location.reload();
     } else {
       return Promise.reject(error);

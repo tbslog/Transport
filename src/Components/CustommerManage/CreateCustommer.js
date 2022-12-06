@@ -18,21 +18,6 @@ const CreateCustommer = (props) => {
   });
 
   const Validate = {
-    MaKH: {
-      required: "Không được để trống",
-      maxLength: {
-        value: 8,
-        message: "Không được vượt quá 8 ký tự",
-      },
-      minLength: {
-        value: 8,
-        message: "Không được ít hơn 8 ký tự",
-      },
-      pattern: {
-        value: /^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9]+(?<![_.])$/,
-        message: "Không được chứa ký tự đặc biệt",
-      },
-    },
     TenKH: {
       required: "Không được để trống",
       maxLength: {
@@ -124,38 +109,6 @@ const CreateCustommer = (props) => {
   const [ListProvince, SetListProvince] = useState([]);
   const [ListDistrict, SetListDistrict] = useState([]);
   const [ListWard, SetListWard] = useState([]);
-
-  const onSubmit = async (data, e) => {
-    SetIsLoading(true);
-
-    const post = await postData("Customer/CreateCustomer", {
-      maKh: data.MaKH.toUpperCase(),
-      tenKh: data.TenKH,
-      maSoThue: data.MST,
-      sdt: data.SDT,
-      email: data.Email,
-      trangThai: data.TrangThai,
-      nhomKh: data.NhomKH,
-      loaiKh: data.LoaiKH,
-      address: {
-        tenDiaDiem: "",
-        maQuocGia: 1,
-        maTinh: data.MaTinh.value,
-        maHuyen: data.MaHuyen.value,
-        maPhuong: data.MaPhuong.value,
-        soNha: data.SoNha,
-        diaChiDayDu: "",
-        maGps: data.GPS,
-        maLoaiDiaDiem: data.MaLoaiDiaDiem.value,
-      },
-    });
-    if (post === 1) {
-      props.getListUser();
-      reset();
-    }
-
-    SetIsLoading(false);
-  };
 
   useEffect(() => {
     if (props.listCusGroup && props.listCusType) {
@@ -273,6 +226,37 @@ const CreateCustommer = (props) => {
     setValue("MaPhuong", null);
   };
 
+  const onSubmit = async (data, e) => {
+    SetIsLoading(true);
+
+    const post = await postData("Customer/CreateCustomer", {
+      tenKh: data.TenKH,
+      maSoThue: data.MST,
+      sdt: data.SDT,
+      email: data.Email,
+      trangThai: data.TrangThai,
+      nhomKh: data.NhomKH,
+      loaiKh: data.LoaiKH,
+      address: {
+        tenDiaDiem: "",
+        maQuocGia: 1,
+        maTinh: data.MaTinh.value,
+        maHuyen: data.MaHuyen.value,
+        maPhuong: data.MaPhuong.value,
+        soNha: data.SoNha,
+        diaChiDayDu: "",
+        maGps: data.GPS,
+        maLoaiDiaDiem: data.MaLoaiDiaDiem.value,
+      },
+    });
+    if (post === 1) {
+      props.getListUser();
+      reset();
+    }
+
+    SetIsLoading(false);
+  };
+
   return (
     <>
       <div className="card card-primary">
@@ -285,22 +269,6 @@ const CreateCustommer = (props) => {
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="card-body">
               <div className="row">
-                <div className="col-sm">
-                  <div className="form-group">
-                    <label htmlFor="MaKH">Mã khách hàng(*)</label>
-                    <input
-                      autoComplete="false"
-                      type="text"
-                      className="form-control"
-                      id="MaKH"
-                      placeholder="Nhập mã khách hàng"
-                      {...register("MaKH", Validate.MaKH)}
-                    />
-                    {errors.MaKH && (
-                      <span className="text-danger">{errors.MaKH.message}</span>
-                    )}
-                  </div>
-                </div>
                 <div className="col-sm">
                   <div className="form-group">
                     <label htmlFor="TenKH">Tên khách hàng(*)</label>
@@ -318,9 +286,6 @@ const CreateCustommer = (props) => {
                     )}
                   </div>
                 </div>
-              </div>
-
-              <div className="row">
                 <div className="col-sm">
                   <div className="form-group">
                     <label htmlFor="Email">Địa chỉ Email(*)</label>

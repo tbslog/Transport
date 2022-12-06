@@ -185,8 +185,8 @@ const HandlingPage = (props) => {
       sortable: true,
     },
     {
-      name: "Số Khối",
-      selector: (row) => row.soKhoi,
+      name: "Số Kiện",
+      selector: (row) => row.soKien,
       sortable: true,
     },
     {

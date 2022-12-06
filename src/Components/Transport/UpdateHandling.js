@@ -272,7 +272,7 @@ const UpdateHandling = (props) => {
     setValue("LoaiHangHoa", data.maLoaiHangHoa);
     setValue("KhoiLuong", data.khoiLuong);
     setValue("TheTich", data.theTich);
-    setValue("SoKhoi", data.soKhoi);
+    setValue("SoKien", data.soKien);
     setValue(
       "TaiXe",
       {
@@ -530,111 +530,114 @@ const UpdateHandling = (props) => {
                     />
                   </div>
                 </div>
-                {watch(`PTVanChuyen`) && watch(`PTVanChuyen`).includes("CONT") && (
-                  <>
-                    <div className="col col-sm">
-                      <div className="form-group">
-                        <label htmlFor="TGLayTraRong">
-                          Thời Gian Lấy/Trả Rỗng(*)
-                        </label>
-                        <div className="input-group ">
-                          <Controller
-                            control={control}
-                            name={`TGLayTraRong`}
-                            render={({ field }) => (
-                              <DatePicker
-                                disabled={true}
-                                className="form-control"
-                                showTimeSelect
-                                timeFormat="HH:mm"
-                                dateFormat="dd/MM/yyyy HH:mm"
-                                onChange={(date) => field.onChange(date)}
-                                selected={field.value}
-                              />
-                            )}
-                          />
+                {watch(`PTVanChuyen`) &&
+                  watch(`PTVanChuyen`).includes("CONT") && (
+                    <>
+                      <div className="col col-sm">
+                        <div className="form-group">
+                          <label htmlFor="TGLayTraRong">
+                            Thời Gian Lấy/Trả Rỗng(*)
+                          </label>
+                          <div className="input-group ">
+                            <Controller
+                              control={control}
+                              name={`TGLayTraRong`}
+                              render={({ field }) => (
+                                <DatePicker
+                                  disabled={true}
+                                  className="form-control"
+                                  showTimeSelect
+                                  timeFormat="HH:mm"
+                                  dateFormat="dd/MM/yyyy HH:mm"
+                                  onChange={(date) => field.onChange(date)}
+                                  selected={field.value}
+                                />
+                              )}
+                            />
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    {transportType && transportType === "xuat" ? (
-                      <>
-                        <div className="col col-sm">
-                          <div className="form-group">
-                            <label htmlFor="TGHaCang">
-                              Thời Gian Hạ Cảng(*)
-                            </label>
-                            <div className="input-group ">
-                              <Controller
-                                control={control}
-                                name={`TGHaCang`}
-                                render={({ field }) => (
-                                  <DatePicker
-                                    disabled={true}
-                                    className="form-control"
-                                    showTimeSelect
-                                    timeFormat="HH:mm"
-                                    dateFormat="dd/MM/yyyy HH:mm"
-                                    onChange={(date) => field.onChange(date)}
-                                    selected={field.value}
-                                  />
-                                )}
-                              />
+                      {transportType && transportType === "xuat" ? (
+                        <>
+                          <div className="col col-sm">
+                            <div className="form-group">
+                              <label htmlFor="TGHaCang">
+                                Thời Gian Hạ Cảng(*)
+                              </label>
+                              <div className="input-group ">
+                                <Controller
+                                  control={control}
+                                  name={`TGHaCang`}
+                                  render={({ field }) => (
+                                    <DatePicker
+                                      disabled={true}
+                                      className="form-control"
+                                      showTimeSelect
+                                      timeFormat="HH:mm"
+                                      dateFormat="dd/MM/yyyy HH:mm"
+                                      onChange={(date) => field.onChange(date)}
+                                      selected={field.value}
+                                    />
+                                  )}
+                                />
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </>
-                    ) : (
-                      <>
-                        <div className="col col-sm">
-                          <div className="form-group">
-                            <label htmlFor="TGCoMat">Thời Gian Có Mặt(*)</label>
-                            <div className="input-group ">
-                              <Controller
-                                control={control}
-                                name={`TGCoMat`}
-                                render={({ field }) => (
-                                  <DatePicker
-                                    disabled={true}
-                                    className="form-control"
-                                    showTimeSelect
-                                    timeFormat="HH:mm"
-                                    dateFormat="dd/MM/yyyy HH:mm"
-                                    onChange={(date) => field.onChange(date)}
-                                    selected={field.value}
-                                  />
-                                )}
-                              />
+                        </>
+                      ) : (
+                        <>
+                          <div className="col col-sm">
+                            <div className="form-group">
+                              <label htmlFor="TGCoMat">
+                                Thời Gian Có Mặt(*)
+                              </label>
+                              <div className="input-group ">
+                                <Controller
+                                  control={control}
+                                  name={`TGCoMat`}
+                                  render={({ field }) => (
+                                    <DatePicker
+                                      disabled={true}
+                                      className="form-control"
+                                      showTimeSelect
+                                      timeFormat="HH:mm"
+                                      dateFormat="dd/MM/yyyy HH:mm"
+                                      onChange={(date) => field.onChange(date)}
+                                      selected={field.value}
+                                    />
+                                  )}
+                                />
+                              </div>
                             </div>
                           </div>
-                        </div>
-                        <div className="col col-sm">
-                          <div className="form-group">
-                            <label htmlFor="TGHanLenh">
-                              Thời Gian Hạn Lệnh(*)
-                            </label>
-                            <div className="input-group ">
-                              <Controller
-                                control={control}
-                                name={`TGHanLenh`}
-                                render={({ field }) => (
-                                  <DatePicker
-                                    disabled={true}
-                                    className="form-control"
-                                    showTimeSelect
-                                    timeFormat="HH:mm"
-                                    dateFormat="dd/MM/yyyy HH:mm"
-                                    onChange={(date) => field.onChange(date)}
-                                    selected={field.value}
-                                  />
-                                )}
-                              />
+                          <div className="col col-sm">
+                            <div className="form-group">
+                              <label htmlFor="TGHanLenh">
+                                Thời Gian Hạn Lệnh(*)
+                              </label>
+                              <div className="input-group ">
+                                <Controller
+                                  control={control}
+                                  name={`TGHanLenh`}
+                                  render={({ field }) => (
+                                    <DatePicker
+                                      disabled={true}
+                                      className="form-control"
+                                      showTimeSelect
+                                      timeFormat="HH:mm"
+                                      dateFormat="dd/MM/yyyy HH:mm"
+                                      onChange={(date) => field.onChange(date)}
+                                      selected={field.value}
+                                    />
+                                  )}
+                                />
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </>
-                    )}
-                  </>
-                )}
+                        </>
+                      )}
+                    </>
+                  )}
 
                 <div className="col col-sm">
                   <div className="form-group">
@@ -697,39 +700,44 @@ const UpdateHandling = (props) => {
                 </div>
               </div>
               <div className="row">
-                {watch(`PTVanChuyen`) && watch(`PTVanChuyen`).includes("CONT") && (
-                  <div className="col col-sm">
-                    <div className="form-group">
-                      {transportType && transportType === "xuat" && (
-                        <label htmlFor="DiemLayTraRong">Điểm Lấy Rỗng(*)</label>
-                      )}
-                      {transportType && transportType === "nhap" && (
-                        <label htmlFor="DiemLayTraRong">Điểm Trả Rỗng(*)</label>
-                      )}
-                      <Controller
-                        name={`DiemLayTraRong`}
-                        control={control}
-                        render={({ field }) => (
-                          <Select
-                            isDisabled={true}
-                            {...field}
-                            classNamePrefix={"form-control"}
-                            value={field.value}
-                            options={listPoint}
-                          />
+                {watch(`PTVanChuyen`) &&
+                  watch(`PTVanChuyen`).includes("CONT") && (
+                    <div className="col col-sm">
+                      <div className="form-group">
+                        {transportType && transportType === "xuat" && (
+                          <label htmlFor="DiemLayTraRong">
+                            Điểm Lấy Rỗng(*)
+                          </label>
                         )}
-                        rules={{
-                          required: "không được để trống",
-                        }}
-                      />
-                      {errors.DiemLayTraRong && (
-                        <span className="text-danger">
-                          {errors.DiemLayTraRong.message}
-                        </span>
-                      )}
+                        {transportType && transportType === "nhap" && (
+                          <label htmlFor="DiemLayTraRong">
+                            Điểm Trả Rỗng(*)
+                          </label>
+                        )}
+                        <Controller
+                          name={`DiemLayTraRong`}
+                          control={control}
+                          render={({ field }) => (
+                            <Select
+                              isDisabled={true}
+                              {...field}
+                              classNamePrefix={"form-control"}
+                              value={field.value}
+                              options={listPoint}
+                            />
+                          )}
+                          rules={{
+                            required: "không được để trống",
+                          }}
+                        />
+                        {errors.DiemLayTraRong && (
+                          <span className="text-danger">
+                            {errors.DiemLayTraRong.message}
+                          </span>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
                 <div className="col col-sm">
                   <div className="form-group">
                     <label htmlFor="NhaCungCap">Đơn Vị Vận Tải(*)</label>
@@ -925,72 +933,74 @@ const UpdateHandling = (props) => {
                     )}
                   </div>
                 </div>
-                {watch(`PTVanChuyen`) && watch(`PTVanChuyen`).includes("CONT") && (
-                  <>
-                    <div className="col col-sm">
-                      <div className="form-group">
-                        <label htmlFor="Romooc">Số Romooc</label>
-                        <Controller
-                          name={`Romooc`}
-                          control={control}
-                          render={({ field }) => (
-                            <Select
-                              {...field}
-                              classNamePrefix={"form-control"}
-                              value={field.value}
-                              options={listRomooc}
-                            />
+                {watch(`PTVanChuyen`) &&
+                  watch(`PTVanChuyen`).includes("CONT") && (
+                    <>
+                      <div className="col col-sm">
+                        <div className="form-group">
+                          <label htmlFor="Romooc">Số Romooc</label>
+                          <Controller
+                            name={`Romooc`}
+                            control={control}
+                            render={({ field }) => (
+                              <Select
+                                {...field}
+                                classNamePrefix={"form-control"}
+                                value={field.value}
+                                options={listRomooc}
+                              />
+                            )}
+                          />
+                          {errors.Romooc && (
+                            <span className="text-danger">
+                              {errors.Romooc.message}
+                            </span>
                           )}
-                        />
-                        {errors.Romooc && (
-                          <span className="text-danger">
-                            {errors.Romooc.message}
-                          </span>
-                        )}
+                        </div>
                       </div>
-                    </div>
-                  </>
-                )}
+                    </>
+                  )}
               </div>
               <div className="row">
-                {watch(`PTVanChuyen`) && watch(`PTVanChuyen`).includes("CONT") && (
-                  <>
-                    <div className="col col-sm">
-                      <div className="form-group">
-                        <label htmlFor="CONTNO">CONT NO(*)</label>
-                        <input
-                          autoComplete="false"
-                          type="text"
-                          className="form-control"
-                          id="CONTNO"
-                          {...register(`CONTNO`, Validate.CONTNO)}
-                        />
-                        {errors.CONTNO && (
-                          <span className="text-danger">
-                            {errors.CONTNO.message}
-                          </span>
-                        )}
+                {watch(`PTVanChuyen`) &&
+                  watch(`PTVanChuyen`).includes("CONT") && (
+                    <>
+                      <div className="col col-sm">
+                        <div className="form-group">
+                          <label htmlFor="CONTNO">CONT NO(*)</label>
+                          <input
+                            autoComplete="false"
+                            type="text"
+                            className="form-control"
+                            id="CONTNO"
+                            {...register(`CONTNO`, Validate.CONTNO)}
+                          />
+                          {errors.CONTNO && (
+                            <span className="text-danger">
+                              {errors.CONTNO.message}
+                            </span>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                    <div className="col col-sm">
-                      <div className="form-group">
-                        <label htmlFor="SEALHQ">SEAL HQ</label>
-                        <input
-                          autoComplete="false"
-                          type="text"
-                          className="form-control"
-                          id="SEALHQ"
-                          {...register(`SEALHQ`, Validate.SEALHQ)}
-                        />
-                        {errors.SEALHQ && (
-                          <span className="text-danger">
-                            {errors.SEALHQ.message}
-                          </span>
-                        )}
+                      <div className="col col-sm">
+                        <div className="form-group">
+                          <label htmlFor="SEALHQ">SEAL HQ</label>
+                          <input
+                            autoComplete="false"
+                            type="text"
+                            className="form-control"
+                            id="SEALHQ"
+                            {...register(`SEALHQ`, Validate.SEALHQ)}
+                          />
+                          {errors.SEALHQ && (
+                            <span className="text-danger">
+                              {errors.SEALHQ.message}
+                            </span>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  </>
-                )}
+                    </>
+                  )}
 
                 <div className="col col-sm">
                   <div className="form-group">
@@ -1069,110 +1079,111 @@ const UpdateHandling = (props) => {
                   </div>
                 </div>
               </div>
-              {watch(`PTVanChuyen`) && watch(`PTVanChuyen`).includes("CONT") && (
-                <>
-                  <div className="row">
-                    <div className="col col-sm">
-                      <div className="form-group">
-                        {transportType && transportType === "xuat" && (
-                          <label htmlFor="TGLayTraRongThucTe">
-                            Thời Gian Lấy Rỗng Thực Tế(*)
-                          </label>
-                        )}
-                        {transportType && transportType === "nhap" && (
-                          <label htmlFor="TGLayTraRongThucTe">
-                            Thời Gian Trả Rỗng Thực Tế(*)
-                          </label>
-                        )}
-
-                        <div className="input-group ">
-                          <Controller
-                            control={control}
-                            name={`TGLayTraRongThucTe`}
-                            render={({ field }) => (
-                              <DatePicker
-                                className="form-control"
-                                showTimeSelect
-                                timeFormat="HH:mm"
-                                dateFormat="dd/MM/yyyy HH:mm"
-                                onChange={(date) => field.onChange(date)}
-                                selected={field.value}
-                              />
-                            )}
-                          />
-                          {errors.TGLayTraRongThucTe && (
-                            <span className="text-danger">
-                              {errors.TGLayTraRongThucTe.message}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                    {transportType && transportType === "xuat" ? (
-                      // <div className="col col-sm">
-                      //   <div className="form-group">
-                      //     <label htmlFor="TGHaCangThucTe">
-                      //       Thời Gian Hạ Cảng Thực Tế(*)
-                      //     </label>
-                      //     <div className="input-group ">
-                      //       <Controller
-                      //         control={control}
-                      //         name={`TGHaCangThucTe`}
-                      //         render={({ field }) => (
-                      //           <DatePicker
-                      //             className="form-control"
-                      //             showTimeSelect
-                      //             timeFormat="HH:mm"
-                      //             dateFormat="dd/MM/yyyy HH:mm"
-                      //             onChange={(date) => field.onChange(date)}
-                      //             selected={field.value}
-                      //           />
-                      //         )}
-                      //       />
-                      //       {errors.TGHaCangThucTe && (
-                      //         <span className="text-danger">
-                      //           {errors.TGHaCangThucTe.message}
-                      //         </span>
-                      //       )}
-                      //     </div>
-                      //   </div>
-                      // </div>
-                      <></>
-                    ) : (
-                      <>
-                        <div className="col col-sm">
-                          <div className="form-group">
-                            <label htmlFor="TGCoMatThucTe">
-                              Thời Gian Có Mặt Thực Tế(*)
+              {watch(`PTVanChuyen`) &&
+                watch(`PTVanChuyen`).includes("CONT") && (
+                  <>
+                    <div className="row">
+                      <div className="col col-sm">
+                        <div className="form-group">
+                          {transportType && transportType === "xuat" && (
+                            <label htmlFor="TGLayTraRongThucTe">
+                              Thời Gian Lấy Rỗng Thực Tế(*)
                             </label>
-                            <div className="input-group ">
-                              <Controller
-                                control={control}
-                                name={`TGCoMatThucTe`}
-                                render={({ field }) => (
-                                  <DatePicker
-                                    className="form-control"
-                                    showTimeSelect
-                                    timeFormat="HH:mm"
-                                    dateFormat="dd/MM/yyyy HH:mm"
-                                    onChange={(date) => field.onChange(date)}
-                                    selected={field.value}
-                                  />
-                                )}
-                              />
-                              {errors.TGCoMatThucTe && (
-                                <span className="text-danger">
-                                  {errors.TGCoMatThucTe.message}
-                                </span>
+                          )}
+                          {transportType && transportType === "nhap" && (
+                            <label htmlFor="TGLayTraRongThucTe">
+                              Thời Gian Trả Rỗng Thực Tế(*)
+                            </label>
+                          )}
+
+                          <div className="input-group ">
+                            <Controller
+                              control={control}
+                              name={`TGLayTraRongThucTe`}
+                              render={({ field }) => (
+                                <DatePicker
+                                  className="form-control"
+                                  showTimeSelect
+                                  timeFormat="HH:mm"
+                                  dateFormat="dd/MM/yyyy HH:mm"
+                                  onChange={(date) => field.onChange(date)}
+                                  selected={field.value}
+                                />
                               )}
-                            </div>
+                            />
+                            {errors.TGLayTraRongThucTe && (
+                              <span className="text-danger">
+                                {errors.TGLayTraRongThucTe.message}
+                              </span>
+                            )}
                           </div>
                         </div>
-                      </>
-                    )}
-                  </div>
-                </>
-              )}
+                      </div>
+                      {transportType && transportType === "xuat" ? (
+                        // <div className="col col-sm">
+                        //   <div className="form-group">
+                        //     <label htmlFor="TGHaCangThucTe">
+                        //       Thời Gian Hạ Cảng Thực Tế(*)
+                        //     </label>
+                        //     <div className="input-group ">
+                        //       <Controller
+                        //         control={control}
+                        //         name={`TGHaCangThucTe`}
+                        //         render={({ field }) => (
+                        //           <DatePicker
+                        //             className="form-control"
+                        //             showTimeSelect
+                        //             timeFormat="HH:mm"
+                        //             dateFormat="dd/MM/yyyy HH:mm"
+                        //             onChange={(date) => field.onChange(date)}
+                        //             selected={field.value}
+                        //           />
+                        //         )}
+                        //       />
+                        //       {errors.TGHaCangThucTe && (
+                        //         <span className="text-danger">
+                        //           {errors.TGHaCangThucTe.message}
+                        //         </span>
+                        //       )}
+                        //     </div>
+                        //   </div>
+                        // </div>
+                        <></>
+                      ) : (
+                        <>
+                          <div className="col col-sm">
+                            <div className="form-group">
+                              <label htmlFor="TGCoMatThucTe">
+                                Thời Gian Có Mặt Thực Tế(*)
+                              </label>
+                              <div className="input-group ">
+                                <Controller
+                                  control={control}
+                                  name={`TGCoMatThucTe`}
+                                  render={({ field }) => (
+                                    <DatePicker
+                                      className="form-control"
+                                      showTimeSelect
+                                      timeFormat="HH:mm"
+                                      dateFormat="dd/MM/yyyy HH:mm"
+                                      onChange={(date) => field.onChange(date)}
+                                      selected={field.value}
+                                    />
+                                  )}
+                                />
+                                {errors.TGCoMatThucTe && (
+                                  <span className="text-danger">
+                                    {errors.TGCoMatThucTe.message}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </>
+                )}
               <div className="row">
                 <div className="col col-12">
                   <div className="form-group">

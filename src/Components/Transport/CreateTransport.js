@@ -41,6 +41,9 @@ const CreateTransport = (props) => {
   });
 
   const Validate = {
+    LoaiHinh: {
+      required: "Không được để trống",
+    },
     MaKH: {
       required: "Không được để trống",
     },
@@ -100,6 +103,14 @@ const CreateTransport = (props) => {
         message: "Phải là số",
       },
     },
+    TongSoKien: {
+      required: "Không được để trống",
+      pattern: {
+        value:
+          /^(?:0\.(?:0[0-9]|[0-9]\d?)|[0-9]\d*(?:\.\d{1,2})?)(?:e[+-]?\d+)?$/,
+        message: "Phải là số",
+      },
+    },
     KhoiLuong: {
       required: "Không được để trống",
       pattern: {
@@ -116,7 +127,7 @@ const CreateTransport = (props) => {
         message: "Phải là số",
       },
     },
-    SoKhoi: {
+    SoKien: {
       required: "Không được để trống",
       pattern: {
         value:
@@ -138,6 +149,7 @@ const CreateTransport = (props) => {
   const [listGoodsType, setListGoodsType] = useState([]);
   const [listPoint, setListPoint] = useState([]);
   const [listSupplier, setListSupplier] = useState([]);
+  const [listTransportType, setListTransportType] = useState([]);
 
   useEffect(() => {
     SetIsLoading(true);
@@ -168,6 +180,9 @@ const CreateTransport = (props) => {
         setListCus([]);
         setListSupplier([]);
       }
+
+      let getListTransportType = await getData("Common/GetListTransportType");
+      setListTransportType(getListTransportType);
 
       let getListVehicleType = await getData("Common/GetListVehicleType");
       let getListGoodsType = await getData("Common/GetListGoodsType");
@@ -304,8 +319,7 @@ const CreateTransport = (props) => {
         PTVanChuyen: val.PTVanChuyen,
         KhoiLuong: val.KhoiLuong,
         TheTich: val.TheTich,
-        SoKhoi: val.TheTich,
-        MaPtvc: "Road",
+        SoKien: val.SoKien,
         DonViTinh: "CHUYEN",
       });
     });
@@ -317,6 +331,7 @@ const CreateTransport = (props) => {
 
     const create = await postData("BillOfLading/CreateTransport", {
       arrHandlings: arr,
+      MaPTVC: data.LoaiHinh,
       HangTau: data.HangTau,
       TenTau: data.TenTau,
       MaVanDonKH: data.MaVDKH,
@@ -324,7 +339,7 @@ const CreateTransport = (props) => {
       LoaiVanDon: data.LoaiVanDon,
       TongKhoiLuong: data.TongKhoiLuong,
       TongTheTich: data.TongTheTich,
-      TongSoKhoi: data.TongSoKhoi,
+      TongSoKien: data.TongSoKien,
       MaKH: data.MaKH.value,
       TongThungHang: data.TongThungHang,
       GhiChu: data.GhiChu,
@@ -388,6 +403,32 @@ const CreateTransport = (props) => {
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="card-body">
               <div className="row">
+                <div className="col col-sm">
+                  <div className="form-group">
+                    <label htmlFor="LoaiHinh">Loại Hình(*)</label>
+                    <select
+                      className="form-control"
+                      {...register("LoaiHinh", Validate.LoaiHinh)}
+                      value={watch("LoaiHinh")}
+                    >
+                      <option value="">Chọn Loại Hình</option>
+                      {listTransportType &&
+                        listTransportType.length > 0 &&
+                        listTransportType.map((val) => {
+                          return (
+                            <option value={val.maPtvc} key={val.maPtvc}>
+                              {val.tenPtvc}
+                            </option>
+                          );
+                        })}
+                    </select>
+                    {errors.LoaiHinh && (
+                      <span className="text-danger">
+                        {errors.LoaiHinh.message}
+                      </span>
+                    )}
+                  </div>
+                </div>
                 <div className="col col-sm">
                   <div className="form-group">
                     <label htmlFor="LoaiVanDon">Phân Loại Vận Đơn(*)</label>
@@ -629,19 +670,19 @@ const CreateTransport = (props) => {
                 </div>
                 <div className="col col-sm">
                   <div className="form-group">
-                    <label htmlFor="TongSoKhoi">
-                      Tổng Số Khối (Đơn Vị PCS)(*)
+                    <label htmlFor="TongSoKien">
+                      Tổng Số Kiện (Đơn Vị PCS)(*)
                     </label>
                     <input
                       autoComplete="false"
                       type="text"
                       className="form-control"
-                      id="TongSoKhoi"
-                      {...register(`TongSoKhoi`, Validate.TongSoKhoi)}
+                      id="TongSoKien"
+                      {...register(`TongSoKien`, Validate.TongSoKien)}
                     />
-                    {errors.TongSoKhoi && (
+                    {errors.TongSoKien && (
                       <span className="text-danger">
-                        {errors.TongSoKhoi.message}
+                        {errors.TongSoKien.message}
                       </span>
                     )}
                   </div>
@@ -862,17 +903,17 @@ const CreateTransport = (props) => {
                                 <input
                                   type="text"
                                   className="form-control"
-                                  placeholder="Số Khối"
-                                  id="SoKhoi"
+                                  placeholder="Số Kiện"
+                                  id="SoKien"
                                   {...register(
-                                    `optionHandling.${index}.SoKhoi`,
-                                    Validate.SoKhoi
+                                    `optionHandling.${index}.SoKien`,
+                                    Validate.SoKien
                                   )}
                                 />
-                                {errors.optionHandling?.[index]?.SoKhoi && (
+                                {errors.optionHandling?.[index]?.SoKien && (
                                   <span className="text-danger">
                                     {
-                                      errors.optionHandling?.[index]?.SoKhoi
+                                      errors.optionHandling?.[index]?.SoKien
                                         .message
                                     }
                                   </span>

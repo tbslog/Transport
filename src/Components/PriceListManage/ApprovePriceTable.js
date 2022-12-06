@@ -117,8 +117,7 @@ const ApprovePriceTable = (props) => {
     setLoading(true);
     if (checkShowModal && Object.keys(checkShowModal).length > 0) {
       (async () => {
-        var list = await getDataApprove();
-        setData(list.data);
+        fetchData(1);
         setLoading(false);
       })();
     }

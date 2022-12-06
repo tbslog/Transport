@@ -77,17 +77,15 @@ const TransportPage = () => {
       selector: (row) => <div className="text-wrap">{row.tenKH}</div>,
     },
     {
-      name: "Mã Cung Đường",
+      name: <div>Mã Cung Đường</div>,
       selector: (row) => row.maCungDuong,
       sortable: true,
-      width: "auto",
       omit: true,
     },
     {
       name: <div>Tên Cung Đường</div>,
       selector: (row) => <div className="text-wrap">{row.tenCungDuong}</div>,
       sortable: true,
-      width: "auto",
     },
     // {
     //   name: "Điểm Lấy Rỗng",
@@ -114,8 +112,8 @@ const TransportPage = () => {
       sortable: true,
     },
     {
-      name: <div>Tổng Số Khối</div>,
-      selector: (row) => row.tongSoKhoi,
+      name: <div>Tổng Số Kiện</div>,
+      selector: (row) => row.tongSoKien,
       sortable: true,
       Cell: ({ row }) => <div className="text-wrap">{row.tongSoKhoi}</div>,
     },

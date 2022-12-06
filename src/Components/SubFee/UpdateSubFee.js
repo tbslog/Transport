@@ -65,7 +65,7 @@ const UpdateSubFee = (props) => {
       let getListPlace = await getData(`Address/GetListAddressSelect`);
       if (getListPlace && getListPlace.length > 0) {
         let obj = [];
-        obj.push({ value: "", label: "-- Để Trống --" });
+        obj.push({ value: null, label: "-- Để Trống --" });
         getListPlace.map((val) => {
           obj.push({
             value: val.maDiaDiem,

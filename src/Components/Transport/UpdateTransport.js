@@ -28,6 +28,9 @@ const UpdateTransport = (props) => {
   });
 
   const Validate = {
+    LoaiHinh: {
+      required: "Không được để trống",
+    },
     MaKH: {
       required: "Không được để trống",
     },
@@ -42,23 +45,11 @@ const UpdateTransport = (props) => {
     },
     MaCungDuong: {
       required: "Không được để trống",
-      maxLength: {
-        value: 10,
-        message: "Không được vượt quá 10 ký tự",
-      },
-      minLength: {
-        value: 10,
-        message: "Không được ít hơn 10 ký tự",
-      },
-      pattern: {
-        value: /^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9]+(?<![_.])$/,
-        message: "Không được chứa ký tự đặc biệt",
-      },
     },
     LoaiHangHoa: {
       required: "Không được để trống",
     },
-    TongThungHang: {
+    TongSoKien: {
       required: "Không được để trống",
       pattern: {
         value:
@@ -87,10 +78,33 @@ const UpdateTransport = (props) => {
         message: "Phải là số",
       },
     },
+    KhoiLuong: {
+      required: "Không được để trống",
+      pattern: {
+        value:
+          /^(?:0\.(?:0[0-9]|[0-9]\d?)|[0-9]\d*(?:\.\d{1,2})?)(?:e[+-]?\d+)?$/,
+        message: "Phải là số",
+      },
+    },
+    TheTich: {
+      required: "Không được để trống",
+      pattern: {
+        value:
+          /^(?:0\.(?:0[0-9]|[0-9]\d?)|[0-9]\d*(?:\.\d{1,2})?)(?:e[+-]?\d+)?$/,
+        message: "Phải là số",
+      },
+    },
+    SoKien: {
+      required: "Không được để trống",
+      pattern: {
+        value:
+          /^(?:0\.(?:0[0-9]|[0-9]\d?)|[0-9]\d*(?:\.\d{1,2})?)(?:e[+-]?\d+)?$/,
+        message: "Phải là số",
+      },
+    },
   };
 
   const [IsLoading, SetIsLoading] = useState(false);
-
   const [listFirstPoint, setListFirstPoint] = useState([]);
   const [listSecondPoint, setListSecondPoint] = useState([]);
   const [listRoad, setListRoad] = useState([]);
@@ -100,6 +114,7 @@ const UpdateTransport = (props) => {
   const [listSupplier, setListSupplier] = useState([]);
   const [listVehicleType, setlistVehicleType] = useState([]);
   const [listGoodsType, setListGoodsType] = useState([]);
+  const [listTransportType, setListTransportType] = useState([]);
 
   useEffect(() => {
     SetIsLoading(true);
@@ -136,6 +151,9 @@ const UpdateTransport = (props) => {
       setlistVehicleType(getListVehicleType);
       setListGoodsType(getListGoodsType);
 
+      let getListTransportType = await getData("Common/GetListTransportType");
+      setListTransportType(getListTransportType);
+
       const getListPoint = await getData("address/GetListAddressSelect");
       if (getListPoint && getListPoint.length > 0) {
         var obj = [];
@@ -162,10 +180,12 @@ const UpdateTransport = (props) => {
       listPoint &&
       listVehicleType &&
       listGoodsType &&
+      listTransportType &&
       listSupplier.length > 0 &&
       listPoint.length > 0 &&
       listVehicleType.length > 0 &&
-      listGoodsType.length > 0
+      listGoodsType.length > 0 &&
+      listTransportType.length > 0
     ) {
       let arrHandlings = [];
       if (selectIdClick.arrHandlings && selectIdClick.arrHandlings.length > 0) {
@@ -178,7 +198,7 @@ const UpdateTransport = (props) => {
             PTVanChuyen: val.ptVanChuyen,
             KhoiLuong: val.khoiLuong,
             TheTich: val.theTich,
-            SoKhoi: val.soKhoi,
+            SoKien: val.soKien,
             DiemLayTraRong: !val.diemLayTraRong
               ? null
               : {
@@ -193,6 +213,8 @@ const UpdateTransport = (props) => {
       setValue("LoaiVanDon", selectIdClick.loaiVanDon);
       setValue("TongKhoiLuong", selectIdClick.tongKhoiLuong);
       setValue("TongTheTich", selectIdClick.tongTheTich);
+      setValue("TongSoKien", selectIdClick.tongSoKien);
+      setValue("LoaiHinh", selectIdClick.maPTVC.replaceAll(" ", ""));
 
       setValue(
         "MaKH",
@@ -222,6 +244,7 @@ const UpdateTransport = (props) => {
     listPoint,
     listVehicleType,
     listGoodsType,
+    listTransportType,
     props,
     selectIdClick,
     setValue,
@@ -364,8 +387,7 @@ const UpdateTransport = (props) => {
         PTVanChuyen: val.PTVanChuyen,
         KhoiLuong: val.KhoiLuong,
         TheTich: val.TheTich,
-        SoKhoi: val.TheTich,
-        MaPtvc: "Road",
+        SoKien: val.SoKien,
         DonViTinh: "CHUYEN",
       });
     });
@@ -378,6 +400,7 @@ const UpdateTransport = (props) => {
     const Update = await postData(
       `BillOfLading/UpdateTransport?transportId=${selectIdClick.maVanDon}`,
       {
+        MaPTVC: data.LoaiHinh,
         arrHandlings: arr,
         HangTau: data.HangTau,
         TenTau: data.TenTau,
@@ -389,7 +412,7 @@ const UpdateTransport = (props) => {
         TongSoKhoi: data.TongSoKhoi,
         MaKH: data.MaKH.value,
         GhiChu: data.GhiChu,
-        TongThungHang: data.TongThungHang,
+        TongSoKien: data.TongSoKien,
         ThoiGianHaCang: !data.TGHaCang
           ? null
           : moment(new Date(data.TGHaCang).toISOString()).format(
@@ -421,7 +444,6 @@ const UpdateTransport = (props) => {
       getListTransport(1);
       hideModal();
     }
-
     SetIsLoading(false);
   };
 
@@ -437,6 +459,32 @@ const UpdateTransport = (props) => {
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="card-body">
               <div className="row">
+                <div className="col col-sm">
+                  <div className="form-group">
+                    <label htmlFor="LoaiHinh">Loại Hình(*)</label>
+                    <select
+                      className="form-control"
+                      {...register("LoaiHinh", Validate.LoaiHinh)}
+                      value={watch("LoaiHinh")}
+                    >
+                      <option value="">Chọn Loại Hình</option>
+                      {listTransportType &&
+                        listTransportType.length > 0 &&
+                        listTransportType.map((val) => {
+                          return (
+                            <option value={val.maPtvc} key={val.maPtvc}>
+                              {val.tenPtvc}
+                            </option>
+                          );
+                        })}
+                    </select>
+                    {errors.LoaiHinh && (
+                      <span className="text-danger">
+                        {errors.LoaiHinh.message}
+                      </span>
+                    )}
+                  </div>
+                </div>
                 <div className="col col-sm">
                   <div className="form-group">
                     <label htmlFor="LoaiVanDon">Phân Loại Vận Đơn(*)</label>
@@ -678,19 +726,19 @@ const UpdateTransport = (props) => {
                 </div>
                 <div className="col col-sm">
                   <div className="form-group">
-                    <label htmlFor="TongSoKhoi">
-                      Tổng Số Khối (Đơn Vị PCS)(*)
+                    <label htmlFor="TongSoKien">
+                      Tổng Số Kiện (Đơn Vị PCS)(*)
                     </label>
                     <input
                       autoComplete="false"
                       type="text"
                       className="form-control"
-                      id="TongSoKhoi"
-                      {...register(`TongSoKhoi`, Validate.TongSoKhoi)}
+                      id="TongSoKien"
+                      {...register(`TongSoKien`, Validate.TongSoKien)}
                     />
-                    {errors.TongSoKhoi && (
+                    {errors.TongSoKien && (
                       <span className="text-danger">
-                        {errors.TongSoKhoi.message}
+                        {errors.TongSoKien.message}
                       </span>
                     )}
                   </div>
@@ -911,17 +959,17 @@ const UpdateTransport = (props) => {
                                 <input
                                   type="text"
                                   className="form-control"
-                                  placeholder="Số Khối"
-                                  id="SoKhoi"
+                                  placeholder="Số Kiện"
+                                  id="SoKien"
                                   {...register(
-                                    `optionHandling.${index}.SoKhoi`,
-                                    Validate.SoKhoi
+                                    `optionHandling.${index}.SoKien`,
+                                    Validate.SoKien
                                   )}
                                 />
-                                {errors.optionHandling?.[index]?.SoKhoi && (
+                                {errors.optionHandling?.[index]?.SoKien && (
                                   <span className="text-danger">
                                     {
-                                      errors.optionHandling?.[index]?.SoKhoi
+                                      errors.optionHandling?.[index]?.SoKien
                                         .message
                                     }
                                   </span>

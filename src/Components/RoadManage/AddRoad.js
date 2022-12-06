@@ -105,7 +105,6 @@ const AddRoad = (props) => {
   const onSubmit = async (data, e) => {
     SetIsLoading(true);
     const post = await postData("Road/CreateRoad", {
-      maCungDuong: data.MaCungDuong,
       tenCungDuong: data.TenCungDuong,
       km: data.SoKM,
       diemDau: data.DiemDau.value,
@@ -135,24 +134,6 @@ const AddRoad = (props) => {
               <div className="row">
                 <div className="col-sm">
                   <div className="form-group">
-                    <label htmlFor="MaCungDuong">Mã cung đường(*)</label>
-                    <input
-                      autoComplete="false"
-                      type="text"
-                      className="form-control"
-                      id="MaCungDuong"
-                      placeholder="Nhập mã cung đường"
-                      {...register("MaCungDuong", Validate.MaCungDuong)}
-                    />
-                    {errors.MaCungDuong && (
-                      <span className="text-danger">
-                        {errors.MaCungDuong.message}
-                      </span>
-                    )}
-                  </div>
-                </div>
-                <div className="col-sm">
-                  <div className="form-group">
                     <label htmlFor="TenCungDuong">Tên cung đường(*)</label>
                     <input
                       type="text"
@@ -168,8 +149,6 @@ const AddRoad = (props) => {
                     )}
                   </div>
                 </div>
-              </div>
-              <div className="row">
                 <div className="col-sm">
                   <div className="form-group">
                     <label htmlFor="DiemDau">Điểm đầu(*)</label>

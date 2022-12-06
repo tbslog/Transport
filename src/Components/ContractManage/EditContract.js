@@ -22,7 +22,7 @@ const EditContract = (props) => {
       required: "Không được để trống",
       maxLength: {
         value: 20,
-        message: "Không được vượt quá 10 ký tự",
+        message: "Không được vượt quá 20 ký tự",
       },
       pattern: {
         value: /^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9]+(?<![_.])$/,
@@ -42,21 +42,6 @@ const EditContract = (props) => {
       pattern: {
         value:
           /^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9 aAàÀảẢãÃáÁạẠăĂằẰẳẲẵẴắẮặẶâÂầẦẩẨẫẪấẤậẬbBcCdDđĐeEèÈẻẺẽẼéÉẹẸêÊềỀểỂễỄếẾệỆ fFgGhHiIìÌỉỈĩĨíÍịỊjJkKlLmMnNoOòÒỏỎõÕóÓọỌôÔồỒổỔỗỖốỐộỘơƠờỜởỞỡỠớỚợỢpPqQrRsStTu UùÙủỦũŨúÚụỤưƯừỪửỬữỮứỨựỰvVwWxXyYỳỲỷỶỹỸýÝỵỴzZ]+(?<![_.])$/,
-        message: "Không được chứa ký tự đặc biệt",
-      },
-    },
-    MaKh: {
-      required: "Không được để trống",
-      maxLength: {
-        value: 8,
-        message: "Không được vượt quá 8 ký tự",
-      },
-      minLength: {
-        value: 8,
-        message: "Không được ít hơn 8 ký tự",
-      },
-      pattern: {
-        value: /^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9]+(?<![_.])$/,
         message: "Không được chứa ký tự đặc biệt",
       },
     },
