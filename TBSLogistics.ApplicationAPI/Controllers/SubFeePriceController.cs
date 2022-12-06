@@ -10,7 +10,7 @@ using TBSLogistics.Model.Model.SubFeePriceModel;
 using TBSLogistics.Model.Wrappers;
 using TBSLogistics.Service.Helpers;
 using TBSLogistics.Service.Panigation;
-using TBSLogistics.Service.Repository.Common;
+using TBSLogistics.Service.Services.Common;
 using TBSLogistics.Service.Services.SubFeePriceManage;
 
 namespace TBSLogistics.ApplicationAPI.Controllers

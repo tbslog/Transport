@@ -13,7 +13,7 @@ using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.ContractModel;
 using TBSLogistics.Service.Helpers;
 using TBSLogistics.Service.Panigation;
-using TBSLogistics.Service.Repository.Common;
+using TBSLogistics.Service.Services.Common;
 using TBSLogistics.Service.Services.ContractManage;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860

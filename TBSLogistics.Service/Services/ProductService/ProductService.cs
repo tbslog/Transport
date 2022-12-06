@@ -1,8 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TBSLogistics.Data.TMS;
@@ -11,7 +13,7 @@ using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.ProductServiceModel;
 using TBSLogistics.Model.TempModel;
 using TBSLogistics.Model.Wrappers;
-using TBSLogistics.Service.Repository.Common;
+using TBSLogistics.Service.Services.Common;
 
 namespace TBSLogistics.Service.Services.ProductServiceManage
 {
@@ -19,11 +21,15 @@ namespace TBSLogistics.Service.Services.ProductServiceManage
     {
         private readonly TMSContext _TMSContext;
         private readonly ICommon _common;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private TempData tempData;
 
-        public ProductService(TMSContext context, ICommon common)
+        public ProductService(TMSContext context, ICommon common, IHttpContextAccessor httpContextAccessor)
         {
+            _httpContextAccessor = httpContextAccessor;
             _TMSContext = context;
             _common = common;
+            tempData = _common.DecodeToken(_httpContextAccessor.HttpContext.Request.Headers["Authorization"][0].ToString().Replace("Bearer ", ""));
         }
         public async Task<BoolActionResult> CreateProductService(List<CreateProductServiceRequest> request)
         {
@@ -73,7 +79,7 @@ namespace TBSLogistics.Service.Services.ProductServiceManage
                     var result = await _TMSContext.SaveChangesAsync();
                     if (result > 0)
                     {
-                        await _common.Log("ProductServiceManage", "UserId: " + TempData.UserID + " create new ProductService with Id: ");
+                        await _common.Log("ProductServiceManage", "UserId: " + tempData.UserID + " create new ProductService with Id: ");
                         IdList.Add(" Tạo mới  thành công! " + i.MaHopDong + "-" + i.MaPTVC + "-" + i.MaCungDuong + "-" + i.MaLoaiPhuongTien + " \r\n");
                         continue;
                     }
@@ -87,7 +93,7 @@ namespace TBSLogistics.Service.Services.ProductServiceManage
                 {
                     string a = string.Join(",", IdList);
                     string b = string.Join(",", IdListFail);
-                    await _common.Log("ProductServiceManage", "UserId: " + TempData.UserID + " create new ProductService with Id: ");
+                    await _common.Log("ProductServiceManage", "UserId: " + tempData.UserName + " create new ProductService with Data: " + JsonSerializer.Serialize(request));
                     return new BoolActionResult { isSuccess = true, Message = a + " \r\n" + b + " \r\n" };
                 }
                 else
@@ -99,7 +105,7 @@ namespace TBSLogistics.Service.Services.ProductServiceManage
             }
             catch (Exception ex)
             {
-                await _common.Log("ProductServiceManage", "UserId: " + TempData.UserID + " create new ProductService has ERROR: " + ex.ToString());
+                await _common.Log("ProductServiceManage", "UserId: " + tempData.UserID + " create new ProductService has ERROR: " + ex.ToString());
                 return new BoolActionResult { isSuccess = false, Message = ex.ToString(), DataReturn = "Exception" };
             }
         }
@@ -144,7 +150,7 @@ namespace TBSLogistics.Service.Services.ProductServiceManage
 
                 if (result > 0)
                 {
-                    await _common.Log("ProductServiceManage", "UserId: " + TempData.UserID + " Update  Contract with Id: " + request.id);
+                    await _common.Log("ProductServiceManage", "UserId: " + tempData.UserID + " Update  Contract with Id: " + request.id);
                     return new BoolActionResult { isSuccess = true, Message = "Cập nhật Bảng Giá thành công!" };
                 }
                 else
@@ -155,7 +161,7 @@ namespace TBSLogistics.Service.Services.ProductServiceManage
             }
             catch (Exception ex)
             {
-                await _common.Log("ProductServiceManage", "UserId: " + TempData.UserID + " create new ProductService has ERROR: " + ex.ToString());
+                await _common.Log("ProductServiceManage", "UserId: " + tempData.UserID + " create new ProductService has ERROR: " + ex.ToString());
                 return new BoolActionResult { isSuccess = false, Message = ex.ToString(), DataReturn = "Exception" };
             }
 
@@ -180,7 +186,7 @@ namespace TBSLogistics.Service.Services.ProductServiceManage
             var result = await _TMSContext.SaveChangesAsync();
             if (result > 0)
             {
-                await _common.Log("ProductServiceManage", "UserId: " + TempData.UserID + " Update  Contract with Id: " + request.id);
+                await _common.Log("ProductServiceManage", "UserId: " + tempData.UserID + " Update  Contract with Id: " + request.id);
                 return new BoolActionResult { isSuccess = true, Message = "Xóa Bảng Giá thành công!" };
             }
             else
@@ -197,7 +203,7 @@ namespace TBSLogistics.Service.Services.ProductServiceManage
             {
                 foreach (var item in request)
                 {
-                  
+
                     var checkExists = await _TMSContext.BangGia.Where(x => x.Id == item.ID).FirstOrDefaultAsync();
                     if (checkExists == null)
                     {
@@ -282,7 +288,7 @@ namespace TBSLogistics.Service.Services.ProductServiceManage
                 {
                     string a = string.Join(",", IdList);
                     string b = string.Join(",", IdListFail);
-                    await _common.Log("ProductServiceManage", "UserId: " + TempData.UserID + " create new ProductService with Id: ");
+                    await _common.Log("ProductServiceManage", "UserId: " + tempData.UserID + " create new ProductService with Id: ");
                     return new BoolActionResult { isSuccess = true, Message = a + " \r\n" + b + " \r\n" };
                 }
                 else
@@ -293,7 +299,7 @@ namespace TBSLogistics.Service.Services.ProductServiceManage
             }
             catch (Exception ex)
             {
-                await _common.Log("ProductServiceManage", "UserId: " + TempData.UserID + " create new ProductService has ERROR: " + ex.ToString());
+                await _common.Log("ProductServiceManage", "UserId: " + tempData.UserID + " create new ProductService has ERROR: " + ex.ToString());
                 return new BoolActionResult { isSuccess = false, Message = ex.ToString(), DataReturn = "Exception" };
             }
 
@@ -390,7 +396,7 @@ namespace TBSLogistics.Service.Services.ProductServiceManage
         //            {
         //                string a = string.Join(",", IdList);
         //                string b = string.Join(",", IdListFail);
-        //                await _common.Log("ProductServiceManage", "UserId: " + TempData.UserID + " create new ProductService with Id: ");
+        //                await _common.Log("ProductServiceManage", "UserId: " + tempData.UserID + " create new ProductService with Id: ");
         //                return new BoolActionResult { isSuccess = true, Message = a + " \r\n" + b + " \r\n" };
         //            }
         //            else
@@ -408,7 +414,7 @@ namespace TBSLogistics.Service.Services.ProductServiceManage
 
         //    catch (Exception ex)
         //    {
-        //        await _common.Log("ProductServiceManage", "UserId: " + TempData.UserID + " create new ProductService has ERROR: " + ex.ToString());
+        //        await _common.Log("ProductServiceManage", "UserId: " + tempData.UserID + " create new ProductService has ERROR: " + ex.ToString());
         //        return new BoolActionResult { isSuccess = false, Message = ex.ToString(), DataReturn = "Exception" };
         //    }
         //}
@@ -454,7 +460,7 @@ namespace TBSLogistics.Service.Services.ProductServiceManage
                                on bg.MaCungDuong equals cd.MaCungDuong
                                join tt in _TMSContext.StatusText
                                on bg.TrangThai equals tt.StatusId
-                               where tt.LangId == TempData.LangID
+                               where tt.LangId == tempData.LangID
                                && bg.MaHopDong == "SPDV_TBSL"
                                orderby bg.Id descending
                                select new { pro, bg, kh, tt, cd };

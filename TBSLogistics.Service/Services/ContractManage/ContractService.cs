@@ -1,12 +1,11 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http.Headers;
-using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using TBSLogistics.Data.TMS;
 using TBSLogistics.Model.CommonModel;
@@ -14,7 +13,7 @@ using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.ContractModel;
 using TBSLogistics.Model.TempModel;
 using TBSLogistics.Model.Wrappers;
-using TBSLogistics.Service.Repository.Common;
+using TBSLogistics.Service.Services.Common;
 
 namespace TBSLogistics.Service.Services.ContractManage
 {
@@ -22,11 +21,15 @@ namespace TBSLogistics.Service.Services.ContractManage
     {
         private readonly TMSContext _TMSContext;
         private readonly ICommon _common;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private TempData tempData;
 
-        public ContractService(TMSContext tMSContext, ICommon common)
+        public ContractService(TMSContext tMSContext, ICommon common, IHttpContextAccessor httpContextAccessor)
         {
+            _httpContextAccessor = httpContextAccessor;
             _TMSContext = tMSContext;
             _common = common;
+            tempData = _common.DecodeToken(_httpContextAccessor.HttpContext.Request.Headers["Authorization"][0].ToString().Replace("Bearer ", ""));
         }
 
         public async Task<BoolActionResult> CreateContract(CreateContract request)
@@ -70,7 +73,6 @@ namespace TBSLogistics.Service.Services.ContractManage
                     }
                 }
 
-
                 if (request.ThoiGianBatDau >= request.ThoiGianKetThuc)
                 {
                     return new BoolActionResult { isSuccess = false, Message = "Thời gian bắt đầu không được lớn hơn hoặc bằng thời gian kết thúc" };
@@ -102,7 +104,7 @@ namespace TBSLogistics.Service.Services.ContractManage
                         await UploadFile(request.File, request.MaHopDong);
                     }
 
-                    await _common.Log("ContractManage", "UserId: " + TempData.UserID + " create new Contract with Id: " + request.MaHopDong);
+                    await _common.Log("ContractManage", "UserId: " + tempData.UserName + " create new contract with Data: " + JsonSerializer.Serialize(request));
                     return new BoolActionResult { isSuccess = true, Message = "Tạo mới hợp đồng thành công!" };
                 }
                 else
@@ -112,7 +114,7 @@ namespace TBSLogistics.Service.Services.ContractManage
             }
             catch (Exception ex)
             {
-                await _common.Log("ContractManage", "UserId: " + TempData.UserID + " create new Contract has ERROR: " + ex.ToString());
+                await _common.Log("ContractManage", "UserId: " + tempData.UserName + " create new Contract has ERROR: " + ex.ToString());
                 return new BoolActionResult { isSuccess = false, Message = ex.ToString(), DataReturn = "Exception" };
             }
         }
@@ -164,7 +166,7 @@ namespace TBSLogistics.Service.Services.ContractManage
                         await UploadFile(request.File, id);
                     }
 
-                    await _common.Log("ContractManage", "UserId: " + TempData.UserID + " Update  Contract with Id: " + id);
+                    await _common.Log("ContractManage", "UserId: " + tempData.UserName + " Update contract with Data: " + JsonSerializer.Serialize(request));
                     return new BoolActionResult { isSuccess = true, Message = "Cập nhật hợp đồng thành công!" };
                 }
                 else
@@ -174,7 +176,7 @@ namespace TBSLogistics.Service.Services.ContractManage
             }
             catch (Exception ex)
             {
-                await _common.Log("ContractManage", "UserId: " + TempData.UserID + " Update Contract has ERROR: " + ex.ToString());
+                await _common.Log("ContractManage", "UserId: " + tempData.UserName + " Update Contract has ERROR: " + ex.ToString());
                 return new BoolActionResult { isSuccess = false, Message = ex.ToString(), DataReturn = "Exception" };
             }
         }
@@ -220,7 +222,7 @@ namespace TBSLogistics.Service.Services.ContractManage
                                on contract.MaKh equals cus.MaKh
                                join tt in _TMSContext.StatusText
                                on contract.TrangThai equals tt.StatusId
-                               where tt.LangId == TempData.LangID
+                               where tt.LangId == tempData.LangID
                                orderby contract.UpdatedTime descending
                                select new
                                {
@@ -243,12 +245,10 @@ namespace TBSLogistics.Service.Services.ContractManage
                     listData = listData.Where(x => x.contract.MaLoaiHopDong == filter.contractType);
                 }
 
-
                 if (!string.IsNullOrEmpty(filter.customerType))
                 {
                     listData = listData.Where(x => x.cus.MaLoaiKh == filter.customerType);
                 }
-
 
                 if (!string.IsNullOrEmpty(filter.fromDate.ToString().Trim()) && !string.IsNullOrEmpty(filter.toDate.ToString().Trim()))
                 {

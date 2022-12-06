@@ -17,10 +17,11 @@ namespace TBSLogistics.Data.TMS
         public string MaKh { get; set; }
         public string LoaiVanDon { get; set; }
         public string MaCungDuong { get; set; }
+        public string MaPtvc { get; set; }
         public int TongThungHang { get; set; }
         public double TongKhoiLuong { get; set; }
         public double TongTheTich { get; set; }
-        public double TongSoKhoi { get; set; }
+        public double TongSoKien { get; set; }
         public DateTime? ThoiGianCoMat { get; set; }
         public DateTime? ThoiGianHanLenh { get; set; }
         public DateTime? ThoiGianHaCang { get; set; }

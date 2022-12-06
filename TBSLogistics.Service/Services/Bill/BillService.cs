@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,8 +7,9 @@ using System.Threading.Tasks;
 using TBSLogistics.Data.TMS;
 using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.BillModel;
+using TBSLogistics.Model.TempModel;
 using TBSLogistics.Model.Wrappers;
-using TBSLogistics.Service.Repository.Common;
+using TBSLogistics.Service.Services.Common;
 
 namespace TBSLogistics.Service.Services.Bill
 {
@@ -15,11 +17,15 @@ namespace TBSLogistics.Service.Services.Bill
     {
         private readonly TMSContext _context;
         private readonly ICommon _common;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private TempData tempData;
 
-        public BillService(TMSContext context, ICommon common)
+        public BillService(TMSContext context, ICommon common,IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
             _common = common;
+            _httpContextAccessor = httpContextAccessor;
+            tempData = _common.DecodeToken(_httpContextAccessor.HttpContext.Request.Headers["Authorization"][0].ToString().Replace("Bearer ", ""));
         }
 
         public async Task<GetBill> GetBillByCustomerId(string customerId, int ky)

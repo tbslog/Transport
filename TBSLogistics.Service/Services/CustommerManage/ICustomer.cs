@@ -11,7 +11,7 @@ using TBSLogistics.Model.Model.CustomerModel;
 using TBSLogistics.Model.Model.CustommerModel;
 using TBSLogistics.Model.Wrappers;
 
-namespace TBSLogistics.Service.Repository.CustommerManage
+namespace TBSLogistics.Service.Services.CustommerManage
 {
     public interface ICustomer
     {
@@ -20,7 +20,7 @@ namespace TBSLogistics.Service.Repository.CustommerManage
         Task<GetCustomerRequest> GetCustomerById(string CustomerId);
         Task<PagedResponseCustom<ListCustommerRequest>> getListCustommer(PaginationFilter filter);
         Task<List<GetCustomerRequest>> getListCustomerOptionSelect(string type);
-        Task<BoolActionResult> ReadExcelFile(IFormFile formFile, CancellationToken cancellationToken);
+        //Task<BoolActionResult> ReadExcelFile(IFormFile formFile, CancellationToken cancellationToken);
 
     }
 }

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,29 +17,34 @@ using TBSLogistics.Model.Model.CustomerModel;
 using TBSLogistics.Model.Model.CustommerModel;
 using TBSLogistics.Model.TempModel;
 using TBSLogistics.Model.Wrappers;
-using TBSLogistics.Service.Repository.AddressManage;
-using TBSLogistics.Service.Repository.Common;
+using TBSLogistics.Service.Services.CustommerManage;
+using TBSLogistics.Service.Services.AddressManage;
+using TBSLogistics.Service.Services.Common;
 
-namespace TBSLogistics.Service.Repository.CustommerManage
+namespace TBSLogistics.Service.Services.CustommerManage
 {
     public class CustomerService : ICustomer
     {
         private readonly TMSContext _TMSContext;
         private readonly ICommon _common;
         private readonly IAddress _address;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private TempData tempData;
 
-        public CustomerService(TMSContext TMSContext, ICommon common, IAddress address)
+        public CustomerService(TMSContext TMSContext, ICommon common, IAddress address, IHttpContextAccessor httpContextAccessor)
         {
+            _httpContextAccessor = httpContextAccessor;
             _address = address;
             _TMSContext = TMSContext;
             _common = common;
+            tempData = _common.DecodeToken(_httpContextAccessor.HttpContext.Request.Headers["Authorization"][0].ToString().Replace("Bearer ", ""));
         }
 
         public async Task<BoolActionResult> CreateCustomer(CreateCustomerRequest request)
         {
             try
             {
-                var checkExists = await _TMSContext.KhachHang.Where(x => x.MaKh == request.MaKh || x.TenKh == request.TenKh).FirstOrDefaultAsync();
+                var checkExists = await _TMSContext.KhachHang.Where(x => x.TenKh == request.TenKh).FirstOrDefaultAsync();
 
                 if (checkExists != null)
                 {
@@ -47,7 +53,7 @@ namespace TBSLogistics.Service.Repository.CustommerManage
 
                 string fullAddress = await _address.GetFullAddress(request.Address.SoNha, request.Address.MaTinh, request.Address.MaHuyen, request.Address.MaPhuong);
 
-                string ErrorValidate = await ValiateCustommer(request.MaKh, request.TenKh, request.MaSoThue, request.Sdt, request.Email, request.Address.SoNha, request.Address.MaGps, request.LoaiKH, request.NhomKH, request.TrangThai, fullAddress);
+                string ErrorValidate = await ValiateCustommer(request.TenKh, request.MaSoThue, request.Sdt, request.Email, request.Address.SoNha, request.Address.MaGps, request.LoaiKH, request.NhomKH, request.TrangThai, fullAddress);
 
                 if (ErrorValidate != "")
                 {
@@ -71,9 +77,32 @@ namespace TBSLogistics.Service.Repository.CustommerManage
 
                 await _TMSContext.SaveChangesAsync();
 
+
+                var getMaxMaKH = await _TMSContext.KhachHang.Where(x => x.MaLoaiKh == request.LoaiKH).OrderByDescending(x => x.MaKh).Select(x => x.MaKh).FirstOrDefaultAsync();
+
+                string maKH = "";
+
+                if (request.LoaiKH == "KH")
+                {
+                    maKH = "CUS";
+                }
+                else
+                {
+                    maKH = "SUP";
+                }
+
+                if (string.IsNullOrEmpty(getMaxMaKH))
+                {
+                    maKH = maKH + "0001";
+                }
+                else
+                {
+                    maKH = maKH + (int.Parse(getMaxMaKH.Substring(3, getMaxMaKH.Length - 3)) + 1).ToString("0000");
+                }
+
                 await _TMSContext.AddAsync(new KhachHang()
                 {
-                    MaKh = request.MaKh.ToUpper(),
+                    MaKh = maKH.ToUpper(),
                     TenKh = request.TenKh,
                     MaSoThue = request.MaSoThue,
                     Sdt = request.Sdt,
@@ -95,7 +124,7 @@ namespace TBSLogistics.Service.Repository.CustommerManage
 
                 if (result > 0)
                 {
-                    await _common.Log("CustommerManage", "UserId: " + TempData.UserID + " create new custommer with Id: " + request.MaKh);
+                    await _common.Log("CustomerManage", "UserId: " + tempData.UserName + " create new customer with Data: " + JsonSerializer.Serialize(request));
                     return new BoolActionResult { isSuccess = true, Message = "Tạo mới khách hàng thành công!" };
                 }
                 else
@@ -105,7 +134,7 @@ namespace TBSLogistics.Service.Repository.CustommerManage
             }
             catch (Exception ex)
             {
-                await _common.Log("CustommerManage", "UserId: " + TempData.UserID + " create new custommer has ERROR: " + ex.ToString());
+                await _common.Log("CustommerManage", "UserId: " + tempData.UserName + " create new custommer has ERROR: " + ex.ToString());
                 return new BoolActionResult { isSuccess = false, Message = ex.ToString(), DataReturn = "Exception" };
             }
         }
@@ -124,7 +153,7 @@ namespace TBSLogistics.Service.Repository.CustommerManage
                 var getAddress = await _TMSContext.DiaDiem.Where(x => x.MaDiaDiem == GetCustommer.MaDiaDiem).FirstOrDefaultAsync();
 
                 string FullAddress = await _address.GetFullAddress(request.Address.SoNha, request.Address.MaTinh, request.Address.MaHuyen, request.Address.MaPhuong);
-                string ErrorValidate = await ValiateCustommer(CustomerId, request.TenKh, request.MaSoThue, request.Sdt, request.Email, request.Address.SoNha, request.Address.MaGps, request.LoaiKH, request.NhomKH, request.TrangThai, FullAddress);
+                string ErrorValidate = await ValiateCustommer(request.TenKh, request.MaSoThue, request.Sdt, request.Email, request.Address.SoNha, request.Address.MaGps, request.LoaiKH, request.NhomKH, request.TrangThai, FullAddress);
 
                 getAddress.MaQuocGia = request.Address.MaQuocGia;
                 getAddress.MaTinh = request.Address.MaTinh;
@@ -156,7 +185,7 @@ namespace TBSLogistics.Service.Repository.CustommerManage
 
                 if (result > 0)
                 {
-                    await _common.Log("CustommerManage", "UserId: " + TempData.UserID + " Edit custommer with Id: " + CustomerId);
+                    await _common.Log("CustomerManage", "UserId: " + tempData.UserName + " create Update customer with Data: " + JsonSerializer.Serialize(request));
                     return new BoolActionResult { isSuccess = true, Message = "Cập nhật khách hàng thành công!" };
                 }
                 else
@@ -166,7 +195,7 @@ namespace TBSLogistics.Service.Repository.CustommerManage
             }
             catch (Exception ex)
             {
-                await _common.Log("CustommerManage", "UserId: " + TempData.UserID + " Edit custommer with ERROR: " + ex.ToString());
+                await _common.Log("CustommerManage", "UserId: " + tempData.UserID + " Edit custommer with ERROR: " + ex.ToString());
                 return new BoolActionResult { isSuccess = false, Message = ex.ToString(), DataReturn = "Exception" };
             }
         }
@@ -287,285 +316,276 @@ namespace TBSLogistics.Service.Repository.CustommerManage
             }
         }
 
-        public async Task<BoolActionResult> ReadExcelFile(IFormFile formFile, CancellationToken cancellationToken)
-        {
-            int ErrorRow = 0;
-            int ErrorInsert = 1;
+        //public async Task<BoolActionResult> ReadExcelFile(IFormFile formFile, CancellationToken cancellationToken)
+        //{
+        //    int ErrorRow = 0;
+        //    int ErrorInsert = 1;
 
-            string ErrorValidate = "";
+        //    string ErrorValidate = "";
 
-            try
-            {
-                if (formFile == null || formFile.Length <= 0)
-                {
-                    return new BoolActionResult { isSuccess = false, Message = "Not Support file extension" };
-                }
+        //    try
+        //    {
+        //        if (formFile == null || formFile.Length <= 0)
+        //        {
+        //            return new BoolActionResult { isSuccess = false, Message = "Not Support file extension" };
+        //        }
 
-                if (!Path.GetExtension(formFile.FileName).Equals(".xlsx", StringComparison.OrdinalIgnoreCase))
-                {
-                    return new BoolActionResult { isSuccess = false, Message = "Not Support file extension" };
-                }
+        //        if (!Path.GetExtension(formFile.FileName).Equals(".xlsx", StringComparison.OrdinalIgnoreCase))
+        //        {
+        //            return new BoolActionResult { isSuccess = false, Message = "Not Support file extension" };
+        //        }
 
-                var list = new List<CreateCustomerRequest>();
+        //        var list = new List<CreateCustomerRequest>();
 
-                using (var stream = new MemoryStream())
-                {
-                    await formFile.CopyToAsync(stream, cancellationToken);
+        //        using (var stream = new MemoryStream())
+        //        {
+        //            await formFile.CopyToAsync(stream, cancellationToken);
 
-                    using (var package = new ExcelPackage(stream))
-                    {
-                        ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-                        ExcelWorksheet worksheet = package.Workbook.Worksheets[0];
-                        var rowCount = worksheet.Dimension.Rows;
+        //            using (var package = new ExcelPackage(stream))
+        //            {
+        //                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+        //                ExcelWorksheet worksheet = package.Workbook.Worksheets[0];
+        //                var rowCount = worksheet.Dimension.Rows;
 
-                        if (rowCount == 0)
-                        {
-                            return new BoolActionResult { isSuccess = false, Message = "This file is empty" };
-                        }
+        //                if (rowCount == 0)
+        //                {
+        //                    return new BoolActionResult { isSuccess = false, Message = "This file is empty" };
+        //                }
 
-                        if (worksheet.Cells[1, 1].Value.ToString().Trim() != "Mã Khách Hàng" ||
-                            worksheet.Cells[1, 2].Value.ToString().Trim() != "Tên Khách Hàng" ||
-                            worksheet.Cells[1, 3].Value.ToString().Trim() != "Mã Số Thuế" ||
-                            worksheet.Cells[1, 4].Value.ToString().Trim() != "Số Điện Thoại" ||
-                            worksheet.Cells[1, 5].Value.ToString().Trim() != "Địa chỉ Email" ||
-                            worksheet.Cells[1, 6].Value.ToString().Trim() != "Số Nhà" ||
-                            worksheet.Cells[1, 7].Value.ToString().Trim() != "Mã Tỉnh" ||
-                            worksheet.Cells[1, 8].Value.ToString().Trim() != "Mã Huyện" ||
-                            worksheet.Cells[1, 9].Value.ToString().Trim() != "Mã Phường" ||
-                            worksheet.Cells[1, 10].Value.ToString().Trim() != "Mã GPS" ||
-                             worksheet.Cells[1, 11].Value.ToString().Trim() != "Nhóm Khách Hàng" ||
-                              worksheet.Cells[1, 12].Value.ToString().Trim() != "Phân Loại Khách Hàng" ||
-                               worksheet.Cells[1, 13].Value.ToString().Trim() != "Trạng Thái"
-                            )
-                        {
-                            return new BoolActionResult { isSuccess = false, Message = "File excel không đúng " };
-                        }
+        //                if (worksheet.Cells[1, 1].Value.ToString().Trim() != "Mã Khách Hàng" ||
+        //                    worksheet.Cells[1, 2].Value.ToString().Trim() != "Tên Khách Hàng" ||
+        //                    worksheet.Cells[1, 3].Value.ToString().Trim() != "Mã Số Thuế" ||
+        //                    worksheet.Cells[1, 4].Value.ToString().Trim() != "Số Điện Thoại" ||
+        //                    worksheet.Cells[1, 5].Value.ToString().Trim() != "Địa chỉ Email" ||
+        //                    worksheet.Cells[1, 6].Value.ToString().Trim() != "Số Nhà" ||
+        //                    worksheet.Cells[1, 7].Value.ToString().Trim() != "Mã Tỉnh" ||
+        //                    worksheet.Cells[1, 8].Value.ToString().Trim() != "Mã Huyện" ||
+        //                    worksheet.Cells[1, 9].Value.ToString().Trim() != "Mã Phường" ||
+        //                    worksheet.Cells[1, 10].Value.ToString().Trim() != "Mã GPS" ||
+        //                     worksheet.Cells[1, 11].Value.ToString().Trim() != "Nhóm Khách Hàng" ||
+        //                      worksheet.Cells[1, 12].Value.ToString().Trim() != "Phân Loại Khách Hàng" ||
+        //                       worksheet.Cells[1, 13].Value.ToString().Trim() != "Trạng Thái"
+        //                    )
+        //                {
+        //                    return new BoolActionResult { isSuccess = false, Message = "File excel không đúng " };
+        //                }
 
-                        for (int row = 2; row <= rowCount; row++)
-                        {
-                            ErrorRow = row;
+        //                for (int row = 2; row <= rowCount; row++)
+        //                {
+        //                    ErrorRow = row;
 
-                            string MaKh = worksheet.Cells[row, 1].Value.ToString().Trim().ToUpper();
-                            string TenKh = worksheet.Cells[row, 2].Value.ToString().Trim();
-                            string MaSoThue = worksheet.Cells[row, 3].Value.ToString().Trim();
-                            string Sdt = worksheet.Cells[row, 4].Value.ToString().Trim();
-                            string Email = worksheet.Cells[row, 5].Value.ToString().Trim();
-                            string SoNha = worksheet.Cells[row, 6].Value.ToString().Trim();
-                            string MaGps = worksheet.Cells[row, 10].Value.ToString().Trim();
-                            string NhomKH = worksheet.Cells[row, 11].Value.ToString().Trim();
-                            string LoaiKH = worksheet.Cells[row, 12].Value.ToString().Trim();
-                            int TrangThai = int.Parse(worksheet.Cells[row, 13].Value.ToString().Trim());
+        //                    string MaKh = worksheet.Cells[row, 1].Value.ToString().Trim().ToUpper();
+        //                    string TenKh = worksheet.Cells[row, 2].Value.ToString().Trim();
+        //                    string MaSoThue = worksheet.Cells[row, 3].Value.ToString().Trim();
+        //                    string Sdt = worksheet.Cells[row, 4].Value.ToString().Trim();
+        //                    string Email = worksheet.Cells[row, 5].Value.ToString().Trim();
+        //                    string SoNha = worksheet.Cells[row, 6].Value.ToString().Trim();
+        //                    string MaGps = worksheet.Cells[row, 10].Value.ToString().Trim();
+        //                    string NhomKH = worksheet.Cells[row, 11].Value.ToString().Trim();
+        //                    string LoaiKH = worksheet.Cells[row, 12].Value.ToString().Trim();
+        //                    int TrangThai = int.Parse(worksheet.Cells[row, 13].Value.ToString().Trim());
 
-                            int MaTinh = int.Parse(worksheet.Cells[row, 7].Value.ToString().Trim());
-                            int MaHuyen = int.Parse(worksheet.Cells[row, 8].Value.ToString().Trim());
-                            int MaPhuong = int.Parse(worksheet.Cells[row, 9].Value.ToString().Trim());
+        //                    int MaTinh = int.Parse(worksheet.Cells[row, 7].Value.ToString().Trim());
+        //                    int MaHuyen = int.Parse(worksheet.Cells[row, 8].Value.ToString().Trim());
+        //                    int MaPhuong = int.Parse(worksheet.Cells[row, 9].Value.ToString().Trim());
 
-                            var FullAddress = await _address.GetFullAddress(SoNha, MaTinh, MaHuyen, MaPhuong);
+        //                    var FullAddress = await _address.GetFullAddress(SoNha, MaTinh, MaHuyen, MaPhuong);
 
-                            ErrorValidate = await ValiateCustommer(MaKh, TenKh, MaSoThue, Sdt, Email, SoNha, MaGps, LoaiKH, NhomKH, TrangThai, FullAddress, ErrorRow.ToString());
+        //                    ErrorValidate = await ValiateCustommer(MaKh, TenKh, MaSoThue, Sdt, Email, SoNha, MaGps, LoaiKH, NhomKH, TrangThai, FullAddress, ErrorRow.ToString());
 
-                            if (ErrorValidate == "")
-                            {
-                                list.Add(new CreateCustomerRequest
-                                {
-                                    MaKh = MaKh,
-                                    TenKh = TenKh,
-                                    MaSoThue = MaSoThue,
-                                    Sdt = Sdt,
-                                    Email = Email,
-                                    NhomKH = NhomKH,
-                                    LoaiKH = LoaiKH,
-                                    TrangThai = TrangThai,
-                                    Address = new CreateAddressRequest
-                                    {
-                                        TenDiaDiem = TenKh,
-                                        MaQuocGia = 1,
-                                        SoNha = SoNha,
-                                        MaTinh = MaTinh,
-                                        MaHuyen = MaHuyen,
-                                        MaPhuong = MaPhuong,
-                                        DiaChiDayDu = FullAddress,
-                                        MaGps = MaGps,
-                                        MaLoaiDiaDiem = "1",
-                                    }
-                                });
-                            }
-                        }
-                    }
-                }
+        //                    if (ErrorValidate == "")
+        //                    {
+        //                        list.Add(new CreateCustomerRequest
+        //                        {
+        //                            MaKh = MaKh,
+        //                            TenKh = TenKh,
+        //                            MaSoThue = MaSoThue,
+        //                            Sdt = Sdt,
+        //                            Email = Email,
+        //                            NhomKH = NhomKH,
+        //                            LoaiKH = LoaiKH,
+        //                            TrangThai = TrangThai,
+        //                            Address = new CreateAddressRequest
+        //                            {
+        //                                TenDiaDiem = TenKh,
+        //                                MaQuocGia = 1,
+        //                                SoNha = SoNha,
+        //                                MaTinh = MaTinh,
+        //                                MaHuyen = MaHuyen,
+        //                                MaPhuong = MaPhuong,
+        //                                DiaChiDayDu = FullAddress,
+        //                                MaGps = MaGps,
+        //                                MaLoaiDiaDiem = "1",
+        //                            }
+        //                        });
+        //                    }
+        //                }
+        //            }
+        //        }
 
-                string DuplicateCus = "";
+        //        string DuplicateCus = "";
 
-                foreach (var item in list)
-                {
-                    var checkExists = await _TMSContext.KhachHang.Where(x => x.MaKh == item.MaKh).FirstOrDefaultAsync();
-                    ErrorInsert += 1;
-                    if (checkExists == null)
-                    {
-                        var addAddress = await _TMSContext.AddAsync(new DiaDiem()
-                        {
-                            TenDiaDiem = item.TenKh,
-                            MaQuocGia = item.Address.MaQuocGia,
-                            MaTinh = item.Address.MaTinh,
-                            MaHuyen = item.Address.MaHuyen,
-                            MaPhuong = item.Address.MaPhuong,
-                            SoNha = item.Address.SoNha,
-                            DiaChiDayDu = item.Address.DiaChiDayDu,
-                            MaGps = item.Address.MaGps,
-                            MaLoaiDiaDiem = item.Address.MaLoaiDiaDiem,
-                            CreatedTime = DateTime.Now,
-                            UpdatedTime = DateTime.Now
-                        });
+        //        foreach (var item in list)
+        //        {
+        //            var checkExists = await _TMSContext.KhachHang.Where(x => x.MaKh == item.MaKh).FirstOrDefaultAsync();
+        //            ErrorInsert += 1;
+        //            if (checkExists == null)
+        //            {
+        //                var addAddress = await _TMSContext.AddAsync(new DiaDiem()
+        //                {
+        //                    TenDiaDiem = item.TenKh,
+        //                    MaQuocGia = item.Address.MaQuocGia,
+        //                    MaTinh = item.Address.MaTinh,
+        //                    MaHuyen = item.Address.MaHuyen,
+        //                    MaPhuong = item.Address.MaPhuong,
+        //                    SoNha = item.Address.SoNha,
+        //                    DiaChiDayDu = item.Address.DiaChiDayDu,
+        //                    MaGps = item.Address.MaGps,
+        //                    MaLoaiDiaDiem = item.Address.MaLoaiDiaDiem,
+        //                    CreatedTime = DateTime.Now,
+        //                    UpdatedTime = DateTime.Now
+        //                });
 
-                        await _TMSContext.SaveChangesAsync();
+        //                await _TMSContext.SaveChangesAsync();
 
-                        await _TMSContext.AddAsync(new KhachHang()
-                        {
-                            MaKh = item.MaKh,
-                            TenKh = item.TenKh,
-                            MaSoThue = item.MaSoThue,
-                            Sdt = item.Sdt,
-                            Email = item.Email,
-                            MaNhomKh = item.NhomKH,
-                            MaLoaiKh = item.LoaiKH,
-                            TrangThai = item.TrangThai,
-                            MaDiaDiem = addAddress.Entity.MaDiaDiem,
-                            CreatedTime = DateTime.Now,
-                            UpdatedTime = DateTime.Now
-                        });
+        //                await _TMSContext.AddAsync(new KhachHang()
+        //                {
+        //                    MaKh = item.MaKh,
+        //                    TenKh = item.TenKh,
+        //                    MaSoThue = item.MaSoThue,
+        //                    Sdt = item.Sdt,
+        //                    Email = item.Email,
+        //                    MaNhomKh = item.NhomKH,
+        //                    MaLoaiKh = item.LoaiKH,
+        //                    TrangThai = item.TrangThai,
+        //                    MaDiaDiem = addAddress.Entity.MaDiaDiem,
+        //                    CreatedTime = DateTime.Now,
+        //                    UpdatedTime = DateTime.Now
+        //                });
 
-                        await _TMSContext.SaveChangesAsync();
-                    }
-                    else
-                    {
-                        DuplicateCus += item.MaKh + ", ";
-                    }
-                }
+        //                await _TMSContext.SaveChangesAsync();
+        //            }
+        //            else
+        //            {
+        //                DuplicateCus += item.MaKh + ", ";
+        //            }
+        //        }
 
-                if (ErrorValidate != "")
-                {
-                    return new BoolActionResult { isSuccess = false, Message = ErrorValidate };
-                }
+        //        if (ErrorValidate != "")
+        //        {
+        //            return new BoolActionResult { isSuccess = false, Message = ErrorValidate };
+        //        }
 
-                if (DuplicateCus.Length > 1)
-                {
-                    return new BoolActionResult { Message = "Những khách hàng có mã " + DuplicateCus + " đã tồn tại", isSuccess = true };
-                }
-                else
-                {
-                    return new BoolActionResult { Message = "OK", isSuccess = true };
-                }
-            }
-            catch (Exception ex)
-            {
-                return new BoolActionResult { Message = ex.ToString(), isSuccess = false, DataReturn = "Bị lỗi tại dòng: " + ErrorRow + " >>>Lỗi Insert dòng: " + ErrorInsert };
-            }
-        }
+        //        if (DuplicateCus.Length > 1)
+        //        {
+        //            return new BoolActionResult { Message = "Những khách hàng có mã " + DuplicateCus + " đã tồn tại", isSuccess = true };
+        //        }
+        //        else
+        //        {
+        //            return new BoolActionResult { Message = "OK", isSuccess = true };
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return new BoolActionResult { Message = ex.ToString(), isSuccess = false, DataReturn = "Bị lỗi tại dòng: " + ErrorRow + " >>>Lỗi Insert dòng: " + ErrorInsert };
+        //    }
+        //}
 
-        private async Task<string> ValiateCustommer(string MaKh, string TenKh, string MaSoThue, string Sdt, string Email, string SoNha, string MaGps, string LoaiKH, string NhomKH, int TrangThai, string FullAddress, string ErrorRow = "")
+        private async Task<string> ValiateCustommer(string TenKh, string MaSoThue, string Sdt, string Email, string SoNha, string MaGps, string LoaiKH, string NhomKH, int TrangThai, string FullAddress, string ErrorRow = "")
         {
             string ErrorValidate = "";
 
             var checkStatus = await _TMSContext.StatusText.Where(x => x.Id == TrangThai).FirstOrDefaultAsync();
             if (checkStatus == null)
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Trạng thái khách hàng không tồn tại \r\n" + System.Environment.NewLine;
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Trạng thái khách hàng không tồn tại \r\n" + Environment.NewLine;
             }
 
             var checkCustomerType = await _TMSContext.LoaiKhachHang.Where(x => x.MaLoaiKh == LoaiKH).FirstOrDefaultAsync();
             if (checkCustomerType == null)
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Loại khách hàng không tồn tại \r\n" + System.Environment.NewLine;
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Loại khách hàng không tồn tại \r\n" + Environment.NewLine;
             }
 
             var checkCustomerGroup = await _TMSContext.NhomKhachHang.Where(x => x.MaNhomKh == NhomKH).FirstOrDefaultAsync();
             if (checkCustomerGroup == null)
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Nhóm khách hàng không tồn tại \r\n" + System.Environment.NewLine;
-            }
-
-            if (MaKh.Length != 8)
-            {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã khách hàng phải dài 8 ký tự \r\n" + System.Environment.NewLine;
-            }
-            if (!Regex.IsMatch(MaKh, "^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9]+(?<![_.])$", RegexOptions.IgnoreCase))
-            {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã khách hàng không được chứa ký tự đặc biệt \r\n" + System.Environment.NewLine;
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Nhóm khách hàng không tồn tại \r\n" + Environment.NewLine;
             }
 
             if (TenKh.Length > 50 || TenKh.Length == 0)
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Tên khách hàng không được rỗng hoặc nhiều hơn 50 ký tự \r\n" + System.Environment.NewLine;
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Tên khách hàng không được rỗng hoặc nhiều hơn 50 ký tự \r\n" + Environment.NewLine;
             }
 
             if (!Regex.IsMatch(TenKh, "^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9 aAàÀảẢãÃáÁạẠăĂằẰẳẲẵẴắẮặẶâÂầẦẩẨẫẪấẤậẬbBcCdDđĐeEèÈẻẺẽẼéÉẹẸêÊềỀểỂễỄếẾệỆ fFgGhHiIìÌỉỈĩĨíÍịỊjJkKlLmMnNoOòÒỏỎõÕóÓọỌôÔồỒổỔỗỖốỐộỘơƠờỜởỞỡỠớỚợỢpPqQrRsStTu UùÙủỦũŨúÚụỤưƯừỪửỬữỮứỨựỰvVwWxXyYỳỲỷỶỹỸýÝỵỴzZ]+(?<![_.])$", RegexOptions.IgnoreCase))
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Tên khách hàng không được chứa ký tự đặc biệt \r\n" + System.Environment.NewLine;
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Tên khách hàng không được chứa ký tự đặc biệt \r\n" + Environment.NewLine;
             }
 
             if (NhomKH.Length > 10 || NhomKH.Length == 0)
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Nhóm khách hàng không được rỗng hoặc nhiều hơn 10 ký tự \r\n" + System.Environment.NewLine;
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Nhóm khách hàng không được rỗng hoặc nhiều hơn 10 ký tự \r\n" + Environment.NewLine;
             }
 
             if (!Regex.IsMatch(NhomKH, "^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9 aAàÀảẢãÃáÁạẠăĂằẰẳẲẵẴắẮặẶâÂầẦẩẨẫẪấẤậẬbBcCdDđĐeEèÈẻẺẽẼéÉẹẸêÊềỀểỂễỄếẾệỆ fFgGhHiIìÌỉỈĩĨíÍịỊjJkKlLmMnNoOòÒỏỎõÕóÓọỌôÔồỒổỔỗỖốỐộỘơƠờỜởỞỡỠớỚợỢpPqQrRsStTu UùÙủỦũŨúÚụỤưƯừỪửỬữỮứỨựỰvVwWxXyYỳỲỷỶỹỸýÝỵỴzZ]+(?<![_.])$", RegexOptions.IgnoreCase))
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Nhóm khách hàng không được chứa ký tự đặc biệt \r\n" + System.Environment.NewLine;
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Nhóm khách hàng không được chứa ký tự đặc biệt \r\n" + Environment.NewLine;
             }
 
             if (LoaiKH.Length > 10 || LoaiKH.Length == 0)
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Loại khách hàng không được rỗng hoặc nhiều hơn 10 ký tự \r\n" + System.Environment.NewLine;
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Loại khách hàng không được rỗng hoặc nhiều hơn 10 ký tự \r\n" + Environment.NewLine;
             }
 
             if (!Regex.IsMatch(LoaiKH, "^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9 aAàÀảẢãÃáÁạẠăĂằẰẳẲẵẴắẮặẶâÂầẦẩẨẫẪấẤậẬbBcCdDđĐeEèÈẻẺẽẼéÉẹẸêÊềỀểỂễỄếẾệỆ fFgGhHiIìÌỉỈĩĨíÍịỊjJkKlLmMnNoOòÒỏỎõÕóÓọỌôÔồỒổỔỗỖốỐộỘơƠờỜởỞỡỠớỚợỢpPqQrRsStTu UùÙủỦũŨúÚụỤưƯừỪửỬữỮứỨựỰvVwWxXyYỳỲỷỶỹỸýÝỵỴzZ]+(?<![_.])$", RegexOptions.IgnoreCase))
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Loại khách hàng không được chứa ký tự đặc biệt \r\n" + System.Environment.NewLine;
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Loại khách hàng không được chứa ký tự đặc biệt \r\n" + Environment.NewLine;
             }
 
             if (MaSoThue.Length == 0 || MaSoThue.Length > 50)
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã số thuế không được rỗng hoặc nhiều hơn 50 ký tự \r\n" + System.Environment.NewLine;
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã số thuế không được rỗng hoặc nhiều hơn 50 ký tự \r\n" + Environment.NewLine;
             }
 
             if (!Regex.IsMatch(MaSoThue, "^(?![_.])(?![_.])(?!.*[_.]{2})[0-9]+(?<![_.])$", RegexOptions.IgnoreCase))
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã số thuế chỉ được chứa ký tự là số \r\n" + System.Environment.NewLine;
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã số thuế chỉ được chứa ký tự là số \r\n" + Environment.NewLine;
             }
 
             if (Sdt.Length == 0 || Sdt.Length > 20)
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + "- Số điện thoại không được rỗng hoặc nhiều hơn 20 ký tự \r\n" + System.Environment.NewLine;
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + "- Số điện thoại không được rỗng hoặc nhiều hơn 20 ký tự \r\n" + Environment.NewLine;
             }
 
             if (!Regex.IsMatch(Sdt, "^(?![ _.])(?![_.])(?!.*[_.]{2})[0-9 ]+(?<![_. ])$", RegexOptions.IgnoreCase))
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Số điện thoại chỉ được chứa ký tự là số \r\n" + System.Environment.NewLine;
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Số điện thoại chỉ được chứa ký tự là số \r\n" + Environment.NewLine;
             }
 
             if (Email.Length == 0 || Email.Length > 50)
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Địa chỉ Email không được rỗng hoặc nhiều hơn 50 ký tự" + System.Environment.NewLine;
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Địa chỉ Email không được rỗng hoặc nhiều hơn 50 ký tự" + Environment.NewLine;
             }
 
             if (!Regex.IsMatch(Email, @"^([\w\.\-]+)@([\w\-]+)((\.(\w){2,3})+)$", RegexOptions.IgnoreCase))
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Địa chỉ Email không đúng" + System.Environment.NewLine;
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Địa chỉ Email không đúng" + Environment.NewLine;
             }
 
-            if ( SoNha.Length > 100)
+            if (SoNha.Length > 100)
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Số nhà không nhiều hơn 100 ký tự \r\n" + System.Environment.NewLine;
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Số nhà không nhiều hơn 100 ký tự \r\n" + Environment.NewLine;
             }
 
             if (MaGps.Length == 0 || MaGps.Length > 50)
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã GPS không được rỗng hoặc nhiều hơn 50 ký tự \r\n" + System.Environment.NewLine;
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã GPS không được rỗng hoặc nhiều hơn 50 ký tự \r\n" + Environment.NewLine;
             }
 
             if (FullAddress == "")
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã tỉnh, mã huyện, mã phường không khớp, vui lòng kiểm tra lại \r\n" + System.Environment.NewLine;
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã tỉnh, mã huyện, mã phường không khớp, vui lòng kiểm tra lại \r\n" + Environment.NewLine;
             }
 
             return ErrorValidate;

@@ -5,7 +5,7 @@ using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.DriverModel;
 using TBSLogistics.Model.Wrappers;
 
-namespace TBSLogistics.Service.Repository.DriverManage
+namespace TBSLogistics.Service.Services.DriverManage
 {
     public interface IDriver
     {

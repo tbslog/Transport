@@ -1,7 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using TBSLogistics.Data.TMS;
 using TBSLogistics.Model.CommonModel;
@@ -9,19 +11,24 @@ using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.PriceListModel;
 using TBSLogistics.Model.TempModel;
 using TBSLogistics.Model.Wrappers;
-using TBSLogistics.Service.Repository.Common;
+using TBSLogistics.Service.Services.PricelistManage;
+using TBSLogistics.Service.Services.Common;
 
-namespace TBSLogistics.Service.Repository.PricelistManage
+namespace TBSLogistics.Service.Services.PriceTableManage
 {
     public class PriceTableService : IPriceTable
     {
         private readonly TMSContext _context;
         private readonly ICommon _common;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private TempData tempData;
 
-        public PriceTableService(TMSContext context, ICommon common)
+        public PriceTableService(TMSContext context, ICommon common, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
+            _httpContextAccessor = httpContextAccessor;
             _common = common;
+            tempData = _common.DecodeToken(_httpContextAccessor.HttpContext.Request.Headers["Authorization"][0].ToString().Replace("Bearer ", ""));
         }
 
         public async Task<BoolActionResult> CreatePriceTable(List<CreatePriceListRequest> request)
@@ -50,56 +57,56 @@ namespace TBSLogistics.Service.Repository.PricelistManage
                 var checkExistsContract = request.Where(x => !checkContract.Any(y => y.MaHopDong == x.MaHopDong)).Select(x => x.MaHopDong);
                 if (checkExistsContract.Count() > 0)
                 {
-                    ErrorValidate += "Mã hợp đồng không tồn tại: " + String.Join(",", checkExistsContract);
+                    ErrorValidate += "Mã hợp đồng không tồn tại: " + string.Join(",", checkExistsContract);
                 }
 
                 var checkRoad = await _context.CungDuong.Where(x => request.Select(y => y.MaCungDuong).Contains(x.MaCungDuong)).ToListAsync();
                 var checkExistsRoad = request.Where(x => !checkRoad.Any(y => y.MaCungDuong == x.MaCungDuong)).Select(x => x.MaCungDuong);
                 if (checkExistsRoad.Count() > 0)
                 {
-                    ErrorValidate += "Mã cung đường không tồn tại: " + String.Join(",", checkExistsRoad);
+                    ErrorValidate += "Mã cung đường không tồn tại: " + string.Join(",", checkExistsRoad);
                 }
 
                 var checkPtvc = await _context.PhuongThucVanChuyen.Where(x => request.Select(y => y.MaPtvc).Contains(x.MaPtvc)).ToListAsync();
                 var checkExistsPtvc = request.Where(x => !checkPtvc.Any(y => y.MaPtvc == x.MaPtvc)).Select(x => x.MaPtvc);
                 if (checkExistsPtvc.Count() > 0)
                 {
-                    ErrorValidate += "Mã phương thức vận chuyển không tồn tại: " + String.Join(",", checkExistsPtvc);
+                    ErrorValidate += "Mã phương thức vận chuyển không tồn tại: " + string.Join(",", checkExistsPtvc);
                 }
 
                 var checkVehicleType = await _context.LoaiPhuongTien.Where(x => request.Select(y => y.MaLoaiPhuongTien).Contains(x.MaLoaiPhuongTien)).ToListAsync();
                 var checkExistsVehicleType = request.Where(x => !checkVehicleType.Any(y => y.MaLoaiPhuongTien == x.MaLoaiPhuongTien)).Select(x => x.MaLoaiPhuongTien);
                 if (checkExistsVehicleType.Count() > 0)
                 {
-                    ErrorValidate += "Mã phương tiện vận chuyển không tồn tại: " + String.Join(",", checkExistsVehicleType);
+                    ErrorValidate += "Mã phương tiện vận chuyển không tồn tại: " + string.Join(",", checkExistsVehicleType);
                 }
 
                 var checkDVT = await _context.DonViTinh.Where(x => request.Select(y => y.MaDvt).Contains(x.MaDvt)).ToListAsync();
                 var checkExistsDVT = request.Where(x => !checkDVT.Any(y => y.MaDvt == x.MaDvt)).Select(x => x.MaDvt);
                 if (checkExistsDVT.Count() > 0)
                 {
-                    ErrorValidate += "Mã đơn vị tính không tồn tại: " + String.Join(",", checkExistsDVT);
+                    ErrorValidate += "Mã đơn vị tính không tồn tại: " + string.Join(",", checkExistsDVT);
                 }
 
                 var checkGoodsType = await _context.LoaiHangHoa.Where(x => request.Select(y => y.MaLoaiHangHoa).Contains(x.MaLoaiHangHoa)).ToListAsync();
                 var checkExistsGoodsType = request.Where(x => !checkGoodsType.Any(y => y.MaLoaiHangHoa == x.MaLoaiHangHoa)).Select(x => x.MaLoaiHangHoa);
                 if (checkExistsGoodsType.Count() > 0)
                 {
-                    ErrorValidate += "Mã loại hàng hóa không tồn tại: " + String.Join(",", checkExistsGoodsType);
+                    ErrorValidate += "Mã loại hàng hóa không tồn tại: " + string.Join(",", checkExistsGoodsType);
                 }
 
                 var checkPartner = await _context.LoaiKhachHang.Where(x => request.Select(y => y.MaLoaiDoiTac).Contains(x.MaLoaiKh)).ToListAsync();
                 var checkExistsPertner = request.Where(x => !checkPartner.Any(y => y.MaLoaiKh == x.MaLoaiDoiTac)).Select(x => x.MaLoaiDoiTac);
                 if (checkExistsPertner.Count() > 0)
                 {
-                    ErrorValidate += "Mã đối tác không tồn tại: " + String.Join(",", checkExistsPertner);
+                    ErrorValidate += "Mã đối tác không tồn tại: " + string.Join(",", checkExistsPertner);
                 }
 
                 var checkStatus = await _context.StatusText.Where(x => request.Select(y => y.TrangThai).Contains(x.StatusId)).ToListAsync();
                 var checkExistsStatus = request.Where(x => !checkStatus.Any(y => y.StatusId == x.TrangThai)).Select(x => x.TrangThai);
                 if (checkExistsStatus.Count() > 0)
                 {
-                    ErrorValidate += "Mã trạng thái không tồn tại: " + String.Join(",", checkExistsStatus);
+                    ErrorValidate += "Mã trạng thái không tồn tại: " + string.Join(",", checkExistsStatus);
                 }
 
                 //foreach (var item in request)
@@ -142,7 +149,7 @@ namespace TBSLogistics.Service.Repository.PricelistManage
 
                 if (result > 0)
                 {
-                    await _common.Log("PriceListManage", "UserId:" + TempData.UserID + " create new PriceList with contract: " + request.Select(x => x.MaHopDong).FirstOrDefault());
+                    await _common.Log("PriceTableManage", "UserId: " + tempData.UserName + " Create PriceTable with Data: " + JsonSerializer.Serialize(request));
                     return new BoolActionResult { isSuccess = true, Message = "Tạo mới bảng giá thành công" };
                 }
                 else
@@ -152,7 +159,7 @@ namespace TBSLogistics.Service.Repository.PricelistManage
             }
             catch (Exception ex)
             {
-                await _common.Log("PriceListManage", "UserId:" + TempData.UserID + " create new PriceList with Error: " + ex.ToString());
+                await _common.Log("PriceTableManage", "UserId:" + tempData.UserID + " create new PriceTable with Error: " + ex.ToString());
                 return new BoolActionResult { isSuccess = false, Message = ex.ToString(), DataReturn = "Exception" };
             }
         }
@@ -267,12 +274,12 @@ namespace TBSLogistics.Service.Repository.PricelistManage
                          into g
                      select new
                      {
-                         MaCungDuong = g.Key.MaCungDuong,
-                         MaDvt = g.Key.MaDvt,
-                         MaLoaiHangHoa = g.Key.MaLoaiHangHoa,
-                         MaLoaiPhuongTien = g.Key.MaLoaiPhuongTien,
-                         MaPtvc = g.Key.MaPtvc,
-                         MaLoaiDoiTac = g.Key.MaLoaiDoiTac,
+                         g.Key.MaCungDuong,
+                         g.Key.MaDvt,
+                         g.Key.MaLoaiHangHoa,
+                         g.Key.MaLoaiPhuongTien,
+                         g.Key.MaPtvc,
+                         g.Key.MaLoaiDoiTac,
                          Id = (from t2 in g select t2.bg.Id).Max(),
                      };
 
@@ -328,12 +335,12 @@ namespace TBSLogistics.Service.Repository.PricelistManage
                      into g
                      select new
                      {
-                         MaCungDuong = g.Key.MaCungDuong,
-                         MaDvt = g.Key.MaDvt,
-                         MaLoaiHangHoa = g.Key.MaLoaiHangHoa,
-                         MaLoaiPhuongTien = g.Key.MaLoaiPhuongTien,
-                         MaPtvc = g.Key.MaPtvc,
-                         MaLoaiDoiTac = g.Key.MaLoaiDoiTac,
+                         g.Key.MaCungDuong,
+                         g.Key.MaDvt,
+                         g.Key.MaLoaiHangHoa,
+                         g.Key.MaLoaiPhuongTien,
+                         g.Key.MaPtvc,
+                         g.Key.MaLoaiDoiTac,
                          Id = (from t2 in g select t2.bg.Id).Max(),
                      };
 
@@ -462,6 +469,7 @@ namespace TBSLogistics.Service.Repository.PricelistManage
 
                 if (result > 0)
                 {
+                    await _common.Log("PriceTableManage", "UserId: " + tempData.UserName + " Approve PriceTable with Data: " + JsonSerializer.Serialize(request));
                     return new BoolActionResult { isSuccess = true, Message = "Duyệt bảng giá thành công" };
                 }
                 else
@@ -471,6 +479,7 @@ namespace TBSLogistics.Service.Repository.PricelistManage
             }
             catch (Exception ex)
             {
+                await _common.Log("PriceTableManage", "UserId:" + tempData.UserID + " create new PriceTable with Error: " + ex.ToString());
                 return new BoolActionResult { isSuccess = false, Message = ex.ToString() };
             }
         }
@@ -568,6 +577,7 @@ namespace TBSLogistics.Service.Repository.PricelistManage
 
                 if (result > 0)
                 {
+                    await _common.Log("PriceTableManage", "UserId: " + tempData.UserName + " Update PriceTable with Data: " + JsonSerializer.Serialize(request));
                     return new BoolActionResult { isSuccess = true, Message = "Cập nhật bảng giá thành công" };
                 }
                 else
@@ -577,7 +587,8 @@ namespace TBSLogistics.Service.Repository.PricelistManage
             }
             catch (Exception ex)
             {
-                throw;
+                await _common.Log("PriceTableManage", "UserId:" + tempData.UserID + " Update PriceTable with Error: " + ex.ToString());
+                return new BoolActionResult { isSuccess = false, Message = ex.ToString() };
             }
         }
 
@@ -588,53 +599,53 @@ namespace TBSLogistics.Service.Repository.PricelistManage
             var checkContract = await _context.HopDongVaPhuLuc.Where(x => x.MaHopDong == MaHopDong).FirstOrDefaultAsync();
             if (checkContract == null)
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã hợp đồng không tồn tại \r\n" + System.Environment.NewLine;
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã hợp đồng không tồn tại \r\n" + Environment.NewLine;
             }
 
             var checkMaCungDuong = await _context.CungDuong.Where(x => x.MaCungDuong == MaCungDuong).FirstOrDefaultAsync();
 
             if (checkMaCungDuong == null)
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã Cung đường không tồn tại \r\n" + System.Environment.NewLine;
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã Cung đường không tồn tại \r\n" + Environment.NewLine;
             }
             var checkMaLoaiPhuongTien = await _context.LoaiPhuongTien.Where(x => x.MaLoaiPhuongTien == MaLoaiPhuongTien).FirstOrDefaultAsync();
 
             if (checkMaLoaiPhuongTien == null)
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã Loại Phương Tiện không tồn tại \r\n" + System.Environment.NewLine;
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã Loại Phương Tiện không tồn tại \r\n" + Environment.NewLine;
             }
 
             if (DonGia < 0)
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Đơn giá không được để trong và phải lớn hơn 0  \r\n" + System.Environment.NewLine;
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Đơn giá không được để trong và phải lớn hơn 0  \r\n" + Environment.NewLine;
             }
             //validate MaDVT
             var checkMaDVT = await _context.DonViTinh.Where(x => x.MaDvt == MaDVT).FirstOrDefaultAsync();
 
             if (checkMaDVT == null)
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã Đơn VỊ Tính không tồn tại \r\n" + System.Environment.NewLine;
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã Đơn VỊ Tính không tồn tại \r\n" + Environment.NewLine;
             }
             //validate LoaiHangHoa
             var checkMaLoaiHangHoa = await _context.LoaiHangHoa.Where(x => x.MaLoaiHangHoa == MaLoaiHangHoa).FirstOrDefaultAsync();
 
             if (checkMaLoaiHangHoa == null)
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã Loại Hàng Hóa không tồn tại \r\n" + System.Environment.NewLine;
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã Loại Hàng Hóa không tồn tại \r\n" + Environment.NewLine;
             }
 
             var checkMaPTVC = await _context.PhuongThucVanChuyen.Where(x => x.MaPtvc == MaPTVC).FirstOrDefaultAsync();
 
             if (checkMaPTVC == null)
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã Phương Thức Vận Chuyển không tồn tại \r\n" + System.Environment.NewLine;
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã Phương Thức Vận Chuyển không tồn tại \r\n" + Environment.NewLine;
             }
 
             if (NgayHetHieuLuc != null)
             {
                 if (NgayHetHieuLuc.Value.Date <= DateTime.Now.Date)
                 {
-                    ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Ngày hết hiệu lực không được nhỏ hơn hoặc bằng ngày hiện tại \r\n" + System.Environment.NewLine;
+                    ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Ngày hết hiệu lực không được nhỏ hơn hoặc bằng ngày hiện tại \r\n" + Environment.NewLine;
                 }
             }
             return ErrorValidate;

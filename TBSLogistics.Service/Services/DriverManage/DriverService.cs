@@ -1,8 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Drawing.Drawing2D;
 using System.Linq;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TBSLogistics.Data.TMS;
@@ -11,19 +13,24 @@ using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.DriverModel;
 using TBSLogistics.Model.TempModel;
 using TBSLogistics.Model.Wrappers;
-using TBSLogistics.Service.Repository.Common;
+using TBSLogistics.Service.Services.DriverManage;
+using TBSLogistics.Service.Services.Common;
 
-namespace TBSLogistics.Service.Repository.DriverManage
+namespace TBSLogistics.Service.Services.DriverManage
 {
     public class DriverService : IDriver
     {
         private readonly ICommon _common;
         private readonly TMSContext _context;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private TempData tempData;
 
-        public DriverService(ICommon common, TMSContext context)
+        public DriverService(ICommon common, TMSContext context, IHttpContextAccessor httpContextAccessor)
         {
+            _httpContextAccessor = httpContextAccessor;
             _common = common;
             _context = context;
+            tempData = _common.DecodeToken(_httpContextAccessor.HttpContext.Request.Headers["Authorization"][0].ToString().Replace("Bearer ", ""));
         }
 
         public async Task<BoolActionResult> CreateDriver(CreateDriverRequest request)
@@ -61,7 +68,7 @@ namespace TBSLogistics.Service.Repository.DriverManage
 
                 if (result > 0)
                 {
-                    await _common.Log("DriverManage", "UserId: " + TempData.UserID + " create new driver with id: " + request.MaTaiXe);
+                    await _common.Log("DriverManage", "UserId: " + tempData.UserName + " create Driver with Data: " + JsonSerializer.Serialize(request));
                     return new BoolActionResult { isSuccess = true, Message = "Tạo mới tài xế thành công" };
                 }
                 else
@@ -71,7 +78,7 @@ namespace TBSLogistics.Service.Repository.DriverManage
             }
             catch (Exception ex)
             {
-                await _common.Log("DriverManage", "UserId: " + TempData.UserID + " create new driver with ERROR: " + ex.ToString());
+                await _common.Log("DriverManage", "UserId: " + tempData.UserID + " create new driver with ERROR: " + ex.ToString());
                 return new BoolActionResult { isSuccess = false, Message = ex.ToString(), DataReturn = "Exception" };
             }
         }
@@ -112,7 +119,7 @@ namespace TBSLogistics.Service.Repository.DriverManage
 
                 if (result > 0)
                 {
-                    await _common.Log("DriverManage", "UserId: " + TempData.UserID + " update driver with id: " + driverId);
+                    await _common.Log("DriverManage", "UserId: " + tempData.UserName + " Update Driver with Data: " + JsonSerializer.Serialize(request));
                     return new BoolActionResult { isSuccess = true, Message = "Cập nhật tài xế thành công" };
                 }
                 else
@@ -122,7 +129,7 @@ namespace TBSLogistics.Service.Repository.DriverManage
             }
             catch (Exception ex)
             {
-                await _common.Log("DriverManage", "UserId: " + TempData.UserID + " Edit driver with ERROR: " + ex.ToString());
+                await _common.Log("DriverManage", "UserId: " + tempData.UserID + " Edit driver with ERROR: " + ex.ToString());
                 return new BoolActionResult { isSuccess = false, Message = "Cập nhật tài xế thất bại" };
             }
         }
@@ -151,7 +158,7 @@ namespace TBSLogistics.Service.Repository.DriverManage
 
                 if (result > 0)
                 {
-                    await _common.Log("DriverManage", "UserId: " + TempData.UserID + " Delete driver with id: " + driverId);
+                    await _common.Log("DriverManage", "UserId: " + tempData.UserID + " Delete driver with id: " + driverId);
                     return new BoolActionResult { isSuccess = true, Message = "Xóa tài xế thành công" };
                 }
                 else
@@ -161,7 +168,7 @@ namespace TBSLogistics.Service.Repository.DriverManage
             }
             catch (Exception ex)
             {
-                await _common.Log("DriverManage", "UserId: " + TempData.UserID + " Delete driver with ERROR: " + ex.ToString());
+                await _common.Log("DriverManage", "UserId: " + tempData.UserID + " Delete driver with ERROR: " + ex.ToString());
                 return new BoolActionResult { isSuccess = false, Message = "Xóa tài xế thất bại" };
             }
         }
@@ -278,11 +285,11 @@ namespace TBSLogistics.Service.Repository.DriverManage
             string ErrorValidate = "";
             if (MaTaiXe.Length > 12 || MaTaiXe.Length < 5)
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã Tài Xế phải ít hơn 12 ký tự \r\n" + System.Environment.NewLine;
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã Tài Xế phải ít hơn 12 ký tự \r\n" + Environment.NewLine;
             }
             if (!Regex.IsMatch(MaTaiXe, "^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9 aAàÀảẢãÃáÁạẠăĂằẰẳẲẵẴắẮặẶâÂầẦẩẨẫẪấẤậẬbBcCdDđĐeEèÈẻẺẽẼéÉẹẸêÊềỀểỂễỄếẾệỆ fFgGhHiIìÌỉỈĩĨíÍịỊjJkKlLmMnNoOòÒỏỎõÕóÓọỌôÔồỒổỔỗỖốỐộỘơƠờỜởỞỡỠớỚợỢpPqQrRsStTu UùÙủỦũŨúÚụỤưƯừỪửỬữỮứỨựỰvVwWxXyYỳỲỷỶỹỸýÝỵỴzZ]+(?<![_.])$", RegexOptions.IgnoreCase))
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã Tài Xế không được chứa ký tự đặc biệt \r\n" + System.Environment.NewLine;
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã Tài Xế không được chứa ký tự đặc biệt \r\n" + Environment.NewLine;
             }
 
             if (!Regex.IsMatch(SoDienThoai, "^(0|\\+84)(\\s|\\.)?((3[2-9])|(5[689])|(7[06-9])|(8[1-689])|(9[0-46-9]))(\\d)(\\s|\\.)?(\\d{3})(\\s|\\.)?(\\d{3})$"))
@@ -294,11 +301,11 @@ namespace TBSLogistics.Service.Repository.DriverManage
             {
                 if (!Regex.IsMatch(NgaySinh.Value.ToString("dd/MM/yyyy"), "^(((0[1-9]|[12][0-9]|30)[-/]?(0[13-9]|1[012])|31[-/]?(0[13578]|1[02])|(0[1-9]|1[0-9]|2[0-8])[-/]?02)[-/]?[0-9]{4}|29[-/]?02[-/]?([0-9]{2}(([2468][048]|[02468][48])|[13579][26])|([13579][26]|[02468][048]|0[0-9]|1[0-6])00))$", RegexOptions.IgnoreCase))
                 {
-                    ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Sai định dạng ngày\r\n" + System.Environment.NewLine;
+                    ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Sai định dạng ngày\r\n" + Environment.NewLine;
                 }
                 if ((DateTime.Now.Date - NgaySinh.Value.Date).Days <= 6570)
                 {
-                    ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Tài xế chưa đủ 18 tuổi \r\n" + System.Environment.NewLine;
+                    ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Tài xế chưa đủ 18 tuổi \r\n" + Environment.NewLine;
                 }
             }
             if (!Regex.IsMatch(CCCD, "^([0-9]{12})$"))
@@ -310,14 +317,14 @@ namespace TBSLogistics.Service.Repository.DriverManage
 
             if (checkMaKH == null)
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã nhà cung cấp: " + MaNhaCungCap + " không tồn tại \r\n" + System.Environment.NewLine;
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã nhà cung cấp: " + MaNhaCungCap + " không tồn tại \r\n" + Environment.NewLine;
             }
 
             var checkMapt = await _context.LoaiPhuongTien.Where(x => x.MaLoaiPhuongTien == MaLoaiPhuongTien).FirstOrDefaultAsync();
 
             if (checkMapt == null)
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã Loại Phương Tiện: " + MaLoaiPhuongTien + " không tồn tại \r\n" + System.Environment.NewLine;
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã Loại Phương Tiện: " + MaLoaiPhuongTien + " không tồn tại \r\n" + Environment.NewLine;
             }
             return ErrorValidate;
         }

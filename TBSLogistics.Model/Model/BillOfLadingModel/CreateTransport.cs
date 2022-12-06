@@ -16,9 +16,10 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
         public string MaCungDuong { get; set; }
         public double TongKhoiLuong { get; set; }
         public double TongTheTich { get; set; }
-        public double TongSoKhoi { get; set; }
+        public double TongSoKien { get; set; }
         public int TongThungHang { get; set; }
         public string GhiChu { get; set; }
+        public string MaPTVC { get; set; }
 
         public List<arrHandling> arrHandlings { get; set; }
 
@@ -35,12 +36,11 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
     {
         public string DonViVanTai { get; set; }
         public string PTVanChuyen { get; set; }
-        public string MaPtvc { get; set; }
         public string LoaiHangHoa { get; set; }
         public string DonViTinh { get; set; }
         public int? DiemLayTraRong { get; set; }
         public double KhoiLuong { get; set; }
         public double TheTich { get; set; }
-        public double SoKhoi { get; set; }
+        public double SoKien { get; set; }
     }
 }

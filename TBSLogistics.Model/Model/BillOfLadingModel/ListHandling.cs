@@ -6,15 +6,16 @@ using System.Threading.Tasks;
 
 namespace TBSLogistics.Model.Model.BillOfLadingModel
 {
-    public  class ListHandling
+    public class ListHandling
     {
-       public string CungDuong { get; set; }
+        public string CungDuong { get; set; }
         public string MaVanDon { get; set; }
         public string PhanLoaiVanDon { get; set; }
         public long MaDieuPhoi { get; set; }
         public string MaSoXe { get; set; }
         public string TenTaiXe { get; set; }
         public string SoDienThoai { get; set; }
+        public string MaPTVC { get; set; }
         public string PTVanChuyen { get; set; }
         public string TenTau { get; set; }
         public string HangTau { get; set; }
@@ -23,7 +24,7 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
         public string DiemLayRong { get; set; }
         public double KhoiLuong { get; set; }
         public double TheTich { get; set; }
-        public double SoKhoi { get; set; }
+        public double SoKien { get; set; }
         public DateTime? ThoiGianLayTraRong { get; set; }
         public DateTime? ThoiGianHaCong { get; set; }
         public DateTime? ThoiGianKeoCong { get; set; }

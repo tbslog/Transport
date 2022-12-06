@@ -8,6 +8,7 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
 {
     public class ListTransport
     {
+        public string MaPTVC { get; set; }
         public string MaVanDon { get; set; }
         public string MaKH { get; set; }
         public string TenKH { get; set; }
@@ -19,7 +20,7 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
         public int TongThungHang { get; set; }
         public double TongTheTich { get; set; }
         public double TongKhoiLuong { get; set; }
-        public double TongSoKhoi { get; set; }
+        public double TongSoKien { get; set; }
         public DateTime ThoiGianLayHang { get; set; }
         public DateTime ThoiGianTraHang { get; set; }
         public DateTime ThoiGianTaoDon { get; set; }

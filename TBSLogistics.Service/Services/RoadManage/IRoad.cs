@@ -10,7 +10,7 @@ using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.RoadModel;
 using TBSLogistics.Model.Wrappers;
 
-namespace TBSLogistics.Service.Repository.RoadManage
+namespace TBSLogistics.Service.Services.RoadManage
 {
     public interface IRoad
     {
@@ -21,7 +21,7 @@ namespace TBSLogistics.Service.Repository.RoadManage
         Task<PagedResponseCustom<ListRoadRequest>> GetListRoad(PaginationFilter request);
         Task<List<GetRoadRequest>> getListRoadOptionSelect(string MaKH, string ContractId);
         Task<List<GetRoadRequest>> getListRoadByPoint(int diemDau, int diemCuoi);
-        Task<BoolActionResult> ImportExcel(IFormFile file, CancellationToken cancellationToken);
+        //Task<BoolActionResult> ImportExcel(IFormFile file, CancellationToken cancellationToken);
 
     }
 }

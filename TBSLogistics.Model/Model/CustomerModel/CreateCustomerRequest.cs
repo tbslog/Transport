@@ -9,7 +9,6 @@ namespace TBSLogistics.Model.Model.CustommerModel
 {
    public class CreateCustomerRequest
     {
-        public string MaKh { get; set; }
         public string TenKh { get; set; }
         public string MaSoThue { get; set; }
         public string LoaiKH { get; set; }

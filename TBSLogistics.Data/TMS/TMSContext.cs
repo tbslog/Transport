@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.Extensions.Configuration;
 
 namespace TBSLogistics.Data.TMS
 {
@@ -47,6 +45,7 @@ namespace TBSLogistics.Data.TMS
         public virtual DbSet<RoleHasPermission> RoleHasPermission { get; set; }
         public virtual DbSet<Romooc> Romooc { get; set; }
         public virtual DbSet<SfeeByTcommand> SfeeByTcommand { get; set; }
+        public virtual DbSet<ShippingInfomation> ShippingInfomation { get; set; }
         public virtual DbSet<StatusText> StatusText { get; set; }
         public virtual DbSet<SubFee> SubFee { get; set; }
         public virtual DbSet<SubFeePrice> SubFeePrice { get; set; }
@@ -64,12 +63,8 @@ namespace TBSLogistics.Data.TMS
         {
             if (!optionsBuilder.IsConfigured)
             {
-                IConfigurationRoot configuration = new ConfigurationBuilder()
-                 .SetBasePath(Directory.GetCurrentDirectory())
-                 .AddJsonFile("appsettings.json")
-                 .Build();
-
-                optionsBuilder.UseSqlServer(configuration.GetConnectionString("TMS_Cloud"));
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+                optionsBuilder.UseSqlServer("Server=192.168.3.63;Database=TMS;User Id=haile;Password=123456;");
             }
         }
 
@@ -361,12 +356,6 @@ namespace TBSLogistics.Data.TMS
                     .HasMaxLength(10)
                     .IsUnicode(false);
 
-                entity.Property(e => e.MaPtvc)
-                    .IsRequired()
-                    .HasMaxLength(10)
-                    .IsUnicode(false)
-                    .HasColumnName("MaPTVC");
-
                 entity.Property(e => e.MaRomooc)
                     .HasMaxLength(50)
                     .IsUnicode(false);
@@ -647,7 +636,7 @@ namespace TBSLogistics.Data.TMS
 
                 entity.Property(e => e.ModuleName)
                     .IsRequired()
-                    .HasMaxLength(50)
+                    .HasMaxLength(200)
                     .IsUnicode(false);
             });
 
@@ -868,6 +857,20 @@ namespace TBSLogistics.Data.TMS
                     .HasConstraintName("FK_SFeeByTcommand_SubFeePrice");
             });
 
+            modelBuilder.Entity<ShippingInfomation>(entity =>
+            {
+                entity.Property(e => e.Id).HasColumnName("ID");
+
+                entity.Property(e => e.ShippingCode)
+                    .IsRequired()
+                    .HasMaxLength(4)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.ShippingLineName)
+                    .IsRequired()
+                    .HasMaxLength(100);
+            });
+
             modelBuilder.Entity<StatusText>(entity =>
             {
                 entity.Property(e => e.Id).HasColumnName("ID");
@@ -937,7 +940,6 @@ namespace TBSLogistics.Data.TMS
                     .HasColumnName("approver");
 
                 entity.Property(e => e.ContractId)
-                    .IsRequired()
                     .HasMaxLength(20)
                     .IsUnicode(false)
                     .HasColumnName("contractID");
@@ -977,7 +979,6 @@ namespace TBSLogistics.Data.TMS
                 entity.HasOne(d => d.Contract)
                     .WithMany(p => p.SubFeePrice)
                     .HasForeignKey(d => d.ContractId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_SubFeePrice_HopDongVaPhuLuc");
 
                 entity.HasOne(d => d.Sf)
@@ -1148,6 +1149,12 @@ namespace TBSLogistics.Data.TMS
                     .HasMaxLength(8)
                     .IsUnicode(false)
                     .HasColumnName("MaKH");
+
+                entity.Property(e => e.MaPtvc)
+                    .IsRequired()
+                    .HasMaxLength(10)
+                    .IsUnicode(false)
+                    .HasColumnName("MaPTVC");
 
                 entity.Property(e => e.MaVanDonKh)
                     .HasMaxLength(50)

@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,23 +16,24 @@ using TBSLogistics.Model.Model.AddressModel;
 using TBSLogistics.Model.Model.TypeCommon;
 using TBSLogistics.Model.TempModel;
 using TBSLogistics.Model.Wrappers;
-using TBSLogistics.Service.Helpers;
-using TBSLogistics.Service.Panigation;
-using TBSLogistics.Service.Repository.Common;
+using TBSLogistics.Service.Services.Common;
 
-namespace TBSLogistics.Service.Repository.AddressManage
+namespace TBSLogistics.Service.Services.AddressManage
 {
     public class AddressService : IAddress
     {
         private readonly TMSContext _VanChuyenContext;
         private readonly ICommon _common;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private TempData tempData;
 
-        public AddressService(TMSContext vanChuyenContext, ICommon common)
+        public AddressService(TMSContext vanChuyenContext, ICommon common, IHttpContextAccessor httpContextAccessor)
         {
             _common = common;
             _VanChuyenContext = vanChuyenContext;
+            _httpContextAccessor = httpContextAccessor;
+            tempData = _common.DecodeToken(_httpContextAccessor.HttpContext.Request.Headers["Authorization"][0].ToString().Replace("Bearer ", ""));
         }
-
 
         public async Task<BoolActionResult> CreateDistricts(int mahuyen, string tenhuyen, string phanloai, int parentcode)
         {
@@ -101,7 +102,7 @@ namespace TBSLogistics.Service.Repository.AddressManage
 
                 if (result > 0)
                 {
-                    await _common.Log("AddressManage", "UserId: " + TempData.UserID + " create new Address with name: " + request.TenDiaDiem);
+                    await _common.Log("AddressManage", "UserId: " + tempData.UserName + " create new Address with Data: " + JsonSerializer.Serialize(request));
                     return new BoolActionResult { isSuccess = true, Message = "Tạo mới địa điểm thành công" };
                 }
                 else
@@ -111,7 +112,7 @@ namespace TBSLogistics.Service.Repository.AddressManage
             }
             catch (Exception ex)
             {
-                await _common.Log("AddressManage", "UserId: " + TempData.UserID + " create new Address with ERRORS: " + ex.ToString());
+                await _common.Log("AddressManage", "UserId: " + tempData.UserName + " create new Address with ERRORS: " + ex.ToString());
                 return new BoolActionResult { isSuccess = false, Message = ex.ToString(), DataReturn = "Exception" };
             }
         }
@@ -157,7 +158,7 @@ namespace TBSLogistics.Service.Repository.AddressManage
 
                 if (result > 0)
                 {
-                    await _common.Log("AddressManage", "UserId: " + TempData.UserID + " edit Address with name: " + request.TenDiaDiem);
+                    await _common.Log("AddressManage", "UserId: " + tempData.UserName + " edit Address with data: " + JsonSerializer.Serialize(request));
                     return new BoolActionResult { isSuccess = true, Message = "Cập nhật địa điểm thành công" };
                 }
                 else
@@ -167,7 +168,7 @@ namespace TBSLogistics.Service.Repository.AddressManage
             }
             catch (Exception ex)
             {
-                await _common.Log("AddressManage", "UserId: " + TempData.UserID + " edit Address with ERRORS: " + ex.ToString());
+                await _common.Log("AddressManage", "UserId: " + tempData.UserName + " edit Address with ERRORS: " + ex.ToString());
                 return new BoolActionResult { isSuccess = false, Message = ex.ToString(), DataReturn = "Exception" };
             }
         }
@@ -350,7 +351,6 @@ namespace TBSLogistics.Service.Repository.AddressManage
                             string MaGPS = worksheet.Cells[row, 2].Value.ToString().Trim();
                             string MaLoaiDiaDiem = worksheet.Cells[row, 4].Value.ToString().Trim();
 
-
                             var FullAddress = await GetFullAddress(SoNha, MaTinh, MaHuyen, MaPhuong);
 
                             ErrorValidate = await ValiateAddress(TenDiaDiem, SoNha, MaGPS, FullAddress, MaLoaiDiaDiem, ErrorRow.ToString());
@@ -368,7 +368,6 @@ namespace TBSLogistics.Service.Repository.AddressManage
                                     DiaChiDayDu = FullAddress,
                                     MaGps = MaGPS,
                                     MaLoaiDiaDiem = MaLoaiDiaDiem,
-
                                 });
                             }
                         }
@@ -447,7 +446,7 @@ namespace TBSLogistics.Service.Repository.AddressManage
                 ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Tên địa điểm không được chứa ký tự đặc biệt \r\n";
             }
 
-            if ( SoNha.Length > 100)
+            if (SoNha.Length > 100)
             {
                 ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Số nhà không được nhiều hơn 100 ký tự \r\n";
             }
@@ -484,7 +483,6 @@ namespace TBSLogistics.Service.Repository.AddressManage
                     MaDiaDiem = x.MaDiaDiem,
                     TenDiaDiem = x.TenDiaDiem,
                     DiaChi = x.DiaChiDayDu
-
                 }).ToListAsync();
 
                 return data;
@@ -494,5 +492,7 @@ namespace TBSLogistics.Service.Repository.AddressManage
                 throw;
             }
         }
+
+
     }
 }

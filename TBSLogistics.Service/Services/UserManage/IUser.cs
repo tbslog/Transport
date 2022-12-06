@@ -10,12 +10,12 @@ using TBSLogistics.Model.Model.ContractModel;
 using TBSLogistics.Model.Model.UserModel;
 using TBSLogistics.Model.Wrappers;
 
-namespace TBSLogistics.Service.Repository.UserManage
+namespace TBSLogistics.Service.Services.UserManage
 {
     public interface IUser
     {
         Task<BoolActionResult> CreateUser(CreateUserRequest request);
-        Task<BoolActionResult> UpdateUser(int id,UpdateUserRequest request);
+        Task<BoolActionResult> UpdateUser(int id, UpdateUserRequest request);
         Task<GetUserRequest> GetUser(int id);
         Task<PagedResponseCustom<GetUserRequest>> GetListUser(PaginationFilter filter);
         Task<BoolActionResult> SetPermissionForRole(SetRole request);

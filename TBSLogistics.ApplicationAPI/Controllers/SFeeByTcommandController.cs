@@ -11,7 +11,7 @@ using TBSLogistics.Model.Model.SFeeByTcommandModel;
 using TBSLogistics.Model.Model.SubFeePriceModel;
 using TBSLogistics.Service.Helpers;
 using TBSLogistics.Service.Panigation;
-using TBSLogistics.Service.Repository.Common;
+using TBSLogistics.Service.Services.Common;
 using TBSLogistics.Service.Services.ProductServiceManage;
 using TBSLogistics.Service.Services.SFeeByTcommandManage;
 

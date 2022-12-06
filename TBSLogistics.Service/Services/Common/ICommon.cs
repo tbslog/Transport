@@ -6,15 +6,16 @@ using System.Text;
 using System.Threading.Tasks;
 using TBSLogistics.Data.TMS;
 using TBSLogistics.Model.CommonModel;
+using TBSLogistics.Model.TempModel;
 
-namespace TBSLogistics.Service.Repository.Common
+namespace TBSLogistics.Service.Services.Common
 {
     public interface ICommon
     {
         Task Log(string FileName, string LogMessage);
 
         string GetFileUrl(string fileName, string fileFolder);
-       string GetFile(string fileFolder);
+        string GetFile(string fileFolder);
         Task SaveFileAsync(Stream mediaBinaryStream, string fileName, string fileFolder);
 
         Task DeleteFileAsync(string fileName, string fileFolder);
@@ -22,5 +23,6 @@ namespace TBSLogistics.Service.Repository.Common
         Task<BoolActionResult> AddAttachment(Attachment attachment);
         Task<Attachment> GetAttachmentById(int id);
         Task<BoolActionResult> CheckPermission(string permissionId);
+        TempData DecodeToken(string token);
     }
 }

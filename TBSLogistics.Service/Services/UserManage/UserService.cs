@@ -1,13 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
-using System.Reflection.Metadata;
-using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TBSLogistics.Data.TMS;
@@ -16,19 +14,23 @@ using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.UserModel;
 using TBSLogistics.Model.TempModel;
 using TBSLogistics.Model.Wrappers;
-using TBSLogistics.Service.Repository.Common;
+using TBSLogistics.Service.Services.Common;
 
-namespace TBSLogistics.Service.Repository.UserManage
+namespace TBSLogistics.Service.Services.UserManage
 {
     public class UserService : IUser
     {
         private readonly TMSContext _context;
         private readonly ICommon _common;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private TempData tempData;
 
-        public UserService(TMSContext context, ICommon common)
+        public UserService(TMSContext context, ICommon common, IHttpContextAccessor httpContextAccessor)
         {
+            _httpContextAccessor = httpContextAccessor;
             _common = common;
             _context = context;
+            tempData = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToArray().Length > 0 ? _common.DecodeToken(_httpContextAccessor.HttpContext.Request.Headers["Authorization"][0].ToString().Replace("Bearer ", "")) : new TempData();
         }
 
         public async Task<BoolActionResult> SetPermissionForRole(SetRole request)
@@ -94,7 +96,6 @@ namespace TBSLogistics.Service.Repository.UserManage
                         await _context.RoleHasPermission.AddRangeAsync(list);
                     }
 
-
                     var CheckRemovePermission = await _context.Permission.Where(x => listPermissionOfRole.Contains(x.Id)).Select(x => x.Mid).ToListAsync();
 
                     var GetlistRemove = CheckRemovePermission.Except(request.Permission).ToList();
@@ -110,6 +111,7 @@ namespace TBSLogistics.Service.Repository.UserManage
 
                 if (result > 0)
                 {
+                    await _common.Log("AddPermissionForRole", "UserId: " + tempData.UserID + " Set Permission For Role with data: " + JsonSerializer.Serialize(request));
                     return new BoolActionResult { isSuccess = true, Message = "Add permissions for role success" };
                 }
                 else
@@ -138,6 +140,7 @@ namespace TBSLogistics.Service.Repository.UserManage
             var result = await _context.SaveChangesAsync();
             if (result > 0)
             {
+                await _common.Log("User", "UserId: " + tempData.UserID + " Block Users: " + JsonSerializer.Serialize(userIds));
                 return new BoolActionResult { isSuccess = true, Message = "Ok" };
             }
             else
@@ -148,7 +151,7 @@ namespace TBSLogistics.Service.Repository.UserManage
 
         public async Task<BoolActionResult> CreateUser(CreateUserRequest request)
         {
-            using var transaction = _context.Database.BeginTransaction();
+            var transaction = await _context.Database.BeginTransactionAsync();
 
             try
             {
@@ -187,7 +190,7 @@ namespace TBSLogistics.Service.Repository.UserManage
                     MaNhanVien = request.MaNhanVien,
                     RoleId = request.RoleId,
                     TrangThai = request.TrangThai,
-                    NguoiTao = TempData.UserName,
+                    NguoiTao = tempData.UserName,
                     CreatedTime = DateTime.Now,
                     UpdatedTime = DateTime.Now
                 });
@@ -202,11 +205,12 @@ namespace TBSLogistics.Service.Repository.UserManage
                 });
 
                 var result = await _context.SaveChangesAsync();
-
-                transaction.Commit();
+                await transaction.CommitAsync();
 
                 if (result > 0)
                 {
+                    await transaction.CommitAsync();
+                    await _common.Log("User", "UserId: " + tempData.UserID + " Create User with data: " + JsonSerializer.Serialize(request));
                     return new BoolActionResult { isSuccess = true, Message = "Thêm mới người dùng thành công" };
                 }
                 else
@@ -216,7 +220,7 @@ namespace TBSLogistics.Service.Repository.UserManage
             }
             catch (Exception ex)
             {
-                transaction.Rollback();
+                await transaction.RollbackAsync();
                 await _common.Log("Errors User", ex.ToString());
                 return new BoolActionResult { isSuccess = false, Message = "Thêm mới người dùng không thành công, Liên Hệ IT \r\n" + ex.ToString() };
             }
@@ -234,10 +238,9 @@ namespace TBSLogistics.Service.Repository.UserManage
                               on user.MaBoPhan equals bp.MaBoPhan
                               join status in _context.StatusText
                               on user.TrangThai equals status.StatusId
-                              where status.LangId == TempData.LangID
+                              where status.LangId == tempData.LangID
                               orderby user.CreatedTime descending
                               select new { user, acc, bp, status };
-
 
                 if (!string.IsNullOrEmpty(filter.Keyword))
                 {
@@ -406,6 +409,7 @@ namespace TBSLogistics.Service.Repository.UserManage
 
                 if (result > 0)
                 {
+                    await _common.Log("User", "UserId: " + tempData.UserID + " Update User with data: " + JsonSerializer.Serialize(request));
                     return new BoolActionResult { isSuccess = true, Message = "Cập nhật thông tin thành công" };
                 }
                 else
@@ -456,8 +460,6 @@ namespace TBSLogistics.Service.Repository.UserManage
             var transaction = _context.Database.BeginTransaction();
             try
             {
-
-
                 var getAccount = await _context.Account.Where(x => x.UserName == username).FirstOrDefaultAsync();
 
                 if (getAccount == null)

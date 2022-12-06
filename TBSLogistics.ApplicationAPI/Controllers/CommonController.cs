@@ -87,7 +87,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> GetListStatus(List<string> funcId)
         {
-            var list = await _tMSContext.StatusText.Where(x => x.LangId == TempData.LangID && funcId.Contains(x.FunctionId)).Select(x => new { x.StatusId, x.StatusContent }).ToListAsync();
+            var list = await _tMSContext.StatusText.Where(x => x.LangId == "VI" && funcId.Contains(x.FunctionId)).Select(x => new { x.StatusId, x.StatusContent }).ToListAsync();
             return Ok(list);
         }
 
@@ -96,7 +96,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         public async Task<IActionResult> GetListMessage(List<string> funcId)
         {
 
-            var list = await _tMSContext.ThongBao.Where(x => x.LangId == TempData.LangID && funcId.Contains(x.FunctionId)).Select(x => new { x.TextId, x.TextContent }).ToListAsync();
+            var list = await _tMSContext.ThongBao.Where(x => x.LangId == "VI" && funcId.Contains(x.FunctionId)).Select(x => new { x.TextId, x.TextContent }).ToListAsync();
             return Ok(list);
         }
     }

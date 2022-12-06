@@ -1,10 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
 using System.Linq;
-using System.Runtime.Intrinsics.Arm;
-using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using TBSLogistics.Data.TMS;
 using TBSLogistics.Model.CommonModel;
@@ -12,7 +11,7 @@ using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.SubFeePriceModel;
 using TBSLogistics.Model.TempModel;
 using TBSLogistics.Model.Wrappers;
-using TBSLogistics.Service.Repository.Common;
+using TBSLogistics.Service.Services.Common;
 
 namespace TBSLogistics.Service.Services.SubFeePriceManage
 {
@@ -20,11 +19,15 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
     {
         private readonly ICommon _common;
         private readonly TMSContext _context;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private TempData tempData;
 
-        public SubFeePriceService(ICommon common, TMSContext context)
+        public SubFeePriceService(ICommon common, TMSContext context, IHttpContextAccessor httpContextAccessor)
         {
+            _httpContextAccessor = httpContextAccessor;
             _common = common;
             _context = context;
+            tempData = _common.DecodeToken(_httpContextAccessor.HttpContext.Request.Headers["Authorization"][0].ToString().Replace("Bearer ", ""));
         }
 
         public async Task<BoolActionResult> CreateSubFeePrice(CreateSubFeePriceRequest request)
@@ -56,7 +59,6 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
                 {
                     request.GoodsType = null;
                 }
-              
 
                 await _context.AddAsync(new SubFeePrice()
                 {
@@ -79,9 +81,7 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
 
                 if (result > 0)
                 {
-                    var newid = _context.SubFeePrice.Where(x => x.SfId == request.SfId && x.ContractId == request.ContractId && x.GoodsType == request.GoodsType
-                   && x.FirstPlace == request.FirstPlace && x.SecondPlace == request.SecondPlace && x.SfStateByContract == 1).Select(x => x.PriceId).FirstOrDefault();
-                    await _common.Log("SubFeePriceManage", "UserId: " + TempData.UserID + " create new SubFeePrice with id: " + newid.ToString());
+                    await _common.Log("SubFeePriceManage", "UserId: " + tempData.UserID + " Create SubFeePrice with data: " + JsonSerializer.Serialize(request));
                     return new BoolActionResult { isSuccess = true, Message = "Tạo mới phụ phí thành công" };
                 }
                 else
@@ -91,7 +91,7 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
             }
             catch (Exception ex)
             {
-                await _common.Log("SubFeePriceManage", "UserId: " + TempData.UserID + " create new SubFeePrice with ERROR: " + ex.ToString());
+                await _common.Log("SubFeePriceManage", "UserId: " + tempData.UserID + " create new SubFeePrice with ERROR: " + ex.ToString());
                 return new BoolActionResult { isSuccess = false, Message = ex.ToString(), DataReturn = "Exception" };
             }
         }
@@ -137,7 +137,7 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
 
                 if (result > 0)
                 {
-                    await _common.Log("SubFeePriceManage", "UserId: " + TempData.UserID + " edit SubFeePrice with id: " + id);
+                    await _common.Log("SubFeePriceManage", "UserId: " + tempData.UserID + " Update SubFeePrice with data: " + JsonSerializer.Serialize(request));
                     return new BoolActionResult { isSuccess = true, Message = "Cập nhật phụ phí thành công" };
                 }
                 else
@@ -147,7 +147,7 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
             }
             catch (Exception ex)
             {
-                await _common.Log("SubFeePriceManage", "UserId: " + TempData.UserID + " edit SubFeePrice with ERROR: " + ex.ToString());
+                await _common.Log("SubFeePriceManage", "UserId: " + tempData.UserID + " update SubFeePrice with ERROR: " + ex.ToString());
                 return new BoolActionResult { isSuccess = false, Message = ex.ToString(), DataReturn = "Exception" };
             }
         }
@@ -205,7 +205,7 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
                         }
 
                         getById.ApprovedDate = DateTime.Now;
-                        getById.Approver = TempData.UserName;
+                        getById.Approver = tempData.UserName;
                         getById.Status = 14;
                         _context.Update(getById);
                     }
@@ -215,6 +215,7 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
 
                 if (result > 0)
                 {
+                    await _common.Log("SubFeePriceManage", "UserId: " + tempData.UserID + " Approve SubFeePrice with data: " + JsonSerializer.Serialize(request));
                     return new BoolActionResult { isSuccess = true, Message = Errors == "" ? "Duyệt phụ phí thành công!" : Errors };
                 }
                 else
@@ -224,7 +225,7 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
             }
             catch (Exception ex)
             {
-                await _common.Log("SubFeePriceManage", "UserId: " + TempData.UserID + " approve SubFeePrice with ERROR: " + ex.ToString());
+                await _common.Log("SubFeePriceManage", "UserId: " + tempData.UserID + " approve SubFeePrice with ERROR: " + ex.ToString());
                 return new BoolActionResult { isSuccess = false, Message = ex.ToString(), DataReturn = "Exception" };
             }
         }
@@ -264,17 +265,17 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
 
                 if (result > 0)
                 {
+                    await _common.Log("SubFeePriceManage", "UserId: " + tempData.UserID + " Disable SubFeePrice with data: " + JsonSerializer.Serialize(ids));
                     return new BoolActionResult { isSuccess = true, Message = errors == "" ? "Vô hiệu phụ phí thành công!" : errors };
                 }
                 else
                 {
-
                     return new BoolActionResult { isSuccess = false, Message = "Vô hiệu hóa phụ phí thất bại" + errors };
                 }
             }
             catch (Exception ex)
             {
-                await _common.Log("SubFeePriceManage", "UserId: " + TempData.UserID + " disable SubFeePrice with ERROR: " + ex.ToString());
+                await _common.Log("SubFeePriceManage", "UserId: " + tempData.UserID + " disable SubFeePrice with ERROR: " + ex.ToString());
                 return new BoolActionResult { isSuccess = false, Message = ex.ToString(), DataReturn = "Exception" };
             }
         }
@@ -314,17 +315,17 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
 
                 if (result > 0)
                 {
+                    await _common.Log("SubFeePriceManage", "UserId: " + tempData.UserID + " Disable SubFeePrice with data: " + JsonSerializer.Serialize(ids));
                     return new BoolActionResult { isSuccess = true, Message = errors == "" ? "Xóa phụ phí thành công!" : errors };
                 }
                 else
                 {
-
                     return new BoolActionResult { isSuccess = false, Message = "Xóa hóa phụ phí thất bại" + errors };
                 }
             }
             catch (Exception ex)
             {
-                await _common.Log("SubFeePriceManage", "UserId: " + TempData.UserID + "delete SubFeePrice with ERROR: " + ex.ToString());
+                await _common.Log("SubFeePriceManage", "UserId: " + tempData.UserID + "delete SubFeePrice with ERROR: " + ex.ToString());
                 return new BoolActionResult { isSuccess = false, Message = ex.ToString(), DataReturn = "Exception" };
             }
         }
@@ -340,7 +341,6 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
                           on hd.MaKh equals kh.MaKh
                           where sfp.PriceId == id
                           select new { sf, sfp, hd, kh };
-
 
             try
             {
@@ -390,12 +390,9 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
                 }).ToListAsync();
 
                 return list;
-
-
             }
             catch (Exception)
             {
-
                 throw;
             }
         }
@@ -414,7 +411,7 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
                               on sfp.ContractId equals hd.MaHopDong
                               join status in _context.StatusText
                               on sfp.Status equals status.StatusId
-                              where status.LangId == TempData.LangID
+                              where status.LangId == tempData.LangID
                               orderby sfp.SfId descending
                               select new { sfp, sf, sft, hd, status };
 
@@ -436,7 +433,6 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
                 {
                     getList = getList.Where(x => x.sfp.Status != 16 && x.sfp.Status != 15);
                 }
-
 
                 var totalCount = await getList.CountAsync();
 
@@ -470,6 +466,5 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
                 throw;
             }
         }
-
     }
 }

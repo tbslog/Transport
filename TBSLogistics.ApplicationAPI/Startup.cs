@@ -12,23 +12,24 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 using TBSLogistics.Data.TMS;
 using TBSLogistics.Service.Panigation;
-using TBSLogistics.Service.Repository.AddressManage;
-using TBSLogistics.Service.Repository.BillOfLadingManage;
-using TBSLogistics.Service.Repository.Common;
-using TBSLogistics.Service.Repository.CustommerManage;
-using TBSLogistics.Service.Repository.DriverManage;
-using TBSLogistics.Service.Repository.PricelistManage;
-using TBSLogistics.Service.Repository.RoadManage;
-using TBSLogistics.Service.Repository.UserManage;
-using TBSLogistics.Service.Repository.VehicleManage;
+using TBSLogistics.Service.Services.AddressManage;
 using TBSLogistics.Service.Services.Bill;
+using TBSLogistics.Service.Services.BillOfLadingManage;
+using TBSLogistics.Service.Services.Common;
 using TBSLogistics.Service.Services.ContractManage;
+using TBSLogistics.Service.Services.CustommerManage;
+using TBSLogistics.Service.Services.DriverManage;
 using TBSLogistics.Service.Services.NotificationManage;
+using TBSLogistics.Service.Services.PricelistManage;
+using TBSLogistics.Service.Services.PriceTableManage;
 using TBSLogistics.Service.Services.ProductServiceManage;
 using TBSLogistics.Service.Services.Report;
+using TBSLogistics.Service.Services.RoadManage;
 using TBSLogistics.Service.Services.RomoocManage;
 using TBSLogistics.Service.Services.SFeeByTcommandManage;
 using TBSLogistics.Service.Services.SubFeePriceManage;
+using TBSLogistics.Service.Services.UserManage;
+using TBSLogistics.Service.Services.VehicleManage;
 
 namespace TBSLogistics.ApplicationAPI
 {
@@ -110,6 +111,20 @@ namespace TBSLogistics.ApplicationAPI
                     Type = SecuritySchemeType.Http,
                     BearerFormat = "JWT",
                     Scheme = "Bearer"
+                });
+                option.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                       new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type=ReferenceType.SecurityScheme,
+                                Id="Bearer"
+                            }
+                        },
+                        new string[]{}
+                    }
                 });
             });
         }

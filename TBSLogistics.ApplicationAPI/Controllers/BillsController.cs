@@ -8,9 +8,9 @@ using TBSLogistics.Model.Model.AddressModel;
 using TBSLogistics.Model.Model.BillModel;
 using TBSLogistics.Service.Helpers;
 using TBSLogistics.Service.Panigation;
-using TBSLogistics.Service.Repository.AddressManage;
-using TBSLogistics.Service.Repository.Common;
+using TBSLogistics.Service.Services.AddressManage;
 using TBSLogistics.Service.Services.Bill;
+using TBSLogistics.Service.Services.Common;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 

@@ -1,7 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TBSLogistics.Data.TMS;
@@ -10,7 +12,7 @@ using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.RomoocModel;
 using TBSLogistics.Model.TempModel;
 using TBSLogistics.Model.Wrappers;
-using TBSLogistics.Service.Repository.Common;
+using TBSLogistics.Service.Services.Common;
 
 namespace TBSLogistics.Service.Services.RomoocManage
 {
@@ -18,11 +20,15 @@ namespace TBSLogistics.Service.Services.RomoocManage
     {
         private readonly ICommon _common;
         private readonly TMSContext _TMScontext;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private TempData tempData;
 
-        public RomoocService(ICommon common, TMSContext context)
+        public RomoocService(ICommon common, TMSContext context, IHttpContextAccessor httpContextAccessor)
         {
+            _httpContextAccessor = httpContextAccessor;
             _common = common;
             _TMScontext = context;
+            tempData = _common.DecodeToken(_httpContextAccessor.HttpContext.Request.Headers["Authorization"][0].ToString().Replace("Bearer ", ""));
         }
 
         public async Task<BoolActionResult> CreateRomooc(CreateRomooc request)
@@ -53,7 +59,7 @@ namespace TBSLogistics.Service.Services.RomoocManage
                 var result = await _TMScontext.SaveChangesAsync();
                 if (result > 0)
                 {
-                    await _common.Log("RomoocManage", "UserId: " + TempData.UserID + " create new Romooc with id: " + request.MaRomooc);
+                    await _common.Log("RomoocManage", "UserId: " + tempData.UserName + " create new Remooc with Data: " + JsonSerializer.Serialize(request));
                     return new BoolActionResult { isSuccess = true, Message = "Tạo mới Romooc thành công" };
                 }
                 else
@@ -63,7 +69,7 @@ namespace TBSLogistics.Service.Services.RomoocManage
             }
             catch (Exception ex)
             {
-                await _common.Log("RomoocManage", "UserId: " + TempData.UserID + " create new Romooc with ERROR: " + ex.ToString());
+                await _common.Log("RomoocManage", "UserId: " + tempData.UserID + " create new Romooc with ERROR: " + ex.ToString());
                 return new BoolActionResult { isSuccess = false, Message = ex.ToString(), DataReturn = "Exception" };
             }
         }
@@ -77,7 +83,7 @@ namespace TBSLogistics.Service.Services.RomoocManage
                 {
                     return new BoolActionResult { isSuccess = false, Message = "Mã Romooc không tồn tại" };
                 }
-            
+
                 var IsMaLoaiRomooc = await _TMScontext.LoaiRomooc.Where(x => x.MaLoaiRomooc == request.MaLoaiRomooc).FirstOrDefaultAsync();
                 if (IsMaLoaiRomooc == null)
                 {
@@ -95,7 +101,7 @@ namespace TBSLogistics.Service.Services.RomoocManage
 
                 if (result > 0)
                 {
-                    await _common.Log("RomoocManage", "UserId: " + TempData.UserID + " update driver with id: " + MaRomooc);
+                    await _common.Log("RomoocManage", "UserId: " + tempData.UserName + " Update Remooc with Data: " + JsonSerializer.Serialize(request));
                     return new BoolActionResult { isSuccess = true, Message = "Cập nhật Romooc thành công" };
                 }
                 else
@@ -105,7 +111,7 @@ namespace TBSLogistics.Service.Services.RomoocManage
             }
             catch (Exception ex)
             {
-                await _common.Log("RomoocManage", "UserId: " + TempData.UserID + " Edit Romooc with ERROR: " + ex.ToString());
+                await _common.Log("RomoocManage", "UserId: " + tempData.UserID + " Edit Romooc with ERROR: " + ex.ToString());
                 return new BoolActionResult { isSuccess = false, Message = "Cập nhật Romooc thất bại" };
             }
         }
@@ -130,7 +136,7 @@ namespace TBSLogistics.Service.Services.RomoocManage
 
                 if (result > 0)
                 {
-                    await _common.Log("RomoocManage", "UserId: " + TempData.UserID + " Delete driver with id: " + MaRomooc);
+                    await _common.Log("RomoocManage", "UserId: " + tempData.UserID + " Delete driver with id: " + MaRomooc);
                     return new BoolActionResult { isSuccess = true, Message = "Xóa Romooc thành công" };
                 }
                 else
@@ -140,7 +146,7 @@ namespace TBSLogistics.Service.Services.RomoocManage
             }
             catch (Exception ex)
             {
-                await _common.Log("RomoocManage", "UserId: " + TempData.UserID + " Delete Romooc with ERROR: " + ex.ToString());
+                await _common.Log("RomoocManage", "UserId: " + tempData.UserID + " Delete Romooc with ERROR: " + ex.ToString());
                 return new BoolActionResult { isSuccess = false, Message = "Xóa Romooc thất bại" };
             }
         }

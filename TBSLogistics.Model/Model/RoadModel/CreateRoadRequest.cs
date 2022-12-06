@@ -8,7 +8,6 @@ namespace TBSLogistics.Model.Model.RoadModel
 {
     public class CreateRoadRequest
     {
-        public string MaCungDuong { get; set; }
         public string TenCungDuong { get; set; }
         public double Km { get; set; }
         public int DiemDau { get; set; }

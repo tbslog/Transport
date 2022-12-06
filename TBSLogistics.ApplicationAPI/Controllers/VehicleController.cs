@@ -8,8 +8,8 @@ using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.VehicleModel;
 using TBSLogistics.Service.Helpers;
 using TBSLogistics.Service.Panigation;
-using TBSLogistics.Service.Repository.Common;
-using TBSLogistics.Service.Repository.VehicleManage;
+using TBSLogistics.Service.Services.VehicleManage;
+using TBSLogistics.Service.Services.Common;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 

@@ -8,7 +8,7 @@ using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.PriceListModel;
 using TBSLogistics.Model.Wrappers;
 
-namespace TBSLogistics.Service.Repository.PricelistManage
+namespace TBSLogistics.Service.Services.PricelistManage
 {
     public interface IPriceTable
     {

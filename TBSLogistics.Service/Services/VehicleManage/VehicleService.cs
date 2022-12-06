@@ -1,9 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
-using System.Drawing.Drawing2D;
 using System.Linq;
-using System.Text;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TBSLogistics.Data.TMS;
@@ -12,19 +11,24 @@ using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.VehicleModel;
 using TBSLogistics.Model.TempModel;
 using TBSLogistics.Model.Wrappers;
-using TBSLogistics.Service.Repository.Common;
+using TBSLogistics.Service.Services.VehicleManage;
+using TBSLogistics.Service.Services.Common;
 
-namespace TBSLogistics.Service.Repository.VehicleManage
+namespace TBSLogistics.Service.Services.VehicleManage
 {
     public class VehicleService : IVehicle
     {
         private readonly ICommon _common;
         private readonly TMSContext _context;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private TempData tempData;
 
-        public VehicleService(ICommon common, TMSContext context)
+        public VehicleService(ICommon common, TMSContext context, IHttpContextAccessor httpContextAccessor)
         {
+            _httpContextAccessor = httpContextAccessor;
             _common = common;
             _context = context;
+            tempData = _common.DecodeToken(_httpContextAccessor.HttpContext.Request.Headers["Authorization"][0].ToString().Replace("Bearer ", ""));
         }
 
         public async Task<BoolActionResult> CreateVehicle(CreateVehicleRequest request)
@@ -37,7 +41,7 @@ namespace TBSLogistics.Service.Repository.VehicleManage
                 {
                     return new BoolActionResult { isSuccess = false, Message = "Xe này đã tồn tại trong dữ liệu" };
                 }
-                string ErrorValidate = await ValiateCreat(request.MaSoXe, request.MaLoaiPhuongTien, request.MaTaiXeMacDinh, request.TrongTaiToiThieu, request.TrongTaiToiDa, request.MaGps, request.MaGpsmobile, request.MaTaiSan, request.ThoiGianKhauHao, request.NgayHoatDong );
+                string ErrorValidate = await ValiateCreat(request.MaSoXe, request.MaLoaiPhuongTien, request.MaTaiXeMacDinh, request.TrongTaiToiThieu, request.TrongTaiToiDa, request.MaGps, request.MaGpsmobile, request.MaTaiSan, request.ThoiGianKhauHao, request.NgayHoatDong);
                 if (ErrorValidate != "")
                 {
                     return new BoolActionResult { isSuccess = false, Message = ErrorValidate };
@@ -55,7 +59,7 @@ namespace TBSLogistics.Service.Repository.VehicleManage
                     MaTaiSan = request.MaTaiSan,
                     ThoiGianKhauHao = request.ThoiGianKhauHao,
                     NgayHoatDong = request.NgayHoatDong,
-                    TrangThai =1,
+                    TrangThai = 1,
                     UpdatedTime = DateTime.Now,
                     CreatedTime = DateTime.Now,
                 });
@@ -64,7 +68,7 @@ namespace TBSLogistics.Service.Repository.VehicleManage
 
                 if (result > 0)
                 {
-                    await _common.Log("VehicleManage", "UserId: " + TempData.UserID + " create new vehicle with id:" + request.MaSoXe);
+                    await _common.Log("VehicleManage", "UserId: " + tempData.UserID + " Create vehicle with data: " + JsonSerializer.Serialize(request));
                     return new BoolActionResult { isSuccess = true, Message = "Tạo mới xe thành công" };
                 }
                 else
@@ -74,10 +78,11 @@ namespace TBSLogistics.Service.Repository.VehicleManage
             }
             catch (Exception ex)
             {
-                await _common.Log("VehicleManage", "UserId: " + TempData.UserID + " create new vehicle with ERROR:" + ex.ToString());
+                await _common.Log("VehicleManage", "UserId: " + tempData.UserID + " create new vehicle with ERROR:" + ex.ToString());
                 return new BoolActionResult { isSuccess = false, Message = ex.ToString(), DataReturn = "Exception" };
             }
         }
+
         public async Task<BoolActionResult> EditVehicle(string vehicleId, EditVehicleRequest request)
         {
             try
@@ -88,7 +93,7 @@ namespace TBSLogistics.Service.Repository.VehicleManage
                 {
                     return new BoolActionResult { isSuccess = false, Message = "Xe này không tồn tại trong dữ liệu" };
                 }
-                
+
                 getVehicle.MaLoaiPhuongTien = request.MaLoaiPhuongTien;
                 getVehicle.MaTaiXeMacDinh = request.MaTaiXeMacDinh;
                 getVehicle.TrongTaiToiThieu = request.TrongTaiToiThieu;
@@ -107,7 +112,7 @@ namespace TBSLogistics.Service.Repository.VehicleManage
 
                 if (result > 0)
                 {
-                    await _common.Log("VehicleManage", "UserId: " + TempData.UserID + " Update vehicle with id:" + vehicleId);
+                    await _common.Log("VehicleManage", "UserId: " + tempData.UserID + " Update vehicle with data: " + JsonSerializer.Serialize(request));
                     return new BoolActionResult { isSuccess = true, Message = "Cập nhật xe thành công" };
                 }
                 else
@@ -117,10 +122,11 @@ namespace TBSLogistics.Service.Repository.VehicleManage
             }
             catch (Exception ex)
             {
-                await _common.Log("VehicleManage", "UserId: " + TempData.UserID + " Update vehicle with ERROR:" + ex.ToString());
+                await _common.Log("VehicleManage", "UserId: " + tempData.UserID + " Update vehicle with ERROR:" + ex.ToString());
                 return new BoolActionResult { isSuccess = false, Message = "Cập nhật xe thất bại" };
             }
         }
+
         public async Task<BoolActionResult> DeleteVehicle(string vehicleId)
         {
             try
@@ -144,7 +150,7 @@ namespace TBSLogistics.Service.Repository.VehicleManage
 
                 if (result > 0)
                 {
-                    await _common.Log("VehicleManage", "UserId: " + TempData.UserID + " Delete vehicle with id:" + vehicleId);
+                    await _common.Log("VehicleManage", "UserId: " + tempData.UserID + " Delete vehicle with id:" + vehicleId);
                     return new BoolActionResult { isSuccess = true, Message = "Delete xe thành công" };
                 }
                 else
@@ -154,10 +160,11 @@ namespace TBSLogistics.Service.Repository.VehicleManage
             }
             catch (Exception ex)
             {
-                await _common.Log("VehicleManage", "UserId: " + TempData.UserID + " Delete vehicle with ERROR:" + ex.ToString());
+                await _common.Log("VehicleManage", "UserId: " + tempData.UserID + " Delete vehicle with ERROR:" + ex.ToString());
                 return new BoolActionResult { isSuccess = false, Message = "Delete xe thất bại" };
             }
         }
+
         public async Task<PagedResponseCustom<ListVehicleRequest>> getListVehicle(PaginationFilter filter)
         {
             try
@@ -209,6 +216,7 @@ namespace TBSLogistics.Service.Repository.VehicleManage
                 return new PagedResponseCustom<ListVehicleRequest>();
             }
         }
+
         public async Task<GetVehicleRequest> GetVehicleById(string vehicleId)
         {
             var vehicle = await _context.XeVanChuyen.Where(x => x.MaSoXe == vehicleId).Select(x => new GetVehicleRequest()
@@ -229,17 +237,18 @@ namespace TBSLogistics.Service.Repository.VehicleManage
             }).FirstOrDefaultAsync();
 
             return vehicle;
-        } 
-      private async Task<string> ValiateCreat(string MaSoXe, string MaLoaiPhuongTien, string MaTaiXeMacDinh, double? TrongTaiToiThieu, double? TrongTaiToiDa, string MaGps, string MaGpsmobile, string? MaTaiSan, int? ThoiGianKhauHao, DateTime? NgayHoatDong, string ErrorRow = "")
+        }
+
+        private async Task<string> ValiateCreat(string MaSoXe, string MaLoaiPhuongTien, string MaTaiXeMacDinh, double? TrongTaiToiThieu, double? TrongTaiToiDa, string MaGps, string MaGpsmobile, string MaTaiSan, int? ThoiGianKhauHao, DateTime? NgayHoatDong, string ErrorRow = "")
         {
             string ErrorValidate = "";
             if (MaSoXe.Length > 10 || MaSoXe.Length < 6)
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " -Biển số xe phải từ 6-10 kí tự \r\n" + System.Environment.NewLine;
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " -Biển số xe phải từ 6-10 kí tự \r\n" + Environment.NewLine;
             }
             if (!Regex.IsMatch(MaSoXe, "^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9 aAàÀảẢãÃáÁạẠăĂằẰẳẲẵẴắẮặẶâÂầẦẩẨẫẪấẤậẬbBcCdDđĐeEèÈẻẺẽẼéÉẹẸêÊềỀểỂễỄếẾệỆ fFgGhHiIìÌỉỈĩĨíÍịỊjJkKlLmMnNoOòÒỏỎõÕóÓọỌôÔồỒổỔỗỖốỐộỘơƠờỜởỞỡỠớỚợỢpPqQrRsStTu UùÙủỦũŨúÚụỤưƯừỪửỬữỮứỨựỰvVwWxXyYỳỲỷỶỹỸýÝỵỴzZ]+(?<![_.])$", RegexOptions.IgnoreCase))
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã số xe không được chứa ký tự đặc biệt \r\n" + System.Environment.NewLine;
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã số xe không được chứa ký tự đặc biệt \r\n" + Environment.NewLine;
             }
             if (!Regex.IsMatch(MaSoXe, "^(?![_.])(?![_.])(?!.*[_.]{2})[A-Z0-9]+(?<![_.])$"))
             {
@@ -249,7 +258,7 @@ namespace TBSLogistics.Service.Repository.VehicleManage
 
             if (checkMapt == null)
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã Loại Phương Tiện: " + MaLoaiPhuongTien + " không tồn tại \r\n" + System.Environment.NewLine;
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã Loại Phương Tiện: " + MaLoaiPhuongTien + " không tồn tại \r\n" + Environment.NewLine;
             }
 
             if (!string.IsNullOrEmpty(MaTaiXeMacDinh))
@@ -258,23 +267,19 @@ namespace TBSLogistics.Service.Repository.VehicleManage
 
                 if (checkMaTaiXe == null)
                 {
-                    ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã Tài Xế: " + MaTaiXeMacDinh + " không tồn tại \r\n" + System.Environment.NewLine;
+                    ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã Tài Xế: " + MaTaiXeMacDinh + " không tồn tại \r\n" + Environment.NewLine;
                 }
             }
-           
+
             if (NgayHoatDong != null)
             {
                 if (!Regex.IsMatch(NgayHoatDong.Value.ToString("dd/MM/yyyy"), "^(((0[1-9]|[12][0-9]|30)[-/]?(0[13-9]|1[012])|31[-/]?(0[13578]|1[02])|(0[1-9]|1[0-9]|2[0-8])[-/]?02)[-/]?[0-9]{4}|29[-/]?02[-/]?([0-9]{2}(([2468][048]|[02468][48])|[13579][26])|([13579][26]|[02468][048]|0[0-9]|1[0-6])00))$", RegexOptions.IgnoreCase))
                 {
-                    ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Sai định dạng ngày\r\n" + System.Environment.NewLine;
+                    ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Sai định dạng ngày\r\n" + Environment.NewLine;
                 }
             }
-        
 
             return ErrorValidate;
-
-
-       
         }
     }
 }

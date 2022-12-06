@@ -5,7 +5,7 @@ using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.RomoocModel;
 using TBSLogistics.Service.Helpers;
 using TBSLogistics.Service.Panigation;
-using TBSLogistics.Service.Repository.Common;
+using TBSLogistics.Service.Services.Common;
 using TBSLogistics.Service.Services.RomoocManage;
 
 namespace TBSLogistics.ApplicationAPI.Controllers

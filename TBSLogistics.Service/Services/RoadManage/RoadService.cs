@@ -1,14 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Net.Http.Headers;
-using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading;
+using System.Text.Json;
 using System.Threading.Tasks;
 using TBSLogistics.Data.TMS;
 using TBSLogistics.Model.CommonModel;
@@ -16,20 +11,24 @@ using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.RoadModel;
 using TBSLogistics.Model.TempModel;
 using TBSLogistics.Model.Wrappers;
-using TBSLogistics.Service.Repository.Common;
+using TBSLogistics.Service.Services.RoadManage;
+using TBSLogistics.Service.Services.Common;
 
-namespace TBSLogistics.Service.Repository.RoadManage
+namespace TBSLogistics.Service.Services.RoadManage
 {
     public class RoadService : IRoad
     {
         private readonly ICommon _common;
         private readonly TMSContext _context;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private TempData tempData;
 
-
-        public RoadService(ICommon common, TMSContext context)
+        public RoadService(ICommon common, TMSContext context, IHttpContextAccessor httpContextAccessor)
         {
+            _httpContextAccessor = httpContextAccessor;
             _common = common;
             _context = context;
+            tempData = _common.DecodeToken(_httpContextAccessor.HttpContext.Request.Headers["Authorization"][0].ToString().Replace("Bearer ", ""));
         }
 
         public async Task<GetRoadRequest> GetRoadById(string MaCungDuong)
@@ -53,7 +52,6 @@ namespace TBSLogistics.Service.Repository.RoadManage
                 }
 
                 return new GetRoadRequest();
-
             }
             catch (Exception)
             {
@@ -65,22 +63,28 @@ namespace TBSLogistics.Service.Repository.RoadManage
         {
             try
             {
-                var checkExists = await _context.CungDuong.Where(x => x.MaCungDuong == request.MaCungDuong).FirstOrDefaultAsync();
-
-                if (checkExists != null)
-                {
-                    return new BoolActionResult { isSuccess = false, Message = "Mã cung đường đã tồn tại" };
-                }
-
-                string checkValidate = await ValiateRoad(request.MaCungDuong, request.TenCungDuong, request.Km, request.DiemDau, request.DiemCuoi, request.GhiChu, "Create");
+                string checkValidate = await ValiateRoad(request.TenCungDuong, request.Km, request.DiemDau, request.DiemCuoi, request.GhiChu, "Create");
                 if (!string.IsNullOrEmpty(checkValidate))
                 {
                     return new BoolActionResult { isSuccess = false, Message = checkValidate };
                 }
 
+                var getMaxRoad = await _context.CungDuong.OrderByDescending(x => x.MaCungDuong).Select(x => x.MaCungDuong).FirstOrDefaultAsync();
+
+                string RoadId = "";
+
+                if (string.IsNullOrEmpty(getMaxRoad))
+                {
+                    RoadId = "CD00000001";
+                }
+                else
+                {
+                    RoadId = "CD" + (int.Parse(getMaxRoad.Substring(2, getMaxRoad.Length - 2)) + 1).ToString("00000000");
+                }
+
                 await _context.AddAsync(new CungDuong()
                 {
-                    MaCungDuong = request.MaCungDuong.ToUpper(),
+                    MaCungDuong = RoadId,
                     TenCungDuong = request.TenCungDuong,
                     Km = request.Km,
                     DiemDau = request.DiemDau,
@@ -94,18 +98,17 @@ namespace TBSLogistics.Service.Repository.RoadManage
                 var result = await _context.SaveChangesAsync();
                 if (result > 0)
                 {
-                    await _common.Log("RoadManage", "UserId:" + TempData.UserID + " create new Road with Id: " + request.MaCungDuong);
+                    await _common.Log("RoadManage", "UserId: " + tempData.UserName + " create new Road with Data: " + JsonSerializer.Serialize(request));
                     return new BoolActionResult { isSuccess = true, Message = "Tạo mới cung đường thành công" };
                 }
                 else
                 {
                     return new BoolActionResult { isSuccess = false, Message = "Tạo mới cung đường thất bại" };
                 }
-
             }
             catch (Exception ex)
             {
-                await _common.Log("RoadManage", "UserId:" + TempData.UserID + " create new Road with Error: " + ex.ToString());
+                await _common.Log("RoadManage", "UserId:" + tempData.UserID + " create new Road with Error: " + ex.ToString());
                 return new BoolActionResult { isSuccess = false, Message = ex.ToString() };
             }
         }
@@ -121,7 +124,7 @@ namespace TBSLogistics.Service.Repository.RoadManage
                     return new BoolActionResult { isSuccess = false, Message = "Mã cung đường không tồn tại" };
                 }
 
-                var checkValidate = await ValiateRoad(MaCungDuong, request.TenCungDuong, request.Km, request.DiemDau, request.DiemCuoi, request.GhiChu, "Update");
+                var checkValidate = await ValiateRoad(request.TenCungDuong, request.Km, request.DiemDau, request.DiemCuoi, request.GhiChu, "Update");
                 if (!string.IsNullOrEmpty(checkValidate))
                 {
                     return new BoolActionResult { isSuccess = false, Message = checkValidate };
@@ -136,11 +139,10 @@ namespace TBSLogistics.Service.Repository.RoadManage
                 checkExists.TrangThai = request.TrangThai;
                 _context.CungDuong.Update(checkExists);
 
-
                 var result = await _context.SaveChangesAsync();
                 if (result > 0)
                 {
-                    await _common.Log("RoadManage", "UserId:" + TempData.UserID + " Update Road with Id: " + MaCungDuong);
+                    await _common.Log("RoadManage", "UserId: " + tempData.UserName + " update Road with Data: " + JsonSerializer.Serialize(request));
                     return new BoolActionResult { isSuccess = true, Message = "Cập nhật cung đường thành công" };
                 }
                 else
@@ -207,160 +209,149 @@ namespace TBSLogistics.Service.Repository.RoadManage
             }
         }
 
-        public async Task<BoolActionResult> ImportExcel(IFormFile formFile, CancellationToken cancellationToken)
-        {
-            int ErrorRow = 0;
-            int ErrorInsert = 1;
+        //public async Task<BoolActionResult> ImportExcel(IFormFile formFile, CancellationToken cancellationToken)
+        //{
+        //    int ErrorRow = 0;
+        //    int ErrorInsert = 1;
 
-            string ErrorValidate = "";
+        //    string ErrorValidate = "";
 
-            try
-            {
-                if (formFile == null || formFile.Length <= 0)
-                {
-                    return new BoolActionResult { isSuccess = false, Message = "Not Support file extension" };
-                }
+        //    try
+        //    {
+        //        if (formFile == null || formFile.Length <= 0)
+        //        {
+        //            return new BoolActionResult { isSuccess = false, Message = "Not Support file extension" };
+        //        }
 
-                if (!Path.GetExtension(formFile.FileName).Equals(".xlsx", StringComparison.OrdinalIgnoreCase))
-                {
-                    return new BoolActionResult { isSuccess = false, Message = "Not Support file extension" };
-                }
+        //        if (!Path.GetExtension(formFile.FileName).Equals(".xlsx", StringComparison.OrdinalIgnoreCase))
+        //        {
+        //            return new BoolActionResult { isSuccess = false, Message = "Not Support file extension" };
+        //        }
 
-                var list = new List<CreateRoadRequest>();
+        //        var list = new List<CreateRoadRequest>();
 
-                using (var stream = new MemoryStream())
-                {
-                    await formFile.CopyToAsync(stream, cancellationToken);
+        //        using (var stream = new MemoryStream())
+        //        {
+        //            await formFile.CopyToAsync(stream, cancellationToken);
 
-                    using (var package = new ExcelPackage(stream))
-                    {
-                        ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-                        ExcelWorksheet worksheet = package.Workbook.Worksheets[0];
-                        var rowCount = worksheet.Dimension.Rows;
+        //            using (var package = new ExcelPackage(stream))
+        //            {
+        //                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+        //                ExcelWorksheet worksheet = package.Workbook.Worksheets[0];
+        //                var rowCount = worksheet.Dimension.Rows;
 
-                        if (rowCount == 0)
-                        {
-                            return new BoolActionResult { isSuccess = false, Message = "This file is empty" };
-                        }
+        //                if (rowCount == 0)
+        //                {
+        //                    return new BoolActionResult { isSuccess = false, Message = "This file is empty" };
+        //                }
 
-                        if (worksheet.Cells[1, 1].Value.ToString().Trim() != "Mã cung đường" ||
-                            worksheet.Cells[1, 2].Value.ToString().Trim() != "Tên cung đường" ||
-                            worksheet.Cells[1, 3].Value.ToString().Trim() != "Mã hợp đồng" ||
-                            worksheet.Cells[1, 4].Value.ToString().Trim() != "Số KM" ||
-                            worksheet.Cells[1, 5].Value.ToString().Trim() != "Điểm đầu" ||
-                            worksheet.Cells[1, 6].Value.ToString().Trim() != "Điểm cuối" ||
-                            worksheet.Cells[1, 7].Value.ToString().Trim() != "Điểm lấy rỗng" ||
-                            worksheet.Cells[1, 8].Value.ToString().Trim() != "Ghi Chú"
-                            )
-                        {
-                            return new BoolActionResult { isSuccess = false, Message = "File excel không đúng " };
-                        }
+        //                if (worksheet.Cells[1, 1].Value.ToString().Trim() != "Mã cung đường" ||
+        //                    worksheet.Cells[1, 2].Value.ToString().Trim() != "Tên cung đường" ||
+        //                    worksheet.Cells[1, 3].Value.ToString().Trim() != "Mã hợp đồng" ||
+        //                    worksheet.Cells[1, 4].Value.ToString().Trim() != "Số KM" ||
+        //                    worksheet.Cells[1, 5].Value.ToString().Trim() != "Điểm đầu" ||
+        //                    worksheet.Cells[1, 6].Value.ToString().Trim() != "Điểm cuối" ||
+        //                    worksheet.Cells[1, 7].Value.ToString().Trim() != "Điểm lấy rỗng" ||
+        //                    worksheet.Cells[1, 8].Value.ToString().Trim() != "Ghi Chú"
+        //                    )
+        //                {
+        //                    return new BoolActionResult { isSuccess = false, Message = "File excel không đúng " };
+        //                }
 
-                        for (int row = 2; row <= rowCount; row++)
-                        {
-                            ErrorRow = row;
+        //                for (int row = 2; row <= rowCount; row++)
+        //                {
+        //                    ErrorRow = row;
 
-                            int? DiemLayRong;
-                            string MaCungDuong = worksheet.Cells[row, 1].Value.ToString().Trim().ToUpper();
-                            string TenCungDuong = worksheet.Cells[row, 2].Value.ToString().Trim();
+        //                    int? DiemLayRong;
+        //                    string MaCungDuong = worksheet.Cells[row, 1].Value.ToString().Trim().ToUpper();
+        //                    string TenCungDuong = worksheet.Cells[row, 2].Value.ToString().Trim();
 
-                            double SoKM = double.Parse(worksheet.Cells[row, 4].Value.ToString().Trim());
-                            int DiemDau = int.Parse(worksheet.Cells[row, 5].Value.ToString().Trim());
-                            int DiemCuoi = int.Parse(worksheet.Cells[row, 6].Value.ToString().Trim());
-                            if (!string.IsNullOrEmpty(worksheet.Cells[row, 7].Value.ToString().Trim()))
-                            {
-                                DiemLayRong = int.Parse(worksheet.Cells[row, 7].Value.ToString().Trim());
-                            }
-                            else
-                            {
-                                DiemLayRong = null;
-                            }
-                            string GhiChu = worksheet.Cells[row, 8].Value.ToString().Trim();
+        //                    double SoKM = double.Parse(worksheet.Cells[row, 4].Value.ToString().Trim());
+        //                    int DiemDau = int.Parse(worksheet.Cells[row, 5].Value.ToString().Trim());
+        //                    int DiemCuoi = int.Parse(worksheet.Cells[row, 6].Value.ToString().Trim());
+        //                    if (!string.IsNullOrEmpty(worksheet.Cells[row, 7].Value.ToString().Trim()))
+        //                    {
+        //                        DiemLayRong = int.Parse(worksheet.Cells[row, 7].Value.ToString().Trim());
+        //                    }
+        //                    else
+        //                    {
+        //                        DiemLayRong = null;
+        //                    }
+        //                    string GhiChu = worksheet.Cells[row, 8].Value.ToString().Trim();
 
+        //                    ErrorValidate = await ValiateRoad(MaCungDuong, TenCungDuong, SoKM, DiemDau, DiemCuoi, GhiChu, ErrorRow.ToString());
 
+        //                    if (ErrorValidate == "")
+        //                    {
+        //                        list.Add(new CreateRoadRequest
+        //                        {
+        //                            MaCungDuong = MaCungDuong,
+        //                            TenCungDuong = TenCungDuong,
+        //                            Km = SoKM,
+        //                            DiemDau = DiemDau,
+        //                            DiemCuoi = DiemCuoi,
+        //                            DiemLayRong = DiemLayRong,
+        //                            GhiChu = GhiChu,
+        //                        });
+        //                    }
+        //                }
+        //            }
+        //        }
 
-                            ErrorValidate = await ValiateRoad(MaCungDuong, TenCungDuong, SoKM, DiemDau, DiemCuoi, GhiChu, ErrorRow.ToString());
+        //        string DuplicateCus = "";
 
-                            if (ErrorValidate == "")
-                            {
-                                list.Add(new CreateRoadRequest
-                                {
-                                    MaCungDuong = MaCungDuong,
-                                    TenCungDuong = TenCungDuong,
-                                    Km = SoKM,
-                                    DiemDau = DiemDau,
-                                    DiemCuoi = DiemCuoi,
-                                    DiemLayRong = DiemLayRong,
-                                    GhiChu = GhiChu,
-                                });
-                            }
-                        }
-                    }
-                }
+        //        foreach (var item in list)
+        //        {
+        //            var checkExists = await _context.CungDuong.Where(x => x.MaCungDuong == item.MaCungDuong).FirstOrDefaultAsync();
+        //            ErrorInsert += 1;
+        //            if (checkExists == null)
+        //            {
+        //                var addRoad = await _context.AddAsync(new GetRoadRequest()
+        //                {
+        //                    MaCungDuong = item.MaCungDuong.ToUpper(),
+        //                    TenCungDuong = item.TenCungDuong,
+        //                    Km = item.Km,
+        //                    DiemDau = item.DiemDau,
+        //                    DiemCuoi = item.DiemCuoi,
+        //                    DiemLayRong = item.DiemLayRong,
+        //                    GhiChu = item.GhiChu,
+        //                });
 
-                string DuplicateCus = "";
+        //                await _context.SaveChangesAsync();
+        //            }
+        //            else
+        //            {
+        //                DuplicateCus += item.MaCungDuong + ", ";
+        //            }
+        //        }
 
-                foreach (var item in list)
-                {
-                    var checkExists = await _context.CungDuong.Where(x => x.MaCungDuong == item.MaCungDuong).FirstOrDefaultAsync();
-                    ErrorInsert += 1;
-                    if (checkExists == null)
-                    {
-                        var addRoad = await _context.AddAsync(new GetRoadRequest()
-                        {
-                            MaCungDuong = item.MaCungDuong.ToUpper(),
-                            TenCungDuong = item.TenCungDuong,
-                            Km = item.Km,
-                            DiemDau = item.DiemDau,
-                            DiemCuoi = item.DiemCuoi,
-                            DiemLayRong = item.DiemLayRong,
-                            GhiChu = item.GhiChu,
-                        });
+        //        if (ErrorValidate != "")
+        //        {
+        //            return new BoolActionResult { isSuccess = false, Message = ErrorValidate };
+        //        }
 
-                        await _context.SaveChangesAsync();
-                    }
-                    else
-                    {
-                        DuplicateCus += item.MaCungDuong + ", ";
-                    }
-                }
+        //        if (DuplicateCus.Length > 1)
+        //        {
+        //            return new BoolActionResult { Message = "Những khách hàng có mã " + DuplicateCus + " đã tồn tại", isSuccess = true };
+        //        }
+        //        else
+        //        {
+        //            return new BoolActionResult { Message = "OK", isSuccess = true };
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return new BoolActionResult { Message = ex.ToString(), isSuccess = false, DataReturn = "Bị lỗi tại dòng: " + ErrorRow + " >>>Lỗi Insert dòng: " + ErrorInsert };
+        //    }
+        //}
 
-                if (ErrorValidate != "")
-                {
-                    return new BoolActionResult { isSuccess = false, Message = ErrorValidate };
-                }
-
-                if (DuplicateCus.Length > 1)
-                {
-                    return new BoolActionResult { Message = "Những khách hàng có mã " + DuplicateCus + " đã tồn tại", isSuccess = true };
-                }
-                else
-                {
-                    return new BoolActionResult { Message = "OK", isSuccess = true };
-                }
-            }
-            catch (Exception ex)
-            {
-                return new BoolActionResult { Message = ex.ToString(), isSuccess = false, DataReturn = "Bị lỗi tại dòng: " + ErrorRow + " >>>Lỗi Insert dòng: " + ErrorInsert };
-            }
-        }
-
-        private async Task<string> ValiateRoad(string MaCungDuong, string TenCungDuong, double SoKM, int DiemDau, int DiemCuoi, string GhiChu, string Action, string ErrorRow = "")
+        private async Task<string> ValiateRoad(string TenCungDuong, double SoKM, int DiemDau, int DiemCuoi, string GhiChu, string Action, string ErrorRow = "")
         {
             string ErrorValidate = "";
 
             if (DiemDau == DiemCuoi)
             {
                 ErrorValidate += "Lỗi Dòng > " + ErrorRow + " - Điểm đầu không được giống với điểm cuối \r\n";
-            }
-
-            if (MaCungDuong.Length != 10)
-            {
-                ErrorValidate += "Lỗi Dòng > " + ErrorRow + " - Mã cung đường phải dài 10 ký tự \r\n";
-            }
-            if (!Regex.IsMatch(MaCungDuong, "^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9]+(?<![_.])$", RegexOptions.IgnoreCase))
-            {
-                ErrorValidate += "Lỗi Dòng > " + ErrorRow + " - Mã cung đường không được chứa ký tự đặc biệt \r\n";
             }
 
             if (TenCungDuong.Length > 50 || TenCungDuong.Length == 0)
@@ -404,7 +395,6 @@ namespace TBSLogistics.Service.Repository.RoadManage
 
         public async Task<List<GetRoadRequest>> getListRoadOptionSelect(string MaKH, string ContractId)
         {
-
             if (string.IsNullOrEmpty(MaKH) && string.IsNullOrEmpty(ContractId))
             {
                 var listRoad = await _context.CungDuong.Select(x => new GetRoadRequest()
@@ -415,7 +405,6 @@ namespace TBSLogistics.Service.Repository.RoadManage
 
                 return listRoad;
             }
-
 
             var getList = from cd in _context.CungDuong
                           join bg in _context.BangGia
@@ -458,7 +447,5 @@ namespace TBSLogistics.Service.Repository.RoadManage
                 TenCungDuong = x.TenCungDuong,
             }).ToListAsync();
         }
-
-
     }
 }

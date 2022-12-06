@@ -13,8 +13,8 @@ using TBSLogistics.Model.Model.UserModel;
 using TBSLogistics.Model.TempModel;
 using TBSLogistics.Service.Helpers;
 using TBSLogistics.Service.Panigation;
-using TBSLogistics.Service.Repository.Common;
-using TBSLogistics.Service.Repository.UserManage;
+using TBSLogistics.Service.Services.Common;
+using TBSLogistics.Service.Services.UserManage;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -221,8 +221,6 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
                 if (user != null)
                 {
-                    TempData.UserID = user.Id;
-                    TempData.UserName = user.UserName;
                     //create claims details based on the user information
                     var claims = new[] {
                         new Claim(JwtRegisteredClaimNames.Sub, _config["Jwt:Subject"]),

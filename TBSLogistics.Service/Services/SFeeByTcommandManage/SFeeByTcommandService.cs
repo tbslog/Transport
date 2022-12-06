@@ -1,8 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TBSLogistics.Data.TMS;
@@ -15,7 +17,7 @@ using TBSLogistics.Model.Model.SFeeByTcommandModel;
 using TBSLogistics.Model.Model.SubFeePriceModel;
 using TBSLogistics.Model.TempModel;
 using TBSLogistics.Model.Wrappers;
-using TBSLogistics.Service.Repository.Common;
+using TBSLogistics.Service.Services.Common;
 
 namespace TBSLogistics.Service.Services.SFeeByTcommandManage
 {
@@ -24,11 +26,15 @@ namespace TBSLogistics.Service.Services.SFeeByTcommandManage
 
         private readonly ICommon _common;
         private readonly TMSContext _context;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private TempData tempData;
 
-        public SFeeByTcommandService(ICommon common, TMSContext context)
+        public SFeeByTcommandService(ICommon common, TMSContext context,IHttpContextAccessor httpContextAccessor)
         {
+            _httpContextAccessor = httpContextAccessor;
             _common = common;
             _context = context;
+            tempData = _common.DecodeToken(_httpContextAccessor.HttpContext.Request.Headers["Authorization"][0].ToString().Replace("Bearer ", ""));
         }
         public async Task<BoolActionResult> CreateSFeeByTCommand(List<CreateSFeeByTCommandRequest> request)
         {
@@ -67,6 +73,7 @@ namespace TBSLogistics.Service.Services.SFeeByTcommandManage
                 var result1 = await _context.SaveChangesAsync();
                 if (result1 > 0)
                 {
+                    await _common.Log("SFeeByTcommandManage", "UserId: " + tempData.UserName + " create new SFeeByTcommand with Data: " + JsonSerializer.Serialize(request));
                     return new BoolActionResult { isSuccess = true, Message = "Thêm phụ phí phát sinh thành công! </br>" + (IdListFail.Count == 0 ? "" : string.Join(",", IdListFail)) };
                 }
                 else
@@ -76,7 +83,7 @@ namespace TBSLogistics.Service.Services.SFeeByTcommandManage
             }
             catch (Exception ex)
             {
-                await _common.Log("SFeeByTcommandManage", "UserId: " + TempData.UserID + " create new SFeeByTcommand has ERROR: " + ex.ToString());
+                await _common.Log("SFeeByTcommandManage", "UserId: " + tempData.UserID + " create new SFeeByTcommand has ERROR: " + ex.ToString());
                 return new BoolActionResult { isSuccess = false, Message = ex.ToString(), DataReturn = "Exception" };
             }
         }
@@ -96,7 +103,7 @@ namespace TBSLogistics.Service.Services.SFeeByTcommandManage
             var result = await _context.SaveChangesAsync();
             if (result > 0)
             {
-                await _common.Log("SFeeByTcommandManage", "UserId: " + TempData.UserID + " Delete  SFeeByTcommand with Id: " + request.Id);
+                await _common.Log("SFeeByTcommandManage", "UserId: " + tempData.UserID + " Delete  SFeeByTcommand with Id: " + request.Id);
                 return new BoolActionResult { isSuccess = true, Message = "Phụ phát sinh thành công!" };
             }
             else
@@ -138,7 +145,7 @@ namespace TBSLogistics.Service.Services.SFeeByTcommandManage
                           join status in _context.StatusText
                           on sfc.ApproveStatus equals status.StatusId
                           where sfc.ApproveStatus == 13
-                          && status.LangId == TempData.LangID
+                          && status.LangId == tempData.LangID
                           orderby sfc.CreatedDate descending
                           select new { dp, sfc, sf, status };
 
@@ -190,11 +197,11 @@ namespace TBSLogistics.Service.Services.SFeeByTcommandManage
                                           join tt in _context.StatusText
                                           on sfPice.Status equals tt.StatusId
                                           where sfPice.Status == 14
-                                          && tt.LangId == TempData.LangID
+                                          && tt.LangId == tempData.LangID
                                           && kh.MaKh == getTransport.MaKh
                                           select new { kh, hd, sfPice, sf, tt };
 
-            getListSubFeeByContract = getListSubFeeByContract.Where(y => 
+            getListSubFeeByContract = getListSubFeeByContract.Where(y =>
                            (y.sfPice.GoodsType == getHandling.MaLoaiHangHoa)
                         || (y.sfPice.FirstPlace == getHandling.DiemLayTraRong && y.sfPice.SecondPlace == null)
                         || (y.sfPice.FirstPlace == getRoad.DiemDau && y.sfPice.SecondPlace == getRoad.DiemCuoi)
@@ -209,7 +216,7 @@ namespace TBSLogistics.Service.Services.SFeeByTcommandManage
                                      join status in _context.StatusText
                                      on sfc.ApproveStatus equals status.StatusId
                                      where sfc.ApproveStatus == 14 && sfc.IdTcommand == id
-                                     && status.LangId == TempData.LangID
+                                     && status.LangId == tempData.LangID
                                      orderby sfc.CreatedDate descending
                                      select new { dp, sfc, sf, status };
 
@@ -329,6 +336,7 @@ namespace TBSLogistics.Service.Services.SFeeByTcommandManage
 
                 if (result > 0)
                 {
+                    await _common.Log("SFeeByTcommandManage", "UserId: " + tempData.UserID + " Approve SFeeByTcommand with data: " + JsonSerializer.Serialize(request));
                     return new BoolActionResult { isSuccess = true, Message = Errors == "" ? "Duyệt phụ phí phát sinh thành công!" : Errors };
                 }
                 else
@@ -339,7 +347,7 @@ namespace TBSLogistics.Service.Services.SFeeByTcommandManage
             catch (Exception ex)
             {
                 await transaction.RollbackAsync();
-                await _common.Log("SubFeePriceManage", "UserId: " + TempData.UserID + " approve SubFeePrice with ERROR: " + ex.ToString());
+                await _common.Log("SubFeePriceManage", "UserId: " + tempData.UserID + " approve SubFeePrice with ERROR: " + ex.ToString());
                 return new BoolActionResult { isSuccess = false, Message = ex.ToString(), DataReturn = "Exception" };
             }
         }

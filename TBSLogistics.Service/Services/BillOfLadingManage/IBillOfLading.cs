@@ -11,7 +11,7 @@ using TBSLogistics.Model.Model.BillOfLadingModel;
 using TBSLogistics.Model.Model.RoadModel;
 using TBSLogistics.Model.Wrappers;
 
-namespace TBSLogistics.Service.Repository.BillOfLadingManage
+namespace TBSLogistics.Service.Services.BillOfLadingManage
 {
     public interface IBillOfLading
     {

@@ -8,7 +8,7 @@ using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.VehicleModel;
 using TBSLogistics.Model.Wrappers;
 
-namespace TBSLogistics.Service.Repository.VehicleManage
+namespace TBSLogistics.Service.Services.VehicleManage
 {
     public interface IVehicle
     {

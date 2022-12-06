@@ -13,8 +13,8 @@ using TBSLogistics.Model.Model.CustomerModel;
 using TBSLogistics.Model.Model.CustommerModel;
 using TBSLogistics.Service.Helpers;
 using TBSLogistics.Service.Panigation;
-using TBSLogistics.Service.Repository.Common;
-using TBSLogistics.Service.Repository.CustommerManage;
+using TBSLogistics.Service.Services.CustommerManage;
+using TBSLogistics.Service.Services.Common;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -125,16 +125,18 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> ReadFileExcel(IFormFile formFile, CancellationToken cancellationToken)
         {
-            var ImportExcel = await _customer.ReadExcelFile(formFile, cancellationToken);
+            //var ImportExcel = await _customer.ReadExcelFile(formFile, cancellationToken);
 
-            if (ImportExcel.isSuccess == true)
-            {
-                return Ok(ImportExcel.Message);
-            }
-            else
-            {
-                return BadRequest(ImportExcel.DataReturn + " --- " + ImportExcel.Message);
-            }
+            //if (ImportExcel.isSuccess == true)
+            //{
+            //    return Ok(ImportExcel.Message);
+            //}
+            //else
+            //{
+            //    return BadRequest(ImportExcel.DataReturn + " --- " + ImportExcel.Message);
+            //}
+            return BadRequest();
+
         }
     }
 }

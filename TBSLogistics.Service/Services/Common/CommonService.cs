@@ -1,16 +1,17 @@
 ﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using TBSLogistics.Data.TMS;
 using TBSLogistics.Model.CommonModel;
 using TBSLogistics.Model.TempModel;
 
-namespace TBSLogistics.Service.Repository.Common
+namespace TBSLogistics.Service.Services.Common
 {
     public class CommonService : ICommon
     {
@@ -18,13 +19,14 @@ namespace TBSLogistics.Service.Repository.Common
         private TMSContext _context;
         private readonly string _userContentFolder;
         private const string USER_CONTENT_FOLDER_NAME = "Attachments";
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-
-        public CommonService(IHostingEnvironment environment, TMSContext context)
+        public CommonService(IHostingEnvironment environment, TMSContext context, IHttpContextAccessor httpContextAccessor)
         {
             _environment = environment;
             _context = context;
             _userContentFolder = Path.Combine(environment.WebRootPath, USER_CONTENT_FOLDER_NAME);
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task Log(string FileName, string LogMessage)
@@ -137,7 +139,9 @@ namespace TBSLogistics.Service.Repository.Common
 
         public async Task<BoolActionResult> CheckPermission(string permissionId)
         {
-            var user = await _context.NguoiDung.Where(x => x.Id == TempData.UserID).FirstOrDefaultAsync();
+            var tempData = DecodeToken(_httpContextAccessor.HttpContext.Request.Headers["Authorization"][0].ToString().Replace("Bearer ", ""));
+
+            var user = await _context.NguoiDung.Where(x => x.Id == tempData.UserID).FirstOrDefaultAsync();
 
             if (user.TrangThai == 2)
             {
@@ -159,6 +163,22 @@ namespace TBSLogistics.Service.Repository.Common
             {
                 return new BoolActionResult { isSuccess = false, Message = "Bạn không có quyền hạn này" };
             }
+        }
+
+        public TempData DecodeToken(string token)
+        {
+            if (!string.IsNullOrEmpty(token))
+            {
+                var handler = new JwtSecurityTokenHandler();
+                var jwtSecurityToken = handler.ReadJwtToken(token);
+
+                return new TempData()
+                {
+                    UserID = int.Parse(jwtSecurityToken.Claims.First(x => x.Type == "UserId").Value),
+                    UserName = jwtSecurityToken.Claims.First(x => x.Type == "UserName").Value
+                };
+            }
+            return new TempData();
         }
     }
 }

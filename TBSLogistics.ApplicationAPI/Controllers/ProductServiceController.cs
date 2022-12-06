@@ -7,7 +7,7 @@ using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.ProductServiceModel;
 using TBSLogistics.Service.Helpers;
 using TBSLogistics.Service.Panigation;
-using TBSLogistics.Service.Repository.Common;
+using TBSLogistics.Service.Services.Common;
 using TBSLogistics.Service.Services.ProductServiceManage;
 
 namespace TBSLogistics.ApplicationAPI.Controllers

@@ -12,7 +12,7 @@ using TBSLogistics.Model.Model.AddressModel;
 using TBSLogistics.Model.Model.TypeCommon;
 using TBSLogistics.Model.Wrappers;
 
-namespace TBSLogistics.Service.Repository.AddressManage
+namespace TBSLogistics.Service.Services.AddressManage
 {
     public interface IAddress
     {
@@ -33,14 +33,14 @@ namespace TBSLogistics.Service.Repository.AddressManage
         Task<GetAddressModel> GetAddressById(int IdAddress);
 
         Task<List<GetListAddress>> GetListAddress(string pointType);
-       
+
 
         Task<string> GetFullAddress(string address, int provinceId, int districtId, int wardId);
 
         Task<BoolActionResult> ReadExcelFile(IFormFile formFile, CancellationToken cancellationToken);
 
-        Task<BoolActionResult> CreateProvince(int matinh,string tentinh,string phanloai);
-        Task<BoolActionResult> CreateDistricts(int mahuyen,string tenhuyen,string phanloai,int parentcode);
-      
+        Task<BoolActionResult> CreateProvince(int matinh, string tentinh, string phanloai);
+        Task<BoolActionResult> CreateDistricts(int mahuyen, string tenhuyen, string phanloai, int parentcode);
+
     }
 }

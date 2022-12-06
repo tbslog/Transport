@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using TBSLogistics.Data.TMS;
 using TBSLogistics.Model.Model.BillOfLadingModel;
 using TBSLogistics.Model.Model.ReportModel;
-using TBSLogistics.Service.Repository.Common;
+using TBSLogistics.Service.Services.Common;
 
 namespace TBSLogistics.Service.Services.Report
 {
