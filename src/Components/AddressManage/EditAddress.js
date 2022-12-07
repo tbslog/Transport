@@ -136,7 +136,11 @@ const EditAddress = (props) => {
         });
         SetListDistrict(obj);
 
-        setValue("MaHuyen", { ...obj.filter((x) => x.value === huyen) }[0]);
+        if (!huyen) {
+          setValue("MaHuyen", null);
+        } else {
+          setValue("MaHuyen", { ...obj.filter((x) => x.value === huyen) }[0]);
+        }
       } else {
         SetListDistrict([]);
       }
@@ -145,6 +149,8 @@ const EditAddress = (props) => {
 
   const LoadWard = async (huyen, phuong) => {
     (async () => {
+      SetListWard([]);
+      setValue("MaPhuong", null);
       const listWard = await getData(
         `address/GetListWards?DistrictId=${huyen}`
       );
@@ -159,7 +165,12 @@ const EditAddress = (props) => {
         });
 
         SetListWard(obj);
-        setValue("MaPhuong", { ...obj.filter((x) => x.value === phuong) }[0]);
+
+        if (!phuong) {
+          setValue("MaPhuong", null);
+        } else {
+          setValue("MaPhuong", { ...obj.filter((x) => x.value === phuong) }[0]);
+        }
       } else {
         SetListWard([]);
       }
@@ -178,7 +189,7 @@ const EditAddress = (props) => {
 
       SetIsLoading(true);
       setValue("MaTinh", val);
-      LoadDistrict(val.value, "");
+      LoadDistrict(val.value, null);
       SetIsLoading(false);
     } catch (error) {}
   };
@@ -189,8 +200,8 @@ const EditAddress = (props) => {
         return;
       }
       SetIsLoading(true);
-      LoadWard(val.value, "");
       setValue("MaHuyen", val);
+      LoadWard(val.value, null);
       SetIsLoading(false);
     } catch (error) {}
   };

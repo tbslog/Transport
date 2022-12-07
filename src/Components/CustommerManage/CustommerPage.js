@@ -22,7 +22,6 @@ const CustommerPage = () => {
 
   const [selectedRows, setSelectedRows] = useState([]);
   const [selectIdClick, setSelectIdClick] = useState({});
-  const [Address, SetAddress] = useState({});
 
   const [listCustomerGroup, setListCustomerGroup] = useState([]);
   const [listCustomerType, setListCustomerType] = useState([]);
@@ -129,8 +128,6 @@ const CustommerPage = () => {
     showModalForm();
     const dataCus = await getData(`Customer/GetCustomerById?Id=${val.maKh}`);
     setSelectIdClick(dataCus);
-
-    SetAddress(dataCus.address);
   };
 
   const fetchData = async (page, KeyWord = "", cusType = "") => {
@@ -408,7 +405,6 @@ const CustommerPage = () => {
                   {ShowModal === "Edit" && (
                     <EditCustommer
                       selectIdClick={selectIdClick}
-                      Address={Address}
                       getListUser={ReloadData}
                       listCusGroup={listCustomerGroup}
                       listCusType={listCustomerType}

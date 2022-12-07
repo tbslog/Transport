@@ -143,15 +143,14 @@ const CreateAddress = (props) => {
     try {
       SetIsLoading(true);
 
-      if (val.value === undefined || val.value === "") {
-        SetListWard([]);
-        return;
-      }
-
       (async () => {
+        SetListWard([]);
+        setValue("MaPhuong", null);
+
         const listWard = await getData(
           `address/GetListWards?DistrictId=${val.value}`
         );
+
         if (listWard && listWard.length > 0) {
           var obj = [];
 

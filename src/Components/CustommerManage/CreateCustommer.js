@@ -189,13 +189,10 @@ const CreateCustommer = (props) => {
   const HandleOnchangeDistrict = (val) => {
     try {
       SetIsLoading(true);
-
-      if (val.value === undefined || val.value === "") {
-        SetListWard([]);
-        return;
-      }
-
       (async () => {
+        SetListWard([]);
+        setValue("MaPhuong", null);
+
         const listWard = await getData(
           `address/GetListWards?DistrictId=${val.value}`
         );

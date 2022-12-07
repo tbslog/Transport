@@ -272,7 +272,6 @@ const DetailBillByTransport = (props) => {
                                                     </tr>
                                                   </>
                                                 )}
-
                                               {val1.listSubFeeIncurreds &&
                                                 val1.listSubFeeIncurreds
                                                   .length > 0 && (
@@ -293,7 +292,7 @@ const DetailBillByTransport = (props) => {
                                                         <table className="table table-striped table-bordered table-hover table-sm table-responsive-sm">
                                                           <thead>
                                                             <tr>
-                                                              <td></td>
+                                                              <th></th>
                                                               <th>
                                                                 Tên Phụ Phí
                                                               </th>

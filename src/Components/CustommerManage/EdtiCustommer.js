@@ -64,48 +64,6 @@ const EditCustommer = (props) => {
   };
 
   useEffect(() => {
-    if (
-      props &&
-      props.selectIdClick &&
-      props.Address &&
-      props.listCusGroup &&
-      props.listCusType &&
-      Object.keys(props.Address).length > 0 &&
-      Object.keys(props.selectIdClick).length > 0
-    ) {
-      SetIsLoading(true);
-      setValue("MaKH", props.selectIdClick.maKh);
-      setValue("MST", props.selectIdClick.maSoThue);
-      setValue("SDT", props.selectIdClick.sdt);
-      setValue("TenKH", props.selectIdClick.tenKh);
-      setValue("Email", props.selectIdClick.email);
-      setValue("GPS", props.Address.maGps);
-      setValue("SoNha", props.Address.soNha);
-      setValue("LoaiKH", props.selectIdClick.loaiKH);
-      setValue("NhomKH", props.selectIdClick.nhomKH);
-      setValue(
-        "MaLoaiDiaDiem",
-        {
-          ...props.listTypeAddress.filter(
-            (x) => x.value === props.Address.loaiDiaDiem
-          ),
-        }[0]
-      );
-
-      setValue("TrangThai", props.selectIdClick.trangThai);
-      LoadProvince(props.Address.maTinh);
-      LoadDistrict(props.Address.maTinh, props.Address.maHuyen);
-      LoadWard(props.Address.maHuyen, props.Address.maPhuong);
-      SetIsLoading(false);
-    }
-  }, [
-    props.selectIdClick,
-    props.Address,
-    props.listCusGroup,
-    props.listCusType,
-  ]);
-
-  useEffect(() => {
     SetIsLoading(true);
 
     setListCustomerGroup(props.listCusGroup);
@@ -119,6 +77,46 @@ const EditCustommer = (props) => {
     SetIsLoading(false);
   }, []);
 
+  useEffect(() => {
+    if (
+      props.selectIdClick &&
+      listCustomerGroup &&
+      listCustomerType &&
+      Object.keys(props.selectIdClick).length > 0
+    ) {
+      SetIsLoading(true);
+      setValue("MaKH", props.selectIdClick.maKh);
+      setValue("MST", props.selectIdClick.maSoThue);
+      setValue("SDT", props.selectIdClick.sdt);
+      setValue("TenKH", props.selectIdClick.tenKh);
+      setValue("Email", props.selectIdClick.email);
+      setValue("GPS", props.selectIdClick.address.maGps);
+      setValue("SoNha", props.selectIdClick.address.soNha);
+      setValue("LoaiKH", props.selectIdClick.loaiKH);
+      setValue("NhomKH", props.selectIdClick.nhomKH);
+      setValue(
+        "MaLoaiDiaDiem",
+        {
+          ...props.listTypeAddress.filter(
+            (x) => x.value === props.selectIdClick.address.loaiDiaDiem
+          ),
+        }[0]
+      );
+
+      setValue("TrangThai", props.selectIdClick.trangThai);
+      LoadProvince(props.selectIdClick.address.maTinh);
+      LoadDistrict(
+        props.selectIdClick.address.maTinh,
+        props.selectIdClick.address.maHuyen
+      );
+      LoadWard(
+        props.selectIdClick.address.maHuyen,
+        props.selectIdClick.address.maPhuong
+      );
+      SetIsLoading(false);
+    }
+  }, [props.selectIdClick, listCustomerGroup, listCustomerType]);
+
   const LoadProvince = async (tinh) => {
     (async () => {
       const listProvince = await getData("address/GetListProvinces");
@@ -131,7 +129,7 @@ const EditCustommer = (props) => {
           });
         });
         SetListProvince(obj);
-        setValue("MaTinh", { ...obj.filter((x) => x.value === tinh)[0] });
+        setValue("MaTinh", { ...obj.filter((x) => x.value === tinh) }[0]);
       }
     })();
   };
@@ -151,7 +149,11 @@ const EditCustommer = (props) => {
         });
         SetListDistrict(obj);
 
-        setValue("MaHuyen", { ...obj.filter((x) => x.value === huyen)[0] });
+        if (!huyen) {
+          setValue("MaHuyen", null);
+        } else {
+          setValue("MaHuyen", { ...obj.filter((x) => x.value === huyen) }[0]);
+        }
       } else {
         SetListDistrict([]);
       }
@@ -174,7 +176,12 @@ const EditCustommer = (props) => {
         });
 
         SetListWard(obj);
-        setValue("MaPhuong", { ...obj.filter((x) => x.value === phuong)[0] });
+
+        if (!phuong) {
+          setValue("MaPhuong", null);
+        } else {
+          setValue("MaPhuong", { ...obj.filter((x) => x.value === phuong) }[0]);
+        }
       } else {
         SetListWard([]);
       }
@@ -193,7 +200,7 @@ const EditCustommer = (props) => {
 
       SetIsLoading(true);
       setValue("MaTinh", val);
-      LoadDistrict(val.value, "");
+      LoadDistrict(val.value, null);
       SetIsLoading(false);
     } catch (error) {}
   };
@@ -204,7 +211,7 @@ const EditCustommer = (props) => {
         return;
       }
       SetIsLoading(true);
-      LoadWard(val.value, "");
+      LoadWard(val.value, null);
       setValue("MaHuyen", val);
       SetIsLoading(false);
     } catch (error) {}
@@ -230,22 +237,8 @@ const EditCustommer = (props) => {
                       className="form-control"
                       id="MaKH"
                       placeholder="Nhập mã khách hàng"
-                      {...register("MaKH", {
-                        required: "Không được để trống",
-                        maxLength: {
-                          value: 8,
-                          message: "Không được vượt quá 8 ký tự",
-                        },
-                        minLength: {
-                          value: 8,
-                          message: "Không được ít hơn 8 ký tự",
-                        },
-                        pattern: {
-                          value:
-                            /^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9]+(?<![_.])$/,
-                          message: "Không được chứa ký tự đặc biệt",
-                        },
-                      })}
+                      {...register("MaKH")}
+                      readOnly={true}
                     />
                     {errors.MaKH && (
                       <span className="text-danger">{errors.MaKH.message}</span>
