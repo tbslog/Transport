@@ -38,7 +38,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 
         public async Task<ListPoint> LoadDataRoadTransportByCusId(string customerId)
         {
-            var checkCus = await _context.KhachHang.Where(x => x.MaKh == customerId && x.MaLoaiKh == "KH").FirstOrDefaultAsync();
+            var checkCus = await _context.KhachHang.Where(x => x.MaKh == customerId ).FirstOrDefaultAsync();
 
             if (checkCus == null)
             {
@@ -673,6 +673,10 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
             }
         }
 
+        public async Task<BoolActionResult> CreateTransportLess(CreateTransportLess request)
+        {
+            return null;
+        }
         public async Task<GetTransport> GetTransportById(string transportId)
         {
             try
@@ -1500,15 +1504,15 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                 //}
 
 
-                //if (getTransport.MaPtvc == "FCL" || getTransport.MaPtvc == "FTL")
-                //{
-                //    var checkVehicleOfTransport = await _context.DieuPhoi.Where(x => x.MaVanDon == getTransport.MaVanDon && x.MaSoXe == request.MaSoXe).FirstOrDefaultAsync();
+                if (getTransport.MaPtvc == "FCL" || getTransport.MaPtvc == "FTL")
+                {
+                    var checkVehicleOfTransport = await _context.DieuPhoi.Where(x => x.MaVanDon == getTransport.MaVanDon && x.MaSoXe == request.MaSoXe && x.Id != id).FirstOrDefaultAsync();
 
-                //    if (checkVehicleOfTransport != null)
-                //    {
-                //        return new BoolActionResult { isSuccess = false, Message = "Xe này đã được điều phối trước đó, vui lòng chọn xe khác" };
-                //    }
-                //}
+                    if (checkVehicleOfTransport != null)
+                    {
+                        return new BoolActionResult { isSuccess = false, Message = "Xe này đã được điều phối trước đó, vui lòng chọn xe khác" };
+                    }
+                }
 
                 if (checkById.TrangThai == 17 || checkById.TrangThai == 18 || checkById.TrangThai == 20)
                 {
