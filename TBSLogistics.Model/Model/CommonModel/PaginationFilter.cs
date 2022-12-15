@@ -18,6 +18,7 @@ namespace TBSLogistics.Model.Filter
         public bool AlmostExpired { get; set; }
         public string goodsType { get; set; }
         public string vehicleType { get; set; }
+        public string transportType { get; set; }
 
         public string Keyword { get; set; }
         public DateTime? fromDate { get; set; }

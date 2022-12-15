@@ -379,6 +379,11 @@ namespace TBSLogistics.Data.TMS
                     .HasMaxLength(10)
                     .IsUnicode(false);
 
+                entity.Property(e => e.MaVanDonChung)
+                    .IsRequired()
+                    .HasMaxLength(21)
+                    .IsUnicode(false);
+
                 entity.Property(e => e.SealHq)
                     .HasMaxLength(50)
                     .IsUnicode(false)
@@ -1142,7 +1147,7 @@ namespace TBSLogistics.Data.TMS
 
                 entity.Property(e => e.LoaiVanDon)
                     .IsRequired()
-                    .HasMaxLength(10)
+                    .HasMaxLength(20)
                     .IsUnicode(false);
 
                 entity.Property(e => e.MaCungDuong)

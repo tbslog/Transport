@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.IO;
 using System.Reflection.Metadata.Ecma335;
 using System.Threading.Tasks;
+using TBSLogistics.Model.CommonModel;
 using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.BillOfLadingModel;
 using TBSLogistics.Service.Helpers;
@@ -341,6 +343,62 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             else
             {
                 return BadRequest(uploadFile.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("[action]")]
+        public async Task<IActionResult> CreateTransportLess(CreateTransportLess request)
+        {
+            var create = await _billOfLading.CreateTransportLess(request);
+            if (create.isSuccess)
+            {
+
+                return Ok(create.Message);
+            }
+            else
+            {
+                return BadRequest(create.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("[action]")]
+        public async Task<IActionResult> LoadJoinTransportWithVehicle(JoinTransportsWithVehicle request)
+        {
+            var data = await _billOfLading.LoadJoinTransportWithVehicle(request);
+            return Ok(data);
+        }
+
+        [HttpPost]
+        [Route("[action]")]
+        public async Task<IActionResult> CreateHandlingLess(CreateHandlingLess request)
+        {
+            var create = await _billOfLading.CreateHandlingLess(request);
+
+            if (create.isSuccess)
+            {
+                return Ok(create.Message);
+            }
+            else
+            {
+                return BadRequest(create.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("[action]")]
+        public async Task<IActionResult> UpdateTransportLess(string transportId, UpdateTransportLess request)
+        {
+            var update = await _billOfLading.UpdateTransportLess(transportId, request);
+
+            if (update.isSuccess == true)
+            {
+                return Ok(update.Message);
+            }
+            else
+            {
+                return BadRequest(update.Message);
             }
         }
     }

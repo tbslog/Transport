@@ -81,8 +81,8 @@ namespace TBSLogistics.Service.Services.Bill
                     LoaiVanDon = z.vd.LoaiVanDon,
                     MaCungDuong = z.cd.MaCungDuong,
                     TenCungDuong = z.cd.TenCungDuong,
-                    TongTheTich = z.vd.TongTheTich,
-                    TongKhoiLuong = z.vd.TongKhoiLuong,
+                    TongTheTich = z.vd.TongTheTich.Value,
+                    TongKhoiLuong = z.vd.TongKhoiLuong.Value,
                     listHandling = getlistHandling.Where(y => y.MaVanDon == z.vd.MaVanDon).OrderBy(x => x.Id).Select(x => new Model.Model.BillModel.ListHandling()
                     {
                         MaSoXe = x.MaSoXe,
@@ -170,8 +170,8 @@ namespace TBSLogistics.Service.Services.Bill
                     LoaiVanDon = z.vd.LoaiVanDon,
                     MaCungDuong = z.cd.MaCungDuong,
                     TenCungDuong = z.cd.TenCungDuong,
-                    TongTheTich = z.vd.TongTheTich,
-                    TongKhoiLuong = z.vd.TongKhoiLuong,
+                    TongTheTich = z.vd.TongTheTich.Value,
+                    TongKhoiLuong = z.vd.TongKhoiLuong.Value,
                     listHandling = getlistHandling.Where(y => y.MaVanDon == z.vd.MaVanDon).OrderBy(x => x.Id).Select(x => new Model.Model.BillModel.ListHandling()
                     {
                         MaSoXe = x.MaSoXe,
@@ -269,8 +269,8 @@ namespace TBSLogistics.Service.Services.Bill
                 TenCungDuong = x.cd.TenCungDuong,
                 DiemLayHang = _context.DiaDiem.Where(y => y.MaDiaDiem == x.cd.DiemDau).Select(x => x.TenDiaDiem).FirstOrDefault(),
                 DiemTraHang = _context.DiaDiem.Where(y => y.MaDiaDiem == x.cd.DiemCuoi).Select(x => x.TenDiaDiem).FirstOrDefault(),
-                TongTheTich = x.vd.TongTheTich,
-                TongKhoiLuong = x.vd.TongKhoiLuong
+                TongTheTich = x.vd.TongTheTich.Value,
+                TongKhoiLuong = x.vd.TongKhoiLuong.Value
             }).OrderBy(x => x.MaKh).ToListAsync();
 
             return new PagedResponseCustom<ListVanDon>()

@@ -19,15 +19,15 @@ namespace TBSLogistics.Data.TMS
         public string MaCungDuong { get; set; }
         public string MaPtvc { get; set; }
         public int TongThungHang { get; set; }
-        public double TongKhoiLuong { get; set; }
-        public double TongTheTich { get; set; }
-        public double TongSoKien { get; set; }
+        public double? TongKhoiLuong { get; set; }
+        public double? TongTheTich { get; set; }
+        public double? TongSoKien { get; set; }
         public DateTime? ThoiGianCoMat { get; set; }
         public DateTime? ThoiGianHanLenh { get; set; }
         public DateTime? ThoiGianHaCang { get; set; }
         public DateTime? ThoiGianLayTraRong { get; set; }
-        public DateTime ThoiGianLayHang { get; set; }
-        public DateTime ThoiGianTraHang { get; set; }
+        public DateTime? ThoiGianLayHang { get; set; }
+        public DateTime? ThoiGianTraHang { get; set; }
         public DateTime ThoiGianTaoDon { get; set; }
         public DateTime? ThoiGianHoanThanh { get; set; }
         public string GhiChu { get; set; }

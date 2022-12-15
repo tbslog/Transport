@@ -13,6 +13,7 @@ namespace TBSLogistics.Data.TMS
 
         public long Id { get; set; }
         public string MaVanDon { get; set; }
+        public string MaVanDonChung { get; set; }
         public string MaSoXe { get; set; }
         public string MaTaiXe { get; set; }
         public string MaLoaiHangHoa { get; set; }
@@ -27,9 +28,9 @@ namespace TBSLogistics.Data.TMS
         public string ContNo { get; set; }
         public string SealNp { get; set; }
         public string SealHq { get; set; }
-        public double SoKien { get; set; }
-        public double KhoiLuong { get; set; }
-        public double TheTich { get; set; }
+        public double? SoKien { get; set; }
+        public double? KhoiLuong { get; set; }
+        public double? TheTich { get; set; }
         public string GhiChu { get; set; }
         public int? DiemLayTraRong { get; set; }
         public DateTime? ThoiGianLayHangThucTe { get; set; }

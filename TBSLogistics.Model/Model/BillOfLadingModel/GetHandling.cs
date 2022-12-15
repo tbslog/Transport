@@ -9,8 +9,9 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
     public class GetHandling
     {
         public RoadDetail CungDuong { get; set; }
-        public double TongKhoiLuong { get; set; }
-        public double TongTheTich { get; set; }
+        public double? TongKhoiLuong { get; set; }
+        public double? TongTheTich { get; set; }
+        public double? TongSoKien { get; set; }
         public string PhanLoaiVanDon { get; set; }
         public string MaLoaiHangHoa { get; set; }
         public string MaPTVC { get; set; }
@@ -31,9 +32,9 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
         public string ContNo { get; set; }
         public string SealNp { get; set; }
         public string SealHq { get; set; }
-        public double KhoiLuong { get; set; }
-        public double TheTich { get; set; }
-        public double SoKien { get; set; }
+        public double? KhoiLuong { get; set; }
+        public double? TheTich { get; set; }
+        public double? SoKien { get; set; }
         public string GhiChu { get; set; }
         public string GhiChuVanDon { get; set; }
         public int? DiemLayRong { get; set; }
@@ -41,8 +42,8 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
         public DateTime? ThoiGianHaCang { get; set; }
         public DateTime? ThoiGianHanLenh { get; set; }
         public DateTime? ThoiGianCoMat { get; set; }
-        public DateTime ThoiGianLayHang { get; set; }
-        public DateTime ThoiGianTraHang { get; set; }
+        public DateTime? ThoiGianLayHang { get; set; }
+        public DateTime? ThoiGianTraHang { get; set; }
 
         public DateTime? ThoiGianLayTraRongThucTe { get; set; }
         public DateTime? ThoiGianHaCangThucTe { get; set; }

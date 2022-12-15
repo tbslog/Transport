@@ -33,5 +33,9 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
         Task<ListPoint> LoadDataRoadTransportByCusId(string customerId);
         Task<BoolActionResult> CloneHandling(int id);
         Task<BoolActionResult> RemoveHandling(int id);
+        Task<BoolActionResult> CreateTransportLess(CreateTransportLess request);
+        Task<LoadJoinTransportsWithVehicle> LoadJoinTransportWithVehicle(JoinTransportsWithVehicle request);
+        Task<BoolActionResult> CreateHandlingLess(CreateHandlingLess request);
+        Task<BoolActionResult> UpdateTransportLess(string transportId, UpdateTransportLess request);
     }
 }

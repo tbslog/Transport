@@ -175,9 +175,11 @@ namespace TBSLogistics.Service.Services.PriceTableManage
                           on hd.MaHopDong equals bg.MaHopDong
                           join cd in _context.CungDuong
                           on bg.MaCungDuong equals cd.MaCungDuong
-                          where bg.MaHopDong != "SPDV_TBSL"
+                          join tt in _context.StatusText
+                          on bg.TrangThai equals tt.StatusId
+                          where bg.MaHopDong != "SPDV_TBSL" && tt.LangId == "VI"
                           orderby bg.Id descending
-                          select new { kh, hd, bg, cd };
+                          select new { kh, hd, bg, cd, tt };
 
             if (!string.IsNullOrEmpty(filter.Keyword))
             {
@@ -204,17 +206,19 @@ namespace TBSLogistics.Service.Services.PriceTableManage
             var pagedData = await getData.Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new GetListPiceTableRequest()
             {
                 MaHopDong = x.bg.MaHopDong,
+                MaCungDuong = x.cd.MaCungDuong,
                 SoHopDongCha = x.hd.MaHopDongCha == null ? "Hợp Đồng" : "Phụ Lục",
                 MaLoaiDoiTac = x.bg.MaLoaiDoiTac,
                 TenHopDong = x.hd.TenHienThi,
                 TenKH = x.kh.TenKh,
+                DonGia = x.bg.DonGia,
                 TenCungDuong = x.cd.TenCungDuong,
                 MaLoaiPhuongTien = x.bg.MaLoaiPhuongTien,
-                MaLoaiHangHoa = x.bg.MaLoaiHangHoa,
+                MaLoaiHangHoa = _context.LoaiHangHoa.Where(y => y.MaLoaiHangHoa == x.bg.MaLoaiHangHoa).Select(y => y.TenLoaiHangHoa).FirstOrDefault(),
                 MaPtvc = x.bg.MaPtvc,
                 NgayApDung = x.bg.NgayApDung,
                 NgayHetHieuLuc = x.bg.NgayHetHieuLuc,
-                TrangThai = x.bg.TrangThai
+                TrangThai = x.tt.StatusContent,
             }).ToListAsync();
 
             return new PagedResponseCustom<GetListPiceTableRequest>()

@@ -8,6 +8,9 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
 {
     public class ListHandling
     {
+        public string MaVanDonKH { get; set; }
+        public string MaKH { get; set; }
+        public string DonViVanTai { get; set; }
         public string CungDuong { get; set; }
         public string MaVanDon { get; set; }
         public string PhanLoaiVanDon { get; set; }
@@ -22,18 +25,18 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
         public string MaRomooc { get; set; }
         public string ContNo { get; set; }
         public string DiemLayRong { get; set; }
-        public double KhoiLuong { get; set; }
-        public double TheTich { get; set; }
-        public double SoKien { get; set; }
+        public double? KhoiLuong { get; set; }
+        public double? TheTich { get; set; }
+        public double? SoKien { get; set; }
         public DateTime? ThoiGianLayTraRong { get; set; }
         public DateTime? ThoiGianHaCong { get; set; }
         public DateTime? ThoiGianKeoCong { get; set; }
         public DateTime? ThoiGianHanLenh { get; set; }
-        public DateTime ThoiGianCoMat { get; set; }
+        public DateTime? ThoiGianCoMat { get; set; }
         public DateTime? ThoiGianCatMang { get; set; }
-        public DateTime ThoiGianLayHang { get; set; }
-        public DateTime ThoiGianTraHang { get; set; }
-        public DateTime ThoiGianTaoDon { get; set; }
+        public DateTime? ThoiGianLayHang { get; set; }
+        public DateTime? ThoiGianTraHang { get; set; }
+        public DateTime? ThoiGianTaoDon { get; set; }
         public string TrangThai { get; set; }
         public int statusId { get; set; }
     }
