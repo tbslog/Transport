@@ -150,42 +150,76 @@ const HandlingPage = (props) => {
       omit: true,
     },
     {
-      name: "Mã Vận Đơn",
       selector: (row) => row.maVanDon,
+      omit: true,
+    },
+    {
+      name: <div>Mã Vận Đơn</div>,
+      selector: (row) => <div className="text-wrap">{row.maVanDonKH}</div>,
       sortable: true,
     },
     {
-      name: "Loại Vận Đơn",
-      selector: (row) => row.phanLoaiVanDon,
+      name: <div>Loại Vận Đơn</div>,
+      selector: (row) => <div className="text-wrap">{row.phanLoaiVanDon}</div>,
       sortable: true,
     },
     {
-      name: "Mã Số Xe",
-      selector: (row) => row.maSoXe,
+      name: <div>Khách Hàng</div>,
+      selector: (row) => <div className="text-wrap">{row.maKH}</div>,
       sortable: true,
     },
     {
-      name: "Tài Xế",
-      selector: (row) => <div className="text-wrap">{row.tenTaiXe}</div>,
+      name: <div>Đơn Vị Vận Tải</div>,
+      selector: (row) => <div className="text-wrap">{row.donViVanTai}</div>,
       sortable: true,
     },
+    {
+      name: "PTVC",
+      selector: (row) => <div className="text-wrap">{row.maPTVC}</div>,
+      sortable: true,
+    },
+    {
+      name: <div>Cung Đường</div>,
+      selector: (row) => <div className="text-wrap">{row.cungDuong}</div>,
+      sortable: true,
+    },
+    {
+      name: <div>Điểm Lấy Rỗng</div>,
+      selector: (row) => <div className="text-wrap">{row.diemLayRong}</div>,
+      sortable: true,
+    },
+    {
+      name: <div>Mã Số Xe</div>,
+      selector: (row) => <div className="text-wrap">{row.maSoXe}</div>,
+      sortable: true,
+    },
+    {
+      name: <div>Mã CONT</div>,
+      selector: (row) => <div className="text-wrap">{row.contNo}</div>,
+      sortable: true,
+    },
+    // {
+    //   name: "Tài Xế",
+    //   selector: (row) => <div className="text-wrap">{row.tenTaiXe}</div>,
+    //   sortable: true,
+    // },
     {
       name: <div>Loại Phương Tiện</div>,
       selector: (row) => row.ptVanChuyen,
       sortable: true,
     },
     {
-      name: "Khối Lượng",
+      name: <div>Khối Lượng</div>,
       selector: (row) => row.khoiLuong,
       sortable: true,
     },
     {
-      name: "Thể Tích",
+      name: <div>Thể Tích</div>,
       selector: (row) => row.theTich,
       sortable: true,
     },
     {
-      name: "Số Kiện",
+      name: <div>Số Kiện</div>,
       selector: (row) => row.soKien,
       sortable: true,
     },
@@ -626,6 +660,7 @@ const HandlingPage = (props) => {
                 progressPending={loading}
                 pagination
                 paginationServer
+                paginationRowsPerPageOptions={[10, 30, 50, 100]}
                 paginationTotalRows={totalRows}
                 onSelectedRowsChange={handleChange}
                 onChangeRowsPerPage={handlePerRowsChange}

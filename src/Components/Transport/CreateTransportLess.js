@@ -6,7 +6,7 @@ import Select from "react-select";
 import moment from "moment";
 import { ToastError } from "../Common/FuncToast";
 
-const CreateTransport = (props) => {
+const CreateTransportLess = (props) => {
   const { getListTransport } = props;
   const [IsLoading, SetIsLoading] = useState(false);
   const {
@@ -28,7 +28,7 @@ const CreateTransport = (props) => {
           PTVanChuyen: "",
           KhoiLuong: null,
           TheTich: null,
-          SoKien: null,
+          SoKhoi: null,
           DiemLayTraRong: { label: "Chọn Điểm Lấy Rỗng", value: null },
         },
       ],
@@ -41,9 +41,6 @@ const CreateTransport = (props) => {
   });
 
   const Validate = {
-    MaVDKH: {
-      required: "Không được để trống",
-    },
     LoaiHinh: {
       required: "Không được để trống",
     },
@@ -77,7 +74,21 @@ const CreateTransport = (props) => {
     LoaiHangHoa: {
       required: "Không được để trống",
     },
+    TongThungHang: {
+      required: "Không được để trống",
+      pattern: {
+        value:
+          /^(?:0\.(?:0[0-9]|[0-9]\d?)|[0-9]\d*(?:\.\d{1,2})?)(?:e[+-]?\d+)?$/,
+        message: "Phải là số",
+      },
+      validate: (value) => {
+        if (parseInt(value) < 1) {
+          return "Không được nhỏ hơn 1";
+        }
+      },
+    },
     TongKhoiLuong: {
+      required: "Không được để trống",
       pattern: {
         value:
           /^(?:0\.(?:0[0-9]|[0-9]\d?)|[0-9]\d*(?:\.\d{1,2})?)(?:e[+-]?\d+)?$/,
@@ -85,6 +96,7 @@ const CreateTransport = (props) => {
       },
     },
     TongTheTich: {
+      required: "Không được để trống",
       pattern: {
         value:
           /^(?:0\.(?:0[0-9]|[0-9]\d?)|[0-9]\d*(?:\.\d{1,2})?)(?:e[+-]?\d+)?$/,
@@ -92,6 +104,7 @@ const CreateTransport = (props) => {
       },
     },
     TongSoKien: {
+      required: "Không được để trống",
       pattern: {
         value:
           /^(?:0\.(?:0[0-9]|[0-9]\d?)|[0-9]\d*(?:\.\d{1,2})?)(?:e[+-]?\d+)?$/,
@@ -99,6 +112,7 @@ const CreateTransport = (props) => {
       },
     },
     KhoiLuong: {
+      required: "Không được để trống",
       pattern: {
         value:
           /^(?:0\.(?:0[0-9]|[0-9]\d?)|[0-9]\d*(?:\.\d{1,2})?)(?:e[+-]?\d+)?$/,
@@ -106,6 +120,7 @@ const CreateTransport = (props) => {
       },
     },
     TheTich: {
+      required: "Không được để trống",
       pattern: {
         value:
           /^(?:0\.(?:0[0-9]|[0-9]\d?)|[0-9]\d*(?:\.\d{1,2})?)(?:e[+-]?\d+)?$/,
@@ -113,6 +128,7 @@ const CreateTransport = (props) => {
       },
     },
     SoKien: {
+      required: "Không được để trống",
       pattern: {
         value:
           /^(?:0\.(?:0[0-9]|[0-9]\d?)|[0-9]\d*(?:\.\d{1,2})?)(?:e[+-]?\d+)?$/,
@@ -129,10 +145,8 @@ const CreateTransport = (props) => {
   const [listRoad, setListRoad] = useState([]);
   const [arrRoad, setArrRoad] = useState([]);
   const [listCus, setListCus] = useState([]);
-  const [listVehicleType, setlistVehicleType] = useState([]);
   const [listGoodsType, setListGoodsType] = useState([]);
   const [listPoint, setListPoint] = useState([]);
-  const [listSupplier, setListSupplier] = useState([]);
 
   useEffect(() => {
     SetIsLoading(true);
@@ -140,7 +154,6 @@ const CreateTransport = (props) => {
       const getListCus = await getData(`Customer/GetListCustomerOptionSelect`);
       if (getListCus && getListCus.length > 0) {
         let arrKh = [];
-        let arrSupplier = [];
         getListCus
           .filter((x) => x.loaiKH === "KH")
           .map((val) => {
@@ -149,25 +162,10 @@ const CreateTransport = (props) => {
               value: val.maKh,
             });
           });
-        getListCus
-          .filter((x) => x.loaiKH === "NCC")
-          .map((val) => {
-            arrSupplier.push({
-              label: val.maKh + " - " + val.tenKh,
-              value: val.maKh,
-            });
-          });
         setListCus(arrKh);
-        setListSupplier(arrSupplier);
       } else {
         setListCus([]);
-        setListSupplier([]);
       }
-
-      let getListVehicleType = await getData("Common/GetListVehicleType");
-      let getListGoodsType = await getData("Common/GetListGoodsType");
-      setlistVehicleType(getListVehicleType);
-      setListGoodsType(getListGoodsType);
 
       const getListPoint = await getData("address/GetListAddressSelect");
       if (getListPoint && getListPoint.length > 0) {
@@ -289,70 +287,24 @@ const CreateTransport = (props) => {
 
   const onSubmit = async (data) => {
     SetIsLoading(true);
-
-    let arr = [];
-    data.optionHandling.map((val) => {
-      arr.push({
-        DonViVanTai: !val.DonViVanTai ? null : val.DonViVanTai.value,
-        DiemLayTraRong: !val.DiemLayTraRong ? null : val.DiemLayTraRong.value,
-        LoaiHangHoa: val.LoaiHangHoa,
-        PTVanChuyen: val.PTVanChuyen,
-        KhoiLuong: !val.KhoiLuong ? null : val.KhoiLuong,
-        TheTich: !val.TheTich ? null : val.TheTich,
-        SoKien: !val.SoKien ? null : val.SoKien,
-        DonViTinh: "CHUYEN",
-      });
-    });
-
-    if (arr && arr.length < 1) {
-      ToastError("Vui lòng điền đầy đủ thông tin");
-      return;
-    }
-
-    const create = await postData("BillOfLading/CreateTransport", {
-      arrHandlings: arr,
+    const create = await postData("BillOfLading/CreateTransportLess", {
       MaPTVC: data.LoaiHinh,
       HangTau: data.HangTau,
       TenTau: data.TenTau,
       MaVanDonKH: data.MaVDKH,
       MaCungDuong: data.MaCungDuong.value,
       LoaiVanDon: data.LoaiVanDon,
-      TongKhoiLuong: !data.TongKhoiLuong ? null : data.TongKhoiLuong,
-      TongTheTich: !data.TongTheTich ? null : data.TongTheTich,
-      TongSoKien: !data.TongSoKien ? null : data.TongSoKien,
+      TongKhoiLuong: data.TongKhoiLuong,
+      TongTheTich: data.TongTheTich,
+      TongSoKien: data.TongSoKien,
       MaKH: data.MaKH.value,
-      TongThungHang: data.TongThungHang,
       GhiChu: data.GhiChu,
-      ThoiGianLayTraRong: !data.TGLayTraRong
-        ? null
-        : moment(new Date(data.TGLayTraRong).toISOString()).format(
-            "yyyy-MM-DDTHH:mm:ss.SSS"
-          ),
-      ThoiGianHaCang: !data.TGHaCang
-        ? null
-        : moment(new Date(data.TGHaCang).toISOString()).format(
-            "yyyy-MM-DDTHH:mm:ss.SSS"
-          ),
-      ThoiGianCoMat: !data.TGCoMat
-        ? null
-        : moment(new Date(data.TGCoMat).toISOString()).format(
-            "yyyy-MM-DDTHH:mm:ss.SSS"
-          ),
-      ThoiGianHanLenh: !data.TGHanLenh
-        ? null
-        : moment(new Date(data.TGHanLenh).toISOString()).format(
-            "yyyy-MM-DDTHH:mm:ss.SSS"
-          ),
-      thoiGianLayHang: !data.TGLayHang
-        ? null
-        : moment(new Date(data.TGLayHang).toISOString()).format(
-            "yyyy-MM-DDTHH:mm:ss.SSS"
-          ),
-      thoiGianTraHang: !data.TGTraHang
-        ? null
-        : moment(new Date(data.TGTraHang).toISOString()).format(
-            "yyyy-MM-DDTHH:mm:ss.SSS"
-          ),
+      thoiGianLayHang: moment(new Date(data.TGLayHang).toISOString()).format(
+        "yyyy-MM-DDTHH:mm:ss.SSS"
+      ),
+      thoiGianTraHang: moment(new Date(data.TGTraHang).toISOString()).format(
+        "yyyy-MM-DDTHH:mm:ss.SSS"
+      ),
     });
 
     if (create === 1) {
@@ -417,8 +369,8 @@ const CreateTransport = (props) => {
                       value={watch("LoaiHinh")}
                     >
                       <option value="">Chọn Loại Hình</option>
-                      <option value="FCL">FCL</option>
-                      <option value="FTL">FTL</option>
+                      <option value="LTL">LTL</option>
+                      <option value="LCL">LCL</option>
                     </select>
                     {errors.LoaiHinh && (
                       <span className="text-danger">
@@ -623,7 +575,6 @@ const CreateTransport = (props) => {
                       </span>
                     )}
                   </div>
-                  <br />
                 </div>
                 <div className="col col-sm">
                   <div className="form-group">
@@ -643,7 +594,6 @@ const CreateTransport = (props) => {
                       </span>
                     )}
                   </div>
-                  <br />
                 </div>
                 <div className="col col-sm">
                   <div className="form-group">
@@ -663,408 +613,13 @@ const CreateTransport = (props) => {
                       </span>
                     )}
                   </div>
-                  <br />
                 </div>
               </div>
-              <div className="row">
-                <table
-                  className="table table-sm table-bordered "
-                  style={{
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  <thead>
-                    <tr>
-                      <th style={{ width: "40px" }}></th>
-                      <th></th>
-                      <th style={{ width: "40px" }}>
-                        <button
-                          className="form-control form-control-sm"
-                          type="button"
-                          onClick={() => append(watch(`optionHandling`)[0])}
-                        >
-                          <i className="fas fa-plus"></i>
-                        </button>
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {fields.map((value, index) => (
-                      <tr key={index}>
-                        <td>{index + 1}</td>
-                        <td>
-                          <div className="row">
-                            <div className="col-sm">
-                              <div className="form-group">
-                                <Controller
-                                  name={`optionHandling.${index}.DonViVanTai`}
-                                  control={control}
-                                  render={({ field }) => (
-                                    <Select
-                                      {...field}
-                                      classNamePrefix={"form-control"}
-                                      value={field.value}
-                                      options={listSupplier}
-                                    />
-                                  )}
-                                  rules={{
-                                    required: "không được để trống",
-                                    validate: (value) => {
-                                      if (!value.value) {
-                                        return "không được để trống";
-                                      }
-                                    },
-                                  }}
-                                />
-                                {errors.optionHandling?.[index]
-                                  ?.DonViVanTai && (
-                                  <span className="text-danger">
-                                    {
-                                      errors.optionHandling?.[index]
-                                        ?.DonViVanTai.message
-                                    }
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                            <div className="col-sm">
-                              <div className="form-group">
-                                <select
-                                  className="form-control"
-                                  {...register(
-                                    `optionHandling.${index}.LoaiHangHoa`,
-                                    Validate.LoaiHangHoa
-                                  )}
-                                >
-                                  <option value="">Chọn Loại Hàng Hóa</option>
-                                  {listGoodsType &&
-                                    listGoodsType.map((val) => {
-                                      return (
-                                        <option
-                                          value={val.maLoaiHangHoa}
-                                          key={val.maLoaiHangHoa}
-                                        >
-                                          {val.tenLoaiHangHoa}
-                                        </option>
-                                      );
-                                    })}
-                                </select>
-                                {errors.optionHandling?.[index]
-                                  ?.LoaiHangHoa && (
-                                  <span className="text-danger">
-                                    {
-                                      errors.optionHandling?.[index]
-                                        ?.LoaiHangHoa.message
-                                    }
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                            <div className="col-sm">
-                              <div className="form-group">
-                                <select
-                                  className="form-control"
-                                  {...register(
-                                    `optionHandling.${index}.PTVanChuyen`,
-                                    Validate.PTVanChuyen
-                                  )}
-                                >
-                                  <option value="">Chọn Phương Tiện</option>
-                                  {listVehicleType &&
-                                    listVehicleType.map((val) => {
-                                      return (
-                                        <option
-                                          value={val.maLoaiPhuongTien}
-                                          key={val.maLoaiPhuongTien}
-                                        >
-                                          {val.tenLoaiPhuongTien}
-                                        </option>
-                                      );
-                                    })}
-                                </select>
-                                {errors.optionHandling?.[index]
-                                  ?.PTVanChuyen && (
-                                  <span className="text-danger">
-                                    {
-                                      errors.optionHandling?.[index]
-                                        ?.PTVanChuyen.message
-                                    }
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                            {watch(`optionHandling.${index}.PTVanChuyen`) &&
-                              watch(
-                                `optionHandling.${index}.PTVanChuyen`
-                              ).includes("CONT") && (
-                                <div className="col col-sm">
-                                  <div className="form-group">
-                                    <Controller
-                                      name={`optionHandling.${index}.DiemLayTraRong`}
-                                      control={control}
-                                      render={({ field }) => (
-                                        <Select
-                                          {...field}
-                                          classNamePrefix={"form-control"}
-                                          value={field.value}
-                                          options={listPoint}
-                                        />
-                                      )}
-                                      rules={{
-                                        required: "không được để trống",
-                                        validate: (value) => {
-                                          if (!value.value) {
-                                            return "không được để trống";
-                                          }
-                                        },
-                                      }}
-                                    />
-                                    {errors.optionHandling?.[index]
-                                      ?.DiemLayTraRong && (
-                                      <span className="text-danger">
-                                        {
-                                          errors.optionHandling?.[index]
-                                            ?.DiemLayTraRong.message
-                                        }
-                                      </span>
-                                    )}
-                                  </div>
-                                </div>
-                              )}
-                            <div className="col-sm">
-                              <div className="form-group">
-                                <input
-                                  type="text"
-                                  className="form-control"
-                                  placeholder="Khối Lượng"
-                                  id="KhoiLuong"
-                                  {...register(
-                                    `optionHandling.${index}.KhoiLuong`,
-                                    Validate.KhoiLuong
-                                  )}
-                                />
-                                {errors.optionHandling?.[index]?.KhoiLuong && (
-                                  <span className="text-danger">
-                                    {
-                                      errors.optionHandling?.[index]?.KhoiLuong
-                                        .message
-                                    }
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                            <div className="col-sm">
-                              <div className="form-group">
-                                <input
-                                  type="text"
-                                  className="form-control"
-                                  placeholder="Thể Tích"
-                                  id="TheTich"
-                                  {...register(
-                                    `optionHandling.${index}.TheTich`,
-                                    Validate.TheTich
-                                  )}
-                                />
-                                {errors.optionHandling?.[index]?.TheTich && (
-                                  <span className="text-danger">
-                                    {
-                                      errors.optionHandling?.[index]?.TheTich
-                                        .message
-                                    }
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                            <div className="col-sm">
-                              <div className="form-group">
-                                <input
-                                  type="text"
-                                  className="form-control"
-                                  placeholder="Số Kiện"
-                                  id="SoKien"
-                                  {...register(
-                                    `optionHandling.${index}.SoKien`,
-                                    Validate.SoKien
-                                  )}
-                                />
-                                {errors.optionHandling?.[index]?.SoKien && (
-                                  <span className="text-danger">
-                                    {
-                                      errors.optionHandling?.[index]?.SoKien
-                                        .message
-                                    }
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        </td>
-                        <td>
-                          <div className="form-group">
-                            {index >= 1 && (
-                              <button
-                                type="button"
-                                className="btn btn-title btn-sm btn-default mx-1"
-                                gloss="Xóa Dòng"
-                                onClick={() => remove(index)}
-                              >
-                                <i className="fas fa-minus"></i>
-                              </button>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              {watch(`optionHandling`) &&
-                watch(`optionHandling`).length > 0 &&
-                watch(`optionHandling`).filter((x) =>
-                  x.PTVanChuyen.includes("CONT")
-                ).length > 0 && (
-                  <div className="row">
-                    <div className="col col-sm">
-                      <div className="form-group">
-                        {watch("LoaiVanDon") === "xuat" && (
-                          <label htmlFor="TGLayTraRong">
-                            Thời Gian Lấy Rỗng
-                          </label>
-                        )}
-                        {watch("LoaiVanDon") === "nhap" && (
-                          <label htmlFor="TGLayTraRong">
-                            Thời Gian Trả Rỗng
-                          </label>
-                        )}
-                        <div className="input-group ">
-                          <Controller
-                            control={control}
-                            name={`TGLayTraRong`}
-                            render={({ field }) => (
-                              <DatePicker
-                                className="form-control"
-                                showTimeSelect
-                                timeFormat="HH:mm"
-                                dateFormat="dd/MM/yyyy HH:mm"
-                                onChange={(date) => field.onChange(date)}
-                                selected={field.value}
-                              />
-                            )}
-                            // rules={{
-                            //   required: "không được để trống",
-                            // }}
-                          />
-                          {errors.TGLayTraRong && (
-                            <span className="text-danger">
-                              {errors.TGLayTraRong.message}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                    {watch("LoaiVanDon") === "xuat" && (
-                      <div className="col col-sm">
-                        <div className="form-group">
-                          <label htmlFor="TGHaCang">Thời Gian Hạ Cảng(*)</label>
-                          <div className="input-group ">
-                            <Controller
-                              control={control}
-                              name={`TGHaCang`}
-                              render={({ field }) => (
-                                <DatePicker
-                                  className="form-control"
-                                  showTimeSelect
-                                  timeFormat="HH:mm"
-                                  dateFormat="dd/MM/yyyy HH:mm"
-                                  onChange={(date) => field.onChange(date)}
-                                  selected={field.value}
-                                />
-                              )}
-                              rules={{
-                                required: "không được để trống",
-                              }}
-                            />
-                            {errors.TGHaCang && (
-                              <span className="text-danger">
-                                {errors.TGHaCang.message}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                    {watch("LoaiVanDon") === "nhap" && (
-                      <>
-                        <div className="col col-sm">
-                          <div className="form-group">
-                            <label htmlFor="TGCoMat">Thời Gian Có Mặt</label>
-                            <div className="input-group ">
-                              <Controller
-                                control={control}
-                                name={`TGCoMat`}
-                                render={({ field }) => (
-                                  <DatePicker
-                                    className="form-control"
-                                    showTimeSelect
-                                    timeFormat="HH:mm"
-                                    dateFormat="dd/MM/yyyy HH:mm"
-                                    onChange={(date) => field.onChange(date)}
-                                    selected={field.value}
-                                  />
-                                )}
-                                // rules={{
-                                //   required: "không được để trống",
-                                // }}
-                              />
-                              {errors.TGCoMat && (
-                                <span className="text-danger">
-                                  {errors.TGCoMat.message}
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                        <div className="col col-sm">
-                          <div className="form-group">
-                            <label htmlFor="TGHanLenh">
-                              Thời Gian Hạn Lệnh(*)
-                            </label>
-                            <div className="input-group ">
-                              <Controller
-                                control={control}
-                                name={`TGHanLenh`}
-                                render={({ field }) => (
-                                  <DatePicker
-                                    className="form-control"
-                                    showTimeSelect
-                                    timeFormat="HH:mm"
-                                    dateFormat="dd/MM/yyyy HH:mm"
-                                    onChange={(date) => field.onChange(date)}
-                                    selected={field.value}
-                                  />
-                                )}
-                                rules={{
-                                  required: "không được để trống",
-                                }}
-                              />
-                              {errors.TGHanLenh && (
-                                <span className="text-danger">
-                                  {errors.TGHanLenh.message}
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                )}
 
               <div className="row">
                 <div className="col col-sm">
                   <div className="form-group">
-                    <label htmlFor="TGLayHang">Thời Gian Lấy Hàng</label>
+                    <label htmlFor="TGLayHang">Thời Gian Lấy Hàng(*)</label>
                     <div className="input-group ">
                       <Controller
                         control={control}
@@ -1079,9 +634,9 @@ const CreateTransport = (props) => {
                             selected={field.value}
                           />
                         )}
-                        // rules={{
-                        //   required: "không được để trống",
-                        // }}
+                        rules={{
+                          required: "không được để trống",
+                        }}
                       />
                       {errors.TGLayHang && (
                         <span className="text-danger">
@@ -1093,7 +648,7 @@ const CreateTransport = (props) => {
                 </div>
                 <div className="col col-sm">
                   <div className="form-group">
-                    <label htmlFor="TGTraHang">Thời Gian Trả Hàng</label>
+                    <label htmlFor="TGTraHang">Thời Gian Trả Hàng(*)</label>
                     <div className="input-group ">
                       <Controller
                         control={control}
@@ -1108,9 +663,9 @@ const CreateTransport = (props) => {
                             selected={field.value}
                           />
                         )}
-                        // rules={{
-                        //   required: "không được để trống",
-                        // }}
+                        rules={{
+                          required: "không được để trống",
+                        }}
                       />
                       {errors.TGTraHang && (
                         <span className="text-danger">
@@ -1161,4 +716,4 @@ const CreateTransport = (props) => {
   );
 };
 
-export default CreateTransport;
+export default CreateTransportLess;

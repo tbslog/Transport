@@ -68,7 +68,6 @@ const UpdateHandling = (props) => {
       },
     },
     KhoiLuong: {
-      required: "Không được để trống",
       pattern: {
         value:
           /^(?:0\.(?:0[0-9]|[0-9]\d?)|[0-9]\d*(?:\.\d{1,2})?)(?:e[+-]?\d+)?$/,
@@ -76,7 +75,13 @@ const UpdateHandling = (props) => {
       },
     },
     TheTich: {
-      required: "Không được để trống",
+      pattern: {
+        value:
+          /^(?:0\.(?:0[0-9]|[0-9]\d?)|[0-9]\d*(?:\.\d{1,2})?)(?:e[+-]?\d+)?$/,
+        message: "Không được chứa ký tự đặc biệt",
+      },
+    },
+    SoKien: {
       pattern: {
         value:
           /^(?:0\.(?:0[0-9]|[0-9]\d?)|[0-9]\d*(?:\.\d{1,2})?)(?:e[+-]?\d+)?$/,
@@ -356,6 +361,7 @@ const UpdateHandling = (props) => {
       SealHq: data.SEALHQ,
       KhoiLuong: !data.KhoiLuong ? null : data.KhoiLuong,
       TheTich: !data.TheTich ? null : data.TheTich,
+      SoKien: !data.SoKien ? null : data.SoKien,
       GhiChu: data.GhiChu,
       ThoiGianLayTraRongThucTe: !data.TGLayTraRongThucTe
         ? null
@@ -829,7 +835,7 @@ const UpdateHandling = (props) => {
               <div className="row">
                 <div className="col col-sm">
                   <div className="form-group">
-                    <label htmlFor="KhoiLuong">Khối Lượng(*)</label>
+                    <label htmlFor="KhoiLuong">Khối Lượng</label>
                     <input
                       disabled={true}
                       autoComplete="false"
@@ -847,7 +853,7 @@ const UpdateHandling = (props) => {
                 </div>
                 <div className="col col-sm">
                   <div className="form-group">
-                    <label htmlFor="TheTich">Thể tích(*)</label>
+                    <label htmlFor="TheTich">Thể tích</label>
                     <input
                       disabled={true}
                       autoComplete="false"
@@ -865,18 +871,18 @@ const UpdateHandling = (props) => {
                 </div>
                 <div className="col col-sm">
                   <div className="form-group">
-                    <label htmlFor="SoKhoi">Số Khối(*)</label>
+                    <label htmlFor="SoKien">Số Kiện</label>
                     <input
                       disabled={true}
                       autoComplete="false"
                       type="text"
                       className="form-control"
-                      id="SoKhoi"
-                      {...register(`SoKhoi`, Validate.SoKhoi)}
+                      id="SoKien"
+                      {...register(`SoKien`, Validate.SoKien)}
                     />
-                    {errors.SoKhoi && (
+                    {errors.SoKien && (
                       <span className="text-danger">
-                        {errors.SoKhoi.message}
+                        {errors.SoKien.message}
                       </span>
                     )}
                   </div>
@@ -1025,7 +1031,7 @@ const UpdateHandling = (props) => {
                 <div className="col col-sm">
                   <div className="form-group">
                     <label htmlFor="TGLayHangThucTe">
-                      Thời Gian Lấy Hàng Thực Tế(*)
+                      Thời Gian Lấy Hàng Thực Tế
                     </label>
                     <div className="input-group ">
                       <Controller
@@ -1053,7 +1059,7 @@ const UpdateHandling = (props) => {
                 <div className="col col-sm">
                   <div className="form-group">
                     <label htmlFor="TGTraHangThucTe">
-                      Thời Gian Trả Hàng Thực Tế(*)
+                      Thời Gian Trả Hàng Thực Tế
                     </label>
                     <div className="input-group ">
                       <Controller

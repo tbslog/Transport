@@ -7,6 +7,7 @@ import DatePicker from "react-datepicker";
 import CreateTransport from "./CreateTransport";
 import UpdateTransport from "./UpdateTransport";
 import HandlingPage from "./HandlingPage";
+import CreateTransportLess from "./CreateTransportLess";
 
 const TransportPage = () => {
   const [data, setData] = useState([]);
@@ -65,17 +66,26 @@ const TransportPage = () => {
     //   button: true,
     // },
     {
-      name: <div>Mã Vận Đơn</div>,
       selector: (row) => <div className="text-wrap">{row.maVanDon}</div>,
+      omit: true,
     },
     {
-      name: <div>Loại Vận Đơn</div>,
-      selector: (row) => <div className="text-wrap">{row.loaiVanDon}</div>,
+      name: <div>Mã Vận Đơn</div>,
+      selector: (row) => <div className="text-wrap">{row.maVanDonKH}</div>,
     },
     {
       name: <div>Khách Hàng</div>,
       selector: (row) => <div className="text-wrap">{row.tenKH}</div>,
     },
+    {
+      name: <div>PTVC</div>,
+      selector: (row) => <div className="text-wrap">{row.maPTVC}</div>,
+    },
+    {
+      name: <div>Loại Vận Đơn</div>,
+      selector: (row) => <div className="text-wrap">{row.loaiVanDon}</div>,
+    },
+
     {
       name: <div>Mã Cung Đường</div>,
       selector: (row) => row.maCungDuong,
@@ -117,51 +127,63 @@ const TransportPage = () => {
       sortable: true,
       Cell: ({ row }) => <div className="text-wrap">{row.tongSoKhoi}</div>,
     },
-    {
-      name: <div>Thời Gian Có Mặt</div>,
-      selector: (row) => (
-        <div className="text-wrap">
-          {moment(row.thoiGianCoMat).format("DD/MM/YYYY HH:mm")}
-        </div>
-      ),
-      sortable: true,
-    },
+    // {
+    //   name: <div>Thời Gian Có Mặt</div>,
+    //   selector: (row) => (
+    //     <div className="text-wrap">
+    //       {moment(row.thoiGianCoMat).format("DD/MM/YYYY HH:mm")}
+    //     </div>
+    //   ),
+    //   sortable: true,
+    // },
     {
       name: <div>Thời Gian Lấy/Trả Rỗng</div>,
-      selector: (row) => (
-        <div className="text-wrap">
-          {moment(row.thoiGianLayTraRong).format("DD/MM/YYYY HH:mm")}
-        </div>
-      ),
+      selector: (row) =>
+        !row.thoiGianLayTraRong ? null : (
+          <div className="text-wrap">
+            {moment(row.thoiGianLayTraRong).format("DD/MM/YYYY HH:mm")}
+          </div>
+        ),
       sortable: true,
     },
     {
       name: <div>Thời Gian Hạn Lệnh</div>,
-      selector: (row) => (
-        <div className="text-wrap">
-          {moment(row.thoiGianHanLenh).format("DD/MM/YYYY HH:mm")}
-        </div>
-      ),
+      selector: (row) =>
+        !row.thoiGianHanLenh ? null : (
+          <div className="text-wrap">
+            {moment(row.thoiGianHanLenh).format("DD/MM/YYYY HH:mm")}
+          </div>
+        ),
       sortable: true,
     },
     {
-      name: <div>Thời Gian Lấy Hàng</div>,
-      selector: (row) => (
-        <div className="text-wrap">
-          {moment(row.thoiGianLayHang).format("DD/MM/YYYY HH:mm")}
-        </div>
-      ),
+      name: <div>Thời Gian Hạ Cảng</div>,
+      selector: (row) =>
+        !row.thoiGianHaCang ? null : (
+          <div className="text-wrap">
+            {moment(row.thoiGianHaCang).format("DD/MM/YYYY HH:mm")}
+          </div>
+        ),
       sortable: true,
     },
-    {
-      name: <div>Thời Gian Trả Hàng</div>,
-      selector: (row) => (
-        <div className="text-wrap">
-          {moment(row.thoiGianTraHang).format("DD/MM/YYYY HH:mm")}
-        </div>
-      ),
-      sortable: true,
-    },
+    // {
+    //   name: <div>Thời Gian Lấy Hàng</div>,
+    //   selector: (row) => (
+    //     <div className="text-wrap">
+    //       {moment(row.thoiGianLayHang).format("DD/MM/YYYY HH:mm")}
+    //     </div>
+    //   ),
+    //   sortable: true,
+    // },
+    // {
+    //   name: <div>Thời Gian Trả Hàng</div>,
+    //   selector: (row) => (
+    //     <div className="text-wrap">
+    //       {moment(row.thoiGianTraHang).format("DD/MM/YYYY HH:mm")}
+    //     </div>
+    //   ),
+    //   sortable: true,
+    // },
     {
       selector: (row) => row.maTrangThai,
       sortable: true,
@@ -217,7 +239,7 @@ const TransportPage = () => {
   ) => {
     setLoading(true);
     const datatransport = await getData(
-      `BillOfLading/GetListTransport?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}&StatusId=${status}&fromDate=${fromDate}&toDate=${toDate}`
+      `BillOfLading/GetListTransport?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}&StatusId=${status}&fromDate=${fromDate}&toDate=${toDate}&transportType=FULL`
     );
 
     setData(datatransport.data);
@@ -239,9 +261,9 @@ const TransportPage = () => {
     setLoading(true);
 
     const datatransport = await getData(
-      `BillOfLading/GetListTransport?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}&StatusId=${status}&fromDate=${fromDate}&toDate=${toDate}`
+      `BillOfLading/GetListTransport?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}&StatusId=${status}&fromDate=${fromDate}&toDate=${toDate}&transportType=FULL`
     );
-    setData(datatransport);
+    setData(datatransport.data);
     setPerPage(newPerPage);
     setLoading(false);
   };
@@ -310,12 +332,21 @@ const TransportPage = () => {
                   <button
                     type="button"
                     className="btn btn-title btn-sm btn-default mx-1"
-                    gloss="Tạo Vận Đơn"
-                    onClick={() => showModalForm(SetShowModal("Create"))}
+                    gloss="Tạo Vận Đơn FCL/FTL "
+                    onClick={() => showModalForm(SetShowModal("CreateFCL/FTL"))}
                   >
-                    <i className="fas fa-plus-circle"></i>
+                    <i className="fas fa-plus-circle">FCL/FTL</i>
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-title btn-sm btn-default mx-1"
+                    gloss="Tạo Vận Đơn LCL/LTL "
+                    onClick={() => showModalForm(SetShowModal("CreateLCL/LTL"))}
+                  >
+                    <i className="fas fa-plus-circle">LCL/LTL</i>
                   </button>
                 </div>
+
                 <div className="col-sm-3">
                   <div className="row">
                     <div className="col col-sm"></div>
@@ -410,6 +441,7 @@ const TransportPage = () => {
                 pagination
                 paginationServer
                 paginationTotalRows={totalRows}
+                paginationRowsPerPageOptions={[10, 30, 50, 100]}
                 onSelectedRowsChange={handleChange}
                 onChangeRowsPerPage={handlePerRowsChange}
                 onChangePage={handlePageChange}
@@ -446,7 +478,10 @@ const TransportPage = () => {
               </div>
               <div className="modal-body">
                 <>
-                  {ShowModal === "Create" && (
+                  {ShowModal === "CreateLCL/LTL" && (
+                    <CreateTransportLess getListTransport={fetchData} />
+                  )}
+                  {ShowModal === "CreateFCL/FTL" && (
                     <CreateTransport getListTransport={fetchData} />
                   )}
                   {ShowModal === "Edit" && (

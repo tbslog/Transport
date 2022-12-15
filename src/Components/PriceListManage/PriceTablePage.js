@@ -39,46 +39,70 @@ const PriceTablePage = () => {
   };
 
   const columns = useMemo(() => [
-    // {
-    //   cell: (val) => (
-    //     <button
-    //       title="Cập nhật"
-    //       onClick={() => handleEditButtonClick(val, SetShowModal("Create"))}
-    //       type="button"
-    //       className="btn btn-sm btn-default"
-    //     >
-    //       <i className="far fa-edit"></i>
-    //     </button>
-    //   ),
-    //   ignoreRowClick: true,
-    //   allowOverflow: true,
-    //   button: true,
-    // },
-
     {
-      name: "Mã Hợp Đồng",
+      name: <div>Mã Hợp Đồng</div>,
       selector: (row) => row.maHopDong,
       sortable: true,
     },
     {
-      name: "Tên Hợp Đồng",
-      selector: (row) => row.tenHopDong,
+      name: <div>Tên Hợp Đồng</div>,
+      selector: (row) => <div className="text-wrap">{row.tenHopDong}</div>,
     },
     {
-      name: "Tên khách hàng",
-      selector: (row) => row.tenKH,
+      name: <div>Tên Khách Hàng</div>,
+      selector: (row) => <div className="text-wrap">{row.tenKH}</div>,
     },
     {
-      name: "Tên Cung Đường",
-      selector: (row) => row.tenCungDuong,
+      name: <div>Đơn Giá</div>,
+      selector: (row) =>
+        row.donGia.toLocaleString("vi-VI", {
+          style: "currency",
+          currency: "VND",
+        }),
     },
     {
-      name: "Phương Tiện Vận Tải",
+      name: <div>Mã Cung Đường</div>,
+      selector: (row) => <div className="text-wrap">{row.maCungDuong}</div>,
+    },
+    {
+      name: <div>Tên Cung Đường</div>,
+      selector: (row) => <div className="text-wrap">{row.tenCungDuong}</div>,
+    },
+    {
+      name: <div>Phương Tiện Vận Tải</div>,
       selector: (row) => row.maLoaiPhuongTien,
     },
     {
-      name: "Thời gian Áp Dụng",
-      selector: (row) => row.ngayApDung,
+      name: <div>Loại Hàng Hóa</div>,
+      selector: (row) => row.maLoaiHangHoa,
+    },
+    {
+      name: <div>Phương Thức Vận Chuyển</div>,
+      selector: (row) => row.maPtvc,
+    },
+    {
+      name: <div>Trạng Thái</div>,
+      selector: (row) => row.trangThai,
+    },
+    {
+      name: <div>Thời gian áp dụng</div>,
+      selector: (row) => (
+        <div className="text-wrap">
+          {moment(row.ngayApDung).format("DD/MM/YYYY")}
+        </div>
+      ),
+      sortable: true,
+    },
+    {
+      name: <div>Thời gian hết hiệu lực</div>,
+      selector: (row) =>
+        !row.ngayHetHieuLuc ? (
+          ""
+        ) : (
+          <div className="text-wrap">
+            {moment(row.ngayHetHieuLuc).format("DD/MM/YYYY")}
+          </div>
+        ),
       sortable: true,
     },
   ]);
@@ -385,7 +409,7 @@ const PriceTablePage = () => {
                 pagination
                 paginationServer
                 paginationTotalRows={totalRows}
-                paginationComponentOptions={paginationComponentOptions}
+                paginationRowsPerPageOptions={[10, 30, 50, 100]}
                 onSelectedRowsChange={handleChange}
                 onChangeRowsPerPage={handlePerRowsChange}
                 onChangePage={handlePageChange}

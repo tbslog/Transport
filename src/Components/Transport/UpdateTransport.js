@@ -12,8 +12,8 @@ const UpdateTransport = (props) => {
   const {
     register,
     setValue,
-    clearErrors,
     reset,
+    resetField,
     control,
     watch,
     formState: { errors },
@@ -28,6 +28,9 @@ const UpdateTransport = (props) => {
   });
 
   const Validate = {
+    MaVDKH: {
+      required: "Không được để trống",
+    },
     LoaiHinh: {
       required: "Không được để trống",
     },
@@ -50,7 +53,6 @@ const UpdateTransport = (props) => {
       required: "Không được để trống",
     },
     TongSoKien: {
-      required: "Không được để trống",
       pattern: {
         value:
           /^(?:0\.(?:0[0-9]|[0-9]\d?)|[0-9]\d*(?:\.\d{1,2})?)(?:e[+-]?\d+)?$/,
@@ -63,7 +65,6 @@ const UpdateTransport = (props) => {
       },
     },
     TongKhoiLuong: {
-      required: "Không được để trống",
       pattern: {
         value:
           /^(?:0\.(?:0[0-9]|[0-9]\d?)|[0-9]\d*(?:\.\d{1,2})?)(?:e[+-]?\d+)?$/,
@@ -71,7 +72,6 @@ const UpdateTransport = (props) => {
       },
     },
     TongTheTich: {
-      required: "Không được để trống",
       pattern: {
         value:
           /^(?:0\.(?:0[0-9]|[0-9]\d?)|[0-9]\d*(?:\.\d{1,2})?)(?:e[+-]?\d+)?$/,
@@ -79,7 +79,6 @@ const UpdateTransport = (props) => {
       },
     },
     KhoiLuong: {
-      required: "Không được để trống",
       pattern: {
         value:
           /^(?:0\.(?:0[0-9]|[0-9]\d?)|[0-9]\d*(?:\.\d{1,2})?)(?:e[+-]?\d+)?$/,
@@ -87,7 +86,6 @@ const UpdateTransport = (props) => {
       },
     },
     TheTich: {
-      required: "Không được để trống",
       pattern: {
         value:
           /^(?:0\.(?:0[0-9]|[0-9]\d?)|[0-9]\d*(?:\.\d{1,2})?)(?:e[+-]?\d+)?$/,
@@ -95,7 +93,6 @@ const UpdateTransport = (props) => {
       },
     },
     SoKien: {
-      required: "Không được để trống",
       pattern: {
         value:
           /^(?:0\.(?:0[0-9]|[0-9]\d?)|[0-9]\d*(?:\.\d{1,2})?)(?:e[+-]?\d+)?$/,
@@ -171,84 +168,127 @@ const UpdateTransport = (props) => {
 
   useEffect(() => {
     if (
+      selectIdClick &&
+      Object.keys(selectIdClick).length > 0 &&
+      listSupplier &&
+      listPoint &&
+      listSupplier.length > 0 &&
+      listPoint.length > 0 &&
+      listGoodsType &&
+      listGoodsType.length > 0 &&
+      listVehicleType &&
+      listVehicleType.length > 0
+    ) {
+      SetIsLoading(true);
+      setValue("optionHandling", [{}]);
+      let arrData = [];
+      selectIdClick.arrHandlings.map((val) => {
+        arrData.push({
+          DonViVanTai: {
+            ...listSupplier.filter((x) => x.value === val.donViVanTai),
+          }[0],
+          LoaiHangHoa: val.loaiHangHoa,
+          PTVanChuyen: val.ptVanChuyen,
+          KhoiLuong: val.khoiLuong,
+          TheTich: val.theTich,
+          SoKien: val.soKien,
+          DiemLayTraRong: !val.diemLayTraRong
+            ? null
+            : {
+                ...listPoint.filter((x) => x.value === val.diemLayTraRong),
+              }[0],
+        });
+      });
+
+      for (let i = 0; i <= arrData.length - 1; i++) {
+        setValue(`optionHandling.${i}.DonViVanTai`, arrData[i].DonViVanTai);
+        setValue(`optionHandling.${i}.LoaiHangHoa`, arrData[i].LoaiHangHoa);
+        setValue(`optionHandling.${i}.PTVanChuyen`, arrData[i].PTVanChuyen);
+        setValue(`optionHandling.${i}.KhoiLuong`, arrData[i].KhoiLuong);
+        setValue(`optionHandling.${i}.TheTich`, arrData[i].TheTich);
+        setValue(`optionHandling.${i}.SoKien`, arrData[i].SoKien);
+        setValue(
+          `optionHandling.${i}.DiemLayTraRong`,
+          arrData[i].DiemLayTraRong
+        );
+      }
+      setValue("optionHandling", arrData);
+    } else {
+      setValue("optionHandling", []);
+    }
+
+    SetIsLoading(false);
+  }, [listSupplier, listPoint, listGoodsType, listVehicleType, selectIdClick]);
+
+  useEffect(() => {
+    if (
       listCus &&
       listCus.length > 0 &&
       props &&
       selectIdClick &&
       Object.keys(selectIdClick).length > 0 &&
-      listSupplier &&
-      listPoint &&
-      listVehicleType &&
-      listGoodsType &&
       listTransportType &&
-      listSupplier.length > 0 &&
-      listPoint.length > 0 &&
-      listVehicleType.length > 0 &&
-      listGoodsType.length > 0 &&
       listTransportType.length > 0
     ) {
-      let arrHandlings = [];
-      if (selectIdClick.arrHandlings && selectIdClick.arrHandlings.length > 0) {
-        selectIdClick.arrHandlings.map((val) => {
-          arrHandlings.push({
-            DonViVanTai: {
-              ...listSupplier.filter((x) => x.value === val.donViVanTai),
-            }[0],
-            LoaiHangHoa: val.loaiHangHoa,
-            PTVanChuyen: val.ptVanChuyen,
-            KhoiLuong: val.khoiLuong,
-            TheTich: val.theTich,
-            SoKien: val.soKien,
-            DiemLayTraRong: !val.diemLayTraRong
-              ? null
-              : {
-                  ...listPoint.filter((x) => x.value === val.diemLayTraRong),
-                }[0],
-          });
-        });
-      }
+      SetIsLoading(true);
 
-      setValue("optionHandling", arrHandlings);
       setValue("MaVDKH", selectIdClick.maVanDonKH);
       setValue("LoaiVanDon", selectIdClick.loaiVanDon);
       setValue("TongKhoiLuong", selectIdClick.tongKhoiLuong);
       setValue("TongTheTich", selectIdClick.tongTheTich);
       setValue("TongSoKien", selectIdClick.tongSoKien);
       setValue("LoaiHinh", selectIdClick.maPTVC.replaceAll(" ", ""));
-
       setValue(
         "MaKH",
         { ...listCus.filter((x) => x.value === selectIdClick.maKh) }[0]
       );
-
       handleOnChangeCustomer(
         { ...listCus.filter((x) => x.value === selectIdClick.maKh) }[0]
       );
 
-      setValue("TongSoKhoi", selectIdClick.tongSoKhoi);
-
       if (selectIdClick.loaiVanDon === "xuat") {
-        setValue("TGHaCang", new Date(selectIdClick.thoiGianHaCang));
+        setValue(
+          "TGHaCang",
+          !selectIdClick.thoiGianHaCang
+            ? null
+            : new Date(selectIdClick.thoiGianHaCang)
+        );
       } else {
-        setValue("TGCoMat", new Date(selectIdClick.thoiGianCoMat));
-        setValue("TGHanLenh", new Date(selectIdClick.thoiGianHanLenh));
+        setValue(
+          "TGCoMat",
+          !selectIdClick.thoiGianCoMat
+            ? null
+            : new Date(selectIdClick.thoiGianCoMat)
+        );
+        setValue(
+          "TGHanLenh",
+          !selectIdClick.thoiGianHanLenh
+            ? null
+            : new Date(selectIdClick.thoiGianHanLenh)
+        );
       }
       setValue("GhiChu", selectIdClick.ghiChu);
-      setValue("TGTraHang", new Date(selectIdClick.thoiGianTraHang));
-      setValue("TGLayHang", new Date(selectIdClick.thoiGianLayHang));
-      setValue("TGLayTraRong", new Date(selectIdClick.thoiGianLayTraRong));
+      setValue(
+        "TGTraHang",
+        !selectIdClick.thoiGianTraHang
+          ? null
+          : new Date(selectIdClick.thoiGianTraHang)
+      );
+      setValue(
+        "TGLayHang",
+        !selectIdClick.thoiGianLayHang
+          ? null
+          : new Date(selectIdClick.thoiGianLayHang)
+      );
+      setValue(
+        "TGLayTraRong",
+        !selectIdClick.thoiGianLayTraRong
+          ? null
+          : new Date(selectIdClick.thoiGianLayTraRong)
+      );
+      SetIsLoading(false);
     }
-  }, [
-    listCus,
-    listSupplier,
-    listPoint,
-    listVehicleType,
-    listGoodsType,
-    listTransportType,
-    props,
-    selectIdClick,
-    setValue,
-  ]);
+  }, [listCus, listTransportType, props, selectIdClick]);
 
   useEffect(() => {
     if (
@@ -261,6 +301,8 @@ const UpdateTransport = (props) => {
       listSecondPoint &&
       listSecondPoint.length > 0
     ) {
+      SetIsLoading(true);
+
       setValue(
         "MaCungDuong",
         { ...listRoad.filter((x) => x.value === selectIdClick.cungDuong) }[0]
@@ -270,6 +312,7 @@ const UpdateTransport = (props) => {
         { ...listRoad.filter((x) => x.value === selectIdClick.cungDuong) }[0]
       );
     }
+    SetIsLoading(false);
   }, [arrRoad, listRoad, listFirstPoint, listSecondPoint]);
 
   const handleOnChangeCustomer = async (val) => {
@@ -385,9 +428,9 @@ const UpdateTransport = (props) => {
         DiemLayTraRong: !val.DiemLayTraRong ? null : val.DiemLayTraRong.value,
         LoaiHangHoa: val.LoaiHangHoa,
         PTVanChuyen: val.PTVanChuyen,
-        KhoiLuong: val.KhoiLuong,
-        TheTich: val.TheTich,
-        SoKien: val.SoKien,
+        KhoiLuong: !val.KhoiLuong ? null : val.KhoiLuong,
+        TheTich: !val.TheTich ? null : val.TheTich,
+        SoKien: !val.SoKien ? null : val.SoKien,
         DonViTinh: "CHUYEN",
       });
     });
@@ -407,12 +450,11 @@ const UpdateTransport = (props) => {
         MaVanDonKH: data.MaVDKH,
         MaCungDuong: data.MaCungDuong.value,
         LoaiVanDon: data.LoaiVanDon,
-        TongKhoiLuong: data.TongKhoiLuong,
-        TongTheTich: data.TongTheTich,
-        TongSoKhoi: data.TongSoKhoi,
+        TongKhoiLuong: !data.TongKhoiLuong ? null : data.TongKhoiLuong,
+        TongTheTich: !data.TongTheTich ? null : data.TongTheTich,
+        TongSoKien: !data.TongSoKien ? null : data.TongSoKien,
         MaKH: data.MaKH.value,
         GhiChu: data.GhiChu,
-        TongSoKien: data.TongSoKien,
         ThoiGianHaCang: !data.TGHaCang
           ? null
           : moment(new Date(data.TGHaCang).toISOString()).format(
@@ -428,15 +470,21 @@ const UpdateTransport = (props) => {
           : moment(new Date(data.TGHanLenh).toISOString()).format(
               "yyyy-MM-DDTHH:mm:ss.SSS"
             ),
-        ThoiGianLayHang: moment(new Date(data.TGLayHang).toISOString()).format(
-          "yyyy-MM-DDTHH:mm:ss.SSS"
-        ),
-        ThoiGianTraHang: moment(new Date(data.TGTraHang).toISOString()).format(
-          "yyyy-MM-DDTHH:mm:ss.SSS"
-        ),
-        ThoiGianLayTraRong: moment(
-          new Date(data.TGLayTraRong).toISOString()
-        ).format("yyyy-MM-DDTHH:mm:ss.SSS"),
+        ThoiGianLayHang: !data.TGLayHang
+          ? null
+          : moment(new Date(data.TGLayHang).toISOString()).format(
+              "yyyy-MM-DDTHH:mm:ss.SSS"
+            ),
+        ThoiGianTraHang: !data.TGTraHang
+          ? null
+          : moment(new Date(data.TGTraHang).toISOString()).format(
+              "yyyy-MM-DDTHH:mm:ss.SSS"
+            ),
+        ThoiGianLayTraRong: !data.TGLayTraRong
+          ? null
+          : moment(new Date(data.TGLayTraRong).toISOString()).format(
+              "yyyy-MM-DDTHH:mm:ss.SSS"
+            ),
       }
     );
 
@@ -687,7 +735,7 @@ const UpdateTransport = (props) => {
                 <div className="col col-sm">
                   <div className="form-group">
                     <label htmlFor="TongKhoiLuong">
-                      Tổng Khối Lượng (Đơn Vị Tấn)(*)
+                      Tổng Khối Lượng (Đơn Vị Tấn)
                     </label>
                     <input
                       autoComplete="false"
@@ -707,7 +755,7 @@ const UpdateTransport = (props) => {
                 <div className="col col-sm">
                   <div className="form-group">
                     <label htmlFor="TongTheTich">
-                      Tổng Thể Tích (Đơn Vị m3)(*)
+                      Tổng Thể Tích (Đơn Vị m3)
                     </label>
                     <input
                       autoComplete="false"
@@ -727,7 +775,7 @@ const UpdateTransport = (props) => {
                 <div className="col col-sm">
                   <div className="form-group">
                     <label htmlFor="TongSoKien">
-                      Tổng Số Kiện (Đơn Vị PCS)(*)
+                      Tổng Số Kiện (Đơn Vị PCS)
                     </label>
                     <input
                       autoComplete="false"
@@ -768,231 +816,234 @@ const UpdateTransport = (props) => {
                     </tr>
                   </thead>
                   <tbody>
-                    {fields.map((value, index) => (
-                      <tr key={index}>
-                        <td>{index + 1}</td>
-                        <td>
-                          <div className="row">
-                            <div className="col-sm">
-                              <div className="form-group">
-                                <Controller
-                                  name={`optionHandling.${index}.DonViVanTai`}
-                                  control={control}
-                                  render={({ field }) => (
-                                    <Select
-                                      {...field}
-                                      classNamePrefix={"form-control"}
-                                      value={field.value}
-                                      options={listSupplier}
-                                    />
-                                  )}
-                                  rules={{
-                                    required: "không được để trống",
-                                    validate: (value) => {
-                                      if (!value.value) {
-                                        return "không được để trống";
-                                      }
-                                    },
-                                  }}
-                                />
-                                {errors.optionHandling?.[index]
-                                  ?.DonViVanTai && (
-                                  <span className="text-danger">
-                                    {
-                                      errors.optionHandling?.[index]
-                                        ?.DonViVanTai.message
-                                    }
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                            <div className="col-sm">
-                              <div className="form-group">
-                                <select
-                                  className="form-control"
-                                  {...register(
-                                    `optionHandling.${index}.LoaiHangHoa`,
-                                    Validate.LoaiHangHoa
-                                  )}
-                                >
-                                  <option value="">Chọn Loại Hàng Hóa</option>
-                                  {listGoodsType &&
-                                    listGoodsType.map((val) => {
-                                      return (
-                                        <option
-                                          value={val.maLoaiHangHoa}
-                                          key={val.maLoaiHangHoa}
-                                        >
-                                          {val.tenLoaiHangHoa}
-                                        </option>
-                                      );
-                                    })}
-                                </select>
-                                {errors.optionHandling?.[index]
-                                  ?.LoaiHangHoa && (
-                                  <span className="text-danger">
-                                    {
-                                      errors.optionHandling?.[index]
-                                        ?.LoaiHangHoa.message
-                                    }
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                            <div className="col-sm">
-                              <div className="form-group">
-                                <select
-                                  className="form-control"
-                                  {...register(
-                                    `optionHandling.${index}.PTVanChuyen`,
-                                    Validate.PTVanChuyen
-                                  )}
-                                >
-                                  <option value="">Chọn Phương Tiện</option>
-                                  {listVehicleType &&
-                                    listVehicleType.map((val) => {
-                                      return (
-                                        <option
-                                          value={val.maLoaiPhuongTien}
-                                          key={val.maLoaiPhuongTien}
-                                        >
-                                          {val.tenLoaiPhuongTien}
-                                        </option>
-                                      );
-                                    })}
-                                </select>
-                                {errors.optionHandling?.[index]
-                                  ?.PTVanChuyen && (
-                                  <span className="text-danger">
-                                    {
-                                      errors.optionHandling?.[index]
-                                        ?.PTVanChuyen.message
-                                    }
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                            {watch(`optionHandling.${index}.PTVanChuyen`) &&
-                              watch(
-                                `optionHandling.${index}.PTVanChuyen`
-                              ).includes("CONT") && (
-                                <div className="col col-sm">
-                                  <div className="form-group">
-                                    <Controller
-                                      name={`optionHandling.${index}.DiemLayTraRong`}
-                                      control={control}
-                                      render={({ field }) => (
-                                        <Select
-                                          {...field}
-                                          classNamePrefix={"form-control"}
-                                          value={field.value}
-                                          options={listPoint}
-                                        />
-                                      )}
-                                      rules={{
-                                        required: "không được để trống",
-                                        validate: (value) => {
-                                          if (!value.value) {
-                                            return "không được để trống";
-                                          }
-                                        },
-                                      }}
-                                    />
-                                    {errors.optionHandling?.[index]
-                                      ?.DiemLayTraRong && (
-                                      <span className="text-danger">
-                                        {
-                                          errors.optionHandling?.[index]
-                                            ?.DiemLayTraRong.message
-                                        }
-                                      </span>
+                    {fields &&
+                      fields.length > 0 &&
+                      fields.map((value, index) => (
+                        <tr key={index}>
+                          <td>{index + 1}</td>
+                          <td>
+                            <div className="row">
+                              <div className="col-sm">
+                                <div className="form-group">
+                                  <Controller
+                                    name={`optionHandling.${index}.DonViVanTai`}
+                                    control={control}
+                                    render={({ field }) => (
+                                      <Select
+                                        {...field}
+                                        classNamePrefix={"form-control"}
+                                        value={field.value}
+                                        options={listSupplier}
+                                      />
                                     )}
-                                  </div>
+                                    rules={{
+                                      required: "không được để trống",
+                                      validate: (value) => {
+                                        if (!value.value) {
+                                          return "không được để trống";
+                                        }
+                                      },
+                                    }}
+                                  />
+                                  {errors.optionHandling?.[index]
+                                    ?.DonViVanTai && (
+                                    <span className="text-danger">
+                                      {
+                                        errors.optionHandling?.[index]
+                                          ?.DonViVanTai.message
+                                      }
+                                    </span>
+                                  )}
                                 </div>
+                              </div>
+                              <div className="col-sm">
+                                <div className="form-group">
+                                  <select
+                                    className="form-control"
+                                    {...register(
+                                      `optionHandling.${index}.LoaiHangHoa`,
+                                      Validate.LoaiHangHoa
+                                    )}
+                                  >
+                                    <option value="">Chọn Loại Hàng Hóa</option>
+                                    {listGoodsType &&
+                                      listGoodsType.map((val) => {
+                                        return (
+                                          <option
+                                            value={val.maLoaiHangHoa}
+                                            key={val.maLoaiHangHoa}
+                                          >
+                                            {val.tenLoaiHangHoa}
+                                          </option>
+                                        );
+                                      })}
+                                  </select>
+                                  {errors.optionHandling?.[index]
+                                    ?.LoaiHangHoa && (
+                                    <span className="text-danger">
+                                      {
+                                        errors.optionHandling?.[index]
+                                          ?.LoaiHangHoa.message
+                                      }
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                              <div className="col-sm">
+                                <div className="form-group">
+                                  <select
+                                    className="form-control"
+                                    {...register(
+                                      `optionHandling.${index}.PTVanChuyen`,
+                                      Validate.PTVanChuyen
+                                    )}
+                                  >
+                                    <option value="">Chọn Phương Tiện</option>
+                                    {listVehicleType &&
+                                      listVehicleType.map((val) => {
+                                        return (
+                                          <option
+                                            value={val.maLoaiPhuongTien}
+                                            key={val.maLoaiPhuongTien}
+                                          >
+                                            {val.tenLoaiPhuongTien}
+                                          </option>
+                                        );
+                                      })}
+                                  </select>
+                                  {errors.optionHandling?.[index]
+                                    ?.PTVanChuyen && (
+                                    <span className="text-danger">
+                                      {
+                                        errors.optionHandling?.[index]
+                                          ?.PTVanChuyen.message
+                                      }
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                              {watch(`optionHandling.${index}.PTVanChuyen`) &&
+                                watch(
+                                  `optionHandling.${index}.PTVanChuyen`
+                                ).includes("CONT") && (
+                                  <div className="col col-sm">
+                                    <div className="form-group">
+                                      <Controller
+                                        name={`optionHandling.${index}.DiemLayTraRong`}
+                                        control={control}
+                                        render={({ field }) => (
+                                          <Select
+                                            {...field}
+                                            classNamePrefix={"form-control"}
+                                            value={field.value}
+                                            options={listPoint}
+                                          />
+                                        )}
+                                        rules={{
+                                          required: "không được để trống",
+                                          validate: (value) => {
+                                            if (!value.value) {
+                                              return "không được để trống";
+                                            }
+                                          },
+                                        }}
+                                      />
+                                      {errors.optionHandling?.[index]
+                                        ?.DiemLayTraRong && (
+                                        <span className="text-danger">
+                                          {
+                                            errors.optionHandling?.[index]
+                                              ?.DiemLayTraRong.message
+                                          }
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                )}
+                              <div className="col-sm">
+                                <div className="form-group">
+                                  <input
+                                    type="text"
+                                    className="form-control"
+                                    placeholder="Khối Lượng"
+                                    id="KhoiLuong"
+                                    {...register(
+                                      `optionHandling.${index}.KhoiLuong`,
+                                      Validate.KhoiLuong
+                                    )}
+                                  />
+                                  {errors.optionHandling?.[index]
+                                    ?.KhoiLuong && (
+                                    <span className="text-danger">
+                                      {
+                                        errors.optionHandling?.[index]
+                                          ?.KhoiLuong.message
+                                      }
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                              <div className="col-sm">
+                                <div className="form-group">
+                                  <input
+                                    type="text"
+                                    className="form-control"
+                                    placeholder="Thể Tích"
+                                    id="TheTich"
+                                    {...register(
+                                      `optionHandling.${index}.TheTich`,
+                                      Validate.TheTich
+                                    )}
+                                  />
+                                  {errors.optionHandling?.[index]?.TheTich && (
+                                    <span className="text-danger">
+                                      {
+                                        errors.optionHandling?.[index]?.TheTich
+                                          .message
+                                      }
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                              <div className="col-sm">
+                                <div className="form-group">
+                                  <input
+                                    type="text"
+                                    className="form-control"
+                                    placeholder="Số Kiện"
+                                    id="SoKien"
+                                    {...register(
+                                      `optionHandling.${index}.SoKien`,
+                                      Validate.SoKien
+                                    )}
+                                  />
+                                  {errors.optionHandling?.[index]?.SoKien && (
+                                    <span className="text-danger">
+                                      {
+                                        errors.optionHandling?.[index]?.SoKien
+                                          .message
+                                      }
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+                          <td>
+                            <div className="form-group">
+                              {index >= 1 && (
+                                <button
+                                  type="button"
+                                  className="btn btn-sm btn-default mx-1"
+                                  onClick={() => remove(index)}
+                                >
+                                  <i className="fas fa-minus"></i>
+                                </button>
                               )}
-                            <div className="col-sm">
-                              <div className="form-group">
-                                <input
-                                  type="text"
-                                  className="form-control"
-                                  placeholder="Khối Lượng"
-                                  id="KhoiLuong"
-                                  {...register(
-                                    `optionHandling.${index}.KhoiLuong`,
-                                    Validate.KhoiLuong
-                                  )}
-                                />
-                                {errors.optionHandling?.[index]?.KhoiLuong && (
-                                  <span className="text-danger">
-                                    {
-                                      errors.optionHandling?.[index]?.KhoiLuong
-                                        .message
-                                    }
-                                  </span>
-                                )}
-                              </div>
                             </div>
-                            <div className="col-sm">
-                              <div className="form-group">
-                                <input
-                                  type="text"
-                                  className="form-control"
-                                  placeholder="Thể Tích"
-                                  id="TheTich"
-                                  {...register(
-                                    `optionHandling.${index}.TheTich`,
-                                    Validate.TheTich
-                                  )}
-                                />
-                                {errors.optionHandling?.[index]?.TheTich && (
-                                  <span className="text-danger">
-                                    {
-                                      errors.optionHandling?.[index]?.TheTich
-                                        .message
-                                    }
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                            <div className="col-sm">
-                              <div className="form-group">
-                                <input
-                                  type="text"
-                                  className="form-control"
-                                  placeholder="Số Kiện"
-                                  id="SoKien"
-                                  {...register(
-                                    `optionHandling.${index}.SoKien`,
-                                    Validate.SoKien
-                                  )}
-                                />
-                                {errors.optionHandling?.[index]?.SoKien && (
-                                  <span className="text-danger">
-                                    {
-                                      errors.optionHandling?.[index]?.SoKien
-                                        .message
-                                    }
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        </td>
-                        <td>
-                          <div className="form-group">
-                            {index >= 1 && (
-                              <button
-                                type="button"
-                                className="btn btn-sm btn-default mx-1"
-                                onClick={() => remove(index)}
-                              >
-                                <i className="fas fa-minus"></i>
-                              </button>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
+                          </td>
+                        </tr>
+                      ))}
                   </tbody>
                 </table>
               </div>
@@ -1007,12 +1058,12 @@ const UpdateTransport = (props) => {
                       <div className="form-group">
                         {watch("LoaiVanDon") === "xuat" && (
                           <label htmlFor="TGLayTraRong">
-                            Thời Gian Lấy Rỗng(*)
+                            Thời Gian Lấy Rỗng
                           </label>
                         )}
                         {watch("LoaiVanDon") === "nhap" && (
                           <label htmlFor="TGLayTraRong">
-                            Thời Gian Trả Rỗng(*)
+                            Thời Gian Trả Rỗng
                           </label>
                         )}
                         <div className="input-group ">
@@ -1029,9 +1080,9 @@ const UpdateTransport = (props) => {
                                 selected={field.value}
                               />
                             )}
-                            rules={{
-                              required: "không được để trống",
-                            }}
+                            // rules={{
+                            //   required: "không được để trống",
+                            // }}
                           />
                           {errors.TGLayTraRong && (
                             <span className="text-danger">
@@ -1076,7 +1127,7 @@ const UpdateTransport = (props) => {
                       <>
                         <div className="col col-sm">
                           <div className="form-group">
-                            <label htmlFor="TGCoMat">Thời Gian Có Mặt(*)</label>
+                            <label htmlFor="TGCoMat">Thời Gian Có Mặt</label>
                             <div className="input-group ">
                               <Controller
                                 control={control}
@@ -1091,9 +1142,9 @@ const UpdateTransport = (props) => {
                                     selected={field.value}
                                   />
                                 )}
-                                rules={{
-                                  required: "không được để trống",
-                                }}
+                                // rules={{
+                                //   required: "không được để trống",
+                                // }}
                               />
                               {errors.TGCoMat && (
                                 <span className="text-danger">
@@ -1142,7 +1193,7 @@ const UpdateTransport = (props) => {
               <div className="row">
                 <div className="col col-sm">
                   <div className="form-group">
-                    <label htmlFor="TGLayHang">Thời Gian Lấy Hàng(*)</label>
+                    <label htmlFor="TGLayHang">Thời Gian Lấy Hàng</label>
                     <div className="input-group ">
                       <Controller
                         control={control}
@@ -1157,9 +1208,9 @@ const UpdateTransport = (props) => {
                             selected={field.value}
                           />
                         )}
-                        rules={{
-                          required: "không được để trống",
-                        }}
+                        // rules={{
+                        //   required: "không được để trống",
+                        // }}
                       />
                       {errors.TGLayHang && (
                         <span className="text-danger">
@@ -1171,7 +1222,7 @@ const UpdateTransport = (props) => {
                 </div>
                 <div className="col col-sm">
                   <div className="form-group">
-                    <label htmlFor="TGTraHang">Thời Gian Trả Hàng(*)</label>
+                    <label htmlFor="TGTraHang">Thời Gian Trả Hàng</label>
                     <div className="input-group ">
                       <Controller
                         control={control}
@@ -1186,9 +1237,9 @@ const UpdateTransport = (props) => {
                             selected={field.value}
                           />
                         )}
-                        rules={{
-                          required: "không được để trống",
-                        }}
+                        // rules={{
+                        //   required: "không được để trống",
+                        // }}
                       />
                       {errors.TGTraHang && (
                         <span className="text-danger">

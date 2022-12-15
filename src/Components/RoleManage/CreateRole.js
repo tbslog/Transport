@@ -10,9 +10,6 @@ const CreateRole = (props) => {
   const {
     register,
     reset,
-    setValue,
-    control,
-    clearErrors,
     formState: { errors },
     handleSubmit,
   } = useForm({
