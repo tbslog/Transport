@@ -4,19 +4,31 @@ import {
   postData,
   postFile,
   getDataCustom,
+  getFilePost,
 } from "../Common/FuncAxios";
+import { useForm, Controller } from "react-hook-form";
 import DataTable from "react-data-table-component";
 import moment from "moment";
 import { Modal } from "bootstrap";
 import DatePicker from "react-datepicker";
 import UpdateHandling from "./UpdateHandling";
+import Select from "react-select";
 import HandlingImage from "./HandlingImage";
 import ConfirmDialog from "../Common/Dialog/ConfirmDialog";
 import AddSubFeeByHandling from "./AddSubFeeByHandling";
 import ApproveSubFeeByHandling from "./ApproveSubFeeByHandling";
+import { ToastError } from "../Common/FuncToast";
 
 const HandlingPage = (props) => {
   const { dataClick } = props;
+
+  const {
+    control,
+    setValue,
+    formState: { errors },
+  } = useForm({
+    mode: "onChange",
+  });
 
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -39,6 +51,8 @@ const HandlingPage = (props) => {
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [transportId, setTransportId] = useState("");
+  const [listCustomer, setListCustomer] = useState([]);
+  const [listCusSelected, setListCusSelected] = useState([]);
 
   const columns = useMemo(() => [
     {
@@ -178,9 +192,19 @@ const HandlingPage = (props) => {
       selector: (row) => <div className="text-wrap">{row.maPTVC}</div>,
       sortable: true,
     },
+    // {
+    //   name: <div>Cung Đường</div>,
+    //   selector: (row) => <div className="text-wrap">{row.cungDuong}</div>,
+    //   sortable: true,
+    // },
     {
-      name: <div>Cung Đường</div>,
-      selector: (row) => <div className="text-wrap">{row.cungDuong}</div>,
+      name: <div>Điểm Lấy Hàng</div>,
+      selector: (row) => <div className="text-wrap">{row.diemLayHang}</div>,
+      sortable: true,
+    },
+    {
+      name: <div>Điểm Trả Hàng</div>,
+      selector: (row) => <div className="text-wrap">{row.diemTraHang}</div>,
       sortable: true,
     },
     {
@@ -196,6 +220,11 @@ const HandlingPage = (props) => {
     {
       name: <div>Mã CONT</div>,
       selector: (row) => <div className="text-wrap">{row.contNo}</div>,
+      sortable: true,
+    },
+    {
+      name: <div>Hãng Tàu</div>,
+      selector: (row) => <div className="text-wrap">{row.hangTau}</div>,
       sortable: true,
     },
     // {
@@ -218,13 +247,13 @@ const HandlingPage = (props) => {
       selector: (row) => row.theTich,
       sortable: true,
     },
+    // {
+    //   name: <div>Số Kiện</div>,
+    //   selector: (row) => row.soKien,
+    //   sortable: true,
+    // },
     {
-      name: <div>Số Kiện</div>,
-      selector: (row) => row.soKien,
-      sortable: true,
-    },
-    {
-      name: "Trạng Thái",
+      name: <div>Trạng Thái</div>,
       selector: (row) => <div className="text-wrap">{row.trangThai}</div>,
       sortable: true,
     },
@@ -241,6 +270,7 @@ const HandlingPage = (props) => {
         </div>
       ),
       sortable: true,
+      grow: 2,
     },
   ]);
 
@@ -254,6 +284,22 @@ const HandlingPage = (props) => {
   useEffect(() => {
     setLoading(true);
     (async () => {
+      let getListCustomer = await getData(
+        `Customer/GetListCustomerOptionSelect`
+      );
+      if (getListCustomer && getListCustomer.length > 0) {
+        let arrKh = [];
+        getListCustomer
+          .filter((x) => x.loaiKH === "KH")
+          .map((val) => {
+            arrKh.push({
+              label: val.tenKh,
+              value: val.maKh,
+            });
+          });
+        setListCustomer(arrKh);
+      }
+
       let getStatusList = await getDataCustom(`Common/GetListStatus`, [
         "Handling",
       ]);
@@ -339,7 +385,8 @@ const HandlingPage = (props) => {
     KeyWord = "",
     fromDate = "",
     toDate = "",
-    status = ""
+    status = "",
+    listCusSelected = []
   ) => {
     setLoading(true);
 
@@ -348,8 +395,9 @@ const HandlingPage = (props) => {
     }
     fromDate = fromDate === "" ? "" : moment(fromDate).format("YYYY-MM-DD");
     toDate = toDate === "" ? "" : moment(toDate).format("YYYY-MM-DD");
-    const dataCus = await getData(
-      `BillOfLading/GetListHandling?transportId=${transportId}&PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}&fromDate=${fromDate}&toDate=${toDate}&statusId=${status}`
+    const dataCus = await getDataCustom(
+      `BillOfLading/GetListHandling?transportId=${transportId}&PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}&fromDate=${fromDate}&toDate=${toDate}&statusId=${status}`,
+      listCusSelected
     );
 
     setData(dataCus.data);
@@ -359,14 +407,23 @@ const HandlingPage = (props) => {
 
   const handlePageChange = async (page) => {
     setPage(page);
-    fetchData(transportId, page, keySearch, fromDate, toDate, status);
+    fetchData(
+      transportId,
+      page,
+      keySearch,
+      fromDate,
+      toDate,
+      status,
+      listCusSelected
+    );
   };
 
   const handlePerRowsChange = async (newPerPage, page) => {
     setLoading(true);
 
-    const dataCus = await getData(
-      `BillOfLading/GetListHandling?transportId=${transportId}&PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}&fromDate=${fromDate}&toDate=${toDate}&statusId=${status}`
+    const dataCus = await getDataCustom(
+      `BillOfLading/GetListHandling?transportId=${transportId}&PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}&fromDate=${fromDate}&toDate=${toDate}&statusId=${status}`,
+      listCusSelected
     );
     setPerPage(newPerPage);
     setData(dataCus.data);
@@ -412,7 +469,15 @@ const HandlingPage = (props) => {
       );
 
       if (update === 1) {
-        fetchData(transportId, page, keySearch, fromDate, toDate, status);
+        fetchData(
+          transportId,
+          page,
+          keySearch,
+          fromDate,
+          toDate,
+          status,
+          listCusSelected
+        );
         setShowConfirm(false);
       } else {
         setShowConfirm(false);
@@ -431,7 +496,15 @@ const HandlingPage = (props) => {
       );
 
       if (update === 1) {
-        fetchData(transportId, page, keySearch, fromDate, toDate, status);
+        fetchData(
+          transportId,
+          page,
+          keySearch,
+          fromDate,
+          toDate,
+          status,
+          listCusSelected
+        );
         setShowConfirm(false);
       } else {
         setShowConfirm(false);
@@ -465,7 +538,15 @@ const HandlingPage = (props) => {
       );
 
       if (update === 1) {
-        fetchData(transportId, page, keySearch, fromDate, toDate, status);
+        fetchData(
+          transportId,
+          page,
+          keySearch,
+          fromDate,
+          toDate,
+          status,
+          listCusSelected
+        );
         setShowConfirm(false);
       } else {
         setShowConfirm(false);
@@ -484,7 +565,15 @@ const HandlingPage = (props) => {
       );
 
       if (update === 1) {
-        fetchData(transportId, page, keySearch, fromDate, toDate, status);
+        fetchData(
+          transportId,
+          page,
+          keySearch,
+          fromDate,
+          toDate,
+          status,
+          listCusSelected
+        );
         setShowConfirm(false);
       } else {
         setShowConfirm(false);
@@ -498,24 +587,50 @@ const HandlingPage = (props) => {
   };
 
   const handleSearchClick = () => {
-    fetchData(transportId, page, keySearch, fromDate, toDate, status);
+    fetchData(
+      transportId,
+      page,
+      keySearch,
+      fromDate,
+      toDate,
+      status,
+      listCusSelected
+    );
   };
 
   const handleOnChangeStatus = (value) => {
     setStatus(value);
-    fetchData(transportId, page, keySearch, fromDate, toDate, value);
+    fetchData(
+      transportId,
+      page,
+      keySearch,
+      fromDate,
+      toDate,
+      value,
+      listCusSelected
+    );
   };
 
   const handleRefeshDataClick = () => {
     setKeySearch("");
     setFromDate("");
     setToDate("");
+    setListCusSelected([]);
+    setValue("listCustomers", []);
     setPerPage(10);
     fetchData("", 1);
   };
 
   const refeshData = () => {
-    fetchData(transportId, page, keySearch, fromDate, toDate, status);
+    fetchData(
+      transportId,
+      page,
+      keySearch,
+      fromDate,
+      toDate,
+      status,
+      listCusSelected
+    );
   };
 
   const showModalForm = () => {
@@ -529,6 +644,70 @@ const HandlingPage = (props) => {
 
   const hideModal = () => {
     modal.hide();
+  };
+
+  const handleExportExcel = async () => {
+    if (!fromDate || !toDate) {
+      ToastError("Vui lòng chọn mốc thời gian");
+      return;
+    }
+
+    setLoading(true);
+
+    let startDate = moment(fromDate).format("YYYY-MM-DD");
+    let endDate = moment(toDate).format("YYYY-MM-DD");
+
+    const getFileDownLoad = await getFilePost(
+      `BillOfLading/ExportExcelHandLing?KeyWord=${keySearch}&fromDate=${startDate}&toDate=${endDate}&statusId=${status}`,
+      listCusSelected,
+      "DieuPhoi" + moment(new Date()).format("DD/MM/YYYY HHmmss")
+    );
+    setLoading(false);
+  };
+
+  const handleOnChangeCustomer = async (values) => {
+    if (values && values.length > 0) {
+      setLoading(true);
+      let arrCus = [];
+      values.map((val) => {
+        arrCus.push(val.value);
+      });
+
+      fetchData(transportId, page, keySearch, fromDate, toDate, status, arrCus);
+      setLoading(false);
+    } else {
+      setListCusSelected([]);
+      fetchData(transportId, page, keySearch, fromDate, toDate, status, []);
+    }
+  };
+
+  const customStyles = {
+    control: (provided, state) => ({
+      ...provided,
+      background: "#fff",
+      borderColor: "#9e9e9e",
+      minHeight: "30px",
+      height: "30px",
+      boxShadow: state.isFocused ? null : null,
+    }),
+
+    valueContainer: (provided, state) => ({
+      ...provided,
+      height: "30px",
+      padding: "0 6px",
+    }),
+
+    input: (provided, state) => ({
+      ...provided,
+      margin: "0px",
+    }),
+    indicatorSeparator: (state) => ({
+      display: "none",
+    }),
+    indicatorsContainer: (provided, state) => ({
+      ...provided,
+      height: "30px",
+    }),
   };
 
   return (
@@ -572,8 +751,28 @@ const HandlingPage = (props) => {
                   </button>
                 </div>
                 <div className="col col-sm">
+                  <div className="form-group">
+                    <Controller
+                      name="listCustomers"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          className="basic-multi-select"
+                          classNamePrefix={"form-control"}
+                          isMulti
+                          value={field.value}
+                          options={listCustomer}
+                          styles={customStyles}
+                          onChange={(field) => handleOnChangeCustomer(field)}
+                          placeholder="Chọn Khách Hàng"
+                        />
+                      )}
+                    />
+                  </div>
+                </div>
+                <div className="col col-sm">
                   <div className="row">
-                    <div className="col col-sm"></div>
                     <div className="col col-sm">
                       <div className="input-group input-group-sm">
                         <select
@@ -672,7 +871,31 @@ const HandlingPage = (props) => {
               />
             </div>
           </div>
-          <div className="card-footer"></div>
+          <div className="card-footer">
+            <div className="row">
+              <div className="col-sm-3">
+                <button
+                  // href={FileExcelImport}
+                  onClick={() => handleExportExcel()}
+                  className="btn btn-title btn-sm btn-default mx-1"
+                  gloss="Tải File Excel"
+                  type="button"
+                >
+                  <i className="fas fa-file-excel"></i>
+                </button>
+                {/* <div className="upload-btn-wrapper">
+                  <button className="btn btn-sm btn-default mx-1">
+                    <i className="fas fa-upload"></i>
+                  </button>
+                  <input
+                    type="file"
+                    name="myfile"
+                    // onChange={(e) => handleExcelImportClick(e)}
+                  />
+                </div> */}
+              </div>
+            </div>
+          </div>
         </div>
         <div>
           {ShowConfirm === true && (

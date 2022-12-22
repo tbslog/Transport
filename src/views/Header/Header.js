@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 import { Modal } from "bootstrap";
-import { useMemo, useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import { getData } from "../../Components/Common/FuncAxios.js";
 import UserInfor from "../../Components/UserManage/UserInfor.js";
 

@@ -123,6 +123,27 @@ const getFile = async (url, fileName) => {
     });
 };
 
+const getFilePost = async (url, data, fileName) => {
+  axios
+    .post(Host + url, data, {
+      responseType: "arraybuffer",
+    })
+    .then((response) => {
+      let blob = new Blob([response.data], {
+          type: `${response.headers["content-type"]}`,
+        }),
+        url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `${fileName}`);
+      document.body.appendChild(link);
+      link.click();
+    })
+    .catch((error) => {
+      ToastError(`${error.response.data}`);
+    });
+};
+
 const getFileImage = async (url) => {
   let src = "";
   await axios
@@ -226,5 +247,6 @@ export {
   getFile,
   getDataCustom,
   getFileImage,
+  getFilePost,
   postLogin,
 };

@@ -74,21 +74,10 @@ const CreateTransportLess = (props) => {
     LoaiHangHoa: {
       required: "Không được để trống",
     },
-    TongThungHang: {
+    MaVDKH: {
       required: "Không được để trống",
-      pattern: {
-        value:
-          /^(?:0\.(?:0[0-9]|[0-9]\d?)|[0-9]\d*(?:\.\d{1,2})?)(?:e[+-]?\d+)?$/,
-        message: "Phải là số",
-      },
-      validate: (value) => {
-        if (parseInt(value) < 1) {
-          return "Không được nhỏ hơn 1";
-        }
-      },
     },
     TongKhoiLuong: {
-      required: "Không được để trống",
       pattern: {
         value:
           /^(?:0\.(?:0[0-9]|[0-9]\d?)|[0-9]\d*(?:\.\d{1,2})?)(?:e[+-]?\d+)?$/,
@@ -96,7 +85,6 @@ const CreateTransportLess = (props) => {
       },
     },
     TongTheTich: {
-      required: "Không được để trống",
       pattern: {
         value:
           /^(?:0\.(?:0[0-9]|[0-9]\d?)|[0-9]\d*(?:\.\d{1,2})?)(?:e[+-]?\d+)?$/,
@@ -104,7 +92,6 @@ const CreateTransportLess = (props) => {
       },
     },
     TongSoKien: {
-      required: "Không được để trống",
       pattern: {
         value:
           /^(?:0\.(?:0[0-9]|[0-9]\d?)|[0-9]\d*(?:\.\d{1,2})?)(?:e[+-]?\d+)?$/,
@@ -112,7 +99,6 @@ const CreateTransportLess = (props) => {
       },
     },
     KhoiLuong: {
-      required: "Không được để trống",
       pattern: {
         value:
           /^(?:0\.(?:0[0-9]|[0-9]\d?)|[0-9]\d*(?:\.\d{1,2})?)(?:e[+-]?\d+)?$/,
@@ -120,7 +106,6 @@ const CreateTransportLess = (props) => {
       },
     },
     TheTich: {
-      required: "Không được để trống",
       pattern: {
         value:
           /^(?:0\.(?:0[0-9]|[0-9]\d?)|[0-9]\d*(?:\.\d{1,2})?)(?:e[+-]?\d+)?$/,
@@ -128,7 +113,6 @@ const CreateTransportLess = (props) => {
       },
     },
     SoKien: {
-      required: "Không được để trống",
       pattern: {
         value:
           /^(?:0\.(?:0[0-9]|[0-9]\d?)|[0-9]\d*(?:\.\d{1,2})?)(?:e[+-]?\d+)?$/,
@@ -294,17 +278,21 @@ const CreateTransportLess = (props) => {
       MaVanDonKH: data.MaVDKH,
       MaCungDuong: data.MaCungDuong.value,
       LoaiVanDon: data.LoaiVanDon,
-      TongKhoiLuong: data.TongKhoiLuong,
-      TongTheTich: data.TongTheTich,
-      TongSoKien: data.TongSoKien,
+      TongKhoiLuong: !data.TongKhoiLuong ? null : data.TongKhoiLuong,
+      TongTheTich: !data.TongTheTich ? null : data.TongTheTich,
+      TongSoKien: !data.TongSoKien ? null : data.TongSoKien,
       MaKH: data.MaKH.value,
       GhiChu: data.GhiChu,
-      thoiGianLayHang: moment(new Date(data.TGLayHang).toISOString()).format(
-        "yyyy-MM-DDTHH:mm:ss.SSS"
-      ),
-      thoiGianTraHang: moment(new Date(data.TGTraHang).toISOString()).format(
-        "yyyy-MM-DDTHH:mm:ss.SSS"
-      ),
+      thoiGianLayHang: !data.TGLayHang
+        ? null
+        : moment(new Date(data.TGLayHang).toISOString()).format(
+            "yyyy-MM-DDTHH:mm:ss.SSS"
+          ),
+      thoiGianTraHang: !data.TGTraHang
+        ? null
+        : moment(new Date(data.TGTraHang).toISOString()).format(
+            "yyyy-MM-DDTHH:mm:ss.SSS"
+          ),
     });
 
     if (create === 1) {
@@ -560,7 +548,7 @@ const CreateTransportLess = (props) => {
                 <div className="col col-sm">
                   <div className="form-group">
                     <label htmlFor="TongKhoiLuong">
-                      Tổng Khối Lượng (Đơn Vị Tấn)(*)
+                      Tổng Khối Lượng (Đơn Vị Tấn)
                     </label>
                     <input
                       autoComplete="false"
@@ -579,7 +567,7 @@ const CreateTransportLess = (props) => {
                 <div className="col col-sm">
                   <div className="form-group">
                     <label htmlFor="TongTheTich">
-                      Tổng Thể Tích (Đơn Vị m3)(*)
+                      Tổng Thể Tích (Đơn Vị m3)
                     </label>
                     <input
                       autoComplete="false"
@@ -598,7 +586,7 @@ const CreateTransportLess = (props) => {
                 <div className="col col-sm">
                   <div className="form-group">
                     <label htmlFor="TongSoKien">
-                      Tổng Số Kiện (Đơn Vị PCS)(*)
+                      Tổng Số Kiện (Đơn Vị PCS)
                     </label>
                     <input
                       autoComplete="false"
@@ -619,7 +607,7 @@ const CreateTransportLess = (props) => {
               <div className="row">
                 <div className="col col-sm">
                   <div className="form-group">
-                    <label htmlFor="TGLayHang">Thời Gian Lấy Hàng(*)</label>
+                    <label htmlFor="TGLayHang">Thời Gian Lấy Hàng</label>
                     <div className="input-group ">
                       <Controller
                         control={control}
@@ -634,9 +622,6 @@ const CreateTransportLess = (props) => {
                             selected={field.value}
                           />
                         )}
-                        rules={{
-                          required: "không được để trống",
-                        }}
                       />
                       {errors.TGLayHang && (
                         <span className="text-danger">
@@ -648,7 +633,7 @@ const CreateTransportLess = (props) => {
                 </div>
                 <div className="col col-sm">
                   <div className="form-group">
-                    <label htmlFor="TGTraHang">Thời Gian Trả Hàng(*)</label>
+                    <label htmlFor="TGTraHang">Thời Gian Trả Hàng</label>
                     <div className="input-group ">
                       <Controller
                         control={control}
@@ -663,9 +648,6 @@ const CreateTransportLess = (props) => {
                             selected={field.value}
                           />
                         )}
-                        rules={{
-                          required: "không được để trống",
-                        }}
                       />
                       {errors.TGTraHang && (
                         <span className="text-danger">

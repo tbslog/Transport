@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect, useCallback, useRef } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import { getData, getDataCustom } from "../Common/FuncAxios";
 import DataTable from "react-data-table-component";
 import moment from "moment";
@@ -20,7 +20,6 @@ const TransportPage = () => {
   const [modal, setModal] = useState(null);
   const parseExceptionModal = useRef();
 
-  const [selectedRows, setSelectedRows] = useState([]);
   const [selectIdClick, setSelectIdClick] = useState({});
 
   const [fromDate, setFromDate] = useState("");
@@ -268,10 +267,6 @@ const TransportPage = () => {
     setLoading(false);
   };
 
-  const handleChange = useCallback((state) => {
-    setSelectedRows(state.selectedRows);
-  }, []);
-
   const handleEditButtonClick = async (value) => {
     let getTransportById = await getData(
       `BillOfLading/GetTransportById?transportId=${value.maVanDon}`
@@ -442,7 +437,6 @@ const TransportPage = () => {
                 paginationServer
                 paginationTotalRows={totalRows}
                 paginationRowsPerPageOptions={[10, 30, 50, 100]}
-                onSelectedRowsChange={handleChange}
                 onChangeRowsPerPage={handlePerRowsChange}
                 onChangePage={handlePageChange}
                 highlightOnHover

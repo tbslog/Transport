@@ -158,7 +158,7 @@ const DetailBillByTransport = (props) => {
                             <tbody>
                               <tr>
                                 <th scope="row"></th>
-                                <td>{val.maVanDon}</td>
+                                <td>{val.maVanDonKH}</td>
                                 <td>{val.loaiVanDon}</td>
                                 <td>{val.tenCungDuong}</td>
                                 <td>{val.tongKhoiLuong}</td>

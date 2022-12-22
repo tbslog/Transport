@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect, useCallback, useRef } from "react";
-import { getData, postFile, getDataCustom } from "../Common/FuncAxios";
+import { getData, postFile, getDataCustom, getFile } from "../Common/FuncAxios";
 import DataTable from "react-data-table-component";
 import moment from "moment";
 import { Modal } from "bootstrap";
@@ -46,25 +46,36 @@ const BillPage = () => {
       button: true,
     },
     {
-      name: "Mã Chuyến",
+      name: <div>Mã Chuyến</div>,
       selector: (row) => row.maChuyen,
     },
     {
-      name: "Mã Vận Đơn",
       selector: (row) => row.maVanDon,
+      omit: true,
     },
     {
-      name: "Loại Hàng Hóa",
-      selector: (row) => row.loaiHangHoa,
+      name: <div>Mã Vận Đơn</div>,
+      selector: (row) => <div className="text-wrap">{row.maVanDonKH}</div>,
+    },
+    {
+      name: <div>Loại Vận Đơn</div>,
+      selector: (row) => <div className="text-wrap">{row.loaiVanDon}</div>,
+    },
+    {
+      name: <div>Loại Hàng Hóa</div>,
+      selector: (row) => <div className="text-wrap">{row.loaiHangHoa}</div>,
     },
     {
       name: <div>Loại Phương Tiện</div>,
-      selector: (row) => row.loaiPhuongTien,
+      selector: (row) => <div className="text-wrap">{row.loaiPhuongTien}</div>,
     },
-
+    {
+      name: <div>PTVC</div>,
+      selector: (row) => <div className="text-wrap">{row.maPTVC}</div>,
+    },
     {
       name: <div>Mã Khách Hàng</div>,
-      selector: (row) => row.maKh,
+      selector: (row) => <div className="text-wrap">{row.maKh}</div>,
       omit: true,
     },
     {
@@ -98,7 +109,7 @@ const BillPage = () => {
       ),
     },
     {
-      name: "Doanh Thu",
+      name: <div>Doanh Thu</div>,
       selector: (row) => (
         <div className="text-wrap">
           {row.doanhThu.toLocaleString("vi-VI", {
@@ -109,7 +120,7 @@ const BillPage = () => {
       ),
     },
     {
-      name: "Lợi Nhuận",
+      name: <div>Lợi Nhuận</div>,
       selector: (row) => (
         <div className="text-wrap">
           {row.loiNhuan.toLocaleString("vi-VI", {
@@ -120,7 +131,7 @@ const BillPage = () => {
       ),
     },
     {
-      name: "Phụ Phí HĐ",
+      name: <div>Phụ Phí HĐ</div>,
       selector: (row) => (
         <div className="text-wrap">
           {row.chiPhiHopDong.toLocaleString("vi-VI", {
@@ -212,7 +223,7 @@ const BillPage = () => {
   // };
 
   const handleSearchClick = () => {
-    fetchData(1);
+    fetchData(page, keySearch, fromDate, toDate);
   };
 
   const handleRefeshDataClick = () => {
@@ -220,6 +231,23 @@ const BillPage = () => {
     setFromDate("");
     setToDate("");
     setData([]);
+  };
+
+  const handleExportExcel = async () => {
+    if (!fromDate || !toDate) {
+      ToastError("Vui lòng chọn mốc thời gian");
+      return;
+    }
+
+    setLoading(true);
+
+    let startDate = moment(fromDate).format("YYYY-MM-DD");
+    let endDate = moment(toDate).format("YYYY-MM-DD");
+    const getFileDownLoad = await getFile(
+      `Bills/ExportExcelBill?KeyWord=${keySearch}&fromDate=${startDate}&toDate=${endDate}`,
+      "HoaDon" + moment(new Date()).format("DD/MM/YYYY HHmmss")
+    );
+    setLoading(false);
   };
 
   return (
@@ -366,7 +394,31 @@ const BillPage = () => {
               />
             </div>
           </div>
-          <div className="card-footer"></div>
+          <div className="card-footer">
+            <div className="row">
+              <div className="col-sm-3">
+                <button
+                  // href={FileExcelImport}
+                  onClick={() => handleExportExcel()}
+                  className="btn btn-title btn-sm btn-default mx-1"
+                  gloss="Tải File Excel"
+                  type="button"
+                >
+                  <i className="fas fa-file-excel"></i>
+                </button>
+                {/* <div className="upload-btn-wrapper">
+                  <button className="btn btn-sm btn-default mx-1">
+                    <i className="fas fa-upload"></i>
+                  </button>
+                  <input
+                    type="file"
+                    name="myfile"
+                    // onChange={(e) => handleExcelImportClick(e)}
+                  />
+                </div> */}
+              </div>
+            </div>
+          </div>
         </div>
         <div
           className="modal fade"

@@ -247,6 +247,8 @@ const UpdateTransport = (props) => {
       );
 
       if (selectIdClick.loaiVanDon === "xuat") {
+        setValue("HangTau", selectIdClick.hangTau);
+        setValue("TenTau", selectIdClick.tenTau);
         setValue(
           "TGHaCang",
           !selectIdClick.thoiGianHaCang
@@ -803,7 +805,23 @@ const UpdateTransport = (props) => {
                   <thead>
                     <tr>
                       <th style={{ width: "40px" }}></th>
-                      <th></th>
+                      <th>
+                        <div className="row">
+                          <div className="col-sm">Đơn Vị Vận Tải(*)</div>
+                          <div className="col-sm-2">Loại Hàng Hóa(*)</div>
+                          <div className="col-sm-2">Loại Phương Tiện(*)</div>
+                          {watch(`optionHandling`) &&
+                            watch(`optionHandling`).length > 0 &&
+                            watch(`optionHandling`).filter((x) =>
+                              x.PTVanChuyen.includes("CONT")
+                            ).length > 0 && (
+                              <div className="col-sm-2">Điểm Lấy Rỗng(*)</div>
+                            )}
+                          <div className="col-sm-1">Khối Lượng</div>
+                          <div className="col-sm-1">Thể Tích</div>
+                          <div className="col-sm-1">Số Kiện</div>
+                        </div>
+                      </th>
                       <th style={{ width: "40px" }}>
                         <button
                           className="form-control form-control-sm"
@@ -856,7 +874,7 @@ const UpdateTransport = (props) => {
                                   )}
                                 </div>
                               </div>
-                              <div className="col-sm">
+                              <div className="col-sm-2">
                                 <div className="form-group">
                                   <select
                                     className="form-control"
@@ -889,7 +907,7 @@ const UpdateTransport = (props) => {
                                   )}
                                 </div>
                               </div>
-                              <div className="col-sm">
+                              <div className="col-sm-2">
                                 <div className="form-group">
                                   <select
                                     className="form-control"
@@ -926,7 +944,7 @@ const UpdateTransport = (props) => {
                                 watch(
                                   `optionHandling.${index}.PTVanChuyen`
                                 ).includes("CONT") && (
-                                  <div className="col col-sm">
+                                  <div className="col-sm-2">
                                     <div className="form-group">
                                       <Controller
                                         name={`optionHandling.${index}.DiemLayTraRong`}
@@ -960,7 +978,7 @@ const UpdateTransport = (props) => {
                                     </div>
                                   </div>
                                 )}
-                              <div className="col-sm">
+                              <div className="col-sm-1">
                                 <div className="form-group">
                                   <input
                                     type="text"
@@ -983,7 +1001,7 @@ const UpdateTransport = (props) => {
                                   )}
                                 </div>
                               </div>
-                              <div className="col-sm">
+                              <div className="col-sm-1">
                                 <div className="form-group">
                                   <input
                                     type="text"
@@ -1005,7 +1023,7 @@ const UpdateTransport = (props) => {
                                   )}
                                 </div>
                               </div>
-                              <div className="col-sm">
+                              <div className="col-sm-1">
                                 <div className="form-group">
                                   <input
                                     type="text"

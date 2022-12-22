@@ -1,6 +1,4 @@
 import { Modal } from "bootstrap";
-import SplitPane, { Pane, SashContent } from "split-pane-react";
-import "split-pane-react/esm/themes/default.css";
 import ConfirmDialog from "../Common/Dialog/ConfirmDialog";
 import DatePicker from "react-datepicker";
 import moment from "moment";
@@ -11,22 +9,10 @@ import CreateTransportLess from "./CreateTransportLess";
 import UpdateTransport from "./UpdateTransport";
 import AddSubFeeByHandling from "./AddSubFeeByHandling";
 import ApproveSubFeeByHandling from "./ApproveSubFeeByHandling";
-
-function style(color) {
-  return {
-    height: "100%",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: color,
-  };
-}
+import JoinTransports from "./JoinTransports";
+import { ToastError } from "../Common/FuncToast";
 
 const HandlingPageNew = () => {
-  const [sizes, setSizes] = useState([100, 100]);
-  const [sizesH, setSizesH] = useState([100, 100]);
-  const [sizesV, setSizesV] = useState([100, 100]);
-
   const TransportColumns = useMemo(() => [
     {
       cell: (val) => (
@@ -47,11 +33,15 @@ const HandlingPageNew = () => {
     },
     {
       name: <div>Mã Vận Đơn</div>,
-      selector: (row) => <div className="text-wrap">{row.maVanDon}</div>,
+      selector: (row) => <div className="text-wrap">{row.maVanDonKH}</div>,
     },
     {
       name: <div>Loại Vận Đơn</div>,
       selector: (row) => <div className="text-wrap">{row.loaiVanDon}</div>,
+    },
+    {
+      name: <div>PTVC</div>,
+      selector: (row) => <div className="text-wrap">{row.maPTVC}</div>,
     },
     {
       name: <div>Khách Hàng</div>,
@@ -64,8 +54,13 @@ const HandlingPageNew = () => {
       omit: true,
     },
     {
-      name: <div>Tên Cung Đường</div>,
-      selector: (row) => <div className="text-wrap">{row.tenCungDuong}</div>,
+      name: <div>Điểm Đầu</div>,
+      selector: (row) => <div className="text-wrap">{row.diemLayHang}</div>,
+      sortable: true,
+    },
+    {
+      name: <div>Điểm Cuối</div>,
+      selector: (row) => <div className="text-wrap">{row.diemTraHang}</div>,
       sortable: true,
     },
     {
@@ -154,7 +149,6 @@ const HandlingPageNew = () => {
 
   const [loading, setLoading] = useState(false);
   const [ShowConfirm, setShowConfirm] = useState(false);
-  const [funcName, setFuncName] = useState("");
 
   const [ShowModal, SetShowModal] = useState("");
   const [modal, setModal] = useState(null);
@@ -163,7 +157,6 @@ const HandlingPageNew = () => {
   const [dataTransport, setDataTransport] = useState([]);
   const [selectIdClickTransport, setSelectIdClickTransport] = useState({});
   const [totalRowsTransport, setTotalRowsTransport] = useState(0);
-  const [selectedRowsTransport, setSelectedRowsTransport] = useState([]);
   const [perPageTransport, setPerPageTransport] = useState(10);
   const [pageTransport, setPageTransport] = useState(1);
   const [keySearchTransport, setKeySearchTransport] = useState("");
@@ -171,10 +164,10 @@ const HandlingPageNew = () => {
   const [statusTransport, setStatusTransport] = useState("");
   const [fromDateTransport, setFromDateTransport] = useState("");
   const [toDateTransport, setToDateTransport] = useState("");
-  const [toggledClearRowsTransport, setToggleClearRowsTransport] =
-    useState(false);
 
-  console.log(selectedRowsTransport);
+  const [selectedRows, setSelectedRows] = useState([]);
+  const [toggledClearRows, setToggleClearRows] = useState(false);
+  const [itemSelected, setItemSelected] = useState([]);
 
   const showModalForm = () => {
     const modal = new Modal(parseExceptionModal.current, {
@@ -237,10 +230,6 @@ const HandlingPageNew = () => {
     setLoading(false);
   };
 
-  const handleChangeTransport = useCallback((state) => {
-    setSelectedRowsTransport(state.selectedRows);
-  }, []);
-
   const handleEditButtonClickTransport = async (value) => {
     let getTransportById = await getData(
       `BillOfLading/GetTransportById?transportId=${value.maVanDon}`
@@ -277,13 +266,22 @@ const HandlingPageNew = () => {
     fetchDataTransport(1);
   };
 
-  const handleClearRowsTransport = () => {
-    setToggleClearRowsTransport(!toggledClearRowsTransport);
+  const handleChange = (state) => {
+    setSelectedRows(state.selectedRows);
   };
 
-  const funcAgree = () => {
-    if (selectedRowsTransport && selectIdClickTransport.length > 0) {
-      handleClearRowsTransport();
+  const handleClearRows = () => {
+    setToggleClearRows(!toggledClearRows);
+  };
+
+  const handleOnClickMargeTransport = () => {
+    if (selectedRows && selectedRows.length > 1) {
+      setItemSelected(selectedRows);
+      showModalForm(SetShowModal("MargeTransport"));
+    } else {
+      setItemSelected([]);
+      ToastError("Vui lòng chọn nhiều hơn 1 vận đơn để gộp");
+      return;
     }
   };
 
@@ -298,289 +296,219 @@ const HandlingPageNew = () => {
           </div>
         </div>
       </section>
-
-      <section className="content">
-        <div className="card">
-          <div className="card-body">
-            <div className="demo-wrap">
-              <div style={{ height: "77vh" }}>
-                <SplitPane
-                  sizes={sizes}
-                  onChange={setSizes}
-                  resizerSize={8}
-                  sashRender={() => (
-                    <SashContent
-                      style={{ backgroundColor: "rgba(0,0,0,.2)" }}
-                    />
-                  )}
+      <div className="card card-default">
+        <div className="card-header">
+          <div className="container-fruid">
+            <div className="row">
+              <button
+                type="button"
+                className="btn btn-title btn-sm btn-default mx-1"
+                gloss="Tạo Vận Đơn LCL/LTL "
+                onClick={() => showModalForm(SetShowModal("CreateLCL/LTL"))}
+              >
+                <i className="fas fa-plus-circle"></i>
+              </button>
+              <div className="col col-sm">
+                <button
+                  className="btn btn-title btn-sm btn-default mx-1"
+                  gloss="Duyệt Phụ Phí"
+                  type="button"
+                  onClick={() =>
+                    showModalForm(
+                      SetShowModal("ApproveSubFee"),
+                      setSelectIdClickTransport({})
+                    )
+                  }
                 >
-                  <Pane minSize="20%" maxSize="70%">
-                    <div style={{ height: "100%" }}>
-                      <SplitPane
-                        split="horizontal"
-                        sizes={sizesH}
-                        onChange={setSizesH}
-                        sashRender={() => (
-                          <SashContent
-                            style={{ backgroundColor: "rgba(0,0,0,.2)" }}
-                          />
-                        )}
+                  <i className="fas fa-check-double"></i>
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-title btn-sm btn-default mx-1"
+                  gloss="Gộp Chuyến "
+                  onClick={() => handleOnClickMargeTransport()}
+                >
+                  <i className="fas fa-layer-group"></i>
+                </button>
+              </div>
+              <div className="col col-sm">
+                <div className="row">
+                  <div className="col col-sm"></div>
+                  <div className="col col-sm">
+                    <div className="input-group input-group-sm">
+                      <select
+                        className="form-control form-control-sm"
+                        onChange={(e) => handleOnChangeStatus(e.target.value)}
+                        value={statusTransport}
                       >
-                        <Pane minSize="20%" maxSize="70%">
-                          <div style={style("#fff")}>Bản Đồ</div>
-                        </Pane>
-                        <Pane>
-                          <div style={{ height: "100%" }}>
-                            <SplitPane
-                              sizes={sizesV}
-                              onChange={setSizesV}
-                              sashRender={() => (
-                                <SashContent
-                                  style={{ backgroundColor: "rgba(0,0,0,.2)" }}
-                                />
-                              )}
-                            >
-                              <Pane minSize="20%" maxSize="70%">
-                                <div style={style("#fff")}>Tài Xế</div>
-                              </Pane>
-                              <Pane>
-                                <div style={style("#fff")}>Xe Vận Chuyển</div>
-                              </Pane>
-                            </SplitPane>
-                          </div>
-                        </Pane>
-                      </SplitPane>
+                        <option value="">Tất Cả Trạng Thái</option>
+                        {listStatusTransport &&
+                          listStatusTransport.map((val) => {
+                            return (
+                              <option value={val.statusId} key={val.statusId}>
+                                {val.statusContent}
+                              </option>
+                            );
+                          })}
+                      </select>
                     </div>
-                  </Pane>
-                  <Pane>
-                    <div style={style("#fff")}>
-                      <div className="card card-default">
-                        <div className="card-header">
-                          <div className="container-fruid">
-                            <div className="row">
-                              <button
-                                type="button"
-                                className="btn btn-title btn-sm btn-default mx-1"
-                                gloss="Tạo Vận Đơn LCL/LTL "
-                                onClick={() =>
-                                  showModalForm(SetShowModal("CreateLCL/LTL"))
-                                }
-                              >
-                                <i className="fas fa-plus-circle"></i>
-                              </button>
-                              <div className="col col-sm">
-                                <button
-                                  className="btn btn-title btn-sm btn-default mx-1"
-                                  gloss="Duyệt Phụ Phí"
-                                  type="button"
-                                  onClick={() =>
-                                    showModalForm(
-                                      SetShowModal("ApproveSubFee"),
-                                      setSelectIdClickTransport({})
-                                    )
-                                  }
-                                >
-                                  <i className="fas fa-check-double"></i>
-                                </button>
-                              </div>
-                              <div className="col col-sm">
-                                <div className="row">
-                                  <div className="col col-sm"></div>
-                                  <div className="col col-sm">
-                                    <div className="input-group input-group-sm">
-                                      <select
-                                        className="form-control form-control-sm"
-                                        onChange={(e) =>
-                                          handleOnChangeStatus(e.target.value)
-                                        }
-                                        value={statusTransport}
-                                      >
-                                        <option value="">
-                                          Tất Cả Trạng Thái
-                                        </option>
-                                        {listStatusTransport &&
-                                          listStatusTransport.map((val) => {
-                                            return (
-                                              <option
-                                                value={val.statusId}
-                                                key={val.statusId}
-                                              >
-                                                {val.statusContent}
-                                              </option>
-                                            );
-                                          })}
-                                      </select>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                              <div className="col col-sm">
-                                <div className="row">
-                                  <div className="col col-sm">
-                                    <div className="input-group input-group-sm">
-                                      <DatePicker
-                                        selected={fromDateTransport}
-                                        onChange={(date) =>
-                                          setFromDateTransport(date)
-                                        }
-                                        dateFormat="dd/MM/yyyy"
-                                        className="form-control form-control-sm"
-                                        placeholderText="Từ ngày"
-                                        value={fromDateTransport}
-                                      />
-                                    </div>
-                                  </div>
-                                  <div className="col col-sm">
-                                    <div className="input-group input-group-sm">
-                                      <DatePicker
-                                        selected={toDateTransport}
-                                        onChange={(date) =>
-                                          setToDateTransport(date)
-                                        }
-                                        dateFormat="dd/MM/yyyy"
-                                        className="form-control form-control-sm"
-                                        placeholderText="Đến Ngày"
-                                        value={toDateTransport}
-                                      />
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                              <div className="col col-sm ">
-                                <div className="input-group input-group-sm">
-                                  <input
-                                    type="text"
-                                    className="form-control"
-                                    value={keySearchTransport}
-                                    onChange={(e) =>
-                                      setKeySearchTransport(e.target.value)
-                                    }
-                                  />
-                                  <span className="input-group-append">
-                                    <button
-                                      type="button"
-                                      className="btn btn-sm btn-default"
-                                      onClick={() => handleSearchClick()}
-                                    >
-                                      <i className="fas fa-search"></i>
-                                    </button>
-                                  </span>
-                                  <button
-                                    type="button"
-                                    className="btn btn-sm btn-default mx-2"
-                                    onClick={() => handleRefeshDataClick()}
-                                  >
-                                    <i className="fas fa-sync-alt"></i>
-                                  </button>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="card-body">
-                          <div
-                            className="container-datatable"
-                            style={{ height: "50vm" }}
-                          >
-                            <DataTable
-                              title="Danh sách vận đơn"
-                              direction="auto"
-                              responsive
-                              columns={TransportColumns}
-                              data={dataTransport}
-                              progressPending={loading}
-                              pagination
-                              paginationServer
-                              paginationTotalRows={totalRowsTransport}
-                              onSelectedRowsChange={handleChangeTransport}
-                              onChangeRowsPerPage={handlePerRowsChangeTransport}
-                              onChangePage={handlePageChangeTransport}
-                              clearSelectedRows={toggledClearRowsTransport}
-                              selectableRows
-                              highlightOnHover
-                              striped
-                            />
-                          </div>
-                        </div>
-                      </div>
+                  </div>
+                </div>
+              </div>
+              <div className="col col-sm">
+                <div className="row">
+                  <div className="col col-sm">
+                    <div className="input-group input-group-sm">
+                      <DatePicker
+                        selected={fromDateTransport}
+                        onChange={(date) => setFromDateTransport(date)}
+                        dateFormat="dd/MM/yyyy"
+                        className="form-control form-control-sm"
+                        placeholderText="Từ ngày"
+                        value={fromDateTransport}
+                      />
                     </div>
-                  </Pane>
-                </SplitPane>
+                  </div>
+                  <div className="col col-sm">
+                    <div className="input-group input-group-sm">
+                      <DatePicker
+                        selected={toDateTransport}
+                        onChange={(date) => setToDateTransport(date)}
+                        dateFormat="dd/MM/yyyy"
+                        className="form-control form-control-sm"
+                        placeholderText="Đến Ngày"
+                        value={toDateTransport}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="col col-sm ">
+                <div className="input-group input-group-sm">
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={keySearchTransport}
+                    onChange={(e) => setKeySearchTransport(e.target.value)}
+                  />
+                  <span className="input-group-append">
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-default"
+                      onClick={() => handleSearchClick()}
+                    >
+                      <i className="fas fa-search"></i>
+                    </button>
+                  </span>
+                  <button
+                    type="button"
+                    className="btn btn-sm btn-default mx-2"
+                    onClick={() => handleRefeshDataClick()}
+                  >
+                    <i className="fas fa-sync-alt"></i>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-          <div className="card-footer"></div>
         </div>
-        <div>
-          {ShowConfirm === true && (
-            <ConfirmDialog
-              setShowConfirm={setShowConfirm}
-              title={"Bạn có chắc chắn với quyết định này?"}
-              content={
-                "Khi thực hiện hành động này sẽ không thể hoàn tác lại được nữa."
-              }
-              // funcAgree={funcAgree}
+        <div className="card-body">
+          <div className="container-datatable" style={{ height: "50vm" }}>
+            <DataTable
+              title="Danh sách vận đơn"
+              direction="auto"
+              responsive
+              columns={TransportColumns}
+              data={dataTransport}
+              progressPending={loading}
+              pagination
+              paginationServer
+              paginationTotalRows={totalRowsTransport}
+              onSelectedRowsChange={handleChange}
+              onChangeRowsPerPage={handlePerRowsChangeTransport}
+              onChangePage={handlePageChangeTransport}
+              clearSelectedRows={toggledClearRows}
+              selectableRows
+              highlightOnHover
+              striped
             />
-          )}
+          </div>
+        </div>
+      </div>
 
+      <div>
+        {ShowConfirm === true && (
+          <ConfirmDialog
+            setShowConfirm={setShowConfirm}
+            title={"Bạn có chắc chắn với quyết định này?"}
+            content={
+              "Khi thực hiện hành động này sẽ không thể hoàn tác lại được nữa."
+            }
+            // funcAgree={funcAgree}
+          />
+        )}
+
+        <div
+          className="modal fade"
+          id="modal-xl"
+          data-backdrop="static"
+          ref={parseExceptionModal}
+          aria-labelledby="parseExceptionModal"
+          backdrop="static"
+        >
           <div
-            className="modal fade"
-            id="modal-xl"
-            data-backdrop="static"
-            ref={parseExceptionModal}
-            aria-labelledby="parseExceptionModal"
-            backdrop="static"
+            className="modal-dialog modal-dialog-scrollable"
+            style={{ maxWidth: "95%" }}
           >
-            <div
-              className="modal-dialog modal-dialog-scrollable"
-              style={{ maxWidth: "95%" }}
-            >
-              <div className="modal-content">
-                <div className="modal-header">
-                  <button
-                    type="button"
-                    className="close"
-                    data-dismiss="modal"
-                    onClick={() => hideModal()}
-                    aria-label="Close"
-                  >
-                    <span aria-hidden="true">×</span>
-                  </button>
-                </div>
-                <div className="modal-body">
-                  <>
-                    {/* {ShowModal === "addSubFee" && (
-                    <AddSubFeeByHandling dataClick={selectIdClick} />
-                  )}
-                  {ShowModal === "ApproveSubFee" && (
-                    <ApproveSubFeeByHandling CheckModalShow={modal} />
-                  )} */}
-                    {ShowModal === "CreateLCL/LTL" && (
-                      <CreateTransportLess
-                        getListTransport={fetchDataTransport}
-                      />
-                    )}
-                    {ShowModal === "EditTransport" && (
-                      <UpdateTransport
-                        getListTransport={fetchDataTransport}
-                        selectIdClick={selectIdClickTransport}
+            <div className="modal-content">
+              <div className="modal-header">
+                <button
+                  type="button"
+                  className="close"
+                  data-dismiss="modal"
+                  onClick={() => hideModal()}
+                  aria-label="Close"
+                >
+                  <span aria-hidden="true">×</span>
+                </button>
+              </div>
+              <div className="modal-body">
+                <>
+                  {ShowModal === "MargeTransport" &&
+                    itemSelected &&
+                    itemSelected.length > 1 && (
+                      <JoinTransports
+                        items={itemSelected}
+                        clearItems={handleClearRows}
                         hideModal={hideModal}
                       />
                     )}
-                    {ShowModal === "addSubFee" && (
-                      <AddSubFeeByHandling dataClick={selectIdClickTransport} />
-                    )}
-                    {ShowModal === "ApproveSubFee" && (
-                      <ApproveSubFeeByHandling CheckModalShow={modal} />
-                    )}
-                  </>
-                </div>
+                  {ShowModal === "CreateLCL/LTL" && (
+                    <CreateTransportLess
+                      getListTransport={fetchDataTransport}
+                    />
+                  )}
+                  {ShowModal === "EditTransport" && (
+                    <UpdateTransport
+                      getListTransport={fetchDataTransport}
+                      selectIdClick={selectIdClickTransport}
+                      hideModal={hideModal}
+                    />
+                  )}
+                  {ShowModal === "addSubFee" && (
+                    <AddSubFeeByHandling dataClick={selectIdClickTransport} />
+                  )}
+                  {ShowModal === "ApproveSubFee" && (
+                    <ApproveSubFeeByHandling CheckModalShow={modal} />
+                  )}
+                </>
               </div>
             </div>
           </div>
         </div>
-      </section>
-      {ShowConfirm === true && (
+      </div>
+
+      {/* {ShowConfirm === true && (
         <ConfirmDialog
           setShowConfirm={setShowConfirm}
           title={"Bạn có chắc chắn với quyết định này?"}
@@ -589,7 +517,7 @@ const HandlingPageNew = () => {
           }
           funcAgree={funcAgree}
         />
-      )}
+      )} */}
     </>
   );
 };

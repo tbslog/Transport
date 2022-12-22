@@ -308,8 +308,14 @@ const UpdateHandling = (props) => {
       "TGHanLenh",
       !data.thoiGianHanLenh ? null : new Date(data.thoiGianHanLenh)
     );
-    setValue("TGLayHang", new Date(data.thoiGianLayHang));
-    setValue("TGTraHang", new Date(data.thoiGianTraHang));
+    setValue(
+      "TGLayHang",
+      !data.thoiGianLayHang ? null : new Date(data.thoiGianLayHang)
+    );
+    setValue(
+      "TGTraHang",
+      !data.thoiGianTraHang ? null : new Date(data.thoiGianTraHang)
+    );
 
     setValue(
       "TGLayTraRongThucTe",
@@ -349,7 +355,6 @@ const UpdateHandling = (props) => {
     let dataUpdate = {
       DonViVanTai: data.NhaCungCap.value,
       PTVanChuyen: data.PTVanChuyen,
-      MaPtvc: "Road",
       LoaiHangHoa: data.LoaiHangHoa,
       DonViTinh: "CHUYEN",
       DiemLayTraRong: !data.DiemLayTraRong ? null : data.DiemLayTraRong.value,
@@ -725,7 +730,6 @@ const UpdateHandling = (props) => {
                           control={control}
                           render={({ field }) => (
                             <Select
-                              isDisabled={true}
                               {...field}
                               classNamePrefix={"form-control"}
                               value={field.value}
@@ -752,7 +756,6 @@ const UpdateHandling = (props) => {
                       control={control}
                       render={({ field }) => (
                         <Select
-                          isDisabled={true}
                           {...field}
                           classNamePrefix={"form-control"}
                           value={field.value}
@@ -780,7 +783,6 @@ const UpdateHandling = (props) => {
                       className="form-control"
                       {...register(`PTVanChuyen`, Validate.PTVanChuyen)}
                       value={watch(`PTVanChuyen`)}
-                      disabled={true}
                     >
                       <option value="">Chọn phương Tiện Vận Chuyển</option>
                       {listVehicleType &&
@@ -809,7 +811,6 @@ const UpdateHandling = (props) => {
                       className="form-control"
                       {...register(`LoaiHangHoa`, Validate.LoaiHangHoa)}
                       value={watch(`LoaiHangHoa`)}
-                      disabled={true}
                     >
                       <option value="">Chọn Loại Hàng Hóa</option>
                       {listGoodsType &&
@@ -837,7 +838,6 @@ const UpdateHandling = (props) => {
                   <div className="form-group">
                     <label htmlFor="KhoiLuong">Khối Lượng</label>
                     <input
-                      disabled={true}
                       autoComplete="false"
                       type="text"
                       className="form-control"
@@ -855,7 +855,6 @@ const UpdateHandling = (props) => {
                   <div className="form-group">
                     <label htmlFor="TheTich">Thể tích</label>
                     <input
-                      disabled={true}
                       autoComplete="false"
                       type="text"
                       className="form-control"
@@ -873,7 +872,6 @@ const UpdateHandling = (props) => {
                   <div className="form-group">
                     <label htmlFor="SoKien">Số Kiện</label>
                     <input
-                      disabled={true}
                       autoComplete="false"
                       type="text"
                       className="form-control"
