@@ -205,7 +205,6 @@ namespace TBSLogistics.Service.Services.UserManage
                 });
 
                 var result = await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
 
                 if (result > 0)
                 {

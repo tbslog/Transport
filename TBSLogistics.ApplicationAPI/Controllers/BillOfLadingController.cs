@@ -1,8 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using OfficeOpenXml;
+using OfficeOpenXml.Style;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection.Metadata.Ecma335;
+using System.Threading;
 using System.Threading.Tasks;
 using TBSLogistics.Model.CommonModel;
 using TBSLogistics.Model.Filter;
@@ -71,9 +75,9 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             return Ok(pagedReponse);
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("[action]")]
-        public async Task<IActionResult> GetListHandling([FromQuery] PaginationFilter filter, string transportId = null)
+        public async Task<IActionResult> GetListHandling([FromQuery] PaginationFilter filter, string[] customers, string transportId = null)
         {
             var checkPermission = await _common.CheckPermission("F0003");
             if (checkPermission.isSuccess == false)
@@ -82,7 +86,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             }
 
             var route = Request.Path.Value;
-            var pagedData = await _billOfLading.GetListHandling(transportId, filter);
+            var pagedData = await _billOfLading.GetListHandling(transportId, customers, filter);
 
             var pagedReponse = PaginationHelper.CreatePagedReponse<ListHandling>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _paninationService, route);
             return Ok(pagedReponse);
@@ -353,7 +357,6 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             var create = await _billOfLading.CreateTransportLess(request);
             if (create.isSuccess)
             {
-
                 return Ok(create.Message);
             }
             else
@@ -364,9 +367,15 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpPost]
         [Route("[action]")]
-        public async Task<IActionResult> LoadJoinTransportWithVehicle(JoinTransportsWithVehicle request)
+        public async Task<IActionResult> LoadJoinTransports(JoinTransports request)
         {
-            var data = await _billOfLading.LoadJoinTransportWithVehicle(request);
+            var data = await _billOfLading.LoadJoinTransport(request);
+
+            if (!string.IsNullOrEmpty(data.MessageErrors))
+            {
+                return BadRequest(data.MessageErrors);
+            }
+
             return Ok(data);
         }
 
@@ -400,6 +409,76 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             {
                 return BadRequest(update.Message);
             }
+        }
+
+        [HttpPost]
+        [Route("[action]")]
+        public async Task<IActionResult> ExportExcelHandLing([FromQuery] PaginationFilter filter, string[] customers, CancellationToken cancellationToken)
+        {
+            await Task.Yield();
+            var stream = new MemoryStream();
+            filter.PageNumber = 1;
+            filter.PageSize = 500000;
+            var data = await _billOfLading.GetListHandling("", customers, filter);
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+            using (var package = new ExcelPackage(stream))
+            {
+                var workSheet = package.Workbook.Worksheets.Add("DieuPhoi");
+                workSheet.Cells[1, 1].Value = "Mã Vận Đơn";
+                workSheet.Cells[1, 2].Value = "Loại Vận Đơn";
+                workSheet.Cells[1, 3].Value = "Khách Hàng";
+                workSheet.Cells[1, 4].Value = "Đơn Vị Vận Tải";
+                workSheet.Cells[1, 5].Value = "Phương Thức Vận Chuyển";
+                workSheet.Cells[1, 6].Value = "Điểm Lấy Hàng";
+                workSheet.Cells[1, 7].Value = "Điểm Trả Hàng";
+                workSheet.Cells[1, 8].Value = "Điểm Lấy Rỗng";
+                workSheet.Cells[1, 9].Value = "Mã Số Xe";
+                workSheet.Cells[1, 10].Value = "Mã CONT";
+                workSheet.Cells[1, 11].Value = "Hãng Tàu";
+                workSheet.Cells[1, 12].Value = "Loại Phương Tiện";
+                workSheet.Cells[1, 13].Value = "Khối Lượng";
+                workSheet.Cells[1, 14].Value = "Thể Tích";
+                workSheet.Cells[1, 15].Value = "Trạng Thái";
+                workSheet.Cells[1, 16].Value = "Thời Gian Tạo";
+                int row = 2;
+                foreach (var item in data.dataResponse)
+                {
+                    workSheet.Cells[row, 1].Value = item.MaVanDon;
+                    workSheet.Cells[row, 2].Value = item.PhanLoaiVanDon == "nhap" ? "Nhập" : "Xuất";
+                    workSheet.Cells[row, 3].Value = item.MaKH;
+                    workSheet.Cells[row, 4].Value = item.DonViVanTai;
+                    workSheet.Cells[row, 5].Value = item.MaPTVC;
+                    workSheet.Cells[row, 6].Value = item.DiemLayHang;
+                    workSheet.Cells[row, 7].Value = item.DiemTraHang;
+                    workSheet.Cells[row, 8].Value = item.DiemLayRong;
+                    workSheet.Cells[row, 9].Value = item.MaSoXe;
+                    workSheet.Cells[row, 10].Value = item.ContNo;
+                    workSheet.Cells[row, 11].Value = item.HangTau;
+                    workSheet.Cells[row, 12].Value = item.PTVanChuyen;
+                    workSheet.Cells[row, 13].Value = item.KhoiLuong;
+                    workSheet.Cells[row, 14].Value = item.TheTich;
+                    workSheet.Cells[row, 15].Value = item.TrangThai;
+                    workSheet.Cells[row, 16].Value = item.ThoiGianTaoDon.ToString();
+                    row++;
+                }
+
+                workSheet.Cells["A1:P1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                workSheet.Cells["A1:P1"].Style.Font.Bold = true;
+                workSheet.Cells["A1:P1"].Style.Font.Size = 14;
+
+                workSheet.Cells[workSheet.Dimension.Address].AutoFitColumns();
+                workSheet.Cells[workSheet.Dimension.Address].Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                workSheet.Cells[workSheet.Dimension.Address].Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                workSheet.Cells[workSheet.Dimension.Address].Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                workSheet.Cells[workSheet.Dimension.Address].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+
+                package.Save();
+            }
+            stream.Position = 0;
+            string excelName = $"DieuPhoi " + DateTime.Now.ToString("dd-MM-yyyy") + ".xlsx";
+
+            //return File(stream, "application/octet-stream", excelName);  
+            return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", excelName);
         }
     }
 }

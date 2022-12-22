@@ -25,6 +25,7 @@ namespace TBSLogistics.Model.Model.BillModel
 
     public class ListVanDon
     {
+        public string MaVanDonKH { get; set; }
         public string MaVanDon { get; set; }
         public string MaKh { get; set; }
         public string TenKh { get; set; }
@@ -33,8 +34,9 @@ namespace TBSLogistics.Model.Model.BillModel
         public string TenCungDuong { get; set; }
         public string DiemLayHang { get; set; }
         public string DiemTraHang { get; set; }
-        public double TongTheTich { get; set; }
-        public double TongKhoiLuong { get; set; }
+        public double? TongTheTich { get; set; }
+        public double? TongKhoiLuong { get; set; }
+        public double? TongSoKien { get; set; }
         public List<ListHandling> listHandling { get; set; }
     }
 
@@ -51,6 +53,7 @@ namespace TBSLogistics.Model.Model.BillModel
         public decimal? DonGia { get; set; }
         public double? KhoiLuong { get; set; }
         public double? TheTich { get; set; }
+        public double? SoKien { get; set; }
 
         public List<ListSubFeeByContract> listSubFeeByContract { get; set; }
         public List<ListSubFeeIncurred> listSubFeeIncurreds { get; set; }

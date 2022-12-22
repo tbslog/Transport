@@ -6,7 +6,6 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
     {
         public string DonViVanTai { get; set; }
         public string PTVanChuyen { get; set; }
-        public string MaPtvc { get; set; }
         public string LoaiHangHoa { get; set; }
         public string DonViTinh { get; set; }
         public int? DiemLayTraRong { get; set; }

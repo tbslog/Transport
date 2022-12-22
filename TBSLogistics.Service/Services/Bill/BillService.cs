@@ -20,7 +20,7 @@ namespace TBSLogistics.Service.Services.Bill
         private readonly IHttpContextAccessor _httpContextAccessor;
         private TempData tempData;
 
-        public BillService(TMSContext context, ICommon common,IHttpContextAccessor httpContextAccessor)
+        public BillService(TMSContext context, ICommon common, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
             _common = common;
@@ -162,6 +162,7 @@ namespace TBSLogistics.Service.Services.Bill
 
                 var getListTransport = await getDataTransport.Where(x => x.vd.MaVanDon == transportId).Select(z => new ListVanDon()
                 {
+                    MaVanDonKH = z.vd.MaVanDonKh,
                     DiemLayHang = _context.DiaDiem.Where(y => y.MaDiaDiem == z.cd.DiemDau).Select(x => x.TenDiaDiem).FirstOrDefault(),
                     DiemTraHang = _context.DiaDiem.Where(y => y.MaDiaDiem == z.cd.DiemCuoi).Select(x => x.TenDiaDiem).FirstOrDefault(),
                     MaVanDon = z.vd.MaVanDon,
@@ -170,8 +171,9 @@ namespace TBSLogistics.Service.Services.Bill
                     LoaiVanDon = z.vd.LoaiVanDon,
                     MaCungDuong = z.cd.MaCungDuong,
                     TenCungDuong = z.cd.TenCungDuong,
-                    TongTheTich = z.vd.TongTheTich.Value,
-                    TongKhoiLuong = z.vd.TongKhoiLuong.Value,
+                    TongTheTich = z.vd.TongTheTich,
+                    TongKhoiLuong = z.vd.TongKhoiLuong,
+                    TongSoKien = z.vd.TongSoKien,
                     listHandling = getlistHandling.Where(y => y.MaVanDon == z.vd.MaVanDon).OrderBy(x => x.Id).Select(x => new Model.Model.BillModel.ListHandling()
                     {
                         MaSoXe = x.MaSoXe,
@@ -185,6 +187,7 @@ namespace TBSLogistics.Service.Services.Bill
                         DonGia = _context.KhachHang.Where(x => x.MaKh == customerId).Select(x => x.MaLoaiKh).FirstOrDefault() == "NCC" ? x.DonGiaNcc : x.DonGiaKh,
                         KhoiLuong = x.KhoiLuong,
                         TheTich = x.TheTich,
+                        SoKien = x.SoKien,
                         listSubFeeByContract = getListSubFeeByContract.Where(y =>
                            (y.sfPice.GoodsType == x.MaLoaiHangHoa)
                         || (y.sfPice.FirstPlace == x.DiemLayTraRong && y.sfPice.SecondPlace == null)
@@ -262,6 +265,7 @@ namespace TBSLogistics.Service.Services.Bill
             var pagedData = await listData.Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new ListVanDon()
             {
                 MaVanDon = x.vd.MaVanDon,
+
                 MaKh = x.kh.MaKh,
                 TenKh = x.kh.TenKh,
                 LoaiVanDon = x.vd.LoaiVanDon,
@@ -356,9 +360,12 @@ namespace TBSLogistics.Service.Services.Bill
 
             var pagedData = await getlistHandling.Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new ListBillHandling()
             {
+                MaPTVC = x.vd.MaPtvc,
+                MaVanDonKH = x.vd.MaVanDonKh,
                 MaChuyen = x.dp.Id,
                 MaVanDon = x.dp.MaVanDon,
-                LoaiHangHoa = x.dp.MaLoaiHangHoa,
+                LoaiVanDon = x.vd.LoaiVanDon,
+                LoaiHangHoa = _context.LoaiHangHoa.Where(y => y.MaLoaiHangHoa == x.dp.MaLoaiHangHoa).Select(y => y.TenLoaiHangHoa).FirstOrDefault(),
                 LoaiPhuongTien = x.dp.MaLoaiPhuongTien,
                 MaNcc = x.dp.DonViVanTai,
                 MaKh = x.vd.MaKh,
@@ -376,6 +383,9 @@ namespace TBSLogistics.Service.Services.Bill
                 ChiPhiPhatSinh = ((decimal)_context.SfeeByTcommand.Where(y => y.IdTcommand == x.dp.Id && y.ApproveStatus == 14).Sum(y => y.FinalPrice)),
             }).Select(x => new ListBillHandling()
             {
+                MaPTVC = x.MaPTVC,
+                LoaiVanDon = x.LoaiVanDon,
+                MaVanDonKH = x.MaVanDonKH,
                 MaVanDon = x.MaVanDon,
                 MaChuyen = x.MaChuyen,
                 LoaiHangHoa = x.LoaiHangHoa,
@@ -390,7 +400,7 @@ namespace TBSLogistics.Service.Services.Bill
                 LoiNhuan = x.LoiNhuan,
                 ChiPhiHopDong = x.ChiPhiHopDong,
                 ChiPhiPhatSinh = x.ChiPhiPhatSinh,
-            }).OrderByDescending(x => x.MaChuyen).ToListAsync();
+            }).OrderByDescending(x => x.MaVanDon).ThenBy(x => x.MaChuyen).ToListAsync();
 
             return new PagedResponseCustom<ListBillHandling>()
             {

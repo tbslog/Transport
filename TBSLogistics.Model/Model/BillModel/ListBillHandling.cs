@@ -9,6 +9,9 @@ namespace TBSLogistics.Model.Model.BillModel
 {
     public class ListBillHandling
     {
+        public string MaPTVC { get; set; }
+        public string LoaiVanDon { get; set; }
+        public string MaVanDonKH { get; set; }
         public long MaChuyen { get; set; }
         public string MaVanDon { get; set; }
         public string LoaiHangHoa { get; set; }

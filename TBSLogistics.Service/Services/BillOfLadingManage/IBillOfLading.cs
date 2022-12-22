@@ -29,12 +29,12 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
         Task<BoolActionResult> SetRunning(int id);
         Task<BoolActionResult> CancelHandling(int id);
         Task<Attachment> GetImageById(int id);
-        Task<PagedResponseCustom<ListHandling>> GetListHandling(string transportId, PaginationFilter filter);
+        Task<PagedResponseCustom<ListHandling>> GetListHandling(string transportId, string[] customers, PaginationFilter filter);
         Task<ListPoint> LoadDataRoadTransportByCusId(string customerId);
         Task<BoolActionResult> CloneHandling(int id);
         Task<BoolActionResult> RemoveHandling(int id);
         Task<BoolActionResult> CreateTransportLess(CreateTransportLess request);
-        Task<LoadJoinTransportsWithVehicle> LoadJoinTransportWithVehicle(JoinTransportsWithVehicle request);
+        Task<LoadJoinTransports> LoadJoinTransport(JoinTransports request);
         Task<BoolActionResult> CreateHandlingLess(CreateHandlingLess request);
         Task<BoolActionResult> UpdateTransportLess(string transportId, UpdateTransportLess request);
     }

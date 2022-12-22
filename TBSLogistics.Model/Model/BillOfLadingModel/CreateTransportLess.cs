@@ -15,14 +15,14 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
         public string HangTau { get; set; }
         public string TenTau { get; set; }
         public string MaCungDuong { get; set; }
-        public double TongKhoiLuong { get; set; }
-        public double TongTheTich { get; set; }
-        public double TongSoKien { get; set; }
+        public double? TongKhoiLuong { get; set; }
+        public double? TongTheTich { get; set; }
+        public double? TongSoKien { get; set; }
         public string GhiChu { get; set; }
         public string MaPTVC { get; set; }
 
-        public DateTime ThoiGianLayHang { get; set; }
-        public DateTime ThoiGianTraHang { get; set; }
+        public DateTime? ThoiGianLayHang { get; set; }
+        public DateTime? ThoiGianTraHang { get; set; }
     }
 
     public class UpdateTransportLess
@@ -34,13 +34,13 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
         public string HangTau { get; set; }
         public string TenTau { get; set; }
         public string MaCungDuong { get; set; }
-        public double TongKhoiLuong { get; set; }
-        public double TongTheTich { get; set; }
-        public double TongSoKien { get; set; }
+        public double? TongKhoiLuong { get; set; }
+        public double? TongTheTich { get; set; }
+        public double? TongSoKien { get; set; }
         public string GhiChu { get; set; }
         public string MaPTVC { get; set; }
 
-        public DateTime ThoiGianLayHang { get; set; }
-        public DateTime ThoiGianTraHang { get; set; }
+        public DateTime? ThoiGianLayHang { get; set; }
+        public DateTime? ThoiGianTraHang { get; set; }
     }
 }
