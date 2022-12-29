@@ -27,13 +27,14 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
 
     public class UpdateTransportLess
     {
-        public string DonViTinh { get; set; }
         public string MaKH { get; set; }
         public string MaVanDonKH { get; set; }
         public string LoaiVanDon { get; set; }
         public string HangTau { get; set; }
         public string TenTau { get; set; }
         public string MaCungDuong { get; set; }
+        public int DiemLayHang { get; set; }
+        public int DiemTraHang { get; set; }
         public double? TongKhoiLuong { get; set; }
         public double? TongTheTich { get; set; }
         public double? TongSoKien { get; set; }

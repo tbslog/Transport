@@ -9,12 +9,15 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
 {
     public class ListHandling
     {
+        public string MaVanDonChung { get; set; }
         public string DiemLayHang { get; set; }
         public string DiemTraHang { get; set; }
         public string MaVanDonKH { get; set; }
         public string MaKH { get; set; }
         public string DonViVanTai { get; set; }
         public string CungDuong { get; set; }
+        public string SealHQ { get; set; }
+        public string SealNP { get; set; }
         public string MaVanDon { get; set; }
         public string PhanLoaiVanDon { get; set; }
         public long MaDieuPhoi { get; set; }

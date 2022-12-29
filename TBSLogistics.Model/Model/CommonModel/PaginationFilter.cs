@@ -19,6 +19,7 @@ namespace TBSLogistics.Model.Filter
         public string goodsType { get; set; }
         public string vehicleType { get; set; }
         public string transportType { get; set; }
+        public string maptvc { get; set; }
 
         public string Keyword { get; set; }
         public DateTime? fromDate { get; set; }

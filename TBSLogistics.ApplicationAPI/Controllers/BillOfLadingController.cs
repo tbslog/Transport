@@ -1,14 +1,10 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Reflection.Metadata.Ecma335;
 using System.Threading;
 using System.Threading.Tasks;
-using TBSLogistics.Model.CommonModel;
 using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.BillOfLadingModel;
 using TBSLogistics.Service.Helpers;
@@ -58,9 +54,9 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             return Ok(data);
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("[action]")]
-        public async Task<IActionResult> GetListTransport([FromQuery] PaginationFilter filter)
+        public async Task<IActionResult> GetListTransport([FromQuery] PaginationFilter filter, string[] customers)
         {
             var checkPermission = await _common.CheckPermission("E0003");
             if (checkPermission.isSuccess == false)
@@ -69,7 +65,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             }
 
             var route = Request.Path.Value;
-            var pagedData = await _billOfLading.GetListTransport(filter);
+            var pagedData = await _billOfLading.GetListTransport(customers, filter);
 
             var pagedReponse = PaginationHelper.CreatePagedReponse<ListTransport>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _paninationService, route);
             return Ok(pagedReponse);
@@ -87,6 +83,23 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
             var route = Request.Path.Value;
             var pagedData = await _billOfLading.GetListHandling(transportId, customers, filter);
+
+            var pagedReponse = PaginationHelper.CreatePagedReponse<ListHandling>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _paninationService, route);
+            return Ok(pagedReponse);
+        }
+
+        [HttpPost]
+        [Route("[action]")]
+        public async Task<IActionResult> GetListHandlingLess([FromQuery] PaginationFilter filter, string[] customers)
+        {
+            var checkPermission = await _common.CheckPermission("F0003");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
+            var route = Request.Path.Value;
+            var pagedData = await _billOfLading.GetListHandlingLess(customers, filter);
 
             var pagedReponse = PaginationHelper.CreatePagedReponse<ListHandling>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _paninationService, route);
             return Ok(pagedReponse);
@@ -183,6 +196,50 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             }
 
             var update = await _billOfLading.CancelHandling(id);
+
+            if (update.isSuccess)
+            {
+                return Ok(update.Message);
+            }
+            else
+            {
+                return BadRequest(update.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("[action]")]
+        public async Task<IActionResult> SetRuningLess(string id)
+        {
+            var checkPermission = await _common.CheckPermission("F0007");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
+            var update = await _billOfLading.SetRunningLess(id);
+
+            if (update.isSuccess)
+            {
+                return Ok(update.Message);
+            }
+            else
+            {
+                return BadRequest(update.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("[action]")]
+        public async Task<IActionResult> CancelHandlingLess(string id)
+        {
+            var checkPermission = await _common.CheckPermission("F0002");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
+            var update = await _billOfLading.CancelHandlingLess(id);
 
             if (update.isSuccess)
             {
@@ -397,6 +454,34 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpPost]
         [Route("[action]")]
+        public async Task<IActionResult> UpdateHandlingLess(string handlingId, UpdateHandlingLess request)
+        {
+            var update = await _billOfLading.UpdateHandlingLess(handlingId, request);
+            if (update.isSuccess)
+            {
+                return Ok(update.Message);
+            }
+            else
+            {
+                return BadRequest(update.Message);
+            }
+        }
+
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetTransportLessById(string transportId)
+        {
+            var transport = await _billOfLading.GetTransportLessById(transportId);
+
+            if (transport == null)
+            {
+                return BadRequest("Vận đơn không tồn tại");
+            }
+            return Ok(transport);
+        }
+
+        [HttpPost]
+        [Route("[action]")]
         public async Task<IActionResult> UpdateTransportLess(string transportId, UpdateTransportLess request)
         {
             var update = await _billOfLading.UpdateTransportLess(transportId, request);
@@ -477,7 +562,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             stream.Position = 0;
             string excelName = $"DieuPhoi " + DateTime.Now.ToString("dd-MM-yyyy") + ".xlsx";
 
-            //return File(stream, "application/octet-stream", excelName);  
+            //return File(stream, "application/octet-stream", excelName);
             return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", excelName);
         }
     }

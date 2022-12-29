@@ -10,10 +10,13 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
     public class JoinTransports
     {
         public List<string> TransportIds { get; set; }
+        public string MaVanDonChung { get; set; }
+      
     }
 
     public class LoadJoinTransports
     {
+        public CreateHandlingLess handlingLess { get; set; }
         public string LoaiVanDon { get; set; }
         public string HangTau { get; set; }
         public string TenTau { get; set; }

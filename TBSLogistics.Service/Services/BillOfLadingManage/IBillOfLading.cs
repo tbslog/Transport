@@ -20,7 +20,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
         Task<BoolActionResult> CreateTransport(CreateTransport request);
         Task<BoolActionResult> UpdateTransport(string transPortId, UpdateTransport request);
         Task<GetTransport> GetTransportById(string transportId);
-        Task<PagedResponseCustom<ListTransport>> GetListTransport(PaginationFilter filter);
+        Task<PagedResponseCustom<ListTransport>> GetListTransport(string[] listCustomer,PaginationFilter filter);
         Task<GetHandling> GetHandlingById(int id);
         Task<BoolActionResult> UpdateHandling(int id, UpdateHandling request);
         Task<BoolActionResult> UploadFile(UploadImagesHandling request);
@@ -30,6 +30,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
         Task<BoolActionResult> CancelHandling(int id);
         Task<Attachment> GetImageById(int id);
         Task<PagedResponseCustom<ListHandling>> GetListHandling(string transportId, string[] customers, PaginationFilter filter);
+        Task<PagedResponseCustom<ListHandling>> GetListHandlingLess(string[] customers, PaginationFilter filter);
         Task<ListPoint> LoadDataRoadTransportByCusId(string customerId);
         Task<BoolActionResult> CloneHandling(int id);
         Task<BoolActionResult> RemoveHandling(int id);
@@ -37,5 +38,10 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
         Task<LoadJoinTransports> LoadJoinTransport(JoinTransports request);
         Task<BoolActionResult> CreateHandlingLess(CreateHandlingLess request);
         Task<BoolActionResult> UpdateTransportLess(string transportId, UpdateTransportLess request);
+        Task<BoolActionResult> UpdateHandlingLess(string handlingId, UpdateHandlingLess request);
+        Task<UpdateTransportLess> GetTransportLessById(string transportId);
+        Task<BoolActionResult> SetRunningLess(string handlingId);
+        Task<BoolActionResult> CancelHandlingLess(string handlingId);
+
     }
 }
