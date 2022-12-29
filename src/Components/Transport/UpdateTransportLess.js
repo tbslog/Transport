@@ -1,13 +1,12 @@
 import { useState, useEffect } from "react";
 import { getData, postData } from "../Common/FuncAxios";
-import { useForm, Controller, useFieldArray } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import DatePicker from "react-datepicker";
 import Select from "react-select";
 import moment from "moment";
-import { ToastError } from "../Common/FuncToast";
 
-const CreateTransportLess = (props) => {
-  const { getListTransport, hideModal } = props;
+const UpdateTransportLess = (props) => {
+  const { getListTransport, selectIdClick, hideModal } = props;
   const [IsLoading, SetIsLoading] = useState(false);
   const {
     register,
@@ -110,8 +109,9 @@ const CreateTransportLess = (props) => {
   const [listRoad, setListRoad] = useState([]);
   const [arrRoad, setArrRoad] = useState([]);
   const [listCus, setListCus] = useState([]);
-  const [listGoodsType, setListGoodsType] = useState([]);
   const [listPoint, setListPoint] = useState([]);
+  const [transportData, setTransportData] = useState({});
+  const [transportId, setTransportId] = useState("");
 
   useEffect(() => {
     SetIsLoading(true);
@@ -147,12 +147,102 @@ const CreateTransportLess = (props) => {
     })();
   }, []);
 
+  useEffect(() => {
+    if (
+      selectIdClick &&
+      listCus &&
+      listPoint &&
+      Object.keys(selectIdClick).length > 0 &&
+      listCus.length > 0 &&
+      listPoint.length > 0
+    ) {
+      (async () => {
+        SetIsLoading(true);
+        handleResetClick();
+        let getTransport = await getData(
+          `BillOfLading/GetTransportLessById?transportId=${selectIdClick.maVanDon}`
+        );
+        setTransportData(getTransport);
+
+        setValue("LoaiHinh", getTransport.maPTVC);
+        setValue("HangTau", getTransport.hangTau);
+        setValue("TenTau", getTransport.tenTau);
+        setValue("MaVDKH", getTransport.maVanDonKH);
+
+        setValue("LoaiVanDon", getTransport.loaiVanDon);
+        setValue("TongKhoiLuong", getTransport.tongKhoiLuong);
+        setValue("TongTheTich", getTransport.tongTheTich);
+        setValue("TongSoKien", getTransport.tongSoKien);
+        setValue(
+          "MaKH",
+          { ...listCus.filter((x) => x.value === getTransport.maKH) }[0]
+        );
+        setValue("GhiChu", getTransport.ghiChu);
+        setValue(
+          "TGLayHang",
+          !getTransport.thoiGianLayHang
+            ? null
+            : new Date(getTransport.thoiGianLayHang)
+        );
+        setValue(
+          "TGTraHang",
+          !getTransport.thoiGianTraHang
+            ? null
+            : new Date(getTransport.thoiGianTraHang)
+        );
+        SetIsLoading(false);
+      })();
+    }
+  }, [selectIdClick, listCus, listPoint]);
+
+  useEffect(() => {
+    if (transportData && Object.keys(transportData).length > 0) {
+      SetIsLoading(true);
+      handleOnChangeCustomer(
+        {
+          ...listCus.filter((x) => x.value === transportData.maKH),
+        }[0]
+      );
+      SetIsLoading(false);
+    }
+  }, [transportData]);
+
+  useEffect(() => {
+    if (
+      arrRoad &&
+      listRoad &&
+      listFirstPoint &&
+      listSecondPoint &&
+      transportData &&
+      arrRoad.length > 0 &&
+      listRoad.length > 0 &&
+      listFirstPoint.length > 0 &&
+      listSecondPoint.length > 0 &&
+      Object.keys(transportData).length > 0
+    ) {
+      if (transportId !== selectIdClick.maVanDon) {
+        SetIsLoading(true);
+        handleOnChangeRoad(
+          {
+            ...listRoad.filter((x) => x.value === transportData.maCungDuong),
+          }[0]
+        );
+        setTransportId(selectIdClick.maVanDon);
+        SetIsLoading(false);
+      }
+    }
+  }, [arrRoad, listRoad, listFirstPoint, listSecondPoint, transportData]);
+
   const handleOnChangeCustomer = async (val) => {
     if (val && Object.keys(val).length > 0) {
       setValue("MaKH", val);
       setValue("MaCungDuong", null);
       setValue("DiemLayHang", null);
       setValue("DiemTraHang", null);
+      setArrRoad([]);
+      setListRoad([]);
+      setListFirstPoint([]);
+      setListSecondPoint([]);
 
       const getListRoad = await getData(
         `BillOfLading/LoadDataRoadTransportByCusId?id=${val.value}`
@@ -205,14 +295,17 @@ const CreateTransportLess = (props) => {
   const handleOnChangeRoad = (val) => {
     if (val && Object.keys(val).length > 0) {
       setValue("MaCungDuong", val);
-      const point = arrRoad.filter((x) => x.maCungDuong === val.value)[0];
+      const point = {
+        ...arrRoad.filter((x) => x.maCungDuong === val.value),
+      }[0];
+
       setValue(
         "DiemLayHang",
-        listFirstPoint.filter((x) => x.value === point.diemDau)[0]
+        { ...listFirstPoint.filter((x) => x.value === point.diemDau) }[0]
       );
       setValue(
         "DiemTraHang",
-        listSecondPoint.filter((x) => x.value === point.diemCuoi)[0]
+        { ...listSecondPoint.filter((x) => x.value === point.diemCuoi) }[0]
       );
     } else {
       setValue("MaCungDuong", null);
@@ -252,31 +345,34 @@ const CreateTransportLess = (props) => {
 
   const onSubmit = async (data) => {
     SetIsLoading(true);
-    const create = await postData("BillOfLading/CreateTransportLess", {
-      MaPTVC: data.LoaiHinh,
-      HangTau: data.HangTau,
-      TenTau: data.TenTau,
-      MaVanDonKH: data.MaVDKH,
-      MaCungDuong: data.MaCungDuong.value,
-      LoaiVanDon: data.LoaiVanDon,
-      TongKhoiLuong: !data.TongKhoiLuong ? null : data.TongKhoiLuong,
-      TongTheTich: !data.TongTheTich ? null : data.TongTheTich,
-      TongSoKien: !data.TongSoKien ? null : data.TongSoKien,
-      MaKH: data.MaKH.value,
-      GhiChu: data.GhiChu,
-      thoiGianLayHang: !data.TGLayHang
-        ? null
-        : moment(new Date(data.TGLayHang).toISOString()).format(
-            "yyyy-MM-DDTHH:mm:ss.SSS"
-          ),
-      thoiGianTraHang: !data.TGTraHang
-        ? null
-        : moment(new Date(data.TGTraHang).toISOString()).format(
-            "yyyy-MM-DDTHH:mm:ss.SSS"
-          ),
-    });
+    const update = await postData(
+      `BillOfLading/UpdateTransportLess?transportId=${selectIdClick.maVanDon}`,
+      {
+        MaPTVC: data.LoaiHinh,
+        HangTau: data.HangTau,
+        TenTau: data.TenTau,
+        MaVanDonKH: data.MaVDKH,
+        MaCungDuong: data.MaCungDuong.value,
+        LoaiVanDon: data.LoaiVanDon,
+        TongKhoiLuong: !data.TongKhoiLuong ? null : data.TongKhoiLuong,
+        TongTheTich: !data.TongTheTich ? null : data.TongTheTich,
+        TongSoKien: !data.TongSoKien ? null : data.TongSoKien,
+        MaKH: data.MaKH.value,
+        GhiChu: data.GhiChu,
+        thoiGianLayHang: !data.TGLayHang
+          ? null
+          : moment(new Date(data.TGLayHang).toISOString()).format(
+              "yyyy-MM-DDTHH:mm:ss.SSS"
+            ),
+        thoiGianTraHang: !data.TGTraHang
+          ? null
+          : moment(new Date(data.TGTraHang).toISOString()).format(
+              "yyyy-MM-DDTHH:mm:ss.SSS"
+            ),
+      }
+    );
 
-    if (create === 1) {
+    if (update === 1) {
       getListTransport();
       handleResetClick();
       hideModal();
@@ -658,18 +754,11 @@ const CreateTransportLess = (props) => {
             <div className="card-footer">
               <div>
                 <button
-                  type="button"
-                  onClick={() => handleResetClick()}
-                  className="btn btn-warning"
-                >
-                  Làm mới
-                </button>
-                <button
                   type="submit"
                   className="btn btn-primary"
                   style={{ float: "right" }}
                 >
-                  Thêm mới
+                  Cập Nhật
                 </button>
               </div>
             </div>
@@ -680,4 +769,4 @@ const CreateTransportLess = (props) => {
   );
 };
 
-export default CreateTransportLess;
+export default UpdateTransportLess;

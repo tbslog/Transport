@@ -356,7 +356,7 @@ const CreateTransport = (props) => {
     });
 
     if (create === 1) {
-      getListTransport(1);
+      getListTransport();
       handleResetClick();
     }
 

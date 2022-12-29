@@ -270,6 +270,7 @@ const UpdateTransport = (props) => {
         );
       }
       setValue("GhiChu", selectIdClick.ghiChu);
+
       setValue(
         "TGTraHang",
         !selectIdClick.thoiGianTraHang
@@ -491,7 +492,7 @@ const UpdateTransport = (props) => {
     );
 
     if (Update === 1) {
-      getListTransport(1);
+      getListTransport();
       hideModal();
     }
     SetIsLoading(false);

@@ -4,9 +4,11 @@ import { useForm, Controller, useFieldArray } from "react-hook-form";
 import DatePicker from "react-datepicker";
 import Select from "react-select";
 import moment from "moment";
+import { ToastError } from "../Common/FuncToast";
 
 const JoinTransports = (props) => {
-  const { items, clearItems, hideModal } = props;
+  const { items, clearItems, hideModal, getListTransport, selectIdClick } =
+    props;
   const [IsLoading, SetIsLoading] = useState(false);
   const {
     register,
@@ -20,7 +22,7 @@ const JoinTransports = (props) => {
     mode: "onChange",
   });
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields, remove } = useFieldArray({
     control, // control props comes from useForm (optional: if you are using FormContext)
     name: "listTransport", // unique name for your Field Array
   });
@@ -30,6 +32,9 @@ const JoinTransports = (props) => {
     DiemLayTraRong: { required: "Không được để trống" },
     NhaCungCap: { required: "Không được để trống" },
     XeVanChuyen: { required: "Không được để trống" },
+    LoaiHangHoa: {
+      required: "Không được để trống",
+    },
   };
 
   const [listPoint, setListPoint] = useState([]);
@@ -127,9 +132,13 @@ const JoinTransports = (props) => {
       items &&
       items.length > 0 &&
       listVehicle &&
+      listDriver &&
+      listRomooc &&
       listVehicleType &&
       listVehicle.length > 0 &&
-      listVehicleType.length > 0
+      listVehicleType.length > 0 &&
+      listDriver.length > 0 &&
+      listRomooc.length > 0
     ) {
       (async () => {
         resetForm();
@@ -149,22 +158,121 @@ const JoinTransports = (props) => {
           setValue("MaPTVC", dataTransports.maPTVC);
 
           let data = dataTransports.loadTransports;
-          setValue("listTransport", data);
-          for (let i = 0; i <= data.length - 1; i++) {
-            setValue(`listTransport.${i}.MaVanDon`, data[i].maVanDon);
-            setValue(`listTransport.${i}.MaVanDonKH`, data[i].maVanDonKH);
-            setValue(`listTransport.${i}.MaKH`, data[i].maKH);
-            setValue(`listTransport.${i}.DiemDau`, data[i].diemDau);
-            setValue(`listTransport.${i}.DiemCuoi`, data[i].diemCuoi);
-            setValue(`listTransport.${i}.SoKhoi`, data[i].tongKhoiLuong);
-            setValue(`listTransport.${i}.TheTich`, data[i].tongTheTich);
-            setValue(`listTransport.${i}.SoKien`, data[i].tongSoKien);
+          if (data && data.length > 0) {
+            setValue("listTransport", data);
+            for (let i = 0; i <= data.length - 1; i++) {
+              setValue(`listTransport.${i}.LoaiHangHoa`, "Normal");
+              setValue(`listTransport.${i}.MaVanDon`, data[i].maVanDon);
+              setValue(`listTransport.${i}.MaVanDonKH`, data[i].maVanDonKH);
+              setValue(`listTransport.${i}.MaKH`, data[i].maKH);
+              setValue(`listTransport.${i}.DiemDau`, data[i].diemDau);
+              setValue(`listTransport.${i}.DiemCuoi`, data[i].diemCuoi);
+              setValue(`listTransport.${i}.KhoiLuong`, data[i].tongKhoiLuong);
+              setValue(`listTransport.${i}.TheTich`, data[i].tongTheTich);
+              setValue(`listTransport.${i}.SoKien`, data[i].tongSoKien);
+            }
           }
         }
       })();
     }
     SetIsLoading(false);
-  }, [items, listVehicle, listVehicleType]);
+  }, [items, listVehicle, listVehicleType, listDriver, listRomooc]);
+
+  useEffect(() => {
+    if (
+      selectIdClick &&
+      listVehicle &&
+      listDriver &&
+      listRomooc &&
+      listVehicleType &&
+      Object.keys(selectIdClick).length > 0 &&
+      listVehicle.length > 0 &&
+      listVehicleType.length > 0 &&
+      listDriver.length > 0 &&
+      listRomooc.length > 0
+    ) {
+      (async () => {
+        resetForm();
+        SetIsLoading(true);
+        let dataTransports = await getDataCustom(
+          `BillOfLading/LoadJoinTransports`,
+          { TransportIds: [], MaVanDonChung: selectIdClick.maVanDonChung }
+        );
+
+        let dataHandling = dataTransports.handlingLess;
+
+        setValue("TransportType", dataTransports.loaiVanDon);
+        setValue("MaPTVC", dataTransports.maPTVC);
+
+        setValue("PTVanChuyen", dataHandling.ptVanChuyen);
+        setValue(
+          "DiemLayTraRong",
+          {
+            ...listPoint.filter((x) => x.value === dataHandling.diemLayTraRong),
+          }[0]
+        );
+        setValue(
+          "NhaCungCap",
+          {
+            ...listSupplier.filter((x) => x.value === dataHandling.donViVanTai),
+          }[0]
+        );
+        setValue(
+          "XeVanChuyen",
+          {
+            ...listVehicle.filter((x) => x.value === dataHandling.xeVanChuyen),
+          }[0]
+        );
+        setValue(
+          "TaiXe",
+          { ...listDriver.filter((x) => x.value === dataHandling.taiXe) }[0]
+        );
+        setValue(
+          "Romooc",
+          !dataHandling.romooc
+            ? null
+            : {
+                ...listRomooc.filter((x) => x.value === dataHandling.romooc),
+              }[0]
+        );
+        setValue("CONTNO", dataHandling.contno);
+        setValue("SEALHQ", dataHandling.sealhq);
+        setValue("SEALNP", dataHandling.sealnp);
+        setValue(
+          "TGLayTraRong",
+          !dataHandling.tgLayTraRong
+            ? null
+            : new Date(dataHandling.tgLayTraRong)
+        );
+        setValue(
+          "TGHanLenh",
+          !dataHandling.tgHanLenh ? null : new Date(dataHandling.tgHanLenh)
+        );
+        setValue(
+          "TGHaCang",
+          !dataHandling.tgHaCang ? null : new Date(dataHandling.tgHaCang)
+        );
+
+        let data = dataTransports.loadTransports;
+        if (data && data.length > 0) {
+          setValue("listTransport", data);
+          for (let i = 0; i <= data.length - 1; i++) {
+            setValue(`listTransport.${i}.LoaiHangHoa`, "Normal");
+            setValue(`listTransport.${i}.MaVanDon`, data[i].maVanDon);
+            setValue(`listTransport.${i}.MaVanDonKH`, data[i].maVanDonKH);
+            setValue(`listTransport.${i}.MaKH`, data[i].maKH);
+            setValue(`listTransport.${i}.DiemDau`, data[i].diemDau);
+            setValue(`listTransport.${i}.DiemCuoi`, data[i].diemCuoi);
+            setValue(`listTransport.${i}.KhoiLuong`, data[i].tongKhoiLuong);
+            setValue(`listTransport.${i}.TheTich`, data[i].tongTheTich);
+            setValue(`listTransport.${i}.SoKien`, data[i].tongSoKien);
+          }
+        }
+
+        SetIsLoading(false);
+      })();
+    }
+  }, [selectIdClick, listVehicle, listVehicleType, listDriver, listRomooc]);
 
   useEffect(() => {
     if (watch("MaPTVC")) {
@@ -192,21 +300,26 @@ const JoinTransports = (props) => {
     SetIsLoading(true);
 
     let arrTransports = [];
-    watch("listTransport").map((val) => {
+    data.listTransport.map((val) => {
       arrTransports.push({
         MaVanDon: val.maVanDon,
-        LoaiHangHoa: val.LoaiHangHoa,
+        MaLoaiHangHoa: val.LoaiHangHoa,
         MaDVT: "Chuyen",
       });
     });
+
+    if (arrTransports.length < 2) {
+      ToastError("Vui lòng chọn từ 2 vận đơn trở lên để ghép chuyến");
+      return;
+    }
 
     const dataJoin = {
       arrTransports: arrTransports,
       PTVanChuyen: data.PTVanChuyen,
       DiemLayTraRong: !data.DiemLayTraRong ? null : data.DiemLayTraRong.value,
-      NhaCungCap: data.NhaCungCap.value,
-      XeVanChuyen: data.XeVanChuyen.value,
-      TaiXe: data.TaiXe.value,
+      DonViVanTai: data.NhaCungCap.value,
+      XeVanChuyen: !data.XeVanChuyen ? null : data.XeVanChuyen.value,
+      TaiXe: !data.TaiXe ? null : data.TaiXe.value,
       GhiChu: data.GhiChu,
       Romooc: !data.Romooc ? null : data.Romooc.value,
       CONTNO: !data.CONTNO ? null : data.CONTNO,
@@ -239,13 +352,28 @@ const JoinTransports = (props) => {
           ),
     };
 
-    console.log(dataJoin);
-    // const create = await postData("BillOfLading/CreateHandlingLess", dataJoin);
-
-    // if (create === 1) {
-    //   clearItems();
-    //   hideModal();
-    // }
+    if (items && items.length > 0) {
+      const create = await postData(
+        "BillOfLading/CreateHandlingLess",
+        dataJoin
+      );
+      if (create === 1) {
+        clearItems();
+        getListTransport();
+        hideModal();
+      }
+    }
+    if (selectIdClick && Object.keys(selectIdClick).length > 0) {
+      const update = await postData(
+        `BillOfLading/UpdateHandlingLess?handlingId=${selectIdClick.maVanDonChung}`,
+        dataJoin
+      );
+      if (update === 1) {
+        clearItems();
+        getListTransport();
+        hideModal();
+      }
+    }
 
     SetIsLoading(false);
   };
@@ -437,9 +565,6 @@ const JoinTransports = (props) => {
                           options={listVehicleSelect}
                         />
                       )}
-                      rules={{
-                        required: "không được để trống",
-                      }}
                     />
                     {errors.XeVanChuyen && (
                       <span className="text-danger">
@@ -462,9 +587,6 @@ const JoinTransports = (props) => {
                           options={listDriver}
                         />
                       )}
-                      rules={{
-                        required: "không được để trống",
-                      }}
                     />
                     {errors.TaiXe && (
                       <span className="text-danger">
@@ -749,8 +871,9 @@ const JoinTransports = (props) => {
                       <th style={{ width: "40px" }}></th>
                       <th>
                         <div className="row">
-                          <div className="col-sm-2">Mã Vận Đơn KH</div>
-                          <div className="col-sm-3">Khách Hàng</div>
+                          <div className="col-sm-2">Loại Hàng Hóa</div>
+                          <div className="col-sm-1">Mã Vận Đơn</div>
+                          <div className="col-sm-2">Khách Hàng</div>
                           <div className="col-sm-2">Điểm Đầu</div>
                           <div className="col-sm-2">Điểm Cuối</div>
                           <div className="col-sm-1">Khối Lượng</div>
@@ -758,6 +881,7 @@ const JoinTransports = (props) => {
                           <div className="col-sm-1">Số Kiện</div>
                         </div>
                       </th>
+                      <th></th>
                     </tr>
                   </thead>
                   <tbody>
@@ -779,7 +903,39 @@ const JoinTransports = (props) => {
                                 />
                               </div>
                             </div>
-                            <div className="col-sm-2">
+                            <div className="col col-2">
+                              <div className="form-group">
+                                <select
+                                  className="form-control"
+                                  {...register(
+                                    `listTransport.${index}.LoaiHangHoa`,
+                                    Validate.LoaiHangHoa
+                                  )}
+                                >
+                                  <option value="">Chọn Loại Hàng Hóa</option>
+                                  {listGoodsType &&
+                                    listGoodsType.map((val) => {
+                                      return (
+                                        <option
+                                          value={val.maLoaiHangHoa}
+                                          key={val.maLoaiHangHoa}
+                                        >
+                                          {val.tenLoaiHangHoa}
+                                        </option>
+                                      );
+                                    })}
+                                </select>
+                                {errors.listTransport?.[index]?.LoaiHangHoa && (
+                                  <span className="text-danger">
+                                    {
+                                      errors.listTransport?.[index]?.LoaiHangHoa
+                                        .message
+                                    }
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            <div className="col-sm-1">
                               <div className="form-group">
                                 <input
                                   readOnly={true}
@@ -792,7 +948,7 @@ const JoinTransports = (props) => {
                                 />
                               </div>
                             </div>
-                            <div className="col-sm-3">
+                            <div className="col-sm-2">
                               <div className="form-group">
                                 <input
                                   readOnly={true}
@@ -835,9 +991,9 @@ const JoinTransports = (props) => {
                                   readOnly={true}
                                   type="text"
                                   className="form-control"
-                                  id="TongKhoiLuong"
+                                  id="KhoiLuong"
                                   {...register(
-                                    `listTransport.${index}.TongKhoiLuong`
+                                    `listTransport.${index}.KhoiLuong`
                                   )}
                                 />
                               </div>
@@ -848,9 +1004,9 @@ const JoinTransports = (props) => {
                                   readOnly={true}
                                   type="text"
                                   className="form-control"
-                                  id="TongTheTich"
+                                  id="TheTich"
                                   {...register(
-                                    `listTransport.${index}.TongTheTich`
+                                    `listTransport.${index}.TheTich`
                                   )}
                                 />
                               </div>
@@ -861,13 +1017,26 @@ const JoinTransports = (props) => {
                                   readOnly={true}
                                   type="text"
                                   className="form-control"
-                                  id="TongSoKien"
-                                  {...register(
-                                    `listTransport.${index}.TongSoKien`
-                                  )}
+                                  id="SoKien"
+                                  {...register(`listTransport.${index}.SoKien`)}
                                 />
                               </div>
                             </div>
+                          </div>
+                        </td>
+                        <td>
+                          <div className="form-group">
+                            {fields && fields.length > 2 && (
+                              <button
+                                type="button"
+                                className="btn btn-sm btn-default"
+                                onClick={() => {
+                                  remove(index);
+                                }}
+                              >
+                                <i className="fas fa-minus"></i>
+                              </button>
+                            )}
                           </div>
                         </td>
                       </tr>

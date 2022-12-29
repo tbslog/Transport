@@ -389,10 +389,6 @@ const HandlingPage = (props) => {
     listCusSelected = []
   ) => {
     setLoading(true);
-
-    if (KeyWord !== "") {
-      KeyWord = keySearch;
-    }
     fromDate = fromDate === "" ? "" : moment(fromDate).format("YYYY-MM-DD");
     toDate = toDate === "" ? "" : moment(toDate).format("YYYY-MM-DD");
     const dataCus = await getDataCustom(
@@ -615,6 +611,7 @@ const HandlingPage = (props) => {
     setKeySearch("");
     setFromDate("");
     setToDate("");
+    setStatus("");
     setListCusSelected([]);
     setValue("listCustomers", []);
     setPerPage(10);
@@ -668,6 +665,7 @@ const HandlingPage = (props) => {
   const handleOnChangeCustomer = async (values) => {
     if (values && values.length > 0) {
       setLoading(true);
+      setValue("listCustomers", values);
       let arrCus = [];
       values.map((val) => {
         arrCus.push(val.value);
@@ -677,6 +675,7 @@ const HandlingPage = (props) => {
       setLoading(false);
     } else {
       setListCusSelected([]);
+      setValue("listCustomers", []);
       fetchData(transportId, page, keySearch, fromDate, toDate, status, []);
     }
   };

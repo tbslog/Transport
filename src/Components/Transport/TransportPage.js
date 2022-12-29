@@ -1,5 +1,6 @@
 import { useMemo, useState, useEffect, useRef } from "react";
 import { getData, getDataCustom } from "../Common/FuncAxios";
+import { useForm, Controller } from "react-hook-form";
 import DataTable from "react-data-table-component";
 import moment from "moment";
 import { Modal } from "bootstrap";
@@ -8,12 +9,25 @@ import CreateTransport from "./CreateTransport";
 import UpdateTransport from "./UpdateTransport";
 import HandlingPage from "./HandlingPage";
 import CreateTransportLess from "./CreateTransportLess";
+import JoinTransports from "./JoinTransports";
+import { ToastError } from "../Common/FuncToast";
+import UpdateTransportLess from "./UpdateTransportLess";
+import Select from "react-select";
 
 const TransportPage = () => {
+  const {
+    control,
+    setValue,
+    formState: { errors },
+  } = useForm({
+    mode: "onChange",
+  });
+
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [totalRows, setTotalRows] = useState(0);
   const [perPage, setPerPage] = useState(10);
+  const [page, setPage] = useState(1);
   const [keySearch, setKeySearch] = useState("");
 
   const [ShowModal, SetShowModal] = useState("");
@@ -26,12 +40,26 @@ const TransportPage = () => {
   const [toDate, setToDate] = useState("");
   const [listStatus, setListStatus] = useState([]);
   const [status, setStatus] = useState("");
+  const [maPTVC, setMaPTVC] = useState("");
+  const [listCustomer, setListCustomer] = useState([]);
+  const [listCusSelected, setListCusSelected] = useState([]);
+
+  const [selectedRows, setSelectedRows] = useState([]);
+  const [toggledClearRows, setToggleClearRows] = useState(false);
+  const [itemSelected, setItemSelected] = useState([]);
 
   const columns = useMemo(() => [
     {
       cell: (val) => (
         <button
-          onClick={() => handleEditButtonClick(val, SetShowModal("Edit"))}
+          onClick={() =>
+            handleEditButtonClick(
+              val,
+              val.maPTVC === "LCL" || val.maPTVC === "LTL"
+                ? SetShowModal("EditLess")
+                : SetShowModal("Edit")
+            )
+          }
           type="button"
           className="btn btn-title btn-sm btn-default mx-1"
           gloss="Chỉnh Sửa"
@@ -220,6 +248,22 @@ const TransportPage = () => {
 
   useEffect(() => {
     (async () => {
+      let getListCustomer = await getData(
+        `Customer/GetListCustomerOptionSelect`
+      );
+      if (getListCustomer && getListCustomer.length > 0) {
+        let arrKh = [];
+        getListCustomer
+          .filter((x) => x.loaiKH === "KH")
+          .map((val) => {
+            arrKh.push({
+              label: val.tenKh,
+              value: val.maKh,
+            });
+          });
+        setListCustomer(arrKh);
+      }
+
       let getStatusList = await getDataCustom(`Common/GetListStatus`, [
         "Transport",
       ]);
@@ -234,11 +278,14 @@ const TransportPage = () => {
     KeyWord = "",
     fromDate = "",
     toDate = "",
-    status = ""
+    status = "",
+    maptvc = "",
+    listCusSelected = []
   ) => {
     setLoading(true);
-    const datatransport = await getData(
-      `BillOfLading/GetListTransport?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}&StatusId=${status}&fromDate=${fromDate}&toDate=${toDate}&transportType=FULL`
+    const datatransport = await getDataCustom(
+      `BillOfLading/GetListTransport?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}&StatusId=${status}&fromDate=${fromDate}&toDate=${toDate}&maptvc=${maptvc}`,
+      listCusSelected
     );
 
     setData(datatransport.data);
@@ -247,20 +294,24 @@ const TransportPage = () => {
   };
 
   const handlePageChange = async (page) => {
+    setPage(page);
     fetchData(
       page,
       keySearch,
       !fromDate ? "" : moment(fromDate).format("YYYY-MM-DD"),
       !toDate ? "" : moment(toDate).format("YYYY-MM-DD"),
-      status
+      status,
+      maPTVC,
+      listCusSelected
     );
   };
 
   const handlePerRowsChange = async (newPerPage, page) => {
     setLoading(true);
 
-    const datatransport = await getData(
-      `BillOfLading/GetListTransport?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}&StatusId=${status}&fromDate=${fromDate}&toDate=${toDate}&transportType=FULL`
+    const datatransport = await getDataCustom(
+      `BillOfLading/GetListTransport?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}&StatusId=${status}&fromDate=${fromDate}&toDate=${toDate}&maptvc=${maPTVC}`,
+      listCusSelected
     );
     setData(datatransport.data);
     setPerPage(newPerPage);
@@ -282,20 +333,112 @@ const TransportPage = () => {
       keySearch,
       !fromDate ? "" : moment(fromDate).format("YYYY-MM-DD"),
       !toDate ? "" : moment(toDate).format("YYYY-MM-DD"),
-      status
+      status,
+      maPTVC,
+      listCusSelected
     );
   };
 
   const handleOnChangeStatus = (val) => {
     setStatus(val);
-    fetchData(1, keySearch, fromDate, toDate, val);
+    fetchData(1, keySearch, fromDate, toDate, val, maPTVC, listCusSelected);
+  };
+
+  const handleOnChangeMaPTVC = (val) => {
+    setMaPTVC(val);
+    fetchData(1, keySearch, fromDate, toDate, status, val, listCusSelected);
   };
 
   const handleRefeshDataClick = () => {
     setKeySearch("");
     setFromDate("");
     setToDate("");
+    setMaPTVC("");
+    setStatus("");
+    setListCusSelected([]);
+    setValue("listCustomers", []);
     fetchData(1);
+  };
+
+  const refeshData = () => {
+    fetchData(
+      page,
+      keySearch,
+      fromDate,
+      toDate,
+      status,
+      maPTVC,
+      listCusSelected
+    );
+  };
+
+  const handleOnClickMarge = () => {
+    if (selectedRows && selectedRows.length > 1) {
+      setItemSelected(selectedRows);
+      showModalForm(SetShowModal("MargeTransport"));
+    } else {
+      setItemSelected([]);
+      ToastError("Vui lòng chọn nhiều hơn 1 vận đơn để gộp");
+      return;
+    }
+  };
+
+  const handleChange = (state) => {
+    setSelectedRows(state.selectedRows);
+  };
+
+  const handleOnChangeCustomer = (values) => {
+    if (values && values.length > 0) {
+      setLoading(true);
+
+      setValue("listCustomers", values);
+      let arrCus = [];
+      values.map((val) => {
+        arrCus.push(val.value);
+      });
+
+      fetchData(page, keySearch, fromDate, toDate, status, maPTVC, arrCus);
+      setLoading(false);
+    } else {
+      setListCusSelected([]);
+      setValue("listCustomers", []);
+      fetchData(page, keySearch, fromDate, toDate, status, maPTVC, []);
+    }
+  };
+
+  const handleClearRows = () => {
+    setToggleClearRows(!toggledClearRows);
+    setSelectedRows([]);
+    setItemSelected([]);
+  };
+
+  const customStyles = {
+    control: (provided, state) => ({
+      ...provided,
+      background: "#fff",
+      borderColor: "#9e9e9e",
+      minHeight: "30px",
+      height: "30px",
+      boxShadow: state.isFocused ? null : null,
+    }),
+
+    valueContainer: (provided, state) => ({
+      ...provided,
+      height: "30px",
+      padding: "0 6px",
+    }),
+
+    input: (provided, state) => ({
+      ...provided,
+      margin: "0px",
+    }),
+    indicatorSeparator: (state) => ({
+      display: "none",
+    }),
+    indicatorsContainer: (provided, state) => ({
+      ...provided,
+      height: "30px",
+    }),
   };
 
   return (
@@ -340,11 +483,56 @@ const TransportPage = () => {
                   >
                     <i className="fas fa-plus-circle">LCL/LTL</i>
                   </button>
+                  <button
+                    type="button"
+                    className="btn btn-title btn-sm btn-default mx-1"
+                    gloss="Gộp Chuyến "
+                    onClick={() => handleOnClickMarge()}
+                  >
+                    <i className="fas fa-layer-group"></i>
+                  </button>
                 </div>
 
-                <div className="col-sm-3">
+                <div className="col-sm-5">
                   <div className="row">
-                    <div className="col col-sm"></div>
+                    <div className="col col-sm">
+                      <div className="form-group">
+                        <Controller
+                          name="listCustomers"
+                          control={control}
+                          render={({ field }) => (
+                            <Select
+                              {...field}
+                              className="basic-multi-select"
+                              classNamePrefix={"form-control"}
+                              isMulti
+                              value={field.value}
+                              options={listCustomer}
+                              styles={customStyles}
+                              onChange={(field) =>
+                                handleOnChangeCustomer(field)
+                              }
+                              placeholder="Chọn Khách Hàng"
+                            />
+                          )}
+                        />
+                      </div>
+                    </div>
+                    <div className="col col-sm">
+                      <div className="input-group input-group-sm">
+                        <select
+                          className="form-control form-control-sm"
+                          onChange={(e) => handleOnChangeMaPTVC(e.target.value)}
+                          value={maPTVC}
+                        >
+                          <option value="">Tất Cả Loại Hình</option>
+                          <option value="FCL">FCL</option>
+                          <option value="FTL">FTL</option>
+                          <option value="LCL">LCL</option>
+                          <option value="LTL">LTL</option>
+                        </select>
+                      </div>
+                    </div>
                     <div className="col col-sm">
                       <div className="input-group input-group-sm">
                         <select
@@ -366,7 +554,7 @@ const TransportPage = () => {
                     </div>
                   </div>
                 </div>
-                <div className="col-sm-3">
+                <div className="col-sm-2">
                   <div className="row">
                     <div className="col col-sm">
                       <div className="input-group input-group-sm">
@@ -394,7 +582,7 @@ const TransportPage = () => {
                     </div>
                   </div>
                 </div>
-                <div className="col-sm-3 ">
+                <div className="col-sm-2 ">
                   <div className="input-group input-group-sm">
                     <input
                       placeholder="Tìm kiếm"
@@ -438,7 +626,10 @@ const TransportPage = () => {
                 paginationTotalRows={totalRows}
                 paginationRowsPerPageOptions={[10, 30, 50, 100]}
                 onChangeRowsPerPage={handlePerRowsChange}
+                onSelectedRowsChange={handleChange}
                 onChangePage={handlePageChange}
+                clearSelectedRows={toggledClearRows}
+                selectableRows
                 highlightOnHover
                 striped
               />
@@ -472,20 +663,42 @@ const TransportPage = () => {
               </div>
               <div className="modal-body">
                 <>
+                  {ShowModal === "MargeTransport" &&
+                    itemSelected &&
+                    itemSelected.length > 1 && (
+                      <JoinTransports
+                        getListTransport={refeshData}
+                        items={itemSelected}
+                        clearItems={handleClearRows}
+                        hideModal={hideModal}
+                      />
+                    )}
                   {ShowModal === "CreateLCL/LTL" && (
-                    <CreateTransportLess getListTransport={fetchData} />
+                    <CreateTransportLess
+                      getListTransport={refeshData}
+                      hideModal={hideModal}
+                    />
                   )}
                   {ShowModal === "CreateFCL/FTL" && (
-                    <CreateTransport getListTransport={fetchData} />
+                    <CreateTransport
+                      getListTransport={refeshData}
+                      hideModal={hideModal}
+                    />
                   )}
                   {ShowModal === "Edit" && (
                     <UpdateTransport
-                      getListTransport={fetchData}
+                      getListTransport={refeshData}
                       selectIdClick={selectIdClick}
                       hideModal={hideModal}
                     />
                   )}
-
+                  {ShowModal === "EditLess" && (
+                    <UpdateTransportLess
+                      getListTransport={refeshData}
+                      selectIdClick={selectIdClick}
+                      hideModal={hideModal}
+                    />
+                  )}
                   {ShowModal === "ListHandling" && (
                     <HandlingPage
                       dataClick={selectIdClick}
