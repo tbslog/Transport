@@ -483,14 +483,6 @@ const TransportPage = () => {
                   >
                     <i className="fas fa-plus-circle">LCL/LTL</i>
                   </button>
-                  <button
-                    type="button"
-                    className="btn btn-title btn-sm btn-default mx-1"
-                    gloss="Gộp Chuyến "
-                    onClick={() => handleOnClickMarge()}
-                  >
-                    <i className="fas fa-layer-group"></i>
-                  </button>
                 </div>
 
                 <div className="col-sm-5">
@@ -627,9 +619,9 @@ const TransportPage = () => {
                 paginationRowsPerPageOptions={[10, 30, 50, 100]}
                 onChangeRowsPerPage={handlePerRowsChange}
                 onSelectedRowsChange={handleChange}
-                onChangePage={handlePageChange}
-                clearSelectedRows={toggledClearRows}
-                selectableRows
+                // onChangePage={handlePageChange}
+                // clearSelectedRows={toggledClearRows}
+                // selectableRows
                 highlightOnHover
                 striped
               />
@@ -663,7 +655,7 @@ const TransportPage = () => {
               </div>
               <div className="modal-body">
                 <>
-                  {ShowModal === "MargeTransport" &&
+                  {/* {ShowModal === "MargeTransport" &&
                     itemSelected &&
                     itemSelected.length > 1 && (
                       <JoinTransports
@@ -672,7 +664,7 @@ const TransportPage = () => {
                         clearItems={handleClearRows}
                         hideModal={hideModal}
                       />
-                    )}
+                    )} */}
                   {ShowModal === "CreateLCL/LTL" && (
                     <CreateTransportLess
                       getListTransport={refeshData}

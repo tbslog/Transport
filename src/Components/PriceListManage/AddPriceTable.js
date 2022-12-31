@@ -100,14 +100,7 @@ const AddPriceTable = (props) => {
         message: "Không phải định dạng ngày",
       },
     },
-    GiaVND: {
-      pattern: {
-        value: /^[0-9]*$/,
-        message: "Chỉ được nhập ký tự là số",
-      },
-      required: "Không được để trống",
-    },
-    GiaUSD: {
+    DonGia: {
       pattern: {
         value: /^[0-9]*$/,
         message: "Chỉ được nhập ký tự là số",
@@ -123,9 +116,9 @@ const AddPriceTable = (props) => {
     MaDVT: {
       required: "Không được để trống",
     },
-    // MaPTVC: {
-    //   required: "Không được để trống",
-    // },
+    MaPTVC: {
+      required: "Không được để trống",
+    },
     TrangThai: {
       required: "Không được để trống",
     },
@@ -285,12 +278,13 @@ const AddPriceTable = (props) => {
       >
         <TabList>
           <Tab>Tạo Bảng giá</Tab>
-          {props.selectIdClick && Object.keys(props.selectIdClick).length > 0 && (
-            <>
-              <Tab>Bảng Giá Hiện Hành</Tab>
-              <Tab>Bảng Giá Hợp Đồng</Tab>
-            </>
-          )}
+          {props.selectIdClick &&
+            Object.keys(props.selectIdClick).length > 0 && (
+              <>
+                <Tab>Bảng Giá Hiện Hành</Tab>
+                <Tab>Bảng Giá Hợp Đồng</Tab>
+              </>
+            )}
         </TabList>
 
         <TabPanel>

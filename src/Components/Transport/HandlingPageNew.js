@@ -4,7 +4,12 @@ import DatePicker from "react-datepicker";
 import moment from "moment";
 import { useForm, Controller } from "react-hook-form";
 import { useMemo, useState, useEffect, useRef } from "react";
-import { getData, getDataCustom, postData } from "../Common/FuncAxios";
+import {
+  getData,
+  getDataCustom,
+  postData,
+  postFile,
+} from "../Common/FuncAxios";
 import DataTable from "react-data-table-component";
 import CreateTransportLess from "./CreateTransportLess";
 import AddSubFeeByHandling from "./AddSubFeeByHandling";
@@ -12,6 +17,8 @@ import ApproveSubFeeByHandling from "./ApproveSubFeeByHandling";
 import JoinTransports from "./JoinTransports";
 
 import Select from "react-select";
+import ListHandlingChild from "./ListHandlingChild";
+import { ToastError } from "../Common/FuncToast";
 
 const HandlingPageNew = () => {
   const Columns = useMemo(() => [
@@ -69,7 +76,7 @@ const HandlingPageNew = () => {
               <i className="fas fa-image"></i>
             </button>
           </>
-          {/* <>
+          <>
             <div
               className="upload-btn-wrapper mx-1 btn-title"
               gloss="Upload Hình Ảnh"
@@ -85,84 +92,131 @@ const HandlingPageNew = () => {
                 onChange={(e) => handleUploadImage(val, e)}
               />
             </div>
-          </> */}
+          </>
         </>
       ),
-      width: "250px",
+      width: "200px",
       ignoreRowClick: true,
       allowOverflow: true,
       button: true,
+    },
+    {
+      selector: (row) => row.maDieuPhoi,
+      omit: true,
     },
     {
       selector: (row) => row.maVanDon,
       omit: true,
     },
     {
-      name: <div>Mã Vận Đơn</div>,
+      name: <div>Mã Chuyến</div>,
       selector: (row) => <div className="text-wrap">{row.maVanDonChung}</div>,
+      sortable: true,
     },
-
+    {
+      name: <div>Mã Vận Đơn</div>,
+      selector: (row) => <div className="text-wrap">{row.maVanDonKH}</div>,
+      sortable: true,
+    },
     {
       name: <div>Loại Vận Đơn</div>,
       selector: (row) => <div className="text-wrap">{row.phanLoaiVanDon}</div>,
+      sortable: true,
+    },
+    {
+      name: <div>Khách Hàng</div>,
+      selector: (row) => <div className="text-wrap">{row.maKH}</div>,
+      sortable: true,
     },
     {
       name: <div>Đơn Vị Vận Tải</div>,
       selector: (row) => <div className="text-wrap">{row.donViVanTai}</div>,
+      sortable: true,
     },
     {
-      name: <div>PTVC</div>,
+      name: "PTVC",
       selector: (row) => <div className="text-wrap">{row.maPTVC}</div>,
+      sortable: true,
+    },
+    // {
+    //   name: <div>Cung Đường</div>,
+    //   selector: (row) => <div className="text-wrap">{row.cungDuong}</div>,
+    //   sortable: true,
+    // },
+    {
+      name: <div>Điểm Lấy Hàng</div>,
+      selector: (row) => <div className="text-wrap">{row.diemLayHang}</div>,
+      sortable: true,
+    },
+    {
+      name: <div>Điểm Trả Hàng</div>,
+      selector: (row) => <div className="text-wrap">{row.diemTraHang}</div>,
+      sortable: true,
     },
     {
       name: <div>Điểm Lấy Rỗng</div>,
       selector: (row) => <div className="text-wrap">{row.diemLayRong}</div>,
-    },
-    {
-      name: <div>ContNo</div>,
-      selector: (row) => <div className="text-wrap">{row.contNo}</div>,
+      sortable: true,
     },
     {
       name: <div>Mã Số Xe</div>,
       selector: (row) => <div className="text-wrap">{row.maSoXe}</div>,
-    },
-    {
-      name: <div>Tài Xế</div>,
-      selector: (row) => <div className="text-wrap">{row.tenTaiXe}</div>,
-    },
-    {
-      name: <div>Tổng Trọng Lượng</div>,
-      selector: (row) => <div className="text-wrap">{row.khoiLuong}</div>,
       sortable: true,
     },
     {
-      name: <div>Tổng Thể Tích</div>,
-      selector: (row) => <div className="text-wrap">{row.theTich}</div>,
+      name: <div>Mã CONT</div>,
+      selector: (row) => <div className="text-wrap">{row.contNo}</div>,
       sortable: true,
     },
     {
-      name: <div>Tổng Số Kiện</div>,
-      selector: (row) => <div className="text-wrap">{row.soKien}</div>,
+      name: <div>Hãng Tàu</div>,
+      selector: (row) => <div className="text-wrap">{row.hangTau}</div>,
+      sortable: true,
+    },
+    // {
+    //   name: "Tài Xế",
+    //   selector: (row) => <div className="text-wrap">{row.tenTaiXe}</div>,
+    //   sortable: true,
+    // },
+    {
+      name: <div>Loại Phương Tiện</div>,
+      selector: (row) => row.ptVanChuyen,
       sortable: true,
     },
     {
-      selector: (row) => row.statusId,
+      name: <div>Khối Lượng</div>,
+      selector: (row) => row.khoiLuong,
       sortable: true,
-      omit: true,
     },
+    {
+      name: <div>Thể Tích</div>,
+      selector: (row) => row.theTich,
+      sortable: true,
+    },
+    // {
+    //   name: <div>Số Kiện</div>,
+    //   selector: (row) => row.soKien,
+    //   sortable: true,
+    // },
     {
       name: <div>Trạng Thái</div>,
       selector: (row) => <div className="text-wrap">{row.trangThai}</div>,
+      sortable: true,
     },
     {
-      name: <div>Thời Gian Lập Đơn</div>,
-
+      name: "statusId",
+      selector: (row) => row.statusId,
+      omit: true,
+    },
+    {
+      name: <div>Thời Gian Tạo</div>,
       selector: (row) => (
         <div className="text-wrap">
-          {moment(row.thoiGianTaoDon).format("DD/MM/YYYY HH:mm")}
+          {moment(row.thoiGianTaoDon).format("DD/MM/YYYY HH:mm:ss")}
         </div>
       ),
       sortable: true,
+      grow: 2,
     },
   ]);
 
@@ -272,10 +326,11 @@ const HandlingPageNew = () => {
   const handlePerRowsChange = async (newPerPage, page) => {
     setLoading(true);
 
-    const data = await getData(
-      `BillOfLading/GetListHandlingLess?PageNumber=${page}&PageSize=${perPage}&KeyWord=${keySearch}&fromDate=${fromDate}&toDate=${toDate}&statusId=${status}`,
+    const data = await getDataCustom(
+      `BillOfLading/GetListHandlingLess?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}&fromDate=${fromDate}&toDate=${toDate}&statusId=${status}`,
       listCusSelected
     );
+
     setData(data.data);
     setPerPage(newPerPage);
     setTotalRows(data.totalRecords);
@@ -322,7 +377,7 @@ const HandlingPageNew = () => {
         return (
           <button
             title="Hoàn Thành Chuyến"
-            onClick={() => showConfirmDialog(val, setFuncName("StartRuning"))}
+            onClick={() => showConfirmDialog(val, setFuncName("Completed"))}
             type="button"
             className="btn btn-title btn-sm btn-default mx-1"
             gloss="Hoàn Thành Chuyến"
@@ -411,6 +466,27 @@ const HandlingPageNew = () => {
           return setRuning();
         case "CancelHandling":
           return setCancelHandling();
+        case "Completed":
+          return Completed();
+      }
+    }
+  };
+
+  const Completed = async () => {
+    if (
+      ShowConfirm === true &&
+      selectIdClick &&
+      Object.keys(selectIdClick).length > 0
+    ) {
+      var update = await postData(
+        `BillOfLading/SetRuning?id=${selectIdClick.maDieuPhoi}`
+      );
+
+      if (update === 1) {
+        refeshData();
+        setShowConfirm(false);
+      } else {
+        setShowConfirm(false);
       }
     }
   };
@@ -450,6 +526,40 @@ const HandlingPageNew = () => {
       } else {
         setShowConfirm(false);
       }
+    }
+  };
+
+  const handleUploadImage = async (val, e) => {
+    let files = e.target.files;
+    const transportId = val.maVanDon;
+    const handlingId = val.maDieuPhoi;
+
+    let arrfiles = [];
+
+    for (let i = 0; i <= files.length - 1; i++) {
+      arrfiles.push(files[i]);
+    }
+
+    const uploadFiles = await postFile("BillOfLading/UploadFile", {
+      files: arrfiles,
+      transportId: transportId,
+      handlingId: handlingId,
+    });
+  };
+
+  const handleChange = (state) => {
+    setSelectedRows(state.selectedRows);
+  };
+
+  const handleOnClickMarge = () => {
+    if (selectedRows && selectedRows.length > 1) {
+      setItemSelected(selectedRows);
+      console.log(selectedRows);
+      showModalForm(SetShowModal("MargeTransport"));
+    } else {
+      setItemSelected([]);
+      ToastError("Vui lòng chọn nhiều hơn 1 vận đơn để gộp");
+      return;
     }
   };
 
@@ -519,14 +629,14 @@ const HandlingPageNew = () => {
                 >
                   <i className="fas fa-check-double"></i>
                 </button>
-                {/* <button
+                <button
                   type="button"
                   className="btn btn-title btn-sm btn-default mx-1"
                   gloss="Gộp Chuyến "
                   onClick={() => handleOnClickMarge()}
                 >
                   <i className="fas fa-layer-group"></i>
-                </button> */}
+                </button>
               </div>
               <div className="col col-sm">
                 <div className="form-group">
@@ -559,6 +669,7 @@ const HandlingPageNew = () => {
                         value={status}
                       >
                         <option value="">Tất Cả Trạng Thái</option>
+                        <option value={"null"}>Chưa điều phối</option>
                         {listStatus &&
                           listStatus.map((val) => {
                             return (
@@ -643,11 +754,11 @@ const HandlingPageNew = () => {
               paginationServer
               paginationRowsPerPageOptions={[10, 30, 50, 100]}
               paginationTotalRows={totalRows}
-              // onSelectedRowsChange={handleChange}
+              onSelectedRowsChange={handleChange}
               onChangeRowsPerPage={handlePerRowsChange}
               onChangePage={handlePageChange}
-              // clearSelectedRows={toggledClearRows}
-              // selectableRows
+              clearSelectedRows={toggledClearRows}
+              selectableRows
               highlightOnHover
               striped
             />
@@ -700,7 +811,6 @@ const HandlingPageNew = () => {
                         getListTransport={refeshData}
                         items={itemSelected}
                         clearItems={handleClearRows}
-                        selectIdClick={{}}
                         hideModal={hideModal}
                       />
                     )}
@@ -717,6 +827,12 @@ const HandlingPageNew = () => {
                       selectIdClick={selectIdClick}
                       items={[]}
                       hideModal={hideModal}
+                    />
+                  )}
+                  {ShowModal === "ListHandling" && (
+                    <ListHandlingChild
+                      dataClick={selectIdClick}
+                      getListData={refeshData}
                     />
                   )}
                   {ShowModal === "addSubFee" && (
