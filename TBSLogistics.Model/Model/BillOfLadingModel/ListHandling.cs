@@ -9,7 +9,7 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
 {
     public class ListHandling
     {
-        public string MaVanDonChung { get; set; }
+        public string MaChuyen { get; set; }
         public string DiemLayHang { get; set; }
         public string DiemTraHang { get; set; }
         public string MaVanDonKH { get; set; }
@@ -20,7 +20,7 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
         public string SealNP { get; set; }
         public string MaVanDon { get; set; }
         public string PhanLoaiVanDon { get; set; }
-        public long MaDieuPhoi { get; set; }
+        public long? MaDieuPhoi { get; set; }
         public string MaSoXe { get; set; }
         public string TenTaiXe { get; set; }
         public string SoDienThoai { get; set; }
@@ -44,6 +44,6 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
         public DateTime? ThoiGianTraHang { get; set; }
         public DateTime? ThoiGianTaoDon { get; set; }
         public string TrangThai { get; set; }
-        public int statusId { get; set; }
+        public int? statusId { get; set; }
     }
 }

@@ -13,7 +13,7 @@ namespace TBSLogistics.Data.TMS
 
         public long Id { get; set; }
         public string MaVanDon { get; set; }
-        public string MaVanDonChung { get; set; }
+        public string MaChuyen { get; set; }
         public string MaSoXe { get; set; }
         public string MaTaiXe { get; set; }
         public string MaLoaiHangHoa { get; set; }

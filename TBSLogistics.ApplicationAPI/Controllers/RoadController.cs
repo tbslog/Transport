@@ -17,7 +17,7 @@ using TBSLogistics.Service.Services.Common;
 
 namespace TBSLogistics.ApplicationAPI.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class RoadController : ControllerBase

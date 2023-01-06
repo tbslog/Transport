@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
 using System;
@@ -16,7 +17,7 @@ using TBSLogistics.Service.Services.Common;
 
 namespace TBSLogistics.ApplicationAPI.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class BillOfLadingController : ControllerBase
@@ -103,6 +104,14 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
             var pagedReponse = PaginationHelper.CreatePagedReponse<ListHandling>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _paninationService, route);
             return Ok(pagedReponse);
+        }
+
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetListHandlingByMaVanDonChung([FromQuery] PaginationFilter filter, string maChuyen)
+        {
+            var list = await _billOfLading.GetListHandlingByMaVanDonChung(maChuyen, filter);
+            return Ok(list);
         }
 
         [HttpPost]
@@ -500,6 +509,11 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> ExportExcelHandLing([FromQuery] PaginationFilter filter, string[] customers, CancellationToken cancellationToken)
         {
+            if (filter.fromDate == null && filter.toDate == null)
+            {
+                return BadRequest("Vui lòng chọn mốc thời gian để xuất Excel");
+            }
+
             await Task.Yield();
             var stream = new MemoryStream();
             filter.PageNumber = 1;
@@ -509,7 +523,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             using (var package = new ExcelPackage(stream))
             {
                 var workSheet = package.Workbook.Worksheets.Add("DieuPhoi");
-                workSheet.Cells[1, 1].Value = "Mã Vận Đơn";
+                workSheet.Cells[1, 1].Value = "Mã Vân Đơn KH";
                 workSheet.Cells[1, 2].Value = "Loại Vận Đơn";
                 workSheet.Cells[1, 3].Value = "Khách Hàng";
                 workSheet.Cells[1, 4].Value = "Đơn Vị Vận Tải";
@@ -528,7 +542,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
                 int row = 2;
                 foreach (var item in data.dataResponse)
                 {
-                    workSheet.Cells[row, 1].Value = item.MaVanDon;
+                    workSheet.Cells[row, 1].Value = item.MaVanDonKH;
                     workSheet.Cells[row, 2].Value = item.PhanLoaiVanDon == "nhap" ? "Nhập" : "Xuất";
                     workSheet.Cells[row, 3].Value = item.MaKH;
                     workSheet.Cells[row, 4].Value = item.DonViVanTai;
@@ -550,6 +564,83 @@ namespace TBSLogistics.ApplicationAPI.Controllers
                 workSheet.Cells["A1:P1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
                 workSheet.Cells["A1:P1"].Style.Font.Bold = true;
                 workSheet.Cells["A1:P1"].Style.Font.Size = 14;
+
+                workSheet.Cells[workSheet.Dimension.Address].AutoFitColumns();
+                workSheet.Cells[workSheet.Dimension.Address].Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                workSheet.Cells[workSheet.Dimension.Address].Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                workSheet.Cells[workSheet.Dimension.Address].Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                workSheet.Cells[workSheet.Dimension.Address].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+
+                package.Save();
+            }
+            stream.Position = 0;
+            string excelName = $"DieuPhoi " + DateTime.Now.ToString("dd-MM-yyyy") + ".xlsx";
+
+            //return File(stream, "application/octet-stream", excelName);
+            return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", excelName);
+        }
+
+        [HttpPost]
+        [Route("[action]")]
+        public async Task<IActionResult> ExportExcelHandlingLess([FromQuery] PaginationFilter filter, string[] customers, CancellationToken cancellationToken)
+        {
+            if (filter.fromDate == null && filter.toDate == null)
+            {
+                return BadRequest("Vui lòng chọn mốc thời gian để xuất Excel");
+            }
+
+            await Task.Yield();
+            var stream = new MemoryStream();
+            filter.PageNumber = 1;
+            filter.PageSize = 500000;
+            var data = await _billOfLading.GetListHandlingLess(customers, filter);
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+            using (var package = new ExcelPackage(stream))
+            {
+                var workSheet = package.Workbook.Worksheets.Add("DieuPhoi");
+                workSheet.Cells[1, 1].Value = "Mã Chuyến";
+                workSheet.Cells[1, 2].Value = "Mã Vận Đơn";
+                workSheet.Cells[1, 3].Value = "Loại Vận Đơn";
+                workSheet.Cells[1, 4].Value = "Khách Hàng";
+                workSheet.Cells[1, 5].Value = "Đơn Vị Vận Tải";
+                workSheet.Cells[1, 6].Value = "Phương Thức Vận Chuyển";
+                workSheet.Cells[1, 7].Value = "Điểm Lấy Hàng";
+                workSheet.Cells[1, 8].Value = "Điểm Trả Hàng";
+                workSheet.Cells[1, 9].Value = "Điểm Lấy Rỗng";
+                workSheet.Cells[1, 10].Value = "Mã Số Xe";
+                workSheet.Cells[1, 11].Value = "Mã CONT";
+                workSheet.Cells[1, 12].Value = "Hãng Tàu";
+                workSheet.Cells[1, 13].Value = "Loại Phương Tiện";
+                workSheet.Cells[1, 14].Value = "Khối Lượng";
+                workSheet.Cells[1, 15].Value = "Thể Tích";
+                workSheet.Cells[1, 16].Value = "Trạng Thái";
+                workSheet.Cells[1, 17].Value = "Thời Gian Tạo";
+                int row = 2;
+                foreach (var item in data.dataResponse)
+                {
+                    workSheet.Cells[row, 1].Value = item.MaChuyen;
+                    workSheet.Cells[row, 2].Value = item.MaVanDonKH;
+                    workSheet.Cells[row, 3].Value = item.PhanLoaiVanDon == "nhap" ? "Nhập" : "Xuất";
+                    workSheet.Cells[row, 4].Value = item.MaKH;
+                    workSheet.Cells[row, 5].Value = item.DonViVanTai;
+                    workSheet.Cells[row, 6].Value = item.MaPTVC;
+                    workSheet.Cells[row, 7].Value = item.DiemLayHang;
+                    workSheet.Cells[row, 8].Value = item.DiemTraHang;
+                    workSheet.Cells[row, 9].Value = item.DiemLayRong;
+                    workSheet.Cells[row, 10].Value = item.MaSoXe;
+                    workSheet.Cells[row, 11].Value = item.ContNo;
+                    workSheet.Cells[row, 12].Value = item.HangTau;
+                    workSheet.Cells[row, 13].Value = item.PTVanChuyen;
+                    workSheet.Cells[row, 14].Value = item.KhoiLuong;
+                    workSheet.Cells[row, 15].Value = item.TheTich;
+                    workSheet.Cells[row, 16].Value = item.TrangThai;
+                    workSheet.Cells[row, 17].Value = item.ThoiGianTaoDon.ToString();
+                    row++;
+                }
+
+                workSheet.Cells["A1:Q1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                workSheet.Cells["A1:Q1"].Style.Font.Bold = true;
+                workSheet.Cells["A1:Q1"].Style.Font.Size = 14;
 
                 workSheet.Cells[workSheet.Dimension.Address].AutoFitColumns();
                 workSheet.Cells[workSheet.Dimension.Address].Style.Border.Top.Style = ExcelBorderStyle.Thin;
