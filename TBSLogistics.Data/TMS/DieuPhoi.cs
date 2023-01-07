@@ -9,6 +9,7 @@ namespace TBSLogistics.Data.TMS
         {
             Attachment = new HashSet<Attachment>();
             SfeeByTcommand = new HashSet<SfeeByTcommand>();
+            SubFeeByContract = new HashSet<SubFeeByContract>();
         }
 
         public long Id { get; set; }
@@ -42,6 +43,8 @@ namespace TBSLogistics.Data.TMS
         public DateTime CreatedTime { get; set; }
         public DateTime? UpdatedTime { get; set; }
         public DateTime? DeletedTime { get; set; }
+        public string Updater { get; set; }
+        public string Creator { get; set; }
 
         public virtual BangGia BangGiaKhNavigation { get; set; }
         public virtual BangGia BangGiaNccNavigation { get; set; }
@@ -52,5 +55,6 @@ namespace TBSLogistics.Data.TMS
         public virtual VanDon MaVanDonNavigation { get; set; }
         public virtual ICollection<Attachment> Attachment { get; set; }
         public virtual ICollection<SfeeByTcommand> SfeeByTcommand { get; set; }
+        public virtual ICollection<SubFeeByContract> SubFeeByContract { get; set; }
     }
 }

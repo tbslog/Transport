@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TBSLogistics.Data.TMS;
 using TBSLogistics.Model.CommonModel;
 using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.SubFeePriceModel;
@@ -20,5 +21,6 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
         Task<BoolActionResult> DisableSubFeePrice(List<long> ids);
         Task<BoolActionResult> DeleteSubFeePrice(List<long> ids);
         Task<List<ListSubFee>> GetListSubFeeSelect();
+        Task<List<SubFeePrice>> GetListSubFeePriceActive(string customerId, string goodTypes, int? getEmptyPlace, string road);
     }
 }

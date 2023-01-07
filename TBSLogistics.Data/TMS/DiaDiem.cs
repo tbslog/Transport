@@ -17,6 +17,8 @@ namespace TBSLogistics.Data.TMS
         public string MaLoaiDiaDiem { get; set; }
         public DateTime CreatedTime { get; set; }
         public DateTime UpdatedTime { get; set; }
+        public string Creator { get; set; }
+        public string Updater { get; set; }
 
         public virtual QuanHuyen MaHuyenNavigation { get; set; }
         public virtual LoaiDiaDiem MaLoaiDiaDiemNavigation { get; set; }

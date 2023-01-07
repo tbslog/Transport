@@ -26,6 +26,9 @@ namespace TBSLogistics.Data.TMS
         public DateTime UpdatedTime { get; set; }
         public DateTime CreatedTime { get; set; }
         public DateTime? DeletedTime { get; set; }
+        public string Approver { get; set; }
+        public string Creator { get; set; }
+        public string Updater { get; set; }
 
         public virtual CungDuong MaCungDuongNavigation { get; set; }
         public virtual HopDongVaPhuLuc MaHopDongNavigation { get; set; }

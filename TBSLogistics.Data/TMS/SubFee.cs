@@ -18,8 +18,9 @@ namespace TBSLogistics.Data.TMS
         /// 0: deactivated, 1: create new, 2: approved, 3: deleted
         /// </summary>
         public byte SfState { get; set; }
-        public string Creator { get; set; }
         public string SfDescription { get; set; }
+        public string Updater { get; set; }
+        public string Creator { get; set; }
 
         public virtual SubFeeType SfTypeNavigation { get; set; }
         public virtual ICollection<SfeeByTcommand> SfeeByTcommand { get; set; }

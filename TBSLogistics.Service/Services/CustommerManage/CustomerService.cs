@@ -72,7 +72,8 @@ namespace TBSLogistics.Service.Services.CustommerManage
                     MaGps = request.Address.MaGps,
                     MaLoaiDiaDiem = request.Address.MaLoaiDiaDiem,
                     CreatedTime = DateTime.Now,
-                    UpdatedTime = DateTime.Now
+                    UpdatedTime = DateTime.Now,
+                    Creator = tempData.UserName,
                 });
 
                 await _TMSContext.SaveChangesAsync();
@@ -112,7 +113,8 @@ namespace TBSLogistics.Service.Services.CustommerManage
                     MaDiaDiem = addAddress.Entity.MaDiaDiem,
                     TrangThai = request.TrangThai,
                     CreatedTime = DateTime.Now,
-                    UpdatedTime = DateTime.Now
+                    UpdatedTime = DateTime.Now,
+                    Creator = tempData.UserName,
                 });
 
                 var result = await _TMSContext.SaveChangesAsync();
@@ -164,6 +166,7 @@ namespace TBSLogistics.Service.Services.CustommerManage
                 getAddress.MaGps = request.Address.MaGps;
                 getAddress.MaLoaiDiaDiem = request.Address.MaLoaiDiaDiem;
                 getAddress.UpdatedTime = DateTime.Now;
+                getAddress.Updater = tempData.UserName;
 
                 GetCustommer.TenKh = request.TenKh;
                 GetCustommer.MaSoThue = request.MaSoThue;
@@ -173,7 +176,9 @@ namespace TBSLogistics.Service.Services.CustommerManage
                 GetCustommer.MaLoaiKh = request.LoaiKH;
                 GetCustommer.MaNhomKh = request.NhomKH;
                 GetCustommer.TrangThai = request.TrangThai;
+                GetCustommer.Updater = tempData.UserName;
 
+                _TMSContext.Update(getAddress);
                 _TMSContext.Update(GetCustommer);
 
                 var result = await _TMSContext.SaveChangesAsync();

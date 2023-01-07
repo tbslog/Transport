@@ -14,6 +14,8 @@ namespace TBSLogistics.Data.TMS
         public long? DieuPhoiId { get; set; }
         public string MaHopDong { get; set; }
         public DateTime? UploadedTime { get; set; }
+        public string Updater { get; set; }
+        public string Creator { get; set; }
 
         public virtual DieuPhoi DieuPhoi { get; set; }
         public virtual HopDongVaPhuLuc MaHopDongNavigation { get; set; }

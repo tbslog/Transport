@@ -60,6 +60,7 @@ namespace TBSLogistics.Service.Services.VehicleManage
                     ThoiGianKhauHao = request.ThoiGianKhauHao,
                     NgayHoatDong = request.NgayHoatDong,
                     TrangThai = 1,
+                    Creator = tempData.UserName,
                     UpdatedTime = DateTime.Now,
                     CreatedTime = DateTime.Now,
                 });
@@ -105,6 +106,7 @@ namespace TBSLogistics.Service.Services.VehicleManage
                 getVehicle.NgayHoatDong = request.NgayHoatDong;
                 getVehicle.TrangThai = request.TrangThai;
                 getVehicle.UpdatedTime = DateTime.Now;
+                getVehicle.Updater = tempData.UserName;
 
                 _context.Update(getVehicle);
 

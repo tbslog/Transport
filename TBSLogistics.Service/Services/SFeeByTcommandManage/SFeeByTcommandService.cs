@@ -29,7 +29,7 @@ namespace TBSLogistics.Service.Services.SFeeByTcommandManage
         private readonly IHttpContextAccessor _httpContextAccessor;
         private TempData tempData;
 
-        public SFeeByTcommandService(ICommon common, TMSContext context,IHttpContextAccessor httpContextAccessor)
+        public SFeeByTcommandService(ICommon common, TMSContext context, IHttpContextAccessor httpContextAccessor)
         {
             _httpContextAccessor = httpContextAccessor;
             _common = common;
@@ -50,7 +50,7 @@ namespace TBSLogistics.Service.Services.SFeeByTcommandManage
                         IdListFail.Add(" Bản Ghi:" + i.IdTcommand + " -" + i.SfId + " -" + i.SfPriceId + " -" + i.Price + " -" + i.FinalPrice + " </br>" + ErrorValidate + " </br>");
                         continue;
                     }
-                    var checkSFeeByTcommand = await _context.SfeeByTcommand.Where(x => x.IdTcommand == i.IdTcommand && x.SfId == i.SfId && x.ApproveStatus == 13 && x.SfPriceId == i.SfPriceId).FirstOrDefaultAsync();
+                    var checkSFeeByTcommand = await _context.SfeeByTcommand.Where(x => x.IdTcommand == i.IdTcommand && x.SfId == i.SfId && x.ApproveStatus == 13).FirstOrDefaultAsync();
                     if (checkSFeeByTcommand != null)
                     {
                         IdListFail.Add(" Phụ phí " + await _context.SubFee.Where(x => x.SubFeeId == i.SfId).Select(x => x.SfName).FirstOrDefaultAsync() + " đã tồn tại và đang chờ duyệt </br>");
@@ -60,13 +60,11 @@ namespace TBSLogistics.Service.Services.SFeeByTcommandManage
                     {
                         IdTcommand = i.IdTcommand,
                         SfId = i.SfId,
-                        SfPriceId = i.SfPriceId,
-                        Price = i.Price,
-                        FinalPrice = i.FinalPrice,
+                        Price = i.FinalPrice,
                         ApproveStatus = 13,
                         Note = i.Note,
                         CreatedDate = DateTime.Now,
-                        ApprovedDate = null
+                        Creator = tempData.UserName,
                     });
                 }
 
@@ -149,8 +147,6 @@ namespace TBSLogistics.Service.Services.SFeeByTcommandManage
                           orderby sfc.CreatedDate descending
                           select new { dp, sfc, sf, status };
 
-
-
             if (!string.IsNullOrEmpty(filter.Keyword))
             {
                 getList = getList.Where(x => x.dp.MaVanDon.Contains(filter.Keyword) || x.dp.MaSoXe.Contains(filter.Keyword));
@@ -170,7 +166,7 @@ namespace TBSLogistics.Service.Services.SFeeByTcommandManage
                 MaSoXe = x.dp.MaSoXe,
                 TaiXe = _context.TaiXe.Where(y => y.MaTaiXe == x.dp.MaTaiXe).Select(x => x.HoVaTen).FirstOrDefault(),
                 SubFee = x.sf.SfName,
-                Price = x.sfc.FinalPrice,
+                Price = x.sfc.Price,
                 TrangThai = x.status.StatusContent,
                 CreatedDate = x.sfc.CreatedDate
             }).ToListAsync();
@@ -184,29 +180,18 @@ namespace TBSLogistics.Service.Services.SFeeByTcommandManage
         }
         public async Task<List<ListSubFeeIncurred>> GetListSubFeeIncurredByHandling(int id)
         {
-            var getHandling = await _context.DieuPhoi.Where(x => x.Id == id).FirstOrDefaultAsync();
-            var getTransport = await _context.VanDon.Where(x => x.MaVanDon == getHandling.MaVanDon).FirstOrDefaultAsync();
-            var getRoad = await _context.CungDuong.Where(x => x.MaCungDuong == getTransport.MaCungDuong).FirstOrDefaultAsync();
-            var getListSubFeeByContract = from kh in _context.KhachHang
-                                          join hd in _context.HopDongVaPhuLuc
-                                          on kh.MaKh equals hd.MaKh
-                                          join sfPice in _context.SubFeePrice
-                                          on hd.MaHopDong equals sfPice.ContractId
+            var getListSubFeeByContract = from dp in _context.DieuPhoi
+                                          join sfc in _context.SubFeeByContract
+                                          on dp.Id equals sfc.MaDieuPhoi
+                                          join sfp in _context.SubFeePrice
+                                          on sfc.PriceId equals sfp.PriceId
                                           join sf in _context.SubFee
-                                          on sfPice.SfId equals sf.SubFeeId
+                                          on sfp.SfId equals sf.SubFeeId
                                           join tt in _context.StatusText
-                                          on sfPice.Status equals tt.StatusId
-                                          where sfPice.Status == 14
+                                          on sfp.Status equals tt.StatusId
+                                          where dp.Id == id
                                           && tt.LangId == tempData.LangID
-                                          && kh.MaKh == getTransport.MaKh
-                                          select new { kh, hd, sfPice, sf, tt };
-
-            getListSubFeeByContract = getListSubFeeByContract.Where(y =>
-                           (y.sfPice.GoodsType == getHandling.MaLoaiHangHoa)
-                        || (y.sfPice.FirstPlace == getHandling.DiemLayTraRong && y.sfPice.SecondPlace == null)
-                        || (y.sfPice.FirstPlace == getRoad.DiemDau && y.sfPice.SecondPlace == getRoad.DiemCuoi)
-                        || (y.sfPice.GoodsType == null && y.sfPice.FirstPlace == null && y.sfPice.SecondPlace == null));
-
+                                          select new { dp, sfp, sf, tt };
 
             var dataSubFeeIncurred = from dp in _context.DieuPhoi
                                      join sfc in _context.SfeeByTcommand
@@ -223,19 +208,18 @@ namespace TBSLogistics.Service.Services.SFeeByTcommandManage
 
             var dataSubFeeByContract = await getListSubFeeByContract.Select(x => new ListSubFeeIncurred()
             {
-                Id = x.sfPice.PriceId,
-                MaVanDon = getHandling.MaVanDon,
+                Id = x.sfp.PriceId,
+                MaVanDon = x.dp.MaVanDon,
                 MaSoXe = null,
                 TaiXe = null,
                 SubFee = x.sf.SfName,
                 Type = "Phụ phí theo hợp đồng",
-                Price = x.sfPice.UnitPrice,
+                Price = x.sfp.UnitPrice,
                 TrangThai = x.tt.StatusContent,
-                ApprovedDate = x.sfPice.ApprovedDate,
-                CreatedDate = x.sfPice.CreatedDate,
+                ApprovedDate = x.sfp.ApprovedDate,
+                CreatedDate = x.sfp.CreatedDate,
 
             }).ToListAsync();
-
 
             var listDataSubFeeIncurred = await dataSubFeeIncurred.Select(x => new ListSubFeeIncurred()
             {
@@ -245,14 +229,13 @@ namespace TBSLogistics.Service.Services.SFeeByTcommandManage
                 Type = "Phụ Phí Phát Sinh",
                 TaiXe = _context.TaiXe.Where(y => y.MaTaiXe == x.dp.MaTaiXe).Select(x => x.HoVaTen).FirstOrDefault(),
                 SubFee = x.sf.SfName,
-                Price = x.sfc.FinalPrice,
+                Price = x.sfc.Price,
                 TrangThai = x.status.StatusContent,
                 ApprovedDate = x.sfc.ApprovedDate.Value,
                 CreatedDate = x.sfc.CreatedDate,
             }).ToListAsync();
 
             var data = dataSubFeeByContract.Concat(listDataSubFeeIncurred).ToList();
-
             return data;
         }
         public async Task<GetSubFeeIncurred> GetSubFeeIncurredById(int id)
@@ -276,7 +259,7 @@ namespace TBSLogistics.Service.Services.SFeeByTcommandManage
                 Romooc = result.dp.MaRomooc,
                 LoaiPhuongTien = result.dp.MaLoaiPhuongTien,
                 PhuPhi = result.sf.SfName,
-                FinalPrice = result.sfc.FinalPrice,
+                FinalPrice = result.sfc.Price,
                 Note = result.sfc.Note,
                 CreatedDate = result.sfc.CreatedDate,
             };
@@ -309,6 +292,7 @@ namespace TBSLogistics.Service.Services.SFeeByTcommandManage
                     if (item.isApprove == 1)
                     {
                         getById.ApproveStatus = 15;
+                        getById.Approver = tempData.UserName;
                         _context.Update(getById);
                     }
 
@@ -327,6 +311,7 @@ namespace TBSLogistics.Service.Services.SFeeByTcommandManage
 
                         getById.ApprovedDate = DateTime.Now;
                         getById.ApproveStatus = 14;
+                        getById.Approver = tempData.UserName;
                         _context.Update(getById);
                     }
                 }

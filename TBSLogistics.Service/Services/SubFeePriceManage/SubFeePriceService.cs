@@ -34,13 +34,6 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
         {
             try
             {
-                var checkExists = await _context.SubFeePrice.Where(x => x.SfId == request.SfId && x.ContractId == request.ContractId && x.GoodsType == request.GoodsType
-                   && x.FirstPlace == request.FirstPlace && x.SecondPlace == request.SecondPlace && x.UnitPrice == request.UnitPrice).FirstOrDefaultAsync();
-
-                if (checkExists != null)
-                {
-                    return new BoolActionResult { isSuccess = false, Message = "Phụ phí đã tồn tại!" };
-                }
                 if (request.UnitPrice < 0)
                 {
                     return new BoolActionResult { isSuccess = false, Message = "Đơn giá phải lớn hơn 0" };
@@ -62,7 +55,8 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
 
                 await _context.AddAsync(new SubFeePrice()
                 {
-                    ContractId = request.ContractId,
+                    CusType = request.CusType,
+                    ContractId = string.IsNullOrEmpty(request.ContractId) ? null : request.ContractId,
                     SfId = request.SfId,
                     GoodsType = request.GoodsType,
                     FirstPlace = request.FirstPlace,
@@ -71,8 +65,7 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
                     SfStateByContract = 2,
                     Status = 13,
                     Description = request.Description,
-                    Creator = "admin",
-                    Approver = "",
+                    Creator = tempData.UserName,
                     CreatedDate = DateTime.Now,
                     UpdatedDate = DateTime.Now
                 });
@@ -122,6 +115,7 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
                     return new BoolActionResult { isSuccess = false, Message = "Phụ phí đã tồn tại" };
                 }
 
+                getSubFeePrice.CusType = request.CusType;
                 getSubFeePrice.ContractId = request.ContractId;
                 getSubFeePrice.SfId = request.SfId;
                 getSubFeePrice.GoodsType = request.GoodsType;
@@ -130,6 +124,7 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
                 getSubFeePrice.UnitPrice = request.UnitPrice;
                 getSubFeePrice.Description = request.Description;
                 getSubFeePrice.UpdatedDate = DateTime.Now;
+                getSubFeePrice.Updater = tempData.UserName;
 
                 _context.Update(getSubFeePrice);
 
@@ -179,21 +174,27 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
                     if (item.Selection == 1)
                     {
                         getById.Status = 15;
+                        getById.Approver = tempData.UserName;
+                        getById.ApprovedDate = DateTime.Now;
                         _context.Update(getById);
                     }
 
                     if (item.Selection == 0)
                     {
                         var getContract = await _context.HopDongVaPhuLuc.Where(x => x.MaHopDong == getById.ContractId).FirstOrDefaultAsync();
-                        var getNewestContract = await _context.HopDongVaPhuLuc.Where(x => x.MaKh == getContract.MaKh).OrderByDescending(x => x.ThoiGianBatDau).FirstOrDefaultAsync();
 
-                        if (getNewestContract.MaHopDong != getById.ContractId)
+                        if (getContract != null)
                         {
-                            Errors += "Mã  phụ phí: " + item.SubFeePriceId + ", không sử dụng Hợp Đồng/Phụ Lục mới nhất, Vui lòng chọn lại Hợp Đồng/Phụ Lục mới nhất \r\n";
-                            continue;
+                            var getNewestContract = await _context.HopDongVaPhuLuc.Where(x => x.MaKh == getContract.MaKh).OrderByDescending(x => x.ThoiGianBatDau).FirstOrDefaultAsync();
+
+                            if (getNewestContract.MaHopDong != getById.ContractId)
+                            {
+                                Errors += "Mã  phụ phí: " + item.SubFeePriceId + ", không sử dụng Hợp Đồng/Phụ Lục mới nhất, Vui lòng chọn lại Hợp Đồng/Phụ Lục mới nhất \r\n";
+                                continue;
+                            }
                         }
 
-                        var checkExists = await _context.SubFeePrice.Where(x => x.ContractId == getById.ContractId && x.SfId == getById.SfId
+                        var checkExists = await _context.SubFeePrice.Where(x => x.CusType == getById.CusType && x.ContractId == getById.ContractId && x.SfId == getById.SfId
                          && x.GoodsType == getById.GoodsType && x.FirstPlace == getById.FirstPlace && x.SecondPlace == getById.SecondPlace
                          && x.Status == 14).FirstOrDefaultAsync();
 
@@ -256,7 +257,7 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
                         errors += "Mã phụ phí:" + item + ", không được áp dụng \r\n";
                         continue;
                     }
-
+                    checkExists.Updater = tempData.UserName;
                     checkExists.Status = 12;
                     _context.Update(checkExists);
                 }
@@ -307,6 +308,7 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
                         continue;
                     }
 
+                    checkExists.Updater = tempData.UserName;
                     checkExists.Status = 16;
                     _context.Update(checkExists);
                 }
@@ -336,20 +338,24 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
                           join sfp in _context.SubFeePrice
                           on sf.SubFeeId equals sfp.SfId
                           join hd in _context.HopDongVaPhuLuc
-                          on sfp.ContractId equals hd.MaHopDong
+                          on sfp.ContractId equals hd.MaHopDong into sfcc
+                          from sfc in sfcc.DefaultIfEmpty()
                           join kh in _context.KhachHang
-                          on hd.MaKh equals kh.MaKh
+                          on sfc.MaKh equals kh.MaKh into tkh
+                          from sfkh in tkh.DefaultIfEmpty()
                           where sfp.PriceId == id
-                          select new { sf, sfp, hd, kh };
+                          select new { sf, sfp, sfc, sfkh };
+
+            var quey = getById.ToQueryString();
 
             try
             {
                 var getSFP = await getById.Select(x => new GetSubFeePriceRequest()
                 {
                     PriceId = x.sfp.PriceId,
-                    CustomerType = x.kh.MaLoaiKh,
-                    CustomerId = x.kh.MaKh,
-                    ContractId = x.sfp.ContractId,
+                    CustomerType = x.sfp.CusType,
+                    CustomerId = string.IsNullOrEmpty(x.sfkh.MaKh) ? "" : x.sfkh.MaKh,
+                    ContractId = string.IsNullOrEmpty(x.sfp.ContractId) ? "" : x.sfp.ContractId,
                     SfId = x.sfp.SfId,
                     GoodsType = x.sfp.GoodsType,
                     FirstPlace = x.sfp.FirstPlace,
@@ -397,6 +403,56 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
             }
         }
 
+        public async Task<List<SubFeePrice>> GetListSubFeePriceActive(string customerId, string goodTypes, int? getEmptyPlace, string road)
+        {
+            var getRoad = await _context.CungDuong.Where(x => x.MaCungDuong == road).FirstOrDefaultAsync();
+            var getByCusId = from cus in _context.KhachHang
+                             join contract in _context.HopDongVaPhuLuc
+                             on cus.MaKh equals contract.MaKh
+                             join sfp in _context.SubFeePrice
+                             on contract.MaHopDong equals sfp.ContractId
+                             where cus.MaKh == customerId && sfp.Status == 14
+                             && ((sfp.GoodsType == goodTypes)
+                             || (sfp.FirstPlace == getEmptyPlace && sfp.SecondPlace == null)
+                             || (sfp.FirstPlace == getRoad.DiemDau && sfp.SecondPlace == getRoad.DiemCuoi)
+                             || (sfp.GoodsType == null && sfp.FirstPlace == null && sfp.SecondPlace == null))
+                             select new { cus, contract, sfp };
+
+            var getByCusType = await _context.SubFeePrice.Where(x => x.Status == 14 && x.CusType == getByCusId.Select(x => x.cus.MaLoaiKh).FirstOrDefault()
+            && x.ContractId == null && ((x.GoodsType == goodTypes)
+            || (x.FirstPlace == getEmptyPlace && x.SecondPlace == null)
+            || (x.FirstPlace == getRoad.DiemDau && x.SecondPlace == getRoad.DiemCuoi)
+            || (x.GoodsType == null && x.FirstPlace == null && x.SecondPlace == null))).ToListAsync();
+
+            var dataGetByCusId = await getByCusId.Select(x => x.sfp).ToListAsync();
+
+            var listItemRemove = new List<SubFeePrice>();
+
+            foreach (var item in getByCusType)
+            {
+                if (dataGetByCusId.Where(x =>
+                x.CusType == item.CusType
+                && x.SfId == item.SfId
+                && (x.GoodsType == item.GoodsType)
+                && ((x.FirstPlace == item.FirstPlace && x.SecondPlace == null)
+                || (x.FirstPlace == item.FirstPlace && x.SecondPlace == item.SecondPlace))).Count() > 0)
+                {
+                    listItemRemove.Add(item);
+                }
+            }
+
+            if (listItemRemove.Count > 0)
+            {
+                foreach (var item in listItemRemove)
+                {
+                    getByCusType.Remove(item);
+                }
+            }
+
+            var data = dataGetByCusId.Concat(getByCusType);
+            return data.ToList();
+        }
+
         public async Task<PagedResponseCustom<ListSubFeePriceRequest>> GetListSubFeePrice(PaginationFilter filter)
         {
             try
@@ -408,16 +464,17 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
                               join sft in _context.SubFeeType
                               on sf.SfType equals sft.SfTypeId
                               join hd in _context.HopDongVaPhuLuc
-                              on sfp.ContractId equals hd.MaHopDong
+                              on sfp.ContractId equals hd.MaHopDong into sfcc
+                              from sfc in sfcc.DefaultIfEmpty()
                               join status in _context.StatusText
                               on sfp.Status equals status.StatusId
                               where status.LangId == tempData.LangID
                               orderby sfp.SfId descending
-                              select new { sfp, sf, sft, hd, status };
+                              select new { sfp, sf, sft, sfc, status };
 
                 if (!string.IsNullOrEmpty(filter.Keyword))
                 {
-                    getList = getList.Where(x => x.hd.MaHopDong.Contains(filter.Keyword) || x.hd.MaKh.Contains(filter.Keyword));
+                    getList = getList.Where(x => x.sfc.MaHopDong.Contains(filter.Keyword) || x.sfc.MaKh.Contains(filter.Keyword));
                 }
 
                 if (filter.fromDate.HasValue && filter.toDate.HasValue)
@@ -439,9 +496,9 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
                 var pagedData = await getList.Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new ListSubFeePriceRequest()
                 {
                     PriceId = x.sfp.PriceId,
-                    CustomerName = x.hd.MaKh,
-                    ContractId = x.hd.MaHopDong,
-                    ContractName = x.hd.TenHienThi,
+                    CustomerName = x.sfc.MaKh,
+                    ContractId = x.sfc.MaHopDong,
+                    ContractName = x.sfc.TenHienThi,
                     GoodsType = _context.LoaiHangHoa.Where(y => y.MaLoaiHangHoa == x.sfp.GoodsType).Select(x => x.TenLoaiHangHoa).FirstOrDefault(),
                     FirstPlace = _context.DiaDiem.Where(y => y.MaDiaDiem == x.sfp.FirstPlace).Select(x => x.TenDiaDiem).FirstOrDefault(),
                     SecondPlace = _context.DiaDiem.Where(y => y.MaDiaDiem == x.sfp.SecondPlace).Select(x => x.TenDiaDiem).FirstOrDefault(),

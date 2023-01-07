@@ -106,14 +106,6 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             return Ok(pagedReponse);
         }
 
-        [HttpGet]
-        [Route("[action]")]
-        public async Task<IActionResult> GetListHandlingByMaVanDonChung([FromQuery] PaginationFilter filter, string maChuyen)
-        {
-            var list = await _billOfLading.GetListHandlingByMaVanDonChung(maChuyen, filter);
-            return Ok(list);
-        }
-
         [HttpPost]
         [Route("[action]")]
         public async Task<IActionResult> CreateTransport(CreateTransport request)

@@ -7,10 +7,11 @@ namespace TBSLogistics.Data.TMS
     {
         public SubFeePrice()
         {
-            SfeeByTcommand = new HashSet<SfeeByTcommand>();
+            SubFeeByContract = new HashSet<SubFeeByContract>();
         }
 
         public long PriceId { get; set; }
+        public string CusType { get; set; }
         public string ContractId { get; set; }
         public long SfId { get; set; }
         public string GoodsType { get; set; }
@@ -25,16 +26,17 @@ namespace TBSLogistics.Data.TMS
         /// </summary>
         public byte SfStateByContract { get; set; }
         public string Description { get; set; }
-        public string Approver { get; set; }
         public int Status { get; set; }
-        public string Creator { get; set; }
         public DateTime? ApprovedDate { get; set; }
         public DateTime? DeactiveDate { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime UpdatedDate { get; set; }
+        public string Approver { get; set; }
+        public string Updater { get; set; }
+        public string Creator { get; set; }
 
         public virtual HopDongVaPhuLuc Contract { get; set; }
         public virtual SubFee Sf { get; set; }
-        public virtual ICollection<SfeeByTcommand> SfeeByTcommand { get; set; }
+        public virtual ICollection<SubFeeByContract> SubFeeByContract { get; set; }
     }
 }

@@ -73,7 +73,8 @@ namespace TBSLogistics.Service.Services.ProductServiceManage
                         NgayHetHieuLuc = i.NgayHetHieuLuc,
                         TrangThai = 3,
                         UpdatedTime = DateTime.Now,
-                        CreatedTime = DateTime.Now
+                        CreatedTime = DateTime.Now,
+                        Creator = tempData.UserName,
                     });
 
                     var result = await _TMSContext.SaveChangesAsync();
@@ -143,6 +144,7 @@ namespace TBSLogistics.Service.Services.ProductServiceManage
                 checkExists.NgayApDung = a.FirstOrDefault();
                 checkExists.NgayHetHieuLuc = request.NgayHetHieuLuc;
                 checkExists.UpdatedTime = DateTime.Now;
+                checkExists.Updater = tempData.UserName;
 
                 _TMSContext.Update(checkExists);
 

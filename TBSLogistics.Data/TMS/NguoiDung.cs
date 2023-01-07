@@ -20,6 +20,8 @@ namespace TBSLogistics.Data.TMS
         public string NguoiTao { get; set; }
         public DateTime CreatedTime { get; set; }
         public DateTime UpdatedTime { get; set; }
+        public string Creator { get; set; }
+        public string Updater { get; set; }
 
         public virtual Account IdNavigation { get; set; }
         public virtual ICollection<UserHasPermission> UserHasPermission { get; set; }

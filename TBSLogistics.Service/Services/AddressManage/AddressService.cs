@@ -95,7 +95,8 @@ namespace TBSLogistics.Service.Services.AddressManage
                     MaGps = request.MaGps,
                     MaLoaiDiaDiem = request.MaLoaiDiaDiem,
                     CreatedTime = DateTime.Now,
-                    UpdatedTime = DateTime.Now
+                    UpdatedTime = DateTime.Now,
+                    Creator = tempData.UserName,
                 });
 
                 var result = await _VanChuyenContext.SaveChangesAsync();
@@ -146,6 +147,7 @@ namespace TBSLogistics.Service.Services.AddressManage
                 getAddress.MaGps = request.MaGps;
                 getAddress.MaLoaiDiaDiem = request.MaLoaiDiaDiem;
                 getAddress.UpdatedTime = DateTime.Now;
+                getAddress.Updater = tempData.UserName;
 
                 if (getAddress.DiaChiDayDu != request.DiaChiDayDu)
                 {

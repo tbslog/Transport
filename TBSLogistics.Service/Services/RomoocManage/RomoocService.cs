@@ -54,7 +54,8 @@ namespace TBSLogistics.Service.Services.RomoocManage
                     MaLoaiRomooc = request.MaLoaiRomooc,
                     TrangThai = 1,
                     UpdatedTime = DateTime.Now,
-                    CreatedTime = DateTime.Now
+                    CreatedTime = DateTime.Now,
+                    Creator = tempData.UserName,
                 });
                 var result = await _TMScontext.SaveChangesAsync();
                 if (result > 0)
@@ -95,6 +96,7 @@ namespace TBSLogistics.Service.Services.RomoocManage
                 getRomooc.ThongSoKyThuat = request.ThongSoKyThuat;
                 getRomooc.MaLoaiRomooc = request.MaLoaiRomooc;
                 getRomooc.UpdatedTime = DateTime.Now;
+                getRomooc.Updater = tempData.UserName;
 
                 _TMScontext.Update(getRomooc);
                 var result = await _TMScontext.SaveChangesAsync();

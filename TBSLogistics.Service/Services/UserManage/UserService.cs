@@ -46,7 +46,8 @@ namespace TBSLogistics.Service.Services.UserManage
                         RoleName = request.RoleName,
                         Status = request.RoleStatus,
                         CreatedDate = DateTime.Now,
-                        UpdatedDate = DateTime.Now
+                        UpdatedDate = DateTime.Now,
+                        Creator = tempData.UserName,
                     });
 
                     var rs = await _context.SaveChangesAsync();
@@ -133,6 +134,7 @@ namespace TBSLogistics.Service.Services.UserManage
             foreach (var user in checkUser)
             {
                 user.TrangThai = user.TrangThai == 1 ? 2 : 1;
+                user.Updater = tempData.UserName;
             }
 
             _context.UpdateRange(checkUser);
@@ -192,7 +194,8 @@ namespace TBSLogistics.Service.Services.UserManage
                     TrangThai = request.TrangThai,
                     NguoiTao = tempData.UserName,
                     CreatedTime = DateTime.Now,
-                    UpdatedTime = DateTime.Now
+                    UpdatedTime = DateTime.Now,
+                    Creator = tempData.UserName,
                 });
 
                 await _context.SaveChangesAsync();
@@ -201,7 +204,7 @@ namespace TBSLogistics.Service.Services.UserManage
                 {
                     UserId = addacc.Entity.Id,
                     RoleId = request.RoleId,
-                    CreatedDate = DateTime.Now
+                    CreatedDate = DateTime.Now,
                 });
 
                 var result = await _context.SaveChangesAsync();
@@ -364,6 +367,7 @@ namespace TBSLogistics.Service.Services.UserManage
                 checkExists.MaBoPhan = request.MaBoPhan;
                 checkExists.MaNhanVien = request.MaNhanVien;
                 checkExists.TrangThai = request.TrangThai;
+                checkExists.Updater = tempData.UserName;
 
                 if (checkExists.RoleId != request.RoleId)
                 {

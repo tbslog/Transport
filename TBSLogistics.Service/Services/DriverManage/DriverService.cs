@@ -61,7 +61,8 @@ namespace TBSLogistics.Service.Services.DriverManage
                     TaiXeTbs = request.MaNhaCC.Contains("TBSL") ? true : false,
                     TrangThai = 1,
                     CreatedTime = DateTime.Now,
-                    UpdatedTime = DateTime.Now
+                    UpdatedTime = DateTime.Now,
+                    Creator = tempData.UserName
                 });
 
                 var result = await _context.SaveChangesAsync();
@@ -112,6 +113,7 @@ namespace TBSLogistics.Service.Services.DriverManage
                 getDriver.TaiXeTbs = request.MaNhaCungCap.Contains("TBSL") ? true : false;
                 getDriver.MaLoaiPhuongTien = request.MaLoaiPhuongTien;
                 getDriver.UpdatedTime = DateTime.Now;
+                getDriver.Updater = tempData.UserName;
 
                 _context.Update(getDriver);
 

@@ -142,7 +142,8 @@ namespace TBSLogistics.Service.Services.PriceTableManage
                     MaLoaiDoiTac = x.MaLoaiDoiTac,
                     TrangThai = 3,
                     CreatedTime = DateTime.Now,
-                    UpdatedTime = DateTime.Now
+                    UpdatedTime = DateTime.Now,
+                    Creator = tempData.UserName,
                 }).ToList());
 
                 var result = await _context.SaveChangesAsync();
@@ -461,10 +462,12 @@ namespace TBSLogistics.Service.Services.PriceTableManage
                         {
                             checkOldPriceTable.TrangThai = 6;
                             checkOldPriceTable.NgayHetHieuLuc = DateTime.Now;
+                            checkOldPriceTable.Approver = tempData.UserName;
                             _context.BangGia.Update(checkOldPriceTable);
                         }
 
                         checkExists.TrangThai = 4;
+                        checkExists.Approver = tempData.UserName;
                         _context.BangGia.Update(checkExists);
                     }
                 }
@@ -483,7 +486,7 @@ namespace TBSLogistics.Service.Services.PriceTableManage
             }
             catch (Exception ex)
             {
-                await _common.Log("PriceTableManage", "UserId:" + tempData.UserID + " create new PriceTable with Error: " + ex.ToString());
+                await _common.Log("PriceTableManage", "UserId:" + tempData.UserID + " Approve PriceTable with Error: " + ex.ToString());
                 return new BoolActionResult { isSuccess = false, Message = ex.ToString() };
             }
         }
@@ -574,6 +577,7 @@ namespace TBSLogistics.Service.Services.PriceTableManage
                 findById.MaLoaiPhuongTien = request.MaLoaiPhuongTien;
                 findById.MaLoaiHangHoa = request.MaLoaiHangHoa;
                 findById.NgayHetHieuLuc = request.NgayHetHieuLuc;
+                findById.Updater = tempData.UserName;
 
                 _context.Update(findById);
 

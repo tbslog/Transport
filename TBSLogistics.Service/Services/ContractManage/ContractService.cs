@@ -92,7 +92,8 @@ namespace TBSLogistics.Service.Services.ContractManage
                     MaPhuPhi = request.PhuPhi,
                     TrangThai = 24,
                     UpdatedTime = DateTime.Now,
-                    CreatedTime = DateTime.Now
+                    CreatedTime = DateTime.Now,
+                    Creator = tempData.UserName,
                 });
 
                 var result = await _TMSContext.SaveChangesAsync();
@@ -154,6 +155,7 @@ namespace TBSLogistics.Service.Services.ContractManage
                 checkExists.GhiChu = request.GhiChu;
                 checkExists.TrangThai = request.TrangThai;
                 checkExists.UpdatedTime = DateTime.Now;
+                checkExists.Updater = tempData.UserName;
 
                 _TMSContext.Update(checkExists);
 

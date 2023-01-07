@@ -92,7 +92,8 @@ namespace TBSLogistics.Service.Services.RoadManage
                     GhiChu = request.GhiChu,
                     TrangThai = request.TrangThai,
                     UpdatedTime = DateTime.Now,
-                    CreatedTime = DateTime.Now
+                    CreatedTime = DateTime.Now,
+                    Creator = tempData.UserName,
                 });
 
                 var result = await _context.SaveChangesAsync();
@@ -137,6 +138,7 @@ namespace TBSLogistics.Service.Services.RoadManage
                 checkExists.GhiChu = request.GhiChu;
                 checkExists.UpdatedTime = DateTime.Now;
                 checkExists.TrangThai = request.TrangThai;
+                checkExists.Updater = tempData.UserName;
                 _context.CungDuong.Update(checkExists);
 
                 var result = await _context.SaveChangesAsync();

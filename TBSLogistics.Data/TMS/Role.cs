@@ -16,6 +16,8 @@ namespace TBSLogistics.Data.TMS
         public int Status { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime UpdatedDate { get; set; }
+        public string Updater { get; set; }
+        public string Creator { get; set; }
 
         public virtual ICollection<RoleHasPermission> RoleHasPermission { get; set; }
         public virtual ICollection<UserHasRole> UserHasRole { get; set; }

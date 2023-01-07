@@ -18,6 +18,8 @@ namespace TBSLogistics.Data.TMS
         public int TrangThai { get; set; }
         public DateTime UpdatedTime { get; set; }
         public DateTime CreatedTime { get; set; }
+        public string Updater { get; set; }
+        public string Creator { get; set; }
 
         public virtual LoaiRomooc MaLoaiRomoocNavigation { get; set; }
         public virtual ICollection<DieuPhoi> DieuPhoi { get; set; }

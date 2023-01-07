@@ -18,6 +18,7 @@ using TBSLogistics.Model.Model.RoadModel;
 using TBSLogistics.Model.TempModel;
 using TBSLogistics.Model.Wrappers;
 using TBSLogistics.Service.Services.Common;
+using TBSLogistics.Service.Services.SubFeePriceManage;
 
 namespace TBSLogistics.Service.Services.BillOfLadingManage
 {
@@ -25,12 +26,14 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
     {
         private readonly ICommon _common;
         private readonly TMSContext _context;
+        private readonly ISubFeePrice _subFeePrice;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private TempData tempData;
 
-        public BillOfLadingService(ICommon common, TMSContext context, IHttpContextAccessor httpContextAccessor)
+        public BillOfLadingService(ICommon common, TMSContext context, ISubFeePrice subFeePrice, IHttpContextAccessor httpContextAccessor)
         {
             _common = common;
+            _subFeePrice = subFeePrice;
             _context = context;
             _httpContextAccessor = httpContextAccessor;
             tempData = _common.DecodeToken(_httpContextAccessor.HttpContext.Request.Headers["Authorization"][0].ToString().Replace("Bearer ", ""));
@@ -273,6 +276,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                         itemHandling.DiemLayTraRong = item.DiemLayTraRong;
                         itemHandling.TrangThai = 19;
                         itemHandling.CreatedTime = DateTime.Now;
+                        itemHandling.Creator = tempData.UserName;
                         await _context.DieuPhoi.AddAsync(itemHandling);
                     }
                     else
@@ -472,7 +476,8 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                     GhiChu = request.GhiChu,
                     TrangThai = 8,
                     ThoiGianTaoDon = DateTime.Now,
-                    CreatedTime = DateTime.Now
+                    CreatedTime = DateTime.Now,
+                    Creator = tempData.UserName,
                 });
 
                 var result = await _context.SaveChangesAsync();
@@ -570,7 +575,21 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                         itemHandling.DiemLayTraRong = item.DiemLayTraRong;
                         itemHandling.TrangThai = 19;
                         itemHandling.CreatedTime = DateTime.Now;
-                        await _context.DieuPhoi.AddAsync(itemHandling);
+                        itemHandling.Creator = tempData.UserName;
+                        var insertHandling = await _context.DieuPhoi.AddAsync(itemHandling);
+                        await _context.SaveChangesAsync();
+
+                        var getSubFee = await _subFeePrice.GetListSubFeePriceActive(request.MaKH, itemHandling.MaLoaiHangHoa, itemHandling.DiemLayTraRong, request.MaCungDuong);
+                        foreach (var sfp in getSubFee)
+                        {
+                            await _context.SubFeeByContract.AddAsync(new SubFeeByContract()
+                            {
+                                PriceId = sfp.PriceId,
+                                MaDieuPhoi = insertHandling.Entity.Id,
+                                CreatedDate = DateTime.Now,
+                                Creator = tempData.UserName,
+                            });
+                        }
                     }
 
                     var resultDP = await _context.SaveChangesAsync();
@@ -670,7 +689,8 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                     GhiChu = request.GhiChu,
                     TrangThai = 8,
                     ThoiGianTaoDon = DateTime.Now,
-                    CreatedTime = DateTime.Now
+                    CreatedTime = DateTime.Now,
+                    Creator = tempData.UserName,
                 });
 
                 var result = await _context.SaveChangesAsync();
@@ -913,7 +933,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                             }
                             _context.VanDon.Update(item);
 
-                            await _context.DieuPhoi.AddAsync(new DieuPhoi()
+                            var insertHandling = await _context.DieuPhoi.AddAsync(new DieuPhoi()
                             {
                                 MaVanDon = item.MaVanDon,
                                 MaChuyen = MaVanDonChung,
@@ -938,7 +958,22 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                 DiemLayTraRong = request.DiemLayTraRong,
                                 TrangThai = trangthai,
                                 CreatedTime = DateTime.Now,
+                                Creator = tempData.UserName,
                             });
+
+                            await _context.SaveChangesAsync();
+
+                            var getSubFee = await _subFeePrice.GetListSubFeePriceActive(item.MaKh, itemRequest.MaLoaiHangHoa, request.DiemLayTraRong, item.MaCungDuong);
+                            foreach (var sfp in getSubFee)
+                            {
+                                await _context.SubFeeByContract.AddAsync(new SubFeeByContract()
+                                {
+                                    PriceId = sfp.PriceId,
+                                    MaDieuPhoi = insertHandling.Entity.Id,
+                                    CreatedDate = DateTime.Now,
+                                    Creator = tempData.UserName,
+                                });
+                            }
                         }
                     }
                 }
@@ -1028,6 +1063,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                 {
                     x.vd.TrangThai = 8;
                     x.vd.UpdatedTime = DateTime.Now;
+                    x.vd.Updater = tempData.UserName;
                 });
 
                 var listTransport = await data.Where(x => request.arrTransports.Select(y => y.MaVanDon).Contains(x.dp.MaVanDon)).ToListAsync();
@@ -1040,6 +1076,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                     }
 
                     x.UpdatedTime = DateTime.Now;
+                    x.Updater = tempData.UserName;
 
                     if (!string.IsNullOrEmpty(request.XeVanChuyen) && !string.IsNullOrEmpty(request.TaiXe) && x.TrangThai == 8)
                     {
@@ -1140,6 +1177,20 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                             item.dp.SealNp = request.SEALNP;
                             item.dp.SealHq = request.SEALHQ;
                             item.dp.DiemLayTraRong = request.DiemLayTraRong;
+                            item.dp.Updater = tempData.UserName;
+
+                            _context.SubFeeByContract.RemoveRange(_context.SubFeeByContract.Where(x => x.MaDieuPhoi == item.dp.Id));
+                            var getSubFee = await _subFeePrice.GetListSubFeePriceActive(item.vd.MaKh, itemRequest.MaLoaiHangHoa, request.DiemLayTraRong, item.vd.MaCungDuong);
+                            foreach (var sfp in getSubFee)
+                            {
+                                await _context.SubFeeByContract.AddAsync(new SubFeeByContract()
+                                {
+                                    PriceId = sfp.PriceId,
+                                    MaDieuPhoi = item.dp.Id,
+                                    CreatedDate = DateTime.Now,
+                                    Creator = tempData.UserName,
+                                });
+                            }
 
                             if (!string.IsNullOrEmpty(request.XeVanChuyen) && !string.IsNullOrEmpty(request.TaiXe) && item.dp.TrangThai == 19)
                             {
@@ -1209,7 +1260,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                 trangthai = 27;
                             }
 
-                            await _context.DieuPhoi.AddAsync(new DieuPhoi()
+                            var insertHandling = await _context.DieuPhoi.AddAsync(new DieuPhoi()
                             {
                                 MaVanDon = item.MaVanDon,
                                 MaChuyen = handlingId,
@@ -1234,7 +1285,21 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                 DiemLayTraRong = request.DiemLayTraRong,
                                 TrangThai = trangthai,
                                 CreatedTime = DateTime.Now,
+                                Creator = tempData.UserName,
+                                Updater = tempData.UserName,
                             });
+
+                            var getSubFee = await _subFeePrice.GetListSubFeePriceActive(item.MaKh, itemRequest.MaLoaiHangHoa, request.DiemLayTraRong, item.MaCungDuong);
+                            foreach (var sfp in getSubFee)
+                            {
+                                await _context.SubFeeByContract.AddAsync(new SubFeeByContract()
+                                {
+                                    PriceId = sfp.PriceId,
+                                    MaDieuPhoi = insertHandling.Entity.Id,
+                                    CreatedDate = DateTime.Now,
+                                    Creator = tempData.UserName,
+                                });
+                            }
                         }
                     }
                 }
@@ -1479,6 +1544,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                 checkTransport.ThoiGianHanLenh = request.ThoiGianHanLenh;
                 checkTransport.UpdatedTime = DateTime.Now;
                 checkTransport.GhiChu = request.GhiChu;
+                checkTransport.Updater = tempData.UserName;
                 _context.VanDon.Update(checkTransport);
 
                 var result = await _context.SaveChangesAsync();
@@ -1592,7 +1658,24 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                             itemHandling.DiemLayTraRong = item.DiemLayTraRong;
                             itemHandling.TrangThai = 19;
                             itemHandling.CreatedTime = DateTime.Now;
-                            await _context.DieuPhoi.AddAsync(itemHandling);
+                            itemHandling.Creator = tempData.UserName;
+                            itemHandling.Updater = tempData.UserName;
+                            var insertHandling = await _context.DieuPhoi.AddAsync(itemHandling);
+                            _context.SubFeeByContract.RemoveRange(_context.SubFeeByContract.Where(x => x.MaDieuPhoi == itemHandling.Id));
+                            await _context.SaveChangesAsync();
+
+
+                            var getSubFee = await _subFeePrice.GetListSubFeePriceActive(request.MaKH, itemHandling.MaLoaiHangHoa, itemHandling.DiemLayTraRong, request.MaCungDuong);
+                            foreach (var sfp in getSubFee)
+                            {
+                                await _context.SubFeeByContract.AddAsync(new SubFeeByContract()
+                                {
+                                    PriceId = sfp.PriceId,
+                                    MaDieuPhoi = insertHandling.Entity.Id,
+                                    CreatedDate = DateTime.Now,
+                                    Creator = tempData.UserName,
+                                });
+                            }
                         }
                         else
                         {
@@ -1713,6 +1796,8 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                 checkTransport.MaPtvc = request.MaPTVC;
                 checkTransport.ThoiGianLayHang = request.ThoiGianLayHang;
                 checkTransport.ThoiGianTraHang = request.ThoiGianTraHang;
+                checkTransport.Updater = tempData.UserName;
+
                 _context.VanDon.Update(checkTransport);
 
                 var result = await _context.SaveChangesAsync();
@@ -2087,6 +2172,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                     //}
 
                     handling.TrangThai = 20;
+                    handling.Updater = tempData.UserName;
                     handling.ThoiGianHoanThanh = DateTime.Now;
                     _context.Update(handling);
 
@@ -2097,6 +2183,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                         if (checkAllHandling.Where(x => x.TrangThai == 20 || x.TrangThai == 21).Count() == checkAllHandling.Count())
                         {
                             getTransport.TrangThai = 22;
+                            getTransport.Updater = tempData.UserName;
                             getTransport.ThoiGianHoanThanh = DateTime.Now;
                             _context.Update(getTransport);
 
@@ -2127,7 +2214,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                     {
                         return new BoolActionResult { isSuccess = false, Message = "Vui Lòng Cập Nhật ContNo trước đã" };
                     }
-
+                    handling.Updater = tempData.UserName;
                     handling.TrangThai = 18;
                     _context.Update(handling);
 
@@ -2157,6 +2244,9 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                         status = " đi lấy rỗng";
                     }
                     getTransport.TrangThai = 10;
+
+                    handling.Updater = tempData.UserName;
+                    getTransport.Updater = tempData.UserName;
 
                     _context.Update(handling);
                     _context.Update(getTransport);
@@ -2199,6 +2289,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 
                     getListHandling.ForEach(x =>
                     {
+                        x.Updater = tempData.UserName;
                         x.TrangThai = 18;
                     });
 
@@ -2222,6 +2313,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                     {
                         getListHandling.ForEach(x =>
                         {
+                            x.Updater = tempData.UserName;
                             x.TrangThai = 18;
                         });
                         status = " vận chuyển hàng";
@@ -2231,6 +2323,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                     {
                         getListHandling.ForEach(x =>
                         {
+                            x.Updater = tempData.UserName;
                             x.TrangThai = 17;
                         });
                         status = " đi lấy rỗng";
@@ -2238,6 +2331,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 
                     getlistTransports.ForEach(x =>
                     {
+                        x.Updater = tempData.UserName;
                         x.TrangThai = 10;
                     });
 
@@ -2279,6 +2373,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                     return new BoolActionResult { isSuccess = false, Message = "Không thể hủy lệnh điều phối này" };
                 }
 
+                getByid.Updater = tempData.UserName;
                 getByid.TrangThai = 21;
                 _context.Update(getByid);
 
@@ -2292,6 +2387,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                         var getTransport = await _context.VanDon.Where(x => x.MaVanDon == getByid.MaVanDon).FirstOrDefaultAsync();
 
                         getTransport.TrangThai = 11;
+                        getTransport.Updater = tempData.UserName;
                         _context.Update(getTransport);
 
                         var result1 = await _context.SaveChangesAsync();
@@ -2310,6 +2406,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                         var getTransport = await _context.VanDon.Where(x => x.MaVanDon == getByid.MaVanDon).FirstOrDefaultAsync();
                         getTransport.TrangThai = 22;
                         getTransport.ThoiGianHoanThanh = DateTime.Now;
+                        getTransport.Updater = tempData.UserName;
                         _context.Update(getTransport);
 
                         var result3 = await _context.SaveChangesAsync();
@@ -2366,6 +2463,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 
                 listHandling.ForEach(x =>
                 {
+                    x.Updater = tempData.UserName;
                     x.TrangThai = 21;
                     x.UpdatedTime = DateTime.Now;
                 });
@@ -2373,6 +2471,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                 var listTransports = await _context.VanDon.Where(x => listHandling.Select(y => y.MaVanDon).Contains(x.MaVanDon)).ToListAsync();
                 listTransports.ForEach(x =>
                 {
+                    x.Updater = tempData.UserName;
                     x.TrangThai = 11;
                     x.UpdatedTime = DateTime.Now;
                 });
@@ -2536,6 +2635,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                     checkById.KhoiLuong = request.KhoiLuong;
                     checkById.TheTich = request.TheTich;
 
+
                     checkById.DiemLayTraRong = request.DiemLayTraRong;
                     checkById.TrangThai = 27;
                     getTransport.TrangThai = 9;
@@ -2549,6 +2649,8 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                 checkById.MaRomooc = request.MaRomooc;
                 checkById.GhiChu = request.GhiChu;
                 checkById.UpdatedTime = DateTime.Now;
+                checkById.Updater = tempData.UserName;
+                getTransport.Updater = tempData.UserName;
 
                 _context.Update(getTransport);
                 _context.Update(checkById);
@@ -2748,7 +2850,8 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                     FileType = Path.GetExtension(fileName),
                     FolderName = "Transport",
                     DieuPhoiId = request.handlingId,
-                    UploadedTime = DateTime.Now
+                    UploadedTime = DateTime.Now,
+                    Creator = tempData.UserName,
                 };
 
                 var add = await _common.AddAttachment(attachment);

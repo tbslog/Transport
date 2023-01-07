@@ -113,7 +113,7 @@ namespace TBSLogistics.Service.Services.Bill
                         listSubFeeIncurreds = _context.SfeeByTcommand.Where(y => y.IdTcommand == x.Id && y.ApproveStatus == 14).OrderBy(x => x.Id).Select(x => new ListSubFeeIncurred()
                         {
                             Note = x.Note,
-                            Price = x.FinalPrice,
+                            Price = x.Price,
                             sfName = _context.SubFee.Where(y => y.SubFeeId == x.SfId).Select(x => x.SfName).FirstOrDefault()
                         }).ToList(),
                     }).ToList(),
@@ -206,7 +206,7 @@ namespace TBSLogistics.Service.Services.Bill
                         listSubFeeIncurreds = _context.SfeeByTcommand.Where(y => y.IdTcommand == x.Id && y.ApproveStatus == 14).OrderBy(x => x.Id).Select(x => new ListSubFeeIncurred()
                         {
                             Note = x.Note,
-                            Price = x.FinalPrice,
+                            Price = x.Price,
                             sfName = _context.SubFee.Where(y => y.SubFeeId == x.SfId).Select(x => x.SfName).FirstOrDefault()
                         }).ToList(),
                     }).ToList(),
@@ -346,6 +346,11 @@ namespace TBSLogistics.Service.Services.Bill
                                           where sfPice.Status == 14
                                           select new { kh, hd, sfPice, sf };
 
+            if (!string.IsNullOrEmpty(filter.Keyword))
+            {
+                getlistHandling = getlistHandling.Where(x => x.vd.MaVanDonKh.Contains(filter.Keyword) || x.dp.MaChuyen.Contains(filter.Keyword));
+            }
+
             if (!string.IsNullOrEmpty(filter.fromDate.ToString()) && !string.IsNullOrEmpty(filter.toDate.ToString()))
             {
                 getlistHandling = getlistHandling.Where(x => x.dp.ThoiGianHoanThanh.Value >= filter.fromDate.Value && x.dp.ThoiGianHoanThanh.Value <= filter.toDate.Value);
@@ -380,7 +385,7 @@ namespace TBSLogistics.Service.Services.Bill
                         || (y.sfPice.FirstPlace == x.cd.DiemDau && y.sfPice.SecondPlace == x.cd.DiemCuoi)
                         || (y.sfPice.GoodsType == null && y.sfPice.FirstPlace == null && y.sfPice.SecondPlace == null))
                 ).Sum(y => y.sfPice.UnitPrice),
-                ChiPhiPhatSinh = ((decimal)_context.SfeeByTcommand.Where(y => y.IdTcommand == x.dp.Id && y.ApproveStatus == 14).Sum(y => y.FinalPrice)),
+                ChiPhiPhatSinh = ((decimal)_context.SfeeByTcommand.Where(y => y.IdTcommand == x.dp.Id && y.ApproveStatus == 14).Sum(y => y.Price)),
             }).Select(x => new ListBillHandling()
             {
                 MaPTVC = x.MaPTVC,
