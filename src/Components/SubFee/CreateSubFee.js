@@ -22,7 +22,6 @@ const CreateSubFee = (props) => {
       required: "Không được để trống",
     },
     MaKh: { required: "Không được để trống" },
-    MaHopDong: { required: "Không được để trống" },
     DiemDau: {},
     DiemCuoi: {},
     MaLoaiHangHoa: {},
@@ -115,7 +114,7 @@ const CreateSubFee = (props) => {
       if (getListCustomer && getListCustomer.length > 0) {
         getListCustomer = getListCustomer.filter((x) => x.loaiKH === val);
         let obj = [];
-
+        obj.push({ value: "", label: "Tất Cả" });
         getListCustomer.map((val) => {
           obj.push({
             value: val.maKh,
@@ -171,7 +170,8 @@ const CreateSubFee = (props) => {
     SetIsLoading(true);
 
     const createSubFreePrice = await postData("SubFeePrice/CreateSubFeePrice", {
-      ContractId: data.MaHopDong.value,
+      CusType: data.PhanLoaiDoiTac,
+      ContractId: !data.MaHopDong ? null : data.MaHopDong.value,
       SfId: data.LoaiPhuPhi.value,
       GoodsType: !data.MaLoaiHangHoa ? null : data.MaLoaiHangHoa,
       FirstPlace: !data.DiemDau ? null : data.DiemDau.value,

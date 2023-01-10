@@ -9,6 +9,7 @@ import { ToastError } from "../Common/FuncToast";
 import CreateUser from "./CreateUser";
 import UpdateUser from "./UpdateUser";
 import RolePage from "../RoleManage/RolePage";
+import SetCusForUser from "../RoleManage/SetCusForUser";
 
 const UserPage = () => {
   const [data, setData] = useState([]);
@@ -27,7 +28,7 @@ const UserPage = () => {
   const [selectedRows, setSelectedRows] = useState([]);
   const [selectIdClick, setSelectIdClick] = useState({});
   const [listStatus, setListStatus] = useState([]);
-  const [status, setStatus] = useState();
+  const [status, setStatus] = useState("");
 
   const [ShowConfirm, setShowConfirm] = useState(false);
   const [functionSubmit, setFunctionSubmit] = useState("");
@@ -35,14 +36,28 @@ const UserPage = () => {
   const columns = useMemo(() => [
     {
       cell: (val) => (
-        <button
-          onClick={() => handleEditButtonClick(val, SetShowModal("UpdateUser"))}
-          type="button"
-          className="btn btn-title btn-sm btn-default mx-1"
-          gloss="Cập Nhật Thông Tin "
-        >
-          <i className="far fa-edit"></i>
-        </button>
+        <>
+          <button
+            onClick={() =>
+              handleEditButtonClick(val, SetShowModal("UpdateUser"))
+            }
+            type="button"
+            className="btn btn-title btn-sm btn-default mx-1"
+            gloss="Cập Nhật Thông Tin "
+          >
+            <i className="far fa-edit"></i>
+          </button>
+          <button
+            onClick={() =>
+              handleEditButtonClick(val, SetShowModal("SetCusForUser"))
+            }
+            type="button"
+            className="btn btn-title btn-sm btn-default mx-1"
+            gloss=""
+          >
+            <i className="fas fa-user-plus"></i>
+          </button>
+        </>
       ),
       ignoreRowClick: true,
       allowOverflow: true,
@@ -52,6 +67,11 @@ const UserPage = () => {
       name: "id",
       selector: (row) => row.id,
       omit: true,
+    },
+    {
+      name: "Phân Loại",
+      selector: (row) => row.accountType,
+      sortable: true,
     },
     {
       name: "Tài Khoản",
@@ -473,6 +493,12 @@ const UserPage = () => {
                       selectIdClick={selectIdClick}
                       hideModal={hideModal}
                     />
+                  )}
+                  {ShowModal === "SetCusForUser" && (
+                    <SetCusForUser
+                      selectIdClick={selectIdClick}
+                      hideModal={hideModal}
+                    ></SetCusForUser>
                   )}
                   {ShowModal === "RolePage" && <RolePage />}
                 </>

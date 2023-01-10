@@ -284,9 +284,7 @@ const HandlingPage = (props) => {
   useEffect(() => {
     setLoading(true);
     (async () => {
-      let getListCustomer = await getData(
-        `Customer/GetListCustomerOptionSelect`
-      );
+      let getListCustomer = await getData(`Customer/GetListCustomerFilter`);
       if (getListCustomer && getListCustomer.length > 0) {
         let arrKh = [];
         getListCustomer

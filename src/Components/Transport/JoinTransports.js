@@ -196,10 +196,11 @@ const JoinTransports = (props) => {
         SetIsLoading(true);
         let dataTransports = await getDataCustom(
           `BillOfLading/LoadJoinTransports`,
-          { TransportIds: [], MaVanDonChung: selectIdClick.maVanDonChung }
+          { TransportIds: [], MaChuyen: selectIdClick.maChuyen }
         );
 
         let dataHandling = dataTransports.handlingLess;
+        console.log(dataHandling);
 
         setValue("TransportType", dataTransports.loaiVanDon);
         setValue("MaPTVC", dataTransports.maPTVC);
@@ -365,7 +366,7 @@ const JoinTransports = (props) => {
     }
     if (selectIdClick && Object.keys(selectIdClick).length > 0) {
       const update = await postData(
-        `BillOfLading/UpdateHandlingLess?handlingId=${selectIdClick.maVanDonChung}`,
+        `BillOfLading/UpdateHandlingLess?handlingId=${selectIdClick.maChuyen}`,
         dataJoin
       );
       if (update === 1) {

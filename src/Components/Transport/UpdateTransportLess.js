@@ -116,7 +116,7 @@ const UpdateTransportLess = (props) => {
   useEffect(() => {
     SetIsLoading(true);
     (async () => {
-      const getListCus = await getData(`Customer/GetListCustomerOptionSelect`);
+      const getListCus = await getData(`Customer/GetListCustomerFilter`);
       if (getListCus && getListCus.length > 0) {
         let arrKh = [];
         getListCus

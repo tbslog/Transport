@@ -7,6 +7,7 @@ import { useMemo, useState, useEffect, useRef } from "react";
 import {
   getData,
   getDataCustom,
+  getFilePost,
   postData,
   postFile,
 } from "../Common/FuncAxios";
@@ -15,9 +16,7 @@ import CreateTransportLess from "./CreateTransportLess";
 import AddSubFeeByHandling from "./AddSubFeeByHandling";
 import ApproveSubFeeByHandling from "./ApproveSubFeeByHandling";
 import JoinTransports from "./JoinTransports";
-
 import Select from "react-select";
-import ListHandlingChild from "./ListHandlingChild";
 import { ToastError } from "../Common/FuncToast";
 
 const HandlingPageNew = () => {
@@ -110,7 +109,7 @@ const HandlingPageNew = () => {
     },
     {
       name: <div>Mã Chuyến</div>,
-      selector: (row) => <div className="text-wrap">{row.maVanDonChung}</div>,
+      selector: (row) => <div className="text-wrap">{row.maChuyen}</div>,
       sortable: true,
     },
     {
@@ -267,9 +266,7 @@ const HandlingPageNew = () => {
 
   useEffect(() => {
     (async () => {
-      let getListCustomer = await getData(
-        `Customer/GetListCustomerOptionSelect`
-      );
+      let getListCustomer = await getData(`Customer/GetListCustomerFilter`);
       if (getListCustomer && getListCustomer.length > 0) {
         let arrKh = [];
         getListCustomer
@@ -498,7 +495,7 @@ const HandlingPageNew = () => {
       Object.keys(selectIdClick).length > 0
     ) {
       var update = await postData(
-        `BillOfLading/SetRuningLess?id=${selectIdClick.maVanDonChung}`
+        `BillOfLading/SetRuningLess?id=${selectIdClick.maChuyen}`
       );
 
       if (update === 1) {
@@ -517,7 +514,7 @@ const HandlingPageNew = () => {
       Object.keys(selectIdClick).length > 0
     ) {
       var update = await postData(
-        `BillOfLading/CancelHandlingLess?id=${selectIdClick.maVanDonChung}`
+        `BillOfLading/CancelHandlingLess?id=${selectIdClick.maChuyen}`
       );
 
       if (update === 1) {
@@ -561,6 +558,25 @@ const HandlingPageNew = () => {
       ToastError("Vui lòng chọn nhiều hơn 1 vận đơn để gộp");
       return;
     }
+  };
+
+  const handleExportExcel = async () => {
+    if (!fromDate || !toDate) {
+      ToastError("Vui lòng chọn mốc thời gian");
+      return;
+    }
+
+    setLoading(true);
+
+    let startDate = moment(fromDate).format("YYYY-MM-DD");
+    let endDate = moment(toDate).format("YYYY-MM-DD");
+
+    const getFileDownLoad = await getFilePost(
+      `BillOfLading/ExportExcelHandlingLess?KeyWord=${keySearch}&fromDate=${startDate}&toDate=${endDate}&statusId=${status}`,
+      listCusSelected,
+      "DieuPhoi" + moment(new Date()).format("DD/MM/YYYY HHmmss")
+    );
+    setLoading(false);
   };
 
   const customStyles = {
@@ -669,7 +685,7 @@ const HandlingPageNew = () => {
                         value={status}
                       >
                         <option value="">Tất Cả Trạng Thái</option>
-                        <option value={"null"}>Chưa điều phối</option>
+                        <option value={"null"}>Mới Tạo</option>
                         {listStatus &&
                           listStatus.map((val) => {
                             return (
@@ -764,6 +780,31 @@ const HandlingPageNew = () => {
             />
           </div>
         </div>
+        <div className="card-footer">
+          <div className="row">
+            <div className="col-sm-3">
+              <button
+                // href={FileExcelImport}
+                onClick={() => handleExportExcel()}
+                className="btn btn-title btn-sm btn-default mx-1"
+                gloss="Tải File Excel"
+                type="button"
+              >
+                <i className="fas fa-file-excel"></i>
+              </button>
+              {/* <div className="upload-btn-wrapper">
+                  <button className="btn btn-sm btn-default mx-1">
+                    <i className="fas fa-upload"></i>
+                  </button>
+                  <input
+                    type="file"
+                    name="myfile"
+                    // onChange={(e) => handleExcelImportClick(e)}
+                  />
+                </div> */}
+            </div>
+          </div>
+        </div>
       </div>
 
       <div>
@@ -829,12 +870,7 @@ const HandlingPageNew = () => {
                       hideModal={hideModal}
                     />
                   )}
-                  {ShowModal === "ListHandling" && (
-                    <ListHandlingChild
-                      dataClick={selectIdClick}
-                      getListData={refeshData}
-                    />
-                  )}
+
                   {ShowModal === "addSubFee" && (
                     <AddSubFeeByHandling dataClick={selectIdClick} />
                   )}

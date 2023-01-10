@@ -4,8 +4,9 @@ import Cookies from "js-cookie";
 import jwt_decode from "jwt-decode";
 import { Buffer } from "buffer";
 
-//const Host = "https://api.tbslogistics.com.vn/api/";
-const Host = "http://localhost:8088/api/";
+// const Host = "https://api.tbslogistics.com.vn/api/";
+//const Host = "http://localhost:8088/api/";
+const Host = "https://localhost:5001/api/";
 
 axios.interceptors.request.use(
   (config) => {
@@ -40,9 +41,8 @@ axios.interceptors.response.use(
   },
   async (error) => {
     if (
-      (error.response.status === 401 &&
-        error.response.statusText === "Unauthorized") ||
-      error.response.status === 500
+      error.response.status === 401 &&
+      error.response.statusText === "Unauthorized"
     ) {
       // handle error: inform user, go to login, etc
       Object.keys(Cookies.get()).forEach(function (cookieName) {

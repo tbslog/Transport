@@ -251,7 +251,7 @@ const CustommerPage = () => {
         <div className="container-fluid">
           <div className="row mb-2">
             <div className="col-sm-6">
-              <h1>Quản lý thông tin khách hàng</h1>
+              <h1>Quản lý thông tin đối tác</h1>
             </div>
             {/* <div className="col-sm-6">
               <ol className="breadcrumb float-sm-right">

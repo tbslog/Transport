@@ -268,12 +268,12 @@ const CreateCustommer = (props) => {
               <div className="row">
                 <div className="col-sm">
                   <div className="form-group">
-                    <label htmlFor="TenKH">Tên khách hàng(*)</label>
+                    <label htmlFor="TenKH">Tên đối tác(*)</label>
                     <input
                       type="text"
                       className="form-control"
                       id="TenKH"
-                      placeholder="Nhập tên khách hàng"
+                      placeholder="Nhập tên đối tác"
                       {...register("TenKH", Validate.TenKH)}
                     />
                     {errors.TenKH && (

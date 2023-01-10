@@ -392,11 +392,11 @@ const AddPriceTable = (props) => {
                     <thead>
                       <tr>
                         <th style={{ width: "10px" }}></th>
-                        <th>Cung Đường(*)</th>
+                        <th style={{ width: "20%" }}>Cung Đường(*)</th>
                         <th>Đơn Giá(*)</th>
                         <th>Đơn vị tính(*)</th>
-                        <th>PTVC(*)</th>
-                        <th>Loại phương tiện(*)</th>
+                        <th style={{ width: "15%" }}>PTVC(*)</th>
+                        <th style={{ width: "12%" }}>Loại phương tiện(*)</th>
                         <th>Loại Hàng Hóa(*)</th>
                         <th>Ngày Hết Hiệu Lực</th>
                         <th style={{ width: "40px" }}>

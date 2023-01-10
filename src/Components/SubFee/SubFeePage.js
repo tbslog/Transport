@@ -26,7 +26,7 @@ const SubFeePage = () => {
   const [selectedRows, setSelectedRows] = useState([]);
   const [selectIdClick, setSelectIdClick] = useState({});
   const [listStatus, setListStatus] = useState([]);
-  const [status, setStatus] = useState();
+  const [status, setStatus] = useState("");
 
   const [ShowConfirm, setShowConfirm] = useState(false);
   const [functionSubmit, setFunctionSubmit] = useState("");

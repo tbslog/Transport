@@ -17,11 +17,6 @@ const UpdateUser = (props) => {
 
   const Validate = {
     MaNhanVien: {
-      required: "Không được để trống",
-      //   maxLength: {
-      //     value: 15,
-      //     message: "Không được vượt quá 15 ký tự",
-      //   },
       minLength: {
         value: 5,
         message: "Không được ít hơn 5 ký tự",
@@ -41,9 +36,6 @@ const UpdateUser = (props) => {
         value: 2,
         message: "Không được ít hơn 2 ký tự",
       },
-    },
-    BoPhan: {
-      required: "Không được để trống",
     },
     UserName: {
       required: "Không được để trống",
@@ -134,6 +126,7 @@ const UpdateUser = (props) => {
       setValue("FullName", selectIdClick.hoVaTen);
       setValue("MaNhanVien", selectIdClick.maNhanVien);
       setValue("TrangThai", selectIdClick.trangThai);
+      setValue("AccountType", selectIdClick.accountType);
 
       setValue(
         "BoPhan",
@@ -158,9 +151,10 @@ const UpdateUser = (props) => {
         Password: data.Password,
         HoVaTen: data.FullName,
         MaNhanVien: data.MaNhanVien,
-        MaBoPhan: data.BoPhan.value,
+        MaBoPhan: !data.BoPhan ? null : data.BoPhan.value,
         RoleId: data.SetRole.value,
         TrangThai: data.TrangThai,
+        AccountType: data.AccountType,
       }
     );
 
@@ -185,7 +179,7 @@ const UpdateUser = (props) => {
             <div className="row">
               <div className="col col-sm">
                 <div className="form-group">
-                  <label htmlFor="MaNhanVien">Mã Nhân Viên(*)</label>
+                  <label htmlFor="MaNhanVien">Mã Nhân Viên</label>
                   <input
                     type="text"
                     className="form-control"
@@ -217,7 +211,7 @@ const UpdateUser = (props) => {
               </div>
               <div className="col col-sm">
                 <div className="form-group">
-                  <label htmlFor="BoPhan">Bộ Phận(*)</label>
+                  <label htmlFor="BoPhan">Bộ Phận</label>
                   <Controller
                     name="BoPhan"
                     rules={Validate.BoPhan}
@@ -274,6 +268,23 @@ const UpdateUser = (props) => {
               </div>
             </div>
             <div className="row">
+              <div className="col col-sm">
+                <div className="form-group">
+                  <label htmlFor="AccountType">Loại Account(*)</label>
+                  <select
+                    className="form-control"
+                    {...register(`AccountType`, Validate.AccountType)}
+                  >
+                    <option value={"NV"}>Nhân Viên</option>
+                    <option value={"KH"}>Khách Hàng</option>
+                  </select>
+                  {errors.TrangThai && (
+                    <span className="text-danger">
+                      {errors.TrangThai.message}
+                    </span>
+                  )}
+                </div>
+              </div>
               <div className="col col-sm">
                 <div className="form-group">
                   <label htmlFor="SetRole">Phân Quyền(*)</label>

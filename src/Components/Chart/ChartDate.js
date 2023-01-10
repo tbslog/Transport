@@ -8,9 +8,10 @@ import {
   LineElement,
   Title,
   Tooltip,
+  BarElement,
   Legend,
 } from "chart.js";
-import { Line, getElementAtEvent } from "react-chartjs-2";
+import { Line, getElementAtEvent, Bar } from "react-chartjs-2";
 
 const Chart = (props) => {
   ChartJS.register(
@@ -18,6 +19,7 @@ const Chart = (props) => {
     LinearScale,
     PointElement,
     LineElement,
+    BarElement,
     Title,
     Tooltip,
     Legend

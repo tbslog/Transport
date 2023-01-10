@@ -25,7 +25,7 @@ const ProductServicePage = () => {
   const [selectIdClick, setSelectIdClick] = useState({});
   const [listStatus, setListStatus] = useState([]);
   const [listVehicleType, setListVehicleType] = useState([]);
-  const [status, setStatus] = useState();
+  const [status, setStatus] = useState("");
   const [vehicleType, setVehicleType] = useState("");
 
   const columns = useMemo(() => [
