@@ -722,9 +722,9 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                            from vdl in vdless.DefaultIfEmpty()
                            select new { vd, dpl = vdl == null ? null : vdl };
 
-                if (!string.IsNullOrEmpty(request.MaVanDonChung) && request.TransportIds.Count == 0)
+                if (!string.IsNullOrEmpty(request.MaChuyen) && request.TransportIds.Count == 0)
                 {
-                    list = list.Where(x => x.dpl.MaChuyen == request.MaVanDonChung);
+                    list = list.Where(x => x.dpl.MaChuyen == request.MaChuyen);
                 }
                 else
                 {
@@ -1835,6 +1835,9 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                            where status.LangId == tempData.LangID
                            select new { transport, status, road, kh };
 
+            var filterByCus = await _context.UserHasCustomer.Where(x => x.UserId == tempData.UserID).ToListAsync();
+            listData = listData.Where(x => filterByCus.Select(y => y.CustomerId).Contains(x.kh.MaKh));
+
             if (listCustomer.Length > 0)
             {
                 listData = listData.Where(x => listCustomer.Contains(x.kh.MaKh));
@@ -1864,6 +1867,8 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
             {
                 listData = listData.Where(x => x.transport.ThoiGianTaoDon.Date >= filter.fromDate.Value.Date && x.transport.ThoiGianTaoDon.Date <= filter.toDate.Value.Date);
             }
+
+
 
             var totalCount = await listData.CountAsync();
 
@@ -1915,6 +1920,9 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                            on dp.TrangThai equals tt.StatusId
                            where tt.LangId == tempData.LangID && vd.MaPtvc != "LTL" && vd.MaPtvc != "LCL"
                            select new { vd, dp, tt };
+
+            var filterByCus = await _context.UserHasCustomer.Where(x => x.UserId == tempData.UserID).ToListAsync();
+            listData = listData.Where(x => filterByCus.Select(y => y.CustomerId).Contains(x.vd.MaKh));
 
             if (!string.IsNullOrEmpty(transportId))
             {
@@ -1995,7 +2003,8 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                where (ttdp.LangId == tempData.LangID || ttdp.LangId == null) && (vd.MaPtvc == "LTL" || vd.MaPtvc == "LCL")
                                select new { vd, vddp, ttdp };
 
-                var da = listData.ToQueryString();
+                var filterByCus = await _context.UserHasCustomer.Where(x => x.UserId == tempData.UserID).ToListAsync();
+                listData = listData.Where(x => filterByCus.Select(y => y.CustomerId).Contains(x.vd.MaKh));
 
                 if (customers.Length > 0)
                 {

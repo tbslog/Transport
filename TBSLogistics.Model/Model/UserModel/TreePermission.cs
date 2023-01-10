@@ -14,6 +14,12 @@ namespace TBSLogistics.Model.Model.UserModel
         public List<ListTree> ListTree { get; set; }
     }
 
+    public class TreeCustomer
+    {
+        public List<string> IsChecked { get; set; }
+        public List<ListTree> ListTree { get; set; }
+    }
+
     public class ListTree
     {
         public string Value { get; set; }

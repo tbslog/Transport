@@ -9,6 +9,7 @@ namespace TBSLogistics.Model.Model.UserModel
     public class GetUserRequest
     {
         public int Id { get; set; }
+        public string AccountType { get; set; }
         public string UserName { get; set; }
         public string HoVaTen { get; set; }
         public string MaNhanVien { get; set; }

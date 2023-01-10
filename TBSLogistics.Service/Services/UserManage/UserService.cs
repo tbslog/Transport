@@ -193,6 +193,7 @@ namespace TBSLogistics.Service.Services.UserManage
                     RoleId = request.RoleId,
                     TrangThai = request.TrangThai,
                     NguoiTao = tempData.UserName,
+                    AccountType = request.AccountType,
                     CreatedTime = DateTime.Now,
                     UpdatedTime = DateTime.Now,
                     Creator = tempData.UserName,
@@ -237,7 +238,8 @@ namespace TBSLogistics.Service.Services.UserManage
                               join acc in _context.Account
                               on user.Id equals acc.Id
                               join bp in _context.BoPhan
-                              on user.MaBoPhan equals bp.MaBoPhan
+                              on user.MaBoPhan equals bp.MaBoPhan into bpp
+                              from bp in bpp.DefaultIfEmpty()
                               join status in _context.StatusText
                               on user.TrangThai equals status.StatusId
                               where status.LangId == tempData.LangID
@@ -264,6 +266,7 @@ namespace TBSLogistics.Service.Services.UserManage
                 var pagedData = await getList.Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new GetUserRequest()
                 {
                     Id = x.user.Id,
+                    AccountType = x.user.AccountType,
                     UserName = x.acc.UserName,
                     HoVaTen = x.user.HoVaTen,
                     MaNhanVien = x.user.MaNhanVien,
@@ -343,6 +346,7 @@ namespace TBSLogistics.Service.Services.UserManage
             return new GetUserRequest()
             {
                 Id = id,
+                AccountType = GetById.AccountType,
                 UserName = Account.UserName,
                 HoVaTen = GetById.HoVaTen,
                 MaNhanVien = GetById.MaNhanVien,
@@ -366,6 +370,7 @@ namespace TBSLogistics.Service.Services.UserManage
                 checkExists.HoVaTen = request.HoVaTen;
                 checkExists.MaBoPhan = request.MaBoPhan;
                 checkExists.MaNhanVien = request.MaNhanVien;
+                checkExists.AccountType = request.AccountType;
                 checkExists.TrangThai = request.TrangThai;
                 checkExists.Updater = tempData.UserName;
 
@@ -450,6 +455,7 @@ namespace TBSLogistics.Service.Services.UserManage
                 RoleName = _context.Role.Where(x => x.Id == GetById.RoleId).Select(x => x.RoleName).FirstOrDefault(),
                 UserName = Account.UserName,
                 HoVaTen = GetById.HoVaTen,
+                AccountType = GetById.AccountType,
                 MaNhanVien = GetById.MaNhanVien,
                 MaBoPhan = GetById.MaBoPhan,
                 TenBoPhan = _context.BoPhan.Where(x => x.MaBoPhan == GetById.MaBoPhan).Select(x => x.TenBoPhan).FirstOrDefault(),
@@ -543,6 +549,7 @@ namespace TBSLogistics.Service.Services.UserManage
                 {
                     UserName = checkUser.UserName,
                     Id = checkUser.Id,
+                    AccountType = getUser.AccountType,
                     HoVaTen = getUser.HoVaTen,
                     MaBoPhan = getUser.MaBoPhan,
                     RoleId = getUser.RoleId.ToString(),
@@ -553,6 +560,97 @@ namespace TBSLogistics.Service.Services.UserManage
             {
                 throw;
             }
+        }
+
+        public async Task<BoolActionResult> SetCusForUser(AddCusForUser request)
+        {
+            var transaction = await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+                var checkUser = await _context.NguoiDung.Where(x => x.Id == request.UserID).ToListAsync();
+
+                if (checkUser == null)
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Người dùng không tồn tại" };
+                }
+
+                var checkCus = await _context.KhachHang.Where(x => request.CusId.Contains(x.MaKh)).ToListAsync();
+
+                var getCusOfUser = await _context.UserHasCustomer.Where(x => x.UserId == request.UserID).ToListAsync();
+                _context.UserHasCustomer.RemoveRange(getCusOfUser);
+
+                foreach (var item in checkCus)
+                {
+                    await _context.UserHasCustomer.AddAsync(new UserHasCustomer()
+                    {
+                        UserId = request.UserID,
+                        CustomerId = item.MaKh,
+                    });
+                }
+
+                var result = await _context.SaveChangesAsync();
+
+                if (result > 0)
+                {
+                    await transaction.CommitAsync();
+                    return new BoolActionResult { isSuccess = true, Message = "Gán Khách hành cho Tài Khoản thành công!" };
+                }
+                else
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Thất bại!" };
+                }
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return new BoolActionResult { isSuccess = false, Message = ex.Message };
+            }
+        }
+
+        public async Task<TreeCustomer> GetListTreeCustomer(int userid)
+        {
+            var listCus = await _context.KhachHang.ToListAsync();
+
+            var listTree = new List<ListTree>()
+            {
+               new ListTree()
+               {
+                Label = "KH",
+                Value = "KH",
+                Children = listCus.Where(y => y.MaLoaiKh == "KH").Select(y => new ListTree()
+                {
+                    Label = y.TenKh,
+                    Value = y.MaKh,
+                }).ToList(),
+               },
+               new ListTree()
+               {
+                Label = "NCC",
+                Value = "NCC",
+                Children = listCus.Where(y => y.MaLoaiKh == "NCC").Select(y => new ListTree()
+                {
+                    Label = y.TenKh,
+                    Value = y.MaKh,
+                }).ToList(),
+               }
+            };
+
+            var listCusOfUser = await _context.UserHasCustomer.Where(x => x.UserId == userid).ToListAsync();
+            if (listCusOfUser.Count == 0)
+            {
+                return new TreeCustomer()
+                {
+                    IsChecked = null,
+                    ListTree = listTree,
+                };
+            }
+
+            return new TreeCustomer()
+            {
+                IsChecked = listCusOfUser.Select(x => x.CustomerId).ToList(),
+                ListTree = listTree
+            };
         }
     }
 }

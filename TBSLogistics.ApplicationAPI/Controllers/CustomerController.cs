@@ -121,6 +121,14 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             return Ok(Custommer);
         }
 
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetListCustomerFilter(string type = null)
+        {
+            var listOptionSelect = await _customer.GetListCustomerFilter(type);
+            return Ok(listOptionSelect);
+        }
+
         [HttpPost]
         [Route("[action]")]
         public async Task<IActionResult> ReadFileExcel(IFormFile formFile, CancellationToken cancellationToken)

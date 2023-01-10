@@ -26,6 +26,7 @@ namespace TBSLogistics.Service.Services.UserManage
         Task<GetUserRequest> GetUserByName(string username);
         Task<BoolActionResult> ChangePassword(string username, ChangePasswordModel model);
         Task<BoolActionResult> BlockUsers(List<int> userIds);
-
+        Task<BoolActionResult> SetCusForUser(AddCusForUser request);
+        Task<TreeCustomer> GetListTreeCustomer(int userid);
     }
 }

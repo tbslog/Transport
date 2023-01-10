@@ -13,6 +13,7 @@ namespace TBSLogistics.Model.Model.UserModel
         public string HoVaTen { get; set; }
         public string MaNhanVien { get; set; }
         public string MaBoPhan { get; set; }
+        public string AccountType { get; set; }
         public int RoleId { get; set; }
         public int TrangThai { get; set; }
     }

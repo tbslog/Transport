@@ -242,8 +242,26 @@ namespace TBSLogistics.Service.Services.CustommerManage
 
         public async Task<List<GetCustomerRequest>> getListCustomerOptionSelect(string type)
         {
-
             var getList = await _TMSContext.KhachHang.Where(x => x.TrangThai == 1).Select(x => new GetCustomerRequest()
+            {
+                MaKh = x.MaKh,
+                TenKh = x.TenKh,
+                LoaiKH = x.MaLoaiKh,
+            }).ToListAsync();
+
+            if (!string.IsNullOrEmpty(type))
+            {
+                getList = getList.Where(x => x.LoaiKH == type).ToList();
+            }
+
+            return getList;
+        }
+
+        public async Task<List<GetCustomerRequest>> GetListCustomerFilter(string type)
+        {
+            var getListFilter = await _TMSContext.UserHasCustomer.Where(x => x.UserId == tempData.UserID).Select(x => x.CustomerId).ToListAsync();
+
+            var getList = await _TMSContext.KhachHang.Where(x => x.TrangThai == 1 && getListFilter.Contains(x.MaKh)).Select(x => new GetCustomerRequest()
             {
                 MaKh = x.MaKh,
                 TenKh = x.TenKh,

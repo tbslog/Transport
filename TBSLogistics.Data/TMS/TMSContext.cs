@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.Extensions.Configuration;
 
 namespace TBSLogistics.Data.TMS
 {
@@ -56,6 +54,7 @@ namespace TBSLogistics.Data.TMS
         public virtual DbSet<TaiXe> TaiXe { get; set; }
         public virtual DbSet<ThongBao> ThongBao { get; set; }
         public virtual DbSet<TinhThanh> TinhThanh { get; set; }
+        public virtual DbSet<UserHasCustomer> UserHasCustomer { get; set; }
         public virtual DbSet<UserHasPermission> UserHasPermission { get; set; }
         public virtual DbSet<UserHasRole> UserHasRole { get; set; }
         public virtual DbSet<VanDon> VanDon { get; set; }
@@ -66,12 +65,8 @@ namespace TBSLogistics.Data.TMS
         {
             if (!optionsBuilder.IsConfigured)
             {
-                IConfigurationRoot configuration = new ConfigurationBuilder()
-                 .SetBasePath(Directory.GetCurrentDirectory())
-                 .AddJsonFile("appsettings.json")
-                 .Build();
-
-                optionsBuilder.UseSqlServer(configuration.GetConnectionString("TMS_Local"));
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+                optionsBuilder.UseSqlServer("Server=DESKTOP-711TTSG\\HAILE;Database=TMS;User Id=haile;Password=123456;");
             }
         }
 
@@ -688,6 +683,11 @@ namespace TBSLogistics.Data.TMS
                     .ValueGeneratedNever()
                     .HasColumnName("ID");
 
+                entity.Property(e => e.AccountType)
+                    .IsRequired()
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
                 entity.Property(e => e.CreatedTime)
                     .HasColumnType("datetime")
                     .HasColumnName("Created_Time");
@@ -700,12 +700,10 @@ namespace TBSLogistics.Data.TMS
                     .HasDefaultValueSql("(N'')");
 
                 entity.Property(e => e.MaBoPhan)
-                    .IsRequired()
                     .HasMaxLength(20)
                     .IsUnicode(false);
 
                 entity.Property(e => e.MaNhanVien)
-                    .IsRequired()
                     .HasMaxLength(10)
                     .IsUnicode(false)
                     .HasDefaultValueSql("('')");
@@ -1163,6 +1161,30 @@ namespace TBSLogistics.Data.TMS
                 entity.Property(e => e.TenTinh)
                     .IsRequired()
                     .HasMaxLength(50);
+            });
+
+            modelBuilder.Entity<UserHasCustomer>(entity =>
+            {
+                entity.Property(e => e.Id).HasColumnName("ID");
+
+                entity.Property(e => e.CustomerId)
+                    .IsRequired()
+                    .HasMaxLength(8)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.UserId).HasColumnName("UserID");
+
+                entity.HasOne(d => d.Customer)
+                    .WithMany(p => p.UserHasCustomer)
+                    .HasForeignKey(d => d.CustomerId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_UserHasCustomer_KhachHang");
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.UserHasCustomer)
+                    .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_UserHasCustomer_NguoiDung");
             });
 
             modelBuilder.Entity<UserHasPermission>(entity =>

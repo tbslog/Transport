@@ -230,6 +230,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
                         new Claim("UserName", user.UserName),
                         new Claim("FullName", user.HoVaTen),
                         new Claim("Department", user.MaBoPhan),
+                        new Claim("AccType",user.AccountType),
                         new Claim("Role", user.RoleId.ToString())
                     };
 
@@ -253,6 +254,29 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             {
                 return BadRequest();
             }
+        }
+
+        [Authorize]
+        [HttpPost]
+        [Route("[action]")]
+        public async Task<IActionResult> SetCusForUser(AddCusForUser request)
+        {
+            var set = await _user.SetCusForUser(request);
+            if (set.isSuccess)
+            {
+                return Ok(set.Message);
+            }
+
+            return BadRequest(set.Message);
+        }
+
+        [Authorize]
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> LoadTreeCustomer(int userid)
+        {
+            var tree = await _user.GetListTreeCustomer(userid);
+            return Ok(tree);
         }
 
         [Authorize]

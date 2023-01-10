@@ -20,6 +20,7 @@ namespace TBSLogistics.Service.Services.CustommerManage
         Task<GetCustomerRequest> GetCustomerById(string CustomerId);
         Task<PagedResponseCustom<ListCustommerRequest>> getListCustommer(PaginationFilter filter);
         Task<List<GetCustomerRequest>> getListCustomerOptionSelect(string type);
+        Task<List<GetCustomerRequest>> GetListCustomerFilter(string type);
         //Task<BoolActionResult> ReadExcelFile(IFormFile formFile, CancellationToken cancellationToken);
 
     }
