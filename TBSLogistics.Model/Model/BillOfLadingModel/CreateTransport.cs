@@ -34,6 +34,7 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
 
     public class arrHandling
     {
+        public string ContNo { get; set; }
         public string DonViVanTai { get; set; }
         public string PTVanChuyen { get; set; }
         public string LoaiHangHoa { get; set; }

@@ -106,6 +106,22 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             return Ok(pagedReponse);
         }
 
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetListHandlingByTransportId([FromQuery] PaginationFilter filter, string transportId)
+        {
+            var checkPermission = await _common.CheckPermission("E0003");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+            var route = Request.Path.Value;
+            var pagedData = await _billOfLading.GetListHandlingByTransportId(transportId, filter);
+
+            var pagedReponse = PaginationHelper.CreatePagedReponse<ListHandling>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _paninationService, route);
+            return Ok(pagedReponse);
+        }
+
         [HttpPost]
         [Route("[action]")]
         public async Task<IActionResult> CreateTransport(CreateTransport request)

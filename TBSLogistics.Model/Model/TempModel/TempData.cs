@@ -10,6 +10,7 @@ namespace TBSLogistics.Model.TempModel
     {
         public int UserID;
         public string UserName;
+        public string AccType;
         public string LangID { get; set; } = "VI";
 
     }

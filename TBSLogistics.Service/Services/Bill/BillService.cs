@@ -378,7 +378,7 @@ namespace TBSLogistics.Service.Services.Bill
                 DonViVanTai = _context.KhachHang.Where(y => y.MaKh == x.dp.DonViVanTai).Select(y => y.TenKh).FirstOrDefault(),
                 DonGiaKH = x.dp.DonGiaKh,
                 DonGiaNCC = x.dp.DonGiaNcc,
-                LoiNhuan = x.dp.DonGiaKh - x.dp.DonGiaNcc,
+                LoiNhuan = x.dp.DonGiaKh.Value - x.dp.DonGiaNcc.Value,
                 ChiPhiHopDong = (decimal)getListSubFeeByContract.Where(y => y.kh.MaKh == x.vd.MaKh &&
                 ((y.sfPice.GoodsType == x.dp.MaLoaiHangHoa)
                         || (y.sfPice.FirstPlace == x.dp.DiemLayTraRong && y.sfPice.SecondPlace == null)

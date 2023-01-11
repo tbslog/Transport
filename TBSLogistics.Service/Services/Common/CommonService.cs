@@ -175,7 +175,8 @@ namespace TBSLogistics.Service.Services.Common
                 return new TempData()
                 {
                     UserID = int.Parse(jwtSecurityToken.Claims.First(x => x.Type == "UserId").Value),
-                    UserName = jwtSecurityToken.Claims.First(x => x.Type == "UserName").Value
+                    UserName = jwtSecurityToken.Claims.First(x => x.Type == "UserName").Value,
+                    AccType = jwtSecurityToken.Claims.First(x => x.Type == "AccType").Value,
                 };
             }
             return new TempData();

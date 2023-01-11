@@ -42,6 +42,6 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
         Task<UpdateTransportLess> GetTransportLessById(string transportId);
         Task<BoolActionResult> SetRunningLess(string handlingId);
         Task<BoolActionResult> CancelHandlingLess(string handlingId);
-
+        Task<PagedResponseCustom<ListHandling>> GetListHandlingByTransportId(string transportId, PaginationFilter filter);
     }
 }

@@ -229,7 +229,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
                         new Claim("UserId", user.Id.ToString()),
                         new Claim("UserName", user.UserName),
                         new Claim("FullName", user.HoVaTen),
-                        new Claim("Department", user.MaBoPhan),
+                        new Claim("Department", string.IsNullOrEmpty(user.MaBoPhan)?"KH":user.MaBoPhan),
                         new Claim("AccType",user.AccountType),
                         new Claim("Role", user.RoleId.ToString())
                     };

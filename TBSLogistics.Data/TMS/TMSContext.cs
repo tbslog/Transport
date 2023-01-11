@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.Extensions.Configuration;
 
 namespace TBSLogistics.Data.TMS
 {
@@ -65,8 +67,12 @@ namespace TBSLogistics.Data.TMS
         {
             if (!optionsBuilder.IsConfigured)
             {
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-                optionsBuilder.UseSqlServer("Server=DESKTOP-711TTSG\\HAILE;Database=TMS;User Id=haile;Password=123456;");
+                IConfigurationRoot configuration = new ConfigurationBuilder()
+                 .SetBasePath(Directory.GetCurrentDirectory())
+                 .AddJsonFile("appsettings.json")
+                 .Build();
+
+                optionsBuilder.UseSqlServer(configuration.GetConnectionString("TMS_Local"));
             }
         }
 
@@ -358,7 +364,6 @@ namespace TBSLogistics.Data.TMS
                     .HasColumnName("DonGiaNCC");
 
                 entity.Property(e => e.DonViVanTai)
-                    .IsRequired()
                     .HasMaxLength(8)
                     .IsUnicode(false);
 
@@ -415,19 +420,16 @@ namespace TBSLogistics.Data.TMS
                 entity.HasOne(d => d.BangGiaKhNavigation)
                     .WithMany(p => p.DieuPhoiBangGiaKhNavigation)
                     .HasForeignKey(d => d.BangGiaKh)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_DieuPhoi_BangGia");
 
                 entity.HasOne(d => d.BangGiaNccNavigation)
                     .WithMany(p => p.DieuPhoiBangGiaNccNavigation)
                     .HasForeignKey(d => d.BangGiaNcc)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_DieuPhoi_BangGia1");
 
                 entity.HasOne(d => d.DonViVanTaiNavigation)
                     .WithMany(p => p.DieuPhoi)
                     .HasForeignKey(d => d.DonViVanTai)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_DieuPhoi_KhachHang");
 
                 entity.HasOne(d => d.MaRomoocNavigation)
