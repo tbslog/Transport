@@ -5,10 +5,12 @@ import DatePicker from "react-datepicker";
 import Select from "react-select";
 import moment from "moment";
 import { ToastError } from "../Common/FuncToast";
+import Cookies from "js-cookie";
 
 const CreateTransport = (props) => {
   const { getListTransport } = props;
   const [IsLoading, SetIsLoading] = useState(false);
+  const accountType = Cookies.get("AccType");
   const {
     register,
     reset,
@@ -301,6 +303,7 @@ const CreateTransport = (props) => {
         TheTich: !val.TheTich ? null : val.TheTich,
         SoKien: !val.SoKien ? null : val.SoKien,
         DonViTinh: "CHUYEN",
+        ContNo: !val.ContNo ? null : val.ContNo,
       });
     });
 
@@ -678,7 +681,10 @@ const CreateTransport = (props) => {
                       <th style={{ width: "40px" }}></th>
                       <th>
                         <div className="row">
-                          <div className="col-sm">Đơn Vị Vận Tải(*)</div>
+                          {accountType && accountType === "NV" && (
+                            <div className="col-sm">Đơn Vị Vận Tải(*)</div>
+                          )}
+
                           <div className="col-sm-2">Loại Hàng Hóa(*)</div>
                           <div className="col-sm-2">Loại Phương Tiện(*)</div>
                           {watch(`optionHandling`) &&
@@ -686,7 +692,10 @@ const CreateTransport = (props) => {
                             watch(`optionHandling`).filter((x) =>
                               x.PTVanChuyen.includes("CONT")
                             ).length > 0 && (
-                              <div className="col-sm-2">Điểm Lấy Rỗng(*)</div>
+                              <>
+                                <div className="col-sm-2">Mã Container</div>
+                                <div className="col-sm-2">Điểm Lấy Rỗng(*)</div>
+                              </>
                             )}
                           <div className="col-sm-1">Khối Lượng</div>
                           <div className="col-sm-1">Thể Tích</div>
@@ -710,39 +719,42 @@ const CreateTransport = (props) => {
                         <td>{index + 1}</td>
                         <td>
                           <div className="row">
-                            <div className="col-sm">
-                              <div className="form-group">
-                                <Controller
-                                  name={`optionHandling.${index}.DonViVanTai`}
-                                  control={control}
-                                  render={({ field }) => (
-                                    <Select
-                                      {...field}
-                                      classNamePrefix={"form-control"}
-                                      value={field.value}
-                                      options={listSupplier}
-                                    />
-                                  )}
-                                  rules={{
-                                    required: "không được để trống",
-                                    validate: (value) => {
-                                      if (!value.value) {
-                                        return "không được để trống";
+                            {accountType && accountType === "NV" && (
+                              <div className="col-sm">
+                                <div className="form-group">
+                                  <Controller
+                                    name={`optionHandling.${index}.DonViVanTai`}
+                                    control={control}
+                                    render={({ field }) => (
+                                      <Select
+                                        {...field}
+                                        classNamePrefix={"form-control"}
+                                        value={field.value}
+                                        options={listSupplier}
+                                      />
+                                    )}
+                                    rules={{
+                                      required: "không được để trống",
+                                      validate: (value) => {
+                                        if (!value.value) {
+                                          return "không được để trống";
+                                        }
+                                      },
+                                    }}
+                                  />
+                                  {errors.optionHandling?.[index]
+                                    ?.DonViVanTai && (
+                                    <span className="text-danger">
+                                      {
+                                        errors.optionHandling?.[index]
+                                          ?.DonViVanTai.message
                                       }
-                                    },
-                                  }}
-                                />
-                                {errors.optionHandling?.[index]
-                                  ?.DonViVanTai && (
-                                  <span className="text-danger">
-                                    {
-                                      errors.optionHandling?.[index]
-                                        ?.DonViVanTai.message
-                                    }
-                                  </span>
-                                )}
+                                    </span>
+                                  )}
+                                </div>
                               </div>
-                            </div>
+                            )}
+
                             <div className="col-sm-2">
                               <div className="form-group">
                                 <select
@@ -813,39 +825,64 @@ const CreateTransport = (props) => {
                               watch(
                                 `optionHandling.${index}.PTVanChuyen`
                               ).includes("CONT") && (
-                                <div className="col-sm-2">
-                                  <div className="form-group">
-                                    <Controller
-                                      name={`optionHandling.${index}.DiemLayTraRong`}
-                                      control={control}
-                                      render={({ field }) => (
-                                        <Select
-                                          {...field}
-                                          classNamePrefix={"form-control"}
-                                          value={field.value}
-                                          options={listPoint}
-                                        />
-                                      )}
-                                      rules={{
-                                        required: "không được để trống",
-                                        validate: (value) => {
-                                          if (!value.value) {
-                                            return "không được để trống";
+                                <>
+                                  <div className="col-sm-2">
+                                    <div className="form-group">
+                                      <input
+                                        type="text"
+                                        className="form-control"
+                                        placeholder="Mã Container"
+                                        id="ContNo"
+                                        {...register(
+                                          `optionHandling.${index}.ContNo`,
+                                          Validate.ContNo
+                                        )}
+                                      />
+                                      {errors.optionHandling?.[index]
+                                        ?.ContNo && (
+                                        <span className="text-danger">
+                                          {
+                                            errors.optionHandling?.[index]
+                                              ?.ContNo.message
                                           }
-                                        },
-                                      }}
-                                    />
-                                    {errors.optionHandling?.[index]
-                                      ?.DiemLayTraRong && (
-                                      <span className="text-danger">
-                                        {
-                                          errors.optionHandling?.[index]
-                                            ?.DiemLayTraRong.message
-                                        }
-                                      </span>
-                                    )}
+                                        </span>
+                                      )}
+                                    </div>
                                   </div>
-                                </div>
+                                  <div className="col-sm-2">
+                                    <div className="form-group">
+                                      <Controller
+                                        name={`optionHandling.${index}.DiemLayTraRong`}
+                                        control={control}
+                                        render={({ field }) => (
+                                          <Select
+                                            {...field}
+                                            classNamePrefix={"form-control"}
+                                            value={field.value}
+                                            options={listPoint}
+                                          />
+                                        )}
+                                        rules={{
+                                          required: "không được để trống",
+                                          validate: (value) => {
+                                            if (!value.value) {
+                                              return "không được để trống";
+                                            }
+                                          },
+                                        }}
+                                      />
+                                      {errors.optionHandling?.[index]
+                                        ?.DiemLayTraRong && (
+                                        <span className="text-danger">
+                                          {
+                                            errors.optionHandling?.[index]
+                                              ?.DiemLayTraRong.message
+                                          }
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                </>
                               )}
                             <div className="col-sm-1">
                               <div className="form-group">

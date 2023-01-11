@@ -73,43 +73,73 @@ const Header = () => {
           <div className="collapse navbar-collapse order-3" id="navbarCollapse">
             <ul className="navbar-nav">
               <li className="nav-item"></li>
-              {getRouterList() &&
-                getRouterList().length > 0 &&
-                getRouterList().map((val, index) => {
-                  return (
-                    <li key={index} className="nav-item dropdown">
-                      <a
-                        id="dropdownSubMenu1"
-                        href="#"
-                        data-toggle="dropdown"
-                        aria-haspopup="true"
-                        aria-expanded="false"
-                        className="nav-link dropdown-toggle"
-                      >
-                        {val.name}
-                      </a>
-                      <ul
-                        aria-labelledby="dropdownSubMenu1"
-                        className="dropdown-menu border-0 shadow"
-                      >
-                        {val.child &&
-                          val.child.length > 0 &&
-                          val.child.map((value, num) => {
-                            return (
-                              <li key={num}>
-                                <Link
-                                  to={value.pathName}
-                                  className="dropdown-item"
-                                >
-                                  {value.name}
-                                </Link>
-                              </li>
-                            );
-                          })}
-                      </ul>
-                    </li>
-                  );
-                })}
+
+              {Cookies.get("AccType") === "NV" ? (
+                <>
+                  {getRouterList() &&
+                    getRouterList().length > 0 &&
+                    getRouterList().map((val, index) => {
+                      return (
+                        <li key={index} className="nav-item dropdown">
+                          <a
+                            id="dropdownSubMenu1"
+                            href="#"
+                            data-toggle="dropdown"
+                            aria-haspopup="true"
+                            aria-expanded="false"
+                            className="nav-link dropdown-toggle"
+                          >
+                            {val.name}
+                          </a>
+                          <ul
+                            aria-labelledby="dropdownSubMenu1"
+                            className="dropdown-menu border-0 shadow"
+                          >
+                            {val.child &&
+                              val.child.length > 0 &&
+                              val.child.map((value, num) => {
+                                return (
+                                  <li key={num}>
+                                    <Link
+                                      to={value.pathName}
+                                      className="dropdown-item"
+                                    >
+                                      {value.name}
+                                    </Link>
+                                  </li>
+                                );
+                              })}
+                          </ul>
+                        </li>
+                      );
+                    })}
+                </>
+              ) : (
+                <>
+                  <li className="nav-item dropdown">
+                    <a
+                      id="dropdownSubMenu1"
+                      href="#"
+                      data-toggle="dropdown"
+                      aria-haspopup="true"
+                      aria-expanded="false"
+                      className="nav-link dropdown-toggle"
+                    >
+                      Xem Thông Tin
+                    </a>
+                    <ul
+                      aria-labelledby="dropdownSubMenu1"
+                      className="dropdown-menu border-0 shadow"
+                    >
+                      <li>
+                        <Link to={"/transport"} className="dropdown-item">
+                          Thông Tin Vận Đơn
+                        </Link>
+                      </li>
+                    </ul>
+                  </li>
+                </>
+              )}
             </ul>
           </div>
           {/* Right navbar links */}

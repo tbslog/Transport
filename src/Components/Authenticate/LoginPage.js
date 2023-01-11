@@ -27,7 +27,7 @@ const LoginPage = () => {
       Cookies.set("username", data.UserName);
       Cookies.set("fullname", getUser.hoVaTen);
       Cookies.set("BoPhan", getUser.tenBoPhan);
-
+      Cookies.set("AccType", getUser.accountType);
       navigate("/");
     } else {
       setErrMsg(login.Message);

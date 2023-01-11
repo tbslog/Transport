@@ -9,10 +9,10 @@ import CreateTransport from "./CreateTransport";
 import UpdateTransport from "./UpdateTransport";
 import HandlingPage from "./HandlingPage";
 import CreateTransportLess from "./CreateTransportLess";
-import JoinTransports from "./JoinTransports";
 import { ToastError } from "../Common/FuncToast";
 import UpdateTransportLess from "./UpdateTransportLess";
 import Select from "react-select";
+import HandlingByTransport from "./HandlingByTransport";
 
 const TransportPage = () => {
   const {
@@ -51,21 +51,33 @@ const TransportPage = () => {
   const columns = useMemo(() => [
     {
       cell: (val) => (
-        <button
-          onClick={() =>
-            handleEditButtonClick(
-              val,
-              val.maPTVC === "LCL" || val.maPTVC === "LTL"
-                ? SetShowModal("EditLess")
-                : SetShowModal("Edit")
-            )
-          }
-          type="button"
-          className="btn btn-title btn-sm btn-default mx-1"
-          gloss="Chỉnh Sửa"
-        >
-          <i className="far fa-edit"></i>
-        </button>
+        <>
+          <button
+            onClick={() =>
+              handleEditButtonClick(
+                val,
+                val.maPTVC === "LCL" || val.maPTVC === "LTL"
+                  ? SetShowModal("EditLess")
+                  : SetShowModal("Edit")
+              )
+            }
+            type="button"
+            className="btn btn-title btn-sm btn-default mx-1"
+            gloss="Chỉnh Sửa"
+          >
+            <i className="far fa-edit"></i>
+          </button>
+          <button
+            onClick={() =>
+              handleEditButtonClick(val, SetShowModal("ShowListHandling"))
+            }
+            type="button"
+            className="btn btn-title btn-sm btn-default mx-1"
+            gloss="Xem DS Chuyến"
+          >
+            <i className="fas fa-list-ol"></i>
+          </button>
+        </>
       ),
       ignoreRowClick: true,
       allowOverflow: true,
@@ -694,6 +706,10 @@ const TransportPage = () => {
                       dataClick={selectIdClick}
                       hideModal={hideModal}
                     />
+                  )}
+
+                  {ShowModal === "ShowListHandling" && (
+                    <HandlingByTransport dataClick={selectIdClick} />
                   )}
                 </>
               </div>

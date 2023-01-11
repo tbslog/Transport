@@ -1,5 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import LoginPage from "./Components/Authenticate/LoginPage";
+import Cookies from "js-cookie";
 
 import "react-toastify/dist/ReactToastify.css";
 import "react-datepicker/dist/react-datepicker.css";
@@ -28,30 +29,44 @@ import ReportPage from "./Components/Report/ReportPage";
 import HandlingPageNew from "./Components/Transport/HandlingPageNew";
 
 function App() {
+  const accountType = Cookies.get("AccType");
   return (
     <div className="App">
       <header className="App-header">
         <>
           <Routes>
             <Route element={<PrivateRoutes />}>
-              <Route path="/" element={<HomePage />} exact />
-              <Route path="/custommer" element={<CustommerPage />} />
-              <Route path="/address" element={<AddressPage />} />
-              <Route path="/driver" element={<DriverPage />} />
-              <Route path="/road" element={<RoadPage />} />
-              <Route path="/contract" element={<ContractPage />} />
-              <Route path="/pricetable" element={<PriceTablePage />} />
-              <Route path="/transport" element={<TransportPage />} />
-              <Route path="/vehicle" element={<VehiclePage />} />
-              <Route path="/romooc" element={<RomoocPage />} />
-              <Route path="/subfee" element={<SubFeePage />} />
-              <Route path="/user" element={<UserPage />} />
-              <Route path="/role" element={<RolePage />} />
-              <Route path="/handlingfull" element={<HandlingPage />} />
-              <Route path="/productService" element={<ProductServicePage />} />
-              <Route path="/bill" element={<BillPage />} />
-              <Route path="/report" element={<ReportPage />} />
-              <Route path="/handlingless" element={<HandlingPageNew />} />
+              {accountType && accountType === "KH" && (
+                <>
+                  <Route path="/" element={<HomePage />} exact />
+                  <Route path="/transport" element={<TransportPage />} />
+                </>
+              )}
+              {accountType && accountType === "NV" && (
+                <>
+                  <Route path="/" element={<HomePage />} exact />
+                  <Route path="/custommer" element={<CustommerPage />} />
+                  <Route path="/address" element={<AddressPage />} />
+                  <Route path="/driver" element={<DriverPage />} />
+                  <Route path="/road" element={<RoadPage />} />
+                  <Route path="/contract" element={<ContractPage />} />
+                  <Route path="/pricetable" element={<PriceTablePage />} />
+                  <Route path="/transport" element={<TransportPage />} />
+                  <Route path="/vehicle" element={<VehiclePage />} />
+                  <Route path="/romooc" element={<RomoocPage />} />
+                  <Route path="/subfee" element={<SubFeePage />} />
+                  <Route path="/user" element={<UserPage />} />
+                  <Route path="/role" element={<RolePage />} />
+                  <Route path="/handlingfull" element={<HandlingPage />} />
+                  <Route
+                    path="/productService"
+                    element={<ProductServicePage />}
+                  />
+                  <Route path="/bill" element={<BillPage />} />
+                  <Route path="/report" element={<ReportPage />} />
+                  <Route path="/handlingless" element={<HandlingPageNew />} />
+                </>
+              )}
             </Route>
             <Route element={<LoginPage />} path="/login"></Route>
           </Routes>
