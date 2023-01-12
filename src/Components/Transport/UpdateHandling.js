@@ -13,6 +13,7 @@ const UpdateHandling = (props) => {
     setValue,
     control,
     watch,
+    validate,
     formState: { errors },
     handleSubmit,
   } = useForm({
@@ -34,19 +35,41 @@ const UpdateHandling = (props) => {
         value: /^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9]+(?<![_.])$/,
         message: "Không được chứa ký tự đặc biệt",
       },
+      validate: (value) => {
+        if (!value.value) {
+          console.log(value);
+          return "Không được để trống";
+        }
+      },
+    },
+    maTaiXe: {
+      required: "Không được để trống",
+      validate: (val) => {
+        if (!val.value) {
+          return "Không được để trống";
+        }
+      },
+    },
+    maSoXe: {
+      required: "Không được để trống",
+      validate: (val) => {
+        if (!val.value) {
+          return "Không được để trống";
+        }
+      },
+    },
+    diemLayRong: {
+      required: "Không được để trống",
+      validate: (val) => {
+        if (!val.value) {
+          return "Không được để trống";
+        }
+      },
     },
     CONTNO: {
-      maxLength: {
-        value: 11,
-        message: "Không được ít hơn 11 ký tự",
-      },
-      minLength: {
-        value: 11,
-        message: "Không được nhiều hơn 11 ký tự",
-      },
       pattern: {
-        value: /^(?![_.])(?![_.])(?!.*[_.]{2})[A-Z0-9 ]+(?<![_.])$/,
-        message: "Không được chứa ký tự đặc biệt, phải viết hoa",
+        value: /([A-Z]{3})([UJZ])(\d{6})(\d)/,
+        message: "Mã không không đúng, vui lòng viết hoa",
       },
     },
     SEALHQ: {
@@ -246,13 +269,6 @@ const UpdateHandling = (props) => {
     setRoadDetail(data.cungDuong);
 
     setValue(
-      "NhaCungCap",
-      {
-        ...listSupplier.filter((x) => x.value === data.donViVanTai),
-      }[0]
-    );
-
-    setValue(
       "KhachHang",
       {
         ...listCustomer.filter((x) => x.value === data.maKh),
@@ -260,11 +276,39 @@ const UpdateHandling = (props) => {
     );
 
     setValue(
-      "DiemLayTraRong",
-      {
-        ...listPoint.filter((x) => x.value === data.diemLayRong),
-      }[0]
+      "NhaCungCap",
+      !data.donViVanTai
+        ? { label: "Select...", value: "" }
+        : {
+            ...listSupplier.filter((x) => x.value === data.donViVanTai),
+          }[0]
     );
+
+    setValue(
+      "DiemLayTraRong",
+      !data.diemLayRong
+        ? { label: "Select...", value: "" }
+        : {
+            ...listPoint.filter((x) => x.value === data.diemLayRong),
+          }[0]
+    );
+    setValue(
+      "TaiXe",
+      !data.maTaiXe
+        ? { label: "Select...", value: "" }
+        : {
+            ...listDriver.filter((x) => x.value === data.maTaiXe),
+          }[0]
+    );
+    setValue(
+      "XeVanChuyen",
+      !data.maSoXe
+        ? { label: "Select...", value: "" }
+        : {
+            ...listVehicle.filter((x) => x.value === data.maSoXe),
+          }[0]
+    );
+
     setValue("TongKhoiLuong", data.tongKhoiLuong);
     setValue("TongTheTich", data.tongTheTich);
     setValue("GhiChuVanDon", data.ghiChuVanDon);
@@ -278,18 +322,7 @@ const UpdateHandling = (props) => {
     setValue("KhoiLuong", data.khoiLuong);
     setValue("TheTich", data.theTich);
     setValue("SoKien", data.soKien);
-    setValue(
-      "TaiXe",
-      {
-        ...listDriver.filter((x) => x.value === data.maTaiXe),
-      }[0]
-    );
-    setValue(
-      "XeVanChuyen",
-      {
-        ...listVehicle.filter((x) => x.value === data.maSoXe),
-      }[0]
-    );
+
     setValue("HangTau", data.hangTau);
     setValue("TenTau", data.tenTau);
     setValue(
@@ -736,9 +769,7 @@ const UpdateHandling = (props) => {
                               options={listPoint}
                             />
                           )}
-                          rules={{
-                            required: "không được để trống",
-                          }}
+                          rules={Validate.diemLayRong}
                         />
                         {errors.DiemLayTraRong && (
                           <span className="text-danger">
@@ -762,9 +793,7 @@ const UpdateHandling = (props) => {
                           options={listSupplier}
                         />
                       )}
-                      rules={{
-                        required: "không được để trống",
-                      }}
+                      rules={Validate.NhaCungCap}
                     />
                     {errors.NhaCungCap && (
                       <span className="text-danger">
@@ -901,9 +930,7 @@ const UpdateHandling = (props) => {
                           options={listVehicle}
                         />
                       )}
-                      rules={{
-                        required: "không được để trống",
-                      }}
+                      rules={Validate.maSoXe}
                     />
                     {errors.XeVanChuyen && (
                       <span className="text-danger">
@@ -926,9 +953,7 @@ const UpdateHandling = (props) => {
                           options={listDriver}
                         />
                       )}
-                      rules={{
-                        required: "không được để trống",
-                      }}
+                      rules={Validate.maTaiXe}
                     />
                     {errors.TaiXe && (
                       <span className="text-danger">

@@ -24,74 +24,80 @@ const HandlingPageNew = () => {
     {
       cell: (val) => (
         <>
-          <>
-            {val.statusId === 27 || val.statusId === 19 ? (
-              <button
-                onClick={() =>
-                  showConfirmDialog(val, setFuncName("CancelHandling"))
-                }
-                type="button"
-                className="btn btn-title btn-sm btn-default mx-1"
-                gloss="Hủy Chuyến"
-              >
-                <i className="fas fa-window-close"></i>
-              </button>
-            ) : (
-              <span></span>
-            )}
-          </>
-          <>{renderButton(val)}</>
-          <>
-            <button
-              onClick={() =>
-                handleEditButtonClick(val, SetShowModal("EditHandling"))
-              }
-              type="button"
-              className="btn btn-title btn-sm btn-default mx-1"
-              gloss="Chỉnh Sửa"
-            >
-              <i className="far fa-edit"></i>
-            </button>
-          </>
-          <>
-            <button
-              onClick={() =>
-                handleEditButtonClick(val, SetShowModal("addSubFee"))
-              }
-              type="button"
-              className="btn btn-title btn-sm btn-default mx-1"
-              gloss="Phụ Phí Phát Sinh"
-            >
-              <i className="fas fa-file-invoice-dollar"></i>
-            </button>
-          </>
-          <>
-            <button
-              onClick={() => handleEditButtonClick(val, SetShowModal("Image"))}
-              type="button"
-              className="btn btn-title btn-sm btn-default mx-1"
-              gloss="Xem Hình Ảnh"
-            >
-              <i className="fas fa-image"></i>
-            </button>
-          </>
-          <>
-            <div
-              className="upload-btn-wrapper mx-1 btn-title"
-              gloss="Upload Hình Ảnh"
-            >
-              <button className="btn btn-sm btn-default mx-1">
-                <i className="fas fa-file-upload"></i>
-              </button>
-              <input
-                type="file"
-                name="myfile"
-                multiple
-                accept="image/png, image/jpg, image/jpeg"
-                onChange={(e) => handleUploadImage(val, e)}
-              />
-            </div>
-          </>
+          {val.statusId && (
+            <>
+              <>
+                {val.statusId === 27 || val.statusId === 19 ? (
+                  <button
+                    onClick={() =>
+                      showConfirmDialog(val, setFuncName("CancelHandling"))
+                    }
+                    type="button"
+                    className="btn btn-title btn-sm btn-default mx-1"
+                    gloss="Hủy Chuyến"
+                  >
+                    <i className="fas fa-window-close"></i>
+                  </button>
+                ) : (
+                  <span></span>
+                )}
+              </>
+              <>{renderButton(val)}</>
+              <>
+                <button
+                  onClick={() =>
+                    handleEditButtonClick(val, SetShowModal("EditHandling"))
+                  }
+                  type="button"
+                  className="btn btn-title btn-sm btn-default mx-1"
+                  gloss="Chỉnh Sửa"
+                >
+                  <i className="far fa-edit"></i>
+                </button>
+              </>
+              <>
+                <button
+                  onClick={() =>
+                    handleEditButtonClick(val, SetShowModal("addSubFee"))
+                  }
+                  type="button"
+                  className="btn btn-title btn-sm btn-default mx-1"
+                  gloss="Phụ Phí Phát Sinh"
+                >
+                  <i className="fas fa-file-invoice-dollar"></i>
+                </button>
+              </>
+              <>
+                <button
+                  onClick={() =>
+                    handleEditButtonClick(val, SetShowModal("Image"))
+                  }
+                  type="button"
+                  className="btn btn-title btn-sm btn-default mx-1"
+                  gloss="Xem Hình Ảnh"
+                >
+                  <i className="fas fa-image"></i>
+                </button>
+              </>
+              <>
+                <div
+                  className="upload-btn-wrapper mx-1 btn-title"
+                  gloss="Upload Hình Ảnh"
+                >
+                  <button className="btn btn-sm btn-default mx-1">
+                    <i className="fas fa-file-upload"></i>
+                  </button>
+                  <input
+                    type="file"
+                    name="myfile"
+                    multiple
+                    accept="image/png, image/jpg, image/jpeg"
+                    onChange={(e) => handleUploadImage(val, e)}
+                  />
+                </div>
+              </>
+            </>
+          )}
         </>
       ),
       width: "200px",
@@ -203,7 +209,6 @@ const HandlingPageNew = () => {
       sortable: true,
     },
     {
-      name: "statusId",
       selector: (row) => row.statusId,
       omit: true,
     },

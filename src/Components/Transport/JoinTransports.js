@@ -35,6 +35,12 @@ const JoinTransports = (props) => {
     LoaiHangHoa: {
       required: "Không được để trống",
     },
+    CONTNO: {
+      pattern: {
+        value: /([A-Z]{3})([UJZ])(\d{6})(\d)/,
+        message: "Mã không không đúng, vui lòng viết hoa",
+      },
+    },
   };
 
   const [listPoint, setListPoint] = useState([]);
@@ -198,9 +204,7 @@ const JoinTransports = (props) => {
           `BillOfLading/LoadJoinTransports`,
           { TransportIds: [], MaChuyen: selectIdClick.maChuyen }
         );
-
         let dataHandling = dataTransports.handlingLess;
-        console.log(dataHandling);
 
         setValue("TransportType", dataTransports.loaiVanDon);
         setValue("MaPTVC", dataTransports.maPTVC);

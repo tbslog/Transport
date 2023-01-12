@@ -4,9 +4,11 @@ import DataTable from "react-data-table-component";
 import moment from "moment";
 import { Modal } from "bootstrap";
 import ConfirmDialog from "../Common/Dialog/ConfirmDialog";
+import Cookies from "js-cookie";
 
 const HandlingByTransport = (props) => {
-  const { dataClick } = props;
+  const { dataClick, refeshData } = props;
+  const accountType = Cookies.get("AccType");
 
   const [data, setData] = useState([]);
   const parseExceptionModal = useRef();
@@ -30,22 +32,26 @@ const HandlingByTransport = (props) => {
   const columns = useMemo(() => [
     {
       cell: (val) => (
-        <div>
-          <>
-            {val.statusId === 30 && (
-              <button
-                onClick={() =>
-                  showConfirmDialog(val, setFuncName("CancelHandling"))
-                }
-                type="button"
-                className="btn btn-title btn-sm btn-default mx-1"
-                gloss="Hủy Chuyến"
-              >
-                <i className="fas fa-window-close"></i>
-              </button>
-            )}
-          </>
-        </div>
+        <>
+          {accountType && accountType === "KH" && (
+            <div>
+              <>
+                {(val.statusId === 30 || !val.statusId) && (
+                  <button
+                    onClick={() =>
+                      showConfirmDialog(val, setFuncName("CancelHandling"))
+                    }
+                    type="button"
+                    className="btn btn-title btn-sm btn-default mx-1"
+                    gloss="Hủy Chuyến"
+                  >
+                    <i className="fas fa-window-close"></i>
+                  </button>
+                )}
+              </>
+            </div>
+          )}
+        </>
       ),
       ignoreRowClick: true,
       allowOverflow: true,
@@ -222,11 +228,14 @@ const HandlingByTransport = (props) => {
       Object.keys(selectIdClick).length > 0
     ) {
       var update = await postData(
-        `BillOfLading/CancelHandling?id=${selectIdClick.maDieuPhoi}`
+        `BillOfLading/CancelHandlingByCus?id=${
+          !selectIdClick.maDieuPhoi ? 0 : selectIdClick.maDieuPhoi
+        }&transportId=${transportId}`
       );
 
       if (update === 1) {
         fetchData(transportId, page, keySearch, status);
+        refeshData();
         setShowConfirm(false);
       } else {
         setShowConfirm(false);

@@ -30,28 +30,22 @@ import HandlingPageNew from "./Components/Transport/HandlingPageNew";
 
 function App() {
   const accountType = Cookies.get("AccType");
+
+  console.log(accountType);
   return (
     <div className="App">
       <header className="App-header">
         <>
           <Routes>
             <Route element={<PrivateRoutes />}>
-              {accountType && accountType === "KH" && (
-                <>
-                  <Route path="/" element={<HomePage />} exact />
-                  <Route path="/transport" element={<TransportPage />} />
-                </>
-              )}
               {accountType && accountType === "NV" && (
                 <>
-                  <Route path="/" element={<HomePage />} exact />
                   <Route path="/custommer" element={<CustommerPage />} />
                   <Route path="/address" element={<AddressPage />} />
                   <Route path="/driver" element={<DriverPage />} />
                   <Route path="/road" element={<RoadPage />} />
                   <Route path="/contract" element={<ContractPage />} />
                   <Route path="/pricetable" element={<PriceTablePage />} />
-                  <Route path="/transport" element={<TransportPage />} />
                   <Route path="/vehicle" element={<VehiclePage />} />
                   <Route path="/romooc" element={<RomoocPage />} />
                   <Route path="/subfee" element={<SubFeePage />} />
@@ -67,6 +61,8 @@ function App() {
                   <Route path="/handlingless" element={<HandlingPageNew />} />
                 </>
               )}
+              <Route path="/transport" element={<TransportPage />} />
+              <Route path="/" element={<HomePage />} exact />
             </Route>
             <Route element={<LoginPage />} path="/login"></Route>
           </Routes>

@@ -28,7 +28,9 @@ const LoginPage = () => {
       Cookies.set("fullname", getUser.hoVaTen);
       Cookies.set("BoPhan", getUser.tenBoPhan);
       Cookies.set("AccType", getUser.accountType);
+
       navigate("/");
+      window.location.reload();
     } else {
       setErrMsg(login.Message);
     }

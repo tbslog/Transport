@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect, useRef } from "react";
-import { getData, getDataCustom } from "../Common/FuncAxios";
+import { getData, getDataCustom, postData } from "../Common/FuncAxios";
 import { useForm, Controller } from "react-hook-form";
 import DataTable from "react-data-table-component";
 import moment from "moment";
@@ -13,6 +13,8 @@ import { ToastError } from "../Common/FuncToast";
 import UpdateTransportLess from "./UpdateTransportLess";
 import Select from "react-select";
 import HandlingByTransport from "./HandlingByTransport";
+import Cookies from "js-cookie";
+import ConfirmDialog from "../Common/Dialog/ConfirmDialog";
 
 const TransportPage = () => {
   const {
@@ -22,6 +24,8 @@ const TransportPage = () => {
   } = useForm({
     mode: "onChange",
   });
+
+  const accountType = Cookies.get("AccType");
 
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -48,25 +52,55 @@ const TransportPage = () => {
   const [toggledClearRows, setToggleClearRows] = useState(false);
   const [itemSelected, setItemSelected] = useState([]);
 
+  const [ShowConfirm, setShowConfirm] = useState(false);
+  const [funcName, setFuncName] = useState("");
+
   const columns = useMemo(() => [
     {
       cell: (val) => (
         <>
-          <button
-            onClick={() =>
-              handleEditButtonClick(
-                val,
-                val.maPTVC === "LCL" || val.maPTVC === "LTL"
-                  ? SetShowModal("EditLess")
-                  : SetShowModal("Edit")
-              )
-            }
-            type="button"
-            className="btn btn-title btn-sm btn-default mx-1"
-            gloss="Chỉnh Sửa"
-          >
-            <i className="far fa-edit"></i>
-          </button>
+          {accountType && accountType === "NV" && val.maTrangThai === 28 && (
+            <>
+              <button
+                onClick={() =>
+                  showConfirmDialog(val, setFuncName("RejecteTransport"))
+                }
+                type="button"
+                className="btn btn-title btn-sm btn-default mx-1"
+                gloss="Từ Chối"
+              >
+                <i className="fas fa-minus-circle"></i>
+              </button>
+              <button
+                onClick={() =>
+                  showConfirmDialog(val, setFuncName("AcceptTransport"))
+                }
+                type="button"
+                className="btn btn-title btn-sm btn-default mx-1"
+                gloss="Chấp Nhận"
+              >
+                <i className="fas fa-check-circle"></i>
+              </button>
+            </>
+          )}
+          {((accountType && accountType === "KH" && val.maTrangThai === 28) ||
+            (accountType && accountType === "NV")) && (
+            <button
+              onClick={() =>
+                handleEditButtonClick(
+                  val,
+                  val.maPTVC === "LCL" || val.maPTVC === "LTL"
+                    ? SetShowModal("EditLess")
+                    : SetShowModal("Edit")
+                )
+              }
+              type="button"
+              className="btn btn-title btn-sm btn-default mx-1"
+              gloss="Chỉnh Sửa"
+            >
+              <i className="far fa-edit"></i>
+            </button>
+          )}
           <button
             onClick={() =>
               handleEditButtonClick(val, SetShowModal("ShowListHandling"))
@@ -79,6 +113,7 @@ const TransportPage = () => {
           </button>
         </>
       ),
+      width: "200px",
       ignoreRowClick: true,
       allowOverflow: true,
       button: true,
@@ -337,6 +372,49 @@ const TransportPage = () => {
     showModalForm();
   };
 
+  const funcAgree = () => {
+    if (funcName && funcName.length > 0) {
+      switch (funcName) {
+        case "RejecteTransport":
+          return AcceptOrRejectTransport(1);
+        case "AcceptTransport":
+          return AcceptOrRejectTransport(0);
+      }
+    }
+  };
+
+  const showConfirmDialog = (val) => {
+    setSelectIdClick(val);
+    setShowConfirm(true);
+  };
+
+  const AcceptOrRejectTransport = async (val) => {
+    if (
+      ShowConfirm === true &&
+      selectIdClick &&
+      Object.keys(selectIdClick).length > 0
+    ) {
+      var update = await postData(
+        `BillOfLading/AcceptOrRejectTransport?transportId=${selectIdClick.maVanDon}&action=${val}`
+      );
+
+      if (update === 1) {
+        fetchData(
+          page,
+          keySearch,
+          fromDate,
+          toDate,
+          status,
+          maPTVC,
+          listCusSelected
+        );
+        setShowConfirm(false);
+      } else {
+        setShowConfirm(false);
+      }
+    }
+  };
+
   const handleSearchClick = () => {
     fetchData(
       1,
@@ -382,17 +460,6 @@ const TransportPage = () => {
     );
   };
 
-  const handleOnClickMarge = () => {
-    if (selectedRows && selectedRows.length > 1) {
-      setItemSelected(selectedRows);
-      showModalForm(SetShowModal("MargeTransport"));
-    } else {
-      setItemSelected([]);
-      ToastError("Vui lòng chọn nhiều hơn 1 vận đơn để gộp");
-      return;
-    }
-  };
-
   const handleChange = (state) => {
     setSelectedRows(state.selectedRows);
   };
@@ -414,12 +481,6 @@ const TransportPage = () => {
       setValue("listCustomers", []);
       fetchData(page, keySearch, fromDate, toDate, status, maPTVC, []);
     }
-  };
-
-  const handleClearRows = () => {
-    setToggleClearRows(!toggledClearRows);
-    setSelectedRows([]);
-    setItemSelected([]);
   };
 
   const customStyles = {
@@ -629,9 +690,7 @@ const TransportPage = () => {
                 paginationRowsPerPageOptions={[10, 30, 50, 100]}
                 onChangeRowsPerPage={handlePerRowsChange}
                 onSelectedRowsChange={handleChange}
-                // onChangePage={handlePageChange}
-                // clearSelectedRows={toggledClearRows}
-                // selectableRows
+                onChangePage={handlePageChange}
                 highlightOnHover
                 striped
               />
@@ -639,6 +698,16 @@ const TransportPage = () => {
           </div>
           <div className="card-footer"></div>
         </div>
+        {ShowConfirm === true && (
+          <ConfirmDialog
+            setShowConfirm={setShowConfirm}
+            title={"Bạn có chắc chắn với quyết định này?"}
+            content={
+              "Khi thực hiện hành động này sẽ không thể hoàn tác lại được nữa."
+            }
+            funcAgree={funcAgree}
+          />
+        )}
         <div
           className="modal fade"
           id="modal-xl"
@@ -665,16 +734,6 @@ const TransportPage = () => {
               </div>
               <div className="modal-body">
                 <>
-                  {/* {ShowModal === "MargeTransport" &&
-                    itemSelected &&
-                    itemSelected.length > 1 && (
-                      <JoinTransports
-                        getListTransport={refeshData}
-                        items={itemSelected}
-                        clearItems={handleClearRows}
-                        hideModal={hideModal}
-                      />
-                    )} */}
                   {ShowModal === "CreateLCL/LTL" && (
                     <CreateTransportLess
                       getListTransport={refeshData}
@@ -709,7 +768,10 @@ const TransportPage = () => {
                   )}
 
                   {ShowModal === "ShowListHandling" && (
-                    <HandlingByTransport dataClick={selectIdClick} />
+                    <HandlingByTransport
+                      dataClick={selectIdClick}
+                      refeshData={refeshData}
+                    />
                   )}
                 </>
               </div>

@@ -124,6 +124,12 @@ const CreateTransport = (props) => {
     PTVanChuyen: {
       required: "Không được để trống",
     },
+    CONTNO: {
+      pattern: {
+        value: /([A-Z]{3})([UJZ])(\d{6})(\d)/,
+        message: "Mã không không đúng, vui lòng viết hoa",
+      },
+    },
   };
 
   const [listFirstPoint, setListFirstPoint] = useState([]);
@@ -754,7 +760,6 @@ const CreateTransport = (props) => {
                                 </div>
                               </div>
                             )}
-
                             <div className="col-sm-2">
                               <div className="form-group">
                                 <select
@@ -835,7 +840,7 @@ const CreateTransport = (props) => {
                                         id="ContNo"
                                         {...register(
                                           `optionHandling.${index}.ContNo`,
-                                          Validate.ContNo
+                                          Validate.CONTNO
                                         )}
                                       />
                                       {errors.optionHandling?.[index]
