@@ -226,6 +226,31 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpPost]
         [Route("[action]")]
+        public async Task<IActionResult> CancelHandlingByCus(int? id, string transportId)
+        {
+            var action = await _billOfLading.CancelHandlingByCus(id, transportId);
+            if (action.isSuccess)
+            {
+                return Ok(action.Message);
+            }
+            return BadRequest(action.Message);
+        }
+
+        [HttpPost]
+        [Route("[action]")]
+        public async Task<IActionResult> AcceptOrRejectTransport(string transportId, int action)
+        {
+            var result = await _billOfLading.AcceptOrRejectTransport(transportId, action);
+
+            if (result.isSuccess)
+            {
+                return Ok(result.Message);
+            }
+            return BadRequest(result.Message);
+        }
+
+        [HttpPost]
+        [Route("[action]")]
         public async Task<IActionResult> SetRuningLess(string id)
         {
             var checkPermission = await _common.CheckPermission("F0007");
