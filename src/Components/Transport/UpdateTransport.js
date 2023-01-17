@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useLayoutEffect } from "react";
 import { getData, postData } from "../Common/FuncAxios";
 import { useForm, Controller, useFieldArray } from "react-hook-form";
 import DatePicker from "react-datepicker";
@@ -6,6 +6,8 @@ import Select from "react-select";
 import moment from "moment";
 import { ToastError } from "../Common/FuncToast";
 import Cookies from "js-cookie";
+import { ColorRing } from "react-loader-spinner";
+import LoadingPage from "../Common/Loading/LoadingPage";
 
 const UpdateTransport = (props) => {
   const { getListTransport, selectIdClick, hideModal } = props;
@@ -167,7 +169,7 @@ const UpdateTransport = (props) => {
     })();
   }, []);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (
       selectIdClick &&
       Object.keys(selectIdClick).length > 0 &&
@@ -225,7 +227,7 @@ const UpdateTransport = (props) => {
     SetIsLoading(false);
   }, [listSupplier, listPoint, listGoodsType, listVehicleType, selectIdClick]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (
       listCus &&
       listCus.length > 0 &&
@@ -298,7 +300,7 @@ const UpdateTransport = (props) => {
     }
   }, [listCus, listTransportType, props, selectIdClick]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (
       arrRoad &&
       arrRoad.length > 0 &&
@@ -510,7 +512,7 @@ const UpdateTransport = (props) => {
         <div className="card-header">
           <h3 className="card-title">Form Cập Nhật Vận Đơn</h3>
         </div>
-        <div>{IsLoading === true && <div>Loading...</div>}</div>
+        <div>{IsLoading === true && <LoadingPage></LoadingPage>}</div>
 
         {IsLoading === false && (
           <form onSubmit={handleSubmit(onSubmit)}>
@@ -815,9 +817,9 @@ const UpdateTransport = (props) => {
                       <th>
                         <div className="row">
                           {accountType && accountType === "NV" && (
-                            <div className="col-sm">Đơn Vị Vận Tải(*)</div>
+                            <div className="col-sm-2">Đơn Vị Vận Tải(*)</div>
                           )}
-                          <div className="col-sm-2">Loại Hàng Hóa(*)</div>
+                          <div className="col-sm-1">Loại Hàng Hóa(*)</div>
                           <div className="col-sm-2">Loại Phương Tiện(*)</div>
                           {watch(`optionHandling`) &&
                             watch(`optionHandling`).length > 0 &&
@@ -854,7 +856,7 @@ const UpdateTransport = (props) => {
                           <td>
                             <div className="row">
                               {accountType && accountType === "NV" && (
-                                <div className="col-sm">
+                                <div className="col-sm-2">
                                   <div className="form-group">
                                     <Controller
                                       name={`optionHandling.${index}.DonViVanTai`}
@@ -888,7 +890,7 @@ const UpdateTransport = (props) => {
                                   </div>
                                 </div>
                               )}
-                              <div className="col-sm-2">
+                              <div className="col-sm-1">
                                 <div className="form-group">
                                   <select
                                     className="form-control"

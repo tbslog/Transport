@@ -3,9 +3,11 @@ import { getData, postData, getFileImage } from "../Common/FuncAxios";
 import DataTable from "react-data-table-component";
 import moment from "moment";
 import { Modal } from "bootstrap";
+import Cookies from "js-cookie";
 
 const HandlingImage = (props) => {
   const { dataClick, checkModal } = props;
+  const accountType = Cookies.get("AccType");
 
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -57,16 +59,19 @@ const HandlingImage = (props) => {
       button: true,
     },
     {
-      //   name: "Xóa Hình",
       cell: (val) => (
-        <button
-          onClick={() => handleDeleteImage(val)}
-          type="button"
-          className="btn btn-title btn-sm btn-default mx-1"
-          gloss="Xóa Hình Ảnh"
-        >
-          <i className="fas fa-trash"></i>
-        </button>
+        <>
+          {accountType && accountType === "NV" && (
+            <button
+              onClick={() => handleDeleteImage(val)}
+              type="button"
+              className="btn btn-title btn-sm btn-default mx-1"
+              gloss="Xóa Hình Ảnh"
+            >
+              <i className="fas fa-trash"></i>
+            </button>
+          )}
+        </>
       ),
       ignoreRowClick: true,
       allowOverflow: true,

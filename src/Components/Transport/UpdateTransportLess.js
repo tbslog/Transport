@@ -4,6 +4,7 @@ import { useForm, Controller } from "react-hook-form";
 import DatePicker from "react-datepicker";
 import Select from "react-select";
 import moment from "moment";
+import LoadingPage from "../Common/Loading/LoadingPage";
 
 const UpdateTransportLess = (props) => {
   const { getListTransport, selectIdClick, hideModal } = props;
@@ -399,7 +400,13 @@ const UpdateTransportLess = (props) => {
         <div className="card-header">
           <h3 className="card-title">Form Thêm Mới Vận Đơn FCL/FTL</h3>
         </div>
-        <div>{IsLoading === true && <div>Loading...</div>}</div>
+        <div>
+          {IsLoading === true && (
+            <div>
+              <LoadingPage></LoadingPage>
+            </div>
+          )}
+        </div>
 
         {IsLoading === false && (
           <form onSubmit={handleSubmit(onSubmit)}>

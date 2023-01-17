@@ -5,6 +5,7 @@ import DatePicker from "react-datepicker";
 import Select from "react-select";
 import moment from "moment";
 import { ToastError } from "../Common/FuncToast";
+import LoadingPage from "../Common/Loading/LoadingPage";
 
 const CreateTransportLess = (props) => {
   const { getListTransport, hideModal } = props;
@@ -303,7 +304,13 @@ const CreateTransportLess = (props) => {
         <div className="card-header">
           <h3 className="card-title">Form Thêm Mới Vận Đơn FCL/FTL</h3>
         </div>
-        <div>{IsLoading === true && <div>Loading...</div>}</div>
+        <div>
+          {IsLoading === true && (
+            <div>
+              <LoadingPage></LoadingPage>
+            </div>
+          )}
+        </div>
 
         {IsLoading === false && (
           <form onSubmit={handleSubmit(onSubmit)}>

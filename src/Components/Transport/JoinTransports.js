@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useLayoutEffect } from "react";
 import { getData, getDataCustom, postData } from "../Common/FuncAxios";
 import { useForm, Controller, useFieldArray } from "react-hook-form";
 import DatePicker from "react-datepicker";
 import Select from "react-select";
 import moment from "moment";
 import { ToastError } from "../Common/FuncToast";
+import LoadingPage from "../Common/Loading/LoadingPage";
 
 const JoinTransports = (props) => {
   const { items, clearItems, hideModal, getListTransport, selectIdClick } =
@@ -133,7 +134,7 @@ const JoinTransports = (props) => {
     })();
   }, []);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (
       items &&
       items.length > 0 &&
@@ -184,7 +185,7 @@ const JoinTransports = (props) => {
     SetIsLoading(false);
   }, [items, listVehicle, listVehicleType, listDriver, listRomooc]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (
       selectIdClick &&
       listVehicle &&
@@ -279,7 +280,7 @@ const JoinTransports = (props) => {
     }
   }, [selectIdClick, listVehicle, listVehicleType, listDriver, listRomooc]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (watch("MaPTVC")) {
       let arrVehicleType = listVehicleType;
       let arrVehicle = listVehicle;
@@ -397,7 +398,13 @@ const JoinTransports = (props) => {
         <div className="card-header">
           <h3 className="card-title">Form Cập Nhật Điều Phối</h3>
         </div>
-        <div>{IsLoading === true && <div>Loading...</div>}</div>
+        <div>
+          {IsLoading === true && (
+            <div>
+              <LoadingPage></LoadingPage>
+            </div>
+          )}
+        </div>
 
         {IsLoading === false && (
           <form onSubmit={handleSubmit(onSubmit)}>

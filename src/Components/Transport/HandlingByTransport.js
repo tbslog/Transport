@@ -5,6 +5,7 @@ import moment from "moment";
 import { Modal } from "bootstrap";
 import ConfirmDialog from "../Common/Dialog/ConfirmDialog";
 import Cookies from "js-cookie";
+import HandlingImage from "./HandlingImage";
 
 const HandlingByTransport = (props) => {
   const { dataClick, refeshData } = props;
@@ -48,6 +49,19 @@ const HandlingByTransport = (props) => {
                     <i className="fas fa-window-close"></i>
                   </button>
                 )}
+
+                <>
+                  <button
+                    onClick={() =>
+                      handleEditButtonClick(val, SetShowModal("Image"))
+                    }
+                    type="button"
+                    className="btn btn-title btn-sm btn-default mx-1"
+                    gloss="Xem Hình Ảnh"
+                  >
+                    <i className="fas fa-image"></i>
+                  </button>
+                </>
               </>
             </div>
           )}
@@ -61,7 +75,6 @@ const HandlingByTransport = (props) => {
       selector: (row) => row.maDieuPhoi,
       omit: true,
     },
-
     {
       name: <div>Mã Vận Đơn</div>,
       selector: (row) => <div className="text-wrap">{row.maVanDonKH}</div>,
@@ -183,6 +196,11 @@ const HandlingByTransport = (props) => {
     }
   }, [dataClick, listStatus]);
 
+  const handleEditButtonClick = (value) => {
+    setSelectIdClick(value);
+    showModalForm();
+  };
+
   const funcAgree = () => {
     if (funcName && funcName.length > 0) {
       switch (funcName) {
@@ -211,7 +229,6 @@ const HandlingByTransport = (props) => {
 
   const fetchData = async (transportId, page, KeyWord = "", status = "") => {
     setLoading(true);
-    console.log(transportId);
     const dataCus = await getData(
       `BillOfLading/GetListHandlingByTransportId?transportId=${transportId}&PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}&statusId=${status}`
     );
@@ -430,7 +447,15 @@ const HandlingByTransport = (props) => {
                     <span aria-hidden="true">×</span>
                   </button>
                 </div>
-                <div className="modal-body"></div>
+                <div className="modal-body">
+                  {ShowModal === "Image" && (
+                    <HandlingImage
+                      dataClick={selectIdClick}
+                      hideModal={hideModal}
+                      checkModal={modal}
+                    />
+                  )}
+                </div>
               </div>
             </div>
           </div>

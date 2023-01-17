@@ -628,14 +628,6 @@ const HandlingPageNew = () => {
         <div className="card-header">
           <div className="container-fruid">
             <div className="row">
-              {/* <button
-                type="button"
-                className="btn btn-title btn-sm btn-default mx-1"
-                gloss="Tạo Vận Đơn LCL/LTL "
-                onClick={() => showModalForm(SetShowModal("CreateLCL/LTL"))}
-              >
-                <i className="fas fa-plus-circle"></i>
-              </button> */}
               <div className="col col-sm">
                 <button
                   className="btn btn-title btn-sm btn-default mx-1"
@@ -875,7 +867,6 @@ const HandlingPageNew = () => {
                       hideModal={hideModal}
                     />
                   )}
-
                   {ShowModal === "addSubFee" && (
                     <AddSubFeeByHandling dataClick={selectIdClick} />
                   )}
@@ -902,5 +893,4 @@ const HandlingPageNew = () => {
     </>
   );
 };
-
 export default HandlingPageNew;

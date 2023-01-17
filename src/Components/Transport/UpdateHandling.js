@@ -4,6 +4,7 @@ import { useForm, Controller, useFieldArray } from "react-hook-form";
 import DatePicker from "react-datepicker";
 import Select from "react-select";
 import moment from "moment";
+import LoadingPage from "../Common/Loading/LoadingPage";
 
 const UpdateHandling = (props) => {
   const { getlistData, selectIdClick, hideModal } = props;
@@ -278,7 +279,7 @@ const UpdateHandling = (props) => {
     setValue(
       "NhaCungCap",
       !data.donViVanTai
-        ? { label: "Select...", value: "" }
+        ? { label: "Select...", value: null }
         : {
             ...listSupplier.filter((x) => x.value === data.donViVanTai),
           }[0]
@@ -287,7 +288,7 @@ const UpdateHandling = (props) => {
     setValue(
       "DiemLayTraRong",
       !data.diemLayRong
-        ? { label: "Select...", value: "" }
+        ? { label: "Select...", value: null }
         : {
             ...listPoint.filter((x) => x.value === data.diemLayRong),
           }[0]
@@ -295,7 +296,7 @@ const UpdateHandling = (props) => {
     setValue(
       "TaiXe",
       !data.maTaiXe
-        ? { label: "Select...", value: "" }
+        ? { label: "Select...", value: null }
         : {
             ...listDriver.filter((x) => x.value === data.maTaiXe),
           }[0]
@@ -303,7 +304,7 @@ const UpdateHandling = (props) => {
     setValue(
       "XeVanChuyen",
       !data.maSoXe
-        ? { label: "Select...", value: "" }
+        ? { label: "Select...", value: null }
         : {
             ...listVehicle.filter((x) => x.value === data.maSoXe),
           }[0]
@@ -384,7 +385,6 @@ const UpdateHandling = (props) => {
 
   const onSubmit = async (data) => {
     SetIsLoading(true);
-
     let dataUpdate = {
       DonViVanTai: data.NhaCungCap.value,
       PTVanChuyen: data.PTVanChuyen,
@@ -442,7 +442,13 @@ const UpdateHandling = (props) => {
         <div className="card-header">
           <h3 className="card-title">Form Cập Nhật Điều Phối</h3>
         </div>
-        <div>{IsLoading === true && <div>Loading...</div>}</div>
+        <div>
+          {IsLoading === true && (
+            <div>
+              <LoadingPage></LoadingPage>
+            </div>
+          )}
+        </div>
 
         {IsLoading === false && (
           <form onSubmit={handleSubmit(onSubmit)}>

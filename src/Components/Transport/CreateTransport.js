@@ -6,6 +6,7 @@ import Select from "react-select";
 import moment from "moment";
 import { ToastError } from "../Common/FuncToast";
 import Cookies from "js-cookie";
+import LoadingPage from "../Common/Loading/LoadingPage";
 
 const CreateTransport = (props) => {
   const { getListTransport } = props;
@@ -390,7 +391,13 @@ const CreateTransport = (props) => {
         <div className="card-header">
           <h3 className="card-title">Form Thêm Mới Vận Đơn FCL/FTL</h3>
         </div>
-        <div>{IsLoading === true && <div>Loading...</div>}</div>
+        <div>
+          {IsLoading === true && (
+            <div>
+              <LoadingPage></LoadingPage>
+            </div>
+          )}
+        </div>
 
         {IsLoading === false && (
           <form onSubmit={handleSubmit(onSubmit)}>
@@ -688,10 +695,10 @@ const CreateTransport = (props) => {
                       <th>
                         <div className="row">
                           {accountType && accountType === "NV" && (
-                            <div className="col-sm">Đơn Vị Vận Tải(*)</div>
+                            <div className="col-sm-2">Đơn Vị Vận Tải(*)</div>
                           )}
 
-                          <div className="col-sm-2">Loại Hàng Hóa(*)</div>
+                          <div className="col-sm-1">Loại Hàng Hóa(*)</div>
                           <div className="col-sm-2">Loại Phương Tiện(*)</div>
                           {watch(`optionHandling`) &&
                             watch(`optionHandling`).length > 0 &&
@@ -726,7 +733,7 @@ const CreateTransport = (props) => {
                         <td>
                           <div className="row">
                             {accountType && accountType === "NV" && (
-                              <div className="col-sm">
+                              <div className="col-sm-3">
                                 <div className="form-group">
                                   <Controller
                                     name={`optionHandling.${index}.DonViVanTai`}
@@ -760,7 +767,7 @@ const CreateTransport = (props) => {
                                 </div>
                               </div>
                             )}
-                            <div className="col-sm-2">
+                            <div className="col-sm-1">
                               <div className="form-group">
                                 <select
                                   className="form-control"

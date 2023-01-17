@@ -31,7 +31,6 @@ import HandlingPageNew from "./Components/Transport/HandlingPageNew";
 function App() {
   const accountType = Cookies.get("AccType");
 
-  console.log(accountType);
   return (
     <div className="App">
       <header className="App-header">

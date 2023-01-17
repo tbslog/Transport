@@ -114,6 +114,7 @@ const HandlingPage = (props) => {
             </button>
           </>
           <>
+            {val.statusId !== 20 || val.statusId !== 21 || val.statusId !== 31}
             <button
               onClick={() =>
                 handleEditButtonClick(val, SetShowModal("addSubFee"))

@@ -9,7 +9,6 @@ import CreateTransport from "./CreateTransport";
 import UpdateTransport from "./UpdateTransport";
 import HandlingPage from "./HandlingPage";
 import CreateTransportLess from "./CreateTransportLess";
-import { ToastError } from "../Common/FuncToast";
 import UpdateTransportLess from "./UpdateTransportLess";
 import Select from "react-select";
 import HandlingByTransport from "./HandlingByTransport";
@@ -159,7 +158,6 @@ const TransportPage = () => {
       name: <div>Loại Vận Đơn</div>,
       selector: (row) => <div className="text-wrap">{row.loaiVanDon}</div>,
     },
-
     {
       name: <div>Mã Cung Đường</div>,
       selector: (row) => row.maCungDuong,
@@ -171,19 +169,6 @@ const TransportPage = () => {
       selector: (row) => <div className="text-wrap">{row.tenCungDuong}</div>,
       sortable: true,
     },
-    // {
-    //   name: "Điểm Lấy Rỗng",
-    //   selector: (row) => row.diemLayRong,
-    //   width: "auto",
-    // },
-    // {
-    //   name: <div>Điểm Lấy Hàng</div>,
-    //   selector: (row) => <div className="text-wrap">{row.diemLayHang}</div>,
-    // },
-    // {
-    //   name: <div>Tổng Trọng Lượng</div>,
-    //   selector: (row) => row.diemTraHang,
-    // },
     {
       name: <div>Tổng Trọng Lượng</div>,
       selector: (row) => row.tongKhoiLuong,
@@ -201,15 +186,6 @@ const TransportPage = () => {
       sortable: true,
       Cell: ({ row }) => <div className="text-wrap">{row.tongSoKhoi}</div>,
     },
-    // {
-    //   name: <div>Thời Gian Có Mặt</div>,
-    //   selector: (row) => (
-    //     <div className="text-wrap">
-    //       {moment(row.thoiGianCoMat).format("DD/MM/YYYY HH:mm")}
-    //     </div>
-    //   ),
-    //   sortable: true,
-    // },
     {
       name: <div>Thời Gian Lấy/Trả Rỗng</div>,
       selector: (row) =>
@@ -240,24 +216,6 @@ const TransportPage = () => {
         ),
       sortable: true,
     },
-    // {
-    //   name: <div>Thời Gian Lấy Hàng</div>,
-    //   selector: (row) => (
-    //     <div className="text-wrap">
-    //       {moment(row.thoiGianLayHang).format("DD/MM/YYYY HH:mm")}
-    //     </div>
-    //   ),
-    //   sortable: true,
-    // },
-    // {
-    //   name: <div>Thời Gian Trả Hàng</div>,
-    //   selector: (row) => (
-    //     <div className="text-wrap">
-    //       {moment(row.thoiGianTraHang).format("DD/MM/YYYY HH:mm")}
-    //     </div>
-    //   ),
-    //   sortable: true,
-    // },
     {
       selector: (row) => row.maTrangThai,
       sortable: true,

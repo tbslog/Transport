@@ -5,7 +5,6 @@ import moment from "moment";
 import { Modal } from "bootstrap";
 import DatePicker from "react-datepicker";
 import { ToastError } from "../Common/FuncToast";
-import DetailBill from "./DetailBill";
 import DetailBillByTransport from "./DetailBillByContract";
 
 const BillPage = () => {
