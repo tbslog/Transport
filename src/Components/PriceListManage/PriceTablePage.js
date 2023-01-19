@@ -148,7 +148,7 @@ const PriceTablePage = () => {
       `PriceTable/GetListPriceTable?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}&fromDate=${fromDate}&toDate=${toDate}&goodsType=${goodsType}&vehicleType=${vehicleType}`
     );
 
-    formatTable(dataCus.data);
+    setData(dataCus.data);
     setTotalRows(dataCus.totalRecords);
     setLoading(false);
   };
@@ -165,7 +165,7 @@ const PriceTablePage = () => {
       `PriceTable/GetListPriceTable?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}&fromDate=${fromDate}&toDate=${toDate}&goodsType=${goodsType}&vehicleType=${vehicleType}`
     );
     setPerPage(newPerPage);
-    formatTable(dataCus.data);
+    setData(dataCus.data);
     setTotalRows(dataCus.totalRecords);
 
     setLoading(false);
@@ -190,13 +190,6 @@ const PriceTablePage = () => {
     fetchData(1);
     setLoading(false);
   }, []);
-
-  function formatTable(data) {
-    data.map((val) => {
-      val.ngayApDung = moment(val.ngayApDung).format("DD/MM/YYYY");
-    });
-    setData(data);
-  }
 
   const handleOnChangeVehicleType = (value) => {
     setLoading(true);

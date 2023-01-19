@@ -175,14 +175,23 @@ const ContractPage = () => {
   };
 
   const handlePageChange = async (page) => {
-    await fetchData(page);
+    fetchData(
+      1,
+      keySearch,
+      !fromDate ? "" : moment(fromDate).format("YYYY-MM-DD"),
+      !toDate ? "" : moment(toDate).format("YYYY-MM-DD"),
+      "",
+      tabIndex === 0 ? "KH" : "NCC"
+    );
   };
 
   const handlePerRowsChange = async (newPerPage, page) => {
     setLoading(true);
 
     const dataCus = await getData(
-      `Contract/GetListContract?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}`
+      `Contract/GetListContract?PageNumber=${page}&PageSize=${perPage}&KeyWord=${keySearch}&fromDate=${fromDate}&toDate=${toDate}&contractType=${contractType}&customerType=${
+        tabIndex === 0 ? "KH" : "NCC"
+      }`
     );
 
     formatTable(dataCus.data);
@@ -198,7 +207,6 @@ const ContractPage = () => {
     setLoading(true);
 
     (async () => {
-      await fetchData(1, "", "", "", "", "KH");
       const getListContractType = await getData(`Common/GetListContractType`);
       setListContractType(getListContractType);
 
@@ -232,18 +240,6 @@ const ContractPage = () => {
     );
   };
 
-  const handleOnChangeContractType = (val) => {
-    setContractType(val);
-    fetchData(
-      1,
-      keySearch,
-      fromDate === "" ? "" : moment(fromDate).format("YYYY-MM-DD"),
-      toDate === "" ? "" : moment(toDate).format("YYYY-MM-DD"),
-      val,
-      custommerType
-    );
-  };
-
   const handleExcelImportClick = (e) => {
     setLoading(true);
     var file = e.target.files[0];
@@ -266,10 +262,9 @@ const ContractPage = () => {
 
   const HandleOnChangeTabs = (tabIndex) => {
     setTabIndex(tabIndex);
-
     let customerType = tabIndex === 0 ? "KH" : "NCC";
-    setCustommerType(customerType);
     fetchData(1, "", "", "", "", customerType);
+    setCustommerType(customerType);
   };
 
   return (

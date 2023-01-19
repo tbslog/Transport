@@ -1,14 +1,12 @@
 import { useState, useEffect } from "react";
 import { getData, postData } from "../Common/FuncAxios";
 import { useForm, Controller } from "react-hook-form";
-import Select from "react-select";
 
 const EditCustommer = (props) => {
   const [IsLoading, SetIsLoading] = useState(true);
   const {
     register,
     setValue,
-    control,
     formState: { errors },
     handleSubmit,
   } = useForm({
@@ -19,41 +17,19 @@ const EditCustommer = (props) => {
   const [listCustomerGroup, setListCustomerGroup] = useState([]);
   const [listCustomerType, setListCustomerType] = useState([]);
 
-  const [ListProvince, SetListProvince] = useState([]);
-  const [ListDistrict, SetListDistrict] = useState([]);
-  const [ListWard, SetListWard] = useState([]);
-
   const onSubmit = async (data) => {
     SetIsLoading(true);
 
-    const put = await postData(
-      `Customer/UpdateCustomer?Id=${data.MaKH}`,
-      {
-        maKh: data.MaKH.toUpperCase(),
-        tenKh: data.TenKH,
-        maSoThue: data.MST,
-        sdt: data.SDT,
-        email: data.Email,
-        trangThai: data.TrangThai,
-        nhomKh: data.NhomKH,
-        loaiKh: data.LoaiKH,
-        address: {
-          tenDiaDiem: "",
-          maQuocGia: 1,
-          maTinh: data.MaTinh.value,
-          maHuyen: data.MaHuyen.value,
-          maPhuong: data.MaPhuong.value,
-          soNha: data.SoNha,
-          diaChiDayDu: "",
-          maGps: data.GPS,
-          maLoaiDiaDiem: data.MaLoaiDiaDiem.value,
-        },
-      },
-      {
-        accept: "*/*",
-        "Content-Type": "application/json",
-      }
-    );
+    const put = await postData(`Customer/UpdateCustomer?Id=${data.MaKH}`, {
+      maKh: data.MaKH,
+      tenKh: data.TenKH,
+      maSoThue: data.MST,
+      sdt: data.SDT,
+      email: data.Email,
+      trangThai: data.TrangThai,
+      nhomKh: data.NhomKH,
+      loaiKh: data.LoaiKH,
+    });
 
     if (put === 1) {
       props.getListUser();
@@ -69,10 +45,6 @@ const EditCustommer = (props) => {
     setListCustomerGroup(props.listCusGroup);
     setListCustomerType(props.listCusType);
     setListStatus(props.listStatus);
-
-    SetListProvince([]);
-    SetListDistrict([]);
-    SetListWard([]);
 
     SetIsLoading(false);
   }, []);
@@ -90,132 +62,14 @@ const EditCustommer = (props) => {
       setValue("SDT", props.selectIdClick.sdt);
       setValue("TenKH", props.selectIdClick.tenKh);
       setValue("Email", props.selectIdClick.email);
-      setValue("GPS", props.selectIdClick.address.maGps);
-      setValue("SoNha", props.selectIdClick.address.soNha);
       setValue("LoaiKH", props.selectIdClick.loaiKH);
       setValue("NhomKH", props.selectIdClick.nhomKH);
-      setValue(
-        "MaLoaiDiaDiem",
-        {
-          ...props.listTypeAddress.filter(
-            (x) => x.value === props.selectIdClick.address.loaiDiaDiem
-          ),
-        }[0]
-      );
-
       setValue("TrangThai", props.selectIdClick.trangThai);
-      LoadProvince(props.selectIdClick.address.maTinh);
-      LoadDistrict(
-        props.selectIdClick.address.maTinh,
-        props.selectIdClick.address.maHuyen
-      );
-      LoadWard(
-        props.selectIdClick.address.maHuyen,
-        props.selectIdClick.address.maPhuong
-      );
+
       SetIsLoading(false);
     }
   }, [props.selectIdClick, listCustomerGroup, listCustomerType]);
 
-  const LoadProvince = async (tinh) => {
-    (async () => {
-      const listProvince = await getData("address/GetListProvinces");
-      if (listProvince && listProvince.length > 0) {
-        var obj = [];
-        listProvince.map((val) => {
-          obj.push({
-            value: val.maTinh,
-            label: val.maTinh + " - " + val.tenTinh,
-          });
-        });
-        SetListProvince(obj);
-        setValue("MaTinh", { ...obj.filter((x) => x.value === tinh) }[0]);
-      }
-    })();
-  };
-
-  const LoadDistrict = async (tinh, huyen) => {
-    (async () => {
-      const listDistrict = await getData(
-        `address/GetListDistricts?ProvinceId=${tinh}`
-      );
-      if (listDistrict && listDistrict.length > 0) {
-        var obj = [];
-        listDistrict.map((val) => {
-          obj.push({
-            value: val.maHuyen,
-            label: val.maHuyen + " - " + val.tenHuyen,
-          });
-        });
-        SetListDistrict(obj);
-
-        if (!huyen) {
-          setValue("MaHuyen", null);
-        } else {
-          setValue("MaHuyen", { ...obj.filter((x) => x.value === huyen) }[0]);
-        }
-      } else {
-        SetListDistrict([]);
-      }
-    })();
-  };
-
-  const LoadWard = async (huyen, phuong) => {
-    (async () => {
-      const listWard = await getData(
-        `address/GetListWards?DistrictId=${huyen}`
-      );
-
-      if (listWard && listWard.length > 0) {
-        var obj = [];
-        listWard.map((val) => {
-          obj.push({
-            value: val.maPhuong,
-            label: val.maPhuong + " - " + val.tenPhuong,
-          });
-        });
-
-        SetListWard(obj);
-
-        if (!phuong) {
-          setValue("MaPhuong", null);
-        } else {
-          setValue("MaPhuong", { ...obj.filter((x) => x.value === phuong) }[0]);
-        }
-      } else {
-        SetListWard([]);
-      }
-    })();
-  };
-
-  const HandleChangeProvince = (val) => {
-    try {
-      setValue("MaHuyen", null);
-      setValue("MaPhuong", null);
-      SetListDistrict([]);
-      SetListWard([]);
-      if (val.value === undefined || val.value === "") {
-        return;
-      }
-
-      SetIsLoading(true);
-      setValue("MaTinh", val);
-      LoadDistrict(val.value, null);
-      SetIsLoading(false);
-    } catch (error) {}
-  };
-
-  const HandleOnchangeDistrict = (val) => {
-    try {
-      if (val.value === undefined || val.value === "") {
-        return;
-      }
-      SetIsLoading(true);
-      LoadWard(val.value, null);
-      setValue("MaHuyen", val);
-      SetIsLoading(false);
-    } catch (error) {}
-  };
   return (
     <>
       <div className="card card-primary">
@@ -372,36 +226,10 @@ const EditCustommer = (props) => {
                     )}
                   </div>
                 </div>
-                <div className="col-sm">
-                  <div className="form-group">
-                    <label htmlFor="GPS">Tọa Độ GPS(*)</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      id="GPS"
-                      placeholder="Nhập mã GPS"
-                      {...register("GPS", {
-                        required: "Không được để trống",
-                        maxLength: {
-                          value: 50,
-                          message: "Không được vượt quá 50 ký tự",
-                        },
-                        minLength: {
-                          value: 1,
-                          message: "Không được ít hơn 1 ký tự",
-                        },
-                      })}
-                    />
-                    {errors.GPS && (
-                      <span className="text-danger">{errors.GPS.message}</span>
-                    )}
-                  </div>
-                </div>
               </div>
 
               <div className="row">
                 <div className="col-sm">
-                  {" "}
                   <div className="form-group">
                     <label htmlFor="NhomKH">Nhóm khách hàng(*)</label>
                     <select
@@ -428,7 +256,6 @@ const EditCustommer = (props) => {
                   </div>
                 </div>
                 <div className="col-sm">
-                  {" "}
                   <div className="form-group">
                     <label htmlFor="LoaiKH">Phân Loại khách hàng(*)</label>
                     <select
@@ -456,126 +283,6 @@ const EditCustommer = (props) => {
                 </div>
               </div>
 
-              <div className="form-group">
-                <label htmlFor="Tinh">Loại địa điểm(*)</label>
-                <Controller
-                  name="MaLoaiDiaDiem"
-                  control={control}
-                  render={({ field }) => (
-                    <Select
-                      {...field}
-                      classNamePrefix={"form-control"}
-                      value={field.value}
-                      options={props.listTypeAddress}
-                    />
-                  )}
-                  rules={{ required: "không được để trống" }}
-                />
-                {errors.MaLoaiDiaDiem && (
-                  <span className="text-danger">
-                    {errors.MaLoaiDiaDiem.message}
-                  </span>
-                )}
-              </div>
-              <div className="row">
-                <div className="col-sm">
-                  <div className="form-group">
-                    <label htmlFor="Tinh">Tỉnh(*)</label>
-                    <Controller
-                      name="MaTinh"
-                      control={control}
-                      render={({ field }) => (
-                        <Select
-                          {...field}
-                          classNamePrefix={"form-control"}
-                          value={field.value}
-                          options={ListProvince}
-                          onChange={(field) => HandleChangeProvince(field)}
-                        />
-                      )}
-                      rules={{ required: "không được để trống" }}
-                    />
-                    {errors.MaTinh && (
-                      <span className="text-danger">
-                        {errors.MaTinh.message}
-                      </span>
-                    )}
-                  </div>
-                </div>
-                <div className="col-sm">
-                  <div className="form-group">
-                    <label htmlFor="SDT">Huyện(*)</label>
-                    <Controller
-                      name="MaHuyen"
-                      control={control}
-                      render={({ field }) => (
-                        <Select
-                          {...field}
-                          classNamePrefix={"form-control"}
-                          value={field.value}
-                          options={ListDistrict}
-                          onChange={(field) => HandleOnchangeDistrict(field)}
-                        />
-                      )}
-                      rules={{ required: "không được để trống" }}
-                    />
-                    {errors.MaHuyen && (
-                      <span className="text-danger">
-                        {errors.MaHuyen.message}
-                      </span>
-                    )}
-                  </div>
-                </div>
-                <div className="col-sm">
-                  <div className="form-group">
-                    <label htmlFor="SDT">Phường(*)</label>
-                    <Controller
-                      name="MaPhuong"
-                      control={control}
-                      render={({ field }) => (
-                        <Select
-                          {...field}
-                          classNamePrefix={"form-control"}
-                          value={field.value}
-                          options={ListWard}
-                        />
-                      )}
-                      rules={{ required: "không được để trống" }}
-                    />
-                    {errors.MaPhuong && (
-                      <span className="text-danger">
-                        {errors.MaPhuong.message}
-                      </span>
-                    )}
-                  </div>
-                </div>
-                <div className="col-sm">
-                  <div className="form-group">
-                    <label htmlFor="Sonha">Số nhà</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      id="Sonha"
-                      placeholder="Nhập số nhà"
-                      {...register("SoNha", {
-                        maxLength: {
-                          value: 100,
-                          message: "Không được vượt quá 100 ký tự",
-                        },
-                        minLength: {
-                          value: 1,
-                          message: "Không được ít hơn 1 ký tự",
-                        },
-                      })}
-                    />
-                    {errors.SoNha && (
-                      <span className="text-danger">
-                        {errors.SoNha.message}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div>
               <div className="form-group">
                 <label htmlFor="TrangThai">Trạng thái(*)</label>
                 <select

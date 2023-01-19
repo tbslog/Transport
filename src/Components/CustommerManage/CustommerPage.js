@@ -45,22 +45,6 @@ const CustommerPage = () => {
       allowOverflow: true,
       button: true,
     },
-    // {
-    //   cell: (val) => (
-    //     <button
-    //       onClick={() =>
-    //         handleCreateContract(val, SetShowModal("CreateContract"))
-    //       }
-    //       type="button"
-    //       className="btn btn-sm btn-default"
-    //     >
-    //       <i className="fas fa-file-contract"></i>
-    //     </button>
-    //   ),
-    //   ignoreRowClick: true,
-    //   allowOverflow: true,
-    //   button: true,
-    // },
     {
       name: "Mã khách hàng",
       selector: (row) => row.maKh,
@@ -89,12 +73,7 @@ const CustommerPage = () => {
       name: "Số điện thoại",
       selector: (row) => row.sdt,
     },
-    {
-      name: "Địa chỉ",
-      selector: (row) => row.diaDiem,
-      wrap: true,
-      grow: 5,
-    },
+
     // {
     //   name: "Thời gian cập nhật",
     //   selector: (row) => row.updateTime,
@@ -173,14 +152,14 @@ const CustommerPage = () => {
 
   useEffect(() => {
     setLoading(true);
-
     (async () => {
+      fetchData(1, "", "KH");
+
       let getListCustommerGroup = await getData(`Common/GetListCustommerGroup`);
       setListCustomerGroup(getListCustommerGroup);
 
       let getListCustommerType = await getData(`Common/GetListCustommerType`);
       setListCustomerType(getListCustommerType);
-      fetchData(1, "", "KH");
 
       const getListTypeAddress = await getData("address/GetListAddressType");
       if (getListTypeAddress && getListTypeAddress.length > 0) {

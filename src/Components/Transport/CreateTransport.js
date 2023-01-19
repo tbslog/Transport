@@ -698,8 +698,8 @@ const CreateTransport = (props) => {
                             <div className="col-sm-2">Đơn Vị Vận Tải(*)</div>
                           )}
 
-                          <div className="col-sm-1">Loại Hàng Hóa(*)</div>
-                          <div className="col-sm-2">Loại Phương Tiện(*)</div>
+                          <div className="col-sm-2">Loại Hàng Hóa(*)</div>
+                          <div className="col-sm-1">Loại Phương Tiện(*)</div>
                           {watch(`optionHandling`) &&
                             watch(`optionHandling`).length > 0 &&
                             watch(`optionHandling`).filter((x) =>
@@ -733,7 +733,7 @@ const CreateTransport = (props) => {
                         <td>
                           <div className="row">
                             {accountType && accountType === "NV" && (
-                              <div className="col-sm-3">
+                              <div className="col-sm-2">
                                 <div className="form-group">
                                   <Controller
                                     name={`optionHandling.${index}.DonViVanTai`}
@@ -767,7 +767,7 @@ const CreateTransport = (props) => {
                                 </div>
                               </div>
                             )}
-                            <div className="col-sm-1">
+                            <div className="col-sm-2">
                               <div className="form-group">
                                 <select
                                   className="form-control"
@@ -800,7 +800,7 @@ const CreateTransport = (props) => {
                                 )}
                               </div>
                             </div>
-                            <div className="col-sm-2">
+                            <div className="col-sm-1">
                               <div className="form-group">
                                 <select
                                   className="form-control"

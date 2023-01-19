@@ -236,6 +236,24 @@ const AddPriceTable = (props) => {
     setListCustomer([]);
   };
 
+  const HandleOnChangesVehicleType = (val) => {
+    let listData = listVehicleType;
+
+    if (val === "FCL" || val === "LCL") {
+      listData = listVehicleType.filter((x) =>
+        x.maLoaiPhuongTien.includes("CONT")
+      );
+      return listData;
+    }
+
+    if (val === "FTL" || val === "LTL") {
+      listData = listVehicleType.filter((x) =>
+        x.maLoaiPhuongTien.includes("TRUCK")
+      );
+      return listData;
+    }
+  };
+
   const onSubmit = async (data, e) => {
     SetIsLoading(true);
 
@@ -403,7 +421,7 @@ const AddPriceTable = (props) => {
                           <button
                             className="form-control form-control-sm"
                             type="button"
-                            onClick={() => append(watch("optionRoad", 0))}
+                            onClick={() => append(watch("optionRoad")[0])}
                           >
                             <i className="fas fa-plus"></i>
                           </button>
@@ -525,8 +543,12 @@ const AddPriceTable = (props) => {
                                 )}
                               >
                                 <option value="">Chọn loại phương tiện</option>
-                                {listVehicleType &&
-                                  listVehicleType.map((val) => {
+                                {HandleOnChangesVehicleType(
+                                  watch(`optionRoad.${index}.MaPTVC`)
+                                ) &&
+                                  HandleOnChangesVehicleType(
+                                    watch(`optionRoad.${index}.MaPTVC`)
+                                  ).map((val) => {
                                     return (
                                       <option
                                         value={val.maLoaiPhuongTien}
