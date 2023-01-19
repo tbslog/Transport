@@ -261,6 +261,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> SetCusForUser(AddCusForUser request)
         {
+            var checkPermission = await _common.CheckPermission("I0006");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
             var set = await _user.SetCusForUser(request);
             if (set.isSuccess)
             {
@@ -275,6 +281,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> LoadTreeCustomer(int userid)
         {
+            var checkPermission = await _common.CheckPermission("I0006");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
             var tree = await _user.GetListTreeCustomer(userid);
             return Ok(tree);
         }

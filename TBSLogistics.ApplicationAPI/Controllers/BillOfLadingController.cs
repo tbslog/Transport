@@ -240,6 +240,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> AcceptOrRejectTransport(string transportId, int action)
         {
+            var checkPermission = await _common.CheckPermission("E0004");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
             var result = await _billOfLading.AcceptOrRejectTransport(transportId, action);
 
             if (result.isSuccess)
@@ -423,6 +429,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> LoadDataRoadTransportByCusId(string id)
         {
+            var checkPermission = await _common.CheckPermission("E0001");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
             var list = await _billOfLading.LoadDataRoadTransportByCusId(id);
             return Ok(list);
         }
@@ -453,6 +465,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> CreateTransportLess(CreateTransportLess request)
         {
+            var checkPermission = await _common.CheckPermission("E0001");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
             var create = await _billOfLading.CreateTransportLess(request);
             if (create.isSuccess)
             {
@@ -468,6 +486,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> LoadJoinTransports(JoinTransports request)
         {
+            var checkPermission = await _common.CheckPermission("F0001");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
             var data = await _billOfLading.LoadJoinTransport(request);
 
             if (!string.IsNullOrEmpty(data.MessageErrors))
@@ -482,6 +506,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> CreateHandlingLess(CreateHandlingLess request)
         {
+            var checkPermission = await _common.CheckPermission("F0001");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
             var create = await _billOfLading.CreateHandlingLess(request);
 
             if (create.isSuccess)
@@ -498,6 +528,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> UpdateHandlingLess(string handlingId, UpdateHandlingLess request)
         {
+            var checkPermission = await _common.CheckPermission("F0001");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
             var update = await _billOfLading.UpdateHandlingLess(handlingId, request);
             if (update.isSuccess)
             {
@@ -513,6 +549,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> GetTransportLessById(string transportId)
         {
+            var checkPermission = await _common.CheckPermission("F0001");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
             var transport = await _billOfLading.GetTransportLessById(transportId);
 
             if (transport == null)
@@ -526,6 +568,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> UpdateTransportLess(string transportId, UpdateTransportLess request)
         {
+            var checkPermission = await _common.CheckPermission("E0002");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
             var update = await _billOfLading.UpdateTransportLess(transportId, request);
 
             if (update.isSuccess == true)
@@ -542,6 +590,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> ExportExcelHandLing([FromQuery] PaginationFilter filter, string[] customers, CancellationToken cancellationToken)
         {
+            var checkPermission = await _common.CheckPermission("F0012");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
             if (filter.fromDate == null && filter.toDate == null)
             {
                 return BadRequest("Vui lòng chọn mốc thời gian để xuất Excel");
@@ -617,6 +671,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> ExportExcelHandlingLess([FromQuery] PaginationFilter filter, string[] customers, CancellationToken cancellationToken)
         {
+            var checkPermission = await _common.CheckPermission("F0012");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
             if (filter.fromDate == null && filter.toDate == null)
             {
                 return BadRequest("Vui lòng chọn mốc thời gian để xuất Excel");

@@ -44,73 +44,29 @@ namespace TBSLogistics.Service.Services.CustommerManage
         {
             try
             {
-                var checkExists = await _TMSContext.KhachHang.Where(x => x.TenKh == request.TenKh).FirstOrDefaultAsync();
+                var checkExists = await _TMSContext.KhachHang.Where(x => x.MaKh == request.MaKH).FirstOrDefaultAsync();
 
                 if (checkExists != null)
                 {
-                    return new BoolActionResult { isSuccess = false, Message = "Khách hàng này đã tồn tại" };
+                    return new BoolActionResult { isSuccess = false, Message = "Mã Khách hàng này đã tồn tại" };
                 }
 
-                string fullAddress = await _address.GetFullAddress(request.Address.SoNha, request.Address.MaTinh, request.Address.MaHuyen, request.Address.MaPhuong);
-
-                string ErrorValidate = await ValiateCustommer(request.TenKh, request.MaSoThue, request.Sdt, request.Email, request.Address.SoNha, request.Address.MaGps, request.LoaiKH, request.NhomKH, request.TrangThai, fullAddress);
+                string ErrorValidate = await ValiateCustommer(request.MaKH, request.TenKh, request.MaSoThue, request.Sdt, request.Email, request.LoaiKH, request.NhomKH, request.TrangThai);
 
                 if (ErrorValidate != "")
                 {
                     return new BoolActionResult { isSuccess = false, Message = ErrorValidate };
                 }
 
-                var addAddress = await _TMSContext.AddAsync(new DiaDiem()
-                {
-                    TenDiaDiem = request.TenKh,
-                    MaQuocGia = request.Address.MaQuocGia,
-                    MaTinh = request.Address.MaTinh,
-                    MaHuyen = request.Address.MaHuyen,
-                    MaPhuong = request.Address.MaPhuong,
-                    SoNha = request.Address.SoNha,
-                    DiaChiDayDu = fullAddress,
-                    MaGps = request.Address.MaGps,
-                    MaLoaiDiaDiem = request.Address.MaLoaiDiaDiem,
-                    CreatedTime = DateTime.Now,
-                    UpdatedTime = DateTime.Now,
-                    Creator = tempData.UserName,
-                });
-
-                await _TMSContext.SaveChangesAsync();
-
-
-                var getMaxMaKH = await _TMSContext.KhachHang.Where(x => x.MaLoaiKh == request.LoaiKH).OrderByDescending(x => x.MaKh).Select(x => x.MaKh).FirstOrDefaultAsync();
-
-                string maKH = "";
-
-                if (request.LoaiKH == "KH")
-                {
-                    maKH = "CUS";
-                }
-                else
-                {
-                    maKH = "SUP";
-                }
-
-                if (string.IsNullOrEmpty(getMaxMaKH))
-                {
-                    maKH = maKH + "0001";
-                }
-                else
-                {
-                    maKH = maKH + (int.Parse(getMaxMaKH.Substring(3, getMaxMaKH.Length - 3)) + 1).ToString("0000");
-                }
-
                 await _TMSContext.AddAsync(new KhachHang()
                 {
-                    MaKh = maKH.ToUpper(),
+                    MaKh = request.MaKH.ToUpper(),
                     TenKh = request.TenKh,
                     MaSoThue = request.MaSoThue,
                     Sdt = request.Sdt,
                     Email = request.Email,
                     MaLoaiKh = request.LoaiKH,
                     MaNhomKh = request.NhomKH,
-                    MaDiaDiem = addAddress.Entity.MaDiaDiem,
                     TrangThai = request.TrangThai,
                     CreatedTime = DateTime.Now,
                     UpdatedTime = DateTime.Now,
@@ -152,21 +108,7 @@ namespace TBSLogistics.Service.Services.CustommerManage
                     return new BoolActionResult { isSuccess = false, Message = "Khách hàng không tồn tại" };
                 }
 
-                var getAddress = await _TMSContext.DiaDiem.Where(x => x.MaDiaDiem == GetCustommer.MaDiaDiem).FirstOrDefaultAsync();
-
-                string FullAddress = await _address.GetFullAddress(request.Address.SoNha, request.Address.MaTinh, request.Address.MaHuyen, request.Address.MaPhuong);
-                string ErrorValidate = await ValiateCustommer(request.TenKh, request.MaSoThue, request.Sdt, request.Email, request.Address.SoNha, request.Address.MaGps, request.LoaiKH, request.NhomKH, request.TrangThai, FullAddress);
-
-                getAddress.MaQuocGia = request.Address.MaQuocGia;
-                getAddress.MaTinh = request.Address.MaTinh;
-                getAddress.MaHuyen = request.Address.MaHuyen;
-                getAddress.MaPhuong = request.Address.MaPhuong;
-                getAddress.SoNha = request.Address.SoNha;
-                getAddress.DiaChiDayDu = FullAddress;
-                getAddress.MaGps = request.Address.MaGps;
-                getAddress.MaLoaiDiaDiem = request.Address.MaLoaiDiaDiem;
-                getAddress.UpdatedTime = DateTime.Now;
-                getAddress.Updater = tempData.UserName;
+                string ErrorValidate = await ValiateCustommer(CustomerId, request.TenKh, request.MaSoThue, request.Sdt, request.Email, request.LoaiKH, request.NhomKH, request.TrangThai);
 
                 GetCustommer.TenKh = request.TenKh;
                 GetCustommer.MaSoThue = request.MaSoThue;
@@ -177,8 +119,6 @@ namespace TBSLogistics.Service.Services.CustommerManage
                 GetCustommer.MaNhomKh = request.NhomKH;
                 GetCustommer.TrangThai = request.TrangThai;
                 GetCustommer.Updater = tempData.UserName;
-
-                _TMSContext.Update(getAddress);
                 _TMSContext.Update(GetCustommer);
 
                 var result = await _TMSContext.SaveChangesAsync();
@@ -208,10 +148,8 @@ namespace TBSLogistics.Service.Services.CustommerManage
         public async Task<GetCustomerRequest> GetCustomerById(string CustomerId)
         {
             var getCustommer = from cus in _TMSContext.KhachHang
-                               join address in _TMSContext.DiaDiem
-                               on cus.MaDiaDiem equals address.MaDiaDiem
                                where cus.MaKh == CustomerId
-                               select new { cus, address };
+                               select new { cus };
 
             return await getCustommer.Select(x => new GetCustomerRequest()
             {
@@ -223,20 +161,6 @@ namespace TBSLogistics.Service.Services.CustommerManage
                 TrangThai = x.cus.TrangThai,
                 NhomKH = x.cus.MaNhomKh,
                 LoaiKH = x.cus.MaLoaiKh,
-                address = new GetAddressModel()
-                {
-                    MaDiaDiem = x.address.MaDiaDiem,
-                    MaHuyen = x.address.MaHuyen,
-                    MaPhuong = x.address.MaPhuong,
-                    MaTinh = x.address.MaTinh,
-                    SoNha = x.address.SoNha,
-                    DiaChiDayDu = x.address.DiaChiDayDu,
-                    TenDiaDiem = x.address.TenDiaDiem,
-                    MaGps = x.address.MaGps,
-                    LoaiDiaDiem = x.address.MaLoaiDiaDiem,
-                    CreatedTime = x.address.CreatedTime,
-                    UpdatedTime = x.address.UpdatedTime
-                }
             }).FirstOrDefaultAsync();
         }
 
@@ -283,10 +207,8 @@ namespace TBSLogistics.Service.Services.CustommerManage
                 var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
 
                 var listData = from cus in _TMSContext.KhachHang
-                               join address in _TMSContext.DiaDiem
-                               on cus.MaDiaDiem equals address.MaDiaDiem
                                orderby cus.CreatedTime descending
-                               select new { cus, address };
+                               select new { cus };
 
                 if (!string.IsNullOrEmpty(filter.Keyword))
                 {
@@ -320,8 +242,6 @@ namespace TBSLogistics.Service.Services.CustommerManage
                     Sdt = x.cus.Sdt,
                     Email = x.cus.Email,
                     TrangThai = x.cus.TrangThai,
-                    MaDiaDiem = x.cus.MaDiaDiem,
-                    DiaDiem = x.address.DiaChiDayDu,
                     Createdtime = x.cus.CreatedTime,
                     UpdateTime = x.cus.UpdatedTime,
                 }).ToListAsync();
@@ -514,9 +434,18 @@ namespace TBSLogistics.Service.Services.CustommerManage
         //    }
         //}
 
-        private async Task<string> ValiateCustommer(string TenKh, string MaSoThue, string Sdt, string Email, string SoNha, string MaGps, string LoaiKH, string NhomKH, int TrangThai, string FullAddress, string ErrorRow = "")
+        private async Task<string> ValiateCustommer(string MaKH, string TenKh, string MaSoThue, string Sdt, string Email, string LoaiKH, string NhomKH, int TrangThai, string ErrorRow = "")
         {
             string ErrorValidate = "";
+
+            if (MaKH.Length <= 6)
+            {
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã KH/NCC không được ít hơn 7 ký tự \r\n" + Environment.NewLine;
+            }
+            if (!Regex.IsMatch(MaKH, "^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9]+(?<![_.])$", RegexOptions.IgnoreCase))
+            {
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã KH/NCC chỉ được có ký tự chữ và số \r\n" + Environment.NewLine;
+            }
 
             var checkStatus = await _TMSContext.StatusText.Where(x => x.Id == TrangThai).FirstOrDefaultAsync();
             if (checkStatus == null)
@@ -594,21 +523,6 @@ namespace TBSLogistics.Service.Services.CustommerManage
             if (!Regex.IsMatch(Email, @"^([\w\.\-]+)@([\w\-]+)((\.(\w){2,3})+)$", RegexOptions.IgnoreCase))
             {
                 ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Địa chỉ Email không đúng" + Environment.NewLine;
-            }
-
-            if (SoNha.Length > 100)
-            {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Số nhà không nhiều hơn 100 ký tự \r\n" + Environment.NewLine;
-            }
-
-            if (MaGps.Length == 0 || MaGps.Length > 50)
-            {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã GPS không được rỗng hoặc nhiều hơn 50 ký tự \r\n" + Environment.NewLine;
-            }
-
-            if (FullAddress == "")
-            {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã tỉnh, mã huyện, mã phường không khớp, vui lòng kiểm tra lại \r\n" + Environment.NewLine;
             }
 
             return ErrorValidate;

@@ -406,29 +406,29 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
         public async Task<List<SubFeePrice>> GetListSubFeePriceActive(string customerId, string goodTypes, int? getEmptyPlace, string road)
         {
             var getRoad = await _context.CungDuong.Where(x => x.MaCungDuong == road).FirstOrDefaultAsync();
-            var getByCusId = from cus in _context.KhachHang
-                             join contract in _context.HopDongVaPhuLuc
-                             on cus.MaKh equals contract.MaKh
+            var getCus = await _context.KhachHang.Where(x => x.MaKh == customerId).FirstOrDefaultAsync();
+
+            var getSFByCusId = from contract in _context.HopDongVaPhuLuc
                              join sfp in _context.SubFeePrice
                              on contract.MaHopDong equals sfp.ContractId
-                             where cus.MaKh == customerId && sfp.Status == 14
+                             where contract.MaKh == customerId && sfp.Status == 14
                              && ((sfp.GoodsType == goodTypes)
                              || (sfp.FirstPlace == getEmptyPlace && sfp.SecondPlace == null)
                              || (sfp.FirstPlace == getRoad.DiemDau && sfp.SecondPlace == getRoad.DiemCuoi)
                              || (sfp.GoodsType == null && sfp.FirstPlace == null && sfp.SecondPlace == null))
-                             select new { cus, contract, sfp };
+                             select new { contract, sfp };
 
-            var getByCusType = await _context.SubFeePrice.Where(x => x.Status == 14 && x.CusType == getByCusId.Select(x => x.cus.MaLoaiKh).FirstOrDefault()
+            var getSFByCusType = await _context.SubFeePrice.Where(x => x.Status == 14 && x.CusType == getCus.MaLoaiKh
             && x.ContractId == null && ((x.GoodsType == goodTypes)
             || (x.FirstPlace == getEmptyPlace && x.SecondPlace == null)
             || (x.FirstPlace == getRoad.DiemDau && x.SecondPlace == getRoad.DiemCuoi)
             || (x.GoodsType == null && x.FirstPlace == null && x.SecondPlace == null))).ToListAsync();
 
-            var dataGetByCusId = await getByCusId.Select(x => x.sfp).ToListAsync();
+            var dataGetByCusId = await getSFByCusId.Select(x => x.sfp).ToListAsync();
 
             var listItemRemove = new List<SubFeePrice>();
 
-            foreach (var item in getByCusType)
+            foreach (var item in getSFByCusType)
             {
                 if (dataGetByCusId.Where(x =>
                 x.CusType == item.CusType
@@ -445,11 +445,11 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
             {
                 foreach (var item in listItemRemove)
                 {
-                    getByCusType.Remove(item);
+                    getSFByCusType.Remove(item);
                 }
             }
 
-            var data = dataGetByCusId.Concat(getByCusType);
+            var data = dataGetByCusId.Concat(getSFByCusType);
             return data.ToList();
         }
 

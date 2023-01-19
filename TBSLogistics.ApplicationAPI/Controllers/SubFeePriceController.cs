@@ -132,7 +132,6 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> GetListSubFeeSelect()
         {
-
             var list = await _subFeePrice.GetListSubFeeSelect();
             return Ok(list);
         }

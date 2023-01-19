@@ -13,6 +13,7 @@ using TBSLogistics.Model.TempModel;
 using TBSLogistics.Model.Wrappers;
 using TBSLogistics.Service.Services.PricelistManage;
 using TBSLogistics.Service.Services.Common;
+using System.Xml;
 
 namespace TBSLogistics.Service.Services.PriceTableManage
 {
@@ -36,17 +37,56 @@ namespace TBSLogistics.Service.Services.PriceTableManage
             try
             {
                 string ErrorValidate = "";
-
+                int row = 0;
                 foreach (var item in request)
                 {
+                    row++;
                     if (!string.IsNullOrEmpty(item.NgayHetHieuLuc.ToString()))
                     {
                         if (item.NgayHetHieuLuc.Value.Date <= DateTime.Now.Date)
                         {
-                            ErrorValidate += "Ngày hết hiệu lực không được nhỏ hôm nay";
+                            ErrorValidate += "Dòng " + row + ": Ngày hết hiệu lực không được nhỏ hôm nay";
+                        }
+                    }
+
+                    if (item.MaPtvc == "FCL" || item.MaPtvc == "LCL")
+                    {
+                        if (item.MaLoaiPhuongTien.Contains("TRUCK"))
+                        {
+                            ErrorValidate += "Dòng " + row + ": Mã phương tiện không đúng với phương thức vận chuyển";
+                        }
+                    }
+
+                    if (item.MaPtvc == "FTL" || item.MaPtvc == "LTL")
+                    {
+                        if (item.MaLoaiPhuongTien.Contains("CONT"))
+                        {
+                            ErrorValidate += "Dòng " + row + ": Mã phương tiện không đúng với phương thức vận chuyển";
                         }
                     }
                 }
+
+                int rows = 0;
+                foreach (var item in request)
+                {
+                    rows++;
+
+                    var checkDuplicate = request.Where(x =>
+                    x.MaHopDong == item.MaHopDong
+                    && x.MaKH == item.MaKH
+                    && x.MaPtvc == item.MaPtvc
+                    && x.MaCungDuong == item.MaCungDuong
+                    && x.MaLoaiPhuongTien == item.MaLoaiPhuongTien
+                    && x.MaDvt == item.MaDvt
+                    && x.MaLoaiHangHoa == item.MaLoaiHangHoa
+                    && x.MaLoaiDoiTac == item.MaLoaiDoiTac).ToList();
+
+                    if (checkDuplicate.Count > 1)
+                    {
+                        ErrorValidate += "Dòng " + rows + ": Bị trùng lặp, vui lòng kiểm tra lại! ";
+                    }
+                }
+
 
                 if (ErrorValidate != "")
                 {
@@ -102,32 +142,6 @@ namespace TBSLogistics.Service.Services.PriceTableManage
                     ErrorValidate += "Mã đối tác không tồn tại: " + string.Join(",", checkExistsPertner);
                 }
 
-                var checkStatus = await _context.StatusText.Where(x => request.Select(y => y.TrangThai).Contains(x.StatusId)).ToListAsync();
-                var checkExistsStatus = request.Where(x => !checkStatus.Any(y => y.StatusId == x.TrangThai)).Select(x => x.TrangThai);
-                if (checkExistsStatus.Count() > 0)
-                {
-                    ErrorValidate += "Mã trạng thái không tồn tại: " + string.Join(",", checkExistsStatus);
-                }
-
-                //foreach (var item in request)
-                //{
-                //    var checkPriceTable = await _context.BangGia.Where(x =>
-                //    x.MaHopDong == item.MaHopDong &&
-                //    x.MaPtvc == item.MaPtvc &&
-                //    x.MaCungDuong == item.MaCungDuong &&
-                //    x.MaLoaiPhuongTien == item.MaLoaiPhuongTien &&
-                //    x.MaDvt == item.MaDvt &&
-                //    x.MaLoaiHangHoa == item.MaLoaiHangHoa &&
-                //    x.MaLoaiDoiTac == item.MaLoaiDoiTac
-                //    ).FirstOrDefaultAsync();
-
-                //    if (checkPriceTable != null)
-                //    {
-                //        checkPriceTable.TrangThai = 2;
-                //        _context.BangGia.Update(checkPriceTable);
-                //    }
-                //}
-
                 await _context.BangGia.AddRangeAsync(request.Select(x => new BangGia
                 {
                     MaHopDong = x.MaHopDong,
@@ -178,7 +192,7 @@ namespace TBSLogistics.Service.Services.PriceTableManage
                           on bg.MaCungDuong equals cd.MaCungDuong
                           join tt in _context.StatusText
                           on bg.TrangThai equals tt.StatusId
-                          where bg.MaHopDong != "SPDV_TBSL" && tt.LangId == "VI"
+                          where bg.MaHopDong != "SPDV_TBSL" && tt.LangId == tempData.LangID
                           orderby bg.Id descending
                           select new { kh, hd, bg, cd, tt };
 
@@ -456,14 +470,11 @@ namespace TBSLogistics.Service.Services.PriceTableManage
                       x.MaLoaiHangHoa == checkExists.MaLoaiHangHoa &&
                       x.MaLoaiDoiTac == checkExists.MaLoaiDoiTac &&
                       x.TrangThai == 4
-                      ).FirstOrDefaultAsync();
+                      ).ToListAsync();
 
                         if (checkOldPriceTable != null)
                         {
-                            checkOldPriceTable.TrangThai = 6;
-                            checkOldPriceTable.NgayHetHieuLuc = DateTime.Now;
-                            checkOldPriceTable.Approver = tempData.UserName;
-                            _context.BangGia.Update(checkOldPriceTable);
+                            checkOldPriceTable.ForEach(x =>  { x.TrangThai = 6;x.NgayHetHieuLuc = DateTime.Now;x.Approver = tempData.UserName; });
                         }
 
                         checkExists.TrangThai = 4;

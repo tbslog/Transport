@@ -59,7 +59,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> DeleteSFeeByTCommand(DeleteSFeeByTCommand Id)
         {
-            var checkPermission = await _common.CheckPermission("F0009");
+            var checkPermission = await _common.CheckPermission("F0011");
             if (checkPermission.isSuccess == false)
             {
                 return BadRequest(checkPermission.Message);
