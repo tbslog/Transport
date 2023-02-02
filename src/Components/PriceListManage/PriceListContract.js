@@ -107,23 +107,27 @@ const PriceListContract = (props) => {
 
   const handlePerRowsChange = async (newPerPage, page) => {
     SetIsLoading(true);
-    const dataCus = await getData(
-      `PriceTable/GetListPriceTableByContractId?Id=${selectedId.maHopDong}&PageNumber=${page}&PageSize=${newPerPage}&onlyct=${onlyCT}`
-    );
+    if (selectedId && Object.keys(selectedId).length > 0) {
+      const dataCus = await getData(
+        `PriceTable/GetListPriceTableByContractId?Id=${selectedId.maHopDong}&PageNumber=${page}&PageSize=${newPerPage}&onlyct=${onlyCT}`
+      );
 
-    formatTable(dataCus.data);
-    setPerPage(newPerPage);
-    setTotalRows(dataCus.totalRecords);
-    SetIsLoading(false);
+      formatTable(dataCus.data);
+      setPerPage(newPerPage);
+      setTotalRows(dataCus.totalRecords);
+      SetIsLoading(false);
+    }
   };
   const fetchData = async (page) => {
     SetIsLoading(true);
-    const dataCus = await getData(
-      `PriceTable/GetListPriceTableByContractId?Id=${selectedId.maHopDong}&PageNumber=${page}&PageSize=${perPage}&onlyct=${onlyCT}`
-    );
-    formatTable(dataCus.data);
-    setTotalRows(dataCus.totalRecords);
-    SetIsLoading(false);
+    if (selectedId && Object.keys(selectedId).length > 0) {
+      const dataCus = await getData(
+        `PriceTable/GetListPriceTableByContractId?Id=${selectedId.maHopDong}&PageNumber=${page}&PageSize=${perPage}&onlyct=${onlyCT}`
+      );
+      formatTable(dataCus.data);
+      setTotalRows(dataCus.totalRecords);
+      SetIsLoading(false);
+    }
   };
 
   function formatTable(data) {

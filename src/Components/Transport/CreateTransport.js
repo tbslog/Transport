@@ -302,7 +302,6 @@ const CreateTransport = (props) => {
     let arr = [];
     data.optionHandling.map((val) => {
       arr.push({
-        DonViVanTai: !val.DonViVanTai ? null : val.DonViVanTai.value,
         DiemLayTraRong: !val.DiemLayTraRong ? null : val.DiemLayTraRong.value,
         LoaiHangHoa: val.LoaiHangHoa,
         PTVanChuyen: val.PTVanChuyen,
@@ -310,7 +309,6 @@ const CreateTransport = (props) => {
         TheTich: !val.TheTich ? null : val.TheTich,
         SoKien: !val.SoKien ? null : val.SoKien,
         DonViTinh: "CHUYEN",
-        ContNo: !val.ContNo ? null : val.ContNo,
       });
     });
 
@@ -694,25 +692,20 @@ const CreateTransport = (props) => {
                       <th style={{ width: "40px" }}></th>
                       <th>
                         <div className="row">
-                          {accountType && accountType === "NV" && (
-                            <div className="col-sm-2">Đơn Vị Vận Tải(*)</div>
-                          )}
-
                           <div className="col-sm-2">Loại Hàng Hóa(*)</div>
-                          <div className="col-sm-1">Loại Phương Tiện(*)</div>
+                          <div className="col-sm-2">Loại Phương Tiện(*)</div>
                           {watch(`optionHandling`) &&
                             watch(`optionHandling`).length > 0 &&
                             watch(`optionHandling`).filter((x) =>
                               x.PTVanChuyen.includes("CONT")
                             ).length > 0 && (
                               <>
-                                <div className="col-sm-2">Mã Container</div>
                                 <div className="col-sm-2">Điểm Lấy Rỗng(*)</div>
                               </>
                             )}
-                          <div className="col-sm-1">Khối Lượng</div>
-                          <div className="col-sm-1">Thể Tích</div>
-                          <div className="col-sm-1">Số Kiện</div>
+                          <div className="col-sm-2">Khối Lượng</div>
+                          <div className="col-sm-2">Thể Tích</div>
+                          <div className="col-sm-2">Số Kiện</div>
                         </div>
                       </th>
                       <th style={{ width: "40px" }}>
@@ -732,41 +725,6 @@ const CreateTransport = (props) => {
                         <td>{index + 1}</td>
                         <td>
                           <div className="row">
-                            {accountType && accountType === "NV" && (
-                              <div className="col-sm-2">
-                                <div className="form-group">
-                                  <Controller
-                                    name={`optionHandling.${index}.DonViVanTai`}
-                                    control={control}
-                                    render={({ field }) => (
-                                      <Select
-                                        {...field}
-                                        classNamePrefix={"form-control"}
-                                        value={field.value}
-                                        options={listSupplier}
-                                      />
-                                    )}
-                                    rules={{
-                                      required: "không được để trống",
-                                      validate: (value) => {
-                                        if (!value.value) {
-                                          return "không được để trống";
-                                        }
-                                      },
-                                    }}
-                                  />
-                                  {errors.optionHandling?.[index]
-                                    ?.DonViVanTai && (
-                                    <span className="text-danger">
-                                      {
-                                        errors.optionHandling?.[index]
-                                          ?.DonViVanTai.message
-                                      }
-                                    </span>
-                                  )}
-                                </div>
-                              </div>
-                            )}
                             <div className="col-sm-2">
                               <div className="form-group">
                                 <select
@@ -800,7 +758,7 @@ const CreateTransport = (props) => {
                                 )}
                               </div>
                             </div>
-                            <div className="col-sm-1">
+                            <div className="col-sm-2">
                               <div className="form-group">
                                 <select
                                   className="form-control"
@@ -840,29 +798,6 @@ const CreateTransport = (props) => {
                                 <>
                                   <div className="col-sm-2">
                                     <div className="form-group">
-                                      <input
-                                        type="text"
-                                        className="form-control"
-                                        placeholder="Mã Container"
-                                        id="ContNo"
-                                        {...register(
-                                          `optionHandling.${index}.ContNo`,
-                                          Validate.CONTNO
-                                        )}
-                                      />
-                                      {errors.optionHandling?.[index]
-                                        ?.ContNo && (
-                                        <span className="text-danger">
-                                          {
-                                            errors.optionHandling?.[index]
-                                              ?.ContNo.message
-                                          }
-                                        </span>
-                                      )}
-                                    </div>
-                                  </div>
-                                  <div className="col-sm-2">
-                                    <div className="form-group">
                                       <Controller
                                         name={`optionHandling.${index}.DiemLayTraRong`}
                                         control={control}
@@ -896,7 +831,7 @@ const CreateTransport = (props) => {
                                   </div>
                                 </>
                               )}
-                            <div className="col-sm-1">
+                            <div className="col-sm-2">
                               <div className="form-group">
                                 <input
                                   type="text"
@@ -918,7 +853,7 @@ const CreateTransport = (props) => {
                                 )}
                               </div>
                             </div>
-                            <div className="col-sm-1">
+                            <div className="col-sm-2">
                               <div className="form-group">
                                 <input
                                   type="text"
@@ -940,7 +875,7 @@ const CreateTransport = (props) => {
                                 )}
                               </div>
                             </div>
-                            <div className="col-sm-1">
+                            <div className="col-sm-2">
                               <div className="form-group">
                                 <input
                                   type="text"

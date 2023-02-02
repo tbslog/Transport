@@ -434,7 +434,6 @@ const UpdateTransport = (props) => {
     let arr = [];
     data.optionHandling.map((val) => {
       arr.push({
-        DonViVanTai: !val.DonViVanTai ? null : val.DonViVanTai.value,
         DiemLayTraRong: !val.DiemLayTraRong ? null : val.DiemLayTraRong.value,
         LoaiHangHoa: val.LoaiHangHoa,
         PTVanChuyen: val.PTVanChuyen,
@@ -442,7 +441,6 @@ const UpdateTransport = (props) => {
         TheTich: !val.TheTich ? null : val.TheTich,
         SoKien: !val.SoKien ? null : val.SoKien,
         DonViTinh: "CHUYEN",
-        ContNo: !val.ContNo ? null : val.ContNo,
       });
     });
 
@@ -816,10 +814,7 @@ const UpdateTransport = (props) => {
                       <th style={{ width: "40px" }}></th>
                       <th>
                         <div className="row">
-                          {accountType && accountType === "NV" && (
-                            <div className="col-sm-2">Đơn Vị Vận Tải(*)</div>
-                          )}
-                          <div className="col-sm-1">Loại Hàng Hóa(*)</div>
+                          <div className="col-sm-2">Loại Hàng Hóa(*)</div>
                           <div className="col-sm-2">Loại Phương Tiện(*)</div>
                           {watch(`optionHandling`) &&
                             watch(`optionHandling`).length > 0 &&
@@ -827,13 +822,12 @@ const UpdateTransport = (props) => {
                               x.PTVanChuyen.includes("CONT")
                             ).length > 0 && (
                               <>
-                                <div className="col-sm-2">Mã Container</div>
                                 <div className="col-sm-2">Điểm Lấy Rỗng(*)</div>
                               </>
                             )}
-                          <div className="col-sm-1">Khối Lượng</div>
-                          <div className="col-sm-1">Thể Tích</div>
-                          <div className="col-sm-1">Số Kiện</div>
+                          <div className="col-sm-2">Khối Lượng</div>
+                          <div className="col-sm-2">Thể Tích</div>
+                          <div className="col-sm-2">Số Kiện</div>
                         </div>
                       </th>
                       <th style={{ width: "40px" }}>
@@ -855,7 +849,7 @@ const UpdateTransport = (props) => {
                           <td>{index + 1}</td>
                           <td>
                             <div className="row">
-                              {accountType && accountType === "NV" && (
+                              {/* {accountType && accountType === "NV" && (
                                 <div className="col-sm-2">
                                   <div className="form-group">
                                     <Controller
@@ -889,8 +883,8 @@ const UpdateTransport = (props) => {
                                     )}
                                   </div>
                                 </div>
-                              )}
-                              <div className="col-sm-1">
+                              )} */}
+                              <div className="col-sm-2">
                                 <div className="form-group">
                                   <select
                                     className="form-control"
@@ -961,7 +955,7 @@ const UpdateTransport = (props) => {
                                   `optionHandling.${index}.PTVanChuyen`
                                 ).includes("CONT") && (
                                   <>
-                                    <div className="col-sm-2">
+                                    {/* <div className="col-sm-2">
                                       <div className="form-group">
                                         <input
                                           type="text"
@@ -983,7 +977,7 @@ const UpdateTransport = (props) => {
                                           </span>
                                         )}
                                       </div>
-                                    </div>
+                                    </div> */}
                                     <div className="col-sm-2">
                                       <div className="form-group">
                                         <Controller
@@ -1019,7 +1013,7 @@ const UpdateTransport = (props) => {
                                     </div>
                                   </>
                                 )}
-                              <div className="col-sm-1">
+                              <div className="col-sm-2">
                                 <div className="form-group">
                                   <input
                                     type="text"
@@ -1042,7 +1036,7 @@ const UpdateTransport = (props) => {
                                   )}
                                 </div>
                               </div>
-                              <div className="col-sm-1">
+                              <div className="col-sm-2">
                                 <div className="form-group">
                                   <input
                                     type="text"
@@ -1064,7 +1058,7 @@ const UpdateTransport = (props) => {
                                   )}
                                 </div>
                               </div>
-                              <div className="col-sm-1">
+                              <div className="col-sm-2">
                                 <div className="form-group">
                                   <input
                                     type="text"

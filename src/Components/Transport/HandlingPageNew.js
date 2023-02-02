@@ -205,7 +205,9 @@ const HandlingPageNew = () => {
     // },
     {
       name: <div>Trạng Thái</div>,
-      selector: (row) => <div className="text-wrap">{row.trangThai}</div>,
+      selector: (row) => (
+        <div className="text-wrap">{colorStatusText(row.trangThai)}</div>
+      ),
       sortable: true,
     },
     {
@@ -267,6 +269,45 @@ const HandlingPageNew = () => {
   };
   const hideModal = () => {
     modal.hide();
+  };
+
+  const colorStatusText = (text) => {
+    let textColor = "";
+    switch (text) {
+      case "Hoàn Thành":
+        textColor = "#69b02a";
+        break;
+      case "Đã Giao Hàng":
+        textColor = "#69b02a";
+        break;
+      case "Không Duyệt":
+        textColor = "#ef4130";
+        break;
+      case "Chờ Duyệt":
+        textColor = "#4ac4d3";
+        break;
+      case "Đã Hủy":
+        textColor = "#ef4130";
+        break;
+      case "Chờ Điều Phối":
+        textColor = "#272a64";
+        break;
+      case "Đang Vận Chuyển":
+        textColor = "#f90";
+        break;
+      case "Đang Lấy Rỗng":
+        textColor = "#f90";
+        break;
+      case "Đang Trả Rỗng":
+        textColor = "#f90";
+        break;
+      case "Chờ Vận Chuyển":
+        textColor = "#063970";
+        break;
+      default:
+        textColor = "????";
+    }
+    return <p style={{ color: textColor, fontWeight: "bold" }}>{text}</p>;
   };
 
   useEffect(() => {
@@ -342,7 +383,8 @@ const HandlingPageNew = () => {
   const renderButton = (val) => {
     switch (val.statusId) {
       case 27:
-        return val.ptVanChuyen.includes("CONT") ? (
+        return val.ptVanChuyen.includes("CONT") &&
+          val.phanLoaiVanDon === "xuat" ? (
           <button
             title="Đi Lấy Rỗng"
             onClick={() => showConfirmDialog(val, setFuncName("StartRuning"))}
@@ -378,8 +420,20 @@ const HandlingPageNew = () => {
       case 18:
         return (
           <button
-            title="Hoàn Thành Chuyến"
+            title="Đã Giao Hàng"
             onClick={() => showConfirmDialog(val, setFuncName("Completed"))}
+            type="button"
+            className="btn btn-title btn-sm btn-default mx-1"
+            gloss="Đã Giao Hàng"
+          >
+            <i className="fas fa-check"></i>
+          </button>
+        );
+      case 35:
+        return (
+          <button
+            title="Hoàn Thành Chuyến"
+            onClick={() => showConfirmDialog(val, setFuncName("StartRuning"))}
             type="button"
             className="btn btn-title btn-sm btn-default mx-1"
             gloss="Hoàn Thành Chuyến"

@@ -4,6 +4,7 @@ import moment from "moment";
 import { Modal } from "bootstrap";
 import DatePicker from "react-datepicker";
 import ChartDate from "../Chart/ChartDate";
+import LoadingPage from "../Common/Loading/LoadingPage";
 
 const ReportPage = () => {
   const [dataMonthTransport, setDataMonthTransport] = useState([]);
@@ -13,10 +14,32 @@ const ReportPage = () => {
   const [totalT, setTotalT] = useState([]);
   const [totalRevenue, setTotalRevenue] = useState([]);
 
+  const [dateRange, setDateRange] = useState([
+    new Date(moment().startOf("month")),
+    new Date(moment().endOf("month")),
+  ]);
+  const [startDate, endDate] = dateRange;
+  const [dataTransportReport, setDataTransportReport] = useState({});
+
   useEffect(() => {
     GetDataTransportByMonth(new Date());
     GetDataRevenueByMonth(new Date());
+    loadTransportReport(dateRange);
   }, []);
+
+  const loadTransportReport = async (value) => {
+    setDateRange(value);
+
+    let fromDate = moment(new Date(value[0])).format("YYYY-MM-DD");
+    let toDate = moment(new Date(value[1])).format("YYYY-MM-DD");
+
+    if (fromDate && toDate) {
+      const getdata = await getData(
+        `Report/GetCustomerReport?fromDate=${fromDate}&toDate=${toDate}`
+      );
+      setDataTransportReport(getdata);
+    }
+  };
 
   const GetDataTransportByMonth = async (val) => {
     SetIsLoading(true);
@@ -63,14 +86,12 @@ const ReportPage = () => {
 
   return (
     <div className="content-wrapper">
-      {/* Content Header (Page header) */}
       <div className="content-header">
         <div className="container-fluid">
           <div className="row mb-2">
             <div className="col-sm-6">
               <h1 className="m-0">Báo Cáo Và Thống Kê</h1>
             </div>
-            {/* /.col */}
             <div className="col-sm-6">
               {/* <ol className="breadcrumb float-sm-right">
                 <li className="breadcrumb-item">
@@ -79,179 +100,321 @@ const ReportPage = () => {
                 <li className="breadcrumb-item active">Dashboard v3</li>
               </ol> */}
             </div>
-            {/* /.col */}
           </div>
-          {/* /.row */}
         </div>
-        {/* /.container-fluid */}
       </div>
-      {/* /.content-header */}
-      {/* Main content */}
-      <div className="content">
-        <div className="container-fluid">
-          <div className="row">
-            <div className="col-sm-6">
-              <div className="card">
-                <div className="card-header border-0">
-                  <div className="d-flex justify-content-between">
-                    <div className="col col-12">
-                      <div className="row">
-                        <div className="col col-8">
-                          <h3 className="card-title text-bold text-lg">
-                            Thống kê vận đơn và chuyến theo tháng
-                          </h3>
-                        </div>
-                        <div className="form-group">
-                          <div className="row">
-                            <div className="col col-sm">
-                              <label htmlFor="month">Chọn Tháng:</label>
-                            </div>
-                            <div className="col col-sm">
-                              <DatePicker
-                                selected={month}
-                                onChange={(date) =>
-                                  GetDataTransportByMonth(date)
-                                }
-                                dateFormat="MM/yyyy"
-                                className="form-control form-control-sm"
-                                placeholderText="Chọn Tháng"
-                                value={month}
-                                showMonthYearPicker
-                                showFullMonthYearPicker
-                              />
+      {isLoading && isLoading === true ? (
+        <div>
+          <LoadingPage></LoadingPage>
+        </div>
+      ) : (
+        <div className="content">
+          <div className="container-fluid">
+            <div className="row">
+              <div className="col-sm">
+                <div className="card">
+                  <div className="card-header border-0">
+                    <div className="d-flex justify-content-between">
+                      <div className="col col-12">
+                        <div className="row">
+                          <div className="col col-8">
+                            <h3 className="card-title text-bold text-lg">
+                              Thống kê chuyến theo mốc thời gian
+                            </h3>
+                          </div>
+                          <div className="col-sm-3">
+                            <div className="form-group">
+                              <div className="row">
+                                <div className="col col-sm">
+                                  <label>Chọn Mốc Thời Gian:</label>
+                                </div>
+                                <div className="col col-sm">
+                                  <DatePicker
+                                    className="form-control form-control-sm"
+                                    dateFormat="dd/MM/yyyy"
+                                    selectsRange={true}
+                                    startDate={startDate}
+                                    endDate={endDate}
+                                    onChange={(update) => {
+                                      loadTransportReport(update);
+                                    }}
+                                    value={dateRange}
+                                    withPortal
+                                  />
+                                </div>
+                              </div>
                             </div>
                           </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
-                <div className="card-body">
-                  <div className="d-flex">
-                    <p className="d-flex flex-column">
-                      {totalT &&
-                        totalT.length > 0 &&
-                        totalT.map((val, index) => {
-                          return (
-                            <span key={index} className="text-bold">
-                              {val.title}: {val.totalInt}
-                            </span>
-                          );
-                        })}
-                    </p>
-                  </div>
-                  {/* /.d-flex */}
-                  <div className="position-relative mb-4">
-                    <div className="chartjs-size-monitor">
-                      <div className="chartjs-size-monitor-expand">
-                        <div />
-                      </div>
-                      <div className="chartjs-size-monitor-shrink">
-                        <div />
-                      </div>
-                    </div>
-                    <div>
-                      {isLoading === true ? (
-                        <div>Loading Data...</div>
-                      ) : (
-                        dataMonthTransport &&
-                        Object.keys(dataMonthTransport).length > 0 && (
-                          <ChartDate
-                            arrData={dataMonthTransport}
-                            type={"int"}
-                          ></ChartDate>
-                        )
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="col-sm-6">
-              <div className="card">
-                <div className="card-header border-0">
-                  <div className="d-flex justify-content-between">
-                    <div className="col col-12">
-                      <div className="row">
-                        <div className="col col-8">
-                          <h3 className="card-title text-bold text-lg">
-                            Thống kê Chi Phí,Lợi Nhuận, Doanh Thu Theo Tháng
-                          </h3>
+                  <div className="card-body">
+                    <div className="row">
+                      <div className="col-6">
+                        <div className="card">
+                          <div className="card-header">
+                            <h3 className="card-title">
+                              Thống kê số chuyến của khách hàng
+                            </h3>
+                          </div>
+                          <div className="card-body table-responsive p-0">
+                            <table className="table table-hover text-nowrap table-bordered">
+                              <thead>
+                                <tr>
+                                  <th>Tên Khách Hàng</th>
+                                  <th>Tổng Số Chuyến</th>
+                                  <th>Chuyến Nhập Khẩu</th>
+                                  <th>Chuyến Xuất Khẩu</th>
+                                  <th>FCL</th>
+                                  <th>FTL</th>
+                                  <th>LCL</th>
+                                  <th>LTL</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {dataTransportReport &&
+                                  Object.keys(dataTransportReport).length >
+                                    0 && (
+                                    <>
+                                      {dataTransportReport.customerReports &&
+                                        dataTransportReport.customerReports
+                                          .length > 0 &&
+                                        dataTransportReport.customerReports.map(
+                                          (val, index) => {
+                                            return (
+                                              <tr key={index}>
+                                                <td>{val.customerName}</td>
+                                                <td>{val.total}</td>
+                                                <td>{val.inPut}</td>
+                                                <td>{val.outPut}</td>
+                                                <td>{val.fcl}</td>
+                                                <td>{val.ftl}</td>
+                                                <td>{val.lcl}</td>
+                                                <td>{val.ltl}</td>
+                                              </tr>
+                                            );
+                                          }
+                                        )}
+                                    </>
+                                  )}
+                              </tbody>
+                            </table>
+                          </div>
                         </div>
-                        <div className="form-group">
-                          <div className="row">
-                            <div className="col col-sm">
-                              <label htmlFor="month">Chọn Tháng:</label>
-                            </div>
-                            <div className="col col-sm">
-                              <DatePicker
-                                selected={month}
-                                onChange={(date) => GetDataRevenueByMonth(date)}
-                                dateFormat="MM/yyyy"
-                                className="form-control form-control-sm"
-                                placeholderText="Chọn Tháng"
-                                value={month}
-                                showMonthYearPicker
-                                showFullMonthYearPicker
-                              />
-                            </div>
+                      </div>
+                      <div className="col-6">
+                        <div className="card">
+                          <div className="card-header">
+                            <h3 className="card-title">
+                              Thống kê số chuyến của nhà cung cấp
+                            </h3>
+                          </div>
+                          <div className="card-body table-responsive p-0">
+                            <table className="table table-hover text-nowrap table-bordered">
+                              <thead>
+                                <tr>
+                                  <th>Tên Nhà Cung Cấp</th>
+                                  <th>Tổng Số Chuyến</th>
+                                  <th>Chuyến Nhập Khẩu</th>
+                                  <th>Chuyến Xuất Khẩu</th>
+                                  <th>FCL</th>
+                                  <th>FTL</th>
+                                  <th>LCL</th>
+                                  <th>LTL</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {dataTransportReport &&
+                                  Object.keys(dataTransportReport).length >
+                                    0 && (
+                                    <>
+                                      {dataTransportReport.supllierReports &&
+                                        dataTransportReport.supllierReports
+                                          .length > 0 &&
+                                        dataTransportReport.supllierReports.map(
+                                          (val, index) => {
+                                            return (
+                                              <tr key={index}>
+                                                <td>{val.customerName}</td>
+                                                <td>{val.total}</td>
+                                                <td>{val.inPut}</td>
+                                                <td>{val.outPut}</td>
+                                                <td>{val.fcl}</td>
+                                                <td>{val.ftl}</td>
+                                                <td>{val.lcl}</td>
+                                                <td>{val.ltl}</td>
+                                              </tr>
+                                            );
+                                          }
+                                        )}
+                                    </>
+                                  )}
+                              </tbody>
+                            </table>
                           </div>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
-                <div className="card-body">
-                  <div className="d-flex">
-                    <p className="d-flex flex-column">
-                      {totalRevenue &&
-                        totalRevenue.length > 0 &&
-                        totalRevenue.map((val, index) => {
-                          return (
-                            <span key={index} className="text-bold">
-                              {val.title}:{" "}
-                              {val.totalDouble.toLocaleString("vi-VI", {
-                                style: "currency",
-                                currency: "VND",
-                              })}
-                            </span>
-                          );
-                        })}
-                    </p>
-                  </div>
-                  {/* /.d-flex */}
-                  <div className="position-relative mb-4">
-                    <div className="chartjs-size-monitor">
-                      <div className="chartjs-size-monitor-expand">
-                        <div />
-                      </div>
-                      <div className="chartjs-size-monitor-shrink">
-                        <div />
+              </div>
+            </div>
+          </div>
+          <div className="container-fluid">
+            <div className="row">
+              <div className="col-sm-6">
+                <div className="card">
+                  <div className="card-header border-0">
+                    <div className="d-flex justify-content-between">
+                      <div className="col col-12">
+                        <div className="row">
+                          <div className="col col-8">
+                            <h3 className="card-title text-bold text-lg">
+                              Thống kê vận đơn và chuyến theo tháng
+                            </h3>
+                          </div>
+                          <div className="form-group">
+                            <div className="row">
+                              <div className="col col-sm">
+                                <label htmlFor="month">Chọn Tháng:</label>
+                              </div>
+                              <div className="col col-sm">
+                                <DatePicker
+                                  selected={month}
+                                  onChange={(date) =>
+                                    GetDataTransportByMonth(date)
+                                  }
+                                  dateFormat="MM/yyyy"
+                                  className="form-control form-control-sm"
+                                  placeholderText="Chọn Tháng"
+                                  value={month}
+                                  showMonthYearPicker
+                                  showFullMonthYearPicker
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                    <div>
-                      {isLoading === true ? (
-                        <div>Loading Data...</div>
-                      ) : (
-                        dataMonthRevenue &&
-                        Object.keys(dataMonthRevenue).length > 0 && (
-                          <ChartDate
-                            arrData={dataMonthRevenue}
-                            type={"double"}
-                          ></ChartDate>
-                        )
-                      )}
+                  </div>
+                  <div className="card-body">
+                    <div className="d-flex">
+                      <p className="d-flex flex-column">
+                        {totalT &&
+                          totalT.length > 0 &&
+                          totalT.map((val, index) => {
+                            return (
+                              <span key={index} className="text-bold">
+                                {val.title}: {val.totalInt}
+                              </span>
+                            );
+                          })}
+                      </p>
+                    </div>
+                    <div className="position-relative mb-4">
+                      <div className="chartjs-size-monitor">
+                        <div className="chartjs-size-monitor-expand">
+                          <div />
+                        </div>
+                        <div className="chartjs-size-monitor-shrink">
+                          <div />
+                        </div>
+                      </div>
+                      <div>
+                        {dataMonthTransport &&
+                          Object.keys(dataMonthTransport).length > 0 && (
+                            <ChartDate
+                              arrData={dataMonthTransport}
+                              type={"int"}
+                            ></ChartDate>
+                          )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="col-sm-6">
+                <div className="card">
+                  <div className="card-header border-0">
+                    <div className="d-flex justify-content-between">
+                      <div className="col col-12">
+                        <div className="row">
+                          <div className="col col-8">
+                            <h3 className="card-title text-bold text-lg">
+                              Thống kê Chi Phí,Lợi Nhuận, Doanh Thu Theo Tháng
+                            </h3>
+                          </div>
+                          <div className="form-group">
+                            <div className="row">
+                              <div className="col col-sm">
+                                <label htmlFor="month">Chọn Tháng:</label>
+                              </div>
+                              <div className="col col-sm">
+                                <DatePicker
+                                  selected={month}
+                                  onChange={(date) =>
+                                    GetDataRevenueByMonth(date)
+                                  }
+                                  dateFormat="MM/yyyy"
+                                  className="form-control form-control-sm"
+                                  placeholderText="Chọn Tháng"
+                                  value={month}
+                                  showMonthYearPicker
+                                  showFullMonthYearPicker
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="card-body">
+                    <div className="d-flex">
+                      <p className="d-flex flex-column">
+                        {totalRevenue &&
+                          totalRevenue.length > 0 &&
+                          totalRevenue.map((val, index) => {
+                            return (
+                              <span key={index} className="text-bold">
+                                {val.title}:{" "}
+                                {val.totalDouble.toLocaleString("vi-VI", {
+                                  style: "currency",
+                                  currency: "VND",
+                                })}
+                              </span>
+                            );
+                          })}
+                      </p>
+                    </div>
+                    <div className="position-relative mb-4">
+                      <div className="chartjs-size-monitor">
+                        <div className="chartjs-size-monitor-expand">
+                          <div />
+                        </div>
+                        <div className="chartjs-size-monitor-shrink">
+                          <div />
+                        </div>
+                      </div>
+                      <div>
+                        {dataMonthRevenue &&
+                          Object.keys(dataMonthRevenue).length > 0 && (
+                            <ChartDate
+                              arrData={dataMonthRevenue}
+                              type={"double"}
+                            ></ChartDate>
+                          )}
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-          {/* /.row */}
         </div>
-        {/* /.container-fluid */}
-      </div>
-      {/* /.content */}
+      )}
     </div>
   );
 };

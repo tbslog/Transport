@@ -100,12 +100,15 @@ const CreateVehicle = (props) => {
     SetIsLoading(true);
     (async () => {
       let getListVehicleType = await getData("Common/GetListVehicleType");
+      getListVehicleType = getListVehicleType.filter(
+        (x) => !x.maLoaiPhuongTien.includes("CONT")
+      );
       setListVehicleType(getListVehicleType);
 
       let getListDriver = await getData(`Driver/GetListSelectDriver`);
       if (getListDriver && getListDriver.length > 0) {
         let obj = [];
-        obj.push({ value: "", label: "Rỗng" });
+        obj.push({ value: null, label: "Rỗng" });
         getListDriver.map((val) => {
           obj.push({
             value: val.maTaiXe,
@@ -123,8 +126,7 @@ const CreateVehicle = (props) => {
     const post = await postData("Vehicle/CreateVehicle", {
       MaSoXe: data.MaSoXe,
       MaLoaiPhuongTien: data.LoaiXe,
-      MaTaiXeMacDinh:
-        data.TaiXeMacDinh.value === "" ? null : data.TaiXeMacDinh.value,
+      MaTaiXeMacDinh: !data.TaiXeMacDinh.value ? null : data.TaiXeMacDinh.value,
       TrongTaiToiThieu: !data.TrongTaiToiThieu ? null : data.TrongTaiToiThieu,
       TrongTaiToiDa: !data.TrongTaiToiDa ? null : data.TrongTaiToiDa,
       MaGps: data.MaGPS,
@@ -134,7 +136,6 @@ const CreateVehicle = (props) => {
       NgayHoatDong: !data.NgayHoatDong
         ? null
         : new Date(data.NgayHoatDong).toISOString(),
-      TrangThai: data.TrangThai,
     });
 
     if (post === 1) {
@@ -190,6 +191,7 @@ const CreateVehicle = (props) => {
                       {...register("LoaiXe", Validate.LoaiXe)}
                     >
                       <option value="">Chọn Loại Xe</option>
+                      <option value="CONT">Container</option>
                       {listVehicleType &&
                         listVehicleType.map((val) => {
                           return (
@@ -371,29 +373,6 @@ const CreateVehicle = (props) => {
                   <span className="text-danger">{errors.GhiChu.message}</span>
                 )}
               </div> */}
-
-              <div className="form-group">
-                <label htmlFor="TrangThai">Trạng Thái(*)</label>
-                <select
-                  className="form-control"
-                  {...register("TrangThai", Validate.TrangThai)}
-                >
-                  <option value="">Chọn Trạng Thái</option>
-                  {listStatus &&
-                    listStatus.map((val) => {
-                      return (
-                        <option value={val.statusId} key={val.statusId}>
-                          {val.statusContent}
-                        </option>
-                      );
-                    })}
-                </select>
-                {errors.TrangThai && (
-                  <span className="text-danger">
-                    {errors.TrangThai.message}
-                  </span>
-                )}
-              </div>
             </div>
             <div className="card-footer">
               <div>

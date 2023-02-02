@@ -67,6 +67,10 @@ const VehiclePage = () => {
       selector: (row) => row.maGpsmobile,
     },
     {
+      name: "Trạng Thái",
+      selector: (row) => row.trangThai,
+    },
+    {
       name: "Thời Gian cập nhật",
       selector: (row) => row.updatedtime,
       sortable: true,

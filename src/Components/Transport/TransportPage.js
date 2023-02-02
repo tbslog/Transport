@@ -223,7 +223,9 @@ const TransportPage = () => {
     },
     {
       name: <div>Trạng Thái</div>,
-      selector: (row) => <div className="text-wrap">{row.trangThai}</div>,
+      selector: (row) => (
+        <div className="text-wrap">{colorStatusText(row.trangThai)}</div>
+      ),
       sortable: true,
     },
     {
@@ -237,6 +239,36 @@ const TransportPage = () => {
       sortable: true,
     },
   ]);
+
+  const colorStatusText = (text) => {
+    let textColor = "";
+    switch (text) {
+      case "Hoàn Thành":
+        textColor = "#69b02a";
+        break;
+      case "Không Duyệt":
+        textColor = "#ef4130";
+        break;
+      case "Chờ Duyệt":
+        textColor = "#4ac4d3";
+        break;
+      case "Đã Hủy":
+        textColor = "#ef4130";
+        break;
+      case "Chờ Điều Phối":
+        textColor = "#272a64";
+        break;
+      case "Đang Vận Chuyển":
+        textColor = "#f90";
+        break;
+      case "Chờ Vận Chuyển":
+        textColor = "#063970";
+        break;
+      default:
+        textColor = "????";
+    }
+    return <p style={{ color: textColor, fontWeight: "bold" }}>{text}</p>;
+  };
 
   const showModalForm = () => {
     const modal = new Modal(parseExceptionModal.current, {

@@ -417,15 +417,7 @@ const AddPriceTable = (props) => {
                         <th style={{ width: "12%" }}>Loại phương tiện(*)</th>
                         <th>Loại Hàng Hóa(*)</th>
                         <th>Ngày Hết Hiệu Lực</th>
-                        <th style={{ width: "40px" }}>
-                          <button
-                            className="form-control form-control-sm"
-                            type="button"
-                            onClick={() => append(watch("optionRoad")[0])}
-                          >
-                            <i className="fas fa-plus"></i>
-                          </button>
-                        </th>
+                        <th style={{ width: "40px" }}></th>
                       </tr>
                     </thead>
                     <tbody>
@@ -658,18 +650,31 @@ const AddPriceTable = (props) => {
                           <td>
                             <div className="form-group">
                               {index >= 1 && (
-                                <button
-                                  type="button"
-                                  className="form-control form-control-sm"
-                                  onClick={() => remove(index)}
-                                >
-                                  <i className="fas fa-minus"></i>
-                                </button>
+                                <>
+                                  <button
+                                    type="button"
+                                    className="form-control form-control-sm"
+                                    onClick={() => remove(index)}
+                                  >
+                                    <i className="fas fa-minus"></i>
+                                  </button>
+                                </>
                               )}
                             </div>
                           </td>
                         </tr>
                       ))}
+                      <tr>
+                        <td colSpan={9}>
+                          <button
+                            className="form-control form-control-sm"
+                            type="button"
+                            onClick={() => append(watch("optionRoad")[0])}
+                          >
+                            <i className="fas fa-plus"></i>
+                          </button>
+                        </td>
+                      </tr>
                     </tbody>
                   </table>
                   <br />

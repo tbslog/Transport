@@ -181,20 +181,6 @@ const UpdateHandling = (props) => {
           setListCustomer(arr);
         }
 
-        if (
-          getDataHandling.listXeVanChuyen &&
-          getDataHandling.listXeVanChuyen.length > 0
-        ) {
-          let arr = [];
-          getDataHandling.listXeVanChuyen.map((val) => {
-            arr.push({
-              label: val.maSoXe + " - " + val.maLoaiPhuongTien,
-              value: val.maSoXe,
-            });
-          });
-          setListVehicle(arr);
-        }
-
         if (getDataHandling.listTaiXe && getDataHandling.listTaiXe.length > 0) {
           let arr = [];
           getDataHandling.listTaiXe.map((val) => {
@@ -238,6 +224,18 @@ const UpdateHandling = (props) => {
     ) {
       handleResetClick();
       (async () => {
+        let listVehicle = await getData("Vehicle/GetListVehicleSelect");
+        if (listVehicle && listVehicle.length > 0) {
+          let arr = [];
+          listVehicle.map((val) => {
+            arr.push({
+              label: val.text,
+              value: val.vehicleId,
+            });
+          });
+          setListVehicle(arr);
+        }
+
         let data = await getData(
           `BillOfLading/GetHandlingById?id=${selectIdClick.maDieuPhoi}`
         );

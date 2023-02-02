@@ -207,6 +207,8 @@ const ContractPage = () => {
     setLoading(true);
 
     (async () => {
+      fetchData(1, "", "", "", "", "KH");
+
       const getListContractType = await getData(`Common/GetListContractType`);
       setListContractType(getListContractType);
 

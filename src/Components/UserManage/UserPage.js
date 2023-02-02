@@ -105,12 +105,20 @@ const UserPage = () => {
     },
     {
       name: "Thời Cập Nhật",
-      selector: (row) => moment(row.updatedTime).format("DD-MM-YYYY HH:mm:ss"),
+      selector: (row) => (
+        <div className="text-wrap">
+          {moment(row.updatedTime).format("DD/MM/YYYY HH:mm:ss")}
+        </div>
+      ),
       sortable: true,
     },
     {
       name: "Thời gian Tạo",
-      selector: (row) => moment(row.createdTime).format("DD-MM-YYYY HH:mm:ss"),
+      selector: (row) => (
+        <div className="text-wrap">
+          {moment(row.createdTime).format("DD/MM/YYYY HH:mm:ss")}
+        </div>
+      ),
       sortable: true,
     },
   ]);
@@ -139,6 +147,7 @@ const UserPage = () => {
   const handleChange = (state) => {
     setSelectedRows(state.selectedRows);
   };
+
   const handleClearRows = () => {
     setToggleClearRows(!toggledClearRows);
   };
@@ -161,7 +170,7 @@ const UserPage = () => {
       `User/GetListUser?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}&fromDate=${fromDate}&toDate=${toDate}&statusId=${status}`
     );
 
-    formatTable(dataCus.data);
+    setData(dataCus.data);
     setTotalRows(dataCus.totalRecords);
     setLoading(false);
   };
@@ -177,7 +186,7 @@ const UserPage = () => {
       `User/GetListUser?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}&fromDate=${fromDate}&toDate=${toDate}&statusId=${status}`
     );
     setPerPage(newPerPage);
-    formatTable(dataCus.data);
+    setData(dataCus.data);
     setTotalRows(dataCus.totalRecords);
     setLoading(false);
   };
@@ -229,20 +238,6 @@ const UserPage = () => {
     fetchData(1);
     setLoading(false);
   }, []);
-
-  function formatTable(data) {
-    data.map((val) => {
-      !val.createdTime
-        ? (val.createdTime = "")
-        : (val.createdTime = moment(val.createdTime).format("DD/MM/YYYY"));
-
-      !val.updatedTime
-        ? (val.updatedTime = "")
-        : (val.updatedTime = moment(val.updatedTime).format("DD/MM/YYYY"));
-    });
-
-    setData(data);
-  }
 
   const ShowConfirmDialog = () => {
     if (selectedRows.length < 1) {

@@ -55,6 +55,8 @@ const JoinTransports = (props) => {
   const [listVehicleTypeSelect, setlistVehicleTypeSelect] = useState([]);
   const [listVehicleSelect, setListVehicleSelect] = useState([]);
 
+  const [dataHandling, setDataHandling] = useState({});
+
   useEffect(() => {
     (async () => {
       SetIsLoading(true);
@@ -90,21 +92,6 @@ const JoinTransports = (props) => {
           setListSupplier(arr);
         }
 
-        if (
-          getDataHandling.listXeVanChuyen &&
-          getDataHandling.listXeVanChuyen.length > 0
-        ) {
-          let arr = [];
-          getDataHandling.listXeVanChuyen.map((val) => {
-            arr.push({
-              label: val.maSoXe + " - " + val.maLoaiPhuongTien,
-              value: val.maSoXe,
-            });
-          });
-          setListVehicle(arr);
-          setListVehicleSelect(arr);
-        }
-
         if (getDataHandling.listTaiXe && getDataHandling.listTaiXe.length > 0) {
           let arr = [];
           getDataHandling.listTaiXe.map((val) => {
@@ -138,11 +125,9 @@ const JoinTransports = (props) => {
     if (
       items &&
       items.length > 0 &&
-      listVehicle &&
       listDriver &&
       listRomooc &&
       listVehicleType &&
-      listVehicle.length > 0 &&
       listVehicleType.length > 0 &&
       listDriver.length > 0 &&
       listRomooc.length > 0
@@ -154,6 +139,19 @@ const JoinTransports = (props) => {
         items.map((val) => {
           arrTransport.push(val.maVanDon);
         });
+
+        let listVehicle = await getData("Vehicle/GetListVehicleSelect");
+        if (listVehicle && listVehicle.length > 0) {
+          let arr = [];
+          listVehicle.map((val) => {
+            arr.push({
+              label: val.text,
+              value: val.vehicleId,
+            });
+          });
+          setListVehicle(arr);
+          setListVehicleSelect(arr);
+        }
 
         if (arrTransport && arrTransport.length > 0) {
           let dataTransports = await getDataCustom(
@@ -183,17 +181,15 @@ const JoinTransports = (props) => {
       })();
     }
     SetIsLoading(false);
-  }, [items, listVehicle, listVehicleType, listDriver, listRomooc]);
+  }, [items, listVehicleType, listDriver, listRomooc]);
 
   useLayoutEffect(() => {
     if (
       selectIdClick &&
-      listVehicle &&
       listDriver &&
       listRomooc &&
       listVehicleType &&
       Object.keys(selectIdClick).length > 0 &&
-      listVehicle.length > 0 &&
       listVehicleType.length > 0 &&
       listDriver.length > 0 &&
       listRomooc.length > 0
@@ -201,11 +197,27 @@ const JoinTransports = (props) => {
       (async () => {
         resetForm();
         SetIsLoading(true);
+
+        let listVehicle = await getData("Vehicle/GetListVehicleSelect");
+        if (listVehicle && listVehicle.length > 0) {
+          let arr = [];
+          listVehicle.map((val) => {
+            arr.push({
+              label: val.text,
+              value: val.vehicleId,
+            });
+          });
+          setListVehicle(arr);
+          setListVehicleSelect(arr);
+        }
+
         let dataTransports = await getDataCustom(
           `BillOfLading/LoadJoinTransports`,
           { TransportIds: [], MaChuyen: selectIdClick.maChuyen }
         );
         let dataHandling = dataTransports.handlingLess;
+
+        setDataHandling(dataHandling);
 
         setValue("TransportType", dataTransports.loaiVanDon);
         setValue("MaPTVC", dataTransports.maPTVC);
@@ -223,12 +235,7 @@ const JoinTransports = (props) => {
             ...listSupplier.filter((x) => x.value === dataHandling.donViVanTai),
           }[0]
         );
-        setValue(
-          "XeVanChuyen",
-          {
-            ...listVehicle.filter((x) => x.value === dataHandling.xeVanChuyen),
-          }[0]
-        );
+
         setValue(
           "TaiXe",
           { ...listDriver.filter((x) => x.value === dataHandling.taiXe) }[0]
@@ -241,6 +248,7 @@ const JoinTransports = (props) => {
                 ...listRomooc.filter((x) => x.value === dataHandling.romooc),
               }[0]
         );
+
         setValue("CONTNO", dataHandling.contno);
         setValue("SEALHQ", dataHandling.sealhq);
         setValue("SEALNP", dataHandling.sealnp);
@@ -274,11 +282,28 @@ const JoinTransports = (props) => {
             setValue(`listTransport.${i}.SoKien`, data[i].tongSoKien);
           }
         }
-
         SetIsLoading(false);
       })();
     }
-  }, [selectIdClick, listVehicle, listVehicleType, listDriver, listRomooc]);
+  }, [selectIdClick, listVehicleType, listDriver, listRomooc]);
+
+  useEffect(() => {
+    if (
+      selectIdClick &&
+      listVehicle &&
+      dataHandling &&
+      Object.keys(dataHandling).length > 0 &&
+      Object.keys(selectIdClick).length > 0 &&
+      listVehicle.length > 0
+    ) {
+      setValue(
+        "XeVanChuyen",
+        {
+          ...listVehicle.filter((x) => x.value === dataHandling.xeVanChuyen),
+        }[0]
+      );
+    }
+  }, [selectIdClick, listVehicle, dataHandling]);
 
   useLayoutEffect(() => {
     if (watch("MaPTVC")) {

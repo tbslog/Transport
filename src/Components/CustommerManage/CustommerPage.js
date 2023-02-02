@@ -99,62 +99,9 @@ const CustommerPage = () => {
     setSelectedRows(state.selectedRows);
   }, []);
 
-  const handleCreateContract = async (val) => {
-    showModalForm();
-  };
-
-  const handleEditButtonClick = async (val) => {
-    showModalForm();
-    const dataCus = await getData(`Customer/GetCustomerById?Id=${val.maKh}`);
-    setSelectIdClick(dataCus);
-  };
-
-  const fetchData = async (page, KeyWord = "", cusType = "") => {
-    setLoading(true);
-
-    if (KeyWord !== "") {
-      KeyWord = keySearch;
-    }
-
-    const dataCus = await getData(
-      `Customer/GetListCustomer?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}&customerType=${cusType}`
-    );
-
-    formatTable(dataCus.data);
-    setTotalRows(dataCus.totalRecords);
-    setLoading(false);
-  };
-
-  const handlePageChange = async (page) => {
-    setPage(page);
-    await fetchData(page, perPage, keySearch, cusType);
-  };
-
-  const handlePerRowsChange = async (newPerPage, page) => {
-    setLoading(true);
-
-    const dataCus = await getData(
-      `Customer/GetListCustomer?PageNumber=${page}&PageSize=${perPage}&KeyWord=${keySearch}&customerType=${cusType}`
-    );
-
-    formatTable(dataCus.data);
-    setPerPage(newPerPage);
-    setLoading(false);
-  };
-
-  const ReloadData = () => {
-    fetchData(page, perPage, cusType);
-  };
-
-  const hideModal = () => {
-    modal.hide();
-  };
-
   useEffect(() => {
     setLoading(true);
     (async () => {
-      fetchData(1, "", "KH");
-
       let getListCustommerGroup = await getData(`Common/GetListCustommerGroup`);
       setListCustomerGroup(getListCustommerGroup);
 
@@ -182,6 +129,56 @@ const CustommerPage = () => {
       setLoading(false);
     })();
   }, []);
+
+  const handleCreateContract = async (val) => {
+    showModalForm();
+  };
+
+  const handleEditButtonClick = async (val) => {
+    showModalForm();
+    const dataCus = await getData(`Customer/GetCustomerById?Id=${val.maKh}`);
+    setSelectIdClick(dataCus);
+  };
+
+  const fetchData = async (page, perPage, KeyWord = "", cusType) => {
+    setLoading(true);
+    if (KeyWord !== "") {
+      KeyWord = keySearch;
+    }
+
+    const dataCus = await getData(
+      `Customer/GetListCustomer?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}&customerType=${cusType}`
+    );
+
+    formatTable(dataCus.data);
+    setTotalRows(dataCus.totalRecords);
+    setLoading(false);
+  };
+
+  const handlePageChange = async (page) => {
+    setPage(page);
+
+    await fetchData(page, perPage, keySearch, cusType);
+  };
+
+  const handlePerRowsChange = async (newPerPage, page) => {
+    setLoading(true);
+    const dataCus = await getData(
+      `Customer/GetListCustomer?PageNumber=${page}&PageSize=${perPage}&KeyWord=${keySearch}&customerType=${cusType}`
+    );
+
+    formatTable(dataCus.data);
+    setPerPage(newPerPage);
+    setLoading(false);
+  };
+
+  const ReloadData = async () => {
+    await fetchData(page, perPage, keySearch, cusType);
+  };
+
+  const hideModal = () => {
+    modal.hide();
+  };
 
   function formatTable(data) {
     data.map((val) => {
@@ -211,7 +208,7 @@ const CustommerPage = () => {
       ToastWarning("Vui lòng  nhập thông tin tìm kiếm");
       return;
     }
-    await fetchData(1, keySearch, cusType);
+    await fetchData(1, perPage, keySearch, cusType);
   };
 
   const handleRefeshDataClick = async () => {
@@ -219,9 +216,9 @@ const CustommerPage = () => {
     await fetchData(1);
   };
 
-  const handleOnChangeCusType = (val) => {
+  const handleOnChangeCusType = async (val) => {
     setCusType(val);
-    fetchData(1, keySearch, val);
+    await fetchData(1, perPage, keySearch, val);
   };
 
   return (
