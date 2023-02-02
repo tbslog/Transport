@@ -49,5 +49,18 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             var data = await _report.GetRevenue(dateTime);
             return Ok(data);
         }
+
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetCustomerReport(DateTime fromDate,DateTime toDate)
+        {
+            var checkPermission = await _common.CheckPermission("H0002");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+            var data = await _report.GetCustomerReport(fromDate,toDate);
+            return Ok(data);
+        }
     }
 }

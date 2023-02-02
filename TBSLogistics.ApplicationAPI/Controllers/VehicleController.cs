@@ -24,9 +24,9 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         private readonly IPaginationService _uriService;
         private readonly ICommon _common;
 
-        public VehicleController(IVehicle vehicle,IPaginationService uriService,ICommon common)
+        public VehicleController(IVehicle vehicle, IPaginationService uriService, ICommon common)
         {
-            _common= common;
+            _common = common;
             _uriService = uriService;
             _vehicle = vehicle;
         }
@@ -74,6 +74,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
                 return BadRequest(Edit.Message);
             }
         }
+
         [HttpPut]
         [Route("[action]")]
         public async Task<IActionResult> DeleteVehicle(string vehicleId)
@@ -102,6 +103,14 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
             var vehicle = await _vehicle.GetVehicleById(vehicleId);
             return Ok(vehicle);
+        }
+
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetListVehicleSelect()
+        {
+            var list = await _vehicle.GetListVehicleSelect();
+            return Ok(list);
         }
 
         [HttpGet]

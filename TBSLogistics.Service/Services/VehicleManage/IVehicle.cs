@@ -17,5 +17,6 @@ namespace TBSLogistics.Service.Services.VehicleManage
         Task<GetVehicleRequest> GetVehicleById(string vehicleId);
         Task<BoolActionResult> DeleteVehicle(string vehicleId);
         Task<PagedResponseCustom<ListVehicleRequest>> getListVehicle(PaginationFilter filter);
+        Task<List<ListVehicleSelect>> GetListVehicleSelect();
     }
 }

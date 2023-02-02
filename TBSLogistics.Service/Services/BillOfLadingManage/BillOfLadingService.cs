@@ -6,7 +6,6 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Net.Http.Headers;
-using System.Runtime.Intrinsics.Arm;
 using System.Text.Json;
 using System.Threading.Tasks;
 using TBSLogistics.Data.TMS;
@@ -18,7 +17,6 @@ using TBSLogistics.Model.Model.RoadModel;
 using TBSLogistics.Model.TempModel;
 using TBSLogistics.Model.Wrappers;
 using TBSLogistics.Service.Services.Common;
-using TBSLogistics.Service.Services.CustommerManage;
 using TBSLogistics.Service.Services.SubFeePriceManage;
 
 namespace TBSLogistics.Service.Services.BillOfLadingManage
@@ -118,11 +116,6 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                     MaTaiXe = x.MaTaiXe,
                     TenTaiXe = x.HoVaTen,
                 }).ToListAsync(),
-                ListXeVanChuyen = await _context.XeVanChuyen.Select(x => new VehicleTransport()
-                {
-                    MaLoaiPhuongTien = x.MaLoaiPhuongTien,
-                    MaSoXe = x.MaSoXe,
-                }).ToListAsync(),
                 ListRomooc = await listRomooc.Select(x => new RomoocTransport()
                 {
                     MaRomooc = x.rm.MaRomooc,
@@ -132,211 +125,211 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
             return result;
         }
 
-        public async Task<BoolActionResult> CreateHandling(CreateHandling request)
-        {
-            try
-            {
-                var transport = await _context.VanDon.Where(x => x.MaVanDon == request.MaVanDon).FirstOrDefaultAsync();
-                if (transport == null)
-                {
-                    return new BoolActionResult { isSuccess = false, Message = "Mã vận đơn không tồn tại" };
-                }
+        //public async Task<BoolActionResult> CreateHandling(CreateHandling request)
+        //{
+        //    try
+        //    {
+        //        var transport = await _context.VanDon.Where(x => x.MaVanDon == request.MaVanDon).FirstOrDefaultAsync();
+        //        if (transport == null)
+        //        {
+        //            return new BoolActionResult { isSuccess = false, Message = "Mã vận đơn không tồn tại" };
+        //        }
 
-                var checkRoad = await _context.CungDuong.Where(x => x.MaCungDuong == request.MaCungDuong).FirstOrDefaultAsync();
-                if (checkRoad == null)
-                {
-                    return new BoolActionResult { isSuccess = false, Message = "Cung đường không tồn tại" };
-                }
+        //        var checkRoad = await _context.CungDuong.Where(x => x.MaCungDuong == request.MaCungDuong).FirstOrDefaultAsync();
+        //        if (checkRoad == null)
+        //        {
+        //            return new BoolActionResult { isSuccess = false, Message = "Cung đường không tồn tại" };
+        //        }
 
-                string ErrorValidate = "";
+        //        string ErrorValidate = "";
 
-                if (!string.IsNullOrEmpty(ErrorValidate))
-                {
-                    return new BoolActionResult { isSuccess = false, Message = ErrorValidate };
-                }
+        //        if (!string.IsNullOrEmpty(ErrorValidate))
+        //        {
+        //            return new BoolActionResult { isSuccess = false, Message = ErrorValidate };
+        //        }
 
-                using var transaction = _context.Database.BeginTransaction();
+        //        using var transaction = _context.Database.BeginTransaction();
 
-                transport.TrangThai = 9;
-                _context.VanDon.Update(transport);
+        //        transport.TrangThai = 9;
+        //        _context.VanDon.Update(transport);
 
-                string MaChuyen = transport.MaPtvc.Trim() + DateTime.Now.ToString("yyyyMMddHHmmssffff");
+        //        string MaChuyen = transport.MaPtvc.Trim() + DateTime.Now.ToString("yyyyMMddHHmmssffff");
 
-                if (transport.MaPtvc == "LCL" || transport.MaPtvc == "LTL")
-                {
-                    var getHandling = await _context.DieuPhoi.Where(x => x.MaVanDon == transport.MaVanDon).FirstOrDefaultAsync();
+        //        if (transport.MaPtvc == "LCL" || transport.MaPtvc == "LTL")
+        //        {
+        //            var getHandling = await _context.DieuPhoi.Where(x => x.MaVanDon == transport.MaVanDon).FirstOrDefaultAsync();
 
-                    if (getHandling != null)
-                    {
-                        MaChuyen = getHandling.MaChuyen;
-                    }
-                }
+        //            if (getHandling != null)
+        //            {
+        //                MaChuyen = getHandling.MaChuyen;
+        //            }
+        //        }
 
-                foreach (var item in request.DieuPhoi)
-                {
-                    var checkVehicleType = await _context.LoaiPhuongTien.Where(x => x.MaLoaiPhuongTien == item.PTVanChuyen).Select(x => x.TenLoaiPhuongTien).FirstOrDefaultAsync();
+        //        foreach (var item in request.DieuPhoi)
+        //        {
+        //            var checkVehicleType = await _context.LoaiPhuongTien.Where(x => x.MaLoaiPhuongTien == item.PTVanChuyen).Select(x => x.TenLoaiPhuongTien).FirstOrDefaultAsync();
 
-                    if (checkVehicleType == null)
-                    {
-                        return new BoolActionResult { isSuccess = false, Message = "Loại phương tiện vận chuyển không tồn tại" };
-                    }
+        //            if (checkVehicleType == null)
+        //            {
+        //                return new BoolActionResult { isSuccess = false, Message = "Loại phương tiện vận chuyển không tồn tại" };
+        //            }
 
-                    var checkGoodsType = await _context.LoaiHangHoa.Where(x => x.MaLoaiHangHoa == item.LoaiHangHoa).Select(x => x.TenLoaiHangHoa).FirstOrDefaultAsync();
-                    if (checkGoodsType == null)
-                    {
-                        return new BoolActionResult { isSuccess = false, Message = "Loại Hàng Hóa Không Tồn Tại" };
-                    }
-                    var checkDVT = await _context.DonViTinh.Where(x => x.MaDvt == item.DonViTinh).Select(x => x.TenDvt).FirstOrDefaultAsync();
-                    if (checkDVT == null)
-                    {
-                        return new BoolActionResult { isSuccess = false, Message = "Đơn Vị Tính Không Tồn Tại" };
-                    }
-                    var checkPTVC = await _context.PhuongThucVanChuyen.Where(x => x.MaPtvc == item.MaPTVC).Select(x => x.TenPtvc).FirstOrDefaultAsync();
-                    if (checkPTVC == null)
-                    {
-                        return new BoolActionResult { isSuccess = false, Message = "Phương Thức Vận Chuyển Không Tồn Tại" };
-                    }
+        //            var checkGoodsType = await _context.LoaiHangHoa.Where(x => x.MaLoaiHangHoa == item.LoaiHangHoa).Select(x => x.TenLoaiHangHoa).FirstOrDefaultAsync();
+        //            if (checkGoodsType == null)
+        //            {
+        //                return new BoolActionResult { isSuccess = false, Message = "Loại Hàng Hóa Không Tồn Tại" };
+        //            }
+        //            var checkDVT = await _context.DonViTinh.Where(x => x.MaDvt == item.DonViTinh).Select(x => x.TenDvt).FirstOrDefaultAsync();
+        //            if (checkDVT == null)
+        //            {
+        //                return new BoolActionResult { isSuccess = false, Message = "Đơn Vị Tính Không Tồn Tại" };
+        //            }
+        //            var checkPTVC = await _context.PhuongThucVanChuyen.Where(x => x.MaPtvc == item.MaPTVC).Select(x => x.TenPtvc).FirstOrDefaultAsync();
+        //            if (checkPTVC == null)
+        //            {
+        //                return new BoolActionResult { isSuccess = false, Message = "Phương Thức Vận Chuyển Không Tồn Tại" };
+        //            }
 
-                    if (item.PTVanChuyen.Contains("CONT"))
-                    {
-                        var checkPlaceGetEmpty = await _context.DiaDiem.Where(x => x.MaDiaDiem == item.DiemLayTraRong.Value).FirstOrDefaultAsync();
-                        if (checkPlaceGetEmpty == null)
-                        {
-                            return new BoolActionResult { isSuccess = false, Message = "Điểm lấy rỗng không tồn tại" };
-                        }
-                    }
+        //            if (item.PTVanChuyen.Contains("CONT"))
+        //            {
+        //                var checkPlaceGetEmpty = await _context.DiaDiem.Where(x => x.MaDiaDiem == item.DiemLayTraRong.Value).FirstOrDefaultAsync();
+        //                if (checkPlaceGetEmpty == null)
+        //                {
+        //                    return new BoolActionResult { isSuccess = false, Message = "Điểm lấy rỗng không tồn tại" };
+        //                }
+        //            }
 
-                    var checkSupplier = await _context.KhachHang.Where(x => x.MaKh == item.DonViVanTai && x.MaLoaiKh == "NCC").FirstOrDefaultAsync();
-                    if (checkSupplier == null)
-                    {
-                        return new BoolActionResult { isSuccess = false, Message = "Đơn vị vận tải không tồn tại" };
-                    }
+        //            var checkSupplier = await _context.KhachHang.Where(x => x.MaKh == item.DonViVanTai && x.MaLoaiKh == "NCC").FirstOrDefaultAsync();
+        //            if (checkSupplier == null)
+        //            {
+        //                return new BoolActionResult { isSuccess = false, Message = "Đơn vị vận tải không tồn tại" };
+        //            }
 
-                    var checkPriceTable = from bg in _context.BangGia
-                                          join hd in _context.HopDongVaPhuLuc
-                                          on bg.MaHopDong equals hd.MaHopDong
-                                          where (hd.MaKh == item.MaKH || hd.MaKh == item.DonViVanTai)
-                                          && bg.MaCungDuong == request.MaCungDuong
-                                          && bg.TrangThai == 4
-                                          && bg.NgayApDung.Date <= DateTime.Now.Date
-                                          && (bg.NgayHetHieuLuc.Value.Date > DateTime.Now.Date || bg.NgayHetHieuLuc == null)
-                                          && bg.MaDvt == item.DonViTinh
-                                          && bg.MaLoaiHangHoa == item.LoaiHangHoa
-                                          && bg.MaLoaiPhuongTien == item.PTVanChuyen
-                                          && bg.MaPtvc == item.MaPTVC
-                                          select bg;
+        //            var checkPriceTable = from bg in _context.BangGia
+        //                                  join hd in _context.HopDongVaPhuLuc
+        //                                  on bg.MaHopDong equals hd.MaHopDong
+        //                                  where (hd.MaKh == item.MaKH || hd.MaKh == item.DonViVanTai)
+        //                                  && bg.MaCungDuong == request.MaCungDuong
+        //                                  && bg.TrangThai == 4
+        //                                  && bg.NgayApDung.Date <= DateTime.Now.Date
+        //                                  && (bg.NgayHetHieuLuc.Value.Date > DateTime.Now.Date || bg.NgayHetHieuLuc == null)
+        //                                  && bg.MaDvt == item.DonViTinh
+        //                                  && bg.MaLoaiHangHoa == item.LoaiHangHoa
+        //                                  && bg.MaLoaiPhuongTien == item.PTVanChuyen
+        //                                  && bg.MaPtvc == item.MaPTVC
+        //                                  select bg;
 
-                    if (checkPriceTable.Count() == 2)
-                    {
-                        var priceTableSupplier = await checkPriceTable.Where(x => x.MaLoaiDoiTac == "NCC").FirstOrDefaultAsync();
-                        if (priceTableSupplier == null)
-                        {
-                            return new BoolActionResult
-                            {
-                                isSuccess = false,
-                                Message = "Đơn vị vận tải: "
-                                + await _context.KhachHang.Where(x => x.MaKh == item.DonViVanTai).Select(x => x.TenKh).FirstOrDefaultAsync()
-                            + " chưa có bảng giá cho Cung Đường: " + request.MaCungDuong +
-                            ", Phương Tiện Vận Chuyển: " + checkVehicleType +
-                            ", Loại Hàng Hóa:" + checkGoodsType +
-                            ", Đơn Vị Tính: " + checkDVT +
-                            ", Phương thức vận chuyển: " + checkPTVC
-                            };
-                        }
+        //            if (checkPriceTable.Count() == 2)
+        //            {
+        //                var priceTableSupplier = await checkPriceTable.Where(x => x.MaLoaiDoiTac == "NCC").FirstOrDefaultAsync();
+        //                if (priceTableSupplier == null)
+        //                {
+        //                    return new BoolActionResult
+        //                    {
+        //                        isSuccess = false,
+        //                        Message = "Đơn vị vận tải: "
+        //                        + await _context.KhachHang.Where(x => x.MaKh == item.DonViVanTai).Select(x => x.TenKh).FirstOrDefaultAsync()
+        //                    + " chưa có bảng giá cho Cung Đường: " + request.MaCungDuong +
+        //                    ", Phương Tiện Vận Chuyển: " + checkVehicleType +
+        //                    ", Loại Hàng Hóa:" + checkGoodsType +
+        //                    ", Đơn Vị Tính: " + checkDVT +
+        //                    ", Phương thức vận chuyển: " + checkPTVC
+        //                    };
+        //                }
 
-                        var priceTableCustomer = await checkPriceTable.Where(x => x.MaLoaiDoiTac == "KH").FirstOrDefaultAsync();
-                        if (priceTableCustomer == null)
-                        {
-                            return new BoolActionResult
-                            {
-                                isSuccess = false,
-                                Message = "Khách Hàng: "
-                               + await _context.KhachHang.Where(x => x.MaKh == item.MaKH).Select(x => x.TenKh).FirstOrDefaultAsync()
-                            + " chưa có bảng giá cho Cung Đường: " + request.MaCungDuong +
-                            ", Phương Tiện Vận Chuyển: " + checkVehicleType +
-                            ", Loại Hàng Hóa:" + checkGoodsType +
-                            ", Đơn Vị Tính: " + checkDVT +
-                            ", Phương thức vận chuyển: " + checkPTVC
-                            };
-                        }
+        //                var priceTableCustomer = await checkPriceTable.Where(x => x.MaLoaiDoiTac == "KH").FirstOrDefaultAsync();
+        //                if (priceTableCustomer == null)
+        //                {
+        //                    return new BoolActionResult
+        //                    {
+        //                        isSuccess = false,
+        //                        Message = "Khách Hàng: "
+        //                       + await _context.KhachHang.Where(x => x.MaKh == item.MaKH).Select(x => x.TenKh).FirstOrDefaultAsync()
+        //                    + " chưa có bảng giá cho Cung Đường: " + request.MaCungDuong +
+        //                    ", Phương Tiện Vận Chuyển: " + checkVehicleType +
+        //                    ", Loại Hàng Hóa:" + checkGoodsType +
+        //                    ", Đơn Vị Tính: " + checkDVT +
+        //                    ", Phương thức vận chuyển: " + checkPTVC
+        //                    };
+        //                }
 
-                        var itemHandling = new DieuPhoi();
-                        itemHandling.MaChuyen = MaChuyen;
-                        itemHandling.MaVanDon = transport.MaVanDon;
-                        itemHandling.MaLoaiHangHoa = item.LoaiHangHoa;
-                        itemHandling.MaLoaiPhuongTien = item.PTVanChuyen;
-                        itemHandling.MaDvt = item.DonViTinh;
-                        itemHandling.DonViVanTai = item.DonViVanTai;
-                        itemHandling.BangGiaKh = priceTableCustomer.Id;
-                        itemHandling.BangGiaNcc = priceTableSupplier.Id;
-                        itemHandling.DonGiaKh = priceTableCustomer.DonGia;
-                        itemHandling.DonGiaNcc = priceTableSupplier.DonGia;
-                        itemHandling.KhoiLuong = item.KhoiLuong;
-                        itemHandling.TheTich = item.TheTich;
-                        itemHandling.SoKien = item.SoKien;
-                        itemHandling.DiemLayTraRong = item.DiemLayTraRong;
-                        itemHandling.TrangThai = 19;
-                        itemHandling.CreatedTime = DateTime.Now;
-                        itemHandling.Creator = tempData.UserName;
-                        await _context.DieuPhoi.AddAsync(itemHandling);
-                    }
-                    else
-                    {
-                        var priceTableSupplier = await checkPriceTable.Where(x => x.MaLoaiDoiTac == "NCC").FirstOrDefaultAsync();
-                        if (priceTableSupplier == null)
-                        {
-                            return new BoolActionResult
-                            {
-                                isSuccess = false,
-                                Message = "Đơn vị vận tải: "
-                                + await _context.KhachHang.Where(x => x.MaKh == item.DonViVanTai).Select(x => x.TenKh).FirstOrDefaultAsync()
-                            + " chưa có bảng giá cho Cung Đường: " + request.MaCungDuong +
-                            ", Phương Tiện Vận Chuyển: " + checkVehicleType +
-                            ", Loại Hàng Hóa:" + checkGoodsType +
-                            ", Đơn Vị Tính: " + checkDVT +
-                            ", Phương thức vận chuyển: " + checkPTVC
-                            };
-                        }
+        //                var itemHandling = new DieuPhoi();
+        //                itemHandling.MaChuyen = MaChuyen;
+        //                itemHandling.MaVanDon = transport.MaVanDon;
+        //                itemHandling.MaLoaiHangHoa = item.LoaiHangHoa;
+        //                itemHandling.MaLoaiPhuongTien = item.PTVanChuyen;
+        //                itemHandling.MaDvt = item.DonViTinh;
+        //                itemHandling.DonViVanTai = item.DonViVanTai;
+        //                itemHandling.BangGiaKh = priceTableCustomer.Id;
+        //                itemHandling.BangGiaNcc = priceTableSupplier.Id;
+        //                itemHandling.DonGiaKh = priceTableCustomer.DonGia;
+        //                itemHandling.DonGiaNcc = priceTableSupplier.DonGia;
+        //                itemHandling.KhoiLuong = item.KhoiLuong;
+        //                itemHandling.TheTich = item.TheTich;
+        //                itemHandling.SoKien = item.SoKien;
+        //                itemHandling.DiemLayTraRong = item.DiemLayTraRong;
+        //                itemHandling.TrangThai = 19;
+        //                itemHandling.CreatedTime = DateTime.Now;
+        //                itemHandling.Creator = tempData.UserName;
+        //                await _context.DieuPhoi.AddAsync(itemHandling);
+        //            }
+        //            else
+        //            {
+        //                var priceTableSupplier = await checkPriceTable.Where(x => x.MaLoaiDoiTac == "NCC").FirstOrDefaultAsync();
+        //                if (priceTableSupplier == null)
+        //                {
+        //                    return new BoolActionResult
+        //                    {
+        //                        isSuccess = false,
+        //                        Message = "Đơn vị vận tải: "
+        //                        + await _context.KhachHang.Where(x => x.MaKh == item.DonViVanTai).Select(x => x.TenKh).FirstOrDefaultAsync()
+        //                    + " chưa có bảng giá cho Cung Đường: " + request.MaCungDuong +
+        //                    ", Phương Tiện Vận Chuyển: " + checkVehicleType +
+        //                    ", Loại Hàng Hóa:" + checkGoodsType +
+        //                    ", Đơn Vị Tính: " + checkDVT +
+        //                    ", Phương thức vận chuyển: " + checkPTVC
+        //                    };
+        //                }
 
-                        var priceTableCustomer = await checkPriceTable.Where(x => x.MaLoaiDoiTac == "KH").FirstOrDefaultAsync();
-                        if (priceTableCustomer == null)
-                        {
-                            return new BoolActionResult
-                            {
-                                isSuccess = false,
-                                Message = "Khách Hàng: "
-                               + await _context.KhachHang.Where(x => x.MaKh == item.MaKH).Select(x => x.TenKh).FirstOrDefaultAsync()
-                            + " chưa có bảng giá cho Cung Đường: " + request.MaCungDuong +
-                            ", Phương Tiện Vận Chuyển: " + checkVehicleType +
-                            ", Loại Hàng Hóa:" + checkGoodsType +
-                            ", Đơn Vị Tính: " + checkDVT +
-                            ", Phương thức vận chuyển: " + checkPTVC
-                            };
-                        }
+        //                var priceTableCustomer = await checkPriceTable.Where(x => x.MaLoaiDoiTac == "KH").FirstOrDefaultAsync();
+        //                if (priceTableCustomer == null)
+        //                {
+        //                    return new BoolActionResult
+        //                    {
+        //                        isSuccess = false,
+        //                        Message = "Khách Hàng: "
+        //                       + await _context.KhachHang.Where(x => x.MaKh == item.MaKH).Select(x => x.TenKh).FirstOrDefaultAsync()
+        //                    + " chưa có bảng giá cho Cung Đường: " + request.MaCungDuong +
+        //                    ", Phương Tiện Vận Chuyển: " + checkVehicleType +
+        //                    ", Loại Hàng Hóa:" + checkGoodsType +
+        //                    ", Đơn Vị Tính: " + checkDVT +
+        //                    ", Phương thức vận chuyển: " + checkPTVC
+        //                    };
+        //                }
 
-                        return new BoolActionResult { isSuccess = false, Message = "Không có bảng giá khách hàng lẫn nhà cung cấp" };
-                    }
-                }
+        //                return new BoolActionResult { isSuccess = false, Message = "Không có bảng giá khách hàng lẫn nhà cung cấp" };
+        //            }
+        //        }
 
-                var result = await _context.SaveChangesAsync();
+        //        var result = await _context.SaveChangesAsync();
 
-                if (result > 0)
-                {
-                    transaction.Commit();
-                    await _common.Log("BillOfLading ", "UserId: " + tempData.UserName + " create new BillOfLading with Data: " + JsonSerializer.Serialize(request));
-                    return new BoolActionResult { isSuccess = true, Message = "Điều Phố Vận Đơn thành công" };
-                }
-                else
-                {
-                    return new BoolActionResult { isSuccess = false, Message = "Điều Phố Vận Đơn thất bại" };
-                }
-            }
-            catch (Exception ex)
-            {
-                await _common.Log("BillOfLading ", "UserId: " + tempData.UserName + " create new BillOfLading with ERRORS: " + ex.ToString());
-                return new BoolActionResult { isSuccess = false, Message = ex.ToString() };
-            }
-        }
+        //        if (result > 0)
+        //        {
+        //            transaction.Commit();
+        //            await _common.Log("BillOfLading ", "UserId: " + tempData.UserName + " create new BillOfLading with Data: " + JsonSerializer.Serialize(request));
+        //            return new BoolActionResult { isSuccess = true, Message = "Điều Phố Vận Đơn thành công" };
+        //        }
+        //        else
+        //        {
+        //            return new BoolActionResult { isSuccess = false, Message = "Điều Phố Vận Đơn thất bại" };
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        await _common.Log("BillOfLading ", "UserId: " + tempData.UserName + " create new BillOfLading with ERRORS: " + ex.ToString());
+        //        return new BoolActionResult { isSuccess = false, Message = ex.ToString() };
+        //    }
+        //}
 
         public async Task<BoolActionResult> CreateTransport(CreateTransport request)
         {
@@ -382,12 +375,17 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 
                         if (request.ThoiGianLayTraRong != null && request.ThoiGianLayHang != null && request.ThoiGianTraHang != null)
                         {
-                            if (request.ThoiGianLayTraRong <= request.ThoiGianLayHang)
+                            if (request.ThoiGianLayHang >= request.ThoiGianTraHang)
+                            {
+                                return new BoolActionResult { isSuccess = false, Message = "Thời gian lấy hàng không được nhỏ hơn thời gian trả hàng" };
+                            }
+
+                            if (request.ThoiGianLayTraRong >= request.ThoiGianLayHang)
                             {
                                 return new BoolActionResult { isSuccess = false, Message = "Thời gian trả rỗng không được nhỏ hơn hoặc bằng Thời Gian Lấy Hàng" };
                             }
 
-                            if (request.ThoiGianLayTraRong <= request.ThoiGianTraHang)
+                            if (request.ThoiGianLayTraRong >= request.ThoiGianTraHang)
                             {
                                 return new BoolActionResult { isSuccess = false, Message = "Thời gian trả rỗng không được nhỏ hơn hoặc bằng Thời Gian Trả Hàng" };
                             }
@@ -402,11 +400,16 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 
                         if (request.ThoiGianLayTraRong != null && request.ThoiGianLayHang != null && request.ThoiGianTraHang != null)
                         {
-                            if (request.ThoiGianLayTraRong >= request.ThoiGianLayHang)
+                            if (request.ThoiGianLayHang >= request.ThoiGianTraHang)
+                            {
+                                return new BoolActionResult { isSuccess = false, Message = "Thời gian lấy hàng không được nhỏ hơn thời gian trả hàng" };
+                            }
+
+                            if (request.ThoiGianLayTraRong <= request.ThoiGianLayHang)
                             {
                                 return new BoolActionResult { isSuccess = false, Message = "Thời gian lấy rỗng không được lớn hơn hoặc bằng Thời Gian Lấy Hàng" };
                             }
-                            if (request.ThoiGianLayTraRong >= request.ThoiGianTraHang)
+                            if (request.ThoiGianLayTraRong <= request.ThoiGianTraHang)
                             {
                                 return new BoolActionResult { isSuccess = false, Message = "Thời gian lấy rỗng không được lớn hơn hoặc bằng Thời Gian Trả Hàng" };
                             }
@@ -542,44 +545,49 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 
                         if (tempData.AccType == "NV")
                         {
-                            var checkSupplier = await _context.KhachHang.Where(x => x.MaKh == item.DonViVanTai && x.MaLoaiKh == "NCC").FirstOrDefaultAsync();
-                            if (checkSupplier == null)
-                            {
-                                return new BoolActionResult { isSuccess = false, Message = "Đơn vị vận tải không tồn tại" };
-                            }
+                            //var checkSupplier = await _context.KhachHang.Where(x => x.MaKh == item.DonViVanTai && x.MaLoaiKh == "NCC").FirstOrDefaultAsync();
+                            //if (checkSupplier == null)
+                            //{
+                            //    return new BoolActionResult { isSuccess = false, Message = "Đơn vị vận tải không tồn tại" };
+                            //}
 
-                            var priceSup = await GetPriceTable(item.DonViVanTai, request.MaCungDuong, item.DonViTinh, item.LoaiHangHoa, item.PTVanChuyen, request.MaPTVC);
-                            var priceCus = await GetPriceTable(request.MaKH, request.MaCungDuong, item.DonViTinh, item.LoaiHangHoa, item.PTVanChuyen, request.MaPTVC);
+                            //var priceSup = await GetPriceTable(item.DonViVanTai, request.MaCungDuong, item.DonViTinh, item.LoaiHangHoa, item.PTVanChuyen, request.MaPTVC);
+                            //var priceCus = await GetPriceTable(request.MaKH, request.MaCungDuong, item.DonViTinh, item.LoaiHangHoa, item.PTVanChuyen, request.MaPTVC);
 
-                            if (priceSup == null)
-                            {
-                                return new BoolActionResult
-                                {
-                                    isSuccess = false,
-                                    Message = "Đơn vị vận tải: "
-                                    + await _context.KhachHang.Where(x => x.MaKh == item.DonViVanTai).Select(x => x.TenKh).FirstOrDefaultAsync()
-                                + " chưa có bảng giá cho Cung Đường: " + request.MaCungDuong +
-                                ", Phương Tiện Vận Chuyển: " + checkVehicleType +
-                                ", Loại Hàng Hóa:" + checkGoodsType +
-                                ", Đơn Vị Tính: " + checkDVT +
-                                ", Phương thức vận chuyển: " + checkPTVC
-                                };
-                            }
+                            //if (priceSup == null)
+                            //{
+                            //    return new BoolActionResult
+                            //    {
+                            //        isSuccess = false,
+                            //        Message = "Đơn vị vận tải: "
+                            //        + await _context.KhachHang.Where(x => x.MaKh == item.DonViVanTai).Select(x => x.TenKh).FirstOrDefaultAsync()
+                            //    + " chưa có bảng giá cho Cung Đường: " + request.MaCungDuong +
+                            //    ", Phương Tiện Vận Chuyển: " + checkVehicleType +
+                            //    ", Loại Hàng Hóa:" + checkGoodsType +
+                            //    ", Đơn Vị Tính: " + checkDVT +
+                            //    ", Phương thức vận chuyển: " + checkPTVC
+                            //    };
+                            //}
 
-                            if (priceCus == null)
-                            {
-                                return new BoolActionResult
-                                {
-                                    isSuccess = false,
-                                    Message = "Khách Hàng: "
-                                   + await _context.KhachHang.Where(x => x.MaKh == request.MaKH).Select(x => x.TenKh).FirstOrDefaultAsync()
-                                + " chưa có bảng giá cho Cung Đường: " + request.MaCungDuong +
-                                ", Phương Tiện Vận Chuyển: " + checkVehicleType +
-                                ", Loại Hàng Hóa:" + checkGoodsType +
-                                ", Đơn Vị Tính: " + checkDVT +
-                                ", Phương thức vận chuyển: " + checkPTVC
-                                };
-                            }
+                            //if (priceCus == null)
+                            //{
+                            //    return new BoolActionResult
+                            //    {
+                            //        isSuccess = false,
+                            //        Message = "Khách Hàng: "
+                            //       + await _context.KhachHang.Where(x => x.MaKh == request.MaKH).Select(x => x.TenKh).FirstOrDefaultAsync()
+                            //    + " chưa có bảng giá cho Cung Đường: " + request.MaCungDuong +
+                            //    ", Phương Tiện Vận Chuyển: " + checkVehicleType +
+                            //    ", Loại Hàng Hóa:" + checkGoodsType +
+                            //    ", Đơn Vị Tính: " + checkDVT +
+                            //    ", Phương thức vận chuyển: " + checkPTVC
+                            //    };
+                            //}
+
+                            //itemHandling.BangGiaKh = priceCus.ID;
+                            //itemHandling.BangGiaNcc = priceSup.ID;
+                            //itemHandling.DonGiaKh = priceCus.DonGia;
+                            //itemHandling.DonGiaNcc = priceSup.DonGia;
 
                             var itemHandling = new DieuPhoi();
                             itemHandling.MaChuyen = request.MaPTVC.Trim() + DateTime.Now.ToString("yyyyMMddHHmmssffff");
@@ -589,10 +597,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                             itemHandling.MaLoaiPhuongTien = item.PTVanChuyen;
                             itemHandling.MaDvt = item.DonViTinh;
                             itemHandling.DonViVanTai = item.DonViVanTai;
-                            itemHandling.BangGiaKh = priceCus.ID;
-                            itemHandling.BangGiaNcc = priceSup.ID;
-                            itemHandling.DonGiaKh = priceCus.DonGia;
-                            itemHandling.DonGiaNcc = priceSup.DonGia;
+                        
                             itemHandling.KhoiLuong = item.KhoiLuong;
                             itemHandling.TheTich = item.TheTich;
                             itemHandling.SoKien = item.SoKien;
@@ -813,12 +818,12 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
             var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                //var checkVehicle = await _context.XeVanChuyen.Where(x => x.MaSoXe == request.XeVanChuyen).FirstOrDefaultAsync();
+                var checkVehicle = await _context.XeVanChuyen.Where(x => x.MaSoXe == request.XeVanChuyen).FirstOrDefaultAsync();
 
-                //if (checkVehicle == null)
-                //{
-                //    return new BoolActionResult { isSuccess = false, Message = "Xe này không tồn tại trong hệ thống" };
-                //}
+                if (checkVehicle == null)
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Xe này không tồn tại trong hệ thống" };
+                }
 
                 var loadTransports = await _context.VanDon.Where(x => request.arrTransports.Select(x => x.MaVanDon).Contains(x.MaVanDon) && x.TrangThai == 8).ToListAsync();
                 if (loadTransports.Count != request.arrTransports.Count())
@@ -853,6 +858,54 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                     if (checkPlaceGetEmpty == null)
                     {
                         return new BoolActionResult { isSuccess = false, Message = "Điểm lấy rỗng không tồn tại" };
+                    }
+
+                    if (loadTransports.Select(y => y.LoaiVanDon).FirstOrDefault() == "nhap")
+                    {
+                        if (request.TGHanLenh == null)
+                        {
+                            return new BoolActionResult { isSuccess = false, Message = "Không để trống thời gian hạn lệnh hoặc thời gian có mặt" };
+                        }
+
+                        if (request.TGLayTraRong != null && request.TGLayHang != null && request.TGTraHang != null)
+                        {
+                            if (request.TGLayTraRong <= request.TGLayHang)
+                            {
+                                return new BoolActionResult { isSuccess = false, Message = "Thời gian trả rỗng không được nhỏ hơn hoặc bằng Thời Gian Lấy Hàng" };
+                            }
+
+                            if (request.TGLayTraRong <= request.TGTraHang)
+                            {
+                                return new BoolActionResult { isSuccess = false, Message = "Thời gian trả rỗng không được nhỏ hơn hoặc bằng Thời Gian Trả Hàng" };
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (request.TGHaCang == null)
+                        {
+                            return new BoolActionResult { isSuccess = false, Message = "Không để trống thời gian hạ cảng" };
+                        }
+
+                        if (request.TGLayTraRong != null && request.TGLayHang != null && request.TGTraHang != null)
+                        {
+                            if (request.TGLayTraRong >= request.TGLayHang)
+                            {
+                                return new BoolActionResult { isSuccess = false, Message = "Thời gian lấy rỗng không được lớn hơn hoặc bằng Thời Gian Lấy Hàng" };
+                            }
+                            if (request.TGLayTraRong >= request.TGTraHang)
+                            {
+                                return new BoolActionResult { isSuccess = false, Message = "Thời gian lấy rỗng không được lớn hơn hoặc bằng Thời Gian Trả Hàng" };
+                            }
+                        }
+                    }
+                }
+
+                if (request.TGLayHang != null && request.TGTraHang != null)
+                {
+                    if (request.TGLayHang >= request.TGTraHang)
+                    {
+                        return new BoolActionResult { isSuccess = false, Message = "Thời gian Lấy Hàng không được lớn hơn Thời Gian Trả Hàng" };
                     }
                 }
 
@@ -946,6 +999,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                             {
                                 item.TrangThai = 9;
                                 trangthai = 27;
+                                var handleVehicleStatus = await HandleVehicleStatus(trangthai, request.XeVanChuyen);
                             }
                             _context.VanDon.Update(item);
 
@@ -995,22 +1049,209 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                 }
 
                 var result = await _context.SaveChangesAsync();
-
-                if (result > 0)
-                {
-                    await transaction.CommitAsync();
-                    return new BoolActionResult { isSuccess = true, Message = "Ghép vận đơn với xe thành công!" };
-                }
-                else
-                {
-                    return new BoolActionResult { isSuccess = false, Message = "Ghép vận đơn với xe thất bại" };
-                }
+                await transaction.CommitAsync();
+                return new BoolActionResult { isSuccess = true, Message = "Ghép vận đơn với xe thành công!" };
             }
             catch (Exception ex)
             {
                 await transaction.RollbackAsync();
                 return new BoolActionResult { isSuccess = false, Message = ex.ToString() };
             };
+        }
+
+        public async Task<BoolActionResult> UpdateHandling(int id, UpdateHandling request)
+        {
+            var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                var checkById = await _context.DieuPhoi.Where(x => x.Id == id).FirstOrDefaultAsync();
+
+                if (checkById == null)
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Mã điều phối không tồn tại" };
+                }
+
+                if (checkById.TrangThai == 30)
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Vui lòng duyệt chuyến trước khi điều phối" };
+                }
+
+                if (checkById.TrangThai == 20 || checkById.TrangThai == 21 || checkById.TrangThai == 31)
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Không thể cập nhật chuyến này nữa" };
+                }
+
+                var getTransport = await _context.VanDon.Where(x => x.MaVanDon == checkById.MaVanDon).FirstOrDefaultAsync();
+
+                var checkVehicleType = await _context.LoaiPhuongTien.Where(x => x.MaLoaiPhuongTien == request.PTVanChuyen).Select(x => x.TenLoaiPhuongTien).FirstOrDefaultAsync();
+
+                if (checkVehicleType == null)
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Loại phương tiện vận chuyển không tồn tại" };
+                }
+
+                var checkGoodsType = await _context.LoaiHangHoa.Where(x => x.MaLoaiHangHoa == request.LoaiHangHoa).Select(x => x.TenLoaiHangHoa).FirstOrDefaultAsync();
+                if (checkGoodsType == null)
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Loại Hàng Hóa Không Tồn Tại" };
+                }
+                var checkDVT = await _context.DonViTinh.Where(x => x.MaDvt == request.DonViTinh).Select(x => x.TenDvt).FirstOrDefaultAsync();
+                if (checkDVT == null)
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Đơn Vị Tính Không Tồn Tại" };
+                }
+
+                var checkDriver = await _context.TaiXe.Where(x => x.MaTaiXe == request.MaTaiXe).FirstOrDefaultAsync();
+                if (checkDriver == null)
+                {
+                    return new BoolActionResult { isSuccess = false, Message = " Tài xế không tồn tại \r\n" };
+                }
+
+                var checkVehicle = await _context.XeVanChuyen.Where(x => x.MaSoXe == request.MaSoXe).FirstOrDefaultAsync();
+                if (checkVehicle == null)
+                {
+                    return new BoolActionResult { isSuccess = false, Message = " Xe vận chuyển không tồn tại \r\n" };
+                }
+
+                if (checkById.MaSoXe != request.MaSoXe)
+                {
+                    if (checkVehicle.TrangThai == 33)
+                    {
+                        return new BoolActionResult { isSuccess = false, Message = "Xe này đã được điều phối cho chuyến khác" };
+                    }
+
+                    if (checkVehicle.TrangThai == 34)
+                    {
+                        return new BoolActionResult { isSuccess = false, Message = "Xe này đang vận chuyển hàng hóa cho chuyến khác" };
+                    }
+                }
+
+                var handleVehicleStatus = await HandleVehicleStatus(checkById.TrangThai, request.MaSoXe, checkById.MaSoXe);
+
+                if (!request.PTVanChuyen.Contains(checkVehicle.MaLoaiPhuongTien))
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Loại xe không khớp với xe vận chuyển \r\n" };
+                }
+
+                if (request.PTVanChuyen.Contains("CONT"))
+                {
+                    var checkPlaceGetEmpty = await _context.DiaDiem.Where(x => x.MaDiaDiem == request.DiemLayTraRong.Value).FirstOrDefaultAsync();
+                    if (checkPlaceGetEmpty == null)
+                    {
+                        return new BoolActionResult { isSuccess = false, Message = "Điểm lấy rỗng không tồn tại" };
+                    }
+                }
+                else
+                {
+                    request.DiemLayTraRong = null;
+                    request.ThoiGianLayTraRongThucTe = null;
+                    request.ThoiGianCoMatThucTe = null;
+                }
+
+                //if (getTransport.MaPtvc == "FCL" || getTransport.MaPtvc == "FTL")
+                //{
+                //    var checkVehicleOfTransport = await _context.DieuPhoi.Where(x => x.MaVanDon == getTransport.MaVanDon && x.MaSoXe == request.MaSoXe && x.Id != id).FirstOrDefaultAsync();
+
+                //    if (checkVehicleOfTransport != null)
+                //    {
+                //        return new BoolActionResult { isSuccess = false, Message = "Xe này đã được điều phối trước đó, vui lòng chọn xe khác" };
+                //    }
+                //}
+
+                if (checkById.TrangThai == 17 || checkById.TrangThai == 18 || checkById.TrangThai == 20)
+                {
+                    checkById.ThoiGianLayHangThucTe = request.ThoiGianLayHangThucTe;
+                    checkById.ThoiGianTraHangThucTe = request.ThoiGianTraHangThucTe;
+                    checkById.ThoiGianLayTraRongThucTe = request.ThoiGianLayTraRongThucTe;
+                    checkById.ThoiGianCoMatThucTe = request.ThoiGianCoMatThucTe;
+                }
+
+                if (checkById.TrangThai == 19 || checkById.TrangThai == 27)
+                {
+                    var priceSup = await GetPriceTable(request.DonViVanTai, getTransport.MaCungDuong, request.DonViTinh, request.LoaiHangHoa, request.PTVanChuyen, getTransport.MaPtvc);
+                    var priceCus = await GetPriceTable(getTransport.MaKh, getTransport.MaCungDuong, request.DonViTinh, request.LoaiHangHoa, request.PTVanChuyen, getTransport.MaPtvc);
+
+                    if (priceSup == null)
+                    {
+                        return new BoolActionResult
+                        {
+                            isSuccess = false,
+                            Message = "Đơn Vị Vận Tải: "
+                                  + await _context.KhachHang.Where(x => x.MaKh == request.DonViVanTai).Select(x => x.TenKh).FirstOrDefaultAsync()
+                               + " chưa có bảng giá cho Cung Đường: " + getTransport.MaCungDuong +
+                               ", Phương Tiện Vận Chuyển: " + request.PTVanChuyen +
+                               ", Loại Hàng Hóa:" + request.LoaiHangHoa +
+                               ", Đơn Vị Tính: " + request.DonViTinh +
+                               ", Phương thức vận chuyển: " + getTransport.MaPtvc
+                        };
+                    }
+
+                    if (priceCus == null)
+                    {
+                        return new BoolActionResult
+                        {
+                            isSuccess = false,
+                            Message = "Khách Hàng: "
+                                  + await _context.KhachHang.Where(x => x.MaKh == getTransport.MaKh).Select(x => x.TenKh).FirstOrDefaultAsync()
+                               + " chưa có bảng giá cho Cung Đường: " + getTransport.MaCungDuong +
+                               ", Phương Tiện Vận Chuyển: " + request.PTVanChuyen +
+                               ", Loại Hàng Hóa:" + request.LoaiHangHoa +
+                               ", Đơn Vị Tính: " + request.DonViTinh +
+                               ", Phương thức vận chuyển: " + getTransport.MaPtvc
+                        };
+                    }
+
+                    checkById.MaLoaiHangHoa = request.LoaiHangHoa;
+                    checkById.MaLoaiPhuongTien = request.PTVanChuyen;
+                    checkById.MaDvt = request.DonViTinh;
+                    checkById.DonViVanTai = request.DonViVanTai;
+                    checkById.BangGiaNcc = priceSup.ID;
+                    checkById.DonGiaNcc = priceSup.DonGia;
+                    checkById.BangGiaKh = priceCus.ID;
+                    checkById.DonGiaKh = priceCus.DonGia;
+                    checkById.SoKien = request.SoKien;
+                    checkById.KhoiLuong = request.KhoiLuong;
+                    checkById.TheTich = request.TheTich;
+
+                    checkById.DiemLayTraRong = request.DiemLayTraRong;
+                    checkById.TrangThai = 27;
+                    getTransport.TrangThai = 9;
+                }
+
+                checkById.MaSoXe = request.MaSoXe;
+                checkById.ContNo = request.ContNo;
+                checkById.SealHq = request.SealHq;
+                checkById.SealNp = request.SealNp;
+                checkById.MaTaiXe = request.MaTaiXe;
+                checkById.MaRomooc = request.MaRomooc;
+                checkById.GhiChu = request.GhiChu;
+                checkById.UpdatedTime = DateTime.Now;
+                checkById.Updater = tempData.UserName;
+                getTransport.Updater = tempData.UserName;
+
+                _context.Update(getTransport);
+                _context.Update(checkById);
+
+                var result = await _context.SaveChangesAsync();
+
+                if (result > 0)
+                {
+                    await transaction.CommitAsync();
+                    await _common.Log("BillOfLading ", "UserId: " + tempData.UserName + " update handling with Data: " + JsonSerializer.Serialize(request));
+                    return new BoolActionResult { isSuccess = true, Message = "Điều Phối Chuyến Thành Công!" };
+                }
+                else
+                {
+                    await transaction.RollbackAsync();
+                    return new BoolActionResult { isSuccess = false, Message = "Điều Phối Chuyến Thất Bại" };
+                }
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+
+                return new BoolActionResult { isSuccess = false, Message = ex.ToString() };
+            }
         }
 
         public async Task<BoolActionResult> UpdateHandlingLess(string handlingId, UpdateHandlingLess request)
@@ -1025,7 +1266,18 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                     return new BoolActionResult { isSuccess = false, Message = "Xe này không tồn tại trong hệ thống" };
                 }
 
+                if (checkVehicle.TrangThai == 33)
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Xe này đã được điều phối cho chuyến khác" };
+                }
+
+                if (checkVehicle.TrangThai == 34)
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Xe này đang vận chuyển hàng hóa cho chuyến khác" };
+                }
+
                 var loadTransports = await _context.VanDon.Where(x => request.arrTransports.Select(x => x.MaVanDon).Contains(x.MaVanDon)).ToListAsync();
+
                 //if (loadTransports.Count != request.arrTransports.Count())
                 //{
                 //    return new BoolActionResult { isSuccess = false, Message = "Vui lòng chỉ chọn vận đơn có trạng thái 'Chờ Điều Phối' " };
@@ -1059,6 +1311,46 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                     {
                         return new BoolActionResult { isSuccess = false, Message = "Điểm lấy rỗng không tồn tại" };
                     }
+
+                    if (loadTransports.Select(y => y.LoaiVanDon).FirstOrDefault() == "nhap")
+                    {
+                        if (request.TGHanLenh == null)
+                        {
+                            return new BoolActionResult { isSuccess = false, Message = "Không để trống thời gian hạn lệnh hoặc thời gian có mặt" };
+                        }
+
+                        if (request.TGLayTraRong != null && request.TGLayHang != null && request.TGTraHang != null)
+                        {
+                            if (request.TGLayTraRong <= request.TGLayHang)
+                            {
+                                return new BoolActionResult { isSuccess = false, Message = "Thời gian trả rỗng không được nhỏ hơn hoặc bằng Thời Gian Lấy Hàng" };
+                            }
+
+                            if (request.TGLayTraRong <= request.TGTraHang)
+                            {
+                                return new BoolActionResult { isSuccess = false, Message = "Thời gian trả rỗng không được nhỏ hơn hoặc bằng Thời Gian Trả Hàng" };
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (request.TGHaCang == null)
+                        {
+                            return new BoolActionResult { isSuccess = false, Message = "Không để trống thời gian hạ cảng" };
+                        }
+
+                        if (request.TGLayTraRong != null && request.TGLayHang != null && request.TGTraHang != null)
+                        {
+                            if (request.TGLayTraRong >= request.TGLayHang)
+                            {
+                                return new BoolActionResult { isSuccess = false, Message = "Thời gian lấy rỗng không được lớn hơn hoặc bằng Thời Gian Lấy Hàng" };
+                            }
+                            if (request.TGLayTraRong >= request.TGTraHang)
+                            {
+                                return new BoolActionResult { isSuccess = false, Message = "Thời gian lấy rỗng không được lớn hơn hoặc bằng Thời Gian Trả Hàng" };
+                            }
+                        }
+                    }
                 }
 
                 var checkSupplier = await _context.KhachHang.Where(x => x.MaKh == request.DonViVanTai && x.MaLoaiKh == "NCC").FirstOrDefaultAsync();
@@ -1073,6 +1365,8 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                            where dp.MaChuyen == handlingId
                            select new { vd, dp };
 
+                #region loại bỏ các vận đơn đã được ghép trước đó
+
                 var dataRemove = await data.Where(x => !request.arrTransports.Select(y => y.MaVanDon).Contains(x.dp.MaVanDon)).ToListAsync();
                 _context.DieuPhoi.RemoveRange(dataRemove.Select(x => x.dp));
                 dataRemove.ForEach(x =>
@@ -1082,8 +1376,11 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                     x.vd.Updater = tempData.UserName;
                 });
 
-                var listTransport = await data.Where(x => request.arrTransports.Select(y => y.MaVanDon).Contains(x.dp.MaVanDon)).ToListAsync();
+                #endregion loại bỏ các vận đơn đã được ghép trước đó
 
+                #region Cập nhật thông tin các vận đơn đã được ghép
+
+                var listTransport = await data.Where(x => request.arrTransports.Select(y => y.MaVanDon).Contains(x.dp.MaVanDon)).ToListAsync();
                 foreach (var x in listTransport.Select(x => x.vd).ToList())
                 {
                     if (x.TrangThai == 11 || x.TrangThai == 22 || x.TrangThai == 29)
@@ -1127,6 +1424,10 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                     _context.VanDon.Update(x);
                 }
 
+                #endregion Cập nhật thông tin các vận đơn đã được ghép
+
+                #region Cập nhật thông tin các chuyến đã tồn tại trong Db
+
                 foreach (var item in data.Where(x => request.arrTransports.Select(y => y.MaVanDon).Contains(x.dp.MaVanDon)).ToList())
                 {
                     foreach (var itemRequest in request.arrTransports)
@@ -1148,6 +1449,15 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                             if (checkDVT == null)
                             {
                                 return new BoolActionResult { isSuccess = false, Message = "Đơn Vị Tính Không Tồn Tại" };
+                            }
+
+                            if (!string.IsNullOrEmpty(request.XeVanChuyen) && !string.IsNullOrEmpty(request.TaiXe))
+                            {
+                                if (item.dp.TrangThai == 19)
+                                {
+                                    item.dp.TrangThai = 27;
+                                }
+                                var handleVehicleStatus = await HandleVehicleStatus(item.dp.TrangThai, request.XeVanChuyen, item.dp.MaSoXe);
                             }
 
                             var priceTableCus = await GetPriceTable(item.vd.MaKh, item.vd.MaCungDuong, itemRequest.MaDVT, itemRequest.MaLoaiHangHoa, request.PTVanChuyen, item.vd.MaPtvc);
@@ -1212,18 +1522,16 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                     Creator = tempData.UserName,
                                 });
                             }
-
-                            if (!string.IsNullOrEmpty(request.XeVanChuyen) && !string.IsNullOrEmpty(request.TaiXe) && item.dp.TrangThai == 19)
-                            {
-                                item.dp.TrangThai = 27;
-                            }
                         }
                     }
                 }
 
+                #endregion Cập nhật thông tin các chuyến đã tồn tại trong Db
+
+                #region Xử lý các vận đơn mới được ghép thêm vào
+
                 var arrDataRequest = request.arrTransports.Where(x => !data.Select(y => y.dp.MaVanDon).Contains(x.MaVanDon));
                 var getListNewTransport = await _context.VanDon.Where(x => arrDataRequest.Select(y => y.MaVanDon).Contains(x.MaVanDon)).ToListAsync();
-
                 foreach (var item in getListNewTransport)
                 {
                     foreach (var itemRequest in arrDataRequest)
@@ -1325,16 +1633,11 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                     }
                 }
 
+                #endregion Xử lý các vận đơn mới được ghép thêm vào
+
                 var result = await _context.SaveChangesAsync();
-                if (result > 0)
-                {
-                    await transaction.CommitAsync();
-                    return new BoolActionResult() { isSuccess = true, Message = "Cập nhật điều phối thành công!" };
-                }
-                else
-                {
-                    return new BoolActionResult() { isSuccess = false, Message = "Cập nhật điều phối thất bại!" };
-                }
+                await transaction.CommitAsync();
+                return new BoolActionResult() { isSuccess = true, Message = "Cập nhật điều phối thành công!" };
             }
             catch (Exception ex)
             {
@@ -1416,8 +1719,6 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                     GhiChu = x.transport.GhiChu,
                     arrHandlings = _context.DieuPhoi.Where(y => y.MaVanDon == transportId).Select(y => new arrHandling()
                     {
-                        ContNo = y.ContNo,
-                        DonViVanTai = tempData.AccType == "KH" ? null : y.DonViVanTai,
                         PTVanChuyen = y.MaLoaiPhuongTien,
                         LoaiHangHoa = y.MaLoaiHangHoa,
                         DonViTinh = y.MaDvt,
@@ -1642,44 +1943,44 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 
                         if (tempData.AccType == "NV")
                         {
-                            var checkSupplier = await _context.KhachHang.Where(x => x.MaKh == item.DonViVanTai && x.MaLoaiKh == "NCC").FirstOrDefaultAsync();
-                            if (checkSupplier == null)
-                            {
-                                return new BoolActionResult { isSuccess = false, Message = "Đơn vị vận tải không tồn tại" };
-                            }
+                            //var checkSupplier = await _context.KhachHang.Where(x => x.MaKh == item.DonViVanTai && x.MaLoaiKh == "NCC").FirstOrDefaultAsync();
+                            //if (checkSupplier == null)
+                            //{
+                            //    return new BoolActionResult { isSuccess = false, Message = "Đơn vị vận tải không tồn tại" };
+                            //}
 
-                            var priceSup = await GetPriceTable(item.DonViVanTai, request.MaCungDuong, item.DonViTinh, item.LoaiHangHoa, item.PTVanChuyen, request.MaPTVC);
-                            var priceCus = await GetPriceTable(request.MaKH, request.MaCungDuong, item.DonViTinh, item.LoaiHangHoa, item.PTVanChuyen, request.MaPTVC);
+                            //var priceSup = await GetPriceTable(item.DonViVanTai, request.MaCungDuong, item.DonViTinh, item.LoaiHangHoa, item.PTVanChuyen, request.MaPTVC);
+                            //var priceCus = await GetPriceTable(request.MaKH, request.MaCungDuong, item.DonViTinh, item.LoaiHangHoa, item.PTVanChuyen, request.MaPTVC);
 
-                            if (priceSup == null)
-                            {
-                                return new BoolActionResult
-                                {
-                                    isSuccess = false,
-                                    Message = "Đơn vị vận tải: "
-                                    + await _context.KhachHang.Where(x => x.MaKh == item.DonViVanTai).Select(x => x.TenKh).FirstOrDefaultAsync()
-                                + " chưa có bảng giá cho Cung Đường: " + request.MaCungDuong +
-                                ", Phương Tiện Vận Chuyển: " + checkVehicleType +
-                                ", Loại Hàng Hóa:" + checkGoodsType +
-                                ", Đơn Vị Tính: " + checkDVT +
-                                ", Phương thức vận chuyển: " + checkPTVC
-                                };
-                            }
+                            //if (priceSup == null)
+                            //{
+                            //    return new BoolActionResult
+                            //    {
+                            //        isSuccess = false,
+                            //        Message = "Đơn vị vận tải: "
+                            //        + await _context.KhachHang.Where(x => x.MaKh == item.DonViVanTai).Select(x => x.TenKh).FirstOrDefaultAsync()
+                            //    + " chưa có bảng giá cho Cung Đường: " + request.MaCungDuong +
+                            //    ", Phương Tiện Vận Chuyển: " + checkVehicleType +
+                            //    ", Loại Hàng Hóa:" + checkGoodsType +
+                            //    ", Đơn Vị Tính: " + checkDVT +
+                            //    ", Phương thức vận chuyển: " + checkPTVC
+                            //    };
+                            //}
 
-                            if (priceCus == null)
-                            {
-                                return new BoolActionResult
-                                {
-                                    isSuccess = false,
-                                    Message = "Khách Hàng: "
-                                   + await _context.KhachHang.Where(x => x.MaKh == request.MaKH).Select(x => x.TenKh).FirstOrDefaultAsync()
-                                + " chưa có bảng giá cho Cung Đường: " + request.MaCungDuong +
-                                ", Phương Tiện Vận Chuyển: " + checkVehicleType +
-                                ", Loại Hàng Hóa:" + checkGoodsType +
-                                ", Đơn Vị Tính: " + checkDVT +
-                                ", Phương thức vận chuyển: " + checkPTVC
-                                };
-                            }
+                            //if (priceCus == null)
+                            //{
+                            //    return new BoolActionResult
+                            //    {
+                            //        isSuccess = false,
+                            //        Message = "Khách Hàng: "
+                            //       + await _context.KhachHang.Where(x => x.MaKh == request.MaKH).Select(x => x.TenKh).FirstOrDefaultAsync()
+                            //    + " chưa có bảng giá cho Cung Đường: " + request.MaCungDuong +
+                            //    ", Phương Tiện Vận Chuyển: " + checkVehicleType +
+                            //    ", Loại Hàng Hóa:" + checkGoodsType +
+                            //    ", Đơn Vị Tính: " + checkDVT +
+                            //    ", Phương thức vận chuyển: " + checkPTVC
+                            //    };
+                            //}
 
                             var itemHandling = new DieuPhoi();
                             itemHandling.MaChuyen = request.MaPTVC.Trim() + DateTime.Now.ToString("yyyyMMddHHmmssffff");
@@ -1689,10 +1990,10 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                             itemHandling.MaLoaiPhuongTien = item.PTVanChuyen;
                             itemHandling.MaDvt = item.DonViTinh;
                             itemHandling.DonViVanTai = item.DonViVanTai;
-                            itemHandling.BangGiaKh = priceCus.ID;
-                            itemHandling.BangGiaNcc = priceSup.ID;
-                            itemHandling.DonGiaKh = priceCus.DonGia;
-                            itemHandling.DonGiaNcc = priceSup.DonGia;
+                            //itemHandling.BangGiaKh = priceCus.ID;
+                            //itemHandling.BangGiaNcc = priceSup.ID;
+                            //itemHandling.DonGiaKh = priceCus.DonGia;
+                            //itemHandling.DonGiaNcc = priceSup.DonGia;
                             itemHandling.KhoiLuong = item.KhoiLuong;
                             itemHandling.TheTich = item.TheTich;
                             itemHandling.SoKien = item.SoKien;
@@ -2244,50 +2545,195 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
             {
                 var handling = await _context.DieuPhoi.Where(x => x.Id == id).FirstOrDefaultAsync();
 
+                string message = "";
+
                 if (handling == null)
                 {
                     return new BoolActionResult { isSuccess = false, Message = "Mã điều phối không tồn tại" };
                 }
 
                 var getTransport = await _context.VanDon.Where(x => x.MaVanDon == handling.MaVanDon).FirstOrDefaultAsync();
+                handling.Updater = tempData.UserName;
 
-                if (handling.TrangThai == 18)
+                switch (handling.TrangThai)
                 {
-                    //if (handling.ThoiGianTraHangThucTe == null)
-                    //{
-                    //    return new BoolActionResult { isSuccess = false, Message = "Vui Lòng Cập Nhật Thời Gian Trả Hàng thực tế " };
-                    //}
-                    //if (handling.ThoiGianLayHangThucTe == null)
-                    //{
-                    //    return new BoolActionResult { isSuccess = false, Message = "Vui Lòng Cập Nhật Thời Gian Lấy Hàng thực tế " };
-                    //}
+                    case 35:
+                        handling.TrangThai = 20;
+                        handling.ThoiGianHoanThanh = DateTime.Now;
+                        await _common.Log("BillOfLading", " UserId: " + tempData.UserName + " Set " + handling.Id + " hoan thanh chuyen");
 
-                    //if (handling.MaLoaiPhuongTien.Contains("CONT"))
-                    //{
-                    //    if (handling.ThoiGianLayTraRongThucTe == null)
-                    //    {
-                    //        return new BoolActionResult { isSuccess = false, Message = "Vui Lòng Cập Nhật Thời Gian Lấy/Trả rỗng thực tế " };
-                    //    }
-                    //}
+                        _context.Update(handling);
+                        message = "Tài Xế: " + await _context.TaiXe.Where(x => x.MaTaiXe == handling.MaTaiXe).Select(x => x.HoVaTen).FirstOrDefaultAsync() + " và Xe: " + handling.MaSoXe + " đã hoàn thành chuyến";
+                        break;
 
-                    handling.TrangThai = 20;
-                    handling.Updater = tempData.UserName;
-                    handling.ThoiGianHoanThanh = DateTime.Now;
-                    _context.Update(handling);
+                    case 18:
+                        //if (handling.ThoiGianTraHangThucTe == null)
+                        //{
+                        //    return new BoolActionResult { isSuccess = false, Message = "Vui Lòng Cập Nhật Thời Gian Trả Hàng thực tế " };
+                        //}
+                        //if (handling.ThoiGianLayHangThucTe == null)
+                        //{
+                        //    return new BoolActionResult { isSuccess = false, Message = "Vui Lòng Cập Nhật Thời Gian Lấy Hàng thực tế " };
+                        //}
 
-                    var result1 = await _context.SaveChangesAsync();
-                    if (result1 > 0)
+                        //if (handling.MaLoaiPhuongTien.Contains("CONT"))
+                        //{
+                        //    if (handling.ThoiGianLayTraRongThucTe == null)
+                        //    {
+                        //        return new BoolActionResult { isSuccess = false, Message = "Vui Lòng Cập Nhật Thời Gian Lấy/Trả rỗng thực tế " };
+                        //    }
+                        //}
+
+                        if (getTransport.MaPtvc == "FCL" || getTransport.MaPtvc == "FTL")
+                        {
+                            if (getTransport.LoaiVanDon == "nhap" && handling.MaLoaiPhuongTien.Contains("CONT"))
+                            {
+                                handling.TrangThai = 35;
+                                handling.ThoiGianTraHangThucTe = DateTime.Now;
+                                await _common.Log("BillOfLading", " UserId: " + tempData.UserName + " Set " + handling.Id + " di tra rong");
+                                message = "Đã điều phối xe: " + handling.MaSoXe + " và tài xế: " + await _context.TaiXe.Where(x => x.MaTaiXe == handling.MaTaiXe).Select(x => x.HoVaTen).FirstOrDefaultAsync() + " đi trả rỗng";
+                                _context.Update(handling);
+                            }
+                            else
+                            {
+                                handling.TrangThai = 20;
+                                handling.ThoiGianTraHangThucTe = DateTime.Now;
+                                handling.ThoiGianHoanThanh = DateTime.Now;
+                                await _common.Log("BillOfLading", " UserId: " + tempData.UserName + " Set " + handling.Id + " hoan thanh chuyen");
+
+                                _context.Update(handling);
+                                message = "Tài Xế: " + await _context.TaiXe.Where(x => x.MaTaiXe == handling.MaTaiXe).Select(x => x.HoVaTen).FirstOrDefaultAsync() + " và Xe: " + handling.MaSoXe + " đã hoàn thành chuyến";
+                            }
+                        }
+
+                        if (getTransport.MaPtvc == "LCL" || getTransport.MaPtvc == "LTL")
+                        {
+                            handling.TrangThai = 36;
+                            handling.ThoiGianTraHangThucTe = DateTime.Now;
+                            message = "Tài Xế: " + await _context.TaiXe.Where(x => x.MaTaiXe == handling.MaTaiXe).Select(x => x.HoVaTen).FirstOrDefaultAsync() + " và Xe: " + handling.MaSoXe + " đã giao hàng";
+                            await _common.Log("BillOfLading", " UserId: " + tempData.UserName + " Set " + handling.Id + " da giao hang");
+                            _context.Update(handling);
+                        }
+                        break;
+
+                    case 17:
+                        if (!handling.MaLoaiPhuongTien.Contains("CONT"))
+                        {
+                            return new BoolActionResult { isSuccess = false, Message = "Không phải xe container" };
+                        }
+
+                        if (string.IsNullOrEmpty(handling.ContNo))
+                        {
+                            return new BoolActionResult { isSuccess = false, Message = "Vui Lòng Cập Nhật ContNo trước đã" };
+                        }
+
+                        handling.ThoiGianLayHangThucTe = DateTime.Now;
+                        handling.TrangThai = 18;
+                        await _common.Log("BillOfLading", " UserId: " + tempData.UserName + "Set " + handling.Id + " van chuyen hang");
+
+                        _context.Update(handling);
+                        message = "Đã điều phối xe: " + handling.MaSoXe + " và tài xế: " + await _context.TaiXe.Where(x => x.MaTaiXe == handling.MaTaiXe).Select(x => x.HoVaTen).FirstOrDefaultAsync() + " vận chuyển hàng";
+                        break;
+
+                    case 27:
+                        string status = "";
+
+                        if (handling.MaLoaiPhuongTien.Contains("CONT") && getTransport.LoaiVanDon == "xuat")
+                        {
+                            handling.TrangThai = 17;
+                            handling.ThoiGianLayTraRongThucTe = DateTime.Now;
+                            status = " đi lấy rỗng";
+                        }
+                        else
+                        {
+                            handling.TrangThai = 18;
+                            handling.ThoiGianLayHangThucTe = DateTime.Now;
+                            status = " vận chuyển hàng";
+                        }
+
+                        getTransport.TrangThai = 10;
+                        getTransport.Updater = tempData.UserName;
+
+                        await _common.Log("BillOfLading", " UserId: " + tempData.UserName + "Set " + handling.Id + status);
+
+                        _context.Update(handling);
+                        _context.Update(getTransport);
+                        message = "Đã điều phối xe: " + handling.MaSoXe + " và tài xế: " + await _context.TaiXe.Where(x => x.MaTaiXe == handling.MaTaiXe).Select(x => x.HoVaTen).FirstOrDefaultAsync() + status;
+                        break;
+
+                    default:
+                        break;
+                }
+
+                var result = await _context.SaveChangesAsync();
+
+                if (result > 0)
+                {
+                    if (handling.TrangThai == 36)
                     {
+                        var checkStatusHandling = await _context.DieuPhoi.Where(x => x.MaChuyen == handling.MaChuyen).ToListAsync();
+                        if (checkStatusHandling.Count == checkStatusHandling.Where(x => x.TrangThai == 36).Count())
+                        {
+                            if (getTransport.LoaiVanDon == "nhap" && handling.MaLoaiPhuongTien.Contains("CONT"))
+                            {
+                                checkStatusHandling.ForEach(x =>
+                                {
+                                    x.TrangThai = 35;
+                                    x.ThoiGianLayTraRongThucTe = DateTime.Now;
+                                    x.Updater = tempData.UserName;
+                                });
+                            }
+                            else
+                            {
+                                await HandleVehicleStatus(20, handling.MaSoXe);
+
+                                checkStatusHandling.ForEach(x =>
+                                {
+                                    x.TrangThai = 20;
+                                    x.ThoiGianHoanThanh = DateTime.Now;
+                                    x.Updater = tempData.UserName;
+                                });
+
+                                var getListTransport = await _context.VanDon.Where(x => checkStatusHandling.Select(y => y.MaVanDon).Contains(x.MaVanDon)).ToListAsync();
+                                getListTransport.ForEach(x =>
+                                {
+                                    x.TrangThai = 22;
+                                    x.Updater = tempData.UserName;
+                                    getTransport.ThoiGianHoanThanh = DateTime.Now;
+                                });
+                                _context.UpdateRange(getListTransport);
+                            }
+
+                            _context.UpdateRange(checkStatusHandling);
+
+                            var save = await _context.SaveChangesAsync();
+
+                            if (save > 0)
+                            {
+                                return new BoolActionResult { isSuccess = true, Message = "Vận đơn đã hoàn thành" };
+                            }
+                            else
+                            {
+                                return new BoolActionResult { isSuccess = false, Message = "Lỗi! không được thực thi" };
+                            }
+                        }
+                    }
+
+                    if (handling.TrangThai == 20)
+                    {
+                        await HandleVehicleStatus(20, handling.MaSoXe);
+
                         var checkAllHandling = await _context.DieuPhoi.Where(x => x.MaVanDon == handling.MaVanDon).ToListAsync();
                         if (checkAllHandling.Where(x => x.TrangThai == 20 || x.TrangThai == 21).Count() == checkAllHandling.Count())
                         {
                             getTransport.TrangThai = 22;
                             getTransport.Updater = tempData.UserName;
                             getTransport.ThoiGianHoanThanh = DateTime.Now;
+
                             _context.Update(getTransport);
 
-                            var result = await _context.SaveChangesAsync();
-                            if (result > 0)
+                            var updateTransport = await _context.SaveChangesAsync();
+                            if (updateTransport > 0)
                             {
                                 await _common.Log("BillOfLading", " UserId: " + tempData.UserName + " Set " + handling.MaVanDon + " completed");
                                 return new BoolActionResult { isSuccess = true, Message = "Mã vận đơn " + handling.MaVanDon + " đã hoàn thành" };
@@ -2297,72 +2743,18 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                 return new BoolActionResult { isSuccess = false, Message = "Điều phối xe thất bại" };
                             }
                         }
-
-                        await _common.Log("BillOfLading", " UserId: " + tempData.UserName + " Set " + handling.Id + " completed");
-                        return new BoolActionResult { isSuccess = true, Message = "Tài Xế: " + await _context.TaiXe.Where(x => x.MaTaiXe == handling.MaTaiXe).Select(x => x.HoVaTen).FirstOrDefaultAsync() + " và Xe: " + handling.MaSoXe + " đã hoàn thành chuyến" };
                     }
                     else
                     {
-                        return new BoolActionResult { isSuccess = false, Message = "Điều phối xe thất bại" };
+                        await HandleVehicleStatus(handling.TrangThai, handling.MaSoXe);
                     }
-                }
 
-                if (handling.MaLoaiPhuongTien.Contains("CONT") && handling.TrangThai == 17)
+                    return new BoolActionResult { isSuccess = true, Message = message };
+                }
+                else
                 {
-                    if (string.IsNullOrEmpty(handling.ContNo))
-                    {
-                        return new BoolActionResult { isSuccess = false, Message = "Vui Lòng Cập Nhật ContNo trước đã" };
-                    }
-                    handling.Updater = tempData.UserName;
-                    handling.TrangThai = 18;
-                    _context.Update(handling);
-
-                    var result = await _context.SaveChangesAsync();
-                    if (result > 0)
-                    {
-                        await _common.Log("BillOfLading", " UserId: " + tempData.UserName + "Set " + handling.Id + "Shipping");
-                        return new BoolActionResult { isSuccess = true, Message = "Đã điều phối xe: " + handling.MaSoXe + " và tài xế: " + await _context.TaiXe.Where(x => x.MaTaiXe == handling.MaTaiXe).Select(x => x.HoVaTen).FirstOrDefaultAsync() + " vận chuyển hàng" };
-                    }
-                    else
-                    {
-                        return new BoolActionResult { isSuccess = false, Message = "Điều phối xe thất bại" };
-                    }
+                    return new BoolActionResult { isSuccess = false, Message = "Lỗi! không được thực thi" };
                 }
-
-                if (handling.TrangThai == 27)
-                {
-                    string status = "";
-                    if (handling.MaLoaiPhuongTien.Contains("TRUCK"))
-                    {
-                        handling.TrangThai = 18;
-                        status = " vận chuyển hàng";
-                    }
-                    if (handling.MaLoaiPhuongTien.Contains("CONT"))
-                    {
-                        handling.TrangThai = 17;
-                        status = " đi lấy rỗng";
-                    }
-                    getTransport.TrangThai = 10;
-
-                    handling.Updater = tempData.UserName;
-                    getTransport.Updater = tempData.UserName;
-
-                    _context.Update(handling);
-                    _context.Update(getTransport);
-
-                    var result = await _context.SaveChangesAsync();
-                    if (result > 0)
-                    {
-                        await _common.Log("BillOfLading", " UserId: " + tempData.UserName + "Set " + handling.Id + status);
-                        return new BoolActionResult { isSuccess = true, Message = "Đã điều phối xe: " + handling.MaSoXe + " và tài xế: " + await _context.TaiXe.Where(x => x.MaTaiXe == handling.MaTaiXe).Select(x => x.HoVaTen).FirstOrDefaultAsync() + status };
-                    }
-                    else
-                    {
-                        return new BoolActionResult { isSuccess = false, Message = "Điều phối xe thất bại" };
-                    }
-                }
-
-                return new BoolActionResult { isSuccess = false, Message = "Không có gì được thực thi " };
             }
             catch (Exception ex)
             {
@@ -2390,11 +2782,45 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                     {
                         x.Updater = tempData.UserName;
                         x.TrangThai = 18;
+                        x.ThoiGianLayHangThucTe = DateTime.Now;
                     });
 
                     var result = await _context.SaveChangesAsync();
                     if (result > 0)
                     {
+                        var handleVehicleStatus = await HandleVehicleStatus(18, getListHandling.Select(x => x.MaSoXe).FirstOrDefault());
+                        await _common.Log("BillOfLading", " UserId: " + tempData.UserName + "Set " + handlingId + "Shipping");
+                        await transaction.CommitAsync();
+                        return new BoolActionResult { isSuccess = true, Message = "Đã điều phối xe vận chuyển hàng" };
+                    }
+                    else
+                    {
+                        return new BoolActionResult { isSuccess = false, Message = "Điều phối xe thất bại" };
+                    }
+                }
+
+                if (getListHandling.Select(x => x.TrangThai).FirstOrDefault() == 35)
+                {
+                    getListHandling.ForEach(x =>
+                    {
+                        x.Updater = tempData.UserName;
+                        x.TrangThai = 20;
+                        x.ThoiGianHoanThanh = DateTime.Now;
+                    });
+                    getlistTransports.ForEach(x =>
+                    {
+                        x.Updater = tempData.UserName;
+                        x.TrangThai = 22;
+                        x.ThoiGianHoanThanh = DateTime.Now;
+                    });
+
+                    _context.VanDon.UpdateRange(getlistTransports);
+                    _context.DieuPhoi.UpdateRange(getListHandling);
+
+                    var result = await _context.SaveChangesAsync();
+                    if (result > 0)
+                    {
+                        var handleVehicleStatus = await HandleVehicleStatus(35, getListHandling.Select(x => x.MaSoXe).FirstOrDefault());
                         await _common.Log("BillOfLading", " UserId: " + tempData.UserName + "Set " + handlingId + "Shipping");
                         await transaction.CommitAsync();
                         return new BoolActionResult { isSuccess = true, Message = "Đã điều phối xe vận chuyển hàng" };
@@ -2408,24 +2834,28 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                 if (getListHandling.Select(x => x.TrangThai).FirstOrDefault() == 27)
                 {
                     string status = "";
-                    if (getlistTransports.Select(x => x.MaPtvc).FirstOrDefault() == "LTL")
-                    {
-                        getListHandling.ForEach(x =>
-                        {
-                            x.Updater = tempData.UserName;
-                            x.TrangThai = 18;
-                        });
-                        status = " vận chuyển hàng";
-                    }
 
-                    if (getlistTransports.Select(x => x.MaPtvc).FirstOrDefault() == "LCL")
+                    if (getlistTransports.Select(x => x.LoaiVanDon).FirstOrDefault() == "xuat" && getlistTransports.Select(x => x.MaPtvc).FirstOrDefault() == "LCL")
                     {
                         getListHandling.ForEach(x =>
                         {
                             x.Updater = tempData.UserName;
                             x.TrangThai = 17;
+                            x.ThoiGianLayTraRongThucTe = DateTime.Now;
                         });
                         status = " đi lấy rỗng";
+                        var handleVehicleStatus = await HandleVehicleStatus(17, getListHandling.Select(x => x.MaSoXe).FirstOrDefault());
+                    }
+                    else
+                    {
+                        getListHandling.ForEach(x =>
+                        {
+                            x.Updater = tempData.UserName;
+                            x.TrangThai = 18;
+                            x.ThoiGianLayHangThucTe = DateTime.Now;
+                        });
+                        status = " vận chuyển hàng";
+                        var handleVehicleStatus = await HandleVehicleStatus(18, getListHandling.Select(x => x.MaSoXe).FirstOrDefault());
                     }
 
                     getlistTransports.ForEach(x =>
@@ -2433,6 +2863,9 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                         x.Updater = tempData.UserName;
                         x.TrangThai = 10;
                     });
+
+                    _context.DieuPhoi.UpdateRange(getListHandling);
+                    _context.VanDon.UpdateRange(getlistTransports);
 
                     var result = await _context.SaveChangesAsync();
                     if (result > 0)
@@ -2467,7 +2900,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                     return new BoolActionResult { isSuccess = false, Message = "Lệnh điều phối không tồn tại" };
                 }
 
-                if (getByid.TrangThai != 19 || getByid.TrangThai != 27)
+                if (getByid.TrangThai != 19 && getByid.TrangThai != 27)
                 {
                     return new BoolActionResult { isSuccess = false, Message = "Không thể hủy lệnh điều phối này" };
                 }
@@ -2492,6 +2925,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                         var result1 = await _context.SaveChangesAsync();
                         if (result1 > 0)
                         {
+                            await transaction.CommitAsync();
                             return new BoolActionResult { isSuccess = true, Message = "Đã hủy lệnh điều phối và hủy vận đơn thành công" };
                         }
                         else
@@ -2511,6 +2945,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                         var result3 = await _context.SaveChangesAsync();
                         if (result > 0)
                         {
+                            await transaction.CommitAsync();
                             await _common.Log("BillOfLading", " UserId: " + tempData.UserName + " Set TransportId: " + getTransport.MaVanDon + " completed");
                             return new BoolActionResult { isSuccess = true, Message = "Mã vận đơn " + getTransport.MaVanDon + " đã hoàn thành" };
                         }
@@ -2666,7 +3101,6 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                     await transaction.RollbackAsync();
                     return new BoolActionResult { isSuccess = false, Message = action == 0 ? "Đã nhận đơn hàng thất bại!" : "Đã từ chối đơn hàng thất bại!" };
                 }
-
             }
             catch (Exception ex)
             {
@@ -2732,266 +3166,84 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
             }
         }
 
-        public async Task<BoolActionResult> UpdateHandling(int id, UpdateHandling request)
-        {
-            var transaction = await _context.Database.BeginTransactionAsync();
+        //public async Task<BoolActionResult> CloneHandling(int id)
+        //{
+        //    var transaction = await _context.Database.BeginTransactionAsync();
+        //    try
+        //    {
+        //        var checkHangling = await _context.DieuPhoi.Where(x => x.Id == id).FirstOrDefaultAsync();
 
-            try
-            {
-                var checkById = await _context.DieuPhoi.Where(x => x.Id == id).FirstOrDefaultAsync();
+        //        if (checkHangling.TrangThai != 19)
+        //        {
+        //            return new BoolActionResult { isSuccess = false, Message = "Không thể copy dữ liệu điều phối này" };
+        //        }
 
-                if (checkById == null)
-                {
-                    return new BoolActionResult { isSuccess = false, Message = "Mã điều phối không tồn tại" };
-                }
+        //        await _context.DieuPhoi.AddAsync(new DieuPhoi()
+        //        {
+        //            MaVanDon = checkHangling.MaVanDon,
+        //            TrangThai = checkHangling.TrangThai,
+        //            CreatedTime = DateTime.Now,
+        //        });
 
-                if (checkById.TrangThai == 20 || checkById.TrangThai == 21 || checkById.TrangThai == 31)
-                {
-                    return new BoolActionResult { isSuccess = false, Message = "Không thể cập nhật chuyến này nữa" };
-                }
+        //        var result = await _context.SaveChangesAsync();
 
-                var getTransport = await _context.VanDon.Where(x => x.MaVanDon == checkById.MaVanDon).FirstOrDefaultAsync();
+        //        if (result > 0)
+        //        {
+        //            await transaction.CommitAsync();
+        //            return new BoolActionResult { isSuccess = true, Message = "Copy dữ liệu điều phối thành công!" };
+        //        }
+        //        else
+        //        {
+        //            await transaction.RollbackAsync();
+        //            return new BoolActionResult { isSuccess = false, Message = "Copy dữ liệu điều phối thất bại!" };
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        await transaction.RollbackAsync();
+        //        return new BoolActionResult { isSuccess = false, Message = ex.ToString() };
+        //    }
+        //}
 
-                var checkVehicleType = await _context.LoaiPhuongTien.Where(x => x.MaLoaiPhuongTien == request.PTVanChuyen).Select(x => x.TenLoaiPhuongTien).FirstOrDefaultAsync();
+        //public async Task<BoolActionResult> RemoveHandling(int id)
+        //{
+        //    var transaction = await _context.Database.BeginTransactionAsync();
+        //    try
+        //    {
+        //        var checkHangling = await _context.DieuPhoi.Where(x => x.Id == id).FirstOrDefaultAsync();
 
-                if (checkVehicleType == null)
-                {
-                    return new BoolActionResult { isSuccess = false, Message = "Loại phương tiện vận chuyển không tồn tại" };
-                }
+        //        if (checkHangling.TrangThai != 19)
+        //        {
+        //            return new BoolActionResult { isSuccess = false, Message = "Không thể xóa điều phối này" };
+        //        }
 
-                var checkGoodsType = await _context.LoaiHangHoa.Where(x => x.MaLoaiHangHoa == request.LoaiHangHoa).Select(x => x.TenLoaiHangHoa).FirstOrDefaultAsync();
-                if (checkGoodsType == null)
-                {
-                    return new BoolActionResult { isSuccess = false, Message = "Loại Hàng Hóa Không Tồn Tại" };
-                }
-                var checkDVT = await _context.DonViTinh.Where(x => x.MaDvt == request.DonViTinh).Select(x => x.TenDvt).FirstOrDefaultAsync();
-                if (checkDVT == null)
-                {
-                    return new BoolActionResult { isSuccess = false, Message = "Đơn Vị Tính Không Tồn Tại" };
-                }
-                //var checkPTVC = await _context.PhuongThucVanChuyen.Where(x => x.MaPtvc == request.).Select(x => x.TenPtvc).FirstOrDefaultAsync();
-                //if (checkPTVC == null)
-                //{
-                //    return new BoolActionResult { isSuccess = false, Message = "Phương Thức Vận Chuyển Không Tồn Tại" };
-                //}
+        //        var checkCount = await _context.DieuPhoi.Where(x => x.MaVanDon == checkHangling.MaVanDon).ToListAsync();
+        //        if (checkCount.Count <= 1)
+        //        {
+        //            return new BoolActionResult { isSuccess = false, Message = "Không thể xóa điều phối này" };
+        //        }
 
-                var checkDriver = await _context.TaiXe.Where(x => x.MaTaiXe == request.MaTaiXe).FirstOrDefaultAsync();
-                if (checkDriver == null)
-                {
-                    return new BoolActionResult { isSuccess = false, Message = " Tài xế không tồn tại \r\n" };
-                }
+        //        _context.DieuPhoi.Remove(checkHangling);
 
-                var checkVehicle = await _context.XeVanChuyen.Where(x => x.MaSoXe == request.MaSoXe).FirstOrDefaultAsync();
-                if (checkVehicle == null)
-                {
-                    return new BoolActionResult { isSuccess = false, Message = " Xe vận chuyển không tồn tại \r\n" };
-                }
+        //        var result = await _context.SaveChangesAsync();
 
-                if (!request.PTVanChuyen.Contains(checkVehicle.MaLoaiPhuongTien))
-                {
-                    return new BoolActionResult { isSuccess = false, Message = "Loại xe không khớp với xe vận chuyển \r\n" };
-                }
-
-                if (request.PTVanChuyen.Contains("CONT"))
-                {
-                    var checkPlaceGetEmpty = await _context.DiaDiem.Where(x => x.MaDiaDiem == request.DiemLayTraRong.Value).FirstOrDefaultAsync();
-                    if (checkPlaceGetEmpty == null)
-                    {
-                        return new BoolActionResult { isSuccess = false, Message = "Điểm lấy rỗng không tồn tại" };
-                    }
-                }
-                else
-                {
-                    request.DiemLayTraRong = null;
-                    request.ThoiGianLayTraRongThucTe = null;
-                    request.ThoiGianCoMatThucTe = null;
-                }
-
-                //if (getTransport.MaPtvc == "FCL" || getTransport.MaPtvc == "FTL")
-                //{
-                //    var checkVehicleOfTransport = await _context.DieuPhoi.Where(x => x.MaVanDon == getTransport.MaVanDon && x.MaSoXe == request.MaSoXe && x.Id != id).FirstOrDefaultAsync();
-
-                //    if (checkVehicleOfTransport != null)
-                //    {
-                //        return new BoolActionResult { isSuccess = false, Message = "Xe này đã được điều phối trước đó, vui lòng chọn xe khác" };
-                //    }
-                //}
-
-                if (checkById.TrangThai == 17 || checkById.TrangThai == 18 || checkById.TrangThai == 20)
-                {
-                    checkById.ThoiGianLayHangThucTe = request.ThoiGianLayHangThucTe;
-                    checkById.ThoiGianTraHangThucTe = request.ThoiGianTraHangThucTe;
-                    checkById.ThoiGianLayTraRongThucTe = request.ThoiGianLayTraRongThucTe;
-                    checkById.ThoiGianCoMatThucTe = request.ThoiGianCoMatThucTe;
-                }
-
-                if (checkById.TrangThai == 19 || checkById.TrangThai == 27)
-                {
-                    var priceSup = await GetPriceTable(request.DonViVanTai, getTransport.MaCungDuong, request.DonViTinh, request.LoaiHangHoa, request.PTVanChuyen, getTransport.MaPtvc);
-                    var priceCus = await GetPriceTable(getTransport.MaKh, getTransport.MaCungDuong, request.DonViTinh, request.LoaiHangHoa, request.PTVanChuyen, getTransport.MaPtvc);
-
-                    if (priceSup == null)
-                    {
-                        return new BoolActionResult
-                        {
-                            isSuccess = false,
-                            Message = "Đơn Vị Vận Tải: "
-                                  + await _context.KhachHang.Where(x => x.MaKh == request.DonViVanTai).Select(x => x.TenKh).FirstOrDefaultAsync()
-                               + " chưa có bảng giá cho Cung Đường: " + getTransport.MaCungDuong +
-                               ", Phương Tiện Vận Chuyển: " + request.PTVanChuyen +
-                               ", Loại Hàng Hóa:" + request.LoaiHangHoa +
-                               ", Đơn Vị Tính: " + request.DonViTinh +
-                               ", Phương thức vận chuyển: " + getTransport.MaPtvc
-                        };
-                    }
-
-                    if (priceCus == null)
-                    {
-                        return new BoolActionResult
-                        {
-                            isSuccess = false,
-                            Message = "Khách Hàng: "
-                                  + await _context.KhachHang.Where(x => x.MaKh == getTransport.MaKh).Select(x => x.TenKh).FirstOrDefaultAsync()
-                               + " chưa có bảng giá cho Cung Đường: " + getTransport.MaCungDuong +
-                               ", Phương Tiện Vận Chuyển: " + request.PTVanChuyen +
-                               ", Loại Hàng Hóa:" + request.LoaiHangHoa +
-                               ", Đơn Vị Tính: " + request.DonViTinh +
-                               ", Phương thức vận chuyển: " + getTransport.MaPtvc
-                        };
-                    }
-
-                    checkById.MaLoaiHangHoa = request.LoaiHangHoa;
-                    checkById.MaLoaiPhuongTien = request.PTVanChuyen;
-                    checkById.MaDvt = request.DonViTinh;
-                    checkById.DonViVanTai = request.DonViVanTai;
-                    checkById.BangGiaNcc = priceSup.ID;
-                    checkById.DonGiaNcc = priceSup.DonGia;
-                    checkById.BangGiaKh = priceCus.ID;
-                    checkById.DonGiaKh = priceCus.DonGia;
-                    checkById.SoKien = request.SoKien;
-                    checkById.KhoiLuong = request.KhoiLuong;
-                    checkById.TheTich = request.TheTich;
-
-
-                    checkById.DiemLayTraRong = request.DiemLayTraRong;
-                    checkById.TrangThai = 27;
-                    getTransport.TrangThai = 9;
-                }
-
-                checkById.ContNo = request.ContNo;
-                checkById.SealHq = request.SealHq;
-                checkById.SealNp = request.SealNp;
-                checkById.MaSoXe = request.MaSoXe;
-                checkById.MaTaiXe = request.MaTaiXe;
-                checkById.MaRomooc = request.MaRomooc;
-                checkById.GhiChu = request.GhiChu;
-                checkById.UpdatedTime = DateTime.Now;
-                checkById.Updater = tempData.UserName;
-                getTransport.Updater = tempData.UserName;
-
-                _context.Update(getTransport);
-                _context.Update(checkById);
-
-                var result = await _context.SaveChangesAsync();
-
-                if (result > 0)
-                {
-                    await transaction.CommitAsync();
-                    await _common.Log("BillOfLading ", "UserId: " + tempData.UserName + " update handling with Data: " + JsonSerializer.Serialize(request));
-                    return new BoolActionResult { isSuccess = true, Message = "Điều Phối Chuyến Thành Công!" };
-                }
-                else
-                {
-                    await transaction.RollbackAsync();
-                    return new BoolActionResult { isSuccess = false, Message = "Điều Phối Chuyến Thất Bại" };
-                }
-            }
-            catch (Exception ex)
-            {
-                await transaction.RollbackAsync();
-
-                return new BoolActionResult { isSuccess = false, Message = ex.ToString() };
-            }
-        }
-
-        public async Task<BoolActionResult> CloneHandling(int id)
-        {
-            var transaction = await _context.Database.BeginTransactionAsync();
-            try
-            {
-                var checkHangling = await _context.DieuPhoi.Where(x => x.Id == id).FirstOrDefaultAsync();
-
-                if (checkHangling.TrangThai != 19)
-                {
-                    return new BoolActionResult { isSuccess = false, Message = "Không thể copy dữ liệu điều phối này" };
-                }
-
-                await _context.DieuPhoi.AddAsync(new DieuPhoi()
-                {
-                    MaVanDon = checkHangling.MaVanDon,
-                    TrangThai = checkHangling.TrangThai,
-                    CreatedTime = DateTime.Now,
-                });
-
-                var result = await _context.SaveChangesAsync();
-
-                if (result > 0)
-                {
-                    await transaction.CommitAsync();
-                    return new BoolActionResult { isSuccess = true, Message = "Copy dữ liệu điều phối thành công!" };
-                }
-                else
-                {
-                    await transaction.RollbackAsync();
-                    return new BoolActionResult { isSuccess = false, Message = "Copy dữ liệu điều phối thất bại!" };
-                }
-            }
-            catch (Exception ex)
-            {
-                await transaction.RollbackAsync();
-                return new BoolActionResult { isSuccess = false, Message = ex.ToString() };
-            }
-        }
-
-        public async Task<BoolActionResult> RemoveHandling(int id)
-        {
-            var transaction = await _context.Database.BeginTransactionAsync();
-            try
-            {
-                var checkHangling = await _context.DieuPhoi.Where(x => x.Id == id).FirstOrDefaultAsync();
-
-                if (checkHangling.TrangThai != 19)
-                {
-                    return new BoolActionResult { isSuccess = false, Message = "Không thể xóa điều phối này" };
-                }
-
-                var checkCount = await _context.DieuPhoi.Where(x => x.MaVanDon == checkHangling.MaVanDon).ToListAsync();
-                if (checkCount.Count <= 1)
-                {
-                    return new BoolActionResult { isSuccess = false, Message = "Không thể xóa điều phối này" };
-                }
-
-                _context.DieuPhoi.Remove(checkHangling);
-
-                var result = await _context.SaveChangesAsync();
-
-                if (result > 0)
-                {
-                    await transaction.CommitAsync();
-                    return new BoolActionResult { isSuccess = true, Message = "Xóa dữ liệu điều phối thành công!" };
-                }
-                else
-                {
-                    await transaction.RollbackAsync();
-                    return new BoolActionResult { isSuccess = false, Message = "Xóa dữ liệu điều phối thất bại!" };
-                }
-            }
-            catch (Exception ex)
-            {
-                await transaction.RollbackAsync();
-                return new BoolActionResult { isSuccess = false, Message = ex.ToString() };
-            }
-        }
+        //        if (result > 0)
+        //        {
+        //            await transaction.CommitAsync();
+        //            return new BoolActionResult { isSuccess = true, Message = "Xóa dữ liệu điều phối thành công!" };
+        //        }
+        //        else
+        //        {
+        //            await transaction.RollbackAsync();
+        //            return new BoolActionResult { isSuccess = false, Message = "Xóa dữ liệu điều phối thất bại!" };
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        await transaction.RollbackAsync();
+        //        return new BoolActionResult { isSuccess = false, Message = ex.ToString() };
+        //    }
+        //}
 
         public async Task<List<Attachment>> GetListImageByHandlingId(int handlingId)
         {
@@ -3139,6 +3391,66 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
             else
             {
                 return null;
+            }
+        }
+
+        private async Task<BoolActionResult> HandleVehicleStatus(int handlingStatus, string newVehicleId = null, string oldVehicleId = null)
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(newVehicleId))
+                {
+                    var getNewVehicle = await _context.XeVanChuyen.Where(x => x.MaSoXe == newVehicleId).FirstOrDefaultAsync();
+                    switch (handlingStatus)
+                    {
+                        case 17:
+                            getNewVehicle.TrangThai = 34;
+                            break;
+
+                        case 18:
+                            getNewVehicle.TrangThai = 34;
+                            break;
+
+                        case 19:
+                            getNewVehicle.TrangThai = 33;
+                            break;
+
+                        case 27:
+                            getNewVehicle.TrangThai = 33;
+                            break;
+
+                        case 35:
+                            getNewVehicle.TrangThai = 34;
+                            break;
+
+                        case 36:
+                            getNewVehicle.TrangThai = 34;
+                            break;
+
+                        default:
+                            getNewVehicle.TrangThai = 32;
+                            break;
+                    }
+                    _context.Update(getNewVehicle);
+                }
+
+                if (newVehicleId != oldVehicleId)
+                {
+                    if (!string.IsNullOrEmpty(oldVehicleId))
+                    {
+                        var getOldVehicle = await _context.XeVanChuyen.Where(x => x.MaSoXe == oldVehicleId).FirstOrDefaultAsync();
+                        getOldVehicle.TrangThai = 32;
+                        _context.Update(getOldVehicle);
+                    }
+                }
+
+                var result = await _context.SaveChangesAsync();
+
+                return new BoolActionResult { isSuccess = true };
+            }
+            catch (Exception ex)
+            {
+                return new BoolActionResult { isSuccess = false, Message = ex.ToString() };
             }
         }
     }

@@ -19,7 +19,7 @@ namespace TBSLogistics.Model.Model.VehicleModel
         public string MaTaiSan { get; set; }
         public int? ThoiGianKhauHao { get; set; }
         public DateTime? NgayHoatDong { get; set; }
-        public int TrangThai { get; set; }
+        public string TrangThai { get; set; }
         public DateTime UpdateTime { get; set; }
         public DateTime Createdtime { get; set; }
     }

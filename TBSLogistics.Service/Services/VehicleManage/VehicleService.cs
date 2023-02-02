@@ -13,6 +13,7 @@ using TBSLogistics.Model.TempModel;
 using TBSLogistics.Model.Wrappers;
 using TBSLogistics.Service.Services.VehicleManage;
 using TBSLogistics.Service.Services.Common;
+using System.Collections.Generic;
 
 namespace TBSLogistics.Service.Services.VehicleManage
 {
@@ -59,7 +60,7 @@ namespace TBSLogistics.Service.Services.VehicleManage
                     MaTaiSan = request.MaTaiSan,
                     ThoiGianKhauHao = request.ThoiGianKhauHao,
                     NgayHoatDong = request.NgayHoatDong,
-                    TrangThai = 1,
+                    TrangThai = 32,
                     Creator = tempData.UserName,
                     UpdatedTime = DateTime.Now,
                     CreatedTime = DateTime.Now,
@@ -104,7 +105,6 @@ namespace TBSLogistics.Service.Services.VehicleManage
                 getVehicle.MaTaiSan = request.MaTaiSan;
                 getVehicle.ThoiGianKhauHao = request.ThoiGianKhauHao;
                 getVehicle.NgayHoatDong = request.NgayHoatDong;
-                getVehicle.TrangThai = request.TrangThai;
                 getVehicle.UpdatedTime = DateTime.Now;
                 getVehicle.Updater = tempData.UserName;
 
@@ -174,8 +174,11 @@ namespace TBSLogistics.Service.Services.VehicleManage
                 var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
 
                 var listData = from vehicle in _context.XeVanChuyen
+                               join status in _context.StatusText
+                               on vehicle.TrangThai equals status.StatusId
+                               where status.LangId == tempData.LangID
                                orderby vehicle.CreatedTime descending
-                               select new { vehicle };
+                               select new { vehicle, status };
 
                 if (!string.IsNullOrEmpty(filter.Keyword))
                 {
@@ -201,7 +204,7 @@ namespace TBSLogistics.Service.Services.VehicleManage
                     MaTaiSan = x.vehicle.MaTaiSan,
                     ThoiGianKhauHao = x.vehicle.ThoiGianKhauHao,
                     NgayHoatDong = x.vehicle.NgayHoatDong,
-                    TrangThai = x.vehicle.TrangThai,
+                    TrangThai = x.status.StatusContent,
                     UpdateTime = x.vehicle.UpdatedTime,
                     Createdtime = x.vehicle.CreatedTime,
                 }).ToListAsync();
@@ -241,6 +244,23 @@ namespace TBSLogistics.Service.Services.VehicleManage
             return vehicle;
         }
 
+        public async Task<List<ListVehicleSelect>> GetListVehicleSelect()
+        {
+            var getData = from vehicle in _context.XeVanChuyen
+                          join status in _context.StatusText
+                          on vehicle.TrangThai equals status.StatusId
+                          where status.LangId == tempData.LangID
+                          select new { status, vehicle };
+
+            var listData = await getData.Select(x => new ListVehicleSelect()
+            {
+                VehicleId = x.vehicle.MaSoXe,
+                Text = x.vehicle.MaSoXe + " / " + x.vehicle.MaLoaiPhuongTien + " --- " + x.status.StatusContent
+            }).ToListAsync();
+
+            return listData;
+        }
+
         private async Task<string> ValiateCreat(string MaSoXe, string MaLoaiPhuongTien, string MaTaiXeMacDinh, double? TrongTaiToiThieu, double? TrongTaiToiDa, string MaGps, string MaGpsmobile, string MaTaiSan, int? ThoiGianKhauHao, DateTime? NgayHoatDong, string ErrorRow = "")
         {
             string ErrorValidate = "";
@@ -256,12 +276,13 @@ namespace TBSLogistics.Service.Services.VehicleManage
             {
                 ErrorValidate += " - Mã số xe phải viết hoa   \r\n";
             }
-            var checkMapt = await _context.LoaiPhuongTien.Where(x => x.MaLoaiPhuongTien == MaLoaiPhuongTien).FirstOrDefaultAsync();
 
-            if (checkMapt == null)
-            {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã Loại Phương Tiện: " + MaLoaiPhuongTien + " không tồn tại \r\n" + Environment.NewLine;
-            }
+            //var checkMapt = await _context.LoaiPhuongTien.Where(x => x.MaLoaiPhuongTien == MaLoaiPhuongTien).FirstOrDefaultAsync();
+
+            //if (checkMapt == null)
+            //{
+            //    ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã Loại Phương Tiện: " + MaLoaiPhuongTien + " không tồn tại \r\n" + Environment.NewLine;
+            //}
 
             if (!string.IsNullOrEmpty(MaTaiXeMacDinh))
             {

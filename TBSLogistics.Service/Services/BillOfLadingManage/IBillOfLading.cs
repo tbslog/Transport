@@ -16,7 +16,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
     public interface IBillOfLading
     {
         Task<LoadDataHandling> LoadDataHandling();
-        Task<BoolActionResult> CreateHandling(CreateHandling request);
+        //Task<BoolActionResult> CreateHandling(CreateHandling request);
         Task<BoolActionResult> CreateTransport(CreateTransport request);
         Task<BoolActionResult> UpdateTransport(string transPortId, UpdateTransport request);
         Task<GetTransport> GetTransportById(string transportId);
@@ -32,8 +32,8 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
         Task<PagedResponseCustom<ListHandling>> GetListHandling(string transportId, string[] customers, PaginationFilter filter);
         Task<PagedResponseCustom<ListHandling>> GetListHandlingLess(string[] customers, PaginationFilter filter);
         Task<ListPoint> LoadDataRoadTransportByCusId(string customerId);
-        Task<BoolActionResult> CloneHandling(int id);
-        Task<BoolActionResult> RemoveHandling(int id);
+        //Task<BoolActionResult> CloneHandling(int id);
+        //Task<BoolActionResult> RemoveHandling(int id);
         Task<BoolActionResult> CreateTransportLess(CreateTransportLess request);
         Task<LoadJoinTransports> LoadJoinTransport(JoinTransports request);
         Task<BoolActionResult> CreateHandlingLess(CreateHandlingLess request);

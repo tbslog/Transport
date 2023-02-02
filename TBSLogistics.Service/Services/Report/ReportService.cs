@@ -1,12 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
+using System.Data;
 using System.Linq;
-using System.Text;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using TBSLogistics.Data.TMS;
-using TBSLogistics.Model.Model.BillOfLadingModel;
 using TBSLogistics.Model.Model.ReportModel;
 using TBSLogistics.Service.Services.Common;
 
@@ -30,7 +30,6 @@ namespace TBSLogistics.Service.Services.Report
 
             var firstDateOfMonth = new DateTime(dateTime.Year, dateTime.Month, 1);
             var lastDateOfMonth = new DateTime(dateTime.Year, dateTime.Month, DateTime.DaysInMonth(dateTime.Year, dateTime.Month));
-
 
             var getTransport = await _context.VanDon.Where(x =>
             x.ThoiGianTaoDon.Date >= firstDateOfMonth
@@ -64,7 +63,6 @@ namespace TBSLogistics.Service.Services.Report
                 date = x.Date,
             })).ToList();
 
-
             var arrHandling = new DataReport()
             {
                 Name = "Số lượng chuyến",
@@ -89,7 +87,6 @@ namespace TBSLogistics.Service.Services.Report
                 TotalReports = listTotal,
                 Labels = getAllDaysInMonth.Select(x => x.Date).ToList(),
                 Data = new List<DataReport> { arrHandling, arrTransport },
-
             };
         }
 
@@ -100,7 +97,6 @@ namespace TBSLogistics.Service.Services.Report
 
             var firstDateOfMonth = new DateTime(dateTime.Year, dateTime.Month, 1);
             var lastDateOfMonth = new DateTime(dateTime.Year, dateTime.Month, DateTime.DaysInMonth(dateTime.Year, dateTime.Month));
-
 
             var getData = from dp in _context.DieuPhoi
                           join vd in _context.VanDon
@@ -134,7 +130,6 @@ namespace TBSLogistics.Service.Services.Report
                 value = 0,
             })).ToList();
 
-
             var revenue = await getData.Where(x => getAllDaysInMonth.Select(y => y.Date).Contains(x.dp.ThoiGianHoanThanh.Value.Date))
                   .Select(x => new
                   {
@@ -159,10 +154,9 @@ namespace TBSLogistics.Service.Services.Report
                 value = 0,
             })).ToList();
 
-
             var Profit = await getData.Where(x => getAllDaysInMonth.Select(y => y.Date).Contains(x.dp.ThoiGianHoanThanh.Value.Date))
                 .GroupBy(x => new { x.dp.ThoiGianHoanThanh.Value.Date })
-                .Select(x => new { date = x.Key.Date, sumProfit = x.Sum(x =>  x.dp.DonGiaKh - x.dp.DonGiaNcc) }).Select(x => new arrDouble()
+                .Select(x => new { date = x.Key.Date, sumProfit = x.Sum(x => x.dp.DonGiaKh - x.dp.DonGiaNcc) }).Select(x => new arrDouble()
                 {
                     date = x.date,
                     value = ((double)x.sumProfit),
@@ -172,7 +166,6 @@ namespace TBSLogistics.Service.Services.Report
                 date = x.Date,
                 value = 0,
             })).ToList();
-
 
             var arrSubfee = new DataReport()
             {
@@ -207,7 +200,49 @@ namespace TBSLogistics.Service.Services.Report
                 Labels = getAllDaysInMonth.Select(x => x.Date).ToList(),
                 Data = new List<DataReport> { arrSubfee, arrRevenue, arrProfit },
             };
+        }
 
+        public async Task<TransportReport> GetCustomerReport(DateTime fromDate, DateTime toDate)
+        {
+            var data = from vd in _context.VanDon
+                       join dp in _context.DieuPhoi
+                       on vd.MaVanDon equals dp.MaVanDon
+                       where dp.TrangThai == 20
+                       && dp.CreatedTime >= fromDate && dp.CreatedTime <= toDate
+                       select new { vd, dp };
+
+            var DataCustomer = await data.GroupBy(x => x.vd.MaKh).Select(x => new CustomerReport
+            {
+                CustomerName = _context.KhachHang.Where(v => v.MaKh == x.First().vd.MaKh).Select(v => v.TenKh).FirstOrDefault(),
+                Total = x.Count(),
+                InPut = x.Count(c => c.vd.LoaiVanDon == "nhap"),
+                OutPut = x.Count(c => c.vd.LoaiVanDon == "xuat"),
+                FCL = x.Count(c => c.vd.MaPtvc == "FCL"),
+                FTL = x.Count(c => c.vd.MaPtvc == "FTL"),
+                LTL = x.Count(c => c.vd.MaPtvc == "LTL"),
+                LCL = x.Count(c => c.vd.MaPtvc == "LCL"),
+            }).OrderBy(x => x.CustomerName).ToListAsync();
+
+            var DataSupplier = await data.GroupBy(x => x.dp.DonViVanTai).Select(x => new CustomerReport
+            {
+                CustomerName = _context.KhachHang.Where(v => v.MaKh == x.First().dp.DonViVanTai).Select(v => v.TenKh).FirstOrDefault(),
+                Total = x.Count(),
+                InPut = x.Count(c => c.vd.LoaiVanDon == "nhap"),
+                OutPut = x.Count(c => c.vd.LoaiVanDon == "xuat"),
+                FCL = x.Count(c => c.vd.MaPtvc == "FCL"),
+                FTL = x.Count(c => c.vd.MaPtvc == "FTL"),
+                LTL = x.Count(c => c.vd.MaPtvc == "LTL"),
+                LCL = x.Count(c => c.vd.MaPtvc == "LCL"),
+            }).OrderBy(x => x.CustomerName).ToListAsync();
+
+            var listPartner = await _context.KhachHang.ToListAsync();
+            
+
+            return new TransportReport()
+            {
+                customerReports = DataCustomer,
+                supllierReports = DataSupplier,
+            };
         }
     }
 }
