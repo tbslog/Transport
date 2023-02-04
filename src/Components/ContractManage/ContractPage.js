@@ -33,12 +33,20 @@ const ContractPage = () => {
   const [contractType, setContractType] = useState("");
   const [custommerType, setCustommerType] = useState("");
 
+  const [title, setTitle] = useState("");
+
   const columns = useMemo(() => [
     {
       name: "Cập nhật",
       cell: (val) => (
         <button
-          onClick={() => handleEditButtonClick(val, SetShowModal("Edit"))}
+          onClick={() =>
+            handleEditButtonClick(
+              val,
+              SetShowModal("Edit"),
+              setTitle("Cập Nhật Hợp Đồng/Phụ Lục")
+            )
+          }
           type="button"
           className="btn btn-title btn-sm btn-default mx-1"
           gloss="Cập Nhật Thông Tin"
@@ -70,7 +78,11 @@ const ContractPage = () => {
       cell: (val) => (
         <button
           onClick={() =>
-            handleOnclickPriceTable(val, SetShowModal("PriceTable"))
+            handleOnclickPriceTable(
+              val,
+              SetShowModal("PriceTable"),
+              setTitle("Thông Tin Bảng Giá")
+            )
           }
           type="button"
           className="btn btn-title btn-sm btn-default mx-1"
@@ -299,7 +311,12 @@ const ContractPage = () => {
                     type="button"
                     className="btn btn-title btn-sm btn-default mx-1"
                     gloss="Tạo Mới Hợp Hồng"
-                    onClick={() => showModalForm(SetShowModal("Create"))}
+                    onClick={() =>
+                      showModalForm(
+                        SetShowModal("Create"),
+                        setTitle("Tạo Mới Hợp Đồng/Phụ Lục")
+                      )
+                    }
                   >
                     <i className="fas fa-plus-circle"></i>
                   </button>
@@ -481,6 +498,7 @@ const ContractPage = () => {
           >
             <div className="modal-content">
               <div className="modal-header">
+                <h5>{title}</h5>
                 <button
                   type="button"
                   className="close"

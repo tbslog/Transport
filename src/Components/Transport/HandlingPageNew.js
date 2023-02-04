@@ -46,7 +46,11 @@ const HandlingPageNew = () => {
               <>
                 <button
                   onClick={() =>
-                    handleEditButtonClick(val, SetShowModal("EditHandling"))
+                    handleEditButtonClick(
+                      val,
+                      SetShowModal("EditHandling"),
+                      setTitle("Cập Nhật Thông Tin Điều Phối")
+                    )
                   }
                   type="button"
                   className="btn btn-title btn-sm btn-default mx-1"
@@ -58,7 +62,11 @@ const HandlingPageNew = () => {
               <>
                 <button
                   onClick={() =>
-                    handleEditButtonClick(val, SetShowModal("addSubFee"))
+                    handleEditButtonClick(
+                      val,
+                      SetShowModal("addSubFee"),
+                      setTitle("Thêm Mới Phụ Phí Phát Sinh")
+                    )
                   }
                   type="button"
                   className="btn btn-title btn-sm btn-default mx-1"
@@ -70,7 +78,11 @@ const HandlingPageNew = () => {
               <>
                 <button
                   onClick={() =>
-                    handleEditButtonClick(val, SetShowModal("Image"))
+                    handleEditButtonClick(
+                      val,
+                      SetShowModal("Image"),
+                      setTitle("Quản Lý Chứng Từ Chuyến")
+                    )
                   }
                   type="button"
                   className="btn btn-title btn-sm btn-default mx-1"
@@ -258,6 +270,8 @@ const HandlingPageNew = () => {
   const [selectedRows, setSelectedRows] = useState([]);
   const [toggledClearRows, setToggleClearRows] = useState(false);
   const [itemSelected, setItemSelected] = useState([]);
+
+  const [title, setTitle] = useState("");
 
   const showModalForm = () => {
     const modal = new Modal(parseExceptionModal.current, {
@@ -610,8 +624,7 @@ const HandlingPageNew = () => {
   const handleOnClickMarge = () => {
     if (selectedRows && selectedRows.length > 1) {
       setItemSelected(selectedRows);
-      console.log(selectedRows);
-      showModalForm(SetShowModal("MargeTransport"));
+      showModalForm(SetShowModal("MargeTransport"), setTitle("Gộp Chuyến"));
     } else {
       setItemSelected([]);
       ToastError("Vui lòng chọn nhiều hơn 1 vận đơn để gộp");
@@ -690,7 +703,8 @@ const HandlingPageNew = () => {
                   onClick={() =>
                     showModalForm(
                       SetShowModal("ApproveSubFee"),
-                      setSelectIdClick({})
+                      setSelectIdClick({}),
+                      setTitle("Duyệt Phụ Phí Phát Sinh")
                     )
                   }
                 >
@@ -884,6 +898,7 @@ const HandlingPageNew = () => {
           >
             <div className="modal-content">
               <div className="modal-header">
+                <h5>{title}</h5>
                 <button
                   type="button"
                   className="close"

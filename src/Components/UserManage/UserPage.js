@@ -33,13 +33,19 @@ const UserPage = () => {
   const [ShowConfirm, setShowConfirm] = useState(false);
   const [functionSubmit, setFunctionSubmit] = useState("");
 
+  const [title, setTitle] = useState("");
+
   const columns = useMemo(() => [
     {
       cell: (val) => (
         <>
           <button
             onClick={() =>
-              handleEditButtonClick(val, SetShowModal("UpdateUser"))
+              handleEditButtonClick(
+                val,
+                SetShowModal("UpdateUser"),
+                setTitle("Cập Nhật Thông Tin Người Dùng")
+              )
             }
             type="button"
             className="btn btn-title btn-sm btn-default mx-1"
@@ -49,11 +55,15 @@ const UserPage = () => {
           </button>
           <button
             onClick={() =>
-              handleEditButtonClick(val, SetShowModal("SetCusForUser"))
+              handleEditButtonClick(
+                val,
+                SetShowModal("SetCusForUser"),
+                setTitle("Phân Bổ Khách Hàng Cho Người Dùng")
+              )
             }
             type="button"
             className="btn btn-title btn-sm btn-default mx-1"
-            gloss=""
+            gloss="Phân Bổ Khách Hàng"
           >
             <i className="fas fa-user-plus"></i>
           </button>
@@ -301,7 +311,8 @@ const UserPage = () => {
                     onClick={() =>
                       showModalForm(
                         SetShowModal("Create"),
-                        setSelectIdClick({})
+                        setSelectIdClick({}),
+                        setTitle("Tạo Mới Người Dùng")
                       )
                     }
                   >
@@ -315,7 +326,8 @@ const UserPage = () => {
                     onClick={() =>
                       showModalForm(
                         SetShowModal("RolePage"),
-                        setSelectIdClick({})
+                        setSelectIdClick({}),
+                        setTitle("Quản Lý Phân Quyền")
                       )
                     }
                   >
@@ -467,6 +479,7 @@ const UserPage = () => {
           >
             <div className="modal-content">
               <div className="modal-header">
+                <h5>{title}</h5>
                 <button
                   type="button"
                   className="close"

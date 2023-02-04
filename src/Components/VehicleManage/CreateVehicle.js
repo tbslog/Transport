@@ -3,6 +3,7 @@ import { getData, postData } from "../Common/FuncAxios";
 import { useForm, Controller } from "react-hook-form";
 import Select from "react-select";
 import DatePicker from "react-datepicker";
+import LoadingPage from "../Common/Loading/LoadingPage";
 
 const CreateVehicle = (props) => {
   const { getListVehicle, listStatus } = props;
@@ -152,10 +153,13 @@ const CreateVehicle = (props) => {
   return (
     <>
       <div className="card card-primary">
-        <div className="card-header">
-          <h3 className="card-title">Form Thêm Phương Tiện</h3>
+        <div>
+          {IsLoading === true && (
+            <div>
+              <LoadingPage></LoadingPage>
+            </div>
+          )}
         </div>
-        <div>{IsLoading === true && <div>Loading...</div>}</div>
         {IsLoading === false && (
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="card-body">

@@ -1,17 +1,109 @@
 import { useState, useEffect } from "react";
-import { getData, postData } from "../Common/FuncAxios";
-import { useForm, Controller } from "react-hook-form";
+import { postData } from "../Common/FuncAxios";
+import { useForm } from "react-hook-form";
+import LoadingPage from "../Common/Loading/LoadingPage";
 
 const EditCustommer = (props) => {
   const [IsLoading, SetIsLoading] = useState(true);
   const {
     register,
+    watch,
     setValue,
     formState: { errors },
     handleSubmit,
   } = useForm({
     mode: "onChange",
   });
+
+  const Validate = {
+    MaKH: {
+      required: "Không được để trống",
+      maxLength: {
+        value: 50,
+        message: "Không được vượt quá 50 ký tự",
+      },
+      minLength: {
+        value: 7,
+        message: "Không được ít hơn 7 ký tự",
+      },
+      pattern: {
+        value: /^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9]+(?<![_.])$/,
+        message: "Không được chứa ký tự đặc biệt",
+      },
+    },
+    Chuoi: {
+      required: "Không được để trống",
+      maxLength: {
+        value: 50,
+        message: "Không được vượt quá 50 ký tự",
+      },
+      minLength: {
+        value: 1,
+        message: "Không được ít hơn 1 ký tự",
+      },
+    },
+    TenKH: {
+      required: "Không được để trống",
+      maxLength: {
+        value: 50,
+        message: "Không được vượt quá 50 ký tự",
+      },
+      minLength: {
+        value: 1,
+        message: "Không được ít hơn 1 ký tự",
+      },
+      pattern: {
+        value:
+          /^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9 aAàÀảẢãÃáÁạẠăĂằẰẳẲẵẴắẮặẶâÂầẦẩẨẫẪấẤậẬbBcCdDđĐeEèÈẻẺẽẼéÉẹẸêÊềỀểỂễỄếẾệỆ fFgGhHiIìÌỉỈĩĨíÍịỊjJkKlLmMnNoOòÒỏỎõÕóÓọỌôÔồỒổỔỗỖốỐộỘơƠờỜởỞỡỠớỚợỢpPqQrRsStTu UùÙủỦũŨúÚụỤưƯừỪửỬữỮứỨựỰvVwWxXyYỳỲỷỶỹỸýÝỵỴzZ]+(?<![_.])$/,
+        message: "Tên khách hàng không được chứa ký tự đặc biệt",
+      },
+    },
+    Email: {
+      required: "Không được để trống",
+      maxLength: {
+        value: 100,
+        message: "Không được vượt quá 100 ký tự",
+      },
+      minLength: {
+        value: 3,
+        message: "Không được ít hơn 3 ký tự",
+      },
+      pattern: {
+        value: /^([\w\.\-]+)@([\w\-]+)((\.(\w){2,3})+)$/,
+        message: "Không phải Email",
+      },
+    },
+    MST: {
+      required: "Không được để trống",
+      maxLength: {
+        value: 50,
+        message: "Không được vượt quá 50 ký tự",
+      },
+      minLength: {
+        value: 1,
+        message: "Không được ít hơn 1 ký tự",
+      },
+      pattern: {
+        value: /^(?![_.])(?![_.])(?!.*[_.]{2})[0-9]+(?<![_.])$/,
+        message: "Mã số thuế chỉ được chứa ký tự là số",
+      },
+    },
+    SDT: {
+      required: "Không được để trống",
+      maxLength: {
+        value: 50,
+        message: "Không được vượt quá 20 ký tự",
+      },
+      minLength: {
+        value: 10,
+        message: "Không được ít hơn 10 ký tự",
+      },
+      pattern: {
+        value: /^(?![_.])(?![_.])(?!.*[_.]{2})[0-9]+(?<![_.])$/,
+        message: "Số điện thoại chỉ được chứa ký tự là số",
+      },
+    },
+  };
 
   const [listStatus, setListStatus] = useState([]);
   const [listCustomerGroup, setListCustomerGroup] = useState([]);
@@ -29,6 +121,7 @@ const EditCustommer = (props) => {
       trangThai: data.TrangThai,
       nhomKh: data.NhomKH,
       loaiKh: data.LoaiKH,
+      chuoi: data.Chuoi,
     });
 
     if (put === 1) {
@@ -65,6 +158,7 @@ const EditCustommer = (props) => {
       setValue("LoaiKH", props.selectIdClick.loaiKH);
       setValue("NhomKH", props.selectIdClick.nhomKH);
       setValue("TrangThai", props.selectIdClick.trangThai);
+      setValue("Chuoi", props.selectIdClick.chuoi);
 
       SetIsLoading(false);
     }
@@ -73,10 +167,13 @@ const EditCustommer = (props) => {
   return (
     <>
       <div className="card card-primary">
-        <div className="card-header">
-          <h3 className="card-title">Form Cập nhật Khách Hàng</h3>
+        <div>
+          {IsLoading === true && (
+            <div>
+              <LoadingPage></LoadingPage>
+            </div>
+          )}
         </div>
-        <div>{IsLoading === true && <div>Loading...</div>}</div>
 
         {IsLoading === false && (
           <form onSubmit={handleSubmit(onSubmit)}>
@@ -84,151 +181,53 @@ const EditCustommer = (props) => {
               <div className="row">
                 <div className="col-sm">
                   <div className="form-group">
-                    <label htmlFor="MaKH">Mã khách hàng(*)</label>
-                    <input
-                      autoComplete="false"
-                      type="text"
+                    <label htmlFor="LoaiKH">Phân Loại Đối Tác(*)</label>
+                    <select
+                      disabled={true}
                       className="form-control"
-                      id="MaKH"
-                      placeholder="Nhập mã khách hàng"
-                      {...register("MaKH")}
-                      readOnly={true}
-                    />
-                    {errors.MaKH && (
-                      <span className="text-danger">{errors.MaKH.message}</span>
-                    )}
-                  </div>
-                </div>
-                <div className="col-sm">
-                  <div className="form-group">
-                    <label htmlFor="TenKH">Tên khách hàng(*)</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      id="TenKH"
-                      placeholder="Nhập tên khách hàng"
-                      {...register("TenKH", {
+                      {...register("LoaiKH", {
                         required: "Không được để trống",
-                        maxLength: {
-                          value: 50,
-                          message: "Không được vượt quá 50 ký tự",
-                        },
-                        minLength: {
-                          value: 1,
-                          message: "Không được ít hơn 1 ký tự",
-                        },
-                        pattern: {
-                          value:
-                            /^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9 aAàÀảẢãÃáÁạẠăĂằẰẳẲẵẴắẮặẶâÂầẦẩẨẫẪấẤậẬbBcCdDđĐeEèÈẻẺẽẼéÉẹẸêÊềỀểỂễỄếẾệỆ fFgGhHiIìÌỉỈĩĨíÍịỊjJkKlLmMnNoOòÒỏỎõÕóÓọỌôÔồỒổỔỗỖốỐộỘơƠờỜởỞỡỠớỚợỢpPqQrRsStTu UùÙủỦũŨúÚụỤưƯừỪửỬữỮứỨựỰvVwWxXyYỳỲỷỶỹỸýÝỵỴzZ]+(?<![_.])$/,
-                          message:
-                            "Tên khách hàng không được chứa ký tự đặc biệt",
-                        },
                       })}
-                    />
-                    {errors.TenKH && (
+                    >
+                      <option value="">Chọn Phân Loại Đối Tác</option>
+                      {listCustomerType &&
+                        listCustomerType.map((val) => {
+                          return (
+                            <option value={val.maLoaiKh} key={val.maLoaiKh}>
+                              {val.tenLoaiKh}
+                            </option>
+                          );
+                        })}
+                    </select>
+                    {errors.LoaiKH && (
                       <span className="text-danger">
-                        {errors.TenKH.message}
+                        {errors.LoaiKH.message}
                       </span>
                     )}
                   </div>
                 </div>
-              </div>
 
-              <div className="row">
-                <div className="col-sm">
-                  <div className="form-group">
-                    <label htmlFor="Email">Địa chỉ Email(*)</label>
-                    <input
-                      type="text "
-                      className="form-control"
-                      id="Email"
-                      placeholder="Nhập địa chỉ Email"
-                      {...register("Email", {
-                        required: "Không được để trống",
-                        maxLength: {
-                          value: 100,
-                          message: "Không được vượt quá 100 ký tự",
-                        },
-                        minLength: {
-                          value: 3,
-                          message: "Không được ít hơn 3 ký tự",
-                        },
-                        pattern: {
-                          value: /^([\w\.\-]+)@([\w\-]+)((\.(\w){2,3})+)$/,
-                          message: "Không phải Email",
-                        },
-                      })}
-                    />
-                    {errors.Email && (
-                      <span className="text-danger">
-                        {errors.Email.message}
-                      </span>
-                    )}
-                  </div>
-                </div>
-                <div className="col-sm">
-                  <div className="form-group">
-                    <label htmlFor="MST">Mã số thuế(*)</label>
-                    <input
-                      type="text "
-                      className="form-control"
-                      id="MST"
-                      placeholder="Nhập mã số thuế"
-                      {...register("MST", {
-                        required: "Không được để trống",
-                        maxLength: {
-                          value: 50,
-                          message: "Không được vượt quá 50 ký tự",
-                        },
-                        minLength: {
-                          value: 1,
-                          message: "Không được ít hơn 1 ký tự",
-                        },
-                        pattern: {
-                          value:
-                            /^(?![_.])(?![_.])(?!.*[_.]{2})[0-9]+(?<![_.])$/,
-                          message: "Mã số thuế chỉ được chứa ký tự là số",
-                        },
-                      })}
-                    />
-                    {errors.MST && (
-                      <span className="text-danger">{errors.MST.message}</span>
-                    )}
-                  </div>
-                </div>
-                <div className="col-sm">
-                  <div className="form-group">
-                    <label htmlFor="SDT">Số điện thoại(*)</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      id="SDT"
-                      placeholder="Nhập số điện thoại"
-                      {...register("SDT", {
-                        required: "Không được để trống",
-                        maxLength: {
-                          value: 50,
-                          message: "Không được vượt quá 20 ký tự",
-                        },
-                        minLength: {
-                          value: 10,
-                          message: "Không được ít hơn 10 ký tự",
-                        },
-                        pattern: {
-                          value:
-                            /^(?![_.])(?![_.])(?!.*[_.]{2})[0-9]+(?<![_.])$/,
-                          message: "Số điện thoại chỉ được chứa ký tự là số",
-                        },
-                      })}
-                    />
-                    {errors.SDT && (
-                      <span className="text-danger">{errors.SDT.message}</span>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              <div className="row">
+                {watch("LoaiKH") && watch("LoaiKH") === "KH" && (
+                  <>
+                    <div className="col-sm">
+                      <div className="form-group">
+                        <label htmlFor="Chuoi">Chuỗi(*)</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          id="Chuoi"
+                          placeholder="Nhập tên chuỗi"
+                          {...register("Chuoi", Validate.Chuoi)}
+                        />
+                        {errors.Chuoi && (
+                          <span className="text-danger">
+                            {errors.Chuoi.message}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </>
+                )}
                 <div className="col-sm">
                   <div className="form-group">
                     <label htmlFor="NhomKH">Nhóm khách hàng(*)</label>
@@ -255,57 +254,119 @@ const EditCustommer = (props) => {
                     )}
                   </div>
                 </div>
+              </div>
+              <div className="row">
                 <div className="col-sm">
                   <div className="form-group">
-                    <label htmlFor="LoaiKH">Phân Loại khách hàng(*)</label>
-                    <select
+                    <label htmlFor="MaKH">Mã Đối Tác(*)</label>
+                    <input
+                      readOnly={true}
+                      type="text"
                       className="form-control"
-                      {...register("LoaiKH", {
-                        required: "Không được để trống",
-                      })}
-                    >
-                      <option value="">Chọn Phân Loại khách hàng</option>
-                      {listCustomerType &&
-                        listCustomerType.map((val) => {
-                          return (
-                            <option value={val.maLoaiKh} key={val.maLoaiKh}>
-                              {val.tenLoaiKh}
-                            </option>
-                          );
-                        })}
-                    </select>
-                    {errors.LoaiKH && (
+                      id="MaKH"
+                      placeholder="Nhập tên đối tác"
+                      {...register("MaKH", Validate.MaKH)}
+                    />
+                    {errors.MaKH && (
+                      <span className="text-danger">{errors.MaKH.message}</span>
+                    )}
+                  </div>
+                </div>
+                <div className="col-sm">
+                  <div className="form-group">
+                    <label htmlFor="TenKH">Tên đối tác(*)</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="TenKH"
+                      placeholder="Nhập tên đối tác"
+                      {...register("TenKH", Validate.TenKH)}
+                    />
+                    {errors.TenKH && (
                       <span className="text-danger">
-                        {errors.LoaiKH.message}
+                        {errors.TenKH.message}
                       </span>
                     )}
                   </div>
                 </div>
               </div>
+              <div className="row">
+                <div className="col-sm">
+                  <div className="form-group">
+                    <label htmlFor="Email">Địa chỉ Email(*)</label>
+                    <input
+                      type="text "
+                      className="form-control"
+                      id="Email"
+                      placeholder="Nhập địa chỉ Email"
+                      {...register("Email", Validate.Email)}
+                    />
+                    {errors.Email && (
+                      <span className="text-danger">
+                        {errors.Email.message}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className="col-sm">
+                  <div className="form-group">
+                    <label htmlFor="MST">Mã số thuế(*)</label>
+                    <input
+                      type="text "
+                      className="form-control"
+                      id="MST"
+                      placeholder="Nhập mã số thuế"
+                      {...register("MST", Validate.MST)}
+                    />
+                    {errors.MST && (
+                      <span className="text-danger">{errors.MST.message}</span>
+                    )}
+                  </div>
+                </div>
+                <div className="col-sm">
+                  <div className="form-group">
+                    <label htmlFor="SDT">Số điện thoại(*)</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="SDT"
+                      placeholder="Nhập số điện thoại"
+                      {...register("SDT", Validate.SDT)}
+                    />
+                    {errors.SDT && (
+                      <span className="text-danger">{errors.SDT.message}</span>
+                    )}
+                  </div>
+                </div>
+              </div>
 
-              <div className="form-group">
-                <label htmlFor="TrangThai">Trạng thái(*)</label>
-                <select
-                  className="form-control"
-                  {...register("TrangThai", {
-                    required: "Không được để trống",
-                  })}
-                >
-                  <option value="">Chọn trạng thái</option>
-                  {listStatus &&
-                    listStatus.map((val) => {
-                      return (
-                        <option value={val.statusId} key={val.statusId}>
-                          {val.statusContent}
-                        </option>
-                      );
-                    })}
-                </select>
-                {errors.TrangThai && (
-                  <span className="text-danger">
-                    {errors.TrangThai.message}
-                  </span>
-                )}
+              <div className="row">
+                <div className="col col-sm">
+                  <div className="form-group">
+                    <label htmlFor="TrangThai">Trạng thái(*)</label>
+                    <select
+                      className="form-control"
+                      {...register("TrangThai", {
+                        required: "Không được để trống",
+                      })}
+                    >
+                      <option value="">Chọn trạng thái</option>
+                      {listStatus &&
+                        listStatus.map((val) => {
+                          return (
+                            <option value={val.statusId} key={val.statusId}>
+                              {val.statusContent}
+                            </option>
+                          );
+                        })}
+                    </select>
+                    {errors.TrangThai && (
+                      <span className="text-danger">
+                        {errors.TrangThai.message}
+                      </span>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
             <div className="card-footer">

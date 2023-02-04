@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { getData, postData } from "../Common/FuncAxios";
 import { useForm, Controller } from "react-hook-form";
+import LoadingPage from "../Common/Loading/LoadingPage";
 
 const CreateRomooc = (props) => {
   const { getListRomooc, listStatus } = props;
@@ -84,10 +85,13 @@ const CreateRomooc = (props) => {
   return (
     <>
       <div className="card card-primary">
-        <div className="card-header">
-          <h3 className="card-title">Form Thêm Mới Romooc</h3>
+        <div>
+          {IsLoading === true && (
+            <div>
+              <LoadingPage></LoadingPage>
+            </div>
+          )}
         </div>
-        <div>{IsLoading === true && <div>Loading...</div>}</div>
         {IsLoading === false && (
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="card-body">

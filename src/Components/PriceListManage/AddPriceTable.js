@@ -6,6 +6,7 @@ import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
 import moment from "moment";
 import Select from "react-select";
 import PriceListContract from "./PriceListContract";
+import LoadingPage from "../Common/Loading/LoadingPage";
 
 const AddPriceTable = (props) => {
   const { selectIdClick } = props;
@@ -307,10 +308,13 @@ const AddPriceTable = (props) => {
 
         <TabPanel>
           <div className="card card-primary">
-            <div className="card-header">
-              <h3 className="card-title">Form Thêm Mới Bảng Giá</h3>
+            <div>
+              {IsLoading === true && (
+                <div>
+                  <LoadingPage></LoadingPage>
+                </div>
+              )}
             </div>
-            <div>{IsLoading === true && <div>Loading...</div>}</div>
 
             {IsLoading === false && (
               <form onSubmit={handleSubmit(onSubmit)}>

@@ -6,6 +6,7 @@ import Select from "react-select";
 import DataTable from "react-data-table-component";
 import moment from "moment";
 import { Modal } from "bootstrap";
+import LoadingPage from "../Common/Loading/LoadingPage";
 
 const AddSubFeeByHandling = (props) => {
   const { dataClick } = props;
@@ -211,10 +212,13 @@ const AddSubFeeByHandling = (props) => {
 
         <TabPanel>
           <div className="card card-primary">
-            <div className="card-header">
-              <h3 className="card-title">Form Thêm phụ phí phát sinh</h3>
+            <div>
+              {IsLoading === true && (
+                <div>
+                  <LoadingPage></LoadingPage>
+                </div>
+              )}
             </div>
-            <div>{IsLoading === true && <div>Loading...</div>}</div>
 
             {IsLoading === false && (
               <form onSubmit={handleSubmit(onSubmit)}>
@@ -368,9 +372,6 @@ const AddSubFeeByHandling = (props) => {
         <TabPanel>
           <>
             <div className="card card-primary">
-              <div className="card-header">
-                <h3 className="card-title">Danh sách phụ phí phát sinh</h3>
-              </div>
               <section className="content">
                 <div className="card">
                   <div className="card-body">

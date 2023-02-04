@@ -54,6 +54,8 @@ const HandlingPage = (props) => {
   const [listCustomer, setListCustomer] = useState([]);
   const [listCusSelected, setListCusSelected] = useState([]);
 
+  const [title, setTitle] = useState("");
+
   const columns = useMemo(() => [
     {
       cell: (val) => (
@@ -105,7 +107,13 @@ const HandlingPage = (props) => {
           <>{renderButton(val)}</>
           <>
             <button
-              onClick={() => handleEditButtonClick(val, SetShowModal("Edit"))}
+              onClick={() =>
+                handleEditButtonClick(
+                  val,
+                  SetShowModal("Edit"),
+                  setTitle("Cập Nhật Thông Tin Điều Phối")
+                )
+              }
               type="button"
               className="btn btn-title btn-sm btn-default mx-1"
               gloss="Chỉnh Sửa"
@@ -117,7 +125,11 @@ const HandlingPage = (props) => {
             {val.statusId !== 20 || val.statusId !== 21 || val.statusId !== 31}
             <button
               onClick={() =>
-                handleEditButtonClick(val, SetShowModal("addSubFee"))
+                handleEditButtonClick(
+                  val,
+                  SetShowModal("addSubFee"),
+                  setTitle("Thêm Mới Phụ Phí Phát Sinh")
+                )
               }
               type="button"
               className="btn btn-title btn-sm btn-default mx-1"
@@ -128,7 +140,13 @@ const HandlingPage = (props) => {
           </>
           <>
             <button
-              onClick={() => handleEditButtonClick(val, SetShowModal("Image"))}
+              onClick={() =>
+                handleEditButtonClick(
+                  val,
+                  SetShowModal("Image"),
+                  setTitle("Quản Lý Chứng Từ Chuyến")
+                )
+              }
               type="button"
               className="btn btn-title btn-sm btn-default mx-1"
               gloss="Xem Hình Ảnh"
@@ -778,14 +796,6 @@ const HandlingPage = (props) => {
             <div className="col-sm-6">
               <h1>Quản Lý Điều Phối</h1>
             </div>
-            {/* <div className="col-sm-6">
-                  <ol className="breadcrumb float-sm-right">
-                    <li className="breadcrumb-item">
-                      <a href="#">Home</a>
-                    </li>
-                    <li className="breadcrumb-item active">Blank Page</li>
-                  </ol>
-                </div> */}
           </div>
         </div>
       </section>
@@ -803,7 +813,8 @@ const HandlingPage = (props) => {
                     onClick={() =>
                       showModalForm(
                         SetShowModal("ApproveSubFee"),
-                        setSelectIdClick({})
+                        setSelectIdClick({}),
+                        setTitle("Duyệt Phụ Phí Phát Sinh")
                       )
                     }
                   >
@@ -983,6 +994,7 @@ const HandlingPage = (props) => {
             >
               <div className="modal-content">
                 <div className="modal-header">
+                  <h5>{title}</h5>
                   <button
                     type="button"
                     className="close"

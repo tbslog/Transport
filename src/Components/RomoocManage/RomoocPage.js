@@ -22,6 +22,8 @@ const RomoocPage = () => {
   const [selectIdClick, setSelectIdClick] = useState({});
   const [listStatus, setListStatus] = useState([]);
 
+  const [title, setTitle] = useState("");
+
   const showModalForm = () => {
     const modal = new Modal(parseExceptionModal.current, {
       keyboard: false,
@@ -35,7 +37,13 @@ const RomoocPage = () => {
     {
       cell: (val) => (
         <button
-          onClick={() => handleEditButtonClick(val, SetShowModal("Edit"))}
+          onClick={() =>
+            handleEditButtonClick(
+              val,
+              SetShowModal("Edit"),
+              setTitle("Cập Nhật Thông Tin Romooc")
+            )
+          }
           type="button"
           className="btn btn-title btn-sm btn-default mx-1"
           gloss="Cập Nhật Thông Tin"
@@ -200,7 +208,12 @@ const RomoocPage = () => {
                     type="button"
                     className="btn btn-title btn-sm btn-default mx-1"
                     gloss="Tạo Mới Romooc"
-                    onClick={() => showModalForm(SetShowModal("Create"))}
+                    onClick={() =>
+                      showModalForm(
+                        SetShowModal("Create"),
+                        setTitle("Tạo Mới Thông Tin Romooc")
+                      )
+                    }
                   >
                     <i className="fas fa-plus-circle"></i>
                   </button>
@@ -294,6 +307,7 @@ const RomoocPage = () => {
           >
             <div className="modal-content">
               <div className="modal-header">
+                <h5>{title}</h5>
                 <button
                   type="button"
                   className="close"

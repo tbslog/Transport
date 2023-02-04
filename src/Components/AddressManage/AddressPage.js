@@ -23,11 +23,19 @@ const AddressPage = () => {
   const [selectedRows, setSelectedRows] = useState([]);
   const [selectIdClick, setSelectIdClick] = useState({});
 
+  const [title, setTitle] = useState("");
+
   const columns = useMemo(() => [
     {
       cell: (val) => (
         <button
-          onClick={() => handleEditButtonClick(val, SetShowModal("Edit"))}
+          onClick={() =>
+            handleEditButtonClick(
+              val,
+              SetShowModal("Edit"),
+              setTitle("Cập Nhật Địa Điểm")
+            )
+          }
           type="button"
           className="btn btn-title btn-sm btn-default mx-1"
           gloss="Cập Nhật Thông Tin"
@@ -188,7 +196,12 @@ const AddressPage = () => {
                     type="button"
                     className="btn btn-title btn-sm btn-default mx-1"
                     gloss="Tạo Mới Địa Điểm"
-                    onClick={() => showModalForm(SetShowModal("Create"))}
+                    onClick={() =>
+                      showModalForm(
+                        SetShowModal("Create"),
+                        setTitle("Tạo Mới Địa Điểm")
+                      )
+                    }
                   >
                     <i className="fas fa-plus-circle"></i>
                   </button>
@@ -282,6 +295,7 @@ const AddressPage = () => {
           >
             <div className="modal-content">
               <div className="modal-header">
+                <h5 className="modal-title">{title}</h5>
                 <button
                   type="button"
                   className="close"

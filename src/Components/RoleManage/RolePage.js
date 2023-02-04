@@ -10,11 +10,19 @@ const RolePage = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  const [title, setTitle] = useState("");
+
   const columns = useMemo(() => [
     {
       cell: (val) => (
         <button
-          onClick={() => handleEditButtonClick(val, SetShowModal("UpdateRole"))}
+          onClick={() =>
+            handleEditButtonClick(
+              val,
+              SetShowModal("UpdateRole"),
+              setTitle("Cập Nhật Phân Quyền")
+            )
+          }
           type="button"
           className="btn btn-title btn-sm btn-default mx-1"
           gloss="Cập Nhật Role"
@@ -141,7 +149,12 @@ const RolePage = () => {
                     type="button"
                     className="btn btn-title btn-sm btn-default mx-1"
                     gloss="Tạo Mới Role"
-                    onClick={() => showModalForm(SetShowModal("Create"))}
+                    onClick={() =>
+                      showModalForm(
+                        SetShowModal("Create"),
+                        setTitle("Tạo Mới Phân Quyền")
+                      )
+                    }
                   >
                     <i className="fas fa-plus-circle"></i>
                   </button>
@@ -188,6 +201,7 @@ const RolePage = () => {
           >
             <div className="modal-content">
               <div className="modal-header">
+                <h5>{title}</h5>
                 <button
                   type="button"
                   className="close"

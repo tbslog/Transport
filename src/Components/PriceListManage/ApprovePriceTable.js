@@ -367,7 +367,6 @@ const ApprovePriceTable = (props) => {
           <div className="card-body">
             <div className="container-datatable" style={{ height: "50vm" }}>
               <DataTable
-                title="Duyệt Bảng Giá"
                 columns={columns}
                 data={data}
                 progressPending={loading}

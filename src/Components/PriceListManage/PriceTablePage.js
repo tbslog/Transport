@@ -31,6 +31,8 @@ const PriceTablePage = () => {
   const [listGoodsType, setListGoodsType] = useState([]);
   const [goodsType, setGoodsType] = useState("");
 
+  const [title, setTitle] = useState("");
+
   const paginationComponentOptions = {
     rowsPerPageText: "Dữ liệu mỗi trang",
     rangeSeparatorText: "của",
@@ -263,7 +265,8 @@ const PriceTablePage = () => {
                     onClick={() =>
                       showModalForm(
                         SetShowModal("Create"),
-                        setSelectIdClick({})
+                        setSelectIdClick({}),
+                        setTitle("Tạo Mới Bảng Giá")
                       )
                     }
                   >
@@ -276,7 +279,8 @@ const PriceTablePage = () => {
                     onClick={() =>
                       showModalForm(
                         SetShowModal("ApprovePriceTable"),
-                        setSelectIdClick({})
+                        setSelectIdClick({}),
+                        setTitle("Duyệt Bảng Giá")
                       )
                     }
                   >
@@ -455,6 +459,7 @@ const PriceTablePage = () => {
           >
             <div className="modal-content">
               <div className="modal-header">
+                <h5>{title}</h5>
                 <button
                   type="button"
                   className="close"

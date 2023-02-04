@@ -136,7 +136,6 @@ const HandlingImage = (props) => {
           <div className="card-body">
             <div className="container-datatable" style={{ height: "50vm" }}>
               <DataTable
-                title={"Danh Sách Hình Ảnh Chứng Từ"}
                 columns={columns}
                 data={data}
                 progressPending={loading}

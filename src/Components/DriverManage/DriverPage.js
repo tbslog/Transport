@@ -22,11 +22,19 @@ const DriverPage = () => {
   const [selectIdClick, setSelectIdClick] = useState({});
   const [listStatus, setListStatus] = useState([]);
 
+  const [title, setTitle] = useState("");
+
   const columns = useMemo(() => [
     {
       cell: (val) => (
         <button
-          onClick={() => handleEditButtonClick(val, SetShowModal("Edit"))}
+          onClick={() =>
+            handleEditButtonClick(
+              val,
+              SetShowModal("Edit"),
+              setTitle("Cập Nhật Thông Tin Tài Xế")
+            )
+          }
           type="button"
           className="btn btn-title btn-sm btn-default mx-1"
           gloss="Cập Nhật Thông Tin"
@@ -200,7 +208,12 @@ const DriverPage = () => {
                     type="button"
                     className="btn btn-title btn-sm btn-default mx-1"
                     gloss="Tạo Mới Tài Xế"
-                    onClick={() => showModalForm(SetShowModal("Create"))}
+                    onClick={() =>
+                      showModalForm(
+                        SetShowModal("Create"),
+                        setTitle("Tạo Mới Thông Tin Tài Xế")
+                      )
+                    }
                   >
                     <i className="fas fa-plus-circle"></i>
                   </button>
@@ -294,6 +307,7 @@ const DriverPage = () => {
           >
             <div className="modal-content">
               <div className="modal-header">
+                <h5>{title}</h5>
                 <button
                   type="button"
                   className="close"

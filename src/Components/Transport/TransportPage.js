@@ -54,6 +54,8 @@ const TransportPage = () => {
   const [ShowConfirm, setShowConfirm] = useState(false);
   const [funcName, setFuncName] = useState("");
 
+  const [title, setTitle] = useState("");
+
   const columns = useMemo(() => [
     {
       cell: (val) => (
@@ -90,7 +92,8 @@ const TransportPage = () => {
                   val,
                   val.maPTVC === "LCL" || val.maPTVC === "LTL"
                     ? SetShowModal("EditLess")
-                    : SetShowModal("Edit")
+                    : SetShowModal("Edit"),
+                  setTitle("Cập Nhật Thông Tin Vận Đơn")
                 )
               }
               type="button"
@@ -102,7 +105,11 @@ const TransportPage = () => {
           )}
           <button
             onClick={() =>
-              handleEditButtonClick(val, SetShowModal("ShowListHandling"))
+              handleEditButtonClick(
+                val,
+                SetShowModal("ShowListHandling"),
+                setTitle("Danh Sách Chuyến Của Vận Đơn")
+              )
             }
             type="button"
             className="btn btn-title btn-sm btn-default mx-1"
@@ -117,27 +124,6 @@ const TransportPage = () => {
       allowOverflow: true,
       button: true,
     },
-    // {
-    //   cell: (val) => (
-    //     <button
-    //       onClick={() =>
-    //         handleEditButtonClick(
-    //           val,
-    //           val.maTrangThai === 8
-    //             ? SetShowModal("Handling")
-    //             : SetShowModal("ListHandling")
-    //         )
-    //       }
-    //       type="button"
-    //       className="btn btn-sm btn-default"
-    //     >
-    //       <i className="fas fa-random"></i>
-    //     </button>
-    //   ),
-    //   ignoreRowClick: true,
-    //   allowOverflow: true,
-    //   button: true,
-    // },
     {
       selector: (row) => <div className="text-wrap">{row.maVanDon}</div>,
       omit: true,
@@ -532,7 +518,12 @@ const TransportPage = () => {
                     type="button"
                     className="btn btn-title btn-sm btn-default mx-1"
                     gloss="Tạo Vận Đơn FCL/FTL "
-                    onClick={() => showModalForm(SetShowModal("CreateFCL/FTL"))}
+                    onClick={() =>
+                      showModalForm(
+                        SetShowModal("CreateFCL/FTL"),
+                        setTitle("Tạo Mới Vận Đơn ")
+                      )
+                    }
                   >
                     <i className="fas fa-plus-circle">FCL/FTL</i>
                   </button>
@@ -540,7 +531,12 @@ const TransportPage = () => {
                     type="button"
                     className="btn btn-title btn-sm btn-default mx-1"
                     gloss="Tạo Vận Đơn LCL/LTL "
-                    onClick={() => showModalForm(SetShowModal("CreateLCL/LTL"))}
+                    onClick={() =>
+                      showModalForm(
+                        SetShowModal("CreateLCL/LTL"),
+                        setTitle("Tạo Mới Vận Đơn ")
+                      )
+                    }
                   >
                     <i className="fas fa-plus-circle">LCL/LTL</i>
                   </button>
@@ -712,6 +708,7 @@ const TransportPage = () => {
           >
             <div className="modal-content">
               <div className="modal-header">
+                <h5>{title}</h5>
                 <button
                   type="button"
                   className="close"

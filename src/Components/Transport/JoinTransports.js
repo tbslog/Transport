@@ -420,9 +420,6 @@ const JoinTransports = (props) => {
   return (
     <>
       <div className="card card-primary">
-        <div className="card-header">
-          <h3 className="card-title">Form Cập Nhật Điều Phối</h3>
-        </div>
         <div>
           {IsLoading === true && (
             <div>

@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import CheckboxTree from "react-checkbox-tree";
 import "react-checkbox-tree/lib/react-checkbox-tree.css";
 import { ToastError } from "../Common/FuncToast";
+import LoadingPage from "../Common/Loading/LoadingPage";
 
 const CreateRole = (props) => {
   const { getListRole } = props;
@@ -80,10 +81,13 @@ const CreateRole = (props) => {
 
   return (
     <div className="card card-primary">
-      <div className="card-header">
-        <h3 className="card-title">Form Thêm Mới Role</h3>
+      <div>
+        {IsLoading === true && (
+          <div>
+            <LoadingPage></LoadingPage>
+          </div>
+        )}
       </div>
-      <div>{IsLoading === true && <div>Loading...</div>}</div>
 
       {IsLoading === false && (
         <form onSubmit={handleSubmit(onSubmit)}>

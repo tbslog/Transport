@@ -3,6 +3,7 @@ import { getData, postData } from "../Common/FuncAxios";
 import { useForm, Controller } from "react-hook-form";
 import Select from "react-select";
 import DatePicker from "react-datepicker";
+import LoadingPage from "../Common/Loading/LoadingPage";
 
 const UpdateDriver = (props) => {
   const { selectIdClick, getListDriver, listStatus, hideModal } = props;
@@ -161,10 +162,13 @@ const UpdateDriver = (props) => {
   return (
     <>
       <div className="card card-primary">
-        <div className="card-header">
-          <h3 className="card-title">Form Cập Nhật Tài Xế</h3>
+        <div>
+          {IsLoading === true && (
+            <div>
+              <LoadingPage></LoadingPage>
+            </div>
+          )}
         </div>
-        <div>{IsLoading === true && <div>Loading...</div>}</div>
 
         {IsLoading === false && (
           <form onSubmit={handleSubmit(onSubmit)}>

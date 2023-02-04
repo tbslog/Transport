@@ -29,11 +29,19 @@ const CustommerPage = () => {
   const [ListTypeAddress, SetListTypeAddress] = useState([]);
   const [cusType, setCusType] = useState("KH");
 
+  const [title, setTitle] = useState("");
+
   const columns = useMemo(() => [
     {
       cell: (val) => (
         <button
-          onClick={() => handleEditButtonClick(val, SetShowModal("Edit"))}
+          onClick={() =>
+            handleEditButtonClick(
+              val,
+              SetShowModal("Edit"),
+              setTitle("Cập Nhật Thông Tin Đối Tác")
+            )
+          }
           type="button"
           className="btn btn-title btn-sm btn-default mx-1"
           gloss="Cập Nhật Thông Tin"
@@ -44,6 +52,10 @@ const CustommerPage = () => {
       ignoreRowClick: true,
       allowOverflow: true,
       button: true,
+    },
+    {
+      name: "Chuỗi",
+      selector: (row) => row.chuoi,
     },
     {
       name: "Mã khách hàng",
@@ -126,13 +138,11 @@ const CustommerPage = () => {
       ]);
       setListStatus(getStatusList);
 
+      fetchData(1, 10, "", "KH");
+
       setLoading(false);
     })();
   }, []);
-
-  const handleCreateContract = async (val) => {
-    showModalForm();
-  };
 
   const handleEditButtonClick = async (val) => {
     showModalForm();
@@ -157,7 +167,6 @@ const CustommerPage = () => {
 
   const handlePageChange = async (page) => {
     setPage(page);
-
     await fetchData(page, perPage, keySearch, cusType);
   };
 
@@ -251,7 +260,12 @@ const CustommerPage = () => {
                     type="button"
                     className="btn btn-title btn-sm btn-default mx-1"
                     gloss="Thêm Mới Khách Hàng"
-                    onClick={() => showModalForm(SetShowModal("Create"))}
+                    onClick={() =>
+                      showModalForm(
+                        SetShowModal("Create"),
+                        setTitle("Tạo Mới Thông Tin Đối Tác")
+                      )
+                    }
                   >
                     <i className="fas fa-plus-circle"></i>
                   </button>
@@ -365,7 +379,8 @@ const CustommerPage = () => {
             style={{ maxWidth: "88%" }}
           >
             <div className="modal-content">
-              <div className="modal-header">
+              <div className="modal-header ">
+                <h5 className="modal-title">{title}</h5>
                 <button
                   type="button"
                   className="close"

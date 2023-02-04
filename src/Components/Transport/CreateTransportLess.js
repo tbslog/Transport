@@ -301,9 +301,6 @@ const CreateTransportLess = (props) => {
   return (
     <>
       <div className="card card-primary">
-        <div className="card-header">
-          <h3 className="card-title">Form Thêm Mới Vận Đơn FCL/FTL</h3>
-        </div>
         <div>
           {IsLoading === true && (
             <div>

@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { getData, postData } from "../Common/FuncAxios";
 import { useForm, Controller } from "react-hook-form";
 import Select from "react-select";
+import LoadingPage from "../Common/Loading/LoadingPage";
 
 const CreateSubFee = (props) => {
   const { getListSubFee } = props;
@@ -189,10 +190,13 @@ const CreateSubFee = (props) => {
 
   return (
     <div className="card card-primary">
-      <div className="card-header">
-        <h3 className="card-title">Form Thêm Mới Phụ Phí</h3>
+      <div>
+        {IsLoading === true && (
+          <div>
+            <LoadingPage></LoadingPage>
+          </div>
+        )}
       </div>
-      <div>{IsLoading === true && <div>Loading...</div>}</div>
 
       {IsLoading === false && (
         <form onSubmit={handleSubmit(onSubmit)}>

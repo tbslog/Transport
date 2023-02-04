@@ -1,13 +1,15 @@
 import { useState, useEffect } from "react";
-import { getData, postData, getDataCustom } from "../Common/FuncAxios";
-import { useForm, Controller } from "react-hook-form";
+import { postData } from "../Common/FuncAxios";
+import { useForm } from "react-hook-form";
 import "../../Css/UploadFile.scss";
-import Select from "react-select";
+import { Watch } from "react-loader-spinner";
+import LoadingPage from "../Common/Loading/LoadingPage";
 
 const CreateCustommer = (props) => {
   const [IsLoading, SetIsLoading] = useState(true);
   const {
     register,
+    watch,
     reset,
     formState: { errors },
     handleSubmit,
@@ -29,6 +31,17 @@ const CreateCustommer = (props) => {
       pattern: {
         value: /^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9]+(?<![_.])$/,
         message: "Không được chứa ký tự đặc biệt",
+      },
+    },
+    Chuoi: {
+      required: "Không được để trống",
+      maxLength: {
+        value: 50,
+        message: "Không được vượt quá 50 ký tự",
+      },
+      minLength: {
+        value: 1,
+        message: "Không được ít hơn 1 ký tự",
       },
     },
     TenKH: {
@@ -124,6 +137,7 @@ const CreateCustommer = (props) => {
       trangThai: data.TrangThai,
       nhomKh: data.NhomKH,
       loaiKh: data.LoaiKH,
+      chuoi: data.Chuoi,
     });
     if (post === 1) {
       props.getListUser();
@@ -136,14 +150,93 @@ const CreateCustommer = (props) => {
   return (
     <>
       <div className="card card-primary">
-        <div className="card-header">
-          <h3 className="card-title">Form Thêm Mới Khách Hàng</h3>
+        <div>
+          {IsLoading === true && (
+            <>
+              <LoadingPage></LoadingPage>
+            </>
+          )}
         </div>
-        <div>{IsLoading === true && <div>Loading...</div>}</div>
 
         {IsLoading === false && (
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="card-body">
+              <div className="row">
+                <div className="col-sm">
+                  <div className="form-group">
+                    <label htmlFor="LoaiKH">Phân Loại Đối Tác(*)</label>
+                    <select
+                      className="form-control"
+                      {...register("LoaiKH", {
+                        required: "Không được để trống",
+                      })}
+                    >
+                      <option value="">Chọn Phân Loại Đối Tác</option>
+                      {listCustomerType &&
+                        listCustomerType.map((val) => {
+                          return (
+                            <option value={val.maLoaiKh} key={val.maLoaiKh}>
+                              {val.tenLoaiKh}
+                            </option>
+                          );
+                        })}
+                    </select>
+                    {errors.LoaiKH && (
+                      <span className="text-danger">
+                        {errors.LoaiKH.message}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {watch("LoaiKH") && watch("LoaiKH") === "KH" && (
+                  <>
+                    <div className="col-sm">
+                      <div className="form-group">
+                        <label htmlFor="Chuoi">Chuỗi(*)</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          id="Chuoi"
+                          placeholder="Nhập tên chuỗi"
+                          {...register("Chuoi", Validate.Chuoi)}
+                        />
+                        {errors.Chuoi && (
+                          <span className="text-danger">
+                            {errors.Chuoi.message}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </>
+                )}
+                <div className="col-sm">
+                  <div className="form-group">
+                    <label htmlFor="NhomKH">Nhóm khách hàng(*)</label>
+                    <select
+                      className="form-control"
+                      {...register("NhomKH", {
+                        required: "Không được để trống",
+                      })}
+                    >
+                      <option value="">Chọn Nhóm khách hàng</option>
+                      {listCustomerGroup &&
+                        listCustomerGroup.map((val) => {
+                          return (
+                            <option value={val.maNhomKh} key={val.maNhomKh}>
+                              {val.tenNhomKh}
+                            </option>
+                          );
+                        })}
+                    </select>
+                    {errors.NhomKH && (
+                      <span className="text-danger">
+                        {errors.NhomKH.message}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
               <div className="row">
                 <div className="col-sm">
                   <div className="form-group">
@@ -229,82 +322,32 @@ const CreateCustommer = (props) => {
               </div>
 
               <div className="row">
-                <div className="col-sm">
+                <div className="col col-sm">
                   <div className="form-group">
-                    <label htmlFor="NhomKH">Nhóm khách hàng(*)</label>
+                    <label htmlFor="TrangThai">Trạng thái(*)</label>
                     <select
                       className="form-control"
-                      {...register("NhomKH", {
+                      {...register("TrangThai", {
                         required: "Không được để trống",
                       })}
                     >
-                      <option value="">Chọn Nhóm khách hàng</option>
-                      {listCustomerGroup &&
-                        listCustomerGroup.map((val) => {
+                      <option value="">Chọn trạng thái</option>
+                      {listStatusType &&
+                        listStatusType.map((val) => {
                           return (
-                            <option value={val.maNhomKh} key={val.maNhomKh}>
-                              {val.tenNhomKh}
+                            <option value={val.statusId} key={val.statusId}>
+                              {val.statusContent}
                             </option>
                           );
                         })}
                     </select>
-                    {errors.NhomKH && (
+                    {errors.TrangThai && (
                       <span className="text-danger">
-                        {errors.NhomKH.message}
+                        {errors.TrangThai.message}
                       </span>
                     )}
                   </div>
                 </div>
-                <div className="col-sm">
-                  <div className="form-group">
-                    <label htmlFor="LoaiKH">Phân Loại Đối Tác(*)</label>
-                    <select
-                      className="form-control"
-                      {...register("LoaiKH", {
-                        required: "Không được để trống",
-                      })}
-                    >
-                      <option value="">Chọn Phân Loại Đối Tác</option>
-                      {listCustomerType &&
-                        listCustomerType.map((val) => {
-                          return (
-                            <option value={val.maLoaiKh} key={val.maLoaiKh}>
-                              {val.tenLoaiKh}
-                            </option>
-                          );
-                        })}
-                    </select>
-                    {errors.LoaiKH && (
-                      <span className="text-danger">
-                        {errors.LoaiKH.message}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div>
-              <div className="form-group">
-                <label htmlFor="TrangThai">Trạng thái(*)</label>
-                <select
-                  className="form-control"
-                  {...register("TrangThai", {
-                    required: "Không được để trống",
-                  })}
-                >
-                  <option value="">Chọn trạng thái</option>
-                  {listStatusType &&
-                    listStatusType.map((val) => {
-                      return (
-                        <option value={val.statusId} key={val.statusId}>
-                          {val.statusContent}
-                        </option>
-                      );
-                    })}
-                </select>
-                {errors.TrangThai && (
-                  <span className="text-danger">
-                    {errors.TrangThai.message}
-                  </span>
-                )}
               </div>
             </div>
             <div className="card-footer">

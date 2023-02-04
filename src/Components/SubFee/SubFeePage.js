@@ -31,6 +31,8 @@ const SubFeePage = () => {
   const [ShowConfirm, setShowConfirm] = useState(false);
   const [functionSubmit, setFunctionSubmit] = useState("");
 
+  const [title, setTitle] = useState("");
+
   const columns = useMemo(() => [
     {
       name: <div>Mã phụ phí</div>,
@@ -280,7 +282,7 @@ const SubFeePage = () => {
         <div className="container-fluid">
           <div className="row mb-2">
             <div className="col-sm-6">
-              <h1>Quản Lý Phụ Phí</h1>
+              <h1>Quản Lý Phụ Phí Theo Hợp Đồng</h1>
             </div>
             {/* <div className="col-sm-6">
                   <ol className="breadcrumb float-sm-right">
@@ -307,7 +309,8 @@ const SubFeePage = () => {
                     onClick={() =>
                       showModalForm(
                         SetShowModal("Create"),
-                        setSelectIdClick({})
+                        setSelectIdClick({}),
+                        setTitle("Tạo Mới Phụ Phí Theo Hợp Đồng")
                       )
                     }
                   >
@@ -320,7 +323,8 @@ const SubFeePage = () => {
                     onClick={() =>
                       showModalForm(
                         SetShowModal("ApproveSubFee"),
-                        setSelectIdClick({})
+                        setSelectIdClick({}),
+                        setTitle("Duyệt Phụ Phí Theo Hợp Đồng")
                       )
                     }
                   >
@@ -470,6 +474,7 @@ const SubFeePage = () => {
           >
             <div className="modal-content">
               <div className="modal-header">
+                <h5>{title}</h5>
                 <button
                   type="button"
                   className="close"

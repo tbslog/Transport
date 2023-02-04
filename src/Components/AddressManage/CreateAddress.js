@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { getData, postData } from "../Common/FuncAxios";
 import { useForm, Controller } from "react-hook-form";
 import Select from "react-select";
+import LoadingPage from "../Common/Loading/LoadingPage";
 
 const CreateAddress = (props) => {
   const [IsLoading, SetIsLoading] = useState(true);
@@ -204,10 +205,13 @@ const CreateAddress = (props) => {
   return (
     <>
       <div className="card card-primary">
-        <div className="card-header">
-          <h3 className="card-title">Form Thêm Mới Địa Điểm</h3>
+        <div>
+          {IsLoading === true && (
+            <div>
+              <LoadingPage></LoadingPage>
+            </div>
+          )}
         </div>
-        <div>{IsLoading === true && <div>Loading...</div>}</div>
 
         {IsLoading === false && (
           <form onSubmit={handleSubmit(onSubmit)}>
