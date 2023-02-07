@@ -2821,9 +2821,9 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                     if (result > 0)
                     {
                         var handleVehicleStatus = await HandleVehicleStatus(35, getListHandling.Select(x => x.MaSoXe).FirstOrDefault());
-                        await _common.Log("BillOfLading", " UserId: " + tempData.UserName + "Set " + handlingId + "Shipping");
+                        await _common.Log("BillOfLading", " UserId: " + tempData.UserName + "Set " + handlingId + " Completed");
                         await transaction.CommitAsync();
-                        return new BoolActionResult { isSuccess = true, Message = "Đã điều phối xe vận chuyển hàng" };
+                        return new BoolActionResult { isSuccess = true, Message = "Đã Hoàn Thành Vận Đơn" };
                     }
                     else
                     {

@@ -15,6 +15,7 @@ namespace TBSLogistics.Data.TMS
 
         public string MaKh { get; set; }
         public string TenKh { get; set; }
+        public string Chuoi { get; set; }
         public string MaSoThue { get; set; }
         public string Sdt { get; set; }
         public string Email { get; set; }

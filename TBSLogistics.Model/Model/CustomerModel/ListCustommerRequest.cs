@@ -8,6 +8,7 @@ namespace TBSLogistics.Model.Model.CustomerModel
 {
    public class ListCustommerRequest
     {
+        public string Chuoi { get; set; }
         public string MaKh { get; set; }
         public string TenKh { get; set; }
         public string NhomKH { get; set; }

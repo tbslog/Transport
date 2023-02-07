@@ -55,7 +55,7 @@ namespace TBSLogistics.ApplicationAPI
                  });
             });
 
-            services.AddDbContext<TMSContext>(options => options.UseSqlServer(Configuration["TMS_Local"]));
+            services.AddDbContext<TMSContext>(options => options.UseSqlServer(Configuration["TMS_Cloud"]));
             services.AddHttpContextAccessor();
             services.AddSingleton<IPaginationService>(o =>
             {
@@ -112,6 +112,7 @@ namespace TBSLogistics.ApplicationAPI
                     BearerFormat = "JWT",
                     Scheme = "Bearer"
                 });
+
                 option.AddSecurityRequirement(new OpenApiSecurityRequirement
                 {
                     {

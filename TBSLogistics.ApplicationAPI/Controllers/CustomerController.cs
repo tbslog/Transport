@@ -1,11 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using OfficeOpenXml;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using TBSLogistics.Model.Filter;
@@ -13,8 +8,8 @@ using TBSLogistics.Model.Model.CustomerModel;
 using TBSLogistics.Model.Model.CustommerModel;
 using TBSLogistics.Service.Helpers;
 using TBSLogistics.Service.Panigation;
-using TBSLogistics.Service.Services.CustommerManage;
 using TBSLogistics.Service.Services.Common;
+using TBSLogistics.Service.Services.CustommerManage;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -46,7 +41,6 @@ namespace TBSLogistics.ApplicationAPI.Controllers
                 return BadRequest(checkPermission.Message);
             }
 
-
             var Create = await _customer.CreateCustomer(request);
 
             if (Create.isSuccess == true)
@@ -68,7 +62,6 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             {
                 return BadRequest(checkPermission.Message);
             }
-
 
             var Edit = await _customer.EditCustomer(Id, request);
 
@@ -123,6 +116,21 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpGet]
         [Route("[action]")]
+        public async Task<IActionResult> GetListChuoiSelect()
+        {
+            var checkPermission = await _common.CheckPermission("A0003");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
+            var list = await _customer.GetListChuoiSelect();
+
+            return Ok(list);
+        }
+
+        [HttpGet]
+        [Route("[action]")]
         public async Task<IActionResult> GetListCustomerFilter(string type = null)
         {
             var listOptionSelect = await _customer.GetListCustomerFilter(type);
@@ -144,7 +152,6 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             //    return BadRequest(ImportExcel.DataReturn + " --- " + ImportExcel.Message);
             //}
             return BadRequest();
-
         }
     }
 }

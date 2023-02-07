@@ -1,12 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using TBSLogistics.Data.TMS;
 using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.AddressModel;
 using TBSLogistics.Service.Helpers;
@@ -25,7 +21,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         private readonly IPaginationService _uriService;
         private readonly ICommon _common;
 
-        public AddressController(IAddress address, IPaginationService uriService,ICommon common)
+        public AddressController(IAddress address, IPaginationService uriService, ICommon common)
         {
             _common = common;
             _address = address;

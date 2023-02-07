@@ -1,23 +1,18 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using System.Threading;
 using System.Threading.Tasks;
 using TBSLogistics.Data.TMS;
 using TBSLogistics.Model.CommonModel;
 using TBSLogistics.Model.Filter;
-using TBSLogistics.Model.Model.AddressModel;
 using TBSLogistics.Model.Model.CustomerModel;
 using TBSLogistics.Model.Model.CustommerModel;
 using TBSLogistics.Model.TempModel;
 using TBSLogistics.Model.Wrappers;
-using TBSLogistics.Service.Services.CustommerManage;
 using TBSLogistics.Service.Services.AddressManage;
 using TBSLogistics.Service.Services.Common;
 
@@ -61,6 +56,7 @@ namespace TBSLogistics.Service.Services.CustommerManage
                 await _TMSContext.AddAsync(new KhachHang()
                 {
                     MaKh = request.MaKH.ToUpper(),
+                    Chuoi = request.LoaiKH == "NCC" ? null : request.Chuoi.ToUpper(),
                     TenKh = request.TenKh,
                     MaSoThue = request.MaSoThue,
                     Sdt = request.Sdt,
@@ -110,6 +106,7 @@ namespace TBSLogistics.Service.Services.CustommerManage
 
                 string ErrorValidate = await ValiateCustommer(CustomerId, request.TenKh, request.MaSoThue, request.Sdt, request.Email, request.LoaiKH, request.NhomKH, request.TrangThai);
 
+                GetCustommer.Chuoi = request.LoaiKH == "NCC" ? null : request.Chuoi.ToUpper();
                 GetCustommer.TenKh = request.TenKh;
                 GetCustommer.MaSoThue = request.MaSoThue;
                 GetCustommer.Sdt = request.Sdt;
@@ -153,6 +150,7 @@ namespace TBSLogistics.Service.Services.CustommerManage
 
             return await getCustommer.Select(x => new GetCustomerRequest()
             {
+                Chuoi = x.cus.Chuoi,
                 MaKh = x.cus.MaKh,
                 TenKh = x.cus.TenKh,
                 Email = x.cus.Email,
@@ -200,6 +198,17 @@ namespace TBSLogistics.Service.Services.CustommerManage
             return getList;
         }
 
+        public async Task<List<ListChuoiSelect>> GetListChuoiSelect()
+        {
+            var getlist = await _TMSContext.ChuoiKhachHang.ToListAsync();
+
+            return getlist.Select(x => new ListChuoiSelect()
+            {
+                MaChuoi = x.MaChuoi,
+                TenChuoi = x.MaChuoi + " - " + x.TenChuoi,
+            }).ToList();
+        }
+
         public async Task<PagedResponseCustom<ListCustommerRequest>> getListCustommer(PaginationFilter filter)
         {
             try
@@ -236,6 +245,7 @@ namespace TBSLogistics.Service.Services.CustommerManage
                 {
                     MaKh = x.cus.MaKh,
                     TenKh = x.cus.TenKh,
+                    Chuoi = x.cus.Chuoi,
                     NhomKH = x.cus.MaNhomKh,
                     LoaiKH = x.cus.MaLoaiKh,
                     MaSoThue = x.cus.MaSoThue,

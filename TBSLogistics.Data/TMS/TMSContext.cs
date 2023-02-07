@@ -24,6 +24,7 @@ namespace TBSLogistics.Data.TMS
         public virtual DbSet<BangGiaDacBiet> BangGiaDacBiet { get; set; }
         public virtual DbSet<BangQuyDoi> BangQuyDoi { get; set; }
         public virtual DbSet<BoPhan> BoPhan { get; set; }
+        public virtual DbSet<ChuoiKhachHang> ChuoiKhachHang { get; set; }
         public virtual DbSet<CungDuong> CungDuong { get; set; }
         public virtual DbSet<DiaDiem> DiaDiem { get; set; }
         public virtual DbSet<DieuPhoi> DieuPhoi { get; set; }
@@ -67,12 +68,15 @@ namespace TBSLogistics.Data.TMS
         {
             if (!optionsBuilder.IsConfigured)
             {
-                IConfigurationRoot configuration = new ConfigurationBuilder()
-                 .SetBasePath(Directory.GetCurrentDirectory())
-                 .AddJsonFile("appsettings.json")
-                 .Build();
+                if (!optionsBuilder.IsConfigured)
+                {
+                    IConfigurationRoot configuration = new ConfigurationBuilder()
+                     .SetBasePath(Directory.GetCurrentDirectory())
+                     .AddJsonFile("appsettings.json")
+                     .Build();
 
-                optionsBuilder.UseSqlServer(configuration.GetConnectionString("TMS_Local"));
+                    optionsBuilder.UseSqlServer(configuration.GetConnectionString("TMS_Cloud"));
+                }
             }
         }
 
@@ -255,6 +259,20 @@ namespace TBSLogistics.Data.TMS
                     .HasMaxLength(150);
 
                 entity.Property(e => e.TenBoPhan)
+                    .IsRequired()
+                    .HasMaxLength(50);
+            });
+
+            modelBuilder.Entity<ChuoiKhachHang>(entity =>
+            {
+                entity.HasNoKey();
+
+                entity.Property(e => e.MaChuoi)
+                    .IsRequired()
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.TenChuoi)
                     .IsRequired()
                     .HasMaxLength(50);
             });
@@ -537,6 +555,8 @@ namespace TBSLogistics.Data.TMS
                     .HasMaxLength(8)
                     .IsUnicode(false)
                     .HasColumnName("MaKH");
+
+                entity.Property(e => e.Chuoi).HasMaxLength(50);
 
                 entity.Property(e => e.Creator).HasMaxLength(30);
 

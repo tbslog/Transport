@@ -9,6 +9,7 @@ namespace TBSLogistics.Model.Model.CustommerModel
 {
     public class EditCustomerRequest
     {
+        public string Chuoi { get; set; }
         public string TenKh { get; set; }
         public string MaSoThue { get; set; }
         public string Sdt { get; set; }

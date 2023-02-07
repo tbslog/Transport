@@ -9,6 +9,7 @@ namespace TBSLogistics.Model.Model.CustommerModel
 {
    public class GetCustomerRequest
     {
+        public string Chuoi { get; set; }
         public string MaKh { get; set; }
         public string NhomKH { get; set; }
         public string LoaiKH { get; set; }
@@ -17,6 +18,5 @@ namespace TBSLogistics.Model.Model.CustommerModel
         public string Sdt { get; set; }
         public string Email { get; set; }
         public int TrangThai { get; set; }
-        public GetAddressModel address { get; set; }
     }
 }

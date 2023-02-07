@@ -1,13 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TBSLogistics.Data.TMS;
-using TBSLogistics.Model.TempModel;
-
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -65,7 +62,6 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             return Ok(list);
         }
 
-
         [HttpGet]
         [Route("[action]")]
         public async Task<IActionResult> GetListCustommerGroup()
@@ -82,7 +78,6 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             return Ok(list);
         }
 
-
         [HttpPost]
         [Route("[action]")]
         public async Task<IActionResult> GetListStatus(List<string> funcId)
@@ -95,7 +90,6 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> GetListMessage(List<string> funcId)
         {
-
             var list = await _tMSContext.ThongBao.Where(x => x.LangId == "VI" && funcId.Contains(x.FunctionId)).Select(x => new { x.TextId, x.TextContent }).ToListAsync();
             return Ok(list);
         }
