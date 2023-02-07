@@ -18,6 +18,7 @@ import ApproveSubFeeByHandling from "./ApproveSubFeeByHandling";
 import JoinTransports from "./JoinTransports";
 import Select from "react-select";
 import { ToastError } from "../Common/FuncToast";
+import LoadingPage from "../Common/Loading/LoadingPage";
 
 const HandlingPageNew = () => {
   const Columns = useMemo(() => [
@@ -246,7 +247,7 @@ const HandlingPageNew = () => {
     mode: "onChange",
   });
 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [ShowConfirm, setShowConfirm] = useState(false);
   const [funcName, setFuncName] = useState("");
 
@@ -281,6 +282,7 @@ const HandlingPageNew = () => {
     setModal(modal);
     modal.show();
   };
+
   const hideModal = () => {
     modal.hide();
   };
@@ -691,173 +693,179 @@ const HandlingPageNew = () => {
           </div>
         </div>
       </section>
-      <div className="card card-default">
-        <div className="card-header">
-          <div className="container-fruid">
-            <div className="row">
-              <div className="col col-sm">
-                <button
-                  className="btn btn-title btn-sm btn-default mx-1"
-                  gloss="Duyệt Phụ Phí"
-                  type="button"
-                  onClick={() =>
-                    showModalForm(
-                      SetShowModal("ApproveSubFee"),
-                      setSelectIdClick({}),
-                      setTitle("Duyệt Phụ Phí Phát Sinh")
-                    )
-                  }
-                >
-                  <i className="fas fa-check-double"></i>
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-title btn-sm btn-default mx-1"
-                  gloss="Gộp Chuyến "
-                  onClick={() => handleOnClickMarge()}
-                >
-                  <i className="fas fa-layer-group"></i>
-                </button>
-              </div>
-              <div className="col col-sm">
-                <div className="form-group">
-                  <Controller
-                    name="listCustomers"
-                    control={control}
-                    render={({ field }) => (
-                      <Select
-                        {...field}
-                        className="basic-multi-select"
-                        classNamePrefix={"form-control"}
-                        isMulti
-                        value={field.value}
-                        options={listCustomer}
-                        styles={customStyles}
-                        onChange={(field) => handleOnChangeCustomer(field)}
-                        placeholder="Chọn Khách Hàng"
-                      />
-                    )}
-                  />
-                </div>
-              </div>
-              <div className="col col-sm">
-                <div className="row">
-                  <div className="col col-sm">
-                    <div className="input-group input-group-sm">
-                      <select
-                        className="form-control form-control-sm"
-                        onChange={(e) => handleOnChangeStatus(e.target.value)}
-                        value={status}
-                      >
-                        <option value="">Tất Cả Trạng Thái</option>
-                        <option value={"null"}>Mới Tạo</option>
-                        {listStatus &&
-                          listStatus.map((val) => {
-                            return (
-                              <option value={val.statusId} key={val.statusId}>
-                                {val.statusContent}
-                              </option>
-                            );
-                          })}
-                      </select>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col col-sm">
-                <div className="row">
-                  <div className="col col-sm">
-                    <div className="input-group input-group-sm">
-                      <DatePicker
-                        selected={fromDate}
-                        onChange={(date) => setFromDate(date)}
-                        dateFormat="dd/MM/yyyy"
-                        className="form-control form-control-sm"
-                        placeholderText="Từ ngày"
-                        value={fromDate}
-                      />
-                    </div>
-                  </div>
-                  <div className="col col-sm">
-                    <div className="input-group input-group-sm">
-                      <DatePicker
-                        selected={toDate}
-                        onChange={(date) => setToDate(date)}
-                        dateFormat="dd/MM/yyyy"
-                        className="form-control form-control-sm"
-                        placeholderText="Đến Ngày"
-                        value={toDate}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col col-sm ">
-                <div className="input-group input-group-sm">
-                  <input
-                    type="text"
-                    className="form-control"
-                    placeholder="Tìm kiếm"
-                    value={keySearch}
-                    onChange={(e) => setKeySearch(e.target.value)}
-                  />
-                  <span className="input-group-append">
-                    <button
-                      type="button"
-                      className="btn btn-sm btn-default"
-                      onClick={() => handleSearchClick()}
-                    >
-                      <i className="fas fa-search"></i>
-                    </button>
-                  </span>
+
+      {loading === true ? (
+        <div>
+          <LoadingPage></LoadingPage>
+        </div>
+      ) : (
+        <div className="card card-default">
+          <div className="card-header">
+            <div className="container-fruid">
+              <div className="row">
+                <div className="col col-sm">
+                  <button
+                    className="btn btn-title btn-sm btn-default mx-1"
+                    gloss="Duyệt Phụ Phí"
+                    type="button"
+                    onClick={() =>
+                      showModalForm(
+                        SetShowModal("ApproveSubFee"),
+                        setSelectIdClick({}),
+                        setTitle("Duyệt Phụ Phí Phát Sinh")
+                      )
+                    }
+                  >
+                    <i className="fas fa-check-double"></i>
+                  </button>
                   <button
                     type="button"
-                    className="btn btn-sm btn-default mx-2"
-                    onClick={() => handleRefeshDataClick()}
+                    className="btn btn-title btn-sm btn-default mx-1"
+                    gloss="Gộp Chuyến "
+                    onClick={() => handleOnClickMarge()}
                   >
-                    <i className="fas fa-sync-alt"></i>
+                    <i className="fas fa-layer-group"></i>
                   </button>
+                </div>
+                <div className="col col-sm">
+                  <div className="form-group">
+                    <Controller
+                      name="listCustomers"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          className="basic-multi-select"
+                          classNamePrefix={"form-control"}
+                          isMulti
+                          value={field.value}
+                          options={listCustomer}
+                          styles={customStyles}
+                          onChange={(field) => handleOnChangeCustomer(field)}
+                          placeholder="Chọn Khách Hàng"
+                        />
+                      )}
+                    />
+                  </div>
+                </div>
+                <div className="col col-sm">
+                  <div className="row">
+                    <div className="col col-sm">
+                      <div className="input-group input-group-sm">
+                        <select
+                          className="form-control form-control-sm"
+                          onChange={(e) => handleOnChangeStatus(e.target.value)}
+                          value={status}
+                        >
+                          <option value="">Tất Cả Trạng Thái</option>
+                          <option value={"null"}>Mới Tạo</option>
+                          {listStatus &&
+                            listStatus.map((val) => {
+                              return (
+                                <option value={val.statusId} key={val.statusId}>
+                                  {val.statusContent}
+                                </option>
+                              );
+                            })}
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="col col-sm">
+                  <div className="row">
+                    <div className="col col-sm">
+                      <div className="input-group input-group-sm">
+                        <DatePicker
+                          selected={fromDate}
+                          onChange={(date) => setFromDate(date)}
+                          dateFormat="dd/MM/yyyy"
+                          className="form-control form-control-sm"
+                          placeholderText="Từ ngày"
+                          value={fromDate}
+                        />
+                      </div>
+                    </div>
+                    <div className="col col-sm">
+                      <div className="input-group input-group-sm">
+                        <DatePicker
+                          selected={toDate}
+                          onChange={(date) => setToDate(date)}
+                          dateFormat="dd/MM/yyyy"
+                          className="form-control form-control-sm"
+                          placeholderText="Đến Ngày"
+                          value={toDate}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="col col-sm ">
+                  <div className="input-group input-group-sm">
+                    <input
+                      type="text"
+                      className="form-control"
+                      placeholder="Tìm kiếm"
+                      value={keySearch}
+                      onChange={(e) => setKeySearch(e.target.value)}
+                    />
+                    <span className="input-group-append">
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-default"
+                        onClick={() => handleSearchClick()}
+                      >
+                        <i className="fas fa-search"></i>
+                      </button>
+                    </span>
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-default mx-2"
+                      onClick={() => handleRefeshDataClick()}
+                    >
+                      <i className="fas fa-sync-alt"></i>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-        <div className="card-body">
-          <div className="container-datatable" style={{ height: "50vm" }}>
-            <DataTable
-              title="Danh sách vận đơn"
-              direction="auto"
-              responsive
-              columns={Columns}
-              data={data}
-              progressPending={loading}
-              pagination
-              paginationServer
-              paginationRowsPerPageOptions={[10, 30, 50, 100]}
-              paginationTotalRows={totalRows}
-              onSelectedRowsChange={handleChange}
-              onChangeRowsPerPage={handlePerRowsChange}
-              onChangePage={handlePageChange}
-              clearSelectedRows={toggledClearRows}
-              selectableRows
-              highlightOnHover
-              striped
-            />
+          <div className="card-body">
+            <div className="container-datatable" style={{ height: "50vm" }}>
+              <DataTable
+                title="Danh sách vận đơn"
+                direction="auto"
+                responsive
+                columns={Columns}
+                data={data}
+                progressPending={loading}
+                pagination
+                paginationServer
+                paginationRowsPerPageOptions={[10, 30, 50, 100]}
+                paginationTotalRows={totalRows}
+                onSelectedRowsChange={handleChange}
+                onChangeRowsPerPage={handlePerRowsChange}
+                onChangePage={handlePageChange}
+                clearSelectedRows={toggledClearRows}
+                selectableRows
+                highlightOnHover
+                striped
+              />
+            </div>
           </div>
-        </div>
-        <div className="card-footer">
-          <div className="row">
-            <div className="col-sm-3">
-              <button
-                // href={FileExcelImport}
-                onClick={() => handleExportExcel()}
-                className="btn btn-title btn-sm btn-default mx-1"
-                gloss="Tải File Excel"
-                type="button"
-              >
-                <i className="fas fa-file-excel"></i>
-              </button>
-              {/* <div className="upload-btn-wrapper">
+          <div className="card-footer">
+            <div className="row">
+              <div className="col-sm-3">
+                <button
+                  // href={FileExcelImport}
+                  onClick={() => handleExportExcel()}
+                  className="btn btn-title btn-sm btn-default mx-1"
+                  gloss="Tải File Excel"
+                  type="button"
+                >
+                  <i className="fas fa-file-excel"></i>
+                </button>
+                {/* <div className="upload-btn-wrapper">
                   <button className="btn btn-sm btn-default mx-1">
                     <i className="fas fa-upload"></i>
                   </button>
@@ -867,10 +875,11 @@ const HandlingPageNew = () => {
                     // onChange={(e) => handleExcelImportClick(e)}
                   />
                 </div> */}
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
 
       <div>
         {ShowConfirm === true && (

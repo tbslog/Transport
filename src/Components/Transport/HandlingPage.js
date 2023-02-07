@@ -18,6 +18,7 @@ import ConfirmDialog from "../Common/Dialog/ConfirmDialog";
 import AddSubFeeByHandling from "./AddSubFeeByHandling";
 import ApproveSubFeeByHandling from "./ApproveSubFeeByHandling";
 import { ToastError } from "../Common/FuncToast";
+import LoadingPage from "../Common/Loading/LoadingPage";
 
 const HandlingPage = (props) => {
   const { dataClick } = props;
@@ -31,7 +32,7 @@ const HandlingPage = (props) => {
   });
 
   const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const [ShowConfirm, setShowConfirm] = useState(false);
   const [funcName, setFuncName] = useState("");
@@ -303,7 +304,6 @@ const HandlingPage = (props) => {
   }, [props, dataClick, listStatus]);
 
   useEffect(() => {
-    setLoading(true);
     (async () => {
       let getListCustomer = await getData(`Customer/GetListCustomerFilter`);
       if (getListCustomer && getListCustomer.length > 0) {
@@ -326,7 +326,6 @@ const HandlingPage = (props) => {
       setTransportId("");
       fetchData("", 1);
     })();
-    setLoading(false);
   }, []);
 
   const colorStatusText = (text) => {
@@ -800,161 +799,171 @@ const HandlingPage = (props) => {
         </div>
       </section>
 
-      <section className="content">
-        <div className="card">
-          <div className="card-header">
-            <div className="container-fruid">
-              <div className="row">
-                <div className="col col-sm">
-                  <button
-                    className="btn btn-title btn-sm btn-default mx-1"
-                    gloss="Duyệt Phụ Phí"
-                    type="button"
-                    onClick={() =>
-                      showModalForm(
-                        SetShowModal("ApproveSubFee"),
-                        setSelectIdClick({}),
-                        setTitle("Duyệt Phụ Phí Phát Sinh")
-                      )
-                    }
-                  >
-                    <i className="fas fa-check-double"></i>
-                  </button>
-                </div>
-                <div className="col col-sm">
-                  <div className="form-group">
-                    <Controller
-                      name="listCustomers"
-                      control={control}
-                      render={({ field }) => (
-                        <Select
-                          {...field}
-                          className="basic-multi-select"
-                          classNamePrefix={"form-control"}
-                          isMulti
-                          value={field.value}
-                          options={listCustomer}
-                          styles={customStyles}
-                          onChange={(field) => handleOnChangeCustomer(field)}
-                          placeholder="Chọn Khách Hàng"
-                        />
-                      )}
-                    />
+      {loading === true ? (
+        <div>
+          <LoadingPage></LoadingPage>
+        </div>
+      ) : (
+        <section className="content">
+          <div className="card">
+            <div className="card-header">
+              <div className="container-fruid">
+                <div className="row">
+                  <div className="col col-sm">
+                    <button
+                      className="btn btn-title btn-sm btn-default mx-1"
+                      gloss="Duyệt Phụ Phí"
+                      type="button"
+                      onClick={() =>
+                        showModalForm(
+                          SetShowModal("ApproveSubFee"),
+                          setSelectIdClick({}),
+                          setTitle("Duyệt Phụ Phí Phát Sinh")
+                        )
+                      }
+                    >
+                      <i className="fas fa-check-double"></i>
+                    </button>
                   </div>
-                </div>
-                <div className="col col-sm">
-                  <div className="row">
-                    <div className="col col-sm">
-                      <div className="input-group input-group-sm">
-                        <select
-                          className="form-control form-control-sm"
-                          onChange={(e) => handleOnChangeStatus(e.target.value)}
-                          value={status}
+                  <div className="col col-sm">
+                    <div className="form-group">
+                      <Controller
+                        name="listCustomers"
+                        control={control}
+                        render={({ field }) => (
+                          <Select
+                            {...field}
+                            className="basic-multi-select"
+                            classNamePrefix={"form-control"}
+                            isMulti
+                            value={field.value}
+                            options={listCustomer}
+                            styles={customStyles}
+                            onChange={(field) => handleOnChangeCustomer(field)}
+                            placeholder="Chọn Khách Hàng"
+                          />
+                        )}
+                      />
+                    </div>
+                  </div>
+                  <div className="col col-sm">
+                    <div className="row">
+                      <div className="col col-sm">
+                        <div className="input-group input-group-sm">
+                          <select
+                            className="form-control form-control-sm"
+                            onChange={(e) =>
+                              handleOnChangeStatus(e.target.value)
+                            }
+                            value={status}
+                          >
+                            <option value="">Tất Cả Trạng Thái</option>
+                            {listStatus &&
+                              listStatus.map((val) => {
+                                return (
+                                  <option
+                                    value={val.statusId}
+                                    key={val.statusId}
+                                  >
+                                    {val.statusContent}
+                                  </option>
+                                );
+                              })}
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="col col-sm">
+                    <div className="row">
+                      <div className="col col-sm">
+                        <div className="input-group input-group-sm">
+                          <DatePicker
+                            selected={fromDate}
+                            onChange={(date) => setFromDate(date)}
+                            dateFormat="dd/MM/yyyy"
+                            className="form-control form-control-sm"
+                            placeholderText="Từ ngày"
+                            value={fromDate}
+                          />
+                        </div>
+                      </div>
+                      <div className="col col-sm">
+                        <div className="input-group input-group-sm">
+                          <DatePicker
+                            selected={toDate}
+                            onChange={(date) => setToDate(date)}
+                            dateFormat="dd/MM/yyyy"
+                            className="form-control form-control-sm"
+                            placeholderText="Đến Ngày"
+                            value={toDate}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="col col-sm ">
+                    <div className="input-group input-group-sm">
+                      <input
+                        type="text"
+                        className="form-control"
+                        value={keySearch}
+                        onChange={(e) => setKeySearch(e.target.value)}
+                      />
+                      <span className="input-group-append">
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-default"
+                          onClick={() => handleSearchClick()}
                         >
-                          <option value="">Tất Cả Trạng Thái</option>
-                          {listStatus &&
-                            listStatus.map((val) => {
-                              return (
-                                <option value={val.statusId} key={val.statusId}>
-                                  {val.statusContent}
-                                </option>
-                              );
-                            })}
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="col col-sm">
-                  <div className="row">
-                    <div className="col col-sm">
-                      <div className="input-group input-group-sm">
-                        <DatePicker
-                          selected={fromDate}
-                          onChange={(date) => setFromDate(date)}
-                          dateFormat="dd/MM/yyyy"
-                          className="form-control form-control-sm"
-                          placeholderText="Từ ngày"
-                          value={fromDate}
-                        />
-                      </div>
-                    </div>
-                    <div className="col col-sm">
-                      <div className="input-group input-group-sm">
-                        <DatePicker
-                          selected={toDate}
-                          onChange={(date) => setToDate(date)}
-                          dateFormat="dd/MM/yyyy"
-                          className="form-control form-control-sm"
-                          placeholderText="Đến Ngày"
-                          value={toDate}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="col col-sm ">
-                  <div className="input-group input-group-sm">
-                    <input
-                      type="text"
-                      className="form-control"
-                      value={keySearch}
-                      onChange={(e) => setKeySearch(e.target.value)}
-                    />
-                    <span className="input-group-append">
+                          <i className="fas fa-search"></i>
+                        </button>
+                      </span>
                       <button
                         type="button"
-                        className="btn btn-sm btn-default"
-                        onClick={() => handleSearchClick()}
+                        className="btn btn-sm btn-default mx-2"
+                        onClick={() => handleRefeshDataClick()}
                       >
-                        <i className="fas fa-search"></i>
+                        <i className="fas fa-sync-alt"></i>
                       </button>
-                    </span>
-                    <button
-                      type="button"
-                      className="btn btn-sm btn-default mx-2"
-                      onClick={() => handleRefeshDataClick()}
-                    >
-                      <i className="fas fa-sync-alt"></i>
-                    </button>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-          <div className="card-body">
-            <div className="container-datatable" style={{ height: "50vm" }}>
-              <DataTable
-                columns={columns}
-                data={data}
-                progressPending={loading}
-                pagination
-                paginationServer
-                paginationRowsPerPageOptions={[10, 30, 50, 100]}
-                paginationTotalRows={totalRows}
-                onSelectedRowsChange={handleChange}
-                onChangeRowsPerPage={handlePerRowsChange}
-                onChangePage={handlePageChange}
-                highlightOnHover
-                striped
-                direction="auto"
-                responsive
-              />
+            <div className="card-body">
+              <div className="container-datatable" style={{ height: "50vm" }}>
+                <DataTable
+                  columns={columns}
+                  data={data}
+                  progressPending={loading}
+                  pagination
+                  paginationServer
+                  paginationRowsPerPageOptions={[10, 30, 50, 100]}
+                  paginationTotalRows={totalRows}
+                  onSelectedRowsChange={handleChange}
+                  onChangeRowsPerPage={handlePerRowsChange}
+                  onChangePage={handlePageChange}
+                  highlightOnHover
+                  striped
+                  direction="auto"
+                  responsive
+                />
+              </div>
             </div>
-          </div>
-          <div className="card-footer">
-            <div className="row">
-              <div className="col-sm-3">
-                <button
-                  // href={FileExcelImport}
-                  onClick={() => handleExportExcel()}
-                  className="btn btn-title btn-sm btn-default mx-1"
-                  gloss="Tải File Excel"
-                  type="button"
-                >
-                  <i className="fas fa-file-excel"></i>
-                </button>
-                {/* <div className="upload-btn-wrapper">
+            <div className="card-footer">
+              <div className="row">
+                <div className="col-sm-3">
+                  <button
+                    // href={FileExcelImport}
+                    onClick={() => handleExportExcel()}
+                    className="btn btn-title btn-sm btn-default mx-1"
+                    gloss="Tải File Excel"
+                    type="button"
+                  >
+                    <i className="fas fa-file-excel"></i>
+                  </button>
+                  {/* <div className="upload-btn-wrapper">
                   <button className="btn btn-sm btn-default mx-1">
                     <i className="fas fa-upload"></i>
                   </button>
@@ -964,76 +973,77 @@ const HandlingPage = (props) => {
                     // onChange={(e) => handleExcelImportClick(e)}
                   />
                 </div> */}
+                </div>
               </div>
             </div>
           </div>
-        </div>
-        <div>
-          {ShowConfirm === true && (
-            <ConfirmDialog
-              setShowConfirm={setShowConfirm}
-              title={"Bạn có chắc chắn với quyết định này?"}
-              content={
-                "Khi thực hiện hành động này sẽ không thể hoàn tác lại được nữa."
-              }
-              funcAgree={funcAgree}
-            />
-          )}
+          <div>
+            {ShowConfirm === true && (
+              <ConfirmDialog
+                setShowConfirm={setShowConfirm}
+                title={"Bạn có chắc chắn với quyết định này?"}
+                content={
+                  "Khi thực hiện hành động này sẽ không thể hoàn tác lại được nữa."
+                }
+                funcAgree={funcAgree}
+              />
+            )}
 
-          <div
-            className="modal fade"
-            id="modal-xl"
-            data-backdrop="static"
-            ref={parseExceptionModal}
-            aria-labelledby="parseExceptionModal"
-            backdrop="static"
-          >
             <div
-              className="modal-dialog modal-dialog-scrollable"
-              style={{ maxWidth: "95%" }}
+              className="modal fade"
+              id="modal-xl"
+              data-backdrop="static"
+              ref={parseExceptionModal}
+              aria-labelledby="parseExceptionModal"
+              backdrop="static"
             >
-              <div className="modal-content">
-                <div className="modal-header">
-                  <h5>{title}</h5>
-                  <button
-                    type="button"
-                    className="close"
-                    data-dismiss="modal"
-                    onClick={() => hideModal()}
-                    aria-label="Close"
-                  >
-                    <span aria-hidden="true">×</span>
-                  </button>
-                </div>
-                <div className="modal-body">
-                  <>
-                    {ShowModal === "Edit" && (
-                      <UpdateHandling
-                        getlistData={refeshData}
-                        selectIdClick={selectIdClick}
-                        hideModal={hideModal}
-                      />
-                    )}
-                    {ShowModal === "Image" && (
-                      <HandlingImage
-                        dataClick={selectIdClick}
-                        hideModal={hideModal}
-                        checkModal={modal}
-                      />
-                    )}
-                    {ShowModal === "addSubFee" && (
-                      <AddSubFeeByHandling dataClick={selectIdClick} />
-                    )}
-                    {ShowModal === "ApproveSubFee" && (
-                      <ApproveSubFeeByHandling CheckModalShow={modal} />
-                    )}
-                  </>
+              <div
+                className="modal-dialog modal-dialog-scrollable"
+                style={{ maxWidth: "95%" }}
+              >
+                <div className="modal-content">
+                  <div className="modal-header">
+                    <h5>{title}</h5>
+                    <button
+                      type="button"
+                      className="close"
+                      data-dismiss="modal"
+                      onClick={() => hideModal()}
+                      aria-label="Close"
+                    >
+                      <span aria-hidden="true">×</span>
+                    </button>
+                  </div>
+                  <div className="modal-body">
+                    <>
+                      {ShowModal === "Edit" && (
+                        <UpdateHandling
+                          getlistData={refeshData}
+                          selectIdClick={selectIdClick}
+                          hideModal={hideModal}
+                        />
+                      )}
+                      {ShowModal === "Image" && (
+                        <HandlingImage
+                          dataClick={selectIdClick}
+                          hideModal={hideModal}
+                          checkModal={modal}
+                        />
+                      )}
+                      {ShowModal === "addSubFee" && (
+                        <AddSubFeeByHandling dataClick={selectIdClick} />
+                      )}
+                      {ShowModal === "ApproveSubFee" && (
+                        <ApproveSubFeeByHandling CheckModalShow={modal} />
+                      )}
+                    </>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
     </>
   );
 };

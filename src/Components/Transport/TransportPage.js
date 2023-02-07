@@ -14,6 +14,7 @@ import Select from "react-select";
 import HandlingByTransport from "./HandlingByTransport";
 import Cookies from "js-cookie";
 import ConfirmDialog from "../Common/Dialog/ConfirmDialog";
+import LoadingPage from "../Common/Loading/LoadingPage";
 
 const TransportPage = () => {
   const {
@@ -27,7 +28,7 @@ const TransportPage = () => {
   const accountType = Cookies.get("AccType");
 
   const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [totalRows, setTotalRows] = useState(0);
   const [perPage, setPerPage] = useState(10);
   const [page, setPage] = useState(1);
@@ -508,264 +509,277 @@ const TransportPage = () => {
         </div>
       </section>
 
-      <section className="content">
-        <div className="card">
-          <div className="card-header">
-            <div className="container-fruid">
-              <div className="row">
-                <div className="col-sm-3">
-                  <button
-                    type="button"
-                    className="btn btn-title btn-sm btn-default mx-1"
-                    gloss="Tạo Vận Đơn FCL/FTL "
-                    onClick={() =>
-                      showModalForm(
-                        SetShowModal("CreateFCL/FTL"),
-                        setTitle("Tạo Mới Vận Đơn ")
-                      )
-                    }
-                  >
-                    <i className="fas fa-plus-circle">FCL/FTL</i>
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn-title btn-sm btn-default mx-1"
-                    gloss="Tạo Vận Đơn LCL/LTL "
-                    onClick={() =>
-                      showModalForm(
-                        SetShowModal("CreateLCL/LTL"),
-                        setTitle("Tạo Mới Vận Đơn ")
-                      )
-                    }
-                  >
-                    <i className="fas fa-plus-circle">LCL/LTL</i>
-                  </button>
-                </div>
-
-                <div className="col-sm-5">
-                  <div className="row">
-                    <div className="col col-sm">
-                      <div className="form-group">
-                        <Controller
-                          name="listCustomers"
-                          control={control}
-                          render={({ field }) => (
-                            <Select
-                              {...field}
-                              className="basic-multi-select"
-                              classNamePrefix={"form-control"}
-                              isMulti
-                              value={field.value}
-                              options={listCustomer}
-                              styles={customStyles}
-                              onChange={(field) =>
-                                handleOnChangeCustomer(field)
-                              }
-                              placeholder="Chọn Khách Hàng"
-                            />
-                          )}
-                        />
-                      </div>
-                    </div>
-                    <div className="col col-sm">
-                      <div className="input-group input-group-sm">
-                        <select
-                          className="form-control form-control-sm"
-                          onChange={(e) => handleOnChangeMaPTVC(e.target.value)}
-                          value={maPTVC}
-                        >
-                          <option value="">Tất Cả Loại Hình</option>
-                          <option value="FCL">FCL</option>
-                          <option value="FTL">FTL</option>
-                          <option value="LCL">LCL</option>
-                          <option value="LTL">LTL</option>
-                        </select>
-                      </div>
-                    </div>
-                    <div className="col col-sm">
-                      <div className="input-group input-group-sm">
-                        <select
-                          className="form-control form-control-sm"
-                          onChange={(e) => handleOnChangeStatus(e.target.value)}
-                          value={status}
-                        >
-                          <option value="">Tất Cả Trạng Thái</option>
-                          {listStatus &&
-                            listStatus.map((val) => {
-                              return (
-                                <option value={val.statusId} key={val.statusId}>
-                                  {val.statusContent}
-                                </option>
-                              );
-                            })}
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="col-sm-2">
-                  <div className="row">
-                    <div className="col col-sm">
-                      <div className="input-group input-group-sm">
-                        <DatePicker
-                          selected={fromDate}
-                          onChange={(date) => setFromDate(date)}
-                          dateFormat="dd/MM/yyyy"
-                          className="form-control form-control-sm"
-                          placeholderText="Từ ngày"
-                          value={fromDate}
-                        />
-                      </div>
-                    </div>
-                    <div className="col-sm">
-                      <div className="input-group input-group-sm">
-                        <DatePicker
-                          selected={toDate}
-                          onChange={(date) => setToDate(date)}
-                          dateFormat="dd/MM/yyyy"
-                          className="form-control form-control-sm"
-                          placeholderText="Đến Ngày"
-                          value={toDate}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="col-sm-2 ">
-                  <div className="input-group input-group-sm">
-                    <input
-                      placeholder="Tìm kiếm"
-                      type="text"
-                      className="form-control"
-                      value={keySearch}
-                      onChange={(e) => setKeySearch(e.target.value)}
-                    />
-                    <span className="input-group-append">
-                      <button
-                        type="button"
-                        className="btn btn-sm btn-default"
-                        onClick={() => handleSearchClick()}
-                      >
-                        <i className="fas fa-search"></i>
-                      </button>
-                    </span>
+      {loading === true ? (
+        <div>
+          <LoadingPage></LoadingPage>
+        </div>
+      ) : (
+        <section className="content">
+          <div className="card">
+            <div className="card-header">
+              <div className="container-fruid">
+                <div className="row">
+                  <div className="col-sm-3">
                     <button
                       type="button"
-                      className="btn btn-sm btn-default mx-2"
-                      onClick={() => handleRefeshDataClick()}
+                      className="btn btn-title btn-sm btn-default mx-1"
+                      gloss="Tạo Vận Đơn FCL/FTL "
+                      onClick={() =>
+                        showModalForm(
+                          SetShowModal("CreateFCL/FTL"),
+                          setTitle("Tạo Mới Vận Đơn ")
+                        )
+                      }
                     >
-                      <i className="fas fa-sync-alt"></i>
+                      <i className="fas fa-plus-circle">FCL/FTL</i>
                     </button>
+                    <button
+                      type="button"
+                      className="btn btn-title btn-sm btn-default mx-1"
+                      gloss="Tạo Vận Đơn LCL/LTL "
+                      onClick={() =>
+                        showModalForm(
+                          SetShowModal("CreateLCL/LTL"),
+                          setTitle("Tạo Mới Vận Đơn ")
+                        )
+                      }
+                    >
+                      <i className="fas fa-plus-circle">LCL/LTL</i>
+                    </button>
+                  </div>
+
+                  <div className="col-sm-5">
+                    <div className="row">
+                      <div className="col col-sm">
+                        <div className="form-group">
+                          <Controller
+                            name="listCustomers"
+                            control={control}
+                            render={({ field }) => (
+                              <Select
+                                {...field}
+                                className="basic-multi-select"
+                                classNamePrefix={"form-control"}
+                                isMulti
+                                value={field.value}
+                                options={listCustomer}
+                                styles={customStyles}
+                                onChange={(field) =>
+                                  handleOnChangeCustomer(field)
+                                }
+                                placeholder="Chọn Khách Hàng"
+                              />
+                            )}
+                          />
+                        </div>
+                      </div>
+                      <div className="col col-sm">
+                        <div className="input-group input-group-sm">
+                          <select
+                            className="form-control form-control-sm"
+                            onChange={(e) =>
+                              handleOnChangeMaPTVC(e.target.value)
+                            }
+                            value={maPTVC}
+                          >
+                            <option value="">Tất Cả Loại Hình</option>
+                            <option value="FCL">FCL</option>
+                            <option value="FTL">FTL</option>
+                            <option value="LCL">LCL</option>
+                            <option value="LTL">LTL</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div className="col col-sm">
+                        <div className="input-group input-group-sm">
+                          <select
+                            className="form-control form-control-sm"
+                            onChange={(e) =>
+                              handleOnChangeStatus(e.target.value)
+                            }
+                            value={status}
+                          >
+                            <option value="">Tất Cả Trạng Thái</option>
+                            {listStatus &&
+                              listStatus.map((val) => {
+                                return (
+                                  <option
+                                    value={val.statusId}
+                                    key={val.statusId}
+                                  >
+                                    {val.statusContent}
+                                  </option>
+                                );
+                              })}
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="col-sm-2">
+                    <div className="row">
+                      <div className="col col-sm">
+                        <div className="input-group input-group-sm">
+                          <DatePicker
+                            selected={fromDate}
+                            onChange={(date) => setFromDate(date)}
+                            dateFormat="dd/MM/yyyy"
+                            className="form-control form-control-sm"
+                            placeholderText="Từ ngày"
+                            value={fromDate}
+                          />
+                        </div>
+                      </div>
+                      <div className="col-sm">
+                        <div className="input-group input-group-sm">
+                          <DatePicker
+                            selected={toDate}
+                            onChange={(date) => setToDate(date)}
+                            dateFormat="dd/MM/yyyy"
+                            className="form-control form-control-sm"
+                            placeholderText="Đến Ngày"
+                            value={toDate}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="col-sm-2 ">
+                    <div className="input-group input-group-sm">
+                      <input
+                        placeholder="Tìm kiếm"
+                        type="text"
+                        className="form-control"
+                        value={keySearch}
+                        onChange={(e) => setKeySearch(e.target.value)}
+                      />
+                      <span className="input-group-append">
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-default"
+                          onClick={() => handleSearchClick()}
+                        >
+                          <i className="fas fa-search"></i>
+                        </button>
+                      </span>
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-default mx-2"
+                        onClick={() => handleRefeshDataClick()}
+                      >
+                        <i className="fas fa-sync-alt"></i>
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-          <div className="card-body">
-            <div className="container-datatable" style={{ height: "50vm" }}>
-              <DataTable
-                title="Danh sách vận đơn"
-                direction="auto"
-                responsive
-                columns={columns}
-                data={data}
-                progressPending={loading}
-                pagination
-                paginationServer
-                paginationTotalRows={totalRows}
-                paginationRowsPerPageOptions={[10, 30, 50, 100]}
-                onChangeRowsPerPage={handlePerRowsChange}
-                onSelectedRowsChange={handleChange}
-                onChangePage={handlePageChange}
-                highlightOnHover
-                striped
-              />
+            <div className="card-body">
+              <div className="container-datatable" style={{ height: "50vm" }}>
+                <DataTable
+                  title="Danh sách vận đơn"
+                  direction="auto"
+                  responsive
+                  columns={columns}
+                  data={data}
+                  progressPending={loading}
+                  pagination
+                  paginationServer
+                  paginationTotalRows={totalRows}
+                  paginationRowsPerPageOptions={[10, 30, 50, 100]}
+                  onChangeRowsPerPage={handlePerRowsChange}
+                  onSelectedRowsChange={handleChange}
+                  onChangePage={handlePageChange}
+                  highlightOnHover
+                  striped
+                />
+              </div>
             </div>
+            <div className="card-footer"></div>
           </div>
-          <div className="card-footer"></div>
-        </div>
-        {ShowConfirm === true && (
-          <ConfirmDialog
-            setShowConfirm={setShowConfirm}
-            title={"Bạn có chắc chắn với quyết định này?"}
-            content={
-              "Khi thực hiện hành động này sẽ không thể hoàn tác lại được nữa."
-            }
-            funcAgree={funcAgree}
-          />
-        )}
-        <div
-          className="modal fade"
-          id="modal-xl"
-          data-backdrop="static"
-          ref={parseExceptionModal}
-          aria-labelledby="parseExceptionModal"
-          backdrop="static"
-        >
+          {ShowConfirm === true && (
+            <ConfirmDialog
+              setShowConfirm={setShowConfirm}
+              title={"Bạn có chắc chắn với quyết định này?"}
+              content={
+                "Khi thực hiện hành động này sẽ không thể hoàn tác lại được nữa."
+              }
+              funcAgree={funcAgree}
+            />
+          )}
           <div
-            className="modal-dialog modal-dialog-scrollable"
-            style={{ maxWidth: "90%" }}
+            className="modal fade"
+            id="modal-xl"
+            data-backdrop="static"
+            ref={parseExceptionModal}
+            aria-labelledby="parseExceptionModal"
+            backdrop="static"
           >
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5>{title}</h5>
-                <button
-                  type="button"
-                  className="close"
-                  data-dismiss="modal"
-                  onClick={() => hideModal()}
-                  aria-label="Close"
-                >
-                  <span aria-hidden="true">×</span>
-                </button>
-              </div>
-              <div className="modal-body">
-                <>
-                  {ShowModal === "CreateLCL/LTL" && (
-                    <CreateTransportLess
-                      getListTransport={refeshData}
-                      hideModal={hideModal}
-                    />
-                  )}
-                  {ShowModal === "CreateFCL/FTL" && (
-                    <CreateTransport
-                      getListTransport={refeshData}
-                      hideModal={hideModal}
-                    />
-                  )}
-                  {ShowModal === "Edit" && (
-                    <UpdateTransport
-                      getListTransport={refeshData}
-                      selectIdClick={selectIdClick}
-                      hideModal={hideModal}
-                    />
-                  )}
-                  {ShowModal === "EditLess" && (
-                    <UpdateTransportLess
-                      getListTransport={refeshData}
-                      selectIdClick={selectIdClick}
-                      hideModal={hideModal}
-                    />
-                  )}
-                  {ShowModal === "ListHandling" && (
-                    <HandlingPage
-                      dataClick={selectIdClick}
-                      hideModal={hideModal}
-                    />
-                  )}
+            <div
+              className="modal-dialog modal-dialog-scrollable"
+              style={{ maxWidth: "90%" }}
+            >
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h5>{title}</h5>
+                  <button
+                    type="button"
+                    className="close"
+                    data-dismiss="modal"
+                    onClick={() => hideModal()}
+                    aria-label="Close"
+                  >
+                    <span aria-hidden="true">×</span>
+                  </button>
+                </div>
+                <div className="modal-body">
+                  <>
+                    {ShowModal === "CreateLCL/LTL" && (
+                      <CreateTransportLess
+                        getListTransport={refeshData}
+                        hideModal={hideModal}
+                      />
+                    )}
+                    {ShowModal === "CreateFCL/FTL" && (
+                      <CreateTransport
+                        getListTransport={refeshData}
+                        hideModal={hideModal}
+                      />
+                    )}
+                    {ShowModal === "Edit" && (
+                      <UpdateTransport
+                        getListTransport={refeshData}
+                        selectIdClick={selectIdClick}
+                        hideModal={hideModal}
+                      />
+                    )}
+                    {ShowModal === "EditLess" && (
+                      <UpdateTransportLess
+                        getListTransport={refeshData}
+                        selectIdClick={selectIdClick}
+                        hideModal={hideModal}
+                      />
+                    )}
+                    {ShowModal === "ListHandling" && (
+                      <HandlingPage
+                        dataClick={selectIdClick}
+                        hideModal={hideModal}
+                      />
+                    )}
 
-                  {ShowModal === "ShowListHandling" && (
-                    <HandlingByTransport
-                      dataClick={selectIdClick}
-                      refeshData={refeshData}
-                    />
-                  )}
-                </>
+                    {ShowModal === "ShowListHandling" && (
+                      <HandlingByTransport
+                        dataClick={selectIdClick}
+                        refeshData={refeshData}
+                      />
+                    )}
+                  </>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
     </>
   );
 };

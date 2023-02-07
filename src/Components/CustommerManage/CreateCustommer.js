@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { postData } from "../Common/FuncAxios";
 import { useForm } from "react-hook-form";
 import "../../Css/UploadFile.scss";
-import { Watch } from "react-loader-spinner";
 import LoadingPage from "../Common/Loading/LoadingPage";
 
 const CreateCustommer = (props) => {
@@ -110,6 +109,7 @@ const CreateCustommer = (props) => {
   const [listStatusType, setListStatusType] = useState([]);
   const [listCustomerGroup, setListCustomerGroup] = useState([]);
   const [listCustomerType, setListCustomerType] = useState([]);
+  const [listChuoi, setListChuoi] = useState([]);
 
   useEffect(() => {
     if (props.listCusGroup && props.listCusType) {
@@ -117,10 +117,16 @@ const CreateCustommer = (props) => {
       setListCustomerGroup(props.listCusGroup);
       setListCustomerType(props.listCusType);
       setListStatusType(props.listStatus);
+      setListChuoi(props.listChuoi);
 
       SetIsLoading(false);
     }
-  }, [props.listCusGroup, props.listCusType, props.listStatus]);
+  }, [
+    props.listCusGroup,
+    props.listCusType,
+    props.listStatus,
+    props.listChuoi,
+  ]);
 
   const handleResetClick = () => {
     reset();
@@ -194,13 +200,22 @@ const CreateCustommer = (props) => {
                     <div className="col-sm">
                       <div className="form-group">
                         <label htmlFor="Chuoi">Chuỗi(*)</label>
-                        <input
-                          type="text"
+                        <select
                           className="form-control"
-                          id="Chuoi"
-                          placeholder="Nhập tên chuỗi"
-                          {...register("Chuoi", Validate.Chuoi)}
-                        />
+                          {...register("Chuoi", {
+                            required: "Không được để trống",
+                          })}
+                        >
+                          <option value="">Chọn Chuỗi</option>
+                          {listChuoi &&
+                            listChuoi.map((val) => {
+                              return (
+                                <option value={val.maChuoi} key={val.maChuoi}>
+                                  {val.tenChuoi}
+                                </option>
+                              );
+                            })}
+                        </select>
                         {errors.Chuoi && (
                           <span className="text-danger">
                             {errors.Chuoi.message}

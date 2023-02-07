@@ -29,6 +29,8 @@ const CustommerPage = () => {
   const [ListTypeAddress, SetListTypeAddress] = useState([]);
   const [cusType, setCusType] = useState("KH");
 
+  const [listChuoi, setListChuoi] = useState([]);
+
   const [title, setTitle] = useState("");
 
   const columns = useMemo(() => [
@@ -116,6 +118,9 @@ const CustommerPage = () => {
     (async () => {
       let getListCustommerGroup = await getData(`Common/GetListCustommerGroup`);
       setListCustomerGroup(getListCustommerGroup);
+
+      let getListChuoi = await getData(`Customer/GetListChuoiSelect`);
+      setListChuoi(getListChuoi);
 
       let getListCustommerType = await getData(`Common/GetListCustommerType`);
       setListCustomerType(getListCustommerType);
@@ -401,6 +406,7 @@ const CustommerPage = () => {
                       listCusType={listCustomerType}
                       listStatus={listStatus}
                       listTypeAddress={ListTypeAddress}
+                      listChuoi={listChuoi}
                       hideModal={hideModal}
                     />
                   )}
@@ -411,6 +417,7 @@ const CustommerPage = () => {
                       listCusType={listCustomerType}
                       listStatus={listStatus}
                       listTypeAddress={ListTypeAddress}
+                      listChuoi={listChuoi}
                     />
                   )}
                 </>

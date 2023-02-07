@@ -108,6 +108,7 @@ const EditCustommer = (props) => {
   const [listStatus, setListStatus] = useState([]);
   const [listCustomerGroup, setListCustomerGroup] = useState([]);
   const [listCustomerType, setListCustomerType] = useState([]);
+  const [listChuoi, setListChuoi] = useState([]);
 
   const onSubmit = async (data) => {
     SetIsLoading(true);
@@ -138,6 +139,7 @@ const EditCustommer = (props) => {
     setListCustomerGroup(props.listCusGroup);
     setListCustomerType(props.listCusType);
     setListStatus(props.listStatus);
+    setListChuoi(props.listChuoi);
 
     SetIsLoading(false);
   }, []);
@@ -212,13 +214,22 @@ const EditCustommer = (props) => {
                     <div className="col-sm">
                       <div className="form-group">
                         <label htmlFor="Chuoi">Chuỗi(*)</label>
-                        <input
-                          type="text"
+                        <select
                           className="form-control"
-                          id="Chuoi"
-                          placeholder="Nhập tên chuỗi"
-                          {...register("Chuoi", Validate.Chuoi)}
-                        />
+                          {...register("Chuoi", {
+                            required: "Không được để trống",
+                          })}
+                        >
+                          <option value="">Chọn Chuỗi</option>
+                          {listChuoi &&
+                            listChuoi.map((val) => {
+                              return (
+                                <option value={val.maChuoi} key={val.maChuoi}>
+                                  {val.tenChuoi}
+                                </option>
+                              );
+                            })}
+                        </select>
                         {errors.Chuoi && (
                           <span className="text-danger">
                             {errors.Chuoi.message}
