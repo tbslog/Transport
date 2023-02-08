@@ -326,16 +326,16 @@ namespace TBSLogistics.Service.Services.ContractManage
             var reNameFile = originalFileName.Replace(originalFileName.Substring(0, originalFileName.LastIndexOf('.')), Guid.NewGuid().ToString());
             var fileName = $"{reNameFile.Substring(0, reNameFile.LastIndexOf('.'))}{Path.GetExtension(reNameFile)}";
 
-            var supportedTypes = new[] { "pdf", "docx", "xlsx" };
+            var supportedTypes = new[] { "pdf", "docx" };
             var fileExt = Path.GetExtension(originalFileName).Substring(1);
             if (!supportedTypes.Contains(fileExt))
             {
-                return new BoolActionResult { isSuccess = false, Message = "File không được hỗ trợ, chỉ hỗ trợ .pdf, .docx, .xlsx" };
+                return new BoolActionResult { isSuccess = false, Message = "File không được hỗ trợ, chỉ hỗ trợ .pdf, .docx" };
             }
 
             var attachment = new Attachment()
             {
-                FileName = fileName,
+                FileName = fileName + "_" + DateTime.Now.ToString("dd-MM-yyyy"),
                 FilePath = _common.GetFileUrl(fileName, PathFolder),
                 FileSize = file.Length,
                 FileType = Path.GetExtension(fileName),
