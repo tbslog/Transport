@@ -33,10 +33,12 @@ namespace TBSLogistics.Data.TMS
         public virtual DbSet<KhachHang> KhachHang { get; set; }
         public virtual DbSet<LoaiDiaDiem> LoaiDiaDiem { get; set; }
         public virtual DbSet<LoaiHangHoa> LoaiHangHoa { get; set; }
+        public virtual DbSet<LoaiHinhKho> LoaiHinhKho { get; set; }
         public virtual DbSet<LoaiHopDong> LoaiHopDong { get; set; }
         public virtual DbSet<LoaiKhachHang> LoaiKhachHang { get; set; }
         public virtual DbSet<LoaiPhuongTien> LoaiPhuongTien { get; set; }
         public virtual DbSet<LoaiRomooc> LoaiRomooc { get; set; }
+        public virtual DbSet<LoaiSpdv> LoaiSpdv { get; set; }
         public virtual DbSet<Log> Log { get; set; }
         public virtual DbSet<NguoiDung> NguoiDung { get; set; }
         public virtual DbSet<NhomKhachHang> NhomKhachHang { get; set; }
@@ -75,7 +77,7 @@ namespace TBSLogistics.Data.TMS
                      .AddJsonFile("appsettings.json")
                      .Build();
 
-                    optionsBuilder.UseSqlServer(configuration.GetConnectionString("TMS_Cloud"));
+                    optionsBuilder.UseSqlServer(configuration.GetConnectionString("TMS_Local"));
                 }
             }
         }
@@ -133,11 +135,6 @@ namespace TBSLogistics.Data.TMS
                     .WithMany(p => p.Attachment)
                     .HasForeignKey(d => d.DieuPhoiId)
                     .HasConstraintName("FK_Attachment_DieuPhoi");
-
-                entity.HasOne(d => d.MaHopDongNavigation)
-                    .WithMany(p => p.Attachment)
-                    .HasForeignKey(d => d.MaHopDong)
-                    .HasConstraintName("FK_Attachment_HopDongVaPhuLuc");
             });
 
             modelBuilder.Entity<BangGia>(entity =>
@@ -501,9 +498,19 @@ namespace TBSLogistics.Data.TMS
                     .HasMaxLength(20)
                     .IsUnicode(false);
 
+                entity.Property(e => e.Account).HasMaxLength(50);
+
                 entity.Property(e => e.Creator).HasMaxLength(30);
 
                 entity.Property(e => e.GhiChu).HasMaxLength(500);
+
+                entity.Property(e => e.HinhThucThue)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.LoaiHinhHopTac)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
 
                 entity.Property(e => e.MaHopDongCha)
                     .HasMaxLength(20)
@@ -515,14 +522,19 @@ namespace TBSLogistics.Data.TMS
                     .IsUnicode(false)
                     .HasColumnName("MaKH");
 
+                entity.Property(e => e.MaLoaiHinh)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
                 entity.Property(e => e.MaLoaiHopDong)
                     .IsRequired()
                     .HasMaxLength(10)
                     .IsUnicode(false);
 
-                entity.Property(e => e.MaPhuPhi)
-                    .HasMaxLength(10)
-                    .IsUnicode(false);
+                entity.Property(e => e.MaLoaiSpdv)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("MaLoaiSPDV");
 
                 entity.Property(e => e.TenHienThi)
                     .IsRequired()
@@ -624,6 +636,19 @@ namespace TBSLogistics.Data.TMS
                     .HasMaxLength(50);
             });
 
+            modelBuilder.Entity<LoaiHinhKho>(entity =>
+            {
+                entity.HasKey(e => e.MaLoaiHinh);
+
+                entity.Property(e => e.MaLoaiHinh)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.TenLoaiHinh)
+                    .IsRequired()
+                    .HasMaxLength(50);
+            });
+
             modelBuilder.Entity<LoaiHopDong>(entity =>
             {
                 entity.HasKey(e => e.MaLoaiHopDong);
@@ -683,6 +708,23 @@ namespace TBSLogistics.Data.TMS
                 entity.Property(e => e.TenLoaiRomooc)
                     .IsRequired()
                     .HasMaxLength(50);
+            });
+
+            modelBuilder.Entity<LoaiSpdv>(entity =>
+            {
+                entity.HasKey(e => e.MaLoaiSpdv);
+
+                entity.ToTable("LoaiSPDV");
+
+                entity.Property(e => e.MaLoaiSpdv)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("MaLoaiSPDV");
+
+                entity.Property(e => e.TenLoaiSpdv)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .HasColumnName("TenLoaiSPDV");
             });
 
             modelBuilder.Entity<Log>(entity =>

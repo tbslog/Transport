@@ -221,7 +221,7 @@ namespace TBSLogistics.Service.Services.CustommerManage
 
                 if (!string.IsNullOrEmpty(filter.Keyword))
                 {
-                    listData = listData.Where(x => x.cus.MaKh.Contains(filter.Keyword));
+                    listData = listData.Where(x => x.cus.MaKh.Contains(filter.Keyword) || x.cus.TenKh.Contains(filter.Keyword));
                 }
 
                 if (!string.IsNullOrEmpty(filter.customerType))

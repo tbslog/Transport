@@ -7,7 +7,6 @@ namespace TBSLogistics.Data.TMS
     {
         public HopDongVaPhuLuc()
         {
-            Attachment = new HashSet<Attachment>();
             BangGia = new HashSet<BangGia>();
             InverseMaHopDongChaNavigation = new HashSet<HopDongVaPhuLuc>();
             SubFeePrice = new HashSet<SubFeePrice>();
@@ -15,6 +14,11 @@ namespace TBSLogistics.Data.TMS
 
         public string MaHopDong { get; set; }
         public string MaHopDongCha { get; set; }
+        public string Account { get; set; }
+        public string LoaiHinhHopTac { get; set; }
+        public string MaLoaiSpdv { get; set; }
+        public string MaLoaiHinh { get; set; }
+        public string HinhThucThue { get; set; }
         public string TenHienThi { get; set; }
         public string MaKh { get; set; }
         public string MaLoaiHopDong { get; set; }
@@ -22,7 +26,6 @@ namespace TBSLogistics.Data.TMS
         public DateTime ThoiGianBatDau { get; set; }
         public DateTime ThoiGianKetThuc { get; set; }
         public string GhiChu { get; set; }
-        public string MaPhuPhi { get; set; }
         public int TrangThai { get; set; }
         public DateTime UpdatedTime { get; set; }
         public DateTime CreatedTime { get; set; }
@@ -31,7 +34,6 @@ namespace TBSLogistics.Data.TMS
 
         public virtual HopDongVaPhuLuc MaHopDongChaNavigation { get; set; }
         public virtual KhachHang MaKhNavigation { get; set; }
-        public virtual ICollection<Attachment> Attachment { get; set; }
         public virtual ICollection<BangGia> BangGia { get; set; }
         public virtual ICollection<HopDongVaPhuLuc> InverseMaHopDongChaNavigation { get; set; }
         public virtual ICollection<SubFeePrice> SubFeePrice { get; set; }

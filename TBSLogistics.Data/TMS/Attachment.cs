@@ -18,6 +18,5 @@ namespace TBSLogistics.Data.TMS
         public string Creator { get; set; }
 
         public virtual DieuPhoi DieuPhoi { get; set; }
-        public virtual HopDongVaPhuLuc MaHopDongNavigation { get; set; }
     }
 }

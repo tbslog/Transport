@@ -3,11 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TBSLogistics.Data.TMS;
 
 namespace TBSLogistics.Model.Model.ContractModel
 {
     public class GetContractById
     {
+        public string Account { get; set; }
+        public string LoaiHinhHopTac { get; set; }
+        public string LoaiSPDV { get; set; }
+        public string LoaiHinhKho { get; set; }
+        public string HinhThucThueKho { get; set; }
         public int? NgayThanhToan { get; set; }
         public string MaHopDong { get; set; }
         public string SoHopDongCha { get; set; }
@@ -18,7 +24,6 @@ namespace TBSLogistics.Model.Model.ContractModel
         public DateTime ThoiGianBatDau { get; set; }
         public DateTime ThoiGianKetThuc { get; set; }
         public string GhiChu { get; set; }
-        public string? PhuPhi { get; set; }
         public int TrangThai { get; set; }
         public string File { get; set; }
     }

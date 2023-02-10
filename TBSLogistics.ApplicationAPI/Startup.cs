@@ -55,7 +55,7 @@ namespace TBSLogistics.ApplicationAPI
                  });
             });
 
-            services.AddDbContext<TMSContext>(options => options.UseSqlServer(Configuration["TMS_Cloud"]));
+            services.AddDbContext<TMSContext>(options => options.UseSqlServer(Configuration["TMS_Local"]));
             services.AddHttpContextAccessor();
             services.AddSingleton<IPaginationService>(o =>
             {

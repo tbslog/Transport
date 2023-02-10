@@ -17,7 +17,6 @@ namespace TBSLogistics.Service.Services.ContractManage
         public Task<GetContractById> GetContractById(string id);
         Task<PagedResponseCustom<ListContract>> GetListContract(PaginationFilter filter);
         Task<List<GetContractById>> GetListContractSelect(string MaKH, bool getChild, bool getProductService);
-
-
+        Task<ListOptionSelect> GetListOptionSelect();
     }
 }

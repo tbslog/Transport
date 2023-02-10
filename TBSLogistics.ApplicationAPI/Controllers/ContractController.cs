@@ -1,14 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using TBSLogistics.Data.TMS;
 using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.ContractModel;
 using TBSLogistics.Service.Helpers;
@@ -40,7 +34,6 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> CreateContract([FromForm] CreateContract request)
         {
-
             var checkPermission = await _common.CheckPermission("B0001");
             if (checkPermission.isSuccess == false)
             {
@@ -57,6 +50,14 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             {
                 return BadRequest(createContract.Message);
             }
+        }
+
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetListOptionSelect()
+        {
+            var list = await _contract.GetListOptionSelect();
+            return Ok(list);
         }
 
         [HttpPost]
@@ -104,7 +105,6 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             {
                 return BadRequest(checkPermission.Message);
             }
-
 
             var route = Request.Path.Value;
             var pagedData = await _contract.GetListContract(filter);

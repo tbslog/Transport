@@ -100,14 +100,11 @@ namespace TBSLogistics.Service.Services.Common
 
         public async Task<BoolActionResult> AddAttachment(Attachment attachment)
         {
-            var transaction = _context.Database.BeginTransaction();
             try
             {
                 await _context.Attachment.AddAsync(attachment);
 
                 var result = await _context.SaveChangesAsync();
-
-                transaction.Commit();
 
                 if (result > 0)
                 {
@@ -120,7 +117,6 @@ namespace TBSLogistics.Service.Services.Common
             }
             catch (Exception ex)
             {
-                transaction.Rollback();
                 return new BoolActionResult { isSuccess = false, Message = ex.ToString() };
             }
         }
