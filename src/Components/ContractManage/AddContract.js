@@ -5,6 +5,8 @@ import DatePicker from "react-datepicker";
 import Select from "react-select";
 import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
 import moment from "moment/moment";
+import { Watch } from "react-loader-spinner";
+import LoadingPage from "../Common/Loading/LoadingPage";
 
 const AddContract = (props) => {
   const [IsLoading, SetIsLoading] = useState(true);
@@ -12,6 +14,7 @@ const AddContract = (props) => {
     register,
     reset,
     setValue,
+    watch,
     control,
     formState: { errors },
     handleSubmit,
@@ -20,6 +23,9 @@ const AddContract = (props) => {
   });
 
   const Validate = {
+    MaKh: {
+      required: "Không được để trống",
+    },
     MaHopDong: {
       required: "Không được để trống",
       maxLength: {
@@ -102,6 +108,9 @@ const AddContract = (props) => {
     FileContact: {
       required: "Không được để trống",
     },
+    FileCosting: {
+      required: "Không được để trống",
+    },
     NgayThanhToan: {
       required: "Không được để trống",
       maxLength: {
@@ -118,6 +127,18 @@ const AddContract = (props) => {
         }
       },
     },
+    LoaiHinhHopTac: {
+      required: "Không được để trống",
+    },
+    LoaiSPDV: {
+      required: "Không được để trống",
+    },
+    LoaiHinhKho: {
+      required: "Không được để trống",
+    },
+    HinhThucThueKho: {
+      required: "Không được để trống",
+    },
   };
 
   const [tabIndex, setTabIndex] = useState(0);
@@ -125,6 +146,8 @@ const AddContract = (props) => {
   const [listStatusType, setListStatusType] = useState([]);
   const [listCustomer, setListCustomer] = useState([]);
   const [listContract, setListContract] = useState([]);
+  const [listProduct, setListProduct] = useState([]);
+  const [listWHType, setListWHType] = useState([]);
 
   useEffect(() => {
     if (props && props.listContractType) {
@@ -149,6 +172,11 @@ const AddContract = (props) => {
         });
         setListCustomer(obj);
       }
+
+      let data = await getData(`Contract/GetListOptionSelect`);
+
+      setListProduct(data.dsSPDV);
+      setListWHType(data.dsLoaiHinhKho);
 
       setListStatusType(props.listStatus);
       SetIsLoading(false);
@@ -188,8 +216,13 @@ const AddContract = (props) => {
     var create = await postData(
       "Contract/CreateContract",
       {
+        LoaiHinhHopTac: data.LoaiHinhHopTac,
+        MaLoaiSPDV: data.LoaiSPDV,
+        MaLoaiHinh: data.LoaiHinhKho,
+        HinhThucThue: data.HinhThucThueKho,
         maHopDong: data.MaHopDong,
         soHopDongCha: tabIndex === 0 ? null : data.SoHopDongCha.value,
+        Account: tabIndex === 0 ? null : data.Account,
         tenHienThi: data.TenHopDong,
         maKh: data.MaKh.value,
         NgayThanhToan: tabIndex === 1 ? 0 : data.NgayThanhToan,
@@ -199,10 +232,9 @@ const AddContract = (props) => {
         thoiGianKetThuc: moment(
           new Date(data.NgayKetThuc).toISOString()
         ).format("YYYY-MM-DD"),
-
         ghiChu: data.GhiChu,
-        // trangThai: data.TrangThai,
-        file: data.FileContact[0],
+        FileContract: data.FileContact[0],
+        FileCosting: data.FileCosting[0],
       },
       {
         headers: { "Content-Type": "multipart/form-data" },
@@ -246,7 +278,13 @@ const AddContract = (props) => {
               <div className="card-header">
                 <h3 className="card-title">Form Thêm Mới Hợp Đồng</h3>
               </div>
-              <div>{IsLoading === true && <div>Loading...</div>}</div>
+              <div>
+                {IsLoading === true && (
+                  <div>
+                    <LoadingPage></LoadingPage>
+                  </div>
+                )}
+              </div>
 
               {IsLoading === false && (
                 <form onSubmit={handleSubmit(onSubmit)}>
@@ -314,65 +352,120 @@ const AddContract = (props) => {
                       </div>
                     </div>
                     <div className="row">
-                      {/* <div className="col col-sm">
+                      <div className="col col-sm">
                         <div className="form-group">
-                          <label htmlFor="PhanLoaiHopDong">
-                            Phân Loại Hợp Đồng
+                          <label htmlFor="LoaiHinhHopTac">
+                            Loại Hình Hợp Tác(*)
                           </label>
                           <select
                             className="form-control"
                             {...register(
-                              "PhanLoaiHopDong",
-                              Validate.PhanLoaiHopDong
+                              "LoaiHinhHopTac",
+                              Validate.LoaiHinhHopTac
                             )}
                           >
-                            <option value="">Chọn phân loại HĐ</option>
-                            {listContractType &&
-                              listContractType.map((val) => {
-                                return (
-                                  <option
-                                    value={val.maLoaiHopDong}
-                                    key={val.maLoaiHopDong}
-                                  >
-                                    {val.tenLoaiHopDong}
-                                  </option>
-                                );
-                              })}
+                            <option value="">Chọn Loại Hình Hợp Tác</option>
+                            <option value="TrucTiep">Trực Tiếp</option>
+                            <option value="GianTiep">Gián Tiếp</option>
                           </select>
-                          {errors.PhanLoaiHopDong && (
+                          {errors.LoaiHinhHopTac && (
                             <span className="text-danger">
-                              {errors.PhanLoaiHopDong.message}
+                              {errors.LoaiHinhHopTac.message}
                             </span>
                           )}
                         </div>
-                      </div> */}
-                      {/* <div className="col col-sm">
+                      </div>
+                      <div className="col col-sm">
                         <div className="form-group">
-                          <label htmlFor="PTVC">Phương thức vận chuyển</label>
+                          <label htmlFor="LoaiSPDV">Sản Phẩm Dịch Vụ(*)</label>
                           <select
                             className="form-control"
-                            {...register("PTVC", Validate.PTVC)}
+                            {...register("LoaiSPDV", Validate.LoaiSPDV)}
                           >
-                            <option value="">
-                              Chọn phương thức vận chuyển
-                            </option>
-                            {listTransportType &&
-                              listTransportType.map((val) => {
+                            <option value="">Chọn Sản Phẩm Dịch Vụ</option>
+                            {listProduct &&
+                              listProduct.length > 0 &&
+                              listProduct.map((val, index) => {
                                 return (
-                                  <option value={val.maPtvc} key={val.maPtvc}>
-                                    {val.tenPtvc}
+                                  <option key={index} value={val.maLoaiSpdv}>
+                                    {val.tenLoaiSpdv}
                                   </option>
                                 );
                               })}
                           </select>
-                          {errors.PTVC && (
+                          {errors.LoaiSPDV && (
                             <span className="text-danger">
-                              {errors.PTVC.message}
+                              {errors.LoaiSPDV.message}
                             </span>
                           )}
                         </div>
-                      </div> */}
+                      </div>
+                      {watch("LoaiSPDV") && watch("LoaiSPDV") === "KHO" && (
+                        <>
+                          <div className="col col-sm">
+                            <div className="form-group">
+                              <label htmlFor="LoaiHinhKho">
+                                Loại Hình Kho(*)
+                              </label>
+                              <select
+                                className="form-control"
+                                {...register(
+                                  "LoaiHinhKho",
+                                  Validate.LoaiHinhKho
+                                )}
+                              >
+                                <option value="">Chọn Loại Hình Kho</option>
+                                {listWHType &&
+                                  listWHType.length > 0 &&
+                                  listWHType.map((val, index) => {
+                                    return (
+                                      <option
+                                        key={index}
+                                        value={val.maLoaiHinh}
+                                      >
+                                        {val.tenLoaiHinh}
+                                      </option>
+                                    );
+                                  })}
+                              </select>
+                              {errors.LoaiHinhKho && (
+                                <span className="text-danger">
+                                  {errors.LoaiHinhKho.message}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <div className="col col-sm">
+                            <div className="form-group">
+                              <label htmlFor="HinhThucThueKho">
+                                Hình Thức Thuê Kho(*)
+                              </label>
+                              <select
+                                className="form-control"
+                                {...register(
+                                  "HinhThucThueKho",
+                                  Validate.HinhThucThueKho
+                                )}
+                              >
+                                <option value="">
+                                  Chọn Hình Thức Thuê Kho
+                                </option>
+                                <option value="CoDinh">Cố Định</option>
+                                <option value="KhongCoDinh">
+                                  Không Cố Định
+                                </option>
+                              </select>
+                              {errors.HinhThucThueKho && (
+                                <span className="text-danger">
+                                  {errors.HinhThucThueKho.message}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </>
+                      )}
                     </div>
+
                     <div className="row">
                       <div className="col col-sm">
                         <div className="form-group">
@@ -452,20 +545,15 @@ const AddContract = (props) => {
 
                     <div className="form-group">
                       <label htmlFor="GhiChu">Ghi Chú</label>
-                      <input
+                      <textarea
                         type="text"
                         className="form-control"
                         id="GhiChu"
+                        rows={3}
                         placeholder="Nhập ghi chú"
                         {...register("GhiChu")}
-                      />
-                      {errors.GhiChu && (
-                        <span className="text-danger">
-                          {errors.GhiChu.message}
-                        </span>
-                      )}
+                      ></textarea>
                     </div>
-
                     <div className="form-group">
                       <label htmlFor="FileContact">
                         Tải lên tệp Hợp Đồng(*)
@@ -481,29 +569,21 @@ const AddContract = (props) => {
                         </span>
                       )}
                     </div>
-
-                    {/* <div className="form-group">
-                      <label htmlFor="TrangThai">Trạng thái</label>
-                      <select
-                        className="form-control"
-                        {...register("TrangThai", Validate.TrangThai)}
-                      >
-                        <option value="">Chọn trạng thái</option>
-                        {listStatusType &&
-                          listStatusType.map((val) => {
-                            return (
-                              <option value={val.statusId} key={val.statusId}>
-                                {val.statusContent}
-                              </option>
-                            );
-                          })}
-                      </select>
-                      {errors.TrangThai && (
+                    <div className="form-group">
+                      <label htmlFor="FileCosting">
+                        Tải lên tệp Costing(*)
+                      </label>
+                      <input
+                        type="file"
+                        className="form-control-file"
+                        {...register("FileCosting", Validate.FileCosting)}
+                      />
+                      {errors.FileCosting && (
                         <span className="text-danger">
-                          {errors.TrangThai.message}
+                          {errors.FileCosting.message}
                         </span>
                       )}
-                    </div> */}
+                    </div>
                   </div>
                   <div className="card-footer">
                     <div>
@@ -534,7 +614,13 @@ const AddContract = (props) => {
               <div className="card-header">
                 <h3 className="card-title">Form Thêm Mới Phục Lục Hợp Đồng</h3>
               </div>
-              <div>{IsLoading === true && <div>Loading...</div>}</div>
+              <div>
+                {IsLoading === true && (
+                  <div>
+                    <LoadingPage></LoadingPage>
+                  </div>
+                )}
+              </div>
 
               {IsLoading === false && (
                 <form onSubmit={handleSubmit(onSubmit)}>
@@ -637,64 +723,136 @@ const AddContract = (props) => {
                       </div>
                     </div>
                     <div className="row">
-                      {/* <div className="col col-sm">
+                      <div className="col col-sm">
                         <div className="form-group">
-                          <label htmlFor="PhanLoaiHopDong">
-                            Phân Loại Hợp Đồng
+                          <label htmlFor="Account">Account</label>
+                          <input
+                            autoComplete="false"
+                            type="text"
+                            className="form-control"
+                            id="Account"
+                            placeholder="Nhập Account"
+                            {...register("Account", Validate.Account)}
+                          />
+                          {errors.Account && (
+                            <span className="text-danger">
+                              {errors.Account.message}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="col col-sm">
+                        <div className="form-group">
+                          <label htmlFor="LoaiHinhHopTac">
+                            Loại Hình Hợp Tác(*)
                           </label>
                           <select
                             className="form-control"
                             {...register(
-                              "PhanLoaiHopDong",
-                              Validate.PhanLoaiHopDong
+                              "LoaiHinhHopTac",
+                              Validate.LoaiHinhHopTac
                             )}
                           >
-                            <option value="">Chọn phân loại HĐ</option>
-                            {listContractType &&
-                              listContractType.map((val) => {
-                                return (
-                                  <option
-                                    value={val.maLoaiHopDong}
-                                    key={val.maLoaiHopDong}
-                                  >
-                                    {val.tenLoaiHopDong}
-                                  </option>
-                                );
-                              })}
+                            <option value="">Chọn Loại Hình Hợp Tác</option>
+                            <option value="TrucTiep">Trực Tiếp</option>
+                            <option value="GianTiep">Gián Tiếp</option>
                           </select>
-                          {errors.PhanLoaiHopDong && (
+                          {errors.LoaiHinhHopTac && (
                             <span className="text-danger">
-                              {errors.PhanLoaiHopDong.message}
+                              {errors.LoaiHinhHopTac.message}
                             </span>
                           )}
                         </div>
-                      </div> */}
-                      {/* <div className="col col-sm">
+                      </div>
+                      <div className="col col-sm">
                         <div className="form-group">
-                          <label htmlFor="PTVC">Phương thức vận chuyển</label>
+                          <label htmlFor="LoaiSPDV">Sản Phẩm Dịch Vụ(*)</label>
                           <select
                             className="form-control"
-                            {...register("PTVC", Validate.PTVC)}
+                            {...register("LoaiSPDV", Validate.LoaiSPDV)}
                           >
-                            <option value="">
-                              Chọn phương thức vận chuyển
-                            </option>
-                            {listTransportType &&
-                              listTransportType.map((val) => {
+                            <option value="">Chọn Sản Phẩm Dịch Vụ</option>
+                            {listProduct &&
+                              listProduct.length > 0 &&
+                              listProduct.map((val, index) => {
                                 return (
-                                  <option value={val.maPtvc} key={val.maPtvc}>
-                                    {val.tenPtvc}
+                                  <option key={index} value={val.maLoaiSpdv}>
+                                    {val.tenLoaiSpdv}
                                   </option>
                                 );
                               })}
                           </select>
-                          {errors.PTVC && (
+                          {errors.LoaiSPDV && (
                             <span className="text-danger">
-                              {errors.PTVC.message}
+                              {errors.LoaiSPDV.message}
                             </span>
                           )}
                         </div>
-                      </div> */}
+                      </div>
+                      {watch("LoaiSPDV") && watch("LoaiSPDV") === "KHO" && (
+                        <>
+                          <div className="col col-sm">
+                            <div className="form-group">
+                              <label htmlFor="LoaiHinhKho">
+                                Loại Hình Kho(*)
+                              </label>
+                              <select
+                                className="form-control"
+                                {...register(
+                                  "LoaiHinhKho",
+                                  Validate.LoaiHinhKho
+                                )}
+                              >
+                                <option value="">Chọn Loại Hình Kho</option>
+                                {listWHType &&
+                                  listWHType.length > 0 &&
+                                  listWHType.map((val, index) => {
+                                    return (
+                                      <option
+                                        key={index}
+                                        value={val.maLoaiHinh}
+                                      >
+                                        {val.tenLoaiHinh}
+                                      </option>
+                                    );
+                                  })}
+                              </select>
+                              {errors.LoaiHinhKho && (
+                                <span className="text-danger">
+                                  {errors.LoaiHinhKho.message}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <div className="col col-sm">
+                            <div className="form-group">
+                              <label htmlFor="HinhThucThueKho">
+                                Hình Thức Thuê Kho(*)
+                              </label>
+                              <select
+                                className="form-control"
+                                {...register(
+                                  "HinhThucThueKho",
+                                  Validate.HinhThucThueKho
+                                )}
+                              >
+                                <option value="">
+                                  Chọn Hình Thức Thuê Kho
+                                </option>
+                                <option value="CoDinh">Cố Định</option>
+                                <option value="KhongCoDinh">
+                                  Không Cố Định
+                                </option>
+                              </select>
+                              {errors.HinhThucThueKho && (
+                                <span className="text-danger">
+                                  {errors.HinhThucThueKho.message}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </>
+                      )}
                     </div>
                     <div className="row">
                       <div className="col col-sm">
@@ -749,42 +907,7 @@ const AddContract = (props) => {
                           </div>
                         </div>
                       </div>
-                      {/* <div className="col col-sm">
-                        <div className="form-group">
-                          <label htmlFor="NgayThanhToan">Ngày Thanh Toán</label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            id="NgayThanhToan"
-                            placeholder="Ngày Thanh Toán"
-                            {...register(
-                              "NgayThanhToan",
-                              Validate.NgayThanhToan
-                            )}
-                          />
-                          {errors.NgayThanhToan && (
-                            <span className="text-danger">
-                              {errors.NgayThanhToan.message}
-                            </span>
-                          )}
-                        </div>
-                      </div> */}
                     </div>
-                    {/* <div className="form-group">
-                      <label htmlFor="PhuPhi">Phụ Phí</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        id="PhuPhi"
-                        placeholder="Nhập phụ phí"
-                        {...register("PhuPhi", Validate.PhuPhi)}
-                      />
-                      {errors.PhuPhi && (
-                        <span className="text-danger">
-                          {errors.PhuPhi.message}
-                        </span>
-                      )}
-                    </div> */}
                     <div className="form-group">
                       <label htmlFor="GhiChu">Ghi Chú</label>
                       <input
@@ -816,29 +939,21 @@ const AddContract = (props) => {
                         </span>
                       )}
                     </div>
-                    {/* 
                     <div className="form-group">
-                      <label htmlFor="TrangThai">Trạng thái</label>
-                      <select
-                        className="form-control"
-                        {...register("TrangThai", Validate.TrangThai)}
-                      >
-                        <option value="">Chọn trạng thái</option>
-                        {listStatusType &&
-                          listStatusType.map((val) => {
-                            return (
-                              <option value={val.statusId} key={val.statusId}>
-                                {val.statusContent}
-                              </option>
-                            );
-                          })}
-                      </select>
-                      {errors.TrangThai && (
+                      <label htmlFor="FileCosting">
+                        Tải lên tệp Costing(*)
+                      </label>
+                      <input
+                        type="file"
+                        className="form-control-file"
+                        {...register("FileCosting", Validate.FileCosting)}
+                      />
+                      {errors.FileCosting && (
                         <span className="text-danger">
-                          {errors.TrangThai.message}
+                          {errors.FileCosting.message}
                         </span>
                       )}
-                    </div> */}
+                    </div>
                   </div>
                   <div className="card-footer">
                     <div>

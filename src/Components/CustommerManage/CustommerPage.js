@@ -143,7 +143,7 @@ const CustommerPage = () => {
       ]);
       setListStatus(getStatusList);
 
-      fetchData(1, 10, "", "KH");
+      fetchData(1, "", "KH");
 
       setLoading(false);
     })();
@@ -155,7 +155,7 @@ const CustommerPage = () => {
     setSelectIdClick(dataCus);
   };
 
-  const fetchData = async (page, perPage, KeyWord = "", cusType) => {
+  const fetchData = async (page, KeyWord = "", cusType) => {
     setLoading(true);
     if (KeyWord !== "") {
       KeyWord = keySearch;
@@ -172,7 +172,7 @@ const CustommerPage = () => {
 
   const handlePageChange = async (page) => {
     setPage(page);
-    await fetchData(page, perPage, keySearch, cusType);
+    await fetchData(page, keySearch, cusType);
   };
 
   const handlePerRowsChange = async (newPerPage, page) => {
@@ -187,7 +187,7 @@ const CustommerPage = () => {
   };
 
   const ReloadData = async () => {
-    await fetchData(page, perPage, keySearch, cusType);
+    await fetchData(page, keySearch, cusType);
   };
 
   const hideModal = () => {
@@ -222,17 +222,20 @@ const CustommerPage = () => {
       ToastWarning("Vui lòng  nhập thông tin tìm kiếm");
       return;
     }
-    await fetchData(1, perPage, keySearch, cusType);
+
+    console.log(cusType);
+    await fetchData(1, keySearch, cusType);
   };
 
   const handleRefeshDataClick = async () => {
     setKeySearch("");
-    await fetchData(1);
+    setCusType("");
+    await fetchData(1, "", "");
   };
 
   const handleOnChangeCusType = async (val) => {
     setCusType(val);
-    await fetchData(1, perPage, keySearch, val);
+    await fetchData(1, keySearch, val);
   };
 
   return (

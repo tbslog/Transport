@@ -72,12 +72,21 @@ const PriceListContract = (props) => {
     // },
     {
       name: <div>Ngày Áp Dụng</div>,
-      selector: (row) => <div className="text-warp">{row.ngayApDung}</div>,
+      selector: (row) => (
+        <div className="text-warp">
+          {moment(row.ngayApDung).format("DD/MM/YYYY")}
+        </div>
+      ),
       sortable: true,
     },
     {
       name: <div>Ngày Hết Hiệu Lực</div>,
-      selector: (row) => <div className="text-warp">{row.ngayHetHieuLuc}</div>,
+      selector: (row) =>
+        !row.ngayHetHieuLuc ? (
+          ""
+        ) : (
+          <div className="text-warp">{row.ngayHetHieuLuc}</div>
+        ),
       sortable: true,
     },
   ]);
@@ -112,7 +121,7 @@ const PriceListContract = (props) => {
         `PriceTable/GetListPriceTableByContractId?Id=${selectedId.maHopDong}&PageNumber=${page}&PageSize=${newPerPage}&onlyct=${onlyCT}`
       );
 
-      formatTable(dataCus.data);
+      setData(dataCus.data);
       setPerPage(newPerPage);
       setTotalRows(dataCus.totalRecords);
       SetIsLoading(false);
@@ -124,19 +133,11 @@ const PriceListContract = (props) => {
       const dataCus = await getData(
         `PriceTable/GetListPriceTableByContractId?Id=${selectedId.maHopDong}&PageNumber=${page}&PageSize=${perPage}&onlyct=${onlyCT}`
       );
-      formatTable(dataCus.data);
+      setData(dataCus.data);
       setTotalRows(dataCus.totalRecords);
       SetIsLoading(false);
     }
   };
-
-  function formatTable(data) {
-    data.map((val) => {
-      val.ngayApDung = moment(val.ngayApDung).format("DD/MM/YYYY");
-      val.ngayHetHieuLuc = moment(val.ngayHetHieuLuc).format("DD/MM/YYYY");
-    });
-    setData(data);
-  }
 
   const handlePageChange = async (page) => {
     await fetchData(page);

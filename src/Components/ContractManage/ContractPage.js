@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect, useCallback, useRef } from "react";
 import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
-import { getData, postFile, getDataCustom } from "../Common/FuncAxios";
+import { getData, postFile, getDataCustom, getFile } from "../Common/FuncAxios";
 import DataTable from "react-data-table-component";
 import moment from "moment";
 import { Modal } from "bootstrap";
@@ -33,86 +33,74 @@ const ContractPage = () => {
   const [contractType, setContractType] = useState("");
   const [custommerType, setCustommerType] = useState("");
 
+  const [dataAddendums, setDataAddendums] = useState([]);
+
   const [title, setTitle] = useState("");
 
   const columns = useMemo(() => [
     {
-      name: "Cập nhật",
       cell: (val) => (
-        <button
-          onClick={() =>
-            handleEditButtonClick(
-              val,
-              SetShowModal("Edit"),
-              setTitle("Cập Nhật Hợp Đồng/Phụ Lục")
-            )
-          }
-          type="button"
-          className="btn btn-title btn-sm btn-default mx-1"
-          gloss="Cập Nhật Thông Tin"
-        >
-          <i className="far fa-edit"></i>
-        </button>
+        <>
+          <button
+            onClick={() =>
+              handleOnclickPriceTable(
+                val,
+                SetShowModal("PriceTable"),
+                setTitle("Thông Tin Bảng Giá")
+              )
+            }
+            type="button"
+            className="btn btn-title btn-sm btn-default mx-1"
+            gloss="Xem Bảng Giá"
+          >
+            <i className="fas fa-money-check-alt"></i>
+          </button>
+          <button
+            onClick={() =>
+              handleEditButtonClick(
+                val,
+                SetShowModal("Edit"),
+                setTitle("Cập Nhật Hợp Đồng/Phụ Lục")
+              )
+            }
+            type="button"
+            className="btn btn-title btn-sm btn-default mx-1"
+            gloss="Cập Nhật Thông Tin"
+          >
+            <i className="far fa-edit"></i>
+          </button>
+          {val.fileContract && val.fileContract !== "0" && (
+            <>
+              <button
+                onClick={() => handleDownloadContact(val, "contract")}
+                type="button"
+                className="btn btn-title btn-sm btn-default mx-1"
+                gloss="Tải File Hợp Đồng"
+              >
+                <i className="fas fa-download"></i>
+              </button>
+            </>
+          )}
+          {val.fileCosing && val.fileCosing !== "0" && (
+            <>
+              <button
+                onClick={() => handleDownloadContact(val, "costing")}
+                type="button"
+                className="btn btn-title btn-sm btn-default mx-1"
+                gloss="Tải File Costing"
+              >
+                <i className="fas fa-file-download"></i>
+              </button>
+            </>
+          )}
+        </>
       ),
+      width: "170px",
       ignoreRowClick: true,
       allowOverflow: true,
       button: true,
     },
-    // {
-    //   name: "Chi Tiết",
-    //   cell: (val) => (
-    //     <button
-    //       onClick={() => handleOnclickDetail()}
-    //       type="button"
-    //       className="btn btn-sm btn-default"
-    //     >
-    //       <i className="fas fa-file-contract"></i>
-    //     </button>
-    //   ),
-    //   ignoreRowClick: true,
-    //   allowOverflow: true,
-    //   button: true,
-    // },
-    {
-      name: "Bảng Giá",
-      cell: (val) => (
-        <button
-          onClick={() =>
-            handleOnclickPriceTable(
-              val,
-              SetShowModal("PriceTable"),
-              setTitle("Thông Tin Bảng Giá")
-            )
-          }
-          type="button"
-          className="btn btn-title btn-sm btn-default mx-1"
-          gloss="Xem Bảng Giá"
-        >
-          <i className="fas fa-money-check-alt"></i>
-        </button>
-      ),
-      ignoreRowClick: true,
-      allowOverflow: true,
-      button: true,
-    },
-    {
-      name: "Mã Hợp Đồng",
-      selector: (row) => row.maHopDong,
-    },
-    {
-      name: "Tên Hợp Đồng",
-      selector: (row) => row.tenHienThi,
-    },
-    {
-      name: "Phân Loại",
-      selector: (row) => row.soHopDongCha,
-      sortable: true,
-    },
-    // {
-    //   name: "Phân Loại",
-    //   selector: (row) => row.phanLoaiHopDong,
-    //   sortable: true,
-    // },
+
     {
       name: "Mã Khách Hàng",
       selector: (row) => row.maKh,
@@ -122,17 +110,41 @@ const ContractPage = () => {
       selector: (row) => row.tenKH,
     },
     {
+      name: "Mã Hợp Đồng",
+      selector: (row) => row.maHopDong,
+    },
+    {
+      name: "Tên Hợp Đồng",
+      selector: (row) => <div className="text-wrap">{row.tenHienThi}</div>,
+    },
+    {
+      name: <div>Loại Hình Hợp Tác</div>,
+      selector: (row) => <div className="text-wrap">{row.loaiHinhHopTac}</div>,
+    },
+    {
+      name: <div>Sản Phẩm Dịch Vụ</div>,
+      selector: (row) => <div className="text-wrap">{row.maLoaiSPDV}</div>,
+    },
+    {
+      name: <div>Loại Hình Kho</div>,
+      selector: (row) => <div className="text-wrap">{row.maLoaiHinh}</div>,
+    },
+    {
+      name: <div>Hình Thức Thuê</div>,
+      selector: (row) => <div className="text-wrap">{row.hinhThucThue}</div>,
+    },
+    {
       name: "Trạng thái",
       selector: (row) => row.trangThai,
     },
     {
-      name: "Thời Gian Bắt Đầu",
-      selector: (row) => row.thoiGianBatDau,
+      name: <div>Thời Gian Bắt Đầu</div>,
+      selector: (row) => moment(row.thoiGianBatDau).format(" DD/MM/YYYY"),
       sortable: true,
     },
     {
-      name: "Thời Gian Kết Thúc",
-      selector: (row) => row.thoiGianKetThuc,
+      name: <div>Thời Gian Kết Thúc</div>,
+      selector: (row) => moment(row.thoiGianKetThuc).format(" DD/MM/YYYY"),
       sortable: true,
     },
   ]);
@@ -149,6 +161,22 @@ const ContractPage = () => {
   const handleChange = useCallback((state) => {
     setSelectedRows(state.selectedRows);
   }, []);
+
+  const handleDownloadContact = async (val, type) => {
+    if (val && type) {
+      let file = val.fileContract;
+      let name = val.tenHienThi;
+      if (type === "costing") {
+        file = val.fileCosing;
+        name = name + "_Costing";
+      }
+      console.log(file);
+      const getFileDownLoad = await getFile(
+        `Contract/DownloadFile?fileId=${file}`,
+        name
+      );
+    }
+  };
 
   const handleEditButtonClick = async (val) => {
     showModalForm();
@@ -181,7 +209,8 @@ const ContractPage = () => {
     const dataCus = await getData(
       `Contract/GetListContract?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}&fromDate=${fromDate}&toDate=${toDate}&contractType=${contractType}&customerType=${customerType}`
     );
-    formatTable(dataCus.data);
+
+    setData(dataCus.data);
     setTotalRows(dataCus.totalRecords);
     setLoading(false);
   };
@@ -206,7 +235,7 @@ const ContractPage = () => {
       }`
     );
 
-    formatTable(dataCus.data);
+    setData(dataCus.data);
     setPerPage(newPerPage);
     setLoading(false);
   };
@@ -232,16 +261,6 @@ const ContractPage = () => {
 
     setLoading(false);
   }, []);
-
-  function formatTable(data) {
-    data.map((val) => {
-      val.thoiGianBatDau = moment(val.thoiGianBatDau).format(" DD/MM/YYYY");
-      val.thoiGianKetThuc = moment(val.thoiGianKetThuc).format(" DD/MM/YYYY");
-
-      val.maBangGia = val.maBangGia === null ? "Empty" : val.maBangGia;
-    });
-    setData(data);
-  }
 
   const handleSearchClick = () => {
     fetchData(
@@ -281,6 +300,154 @@ const ContractPage = () => {
     setCustommerType(customerType);
   };
 
+  const customStyles = {
+    rows: {
+      style: {
+        backgroundColor: "#EFE5D0",
+      },
+    },
+    headCells: {
+      style: {
+        backgroundColor: "#EFE5D0",
+      },
+    },
+  };
+
+  const ExpandedComponent = ({ data }) => {
+    if (data.listAddendums && data.listAddendums.length > 0) {
+      return (
+        <div className="container-datatable" style={{ height: "50vm" }}>
+          <DataTable
+            columns={[
+              {
+                cell: (val) => (
+                  <>
+                    <button
+                      onClick={() =>
+                        handleOnclickPriceTable(
+                          val,
+                          SetShowModal("PriceTable"),
+                          setTitle("Thông Tin Bảng Giá")
+                        )
+                      }
+                      type="button"
+                      className="btn btn-title btn-sm btn-default mx-1"
+                      gloss="Xem Bảng Giá"
+                    >
+                      <i className="fas fa-money-check-alt"></i>
+                    </button>
+                    <button
+                      onClick={() =>
+                        handleEditButtonClick(
+                          val,
+                          SetShowModal("Edit"),
+                          setTitle("Cập Nhật Hợp Đồng/Phụ Lục")
+                        )
+                      }
+                      type="button"
+                      className="btn btn-title btn-sm btn-default mx-1"
+                      gloss="Cập Nhật Thông Tin"
+                    >
+                      <i className="far fa-edit"></i>
+                    </button>
+                    {val.fileContract && val.fileContract !== "0" && (
+                      <>
+                        <button
+                          onClick={() => handleDownloadContact(val, "contract")}
+                          type="button"
+                          className="btn btn-title btn-sm btn-default mx-1"
+                          gloss="Tải File Hợp Đồng"
+                        >
+                          <i className="fas fa-download"></i>
+                        </button>
+                      </>
+                    )}
+                    {val.fileCosing && val.fileCosing !== "0" && (
+                      <>
+                        <button
+                          onClick={() => handleDownloadContact(val, "costing")}
+                          type="button"
+                          className="btn btn-title btn-sm btn-default mx-1"
+                          gloss="Tải File Costing"
+                        >
+                          <i className="fas fa-file-download"></i>
+                        </button>
+                      </>
+                    )}
+                  </>
+                ),
+                width: "280px",
+                ignoreRowClick: true,
+                allowOverflow: true,
+                button: true,
+              },
+              {
+                name: "Account",
+                selector: (row) => row.account,
+              },
+              {
+                name: "Mã Hợp Đồng",
+                selector: (row) => row.maHopDong,
+              },
+              {
+                name: "Tên Hợp Đồng",
+                selector: (row) => (
+                  <div className="text-wrap">{row.tenHienThi}</div>
+                ),
+              },
+              {
+                name: <div>Loại Hình Hợp Tác</div>,
+                selector: (row) => (
+                  <div className="text-wrap">{row.loaiHinhHopTac}</div>
+                ),
+              },
+              {
+                name: <div>Sản Phẩm Dịch Vụ</div>,
+                selector: (row) => (
+                  <div className="text-wrap">{row.maLoaiSPDV}</div>
+                ),
+              },
+              {
+                name: <div>Loại Hình Kho</div>,
+                selector: (row) => (
+                  <div className="text-wrap">{row.maLoaiHinh}</div>
+                ),
+              },
+              {
+                name: "Hình Thức Thuê",
+                selector: (row) => (
+                  <div className="text-wrap">{row.hinhThucThue}</div>
+                ),
+              },
+              {
+                name: "Trạng thái",
+                selector: (row) => row.trangThai,
+              },
+              {
+                name: <div>Thời Gian Bắt Đầu</div>,
+                selector: (row) =>
+                  moment(row.thoiGianBatDau).format(" DD/MM/YYYY"),
+                sortable: true,
+              },
+              {
+                name: <div>Thời Gian Kết Thúc</div>,
+                selector: (row) =>
+                  moment(row.thoiGianKetThuc).format(" DD/MM/YYYY"),
+                sortable: true,
+              },
+            ]}
+            data={data.listAddendums}
+            progressPending={loading}
+            highlightOnHover
+            direction="auto"
+            customStyles={customStyles}
+            responsive
+          />
+        </div>
+      );
+    }
+  };
+
   return (
     <>
       <section className="content-header">
@@ -289,14 +456,6 @@ const ContractPage = () => {
             <div className="col-sm-6">
               <h1>Quản lý hợp đồng</h1>
             </div>
-            {/* <div className="col-sm-6">
-              <ol className="breadcrumb float-sm-right">
-                <li className="breadcrumb-item">
-                  <a href="#">Home</a>
-                </li>
-                <li className="breadcrumb-item active">Blank Page</li>
-              </ol>
-            </div> */}
           </div>
         </div>
       </section>
@@ -324,30 +483,7 @@ const ContractPage = () => {
                 <div className="col-sm-3">
                   <div className="row">
                     <div className="col col-sm"></div>
-                    <div className="col col-sm">
-                      {/* <div className="input-group input-group-sm">
-                        <select
-                          className="form-control form-control-sm"
-                          onChange={(e) =>
-                            handleOnChangeContractType(e.target.value)
-                          }
-                          value={contractType}
-                        >
-                          <option value="">Phân loại HĐ</option>
-                          {listContractType &&
-                            listContractType.map((val) => {
-                              return (
-                                <option
-                                  value={val.maLoaiHopDong}
-                                  key={val.maLoaiHopDong}
-                                >
-                                  {val.tenLoaiHopDong}
-                                </option>
-                              );
-                            })}
-                        </select>
-                      </div> */}
-                    </div>
+                    <div className="col col-sm"></div>
                   </div>
                 </div>
                 <div className="col-sm-3">
@@ -431,6 +567,8 @@ const ContractPage = () => {
                     onSelectedRowsChange={handleChange}
                     onChangeRowsPerPage={handlePerRowsChange}
                     onChangePage={handlePageChange}
+                    expandableRows
+                    expandableRowsComponent={ExpandedComponent}
                     highlightOnHover
                     striped
                     direction="auto"
@@ -451,6 +589,8 @@ const ContractPage = () => {
                     onSelectedRowsChange={handleChange}
                     onChangeRowsPerPage={handlePerRowsChange}
                     onChangePage={handlePageChange}
+                    expandableRows
+                    expandableRowsComponent={ExpandedComponent}
                     highlightOnHover
                     striped
                     direction="auto"
