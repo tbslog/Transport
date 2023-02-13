@@ -9,6 +9,7 @@ namespace TBSLogistics.Model.Model.ContractModel
     public class ListContract
     {
         public List<ListContract> listAddendums { get; set; }
+        public string ChuoiKhachHang { get; set; }
         public string Account { get; set; }
         public string LoaiHinhHopTac { get; set; }
         public string MaLoaiSPDV { get; set; }

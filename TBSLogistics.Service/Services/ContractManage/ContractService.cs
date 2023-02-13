@@ -106,16 +106,18 @@ namespace TBSLogistics.Service.Services.ContractManage
 
                 if (result > 0)
                 {
-                    if (request.FileContract != null || request.FileCosting != null)
+                    if (request.FileContract != null)
                     {
                         var rs = await UploadFile(request.FileContract, request.MaHopDong.ToUpper());
-                        var rs_Costing = await UploadFile(request.FileCosting, request.MaHopDong.ToUpper() + "_Costing");
-
                         if (rs.isSuccess == false)
                         {
                             return rs;
                         }
+                    }
 
+                    if (request.FileCosting != null)
+                    {
+                        var rs_Costing = await UploadFile(request.FileCosting, request.MaHopDong.ToUpper() + "_Costing");
                         if (rs_Costing.isSuccess == false)
                         {
                             return rs_Costing;
@@ -170,6 +172,16 @@ namespace TBSLogistics.Service.Services.ContractManage
                     request.NgayThanhToan = null;
                 }
 
+                if (request.MaLoaiSPDV != "KHO")
+                {
+                    request.MaLoaiHinh = null;
+                    request.HinhThucThue = null;
+                }
+
+                checkExists.LoaiHinhHopTac = request.LoaiHinhHopTac;
+                checkExists.MaLoaiSpdv = request.MaLoaiSPDV;
+                checkExists.MaLoaiHinh = request.MaLoaiHinh;
+                checkExists.HinhThucThue = request.HinhThucThue;
                 checkExists.NgayThanhToan = request.NgayThanhToan;
                 checkExists.TenHienThi = request.TenHienThi;
                 checkExists.ThoiGianBatDau = request.ThoiGianBatDau;
@@ -185,16 +197,18 @@ namespace TBSLogistics.Service.Services.ContractManage
 
                 if (result > 0)
                 {
-                    if (request.FileContract != null || request.FileCosting != null)
+                    if (request.FileContract != null)
                     {
                         var rs = await UploadFile(request.FileContract, id.ToUpper());
-                        var rs_Costing = await UploadFile(request.FileCosting, id.ToUpper() + "_Costing");
-
                         if (rs.isSuccess == false)
                         {
                             return rs;
                         }
+                    }
 
+                    if (request.FileCosting != null)
+                    {
+                        var rs_Costing = await UploadFile(request.FileCosting, id.ToUpper() + "_Costing");
                         if (rs_Costing.isSuccess == false)
                         {
                             return rs_Costing;
@@ -273,11 +287,7 @@ namespace TBSLogistics.Service.Services.ContractManage
 
                 if (!string.IsNullOrEmpty(filter.Keyword))
                 {
-                    listData = listData.Where(x =>
-                       x.contract.MaHopDong.Contains(filter.Keyword.ToLower())
-                    || x.contract.MaKh.Contains(filter.Keyword.ToLower())
-                    || x.contract.TenHienThi.Contains(filter.Keyword.ToLower())
-                    );
+                    listData = listData.Where(x => x.cus.TenKh.Contains(filter.Keyword));
                 }
 
                 if (!string.IsNullOrEmpty(filter.contractType))
@@ -299,6 +309,7 @@ namespace TBSLogistics.Service.Services.ContractManage
 
                 var pagedData = await listData.Where(x => x.contract.MaHopDongCha == null).Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new ListContract()
                 {
+                    ChuoiKhachHang = _TMSContext.ChuoiKhachHang.Where(y => y.MaChuoi == x.cus.Chuoi).Select(y => y.TenChuoi).FirstOrDefault(),
                     NgayThanhToan = x.contract.NgayThanhToan,
                     MaHopDong = x.contract.MaHopDong,
                     TenHienThi = x.contract.TenHienThi,
@@ -405,7 +416,7 @@ namespace TBSLogistics.Service.Services.ContractManage
                 supportedTypes = new[] { "pdf", "docx", "xlsx" };
             }
 
-            var fileExt = Path.GetExtension(originalFileName).Substring(1);
+            var fileExt = Path.GetExtension(originalFileName).Substring(1).ToLower();
             if (!supportedTypes.Contains(fileExt))
             {
                 return new BoolActionResult { isSuccess = false, Message = "File không được hỗ trợ, chỉ hỗ trợ .pdf, .docx" };

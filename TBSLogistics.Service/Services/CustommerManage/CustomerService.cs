@@ -22,14 +22,12 @@ namespace TBSLogistics.Service.Services.CustommerManage
     {
         private readonly TMSContext _TMSContext;
         private readonly ICommon _common;
-        private readonly IAddress _address;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private TempData tempData;
 
-        public CustomerService(TMSContext TMSContext, ICommon common, IAddress address, IHttpContextAccessor httpContextAccessor)
+        public CustomerService(TMSContext TMSContext, ICommon common,  IHttpContextAccessor httpContextAccessor)
         {
             _httpContextAccessor = httpContextAccessor;
-            _address = address;
             _TMSContext = TMSContext;
             _common = common;
             tempData = _common.DecodeToken(_httpContextAccessor.HttpContext.Request.Headers["Authorization"][0].ToString().Replace("Bearer ", ""));
@@ -505,34 +503,43 @@ namespace TBSLogistics.Service.Services.CustommerManage
                 ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Loại khách hàng không được chứa ký tự đặc biệt \r\n" + Environment.NewLine;
             }
 
-            if (MaSoThue.Length == 0 || MaSoThue.Length > 50)
+            if (!string.IsNullOrEmpty(MaSoThue))
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã số thuế không được rỗng hoặc nhiều hơn 50 ký tự \r\n" + Environment.NewLine;
+                if (MaSoThue.Length > 50)
+                {
+                    ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã số thuế không được rỗng hoặc nhiều hơn 50 ký tự \r\n" + Environment.NewLine;
+                }
+
+                if (!Regex.IsMatch(MaSoThue, "^(?![_.])(?![_.])(?!.*[_.]{2})[0-9]+(?<![_.])$", RegexOptions.IgnoreCase))
+                {
+                    ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã số thuế chỉ được chứa ký tự là số \r\n" + Environment.NewLine;
+                }
             }
 
-            if (!Regex.IsMatch(MaSoThue, "^(?![_.])(?![_.])(?!.*[_.]{2})[0-9]+(?<![_.])$", RegexOptions.IgnoreCase))
+            if (!string.IsNullOrEmpty(Sdt))
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã số thuế chỉ được chứa ký tự là số \r\n" + Environment.NewLine;
+                if (Sdt.Length > 20)
+                {
+                    ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + "- Số điện thoại không được rỗng hoặc nhiều hơn 20 ký tự \r\n" + Environment.NewLine;
+                }
+
+                if (!Regex.IsMatch(Sdt, "^(?![ _.])(?![_.])(?!.*[_.]{2})[0-9 ]+(?<![_. ])$", RegexOptions.IgnoreCase))
+                {
+                    ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Số điện thoại chỉ được chứa ký tự là số \r\n" + Environment.NewLine;
+                }
             }
 
-            if (Sdt.Length == 0 || Sdt.Length > 20)
+            if (!string.IsNullOrEmpty(Email))
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + "- Số điện thoại không được rỗng hoặc nhiều hơn 20 ký tự \r\n" + Environment.NewLine;
-            }
+                if (Email.Length > 50)
+                {
+                    ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Địa chỉ Email không được rỗng hoặc nhiều hơn 50 ký tự" + Environment.NewLine;
+                }
 
-            if (!Regex.IsMatch(Sdt, "^(?![ _.])(?![_.])(?!.*[_.]{2})[0-9 ]+(?<![_. ])$", RegexOptions.IgnoreCase))
-            {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Số điện thoại chỉ được chứa ký tự là số \r\n" + Environment.NewLine;
-            }
-
-            if (Email.Length == 0 || Email.Length > 50)
-            {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Địa chỉ Email không được rỗng hoặc nhiều hơn 50 ký tự" + Environment.NewLine;
-            }
-
-            if (!Regex.IsMatch(Email, @"^([\w\.\-]+)@([\w\-]+)((\.(\w){2,3})+)$", RegexOptions.IgnoreCase))
-            {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Địa chỉ Email không đúng" + Environment.NewLine;
+                if (!Regex.IsMatch(Email, @"^([\w\.\-]+)@([\w\-]+)((\.(\w){2,3})+)$", RegexOptions.IgnoreCase))
+                {
+                    ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Địa chỉ Email không đúng" + Environment.NewLine;
+                }
             }
 
             return ErrorValidate;

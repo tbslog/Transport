@@ -3322,7 +3322,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
             {
                 var originalFileName = ContentDispositionHeaderValue.Parse(fileItem.ContentDisposition).FileName.Trim('"');
                 var supportedTypes = new[] { "jpg", "jpeg", "png" };
-                var fileExt = Path.GetExtension(originalFileName).Substring(1);
+                var fileExt = Path.GetExtension(originalFileName).Substring(1).ToLower();
                 if (!supportedTypes.Contains(fileExt))
                 {
                     return new BoolActionResult { isSuccess = false, Message = "File không được hỗ trợ" };

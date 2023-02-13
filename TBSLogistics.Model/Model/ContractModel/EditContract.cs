@@ -5,6 +5,10 @@ namespace TBSLogistics.Model.Model.ContractModel
 {
     public class EditContract
     {
+        public string LoaiHinhHopTac { get; set; }
+        public string MaLoaiSPDV { get; set; }
+        public string MaLoaiHinh { get; set; }
+        public string HinhThucThue { get; set; }
         public string SoHopDongCha { get; set; }
         public int? NgayThanhToan { get; set; }
         public string TenHienThi { get; set; }
