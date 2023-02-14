@@ -32,9 +32,6 @@ const ContractPage = () => {
   const [listContractType, setListContractType] = useState([]);
   const [contractType, setContractType] = useState("");
   const [custommerType, setCustommerType] = useState("");
-
-  const [dataAddendums, setDataAddendums] = useState([]);
-
   const [title, setTitle] = useState("");
 
   const columns = useMemo(() => [
@@ -100,18 +97,21 @@ const ContractPage = () => {
       allowOverflow: true,
       button: true,
     },
-
     {
-      name: "Mã Khách Hàng",
+      name: "Chuỗi",
+      selector: (row) => <div className="text-wrap">{row.chuoiKhachHang}</div>,
+    },
+    {
+      name: <div>Mã Khách Hàng</div>,
       selector: (row) => row.maKh,
     },
     {
-      name: "Tên Khách Hàng",
-      selector: (row) => row.tenKH,
+      name: <div>Tên Khách Hàng</div>,
+      selector: (row) => <div className="text-wrap">{row.tenKH}</div>,
     },
     {
       name: "Mã Hợp Đồng",
-      selector: (row) => row.maHopDong,
+      selector: (row) => <div className="text-wrap">{row.maHopDong}</div>,
     },
     {
       name: "Tên Hợp Đồng",

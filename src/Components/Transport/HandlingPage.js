@@ -481,7 +481,7 @@ const HandlingPage = (props) => {
 
   const handlePageChange = async (page) => {
     setPage(page);
-    fetchData(
+    await fetchData(
       transportId,
       page,
       keySearch,
@@ -543,7 +543,7 @@ const HandlingPage = (props) => {
       );
 
       if (update === 1) {
-        fetchData(
+        await fetchData(
           transportId,
           page,
           keySearch,
@@ -570,7 +570,7 @@ const HandlingPage = (props) => {
       );
 
       if (update === 1) {
-        fetchData(
+        await fetchData(
           transportId,
           page,
           keySearch,
@@ -586,17 +586,13 @@ const HandlingPage = (props) => {
     }
   };
 
-  const funcAgree = () => {
+  const funcAgree = async () => {
     if (funcName && funcName.length > 0) {
       switch (funcName) {
         case "StartRuning":
-          return setRuning();
+          return await setRuning();
         case "CancelHandling":
-          return setCancelHandling();
-        case "CloneHandling":
-          return CloneHandling();
-        case "RemoveHandling":
-          return RemoveHandling();
+          return await setCancelHandling();
       }
     }
   };

@@ -20,12 +20,12 @@ const CreateCustommer = (props) => {
     MaKH: {
       required: "Không được để trống",
       maxLength: {
-        value: 50,
-        message: "Không được vượt quá 50 ký tự",
+        value: 8,
+        message: "Phải là 8 ký tự",
       },
       minLength: {
-        value: 7,
-        message: "Không được ít hơn 7 ký tự",
+        value: 8,
+        message: "Phải là 8 ký tự",
       },
       pattern: {
         value: /^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9]+(?<![_.])$/,
@@ -60,7 +60,6 @@ const CreateCustommer = (props) => {
       },
     },
     Email: {
-      required: "Không được để trống",
       maxLength: {
         value: 100,
         message: "Không được vượt quá 100 ký tự",
@@ -75,7 +74,6 @@ const CreateCustommer = (props) => {
       },
     },
     MST: {
-      required: "Không được để trống",
       maxLength: {
         value: 50,
         message: "Không được vượt quá 50 ký tự",
@@ -90,7 +88,6 @@ const CreateCustommer = (props) => {
       },
     },
     SDT: {
-      required: "Không được để trống",
       maxLength: {
         value: 50,
         message: "Không được vượt quá 20 ký tự",

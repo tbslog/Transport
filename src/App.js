@@ -34,38 +34,36 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <>
-          <Routes>
-            <Route element={<PrivateRoutes />}>
-              {accountType && accountType === "NV" && (
-                <>
-                  <Route path="/custommer" element={<CustommerPage />} />
-                  <Route path="/address" element={<AddressPage />} />
-                  <Route path="/driver" element={<DriverPage />} />
-                  <Route path="/road" element={<RoadPage />} />
-                  <Route path="/contract" element={<ContractPage />} />
-                  <Route path="/pricetable" element={<PriceTablePage />} />
-                  <Route path="/vehicle" element={<VehiclePage />} />
-                  <Route path="/romooc" element={<RomoocPage />} />
-                  <Route path="/subfee" element={<SubFeePage />} />
-                  <Route path="/user" element={<UserPage />} />
-                  <Route path="/role" element={<RolePage />} />
-                  <Route path="/handlingfull" element={<HandlingPage />} />
-                  <Route
-                    path="/productService"
-                    element={<ProductServicePage />}
-                  />
-                  <Route path="/bill" element={<BillPage />} />
-                  <Route path="/report" element={<ReportPage />} />
-                  <Route path="/handlingless" element={<HandlingPageNew />} />
-                </>
-              )}
-              <Route path="/transport" element={<TransportPage />} />
-              <Route path="/" element={<HomePage />} exact />
-            </Route>
-            <Route element={<LoginPage />} path="/login"></Route>
-          </Routes>
-        </>
+        <Routes>
+          <Route element={<PrivateRoutes />}>
+            {accountType && accountType === "NV" && (
+              <>
+                <Route path="/custommer" element={<CustommerPage />} />
+                <Route path="/address" element={<AddressPage />} />
+                <Route path="/driver" element={<DriverPage />} />
+                <Route path="/road" element={<RoadPage />} />
+                <Route path="/contract" element={<ContractPage />} />
+                <Route path="/pricetable" element={<PriceTablePage />} />
+                <Route path="/vehicle" element={<VehiclePage />} />
+                <Route path="/romooc" element={<RomoocPage />} />
+                <Route path="/subfee" element={<SubFeePage />} />
+                <Route path="/user" element={<UserPage />} />
+                <Route path="/role" element={<RolePage />} />
+                <Route path="/handlingfull" element={<HandlingPage />} />
+                <Route
+                  path="/productService"
+                  element={<ProductServicePage />}
+                />
+                <Route path="/bill" element={<BillPage />} />
+                <Route path="/report" element={<ReportPage />} />
+                <Route path="/handlingless" element={<HandlingPageNew />} />
+              </>
+            )}
+            <Route path="/transport" element={<TransportPage />} />
+            <Route path="/" element={<HomePage />} exact />
+          </Route>
+          <Route element={<LoginPage />} path="/login"></Route>
+        </Routes>
       </header>
     </div>
   );

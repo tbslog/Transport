@@ -196,6 +196,10 @@ const EditContract = (props) => {
     var update = await postData(
       `Contract/UpdateContract?Id=${data.MaHopDong}`,
       {
+        LoaiHinhHopTac: data.LoaiHinhHopTac,
+        MaLoaiSPDV: data.LoaiSPDV,
+        MaLoaiHinh: data.LoaiHinhKho,
+        HinhThucThue: data.HinhThucThueKho,
         NgayThanhToan: !data.NgayThanhToan ? null : data.NgayThanhToan,
         tenHienThi: data.TenHopDong,
         ThoiGianBatDau: moment(new Date(data.NgayBatDau).toISOString()).format(
@@ -334,7 +338,6 @@ const EditContract = (props) => {
                                 Loại Hình Hợp Tác(*)
                               </label>
                               <select
-                                disabled={true}
                                 className="form-control"
                                 {...register(
                                   "LoaiHinhHopTac",
@@ -358,7 +361,6 @@ const EditContract = (props) => {
                                 Sản Phẩm Dịch Vụ(*)
                               </label>
                               <select
-                                disabled={true}
                                 className="form-control"
                                 {...register("LoaiSPDV", Validate.LoaiSPDV)}
                               >
@@ -391,7 +393,6 @@ const EditContract = (props) => {
                                     Loại Hình Kho(*)
                                   </label>
                                   <select
-                                    disabled={true}
                                     className="form-control"
                                     {...register(
                                       "LoaiHinhKho",
@@ -425,7 +426,6 @@ const EditContract = (props) => {
                                     Hình Thức Thuê Kho(*)
                                   </label>
                                   <select
-                                    disabled={true}
                                     className="form-control"
                                     {...register(
                                       "HinhThucThueKho",
@@ -736,7 +736,6 @@ const EditContract = (props) => {
                                 Loại Hình Hợp Tác(*)
                               </label>
                               <select
-                                disabled={true}
                                 className="form-control"
                                 {...register(
                                   "LoaiHinhHopTac",
@@ -760,7 +759,6 @@ const EditContract = (props) => {
                                 Sản Phẩm Dịch Vụ(*)
                               </label>
                               <select
-                                disabled={true}
                                 className="form-control"
                                 {...register("LoaiSPDV", Validate.LoaiSPDV)}
                               >
@@ -793,7 +791,6 @@ const EditContract = (props) => {
                                     Loại Hình Kho(*)
                                   </label>
                                   <select
-                                    disabled={true}
                                     className="form-control"
                                     {...register(
                                       "LoaiHinhKho",
@@ -827,7 +824,6 @@ const EditContract = (props) => {
                                     Hình Thức Thuê Kho(*)
                                   </label>
                                   <select
-                                    disabled={true}
                                     className="form-control"
                                     {...register(
                                       "HinhThucThueKho",
@@ -921,10 +917,9 @@ const EditContract = (props) => {
                             {...register("GhiChu")}
                           ></textarea>
                         </div>
-
                         <div className="form-group">
                           <label htmlFor="FileContact">
-                            Tải lên tệp Hợp Đồng
+                            Tải lên tệp Phục Lục
                           </label>
                           <input
                             type="file"
@@ -936,7 +931,6 @@ const EditContract = (props) => {
                               {errors.FileContact.message}
                             </span>
                           )}
-
                           <div className="form-group">
                             <label htmlFor="FileCosting">
                               Tải lên tệp Costing(*)
@@ -952,28 +946,7 @@ const EditContract = (props) => {
                               </span>
                             )}
                           </div>
-
-                          {/* {downloadFile && (
-                            <div>
-                              <div className="form-group">
-                                <label htmlFor="FileContact">
-                                  Tải về tệp Hợp Đồng
-                                </label>
-                                <br />
-                                <button
-                                  type="button"
-                                  className="btn btn-default"
-                                  onClick={() => handleDownloadContact()}
-                                >
-                                  <i className="fas fa-file-download">
-                                    Tải tệp hợp đồng
-                                  </i>
-                                </button>
-                              </div>
-                            </div>
-                          )} */}
                         </div>
-
                         <div className="form-group">
                           <label htmlFor="TrangThai">Trạng thái(*)</label>
                           <select

@@ -5,7 +5,6 @@ import DatePicker from "react-datepicker";
 import Select from "react-select";
 import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
 import moment from "moment/moment";
-import { Watch } from "react-loader-spinner";
 import LoadingPage from "../Common/Loading/LoadingPage";
 
 const AddContract = (props) => {
@@ -103,12 +102,6 @@ const AddContract = (props) => {
       required: "Không được để trống",
     },
     TrangThai: {
-      required: "Không được để trống",
-    },
-    FileContact: {
-      required: "Không được để trống",
-    },
-    FileCosting: {
       required: "Không được để trống",
     },
     NgayThanhToan: {
@@ -232,7 +225,7 @@ const AddContract = (props) => {
         thoiGianKetThuc: moment(
           new Date(data.NgayKetThuc).toISOString()
         ).format("YYYY-MM-DD"),
-        ghiChu: data.GhiChu,
+        GhiChu: data.GhiChu,
         FileContract: data.FileContact[0],
         FileCosting: data.FileCosting[0],
       },
@@ -910,13 +903,14 @@ const AddContract = (props) => {
                     </div>
                     <div className="form-group">
                       <label htmlFor="GhiChu">Ghi Chú</label>
-                      <input
+                      <textarea
                         type="text"
                         className="form-control"
                         id="GhiChu"
+                        rows={3}
                         placeholder="Nhập ghi chú"
                         {...register("GhiChu")}
-                      />
+                      ></textarea>
                       {errors.GhiChu && (
                         <span className="text-danger">
                           {errors.GhiChu.message}
@@ -926,12 +920,14 @@ const AddContract = (props) => {
 
                     <div className="form-group">
                       <label htmlFor="FileContact">
-                        Tải lên tệp Hợp Đồng(*)
+                        Tải Lên Tệp Phụ Lục(*)
                       </label>
                       <input
                         type="file"
                         className="form-control-file"
-                        {...register("FileContact", Validate.FileContact)}
+                        {...register("FileContact", {
+                          required: "Không được bỏ trống",
+                        })}
                       />
                       {errors.FileContact && (
                         <span className="text-danger">
@@ -946,7 +942,9 @@ const AddContract = (props) => {
                       <input
                         type="file"
                         className="form-control-file"
-                        {...register("FileCosting", Validate.FileCosting)}
+                        {...register("FileCosting", {
+                          required: "Không được bỏ trống",
+                        })}
                       />
                       {errors.FileCosting && (
                         <span className="text-danger">

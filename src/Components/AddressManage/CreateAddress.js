@@ -21,6 +21,7 @@ const CreateAddress = (props) => {
   const [ListProvince, SetListProvince] = useState([]);
   const [ListDistrict, SetListDistrict] = useState([]);
   const [ListWard, SetListWard] = useState([]);
+  const [listArea, setListArea] = useState([]);
 
   const Validate = {
     TenDiaDiem: {
@@ -65,8 +66,10 @@ const CreateAddress = (props) => {
     SetListWard([]);
 
     (async () => {
-      const getListTypeAddress = await getData("address/GetListAddressType");
+      const getListArea = await getData("Common/GetListArea");
+      setListArea(getListArea);
 
+      const getListTypeAddress = await getData("address/GetListAddressType");
       if (getListTypeAddress && getListTypeAddress.length > 0) {
         let obj = [];
 
@@ -194,7 +197,9 @@ const CreateAddress = (props) => {
       diaChiDayDu: "",
       maGps: data.GPS,
       maLoaiDiaDiem: data.MaLoaiDiaDiem.value,
+      MaKhuVuc: !data.KhuVuc ? null : data.KhuVuc,
     });
+
     if (post === 1) {
       props.getListAddress(1);
       handleResetClick();
@@ -236,6 +241,31 @@ const CreateAddress = (props) => {
                     {errors.MaLoaiDiaDiem && (
                       <span className="text-danger">
                         {errors.MaLoaiDiaDiem.message}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className="col-sm">
+                  <div className="form-group">
+                    <label htmlFor="KhuVuc">Khu Vực</label>
+                    <select
+                      className="form-control"
+                      {...register("KhuVuc", Validate.KhuVuc)}
+                    >
+                      <option value="">-- Bỏ Trống --</option>
+                      {listArea &&
+                        listArea.length > 0 &&
+                        listArea.map((val, index) => {
+                          return (
+                            <option value={val.id} key={index}>
+                              {val.tenKhuVuc}
+                            </option>
+                          );
+                        })}
+                    </select>
+                    {errors.KhuVuc && (
+                      <span className="text-danger">
+                        {errors.KhuVuc.message}
                       </span>
                     )}
                   </div>

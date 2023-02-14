@@ -20,6 +20,7 @@ const EditAddress = (props) => {
   const [ListProvince, SetListProvince] = useState([]);
   const [ListDistrict, SetListDistrict] = useState([]);
   const [ListWard, SetListWard] = useState([]);
+  const [listArea, setListArea] = useState([]);
 
   const Validate = {
     TenDiaDiem: {
@@ -58,25 +59,30 @@ const EditAddress = (props) => {
 
   useEffect(() => {
     if (
-      props &&
       props.selectIdClick &&
-      Object.keys(props.selectIdClick).length > 0 &&
-      Object.keys(props).length > 0
+      listArea &&
+      listArea.length > 0 &&
+      Object.keys(props.selectIdClick).length > 0
     ) {
       setValue("MaDiaDiem", props.selectIdClick.maDiaDiem);
       setValue("TenDiaDiem", props.selectIdClick.tenDiaDiem);
       setValue("GPS", props.selectIdClick.maGps);
       setValue("SoNha", props.selectIdClick.soNha);
+      setValue("KhuVuc", props.selectIdClick.maKhuVuc);
 
       LoadTypeAddress(props.selectIdClick.loaiDiaDiem);
       LoadProvince(props.selectIdClick.maTinh);
       LoadDistrict(props.selectIdClick.maTinh, props.selectIdClick.maHuyen);
       LoadWard(props.selectIdClick.maHuyen, props.selectIdClick.maPhuong);
     }
-  }, [props, props.selectIdClick]);
+  }, [props.selectIdClick, listArea]);
 
   useEffect(() => {
     SetIsLoading(true);
+    (async () => {
+      const getListArea = await getData("Common/GetListArea");
+      setListArea(getListArea);
+    })();
 
     SetListProvince([]);
     SetListDistrict([]);
@@ -213,6 +219,7 @@ const EditAddress = (props) => {
     const Update = await postData(
       `Address/EditAddress?Id=${data.MaDiaDiem}`,
       {
+        MaKhuVuc: !data.KhuVuc ? null : data.KhuVuc,
         tenDiaDiem: data.TenDiaDiem,
         maQuocGia: 1,
         maTinh: data.MaTinh.value,
@@ -270,6 +277,31 @@ const EditAddress = (props) => {
                     {errors.MaLoaiDiaDiem && (
                       <span className="text-danger">
                         {errors.MaLoaiDiaDiem.message}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className="col-sm">
+                  <div className="form-group">
+                    <label htmlFor="KhuVuc">Khu Vực</label>
+                    <select
+                      className="form-control"
+                      {...register("KhuVuc", Validate.KhuVuc)}
+                    >
+                      <option value="">-- Bỏ Trống --</option>
+                      {listArea &&
+                        listArea.length > 0 &&
+                        listArea.map((val, index) => {
+                          return (
+                            <option value={val.id} key={index}>
+                              {val.tenKhuVuc}
+                            </option>
+                          );
+                        })}
+                    </select>
+                    {errors.KhuVuc && (
+                      <span className="text-danger">
+                        {errors.KhuVuc.message}
                       </span>
                     )}
                   </div>

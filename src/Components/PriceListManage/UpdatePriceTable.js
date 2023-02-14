@@ -12,9 +12,7 @@ const UpdatePriceTable = (props) => {
 
   const {
     register,
-    reset,
     setValue,
-    watch,
     control,
     formState: { errors },
     handleSubmit,
@@ -112,7 +110,6 @@ const UpdatePriceTable = (props) => {
       let getListVehicleType = await getData("Common/GetListVehicleType");
       let getListGoodsType = await getData("Common/GetListGoodsType");
       let getListTransportType = await getData("Common/GetListTransportType");
-
       let getListCustommerType = await getData(`Common/GetListCustommerType`);
       setListCustomerType(getListCustommerType);
       setListVehicleType(getListVehicleType);
@@ -195,6 +192,7 @@ const UpdatePriceTable = (props) => {
       setValue("MaLoaiPhuongTien", selectIdClick.maLoaiPhuongTien);
       setValue("MaLoaiHangHoa", selectIdClick.maLoaiHangHoa);
       setValue("NgayHetHieuLuc", selectIdClick.ngayHetHieuLuc);
+      setValue("KhuVuc", selectIdClick.maKhuVuc);
 
       SetIsLoading(false);
     }
@@ -396,6 +394,7 @@ const UpdatePriceTable = (props) => {
                 <thead>
                   <tr>
                     <th>Cung Đường(*)</th>
+                    <th>Khu Vực</th>
                     <th>Đơn Giá(*)</th>
                     <th>Đơn vị tính(*)</th>
                     <th>Phương Thức Vận Chuyển(*)</th>

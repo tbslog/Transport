@@ -203,7 +203,7 @@ const AddPriceTable = (props) => {
       getListRoad.map((val) => {
         obj.push({
           value: val.maCungDuong,
-          label: val.maCungDuong + " - " + val.tenCungDuong,
+          label: val.tenCungDuong,
         });
       });
       setListRoad(obj);
@@ -257,9 +257,9 @@ const AddPriceTable = (props) => {
 
   const onSubmit = async (data, e) => {
     SetIsLoading(true);
-
     let arr = [];
-    data.optionRoad.map((val) => {
+
+    data.optionRoad.forEach((val) => {
       arr.push({
         maHopDong: data.MaHopDong.value,
         maKh: data.MaKh.value,
@@ -417,7 +417,7 @@ const AddPriceTable = (props) => {
                         <th style={{ width: "20%" }}>Cung Đường(*)</th>
                         <th>Đơn Giá(*)</th>
                         <th>Đơn vị tính(*)</th>
-                        <th style={{ width: "15%" }}>PTVC(*)</th>
+                        <th style={{ width: "10%" }}>PTVC(*)</th>
                         <th style={{ width: "12%" }}>Loại phương tiện(*)</th>
                         <th>Loại Hàng Hóa(*)</th>
                         <th>Ngày Hết Hiệu Lực</th>
@@ -507,9 +507,7 @@ const AddPriceTable = (props) => {
                                   Validate.MaPTVC
                                 )}
                               >
-                                <option value="">
-                                  Chọn phương thức vận chuyển
-                                </option>
+                                <option value="">Chọn PTVC</option>
                                 {listTransportType &&
                                   listTransportType.map((val) => {
                                     return (

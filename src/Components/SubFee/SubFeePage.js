@@ -59,12 +59,12 @@ const SubFeePage = () => {
       selector: (row) => <div className="text-wrap">{row.contractName}</div>,
     },
     {
-      name: "Điểm 1",
-      selector: (row) => <div className="text-wrap">{row.firstPlace}</div>,
+      name: "Cung Đường",
+      selector: (row) => <div className="text-wrap">{row.tripName}</div>,
     },
     {
-      name: "Điểm 2",
-      selector: (row) => <div className="text-wrap">{row.secondPlace}</div>,
+      name: <div>Khu Vực Lấy/Trả Rỗng</div>,
+      selector: (row) => <div className="text-wrap">{row.areaName}</div>,
     },
     {
       name: <div>Loại Hàng Hóa</div>,

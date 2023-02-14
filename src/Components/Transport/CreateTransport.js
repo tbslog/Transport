@@ -9,9 +9,8 @@ import Cookies from "js-cookie";
 import LoadingPage from "../Common/Loading/LoadingPage";
 
 const CreateTransport = (props) => {
-  const { getListTransport } = props;
+  const { getListTransport, hideModal } = props;
   const [IsLoading, SetIsLoading] = useState(false);
-  const accountType = Cookies.get("AccType");
   const {
     register,
     reset,
@@ -141,7 +140,6 @@ const CreateTransport = (props) => {
   const [listVehicleType, setlistVehicleType] = useState([]);
   const [listGoodsType, setListGoodsType] = useState([]);
   const [listPoint, setListPoint] = useState([]);
-  const [listSupplier, setListSupplier] = useState([]);
 
   useEffect(() => {
     SetIsLoading(true);
@@ -167,10 +165,8 @@ const CreateTransport = (props) => {
             });
           });
         setListCus(arrKh);
-        setListSupplier(arrSupplier);
       } else {
         setListCus([]);
-        setListSupplier([]);
       }
 
       let getListVehicleType = await getData("Common/GetListVehicleType");
@@ -366,6 +362,7 @@ const CreateTransport = (props) => {
     if (create === 1) {
       getListTransport();
       handleResetClick();
+      hideModal();
     }
 
     SetIsLoading(false);

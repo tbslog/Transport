@@ -23,9 +23,6 @@ const CreateSubFee = (props) => {
       required: "Không được để trống",
     },
     MaKh: { required: "Không được để trống" },
-    DiemDau: {},
-    DiemCuoi: {},
-    MaLoaiHangHoa: {},
     LoaiPhuPhi: {
       required: "Không được để trống",
     },
@@ -49,10 +46,11 @@ const CreateSubFee = (props) => {
   const [listContract, setListContract] = useState([]);
   const [listCustomer, setListCustomer] = useState([]);
   const [listGoodTypes, setListGoodsTypes] = useState([]);
-  const [listPlace, setListPlace] = useState([]);
   const [listCustomerType, setListCustomerType] = useState([]);
   const [listSubFee, setListSubFee] = useState([]);
   const [listSubFeeSelect, setListSubFeeSelect] = useState([]);
+  const [listArea, setListArea] = useState([]);
+  const [listRoad, setListRoad] = useState([]);
 
   useEffect(() => {
     (async () => {
@@ -63,22 +61,25 @@ const CreateSubFee = (props) => {
       setListGoodsTypes(getListGoodsType);
       let getListSubFee = await getData(`SubFeePrice/GetListSubFeeSelect`);
 
-      let getListPlace = await getData(`Address/GetListAddressSelect`);
+      const getListArea = await getData("Common/GetListArea");
+      setListArea(getListArea);
 
-      if (getListPlace && getListPlace.length > 0) {
+      let getListRoad = await getData(`Road/GetListRoadOptionSelect`);
+      if (getListRoad && getListRoad.length > 0) {
         let obj = [];
-        obj.push({ value: null, label: "-- Để Trống --" });
-        getListPlace.map((val) => {
+        obj.push({ value: "", label: "-- Để Trống --" });
+        getListRoad.map((val) => {
           obj.push({
-            value: val.maDiaDiem,
-            label: val.maDiaDiem + " - " + val.tenDiaDiem,
+            value: val.maCungDuong,
+            label: val.tenCungDuong,
           });
         });
-        setListPlace(obj);
+        setListRoad(obj);
       }
 
       if (getListSubFee && getListSubFee.length > 0) {
         let obj = [];
+
         getListSubFee.map((val) => {
           obj.push({
             value: val.subFeeId,
@@ -92,15 +93,16 @@ const CreateSubFee = (props) => {
     })();
   }, []);
 
-  const handleOnchangeListCustomer = (val) => {
+  const handleOnchangeListCustomer = async (val) => {
     SetIsLoading(true);
 
     setListContract([]);
     setValue("MaKh", val);
     setValue("MaHopDong", null);
     setValue("CungDuong", null);
-
-    getListContract(val.value);
+    if (val && val.value) {
+      await getListContract(val.value);
+    }
 
     SetIsLoading(false);
   };
@@ -175,9 +177,13 @@ const CreateSubFee = (props) => {
       ContractId: !data.MaHopDong ? null : data.MaHopDong.value,
       SfId: data.LoaiPhuPhi.value,
       GoodsType: !data.MaLoaiHangHoa ? null : data.MaLoaiHangHoa,
-      FirstPlace: !data.DiemDau ? null : data.DiemDau.value,
-      SecondPlace: !data.DiemCuoi ? null : data.DiemCuoi.value,
-      UnitPrice: data.DonGia,
+      AreaId: !data.KhuVuc ? null : data.KhuVuc,
+      TripId: !data.CungDuong
+        ? null
+        : !data.CungDuong.value
+        ? null
+        : data.CungDuong.value,
+      Price: data.DonGia,
       Description: !data.Description ? "" : data.Description,
     });
 
@@ -276,48 +282,48 @@ const CreateSubFee = (props) => {
               </div>
             </div>
             <div className="row">
-              <div className="col col-sm">
+              <div className="col-sm">
                 <div className="form-group">
-                  <label htmlFor="DiemDau">Điểm 1</label>
-                  <Controller
-                    name="DiemDau"
-                    control={control}
-                    render={({ field }) => (
-                      <Select
-                        {...field}
-                        classNamePrefix={"form-control"}
-                        value={field.value}
-                        options={listPlace}
-                      />
-                    )}
-                    rules={Validate.DiemDau}
-                  />
-                  {errors.DiemDau && (
-                    <span className="text-danger">
-                      {errors.DiemDau.message}
-                    </span>
+                  <label htmlFor="KhuVuc">Khu Vực</label>
+                  <select
+                    className="form-control"
+                    {...register("KhuVuc", Validate.KhuVuc)}
+                  >
+                    <option value="">-- Bỏ Trống --</option>
+                    {listArea &&
+                      listArea.length > 0 &&
+                      listArea.map((val, index) => {
+                        return (
+                          <option value={val.id} key={index}>
+                            {val.tenKhuVuc}
+                          </option>
+                        );
+                      })}
+                  </select>
+                  {errors.KhuVuc && (
+                    <span className="text-danger">{errors.KhuVuc.message}</span>
                   )}
                 </div>
               </div>
               <div className="col col-sm">
                 <div className="form-group">
-                  <label htmlFor="DiemCuoi">Điểm 2</label>
+                  <label htmlFor="CungDuong">Cung Đường</label>
                   <Controller
-                    name="DiemCuoi"
+                    name="CungDuong"
                     control={control}
                     render={({ field }) => (
                       <Select
                         {...field}
                         classNamePrefix={"form-control"}
                         value={field.value}
-                        options={listPlace}
+                        options={listRoad}
                       />
                     )}
-                    rules={Validate.DiemCuoi}
+                    rules={Validate.CungDuong}
                   />
-                  {errors.DiemCuoi && (
+                  {errors.CungDuong && (
                     <span className="text-danger">
-                      {errors.DiemCuoi.DiemCuoi}
+                      {errors.CungDuong.message}
                     </span>
                   )}
                 </div>

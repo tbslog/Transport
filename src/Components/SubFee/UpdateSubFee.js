@@ -41,14 +41,16 @@ const UpdateSubFee = (props) => {
       },
     },
   };
+
   const [IsLoading, SetIsLoading] = useState(true);
   const [listContract, setListContract] = useState([]);
   const [listCustomer, setListCustomer] = useState([]);
   const [listGoodTypes, setListGoodsTypes] = useState([]);
-  const [listPlace, setListPlace] = useState([]);
   const [listCustomerType, setListCustomerType] = useState([]);
   const [listSubFee, setListSubFee] = useState([]);
   const [listSubFeeSelect, setListSubFeeSelect] = useState([]);
+  const [listArea, setListArea] = useState([]);
+  const [listRoad, setListRoad] = useState([]);
 
   useEffect(() => {
     (async () => {
@@ -58,17 +60,20 @@ const UpdateSubFee = (props) => {
       let getListGoodsType = await getData("Common/GetListGoodsType");
       setListGoodsTypes(getListGoodsType);
 
-      let getListPlace = await getData(`Address/GetListAddressSelect`);
-      if (getListPlace && getListPlace.length > 0) {
+      const getListArea = await getData("Common/GetListArea");
+      setListArea(getListArea);
+
+      let getListRoad = await getData(`Road/GetListRoadOptionSelect`);
+      if (getListRoad && getListRoad.length > 0) {
         let obj = [];
-        obj.push({ value: null, label: "-- Để Trống --" });
-        getListPlace.map((val) => {
+        obj.push({ value: "", label: "-- Để Trống --" });
+        getListRoad.map((val) => {
           obj.push({
-            value: val.maDiaDiem,
-            label: val.maDiaDiem + " - " + val.tenDiaDiem,
+            value: val.maCungDuong,
+            label: val.tenCungDuong,
           });
         });
-        setListPlace(obj);
+        setListRoad(obj);
       }
 
       let getListSubFee = await getData(`SubFeePrice/GetListSubFeeSelect`);
@@ -94,12 +99,10 @@ const UpdateSubFee = (props) => {
       listCustomerType &&
       listGoodTypes &&
       listSubFee &&
-      listPlace &&
       listSubFeeSelect &&
       listCustomerType.length > 0 &&
       listGoodTypes.length > 0 &&
       listSubFee.length > 0 &&
-      listPlace.length > 0 &&
       listSubFeeSelect.length > 0
     ) {
       SetIsLoading(true);
@@ -111,7 +114,6 @@ const UpdateSubFee = (props) => {
     listCustomerType,
     listGoodTypes,
     listSubFee,
-    listPlace,
     listSubFeeSelect,
   ]);
 
@@ -148,20 +150,15 @@ const UpdateSubFee = (props) => {
 
       var des = listSubFee.filter((x) => x.subFeeId === selectIdClick.sfId)[0];
       setValue("SubFeeDes", des.subFeeDescription);
-
+      setValue("KhuVuc", selectIdClick.areaID);
       setValue("MaLoaiHangHoa", selectIdClick.goodsType);
       setValue(
-        "DiemDau",
+        "CungDuong",
         {
-          ...listPlace.filter((x) => x.value === selectIdClick.firstPlace),
+          ...listRoad.filter((x) => x.value === selectIdClick.tripID),
         }[0]
       );
-      setValue(
-        "DiemCuoi",
-        {
-          ...listPlace.filter((x) => x.value === selectIdClick.secondPlace),
-        }[0]
-      );
+
       setValue("DonGia", selectIdClick.unitPrice);
       setValue("Description", selectIdClick.description);
 
@@ -176,13 +173,16 @@ const UpdateSubFee = (props) => {
     }
   }, [selectIdClick, listContract]);
 
-  const handleOnchangeListCustomer = (val) => {
+  const handleOnchangeListCustomer = async (val) => {
     SetIsLoading(true);
 
     setListContract([]);
     setValue("MaKh", val);
     setValue("MaHopDong", null);
-    getListContract(val.value);
+
+    if (val && val.value) {
+      await getListContract(val.value);
+    }
 
     SetIsLoading(false);
   };
@@ -259,9 +259,13 @@ const UpdateSubFee = (props) => {
         ContractId: !data.MaHopDong ? null : data.MaHopDong.value,
         SfId: data.LoaiPhuPhi.value,
         GoodsType: !data.MaLoaiHangHoa ? null : data.MaLoaiHangHoa,
-        FirstPlace: !data.DiemDau ? null : data.DiemDau.value,
-        SecondPlace: !data.DiemCuoi ? null : data.DiemCuoi.value,
-        UnitPrice: data.DonGia,
+        AreaId: !data.KhuVuc ? null : data.KhuVuc,
+        TripId: !data.CungDuong
+          ? null
+          : !data.CungDuong.value
+          ? null
+          : data.CungDuong.value,
+        Price: data.DonGia,
         Description: !data.Description ? "" : data.Description,
       }
     );
@@ -358,48 +362,48 @@ const UpdateSubFee = (props) => {
               </div>
             </div>
             <div className="row">
-              <div className="col col-sm">
+              <div className="col-sm">
                 <div className="form-group">
-                  <label htmlFor="DiemDau">Điểm 1</label>
-                  <Controller
-                    name="DiemDau"
-                    control={control}
-                    render={({ field }) => (
-                      <Select
-                        {...field}
-                        classNamePrefix={"form-control"}
-                        value={field.value}
-                        options={listPlace}
-                      />
-                    )}
-                    rules={Validate.DiemDau}
-                  />
-                  {errors.DiemDau && (
-                    <span className="text-danger">
-                      {errors.DiemDau.message}
-                    </span>
+                  <label htmlFor="KhuVuc">Khu Vực</label>
+                  <select
+                    className="form-control"
+                    {...register("KhuVuc", Validate.KhuVuc)}
+                  >
+                    <option value="">-- Bỏ Trống --</option>
+                    {listArea &&
+                      listArea.length > 0 &&
+                      listArea.map((val, index) => {
+                        return (
+                          <option value={val.id} key={index}>
+                            {val.tenKhuVuc}
+                          </option>
+                        );
+                      })}
+                  </select>
+                  {errors.KhuVuc && (
+                    <span className="text-danger">{errors.KhuVuc.message}</span>
                   )}
                 </div>
               </div>
               <div className="col col-sm">
                 <div className="form-group">
-                  <label htmlFor="DiemCuoi">Điểm 2</label>
+                  <label htmlFor="CungDuong">Cung Đường</label>
                   <Controller
-                    name="DiemCuoi"
+                    name="CungDuong"
                     control={control}
                     render={({ field }) => (
                       <Select
                         {...field}
                         classNamePrefix={"form-control"}
                         value={field.value}
-                        options={listPlace}
+                        options={listRoad}
                       />
                     )}
-                    rules={Validate.DiemCuoi}
+                    rules={Validate.CungDuong}
                   />
-                  {errors.DiemCuoi && (
+                  {errors.CungDuong && (
                     <span className="text-danger">
-                      {errors.DiemCuoi.DiemCuoi}
+                      {errors.CungDuong.message}
                     </span>
                   )}
                 </div>
