@@ -65,8 +65,8 @@ namespace TBSLogistics.Model.Model.BillModel
         public string ContractName { get; set; }
         public string sfName { get; set; }
         public string goodsType { get; set; }
-        public string firstPlace { get; set; }
-        public string secondPlace { get; set; }
+        public string AreaName { get; set; }
+        public string TripName { get; set; }
         public double unitPrice { get; set; }
     }
 

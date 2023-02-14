@@ -34,7 +34,7 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
         {
             try
             {
-                if (request.UnitPrice < 0)
+                if (request.Price < 0)
                 {
                     return new BoolActionResult { isSuccess = false, Message = "Đơn giá phải lớn hơn 0" };
                 }
@@ -59,9 +59,9 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
                     ContractId = string.IsNullOrEmpty(request.ContractId) ? null : request.ContractId,
                     SfId = request.SfId,
                     GoodsType = request.GoodsType,
-                    FirstPlace = request.FirstPlace,
-                    SecondPlace = request.SecondPlace,
-                    UnitPrice = request.UnitPrice,
+                    AreaId = request.AreaID,
+                    TripId = request.TripID,
+                    Price = request.Price,
                     SfStateByContract = 2,
                     Status = 13,
                     Description = request.Description,
@@ -106,8 +106,8 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
                 }
 
                 var checkExists = await _context.SubFeePrice.Where(x => x.ContractId == request.ContractId && x.SfId == request.SfId
-                && x.GoodsType == request.GoodsType && x.FirstPlace == request.FirstPlace && x.SecondPlace == request.SecondPlace
-                && x.UnitPrice == request.UnitPrice && x.Status == 14
+                && x.GoodsType == request.GoodsType && x.AreaId == request.AreaID && x.TripId == request.TripID
+                && x.Price == request.Price && x.Status == 14
                 ).FirstOrDefaultAsync();
 
                 if (checkExists != null)
@@ -119,9 +119,9 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
                 getSubFeePrice.ContractId = request.ContractId;
                 getSubFeePrice.SfId = request.SfId;
                 getSubFeePrice.GoodsType = request.GoodsType;
-                getSubFeePrice.FirstPlace = request.FirstPlace;
-                getSubFeePrice.SecondPlace = request.SecondPlace;
-                getSubFeePrice.UnitPrice = request.UnitPrice;
+                getSubFeePrice.AreaId = request.AreaID;
+                getSubFeePrice.TripId = request.TripID;
+                getSubFeePrice.Price = request.Price;
                 getSubFeePrice.Description = request.Description;
                 getSubFeePrice.UpdatedDate = DateTime.Now;
                 getSubFeePrice.Updater = tempData.UserName;
@@ -195,7 +195,7 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
                         }
 
                         var checkExists = await _context.SubFeePrice.Where(x => x.CusType == getById.CusType && x.ContractId == getById.ContractId && x.SfId == getById.SfId
-                         && x.GoodsType == getById.GoodsType && x.FirstPlace == getById.FirstPlace && x.SecondPlace == getById.SecondPlace
+                         && x.GoodsType == getById.GoodsType && x.TripId == getById.TripId && x.AreaId == getById.AreaId
                          && x.Status == 14).FirstOrDefaultAsync();
 
                         if (checkExists != null)
@@ -358,9 +358,9 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
                     ContractId = string.IsNullOrEmpty(x.sfp.ContractId) ? "" : x.sfp.ContractId,
                     SfId = x.sfp.SfId,
                     GoodsType = x.sfp.GoodsType,
-                    FirstPlace = x.sfp.FirstPlace,
-                    SecondPlace = x.sfp.SecondPlace,
-                    UnitPrice = x.sfp.UnitPrice,
+                    TripID = x.sfp.TripId,
+                    AreaID = x.sfp.AreaId,
+                    Price = x.sfp.Price,
                     Description = x.sfp.Description,
                     Approver = x.sfp.Approver,
                     Creator = x.sfp.Creator,
@@ -403,26 +403,27 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
             }
         }
 
-        public async Task<List<SubFeePrice>> GetListSubFeePriceActive(string customerId, string goodTypes, int? getEmptyPlace, string road)
+        public async Task<List<SubFeePrice>> GetListSubFeePriceActive(string customerId, string goodTypes, int? getEmptyPlace, string tripID, long? handlingId)
         {
-            var getRoad = await _context.CungDuong.Where(x => x.MaCungDuong == road).FirstOrDefaultAsync();
+            var getRoad = await _context.CungDuong.Where(x => x.MaCungDuong == tripID).FirstOrDefaultAsync();
             var getCus = await _context.KhachHang.Where(x => x.MaKh == customerId).FirstOrDefaultAsync();
+            var getPlace = await _context.DiaDiem.Where(x => x.MaDiaDiem == getEmptyPlace).FirstOrDefaultAsync();
 
             var getSFByCusId = from contract in _context.HopDongVaPhuLuc
-                             join sfp in _context.SubFeePrice
-                             on contract.MaHopDong equals sfp.ContractId
-                             where contract.MaKh == customerId && sfp.Status == 14
-                             && ((sfp.GoodsType == goodTypes)
-                             || (sfp.FirstPlace == getEmptyPlace && sfp.SecondPlace == null)
-                             || (sfp.FirstPlace == getRoad.DiemDau && sfp.SecondPlace == getRoad.DiemCuoi)
-                             || (sfp.GoodsType == null && sfp.FirstPlace == null && sfp.SecondPlace == null))
-                             select new { contract, sfp };
+                               join sfp in _context.SubFeePrice
+                               on contract.MaHopDong equals sfp.ContractId
+                               where contract.MaKh == customerId && sfp.Status == 14
+                               && ((sfp.GoodsType == goodTypes)
+                               || (sfp.AreaId == getPlace.MaKhuVuc)
+                               || (sfp.TripId == tripID)
+                               || (sfp.GoodsType == null && sfp.AreaId == null && sfp.TripId == null))
+                               select new { contract, sfp };
 
             var getSFByCusType = await _context.SubFeePrice.Where(x => x.Status == 14 && x.CusType == getCus.MaLoaiKh
             && x.ContractId == null && ((x.GoodsType == goodTypes)
-            || (x.FirstPlace == getEmptyPlace && x.SecondPlace == null)
-            || (x.FirstPlace == getRoad.DiemDau && x.SecondPlace == getRoad.DiemCuoi)
-            || (x.GoodsType == null && x.FirstPlace == null && x.SecondPlace == null))).ToListAsync();
+            || (x.AreaId == getPlace.MaKhuVuc)
+            || (x.TripId == tripID)
+            || (x.GoodsType == null && x.AreaId == null && x.TripId == null))).ToListAsync();
 
             var dataGetByCusId = await getSFByCusId.Select(x => x.sfp).ToListAsync();
 
@@ -433,9 +434,9 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
                 if (dataGetByCusId.Where(x =>
                 x.CusType == item.CusType
                 && x.SfId == item.SfId
-                && (x.GoodsType == item.GoodsType)
-                && ((x.FirstPlace == item.FirstPlace && x.SecondPlace == null)
-                || (x.FirstPlace == item.FirstPlace && x.SecondPlace == item.SecondPlace))).Count() > 0)
+                && x.GoodsType == item.GoodsType
+                && x.AreaId == item.AreaId
+                && x.TripId == item.TripId).Count() > 0)
                 {
                     listItemRemove.Add(item);
                 }
@@ -450,6 +451,14 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
             }
 
             var data = dataGetByCusId.Concat(getSFByCusType);
+
+            if (handlingId != null)
+            {
+                var getListSFbyContract = await _context.SubFeeByContract.Where(x => x.MaDieuPhoi == handlingId).ToListAsync();
+                _context.RemoveRange(getListSFbyContract);
+                await _context.SaveChangesAsync();
+            }
+
             return data.ToList();
         }
 
@@ -500,11 +509,11 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
                     ContractId = x.sfc.MaHopDong,
                     ContractName = x.sfc.TenHienThi,
                     GoodsType = _context.LoaiHangHoa.Where(y => y.MaLoaiHangHoa == x.sfp.GoodsType).Select(x => x.TenLoaiHangHoa).FirstOrDefault(),
-                    FirstPlace = _context.DiaDiem.Where(y => y.MaDiaDiem == x.sfp.FirstPlace).Select(x => x.TenDiaDiem).FirstOrDefault(),
-                    SecondPlace = _context.DiaDiem.Where(y => y.MaDiaDiem == x.sfp.SecondPlace).Select(x => x.TenDiaDiem).FirstOrDefault(),
+                    AreaName = _context.KhuVuc.Where(y => y.Id == x.sfp.AreaId).Select(y => y.TenKhuVuc).FirstOrDefault(),
+                    TripName = _context.CungDuong.Where(y => y.MaCungDuong == x.sfp.TripId).Select(y => y.TenCungDuong).FirstOrDefault(),
                     sfName = x.sf.SfName,
                     Status = x.status.StatusContent,
-                    UnitPrice = x.sfp.UnitPrice,
+                    UnitPrice = x.sfp.Price,
                     SfStateByContract = x.sfp.SfStateByContract,
                     Approver = x.sfp.Approver,
                     ApprovedDate = x.sfp.ApprovedDate,

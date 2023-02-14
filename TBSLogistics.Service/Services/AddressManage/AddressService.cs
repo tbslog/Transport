@@ -22,7 +22,7 @@ namespace TBSLogistics.Service.Services.AddressManage
 {
     public class AddressService : IAddress
     {
-        private readonly TMSContext _VanChuyenContext;
+        private readonly TMSContext _context;
         private readonly ICommon _common;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private TempData tempData;
@@ -30,14 +30,14 @@ namespace TBSLogistics.Service.Services.AddressManage
         public AddressService(TMSContext vanChuyenContext, ICommon common, IHttpContextAccessor httpContextAccessor)
         {
             _common = common;
-            _VanChuyenContext = vanChuyenContext;
+            _context = vanChuyenContext;
             _httpContextAccessor = httpContextAccessor;
             tempData = _common.DecodeToken(_httpContextAccessor.HttpContext.Request.Headers["Authorization"][0].ToString().Replace("Bearer ", ""));
         }
 
         public async Task<BoolActionResult> CreateDistricts(int mahuyen, string tenhuyen, string phanloai, int parentcode)
         {
-            var add = await _VanChuyenContext.AddAsync(new QuanHuyen()
+            var add = await _context.AddAsync(new QuanHuyen()
             {
                 MaHuyen = mahuyen,
                 TenHuyen = tenhuyen,
@@ -45,21 +45,21 @@ namespace TBSLogistics.Service.Services.AddressManage
                 ParentCode = parentcode
             });
 
-            await _VanChuyenContext.SaveChangesAsync();
+            await _context.SaveChangesAsync();
 
             return new BoolActionResult { isSuccess = true, Message = "OK" };
         }
 
         public async Task<BoolActionResult> CreateProvince(int matinh, string tentinh, string phanloai)
         {
-            var add = await _VanChuyenContext.AddAsync(new TinhThanh()
+            var add = await _context.AddAsync(new TinhThanh()
             {
                 MaTinh = matinh,
                 TenTinh = tentinh,
                 PhanLoai = phanloai
             });
 
-            await _VanChuyenContext.SaveChangesAsync();
+            await _context.SaveChangesAsync();
 
             return new BoolActionResult { isSuccess = true, Message = "OK" };
         }
@@ -68,7 +68,7 @@ namespace TBSLogistics.Service.Services.AddressManage
         {
             try
             {
-                var checkExists = await _VanChuyenContext.DiaDiem.Where(x => x.TenDiaDiem == request.TenDiaDiem).FirstOrDefaultAsync();
+                var checkExists = await _context.DiaDiem.Where(x => x.TenDiaDiem == request.TenDiaDiem).FirstOrDefaultAsync();
 
                 if (checkExists != null)
                 {
@@ -83,8 +83,9 @@ namespace TBSLogistics.Service.Services.AddressManage
                     return new BoolActionResult { isSuccess = false, Message = ErrorValidate };
                 }
 
-                await _VanChuyenContext.AddAsync(new DiaDiem()
+                await _context.AddAsync(new DiaDiem()
                 {
+                    MaKhuVuc = request.MaKhuVuc,
                     TenDiaDiem = request.TenDiaDiem,
                     MaQuocGia = null,
                     MaTinh = request.MaTinh,
@@ -99,7 +100,7 @@ namespace TBSLogistics.Service.Services.AddressManage
                     Creator = tempData.UserName,
                 });
 
-                var result = await _VanChuyenContext.SaveChangesAsync();
+                var result = await _context.SaveChangesAsync();
 
                 if (result > 0)
                 {
@@ -122,7 +123,7 @@ namespace TBSLogistics.Service.Services.AddressManage
         {
             try
             {
-                var getAddress = await _VanChuyenContext.DiaDiem.Where(x => x.MaDiaDiem == id).FirstOrDefaultAsync();
+                var getAddress = await _context.DiaDiem.Where(x => x.MaDiaDiem == id).FirstOrDefaultAsync();
 
                 if (getAddress == null)
                 {
@@ -139,7 +140,7 @@ namespace TBSLogistics.Service.Services.AddressManage
                 }
 
                 getAddress.TenDiaDiem = request.TenDiaDiem;
-
+                getAddress.MaKhuVuc = request.MaKhuVuc;
                 getAddress.MaTinh = request.MaTinh;
                 getAddress.MaHuyen = request.MaHuyen;
                 getAddress.MaPhuong = request.MaPhuong;
@@ -154,9 +155,9 @@ namespace TBSLogistics.Service.Services.AddressManage
                     getAddress.DiaChiDayDu = FullAddress;
                 }
 
-                _VanChuyenContext.Update(getAddress);
+                _context.Update(getAddress);
 
-                var result = await _VanChuyenContext.SaveChangesAsync();
+                var result = await _context.SaveChangesAsync();
 
                 if (result > 0)
                 {
@@ -177,10 +178,11 @@ namespace TBSLogistics.Service.Services.AddressManage
 
         public async Task<GetAddressModel> GetAddressById(int IdAddress)
         {
-            var getAddress = await _VanChuyenContext.DiaDiem.Where(x => x.MaDiaDiem == IdAddress).FirstOrDefaultAsync();
+            var getAddress = await _context.DiaDiem.Where(x => x.MaDiaDiem == IdAddress).FirstOrDefaultAsync();
 
             return new GetAddressModel()
             {
+                MaKhuVuc = getAddress.MaKhuVuc,
                 MaDiaDiem = getAddress.MaDiaDiem,
                 TenDiaDiem = getAddress.TenDiaDiem,
                 LoaiDiaDiem = getAddress.MaLoaiDiaDiem,
@@ -194,7 +196,7 @@ namespace TBSLogistics.Service.Services.AddressManage
 
         public async Task<List<QuanHuyen>> GetDistricts(int IdProvince)
         {
-            var ListDistricts = await _VanChuyenContext.QuanHuyen.Where(x => x.ParentCode == IdProvince).ToListAsync();
+            var ListDistricts = await _context.QuanHuyen.Where(x => x.ParentCode == IdProvince).ToListAsync();
             return ListDistricts;
         }
 
@@ -202,9 +204,9 @@ namespace TBSLogistics.Service.Services.AddressManage
         {
             try
             {
-                var getProvinceName = await _VanChuyenContext.TinhThanh.Where(x => x.MaTinh == provinceId).Select(x => new { x.TenTinh, x.MaTinh }).FirstOrDefaultAsync();
-                var getDistrictName = await _VanChuyenContext.QuanHuyen.Where(x => x.MaHuyen == districtId && x.ParentCode == getProvinceName.MaTinh).Select(x => new { x.TenHuyen, x.MaHuyen }).FirstOrDefaultAsync();
-                var getWardName = await _VanChuyenContext.XaPhuong.Where(x => x.MaPhuong == wardId && x.ParentCode == getDistrictName.MaHuyen).Select(x => x.TenPhuong).FirstOrDefaultAsync();
+                var getProvinceName = await _context.TinhThanh.Where(x => x.MaTinh == provinceId).Select(x => new { x.TenTinh, x.MaTinh }).FirstOrDefaultAsync();
+                var getDistrictName = await _context.QuanHuyen.Where(x => x.MaHuyen == districtId && x.ParentCode == getProvinceName.MaTinh).Select(x => new { x.TenHuyen, x.MaHuyen }).FirstOrDefaultAsync();
+                var getWardName = await _context.XaPhuong.Where(x => x.MaPhuong == wardId && x.ParentCode == getDistrictName.MaHuyen).Select(x => x.TenPhuong).FirstOrDefaultAsync();
 
                 if (getProvinceName == null || getDistrictName == null || getWardName == null)
                 {
@@ -228,8 +230,8 @@ namespace TBSLogistics.Service.Services.AddressManage
             {
                 var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
 
-                var getData = from ar in _VanChuyenContext.DiaDiem
-                              join loaiDiaDiem in _VanChuyenContext.LoaiDiaDiem
+                var getData = from ar in _context.DiaDiem
+                              join loaiDiaDiem in _context.LoaiDiaDiem
                               on ar.MaLoaiDiaDiem equals loaiDiaDiem.MaLoaiDiaDiem
                               orderby ar.CreatedTime descending
                               select new { ar, loaiDiaDiem };
@@ -248,6 +250,8 @@ namespace TBSLogistics.Service.Services.AddressManage
 
                 var pagedData = await getData.Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new GetAddressModel()
                 {
+                    TenKhuVuc = _context.KhuVuc.Where(y => y.Id == x.ar.MaKhuVuc).Select(y => y.TenKhuVuc).FirstOrDefault(),
+                    MaKhuVuc = x.ar.MaKhuVuc,
                     MaDiaDiem = x.ar.MaDiaDiem,
                     TenDiaDiem = x.ar.TenDiaDiem,
                     DiaChiDayDu = x.ar.DiaChiDayDu,
@@ -272,19 +276,19 @@ namespace TBSLogistics.Service.Services.AddressManage
 
         public async Task<List<TinhThanh>> GetProvinces()
         {
-            var ListProvinces = await _VanChuyenContext.TinhThanh.ToListAsync();
+            var ListProvinces = await _context.TinhThanh.ToListAsync();
             return ListProvinces;
         }
 
         public async Task<List<XaPhuong>> GetWards(int IdDistricts)
         {
-            var ListWards = await _VanChuyenContext.XaPhuong.Where(x => x.ParentCode == IdDistricts).ToListAsync();
+            var ListWards = await _context.XaPhuong.Where(x => x.ParentCode == IdDistricts).ToListAsync();
             return ListWards;
         }
 
         public async Task<List<ListTypeAddress>> GetListTypeAddress()
         {
-            var list = await _VanChuyenContext.LoaiDiaDiem.ToListAsync();
+            var list = await _context.LoaiDiaDiem.ToListAsync();
 
             return list.Select(x => new ListTypeAddress()
             {
@@ -380,11 +384,11 @@ namespace TBSLogistics.Service.Services.AddressManage
 
                 foreach (var item in list)
                 {
-                    var checkExists = await _VanChuyenContext.DiaDiem.Where(x => x.TenDiaDiem.ToLower() == item.TenDiaDiem.ToLower()).FirstOrDefaultAsync();
+                    var checkExists = await _context.DiaDiem.Where(x => x.TenDiaDiem.ToLower() == item.TenDiaDiem.ToLower()).FirstOrDefaultAsync();
                     ErrorInsert += 1;
                     if (checkExists == null)
                     {
-                        var addAddress = await _VanChuyenContext.AddAsync(new DiaDiem()
+                        var addAddress = await _context.AddAsync(new DiaDiem()
                         {
                             TenDiaDiem = item.TenDiaDiem,
                             MaQuocGia = item.MaQuocGia,
@@ -399,7 +403,7 @@ namespace TBSLogistics.Service.Services.AddressManage
                             UpdatedTime = DateTime.Now
                         });
 
-                        await _VanChuyenContext.SaveChangesAsync();
+                        await _context.SaveChangesAsync();
                     }
                     else
                     {
@@ -431,7 +435,7 @@ namespace TBSLogistics.Service.Services.AddressManage
         {
             string ErrorValidate = "";
 
-            var CheckMaLoai = await _VanChuyenContext.LoaiDiaDiem.Where(x => x.MaLoaiDiaDiem == MaLoaiDiaDiem).FirstOrDefaultAsync();
+            var CheckMaLoai = await _context.LoaiDiaDiem.Where(x => x.MaLoaiDiaDiem == MaLoaiDiaDiem).FirstOrDefaultAsync();
 
             if (CheckMaLoai == null)
             {
@@ -470,8 +474,8 @@ namespace TBSLogistics.Service.Services.AddressManage
         {
             try
             {
-                var list = from dd in _VanChuyenContext.DiaDiem
-                           join ddt in _VanChuyenContext.LoaiDiaDiem
+                var list = from dd in _context.DiaDiem
+                           join ddt in _context.LoaiDiaDiem
                            on dd.MaLoaiDiaDiem equals ddt.MaLoaiDiaDiem
                            select dd;
 
@@ -480,7 +484,7 @@ namespace TBSLogistics.Service.Services.AddressManage
                     list = list.Where(x => x.MaLoaiDiaDiem == pointType);
                 }
 
-                var data = await _VanChuyenContext.DiaDiem.Select(x => new GetListAddress()
+                var data = await _context.DiaDiem.Select(x => new GetListAddress()
                 {
                     MaDiaDiem = x.MaDiaDiem,
                     TenDiaDiem = x.TenDiaDiem,
@@ -494,7 +498,5 @@ namespace TBSLogistics.Service.Services.AddressManage
                 throw;
             }
         }
-
-
     }
 }

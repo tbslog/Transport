@@ -18,9 +18,9 @@ namespace TBSLogistics.Data.TMS
         /// <summary>
         /// if the sub-fee is collected on road, need two place; is collected at a place need one place; independent to place  then 2 place-fields are null 
         /// </summary>
-        public int? FirstPlace { get; set; }
-        public int? SecondPlace { get; set; }
-        public double UnitPrice { get; set; }
+        public int? AreaId { get; set; }
+        public string TripId { get; set; }
+        public double Price { get; set; }
         /// <summary>
         /// 0: deactivated, 1: create new, 2: approved, 3: deleted
         /// </summary>

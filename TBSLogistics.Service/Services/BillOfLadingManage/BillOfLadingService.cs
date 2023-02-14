@@ -74,15 +74,15 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 
             return new ListPoint()
             {
-                DiemDau = listRoad.Select(x => x.DiemDau).Select(x => new Point()
+                DiemDau = listRoad.Select(x => new Point()
                 {
-                    MaDiaDiem = x,
-                    TenDiaDiem = _context.DiaDiem.Where(y => y.MaDiaDiem == x).Select(y => y.TenDiaDiem).FirstOrDefault()
+                    MaDiaDiem = x.DiemDau,
+                    TenDiaDiem = _context.DiaDiem.Where(y => y.MaDiaDiem == x.DiemDau).Select(y => y.TenDiaDiem).FirstOrDefault()
                 }).ToList(),
-                DiemCuoi = listRoad.Select(x => x.DiemCuoi).Select(x => new Point()
+                DiemCuoi = listRoad.Select(x => new Point()
                 {
-                    MaDiaDiem = x,
-                    TenDiaDiem = _context.DiaDiem.Where(y => y.MaDiaDiem == x).Select(y => y.TenDiaDiem).FirstOrDefault()
+                    MaDiaDiem = x.DiemCuoi,
+                    TenDiaDiem = _context.DiaDiem.Where(y => y.MaDiaDiem == x.DiemCuoi).Select(y => y.TenDiaDiem).FirstOrDefault()
                 }).ToList(),
                 CungDuong = listRoad.Select(x => new Road()
                 {
@@ -457,7 +457,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                     }
                 }
 
-                await _context.VanDon.AddRangeAsync(new VanDon()
+                await _context.VanDon.AddAsync(new VanDon()
                 {
                     MaPtvc = request.MaPTVC,
                     TongSoKien = request.TongSoKien,
@@ -597,7 +597,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                             itemHandling.MaLoaiPhuongTien = item.PTVanChuyen;
                             itemHandling.MaDvt = item.DonViTinh;
                             itemHandling.DonViVanTai = item.DonViVanTai;
-                        
+
                             itemHandling.KhoiLuong = item.KhoiLuong;
                             itemHandling.TheTich = item.TheTich;
                             itemHandling.SoKien = item.SoKien;
@@ -606,26 +606,20 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                             itemHandling.CreatedTime = DateTime.Now;
                             itemHandling.Creator = tempData.UserName;
                             var insertHandling = await _context.DieuPhoi.AddAsync(itemHandling);
-                            await _context.SaveChangesAsync();
-
-                            var getSubFee = await _subFeePrice.GetListSubFeePriceActive(request.MaKH, itemHandling.MaLoaiHangHoa, itemHandling.DiemLayTraRong, request.MaCungDuong);
-                            foreach (var sfp in getSubFee)
-                            {
-                                await _context.SubFeeByContract.AddAsync(new SubFeeByContract()
-                                {
-                                    PriceId = sfp.PriceId,
-                                    MaDieuPhoi = insertHandling.Entity.Id,
-                                    CreatedDate = DateTime.Now,
-                                    Creator = tempData.UserName,
-                                });
-                            }
                         }
                     }
 
                     var resultDP = await _context.SaveChangesAsync();
-                    await transaction.CommitAsync();
-                    await _common.Log("BillOfLading ", "UserId: " + tempData.UserName + " create new Transport with Data: " + JsonSerializer.Serialize(request));
-                    return new BoolActionResult { isSuccess = true, Message = "Tạo vận đơn Thành Công!" };
+                    if (resultDP > 0)
+                    {
+                        await transaction.CommitAsync();
+                        await _common.Log("BillOfLading ", "UserId: " + tempData.UserName + " create new Transport with Data: " + JsonSerializer.Serialize(request));
+                        return new BoolActionResult { isSuccess = true, Message = "Tạo vận đơn Thành Công!" };
+                    }
+                    else
+                    {
+                        return new BoolActionResult { isSuccess = true, Message = "Tạo vận đơn thất Bại!" };
+                    }
                 }
                 else
                 {
@@ -1033,7 +1027,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 
                             await _context.SaveChangesAsync();
 
-                            var getSubFee = await _subFeePrice.GetListSubFeePriceActive(item.MaKh, itemRequest.MaLoaiHangHoa, request.DiemLayTraRong, item.MaCungDuong);
+                            var getSubFee = await _subFeePrice.GetListSubFeePriceActive(item.MaKh, itemRequest.MaLoaiHangHoa, request.DiemLayTraRong, item.MaCungDuong, null);
                             foreach (var sfp in getSubFee)
                             {
                                 await _context.SubFeeByContract.AddAsync(new SubFeeByContract()
@@ -1236,6 +1230,20 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 
                 if (result > 0)
                 {
+                    var getSubFee = await _subFeePrice.GetListSubFeePriceActive(getTransport.MaKh, checkById.MaLoaiHangHoa, checkById.DiemLayTraRong, getTransport.MaCungDuong, checkById.Id);
+                    foreach (var sfp in getSubFee)
+                    {
+                        await _context.SubFeeByContract.AddAsync(new SubFeeByContract()
+                        {
+                            PriceId = sfp.PriceId,
+                            MaDieuPhoi = checkById.Id,
+                            CreatedDate = DateTime.Now,
+                            Creator = tempData.UserName,
+                        });
+                    }
+
+
+                    await _context.SaveChangesAsync();
                     await transaction.CommitAsync();
                     await _common.Log("BillOfLading ", "UserId: " + tempData.UserName + " update handling with Data: " + JsonSerializer.Serialize(request));
                     return new BoolActionResult { isSuccess = true, Message = "Điều Phối Chuyến Thành Công!" };
@@ -1510,8 +1518,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                             item.dp.DiemLayTraRong = request.DiemLayTraRong;
                             item.dp.Updater = tempData.UserName;
 
-                            _context.SubFeeByContract.RemoveRange(_context.SubFeeByContract.Where(x => x.MaDieuPhoi == item.dp.Id));
-                            var getSubFee = await _subFeePrice.GetListSubFeePriceActive(item.vd.MaKh, itemRequest.MaLoaiHangHoa, request.DiemLayTraRong, item.vd.MaCungDuong);
+                            var getSubFee = await _subFeePrice.GetListSubFeePriceActive(item.vd.MaKh, itemRequest.MaLoaiHangHoa, request.DiemLayTraRong, item.vd.MaCungDuong, item.dp.Id);
                             foreach (var sfp in getSubFee)
                             {
                                 await _context.SubFeeByContract.AddAsync(new SubFeeByContract()
@@ -1618,7 +1625,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                 Updater = tempData.UserName,
                             });
 
-                            var getSubFee = await _subFeePrice.GetListSubFeePriceActive(item.MaKh, itemRequest.MaLoaiHangHoa, request.DiemLayTraRong, item.MaCungDuong);
+                            var getSubFee = await _subFeePrice.GetListSubFeePriceActive(item.MaKh, itemRequest.MaLoaiHangHoa, request.DiemLayTraRong, item.MaCungDuong, null);
                             foreach (var sfp in getSubFee)
                             {
                                 await _context.SubFeeByContract.AddAsync(new SubFeeByContract()
@@ -2002,19 +2009,6 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                             itemHandling.CreatedTime = DateTime.Now;
                             itemHandling.Creator = tempData.UserName;
                             var insertHandling = await _context.DieuPhoi.AddAsync(itemHandling);
-                            await _context.SaveChangesAsync();
-
-                            var getSubFee = await _subFeePrice.GetListSubFeePriceActive(request.MaKH, itemHandling.MaLoaiHangHoa, itemHandling.DiemLayTraRong, request.MaCungDuong);
-                            foreach (var sfp in getSubFee)
-                            {
-                                await _context.SubFeeByContract.AddAsync(new SubFeeByContract()
-                                {
-                                    PriceId = sfp.PriceId,
-                                    MaDieuPhoi = insertHandling.Entity.Id,
-                                    CreatedDate = DateTime.Now,
-                                    Creator = tempData.UserName,
-                                });
-                            }
                         }
                     }
 

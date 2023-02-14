@@ -72,7 +72,8 @@ namespace TBSLogistics.Service.Services.PriceTableManage
                     rows++;
 
                     var checkDuplicate = request.Where(x =>
-                    x.MaHopDong == item.MaHopDong
+                    x.DonGia == item.DonGia
+                    && x.MaHopDong == item.MaHopDong
                     && x.MaKH == item.MaKH
                     && x.MaPtvc == item.MaPtvc
                     && x.MaCungDuong == item.MaCungDuong
@@ -474,7 +475,7 @@ namespace TBSLogistics.Service.Services.PriceTableManage
 
                         if (checkOldPriceTable != null)
                         {
-                            checkOldPriceTable.ForEach(x =>  { x.TrangThai = 6;x.NgayHetHieuLuc = DateTime.Now;x.Approver = tempData.UserName; });
+                            checkOldPriceTable.ForEach(x => { x.TrangThai = 6; x.NgayHetHieuLuc = DateTime.Now; x.Approver = tempData.UserName; });
                         }
 
                         checkExists.TrangThai = 4;
@@ -580,6 +581,7 @@ namespace TBSLogistics.Service.Services.PriceTableManage
                     return new BoolActionResult { isSuccess = false, Message = "Dữ liệu muốn cập nhật đã tồn tại và đang được áp dụng" };
                 }
 
+              
                 findById.MaHopDong = request.MaHopDong;
                 findById.MaCungDuong = request.MaCungDuong;
                 findById.DonGia = request.DonGia;

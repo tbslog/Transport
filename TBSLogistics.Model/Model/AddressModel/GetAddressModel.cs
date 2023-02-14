@@ -8,6 +8,8 @@ namespace TBSLogistics.Model.Model.AddressModel
 {
    public class GetAddressModel
     {
+        public string TenKhuVuc { get; set; }
+        public int? MaKhuVuc { get; set; }
         public int MaDiaDiem { get; set; }
         public string TenDiaDiem { get; set; }
         public string LoaiDiaDiem { get; set; }

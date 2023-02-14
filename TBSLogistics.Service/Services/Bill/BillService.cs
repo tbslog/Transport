@@ -97,18 +97,18 @@ namespace TBSLogistics.Service.Services.Bill
                         KhoiLuong = x.KhoiLuong,
                         TheTich = x.TheTich,
                         listSubFeeByContract = getListSubFeeByContract.Where(y => (y.sfPice.GoodsType == x.MaLoaiHangHoa)
-                        || (y.sfPice.FirstPlace == x.DiemLayTraRong && y.sfPice.SecondPlace == null)
-                        || (y.sfPice.FirstPlace == z.cd.DiemDau && y.sfPice.SecondPlace == z.cd.DiemCuoi)
-                        || (y.sfPice.GoodsType == null && y.sfPice.FirstPlace == null && y.sfPice.SecondPlace == null)
+                        || (y.sfPice.AreaId == _context.DiaDiem.Where(o => o.MaDiaDiem == x.DiemLayTraRong).Select(o => o.MaKhuVuc).FirstOrDefault())
+                        || (y.sfPice.TripId == z.cd.MaCungDuong)
+                        || (y.sfPice.GoodsType == null && y.sfPice.TripId == null && y.sfPice.AreaId == null)
                         ).OrderBy(x => x.sfPice).Select(x => new ListSubFeeByContract()
                         {
                             ContractId = x.hd.MaHopDong,
                             ContractName = x.hd.TenHienThi,
                             sfName = x.sf.SfName,
                             goodsType = x.sfPice.GoodsType,
-                            firstPlace = _context.DiaDiem.Where(y => y.MaDiaDiem == x.sfPice.FirstPlace).Select(x => x.TenDiaDiem).FirstOrDefault(),
-                            secondPlace = _context.DiaDiem.Where(y => y.MaDiaDiem == x.sfPice.SecondPlace).Select(x => x.TenDiaDiem).FirstOrDefault(),
-                            unitPrice = x.sfPice.UnitPrice
+                            TripName = _context.CungDuong.Where(y => y.MaCungDuong == x.sfPice.TripId).Select(x => x.TenCungDuong).FirstOrDefault(),
+                            AreaName = _context.KhuVuc.Where(y => y.Id == x.sfPice.AreaId).Select(x => x.TenKhuVuc).FirstOrDefault(),
+                            unitPrice = x.sfPice.Price
                         }).ToList(),
                         listSubFeeIncurreds = _context.SfeeByTcommand.Where(y => y.IdTcommand == x.Id && y.ApproveStatus == 14).OrderBy(x => x.Id).Select(x => new ListSubFeeIncurred()
                         {
@@ -190,18 +190,18 @@ namespace TBSLogistics.Service.Services.Bill
                         SoKien = x.SoKien,
                         listSubFeeByContract = getListSubFeeByContract.Where(y =>
                            (y.sfPice.GoodsType == x.MaLoaiHangHoa)
-                        || (y.sfPice.FirstPlace == x.DiemLayTraRong && y.sfPice.SecondPlace == null)
-                        || (y.sfPice.FirstPlace == z.cd.DiemDau && y.sfPice.SecondPlace == z.cd.DiemCuoi)
-                        || (y.sfPice.GoodsType == null && y.sfPice.FirstPlace == null && y.sfPice.SecondPlace == null)
+                        || (y.sfPice.TripId == z.cd.MaCungDuong)
+                        || (y.sfPice.AreaId == _context.DiaDiem.Where(o => o.MaDiaDiem == x.DiemLayTraRong).Select(o => o.MaKhuVuc).FirstOrDefault())
+                        || (y.sfPice.GoodsType == null && y.sfPice.TripId == null && y.sfPice.AreaId == null)
                         ).OrderBy(x => x.sfPice).Select(x => new ListSubFeeByContract()
                         {
                             ContractId = x.hd.MaHopDong,
                             ContractName = x.hd.TenHienThi,
                             sfName = x.sf.SfName,
                             goodsType = x.sfPice.GoodsType,
-                            firstPlace = _context.DiaDiem.Where(y => y.MaDiaDiem == x.sfPice.FirstPlace).Select(x => x.TenDiaDiem).FirstOrDefault(),
-                            secondPlace = _context.DiaDiem.Where(y => y.MaDiaDiem == x.sfPice.SecondPlace).Select(x => x.TenDiaDiem).FirstOrDefault(),
-                            unitPrice = x.sfPice.UnitPrice
+                            TripName = _context.CungDuong.Where(y => y.MaCungDuong == x.sfPice.TripId).Select(x => x.TenCungDuong).FirstOrDefault(),
+                            AreaName = _context.KhuVuc.Where(y => y.Id == x.sfPice.AreaId).Select(x => x.TenKhuVuc).FirstOrDefault(),
+                            unitPrice = x.sfPice.Price
                         }).ToList(),
                         listSubFeeIncurreds = _context.SfeeByTcommand.Where(y => y.IdTcommand == x.Id && y.ApproveStatus == 14).OrderBy(x => x.Id).Select(x => new ListSubFeeIncurred()
                         {
@@ -381,10 +381,10 @@ namespace TBSLogistics.Service.Services.Bill
                 LoiNhuan = x.dp.DonGiaKh.Value - x.dp.DonGiaNcc.Value,
                 ChiPhiHopDong = (decimal)getListSubFeeByContract.Where(y => y.kh.MaKh == x.vd.MaKh &&
                 ((y.sfPice.GoodsType == x.dp.MaLoaiHangHoa)
-                        || (y.sfPice.FirstPlace == x.dp.DiemLayTraRong && y.sfPice.SecondPlace == null)
-                        || (y.sfPice.FirstPlace == x.cd.DiemDau && y.sfPice.SecondPlace == x.cd.DiemCuoi)
-                        || (y.sfPice.GoodsType == null && y.sfPice.FirstPlace == null && y.sfPice.SecondPlace == null))
-                ).Sum(y => y.sfPice.UnitPrice),
+                        || (y.sfPice.AreaId == _context.DiaDiem.Where(o => o.MaDiaDiem == x.dp.DiemLayTraRong).Select(o => o.MaKhuVuc).FirstOrDefault())
+                        || (y.sfPice.TripId == x.cd.MaCungDuong)
+                        || (y.sfPice.GoodsType == null && y.sfPice.TripId == null && y.sfPice.AreaId == null))
+                ).Sum(y => y.sfPice.Price),
                 ChiPhiPhatSinh = ((decimal)_context.SfeeByTcommand.Where(y => y.IdTcommand == x.dp.Id && y.ApproveStatus == 14).Sum(y => y.Price)),
             }).Select(x => new ListBillHandling()
             {

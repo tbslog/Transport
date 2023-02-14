@@ -9,6 +9,7 @@ namespace TBSLogistics.Model.Model.AddressModel
     public class CreateAddressRequest
     {
         public string TenDiaDiem { get; set; }
+        public int? MaKhuVuc { get; set; }
         public int MaQuocGia { get; set; }
         public int MaTinh { get; set; }
         public int MaHuyen { get; set; }

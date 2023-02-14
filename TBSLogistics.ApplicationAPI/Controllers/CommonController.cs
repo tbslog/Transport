@@ -78,6 +78,14 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             return Ok(list);
         }
 
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetListArea()
+        {
+            var list = await _tMSContext.KhuVuc.ToListAsync();
+            return Ok(list);
+        }
+
         [HttpPost]
         [Route("[action]")]
         public async Task<IActionResult> GetListStatus(List<string> funcId)

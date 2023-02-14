@@ -32,6 +32,7 @@ namespace TBSLogistics.Data.TMS
         public double? SoKien { get; set; }
         public double? KhoiLuong { get; set; }
         public double? TheTich { get; set; }
+        public int KhoaChungTu { get; set; }
         public string GhiChu { get; set; }
         public int? DiemLayTraRong { get; set; }
         public DateTime? ThoiGianLayHangThucTe { get; set; }

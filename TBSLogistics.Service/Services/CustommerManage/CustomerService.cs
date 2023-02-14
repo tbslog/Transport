@@ -446,10 +446,11 @@ namespace TBSLogistics.Service.Services.CustommerManage
         {
             string ErrorValidate = "";
 
-            if (MaKH.Length <= 6)
+            if (MaKH.Length != 8)
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã KH/NCC không được ít hơn 7 ký tự \r\n" + Environment.NewLine;
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã KH/NCC không được ít hoặc lớn hơn hơn 8 ký tự \r\n" + Environment.NewLine;
             }
+
             if (!Regex.IsMatch(MaKH, "^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9]+(?<![_.])$", RegexOptions.IgnoreCase))
             {
                 ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã KH/NCC chỉ được có ký tự chữ và số \r\n" + Environment.NewLine;

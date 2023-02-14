@@ -214,7 +214,7 @@ namespace TBSLogistics.Service.Services.SFeeByTcommandManage
                 TaiXe = null,
                 SubFee = x.sf.SfName,
                 Type = "Phụ phí theo hợp đồng",
-                Price = x.sfp.UnitPrice,
+                Price = x.sfp.Price,
                 TrangThai = x.tt.StatusContent,
                 ApprovedDate = x.sfp.ApprovedDate,
                 CreatedDate = x.sfp.CreatedDate,

@@ -7,6 +7,7 @@ namespace TBSLogistics.Data.TMS
     {
         public int MaDiaDiem { get; set; }
         public string TenDiaDiem { get; set; }
+        public int? MaKhuVuc { get; set; }
         public int? MaQuocGia { get; set; }
         public int MaTinh { get; set; }
         public int MaHuyen { get; set; }
@@ -21,6 +22,7 @@ namespace TBSLogistics.Data.TMS
         public string Updater { get; set; }
 
         public virtual QuanHuyen MaHuyenNavigation { get; set; }
+        public virtual KhuVuc MaKhuVucNavigation { get; set; }
         public virtual LoaiDiaDiem MaLoaiDiaDiemNavigation { get; set; }
         public virtual XaPhuong MaPhuongNavigation { get; set; }
         public virtual QuocGia MaQuocGiaNavigation { get; set; }

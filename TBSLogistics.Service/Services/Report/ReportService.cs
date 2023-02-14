@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using TBSLogistics.Data.TMS;
 using TBSLogistics.Model.Model.ReportModel;
@@ -112,8 +113,9 @@ namespace TBSLogistics.Service.Services.Report
                     x.dp.ThoiGianHoanThanh.Value.Date,
                     totalSf = _context.SubFeePrice.Where(y =>
                     _context.HopDongVaPhuLuc.Where(z => z.MaKh == x.vd.MaKh && z.ThoiGianBatDau.Date <= DateTime.Now.Date && (z.ThoiGianKetThuc.Date > DateTime.Now.Date))
-                    .Select(z => z.MaHopDong).Contains(y.ContractId) && y.Status == 14).Sum(y => y.UnitPrice) +
-                    _context.SfeeByTcommand.Where(y => y.IdTcommand == x.dp.Id && y.ApproveStatus == 14).Sum(y => y.Price),
+                    .Select(z => z.MaHopDong).Contains(y.ContractId) && y.Status == 14).Sum(y => y.Price) +
+                    _context.SfeeByTcommand.Where(y => y.IdTcommand == x.dp.Id && y.ApproveStatus == 14).Sum(y => y.Price)
+                    + _context.SubFeePrice.Where(c => _context.SubFeeByContract.Where(y => y.MaDieuPhoi == x.dp.Id).Select(y => y.PriceId).Contains(c.PriceId)).Sum(y => y.Price),
                 }).ToListAsync();
             var listSubFee = SubFee.GroupBy(x => x.Date).Select(x => new
             {
@@ -136,7 +138,7 @@ namespace TBSLogistics.Service.Services.Report
                       x.dp.ThoiGianHoanThanh.Value.Date,
                       totalPrice = _context.SubFeePrice.Where(y =>
                       _context.HopDongVaPhuLuc.Where(z => z.MaKh == x.vd.MaKh && z.ThoiGianBatDau.Date <= DateTime.Now.Date && (z.ThoiGianKetThuc.Date > DateTime.Now.Date))
-                      .Select(z => z.MaHopDong).Contains(y.ContractId) && y.Status == 14).Sum(y => y.UnitPrice) +
+                      .Select(z => z.MaHopDong).Contains(y.ContractId) && y.Status == 14).Sum(y => y.Price) +
                     _context.SfeeByTcommand.Where(y => y.IdTcommand == x.dp.Id && y.ApproveStatus == 14).Sum(y => y.Price) + ((double)x.dp.DonGiaKh),
                   }).ToListAsync();
             var listRevenue = revenue.GroupBy(x => x.Date).Select(x => new
@@ -236,7 +238,7 @@ namespace TBSLogistics.Service.Services.Report
             }).OrderBy(x => x.CustomerName).ToListAsync();
 
             var listPartner = await _context.KhachHang.ToListAsync();
-            
+
 
             return new TransportReport()
             {
