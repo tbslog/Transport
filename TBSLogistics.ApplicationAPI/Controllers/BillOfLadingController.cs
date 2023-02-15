@@ -55,6 +55,14 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             return Ok(data);
         }
 
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> LayTrongTaiXe(string vehicleType, string DonVi,double giaTri)
+        {
+            var trongtai = await _billOfLading.LayTrongTaiXe(vehicleType, DonVi, giaTri);
+            return Ok(trongtai);
+        }
+
         [HttpPost]
         [Route("[action]")]
         public async Task<IActionResult> GetListTransport([FromQuery] PaginationFilter filter, string[] customers)

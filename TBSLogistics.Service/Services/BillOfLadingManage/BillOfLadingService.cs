@@ -38,6 +38,21 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
             tempData = _common.DecodeToken(_httpContextAccessor.HttpContext.Request.Headers["Authorization"][0].ToString().Replace("Bearer ", ""));
         }
 
+        public async Task<string> LayTrongTaiXe(string vehicleType, string DonVi, double giaTri)
+        {
+            var getData = await _context.TrongTaiXe.Where(x => x.MaLoaiPhuongTien == vehicleType && x.DonViTrongTai == DonVi).FirstOrDefaultAsync();
+
+            if (getData != null)
+            {
+                if (giaTri > getData.TrongTaiToiDa)
+                {
+                    return getData.DonViTrongTai + " xe đang bị vượt quá trọng tải " + (giaTri - getData.TrongTaiToiDa) + " Tối Đa:" + getData.TrongTaiToiDa;
+                }
+            }
+
+            return null;
+        }
+
         public async Task<ListPoint> LoadDataRoadTransportByCusId(string customerId)
         {
             var checkCus = await _context.KhachHang.Where(x => x.MaKh == customerId).FirstOrDefaultAsync();
@@ -1274,16 +1289,6 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                     return new BoolActionResult { isSuccess = false, Message = "Xe này không tồn tại trong hệ thống" };
                 }
 
-                if (checkVehicle.TrangThai == 33)
-                {
-                    return new BoolActionResult { isSuccess = false, Message = "Xe này đã được điều phối cho chuyến khác" };
-                }
-
-                if (checkVehicle.TrangThai == 34)
-                {
-                    return new BoolActionResult { isSuccess = false, Message = "Xe này đang vận chuyển hàng hóa cho chuyến khác" };
-                }
-
                 var loadTransports = await _context.VanDon.Where(x => request.arrTransports.Select(x => x.MaVanDon).Contains(x.MaVanDon)).ToListAsync();
 
                 //if (loadTransports.Count != request.arrTransports.Count())
@@ -1372,6 +1377,19 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                            on vd.MaVanDon equals dp.MaVanDon
                            where dp.MaChuyen == handlingId
                            select new { vd, dp };
+
+                if (await data.Select(x => x.dp.MaSoXe).FirstOrDefaultAsync() != request.XeVanChuyen)
+                {
+                    if (checkVehicle.TrangThai == 33)
+                    {
+                        return new BoolActionResult { isSuccess = false, Message = "Xe này đã được điều phối cho chuyến khác" };
+                    }
+
+                    if (checkVehicle.TrangThai == 34)
+                    {
+                        return new BoolActionResult { isSuccess = false, Message = "Xe này đang vận chuyển hàng hóa cho chuyến khác" };
+                    }
+                }
 
                 #region loại bỏ các vận đơn đã được ghép trước đó
 
@@ -1519,6 +1537,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                             item.dp.Updater = tempData.UserName;
 
                             var getSubFee = await _subFeePrice.GetListSubFeePriceActive(item.vd.MaKh, itemRequest.MaLoaiHangHoa, request.DiemLayTraRong, item.vd.MaCungDuong, item.dp.Id);
+
                             foreach (var sfp in getSubFee)
                             {
                                 await _context.SubFeeByContract.AddAsync(new SubFeeByContract()

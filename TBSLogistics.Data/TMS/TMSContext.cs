@@ -60,6 +60,7 @@ namespace TBSLogistics.Data.TMS
         public virtual DbSet<TaiXe> TaiXe { get; set; }
         public virtual DbSet<ThongBao> ThongBao { get; set; }
         public virtual DbSet<TinhThanh> TinhThanh { get; set; }
+        public virtual DbSet<TrongTaiXe> TrongTaiXe { get; set; }
         public virtual DbSet<UserHasCustomer> UserHasCustomer { get; set; }
         public virtual DbSet<UserHasPermission> UserHasPermission { get; set; }
         public virtual DbSet<UserHasRole> UserHasRole { get; set; }
@@ -1240,6 +1241,21 @@ namespace TBSLogistics.Data.TMS
                 entity.Property(e => e.TenTinh)
                     .IsRequired()
                     .HasMaxLength(50);
+            });
+
+            modelBuilder.Entity<TrongTaiXe>(entity =>
+            {
+                entity.Property(e => e.Id).HasColumnName("ID");
+
+                entity.Property(e => e.DonViTrongTai)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.MaLoaiPhuongTien)
+                    .IsRequired()
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
             });
 
             modelBuilder.Entity<UserHasCustomer>(entity =>

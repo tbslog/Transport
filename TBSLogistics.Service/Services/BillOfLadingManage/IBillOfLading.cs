@@ -45,5 +45,6 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
         Task<PagedResponseCustom<ListHandling>> GetListHandlingByTransportId(string transportId, PaginationFilter filter);
         Task<BoolActionResult> CancelHandlingByCus(int? id, string transportId);
         Task<BoolActionResult> AcceptOrRejectTransport(string transportId, int action);
+        Task<string> LayTrongTaiXe(string vehicleType, string DonVi, double giaTri);
     }
 }
