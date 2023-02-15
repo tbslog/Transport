@@ -4,7 +4,7 @@ import { useForm, Controller, useFieldArray } from "react-hook-form";
 import DatePicker from "react-datepicker";
 import Select from "react-select";
 import moment from "moment";
-import { ToastError } from "../Common/FuncToast";
+import { ToastError, ToastWarning } from "../Common/FuncToast";
 import LoadingPage from "../Common/Loading/LoadingPage";
 
 const JoinTransports = (props) => {
@@ -223,6 +223,7 @@ const JoinTransports = (props) => {
         setValue("MaPTVC", dataTransports.maPTVC);
 
         setValue("PTVanChuyen", dataHandling.ptVanChuyen);
+
         setValue(
           "DiemLayTraRong",
           {
@@ -409,6 +410,42 @@ const JoinTransports = (props) => {
     SetIsLoading(false);
   };
 
+  const handleOnChangeWeight = async (vehicleType) => {
+    if (vehicleType) {
+      let tongkl = 0;
+      let tongth = 0;
+
+      let data = watch("listTransport");
+
+      if (data && data.length > 0) {
+        data.forEach((val) => {
+          if (val.KhoiLuong) {
+            tongkl = tongkl + val.KhoiLuong;
+          }
+          if (val.TheTich) {
+            tongth = tongth + val.TheTich;
+          }
+        });
+
+        let checkKL = await getData(
+          `BillOfLading/LayTrongTaiXe?vehicleType=${vehicleType}&DonVi=${"KhoiLuong"}&giaTri=${tongkl}`
+        );
+
+        let checkTH = await getData(
+          `BillOfLading/LayTrongTaiXe?vehicleType=${vehicleType}&DonVi=${"TheTich"}&giaTri=${tongth}`
+        );
+
+        if (checkTH) {
+          ToastWarning(checkTH);
+        }
+
+        if (checkKL) {
+          ToastWarning(checkKL);
+        }
+      }
+    }
+  };
+
   const resetForm = () => {
     reset();
     setValue("NhaCungCap", null);
@@ -468,7 +505,7 @@ const JoinTransports = (props) => {
                     <select
                       className="form-control"
                       {...register(`PTVanChuyen`, Validate.PTVanChuyen)}
-                      value={watch(`PTVanChuyen`)}
+                      onChange={(e) => handleOnChangeWeight(e.target.value)}
                     >
                       <option value="">Chọn phương Tiện Vận Chuyển</option>
                       {listVehicleTypeSelect &&

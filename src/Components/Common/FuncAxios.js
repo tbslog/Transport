@@ -22,8 +22,9 @@ axios.interceptors.request.use(
             // and are required when removing the cookie
           };
           Cookies.remove(cookieName);
-          return config;
         });
+        ToastError("Phiên đăng nhập đã hết hạn");
+        return window.location.reload();
       }
       config.headers["Authorization"] = `Bearer ${tokens}`;
       return config;

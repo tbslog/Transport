@@ -81,7 +81,6 @@ const UpdateRole = (props) => {
   }, []);
 
   const handleResetClick = () => {
-    console.log(expanded);
     setChecked([]);
     reset();
   };

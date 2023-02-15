@@ -4,7 +4,7 @@ import { useForm, Controller, useFieldArray } from "react-hook-form";
 import DatePicker from "react-datepicker";
 import Select from "react-select";
 import moment from "moment";
-import { ToastError } from "../Common/FuncToast";
+import { ToastError, ToastWarning } from "../Common/FuncToast";
 import Cookies from "js-cookie";
 import { ColorRing } from "react-loader-spinner";
 import LoadingPage from "../Common/Loading/LoadingPage";
@@ -420,6 +420,19 @@ const UpdateTransport = (props) => {
       }
     } else {
       setValue("MaCungDuong", null);
+    }
+  };
+
+  const handleOnChangeWeight = async (vehicleType, val, type) => {
+    if (val && val > 0) {
+      let getTrongTai = await getData(
+        `BillOfLading/LayTrongTaiXe?vehicleType=${vehicleType}&DonVi=${type}&giaTri=${val}`
+      );
+
+      if (getTrongTai) {
+        ToastWarning(getTrongTai);
+        return;
+      }
     }
   };
 
@@ -922,6 +935,22 @@ const UpdateTransport = (props) => {
                                       `optionHandling.${index}.PTVanChuyen`,
                                       Validate.PTVanChuyen
                                     )}
+                                    onChange={(e) => {
+                                      handleOnChangeWeight(
+                                        e.target.value,
+                                        watch(
+                                          `optionHandling.${index}.KhoiLuong`
+                                        ),
+                                        "KhoiLuong"
+                                      );
+                                      handleOnChangeWeight(
+                                        e.target.value,
+                                        watch(
+                                          `optionHandling.${index}.TheTich`
+                                        ),
+                                        "TheTich"
+                                      );
+                                    }}
                                   >
                                     <option value="">Chọn Phương Tiện</option>
                                     {listVehicleType &&
@@ -1021,6 +1050,15 @@ const UpdateTransport = (props) => {
                                       `optionHandling.${index}.KhoiLuong`,
                                       Validate.KhoiLuong
                                     )}
+                                    onChange={(e) =>
+                                      handleOnChangeWeight(
+                                        watch(
+                                          `optionHandling.${index}.PTVanChuyen`
+                                        ),
+                                        e.target.value,
+                                        "KhoiLuong"
+                                      )
+                                    }
                                   />
                                   {errors.optionHandling?.[index]
                                     ?.KhoiLuong && (
@@ -1044,6 +1082,15 @@ const UpdateTransport = (props) => {
                                       `optionHandling.${index}.TheTich`,
                                       Validate.TheTich
                                     )}
+                                    onChange={(e) =>
+                                      handleOnChangeWeight(
+                                        watch(
+                                          `optionHandling.${index}.PTVanChuyen`
+                                        ),
+                                        e.target.value,
+                                        "TheTich"
+                                      )
+                                    }
                                   />
                                   {errors.optionHandling?.[index]?.TheTich && (
                                     <span className="text-danger">

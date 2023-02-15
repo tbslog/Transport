@@ -170,7 +170,6 @@ const ContractPage = () => {
         file = val.fileCosing;
         name = name + "_Costing";
       }
-      console.log(file);
       const getFileDownLoad = await getFile(
         `Contract/DownloadFile?fileId=${file}`,
         name

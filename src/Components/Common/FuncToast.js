@@ -28,7 +28,7 @@ const ToastError = (message) => {
 const ToastWarning = (message) => {
   toast.warning(message, {
     position: "top-center",
-    autoClose: false,
+    autoClose: 4000,
     hideProgressBar: false,
     closeOnClick: true,
     pauseOnHover: true,

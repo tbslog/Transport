@@ -212,11 +212,6 @@ const HandlingPage = (props) => {
       selector: (row) => <div className="text-wrap">{row.maPTVC}</div>,
       sortable: true,
     },
-    // {
-    //   name: <div>Cung Đường</div>,
-    //   selector: (row) => <div className="text-wrap">{row.cungDuong}</div>,
-    //   sortable: true,
-    // },
     {
       name: <div>Điểm Lấy Hàng</div>,
       selector: (row) => <div className="text-wrap">{row.diemLayHang}</div>,
@@ -247,11 +242,6 @@ const HandlingPage = (props) => {
       selector: (row) => <div className="text-wrap">{row.hangTau}</div>,
       sortable: true,
     },
-    // {
-    //   name: "Tài Xế",
-    //   selector: (row) => <div className="text-wrap">{row.tenTaiXe}</div>,
-    //   sortable: true,
-    // },
     {
       name: <div>Loại Phương Tiện</div>,
       selector: (row) => row.ptVanChuyen,
@@ -267,11 +257,6 @@ const HandlingPage = (props) => {
       selector: (row) => row.theTich,
       sortable: true,
     },
-    // {
-    //   name: <div>Số Kiện</div>,
-    //   selector: (row) => row.soKien,
-    //   sortable: true,
-    // },
     {
       name: <div>Trạng Thái</div>,
       selector: (row) => (
@@ -723,8 +708,6 @@ const HandlingPage = (props) => {
       return;
     }
 
-    setLoading(true);
-
     let startDate = moment(fromDate).format("YYYY-MM-DD");
     let endDate = moment(toDate).format("YYYY-MM-DD");
 
@@ -733,7 +716,6 @@ const HandlingPage = (props) => {
       listCusSelected,
       "DieuPhoi" + moment(new Date()).format("DD/MM/YYYY HHmmss")
     );
-    setLoading(false);
   };
 
   const handleOnChangeCustomer = async (values) => {

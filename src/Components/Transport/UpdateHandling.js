@@ -5,6 +5,7 @@ import DatePicker from "react-datepicker";
 import Select from "react-select";
 import moment from "moment";
 import LoadingPage from "../Common/Loading/LoadingPage";
+import { ToastWarning } from "../Common/FuncToast";
 
 const UpdateHandling = (props) => {
   const { getlistData, selectIdClick, hideModal } = props;
@@ -38,7 +39,6 @@ const UpdateHandling = (props) => {
       },
       validate: (value) => {
         if (!value.value) {
-          console.log(value);
           return "Không được để trống";
         }
       },
@@ -379,6 +379,19 @@ const UpdateHandling = (props) => {
     setValue("TaiXe", null);
     setValue("XeVanChuyen", null);
     setValue("Romooc", null);
+  };
+
+  const handleOnChangeWeight = async (vehicleType, val, type) => {
+    if (val && val > 0) {
+      let getTrongTai = await getData(
+        `BillOfLading/LayTrongTaiXe?vehicleType=${vehicleType}&DonVi=${type}&giaTri=${val}`
+      );
+
+      if (getTrongTai) {
+        ToastWarning(getTrongTai);
+        return;
+      }
+    }
   };
 
   const onSubmit = async (data) => {
@@ -873,6 +886,13 @@ const UpdateHandling = (props) => {
                       className="form-control"
                       id="KhoiLuong"
                       {...register(`KhoiLuong`, Validate.KhoiLuong)}
+                      onChange={(e) =>
+                        handleOnChangeWeight(
+                          watch("PTVanChuyen"),
+                          e.target.value,
+                          "KhoiLuong"
+                        )
+                      }
                     />
                     {errors.KhoiLuong && (
                       <span className="text-danger">
@@ -890,6 +910,13 @@ const UpdateHandling = (props) => {
                       className="form-control"
                       id="TheTich"
                       {...register(`TheTich`, Validate.TheTich)}
+                      onChange={(e) =>
+                        handleOnChangeWeight(
+                          watch("PTVanChuyen"),
+                          e.target.value,
+                          "TheTich"
+                        )
+                      }
                     />
                     {errors.TheTich && (
                       <span className="text-danger">

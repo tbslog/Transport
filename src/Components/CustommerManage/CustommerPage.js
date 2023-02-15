@@ -223,7 +223,6 @@ const CustommerPage = () => {
       return;
     }
 
-    console.log(cusType);
     await fetchData(1, keySearch, cusType);
   };
 
