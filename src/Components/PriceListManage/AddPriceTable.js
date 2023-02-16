@@ -138,6 +138,7 @@ const AddPriceTable = (props) => {
   const [listTransportType, setListTransportType] = useState([]);
   const [listContract, setListContract] = useState([]);
   const [listCustomerType, setListCustomerType] = useState([]);
+  const [listArea, setListArea] = useState([]);
 
   useEffect(() => {
     SetIsLoading(true);
@@ -147,7 +148,8 @@ const AddPriceTable = (props) => {
       let getListVehicleType = await getData("Common/GetListVehicleType");
       let getListGoodsType = await getData("Common/GetListGoodsType");
       let getListTransportType = await getData("Common/GetListTransportType");
-
+      const getListArea = await getData("Common/GetListArea");
+      setListArea(getListArea);
       let getListCustommerType = await getData(`Common/GetListCustommerType`);
       setListCustomerType(getListCustommerType);
       setListVehicleType(getListVehicleType);
@@ -263,6 +265,7 @@ const AddPriceTable = (props) => {
       arr.push({
         maHopDong: data.MaHopDong.value,
         maKh: data.MaKh.value,
+        MaKhuVuc: !val.KhuVuc ? null : val.KhuVuc,
         maPtvc: val.MaPTVC,
         maCungDuong: val.MaCungDuong.value,
         maLoaiPhuongTien: val.MaLoaiPhuongTien,
@@ -415,6 +418,7 @@ const AddPriceTable = (props) => {
                       <tr>
                         <th style={{ width: "10px" }}></th>
                         <th style={{ width: "20%" }}>Cung Đường(*)</th>
+                        <th style={{ width: "15%" }}>Khu Vực</th>
                         <th>Đơn Giá(*)</th>
                         <th>Đơn vị tính(*)</th>
                         <th style={{ width: "10%" }}>PTVC(*)</th>
@@ -452,6 +456,35 @@ const AddPriceTable = (props) => {
                                   }
                                 </span>
                               )}
+                            </div>
+                          </td>
+                          <td>
+                            <div className="col-sm">
+                              <div className="form-group">
+                                <select
+                                  className="form-control"
+                                  {...register(
+                                    `optionRoad.${index}.KhuVuc`,
+                                    Validate.KhuVuc
+                                  )}
+                                >
+                                  <option value="">-- Bỏ Trống --</option>
+                                  {listArea &&
+                                    listArea.length > 0 &&
+                                    listArea.map((val, index) => {
+                                      return (
+                                        <option value={val.id} key={index}>
+                                          {val.tenKhuVuc}
+                                        </option>
+                                      );
+                                    })}
+                                </select>
+                                {errors.optionRoad?.[index]?.KhuVuc && (
+                                  <span className="text-danger">
+                                    {errors.optionRoad?.[index]?.KhuVuc.message}
+                                  </span>
+                                )}
+                              </div>
                             </div>
                           </td>
                           <td>

@@ -37,6 +37,11 @@ const PriceListContract = (props) => {
       sortable: true,
     },
     {
+      name: <div>Khu Vực</div>,
+      selector: (row) => <div className="text-warp">{row.khuVuc}</div>,
+      sortable: true,
+    },
+    {
       name: <div>Đơn Giá</div>,
       selector: (row) => (
         <div className="text-warp">

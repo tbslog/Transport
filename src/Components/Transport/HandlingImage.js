@@ -2,7 +2,8 @@ import { useMemo, useState, useEffect, useCallback, useRef } from "react";
 import { getData, postData, getFileImage } from "../Common/FuncAxios";
 import DataTable from "react-data-table-component";
 import moment from "moment";
-import { Modal } from "bootstrap";
+import Lightbox from "react-awesome-lightbox";
+import "react-awesome-lightbox/build/style.css";
 import Cookies from "js-cookie";
 
 const HandlingImage = (props) => {
@@ -13,23 +14,10 @@ const HandlingImage = (props) => {
   const [loading, setLoading] = useState(false);
 
   const [ShowModal, SetShowModal] = useState("");
-  const [modal, setModal] = useState(null);
-  const parseExceptionModal = useRef();
+
   const [selectIdClick, setSelectIdClick] = useState({});
   const [image, setImage] = useState("");
-
-  const showModalForm = () => {
-    const modal = new Modal(parseExceptionModal.current, {
-      keyboard: false,
-      backdrop: "static",
-    });
-    setModal(modal);
-    modal.show();
-  };
-
-  const hideModal = () => {
-    modal.hide();
-  };
+  const [name, setName] = useState("");
 
   const handleDeleteImage = async (val) => {
     const fileId = val.id;
@@ -117,22 +105,39 @@ const HandlingImage = (props) => {
 
   const handleEditButtonClick = (value) => {
     setSelectIdClick(value);
-
     (async () => {
       var getImage = await getFileImage(
         `BillOfLading/GetImageById?id=${value.id}`
       );
-
+      setName(value.fileName);
       setImage(getImage);
     })();
-
-    showModalForm();
   };
 
   return (
     <>
       <section className="content">
         <div className="card">
+          <div className="card-header">
+            <div className="container-fruid">
+              <div className="row">
+                {/* <button
+                  className="btn btn-title btn-sm btn-default mx-1"
+                  gloss="Xác Nhận Đã Đủ Chứng Từ"
+                  type="button"
+                >
+                  <i className="far fa-check-circle"></i>
+                </button>
+                <button
+                  className="btn btn-title btn-sm btn-default mx-1"
+                  gloss="Khóa Chứng Từ"
+                  type="button"
+                >
+                  <i className="fas fa-lock"></i>
+                </button> */}
+              </div>
+            </div>
+          </div>
           <div className="card-body">
             <div className="container-datatable" style={{ height: "50vm" }}>
               <DataTable
@@ -145,43 +150,15 @@ const HandlingImage = (props) => {
           </div>
           <div className="card-footer"></div>
         </div>
-        <div
-          className="modal fade"
-          id="modal-xl"
-          data-backdrop="static"
-          ref={parseExceptionModal}
-          aria-labelledby="parseExceptionModal"
-          backdrop="static"
-        >
-          <div
-            className="modal-dialog modal-dialog-scrollable"
-            style={{ maxWidth: "100%" }}
-          >
-            <div className="modal-content">
-              <div className="modal-header">
-                <button
-                  type="button"
-                  className="close"
-                  data-dismiss="modal"
-                  onClick={() => hideModal()}
-                  aria-label="Close"
-                >
-                  <span aria-hidden="true">×</span>
-                </button>
-              </div>
-              <div className="modal-body">
-                {ShowModal === "ShowImage" && (
-                  <div>
-                    <img
-                      src={image}
-                      style={{ margin: "auto", left: "0", right: "0" }}
-                    />
-                  </div>
-                )}
-              </div>
-            </div>
+
+        {ShowModal === "ShowImage" && (
+          <div>
+            <Lightbox
+              images={[{ url: image, title: name }, {}]}
+              onClose={() => SetShowModal("HideImage")}
+            ></Lightbox>
           </div>
-        </div>
+        )}
       </section>
     </>
   );

@@ -82,6 +82,10 @@ const ApprovePriceTable = (props) => {
       selector: (row) => <div className="text-wrap">{row.tenCungDuong}</div>,
     },
     {
+      name: <div>Khu Vực</div>,
+      selector: (row) => <div className="text-wrap">{row.khuVuc}</div>,
+    },
+    {
       name: <div>Phương Tiện Vận Tải</div>,
       selector: (row) => row.maLoaiPhuongTien,
     },

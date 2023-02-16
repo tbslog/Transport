@@ -71,6 +71,11 @@ const PriceTablePage = () => {
       selector: (row) => <div className="text-wrap">{row.tenCungDuong}</div>,
     },
     {
+      name: <div>Khu Vực</div>,
+      selector: (row) => <div className="text-warp">{row.khuVuc}</div>,
+      sortable: true,
+    },
+    {
       name: <div>Phương Tiện Vận Tải</div>,
       selector: (row) => row.maLoaiPhuongTien,
     },
