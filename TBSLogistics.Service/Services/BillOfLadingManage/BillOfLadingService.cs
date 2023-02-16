@@ -944,8 +944,8 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                 return new BoolActionResult { isSuccess = false, Message = "Đơn Vị Tính Không Tồn Tại" };
                             }
 
-                            var priceTableCus = await GetPriceTable(item.MaKh, item.MaCungDuong, itemRequest.MaDVT, itemRequest.MaLoaiHangHoa, request.PTVanChuyen, item.MaPtvc);
-                            var priceTableSup = await GetPriceTable(request.DonViVanTai, item.MaCungDuong, itemRequest.MaDVT, itemRequest.MaLoaiHangHoa, request.PTVanChuyen, item.MaPtvc);
+                            var priceTableCus = await GetPriceTable(item.MaKh, item.MaCungDuong, itemRequest.MaDVT, itemRequest.MaLoaiHangHoa, request.PTVanChuyen, item.MaPtvc, request.DiemLayTraRong);
+                            var priceTableSup = await GetPriceTable(request.DonViVanTai, item.MaCungDuong, itemRequest.MaDVT, itemRequest.MaLoaiHangHoa, request.PTVanChuyen, item.MaPtvc, request.DiemLayTraRong);
 
                             if (priceTableSup == null)
                             {
@@ -1177,8 +1177,8 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 
                 if (checkById.TrangThai == 19 || checkById.TrangThai == 27)
                 {
-                    var priceSup = await GetPriceTable(request.DonViVanTai, getTransport.MaCungDuong, request.DonViTinh, request.LoaiHangHoa, request.PTVanChuyen, getTransport.MaPtvc);
-                    var priceCus = await GetPriceTable(getTransport.MaKh, getTransport.MaCungDuong, request.DonViTinh, request.LoaiHangHoa, request.PTVanChuyen, getTransport.MaPtvc);
+                    var priceSup = await GetPriceTable(request.DonViVanTai, getTransport.MaCungDuong, request.DonViTinh, request.LoaiHangHoa, request.PTVanChuyen, getTransport.MaPtvc, request.DiemLayTraRong);
+                    var priceCus = await GetPriceTable(getTransport.MaKh, getTransport.MaCungDuong, request.DonViTinh, request.LoaiHangHoa, request.PTVanChuyen, getTransport.MaPtvc, request.DiemLayTraRong);
 
                     if (priceSup == null)
                     {
@@ -1221,7 +1221,6 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                     checkById.SoKien = request.SoKien;
                     checkById.KhoiLuong = request.KhoiLuong;
                     checkById.TheTich = request.TheTich;
-
                     checkById.DiemLayTraRong = request.DiemLayTraRong;
                     checkById.TrangThai = 27;
                     getTransport.TrangThai = 9;
@@ -1486,8 +1485,8 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                 var handleVehicleStatus = await HandleVehicleStatus(item.dp.TrangThai, request.XeVanChuyen, item.dp.MaSoXe);
                             }
 
-                            var priceTableCus = await GetPriceTable(item.vd.MaKh, item.vd.MaCungDuong, itemRequest.MaDVT, itemRequest.MaLoaiHangHoa, request.PTVanChuyen, item.vd.MaPtvc);
-                            var priceTableSup = await GetPriceTable(request.DonViVanTai, item.vd.MaCungDuong, itemRequest.MaDVT, itemRequest.MaLoaiHangHoa, request.PTVanChuyen, item.vd.MaPtvc);
+                            var priceTableCus = await GetPriceTable(item.vd.MaKh, item.vd.MaCungDuong, itemRequest.MaDVT, itemRequest.MaLoaiHangHoa, request.PTVanChuyen, item.vd.MaPtvc, request.DiemLayTraRong);
+                            var priceTableSup = await GetPriceTable(request.DonViVanTai, item.vd.MaCungDuong, itemRequest.MaDVT, itemRequest.MaLoaiHangHoa, request.PTVanChuyen, item.vd.MaPtvc, request.DiemLayTraRong);
 
                             if (priceTableSup == null)
                             {
@@ -1576,8 +1575,8 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                 return new BoolActionResult { isSuccess = false, Message = "Đơn Vị Tính Không Tồn Tại" };
                             }
 
-                            var priceTableCus = await GetPriceTable(item.MaKh, item.MaCungDuong, itemRequest.MaDVT, itemRequest.MaLoaiHangHoa, request.PTVanChuyen, item.MaPtvc);
-                            var priceTableSup = await GetPriceTable(request.DonViVanTai, item.MaCungDuong, itemRequest.MaDVT, itemRequest.MaLoaiHangHoa, request.PTVanChuyen, item.MaPtvc);
+                            var priceTableCus = await GetPriceTable(item.MaKh, item.MaCungDuong, itemRequest.MaDVT, itemRequest.MaLoaiHangHoa, request.PTVanChuyen, item.MaPtvc, request.DiemLayTraRong);
+                            var priceTableSup = await GetPriceTable(request.DonViVanTai, item.MaCungDuong, itemRequest.MaDVT, itemRequest.MaLoaiHangHoa, request.PTVanChuyen, item.MaPtvc, request.DiemLayTraRong);
 
                             if (priceTableSup == null)
                             {
@@ -3324,9 +3323,9 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                 return new BoolActionResult { isSuccess = false, Message = "Không có file nào" };
             }
 
-            var checkTrasnport = await _context.DieuPhoi.Where(x => x.MaVanDon == request.transportId && x.Id == request.handlingId).FirstOrDefaultAsync();
+            var checkTransport = await _context.DieuPhoi.Where(x => x.MaVanDon == request.transportId && x.Id == request.handlingId).FirstOrDefaultAsync();
 
-            if (checkTrasnport == null)
+            if (checkTransport == null)
             {
                 return new BoolActionResult { isSuccess = false, Message = "Điều phối không tồn tại trong vận đơn" };
             }
@@ -3369,8 +3368,10 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
             return new BoolActionResult { isSuccess = true, Message = "Upload hình ảnh thành công" };
         }
 
-        private async Task<GetPriceListRequest> GetPriceTable(string MaKH, string MaCungDuong, string MaDVT, string LoaiHangHoa, string LoaiPhuongTien, string MaPTVC)
+        private async Task<GetPriceListRequest> GetPriceTable(string MaKH, string MaCungDuong, string MaDVT, string LoaiHangHoa, string LoaiPhuongTien, string MaPTVC, int? getEmptyPlace)
         {
+            var checkArea = await _context.DiaDiem.Where(x => x.MaDiaDiem == getEmptyPlace).FirstOrDefaultAsync();
+
             var checkPriceTable = from bg in _context.BangGia
                                   join hd in _context.HopDongVaPhuLuc
                                   on bg.MaHopDong equals hd.MaHopDong
@@ -3383,6 +3384,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                   && bg.MaLoaiHangHoa == LoaiHangHoa
                                   && bg.MaLoaiPhuongTien == LoaiPhuongTien
                                   && bg.MaPtvc == MaPTVC
+                                  && bg.MaKhuVuc == (checkArea == null ? null : checkArea.MaKhuVuc)
                                   select bg;
 
             var quey = checkPriceTable.ToQueryString();
@@ -3392,6 +3394,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                 return await checkPriceTable.Select(x => new GetPriceListRequest()
                 {
                     ID = x.Id,
+                    MaKhuVuc = x.MaKhuVuc,
                     MaCungDuong = x.MaCungDuong,
                     DonGia = x.DonGia,
                     MaLoaiPhuongTien = x.MaLoaiPhuongTien,

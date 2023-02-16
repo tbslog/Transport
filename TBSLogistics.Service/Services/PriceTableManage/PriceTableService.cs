@@ -72,7 +72,8 @@ namespace TBSLogistics.Service.Services.PriceTableManage
                     rows++;
 
                     var checkDuplicate = request.Where(x =>
-                    x.DonGia == item.DonGia
+                    x.MaKhuVuc == item.MaKhuVuc
+                    && x.DonGia == item.DonGia
                     && x.MaHopDong == item.MaHopDong
                     && x.MaKH == item.MaKH
                     && x.MaPtvc == item.MaPtvc
@@ -145,6 +146,7 @@ namespace TBSLogistics.Service.Services.PriceTableManage
 
                 await _context.BangGia.AddRangeAsync(request.Select(x => new BangGia
                 {
+                    MaKhuVuc = x.MaKhuVuc,
                     MaHopDong = x.MaHopDong,
                     MaPtvc = x.MaPtvc,
                     MaCungDuong = x.MaCungDuong,
@@ -221,6 +223,7 @@ namespace TBSLogistics.Service.Services.PriceTableManage
 
             var pagedData = await getData.Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new GetListPiceTableRequest()
             {
+                KhuVuc = _context.KhuVuc.Where(y => y.Id == x.bg.MaKhuVuc).Select(y => y.TenKhuVuc).FirstOrDefault(),
                 MaHopDong = x.bg.MaHopDong,
                 MaCungDuong = x.cd.MaCungDuong,
                 SoHopDongCha = x.hd.MaHopDongCha == null ? "Hợp Đồng" : "Phụ Lục",
@@ -290,7 +293,7 @@ namespace TBSLogistics.Service.Services.PriceTableManage
             }
 
             var gr = from t in getList
-                     group t by new { t.bg.MaCungDuong, t.bg.MaDvt, t.bg.MaLoaiHangHoa, t.bg.MaLoaiPhuongTien, t.bg.MaPtvc, t.bg.MaLoaiDoiTac }
+                     group t by new { t.bg.MaCungDuong, t.bg.MaDvt, t.bg.MaLoaiHangHoa, t.bg.MaLoaiPhuongTien, t.bg.MaPtvc, t.bg.MaLoaiDoiTac, t.bg.MaKhuVuc }
                          into g
                      select new
                      {
@@ -300,6 +303,7 @@ namespace TBSLogistics.Service.Services.PriceTableManage
                          g.Key.MaLoaiPhuongTien,
                          g.Key.MaPtvc,
                          g.Key.MaLoaiDoiTac,
+                         g.Key.MaKhuVuc,
                          Id = (from t2 in g select t2.bg.Id).Max(),
                      };
 
@@ -311,6 +315,7 @@ namespace TBSLogistics.Service.Services.PriceTableManage
             {
                 ID = x.bg.Id,
                 MaKh = x.hd.MaKh,
+                KhuVuc = _context.KhuVuc.Where(y => y.Id == x.bg.MaKhuVuc).Select(y => y.TenKhuVuc).FirstOrDefault(),
                 TenKH = x.kh.TenKh,
                 MaHopDong = x.bg.MaHopDong,
                 MaCungDuong = x.bg.MaCungDuong,
@@ -351,7 +356,7 @@ namespace TBSLogistics.Service.Services.PriceTableManage
                                  select new { bg, hd };
 
             var gr = from t in listPriceTable
-                     group t by new { t.bg.MaCungDuong, t.bg.MaDvt, t.bg.MaLoaiHangHoa, t.bg.MaLoaiPhuongTien, t.bg.MaPtvc, t.bg.MaLoaiDoiTac }
+                     group t by new { t.bg.MaCungDuong, t.bg.MaDvt, t.bg.MaLoaiHangHoa, t.bg.MaLoaiPhuongTien, t.bg.MaPtvc, t.bg.MaLoaiDoiTac, t.bg.MaKhuVuc }
                      into g
                      select new
                      {
@@ -361,6 +366,7 @@ namespace TBSLogistics.Service.Services.PriceTableManage
                          g.Key.MaLoaiPhuongTien,
                          g.Key.MaPtvc,
                          g.Key.MaLoaiDoiTac,
+                         g.Key.MaKhuVuc,
                          Id = (from t2 in g select t2.bg.Id).Max(),
                      };
 
@@ -369,12 +375,20 @@ namespace TBSLogistics.Service.Services.PriceTableManage
             return await listPriceTable.Select(x => new GetPriceListRequest()
             {
                 ID = x.bg.Id,
+                MaKh = x.hd.MaKh,
+                KhuVuc = _context.KhuVuc.Where(y => y.Id == x.bg.MaKhuVuc).Select(y => y.TenKhuVuc).FirstOrDefault(),
+                MaHopDong = x.bg.MaHopDong,
                 MaCungDuong = x.bg.MaCungDuong,
+                NgayApDung = x.bg.NgayApDung,
+                NgayHetHieuLuc = x.bg.NgayHetHieuLuc,
                 DonGia = x.bg.DonGia,
-                MaLoaiPhuongTien = x.bg.MaLoaiPhuongTien,
-                MaLoaiHangHoa = x.bg.MaLoaiHangHoa,
-                MaDVT = x.bg.MaDvt,
-                MaPTVC = x.bg.MaPtvc
+                MaLoaiPhuongTien = _context.LoaiPhuongTien.Where(y => y.MaLoaiPhuongTien == x.bg.MaLoaiPhuongTien).Select(x => x.TenLoaiPhuongTien).FirstOrDefault(),
+                MaLoaiHangHoa = _context.LoaiHangHoa.Where(y => y.MaLoaiHangHoa == x.bg.MaLoaiHangHoa).Select(x => x.TenLoaiHangHoa).FirstOrDefault(),
+                MaDVT = _context.DonViTinh.Where(y => y.MaDvt == x.bg.MaDvt).Select(x => x.TenDvt).FirstOrDefault(),
+                MaPTVC = _context.PhuongThucVanChuyen.Where(y => y.MaPtvc == x.bg.MaPtvc).Select(x => x.TenPtvc).FirstOrDefault(),
+                SoHopDongCha = x.hd.MaHopDongCha == null ? "Hợp Đồng" : "Phụ Lục",
+                MaLoaiDoiTac = x.bg.MaLoaiDoiTac,
+                TrangThai = x.bg.TrangThai,
             }).ToListAsync();
         }
 
@@ -411,6 +425,7 @@ namespace TBSLogistics.Service.Services.PriceTableManage
             var pagedData = await getData.Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new ListApprove()
             {
                 Id = x.bg.Id,
+                KhuVuc = _context.KhuVuc.Where(y => y.Id == x.bg.MaKhuVuc).Select(y => y.TenKhuVuc).FirstOrDefault(),
                 MaKh = x.kh.MaKh,
                 TenKh = x.kh.TenKh,
                 DonGia = x.bg.DonGia,
@@ -463,6 +478,7 @@ namespace TBSLogistics.Service.Services.PriceTableManage
                     if (item.IsAgree == 0)
                     {
                         var checkOldPriceTable = await _context.BangGia.Where(x =>
+                      x.MaKhuVuc == checkExists.MaKhuVuc &&
                       x.MaHopDong == checkExists.MaHopDong &&
                       x.MaPtvc == checkExists.MaPtvc &&
                       x.MaCungDuong == checkExists.MaCungDuong &&
@@ -521,6 +537,7 @@ namespace TBSLogistics.Service.Services.PriceTableManage
                 var reuslt = await data.Select(x => new GetPriceListRequest()
                 {
                     ID = x.bg.Id,
+                    MaKhuVuc = x.bg.MaKhuVuc,
                     MaHopDong = x.bg.MaHopDong,
                     SoHopDongCha = x.hd.MaHopDongCha,
                     MaKh = x.hd.MaKh,
@@ -566,6 +583,7 @@ namespace TBSLogistics.Service.Services.PriceTableManage
                 }
 
                 var checkPriceTable = await _context.BangGia.Where(x =>
+                   x.MaKhuVuc == request.MaKhuVuc &&
                    x.MaHopDong == request.MaHopDong &&
                    x.DonGia == request.DonGia &&
                    x.MaPtvc == request.MaPTVC &&
@@ -581,7 +599,7 @@ namespace TBSLogistics.Service.Services.PriceTableManage
                     return new BoolActionResult { isSuccess = false, Message = "Dữ liệu muốn cập nhật đã tồn tại và đang được áp dụng" };
                 }
 
-              
+                findById.MaKhuVuc = request.MaKhuVuc;
                 findById.MaHopDong = request.MaHopDong;
                 findById.MaCungDuong = request.MaCungDuong;
                 findById.DonGia = request.DonGia;

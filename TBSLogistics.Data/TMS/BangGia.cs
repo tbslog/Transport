@@ -14,6 +14,7 @@ namespace TBSLogistics.Data.TMS
         public long Id { get; set; }
         public string MaHopDong { get; set; }
         public string MaPtvc { get; set; }
+        public int? MaKhuVuc { get; set; }
         public string MaCungDuong { get; set; }
         public string MaLoaiPhuongTien { get; set; }
         public decimal DonGia { get; set; }

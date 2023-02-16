@@ -77,7 +77,7 @@ namespace TBSLogistics.Data.TMS
                  .AddJsonFile("appsettings.json")
                  .Build();
 
-                optionsBuilder.UseSqlServer(configuration.GetConnectionString("TMS_Local"));
+                optionsBuilder.UseSqlServer(configuration.GetConnectionString("TMS_Cloud"));
             }
         }
 
@@ -1249,7 +1249,7 @@ namespace TBSLogistics.Data.TMS
 
                 entity.Property(e => e.DonViTrongTai)
                     .IsRequired()
-                    .HasMaxLength(50)
+                    .HasMaxLength(10)
                     .IsUnicode(false);
 
                 entity.Property(e => e.MaLoaiPhuongTien)
