@@ -15,12 +15,12 @@ const HomePage = () => {
               backgroundImage: `url(${background})`,
               backgroundRepeat: "no-repeat",
               backgroundSize: "cover",
-              height: "93.84vh",
+              height: "100vh",
             }}
           >
             <div
               style={{
-                top: "20px",
+                top: "6%",
                 position: "absolute",
                 fontSize: "50px",
                 fontWeight: "bold",
@@ -32,7 +32,7 @@ const HomePage = () => {
             <div
               style={{
                 position: "absolute",
-                top: "80px",
+                top: "12%",
                 fontSize: "45PX",
                 fontWeight: "bold",
                 color: "rgb(235 125 76 / 70%)",

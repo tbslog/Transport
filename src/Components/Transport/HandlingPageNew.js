@@ -19,6 +19,7 @@ import JoinTransports from "./JoinTransports";
 import Select from "react-select";
 import { ToastError } from "../Common/FuncToast";
 import LoadingPage from "../Common/Loading/LoadingPage";
+import HandlingImage from "./HandlingImage";
 
 const HandlingPageNew = () => {
   const Columns = useMemo(() => [
@@ -943,6 +944,13 @@ const HandlingPageNew = () => {
                       selectIdClick={selectIdClick}
                       items={[]}
                       hideModal={hideModal}
+                    />
+                  )}
+                  {ShowModal === "Image" && (
+                    <HandlingImage
+                      dataClick={selectIdClick}
+                      hideModal={hideModal}
+                      checkModal={modal}
                     />
                   )}
                   {ShowModal === "addSubFee" && (

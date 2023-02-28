@@ -51,10 +51,13 @@ const UpdateSubFee = (props) => {
   const [listSubFeeSelect, setListSubFeeSelect] = useState([]);
   const [listArea, setListArea] = useState([]);
   const [listRoad, setListRoad] = useState([]);
+  const [listVehicleType, setlistVehicleType] = useState([]);
 
   useEffect(() => {
     (async () => {
       SetIsLoading(true);
+      let getListVehicleType = await getData("Common/GetListVehicleType");
+      setlistVehicleType(getListVehicleType);
       let getListCustommerType = await getData(`Common/GetListCustommerType`);
       setListCustomerType(getListCustommerType);
       let getListGoodsType = await getData("Common/GetListGoodsType");
@@ -100,6 +103,8 @@ const UpdateSubFee = (props) => {
       listGoodTypes &&
       listSubFee &&
       listSubFeeSelect &&
+      listVehicleType &&
+      listVehicleType.length > 0 &&
       listCustomerType.length > 0 &&
       listGoodTypes.length > 0 &&
       listSubFee.length > 0 &&
@@ -110,6 +115,7 @@ const UpdateSubFee = (props) => {
       handleOnChangeContractType(selectIdClick.customerType);
     }
   }, [
+    listVehicleType,
     selectIdClick,
     listCustomerType,
     listGoodTypes,
@@ -150,6 +156,7 @@ const UpdateSubFee = (props) => {
 
       var des = listSubFee.filter((x) => x.subFeeId === selectIdClick.sfId)[0];
       setValue("SubFeeDes", des.subFeeDescription);
+      setValue("LoaiPhuongTien", selectIdClick.vehicleType);
       setValue("KhuVuc", selectIdClick.areaID);
       setValue("MaLoaiHangHoa", selectIdClick.goodsType);
       setValue(
@@ -159,7 +166,7 @@ const UpdateSubFee = (props) => {
         }[0]
       );
 
-      setValue("DonGia", selectIdClick.unitPrice);
+      setValue("DonGia", selectIdClick.price);
       setValue("Description", selectIdClick.description);
 
       setValue(
@@ -197,7 +204,6 @@ const UpdateSubFee = (props) => {
       if (getListCustomer && getListCustomer.length > 0) {
         getListCustomer = getListCustomer.filter((x) => x.loaiKH === val);
         let obj = [];
-        obj.push({ value: "", label: "Tất Cả" });
         getListCustomer.map((val) => {
           obj.push({
             value: val.maKh,
@@ -260,6 +266,7 @@ const UpdateSubFee = (props) => {
         SfId: data.LoaiPhuPhi.value,
         GoodsType: !data.MaLoaiHangHoa ? null : data.MaLoaiHangHoa,
         AreaId: !data.KhuVuc ? null : data.KhuVuc,
+        VehicleType: !data.LoaiPhuongTien ? null : data.LoaiPhuongTien,
         TripId: !data.CungDuong
           ? null
           : !data.CungDuong.value
@@ -433,6 +440,33 @@ const UpdateSubFee = (props) => {
                   {errors.MaLoaiHangHoa && (
                     <span className="text-danger">
                       {errors.MaLoaiHangHoa.message}
+                    </span>
+                  )}
+                </div>
+              </div>
+              <div className="col col-sm">
+                <div className="form-group">
+                  <label htmlFor="LoaiPhuongTien">Loại Phương Tiện</label>
+                  <select
+                    className="form-control"
+                    {...register(`LoaiPhuongTien`, Validate.LoaiPhuongTien)}
+                  >
+                    <option value="">-- Để Trống --</option>
+                    {listVehicleType &&
+                      listVehicleType.map((val) => {
+                        return (
+                          <option
+                            value={val.maLoaiPhuongTien}
+                            key={val.maLoaiPhuongTien}
+                          >
+                            {val.tenLoaiPhuongTien}
+                          </option>
+                        );
+                      })}
+                  </select>
+                  {errors.LoaiPhuongTien && (
+                    <span className="text-danger">
+                      {errors.LoaiPhuongTien.message}
                     </span>
                   )}
                 </div>

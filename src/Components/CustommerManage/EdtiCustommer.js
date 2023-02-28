@@ -88,8 +88,8 @@ const EditCustommer = (props) => {
     },
     SDT: {
       maxLength: {
-        value: 50,
-        message: "Không được vượt quá 20 ký tự",
+        value: 10,
+        message: "Không được vượt quá 10 ký tự",
       },
       minLength: {
         value: 10,
@@ -301,7 +301,7 @@ const EditCustommer = (props) => {
               <div className="row">
                 <div className="col-sm">
                   <div className="form-group">
-                    <label htmlFor="Email">Địa chỉ Email(*)</label>
+                    <label htmlFor="Email">Địa chỉ Email</label>
                     <input
                       type="text "
                       className="form-control"
@@ -318,7 +318,7 @@ const EditCustommer = (props) => {
                 </div>
                 <div className="col-sm">
                   <div className="form-group">
-                    <label htmlFor="MST">Mã số thuế(*)</label>
+                    <label htmlFor="MST">Mã số thuế</label>
                     <input
                       type="text "
                       className="form-control"
@@ -333,7 +333,7 @@ const EditCustommer = (props) => {
                 </div>
                 <div className="col-sm">
                   <div className="form-group">
-                    <label htmlFor="SDT">Số điện thoại(*)</label>
+                    <label htmlFor="SDT">Số điện thoại</label>
                     <input
                       type="text"
                       className="form-control"

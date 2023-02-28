@@ -89,8 +89,8 @@ const CreateCustommer = (props) => {
     },
     SDT: {
       maxLength: {
-        value: 50,
-        message: "Không được vượt quá 20 ký tự",
+        value: 10,
+        message: "Không được vượt quá 10 ký tự",
       },
       minLength: {
         value: 10,
@@ -132,7 +132,6 @@ const CreateCustommer = (props) => {
   const onSubmit = async (data, e) => {
     SetIsLoading(true);
     const post = await postData("Customer/CreateCustomer", {
-      MaKH: data.MaKH,
       tenKh: data.TenKH,
       maSoThue: data.MST,
       sdt: data.SDT,
@@ -252,21 +251,6 @@ const CreateCustommer = (props) => {
               <div className="row">
                 <div className="col-sm">
                   <div className="form-group">
-                    <label htmlFor="MaKH">Mã Đối Tác(*)</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      id="MaKH"
-                      placeholder="Nhập tên đối tác"
-                      {...register("MaKH", Validate.MaKH)}
-                    />
-                    {errors.MaKH && (
-                      <span className="text-danger">{errors.MaKH.message}</span>
-                    )}
-                  </div>
-                </div>
-                <div className="col-sm">
-                  <div className="form-group">
                     <label htmlFor="TenKH">Tên đối tác(*)</label>
                     <input
                       type="text"
@@ -286,7 +270,7 @@ const CreateCustommer = (props) => {
               <div className="row">
                 <div className="col-sm">
                   <div className="form-group">
-                    <label htmlFor="Email">Địa chỉ Email(*)</label>
+                    <label htmlFor="Email">Địa chỉ Email</label>
                     <input
                       type="text "
                       className="form-control"
@@ -303,7 +287,7 @@ const CreateCustommer = (props) => {
                 </div>
                 <div className="col-sm">
                   <div className="form-group">
-                    <label htmlFor="MST">Mã số thuế(*)</label>
+                    <label htmlFor="MST">Mã số thuế</label>
                     <input
                       type="text "
                       className="form-control"
@@ -318,7 +302,7 @@ const CreateCustommer = (props) => {
                 </div>
                 <div className="col-sm">
                   <div className="form-group">
-                    <label htmlFor="SDT">Số điện thoại(*)</label>
+                    <label htmlFor="SDT">Số điện thoại</label>
                     <input
                       type="text"
                       className="form-control"

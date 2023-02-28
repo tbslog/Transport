@@ -66,6 +66,10 @@ const ApproveSubFee = (props) => {
       selector: (row) => row.contractName,
     },
     {
+      name: <div>Loại Phương Tiện</div>,
+      selector: (row) => <div className="text-wrap">{row.vehicleType}</div>,
+    },
+    {
       name: "Cung Đường",
       selector: (row) => <div className="text-wrap">{row.tripName}</div>,
     },

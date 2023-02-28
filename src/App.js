@@ -61,6 +61,7 @@ function App() {
             )}
             <Route path="/transport" element={<TransportPage />} />
             <Route path="/" element={<HomePage />} exact />
+            <Route path="*" element={<HomePage />} />
           </Route>
           <Route element={<LoginPage />} path="/login"></Route>
         </Routes>

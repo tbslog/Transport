@@ -55,7 +55,7 @@ const CreateDriver = (props) => {
       required: "Không được để trống",
       maxLength: {
         value: 10,
-        message: "Không được vượt quá 12 ký tự",
+        message: "Không được vượt quá 10 ký tự",
       },
       minLength: {
         value: 10,

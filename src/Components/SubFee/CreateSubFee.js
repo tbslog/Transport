@@ -22,7 +22,12 @@ const CreateSubFee = (props) => {
     PhanLoaiDoiTac: {
       required: "Không được để trống",
     },
-    MaKh: { required: "Không được để trống" },
+    MaHopDong: {
+      required: "Không được để trống",
+    },
+    MaKh: {
+      required: "Không được để trống",
+    },
     LoaiPhuPhi: {
       required: "Không được để trống",
     },
@@ -51,10 +56,13 @@ const CreateSubFee = (props) => {
   const [listSubFeeSelect, setListSubFeeSelect] = useState([]);
   const [listArea, setListArea] = useState([]);
   const [listRoad, setListRoad] = useState([]);
+  const [listVehicleType, setlistVehicleType] = useState([]);
 
   useEffect(() => {
     (async () => {
       SetIsLoading(true);
+      let getListVehicleType = await getData("Common/GetListVehicleType");
+      setlistVehicleType(getListVehicleType);
       let getListCustommerType = await getData(`Common/GetListCustommerType`);
       setListCustomerType(getListCustommerType);
       let getListGoodsType = await getData("Common/GetListGoodsType");
@@ -117,7 +125,6 @@ const CreateSubFee = (props) => {
       if (getListCustomer && getListCustomer.length > 0) {
         getListCustomer = getListCustomer.filter((x) => x.loaiKH === val);
         let obj = [];
-        obj.push({ value: "", label: "Tất Cả" });
         getListCustomer.map((val) => {
           obj.push({
             value: val.maKh,
@@ -174,10 +181,11 @@ const CreateSubFee = (props) => {
 
     const createSubFreePrice = await postData("SubFeePrice/CreateSubFeePrice", {
       CusType: data.PhanLoaiDoiTac,
-      ContractId: !data.MaHopDong ? null : data.MaHopDong.value,
+      ContractId: data.MaHopDong.value,
       SfId: data.LoaiPhuPhi.value,
       GoodsType: !data.MaLoaiHangHoa ? null : data.MaLoaiHangHoa,
       AreaId: !data.KhuVuc ? null : data.KhuVuc,
+      VehicleType: !data.LoaiPhuongTien ? null : data.LoaiPhuongTien,
       TripId: !data.CungDuong
         ? null
         : !data.CungDuong.value
@@ -353,6 +361,33 @@ const CreateSubFee = (props) => {
                   {errors.MaLoaiHangHoa && (
                     <span className="text-danger">
                       {errors.MaLoaiHangHoa.message}
+                    </span>
+                  )}
+                </div>
+              </div>
+              <div className="col col-sm">
+                <div className="form-group">
+                  <label htmlFor="LoaiPhuongTien">Loại Phương Tiện</label>
+                  <select
+                    className="form-control"
+                    {...register(`LoaiPhuongTien`, Validate.LoaiPhuongTien)}
+                  >
+                    <option value="">-- Để Trống --</option>
+                    {listVehicleType &&
+                      listVehicleType.map((val) => {
+                        return (
+                          <option
+                            value={val.maLoaiPhuongTien}
+                            key={val.maLoaiPhuongTien}
+                          >
+                            {val.tenLoaiPhuongTien}
+                          </option>
+                        );
+                      })}
+                  </select>
+                  {errors.LoaiPhuongTien && (
+                    <span className="text-danger">
+                      {errors.LoaiPhuongTien.message}
                     </span>
                   )}
                 </div>

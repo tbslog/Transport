@@ -5,6 +5,7 @@ import Cookies from "js-cookie";
 
 const PrivateRoutes = () => {
   let auth = { token: Cookies.get("token") };
+
   return auth.token ? (
     <>
       <Header />

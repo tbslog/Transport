@@ -70,7 +70,7 @@ const UpdateHandling = (props) => {
     CONTNO: {
       pattern: {
         value: /([A-Z]{3})([UJZ])(\d{6})(\d)/,
-        message: "Mã không không đúng, vui lòng viết hoa",
+        message: "Mã CONT NO không đúng, Phải viết HOA",
       },
     },
     SEALHQ: {

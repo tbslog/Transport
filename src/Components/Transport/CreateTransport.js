@@ -218,10 +218,12 @@ const CreateTransport = (props) => {
         if (getListRoad.diemDau && getListRoad.diemDau.length > 0) {
           let arr = [];
           getListRoad.diemDau.map((val) => {
-            arr.push({
-              label: val.tenDiaDiem,
-              value: val.maDiaDiem,
-            });
+            if (!arr.some((x) => x.value === val.maDiaDiem)) {
+              arr.push({
+                label: val.tenDiaDiem,
+                value: val.maDiaDiem,
+              });
+            }
           });
           setListFirstPoint(arr);
         } else {
@@ -231,10 +233,12 @@ const CreateTransport = (props) => {
         if (getListRoad.diemCuoi && getListRoad.diemCuoi.length > 0) {
           let arr = [];
           getListRoad.diemCuoi.map((val) => {
-            arr.push({
-              label: val.tenDiaDiem,
-              value: val.maDiaDiem,
-            });
+            if (!arr.some((x) => x.value === val.maDiaDiem)) {
+              arr.push({
+                label: val.tenDiaDiem,
+                value: val.maDiaDiem,
+              });
+            }
           });
           setListSecondPoint(arr);
         } else {
@@ -473,7 +477,7 @@ const CreateTransport = (props) => {
 
                 <div className="col col-sm">
                   <div className="form-group">
-                    <label htmlFor="MaVDKH">Mã Vận Đơn Của Khách Hàng</label>
+                    <label htmlFor="MaVDKH">Mã Vận Đơn Của Khách Hàng(*)</label>
                     <input
                       autoComplete="false"
                       type="text"
@@ -785,6 +789,10 @@ const CreateTransport = (props) => {
                                       e.target.value,
                                       watch(`optionHandling.${index}.TheTich`),
                                       "TheTich"
+                                    );
+                                    setValue(
+                                      `optionHandling.${index}.PTVanChuyen`,
+                                      e.target.value
                                     );
                                   }}
                                 >

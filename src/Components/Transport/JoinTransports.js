@@ -336,7 +336,7 @@ const JoinTransports = (props) => {
       arrTransports.push({
         MaVanDon: val.maVanDon,
         MaLoaiHangHoa: val.LoaiHangHoa,
-        MaDVT: "Chuyen",
+        MaDVT: "CHUYEN",
       });
     });
 

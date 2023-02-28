@@ -354,10 +354,12 @@ const UpdateTransport = (props) => {
         if (getListRoad.diemDau && getListRoad.diemDau.length > 0) {
           let arr = [];
           getListRoad.diemDau.map((val) => {
-            arr.push({
-              label: val.tenDiaDiem,
-              value: val.maDiaDiem,
-            });
+            if (!arr.some((x) => x.value === val.maDiaDiem)) {
+              arr.push({
+                label: val.tenDiaDiem,
+                value: val.maDiaDiem,
+              });
+            }
           });
           setListFirstPoint(arr);
         } else {
@@ -367,10 +369,12 @@ const UpdateTransport = (props) => {
         if (getListRoad.diemCuoi && getListRoad.diemCuoi.length > 0) {
           let arr = [];
           getListRoad.diemCuoi.map((val) => {
-            arr.push({
-              label: val.tenDiaDiem,
-              value: val.maDiaDiem,
-            });
+            if (!arr.some((x) => x.value === val.maDiaDiem)) {
+              arr.push({
+                label: val.tenDiaDiem,
+                value: val.maDiaDiem,
+              });
+            }
           });
           setListSecondPoint(arr);
         } else {
@@ -949,6 +953,10 @@ const UpdateTransport = (props) => {
                                           `optionHandling.${index}.TheTich`
                                         ),
                                         "TheTich"
+                                      );
+                                      setValue(
+                                        `optionHandling.${index}.PTVanChuyen`,
+                                        e.target.value
                                       );
                                     }}
                                   >

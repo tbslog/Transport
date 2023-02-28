@@ -230,6 +230,7 @@ const BillPage = () => {
     setFromDate("");
     setToDate("");
     setData([]);
+    fetchData(1);
   };
 
   const handleExportExcel = async () => {

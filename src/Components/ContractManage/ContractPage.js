@@ -215,8 +215,8 @@ const ContractPage = () => {
   };
 
   const handlePageChange = async (page) => {
-    fetchData(
-      1,
+    await fetchData(
+      page,
       keySearch,
       !fromDate ? "" : moment(fromDate).format("YYYY-MM-DD"),
       !toDate ? "" : moment(toDate).format("YYYY-MM-DD"),

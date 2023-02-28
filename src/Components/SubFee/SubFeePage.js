@@ -46,17 +46,21 @@ const SubFeePage = () => {
     },
     {
       name: <div>Khách Hàng</div>,
-      selector: (row) => row.customerName,
+      selector: (row) => <div className="text-wrap">{row.customerName}</div>,
       sortable: true,
     },
     {
       name: <div>Mã Hợp Đồng</div>,
-      selector: (row) => row.contractId,
+      selector: (row) => <div className="text-wrap">{row.contractId}</div>,
       sortable: true,
     },
     {
       name: <div>Tên Hợp Đồng</div>,
       selector: (row) => <div className="text-wrap">{row.contractName}</div>,
+    },
+    {
+      name: <div>Loại Phương Tiện</div>,
+      selector: (row) => <div className="text-wrap">{row.vehicleType}</div>,
     },
     {
       name: "Cung Đường",
@@ -153,7 +157,7 @@ const SubFeePage = () => {
   };
 
   const handlePageChange = async (page) => {
-    await fetchData(page);
+    await fetchData(page, keySearch, fromDate, toDate, status);
   };
 
   const handlePerRowsChange = async (newPerPage, page) => {
@@ -284,14 +288,6 @@ const SubFeePage = () => {
             <div className="col-sm-6">
               <h1>Quản Lý Phụ Phí Theo Hợp Đồng</h1>
             </div>
-            {/* <div className="col-sm-6">
-                  <ol className="breadcrumb float-sm-right">
-                    <li className="breadcrumb-item">
-                      <a href="#">Home</a>
-                    </li>
-                    <li className="breadcrumb-item active">Blank Page</li>
-                  </ol>
-                </div> */}
           </div>
         </div>
       </section>
@@ -444,6 +440,7 @@ const SubFeePage = () => {
                 pagination
                 paginationServer
                 selectableRows
+                paginationRowsPerPageOptions={[10, 30, 50, 100]}
                 clearSelectedRows={toggledClearRows}
                 paginationTotalRows={totalRows}
                 onSelectedRowsChange={handleChange}
