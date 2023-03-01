@@ -353,12 +353,12 @@ namespace TBSLogistics.Service.Services.RoadManage
 
             if (DiemDau == DiemCuoi)
             {
-                ErrorValidate += "Lỗi Dòng > " + ErrorRow + " - Điểm đầu không được giống với điểm cuối \r\n";
+                ErrorValidate += "Điểm đầu không được giống với điểm cuối \r\n";
             }
 
             if (TenCungDuong.Length > 50 || TenCungDuong.Length == 0)
             {
-                ErrorValidate += "Lỗi Dòng > " + ErrorRow + " - Tên cung đường không được rỗng hoặc nhiều hơn 50 ký tự \r\n";
+                ErrorValidate += "Tên cung đường không được rỗng hoặc nhiều hơn 50 ký tự \r\n";
             }
 
             //if (!Regex.IsMatch(TenCungDuong, "^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9 aAàÀảẢãÃáÁạẠăĂằẰẳẲẵẴắẮặẶâÂầẦẩẨẫẪấẤậẬbBcCdDđĐeEèÈẻẺẽẼéÉẹẸêÊềỀểỂễỄếẾệỆ fFgGhHiIìÌỉỈĩĨíÍịỊjJkKlLmMnNoOòÒỏỎõÕóÓọỌôÔồỒổỔỗỖốỐộỘơƠờỜởỞỡỠớỚợỢpPqQrRsStTu UùÙủỦũŨúÚụỤưƯừỪửỬữỮứỨựỰvVwWxXyYỳỲỷỶỹỸýÝỵỴzZ]+(?<![_.])$", RegexOptions.IgnoreCase))
@@ -368,7 +368,7 @@ namespace TBSLogistics.Service.Services.RoadManage
 
             if (SoKM < 1)
             {
-                ErrorValidate += "Lỗi Dòng > " + ErrorRow + " - Số KM không được nhỏ hơn 1 \r\n";
+                ErrorValidate += "Số KM không được nhỏ hơn 1 \r\n";
             }
 
             if (Action == "Create")
@@ -376,7 +376,7 @@ namespace TBSLogistics.Service.Services.RoadManage
                 var checkExists = await _context.CungDuong.Where(x => x.DiemDau == DiemDau && x.DiemCuoi == DiemCuoi).FirstOrDefaultAsync();
                 if (checkExists != null)
                 {
-                    ErrorValidate += "Lỗi Dòng > " + ErrorRow + " - Cung Đường đã tồn tại, " + checkExists.MaCungDuong + " - " + checkExists.TenCungDuong + " \r\n";
+                    ErrorValidate += "Cung Đường đã tồn tại, " + checkExists.MaCungDuong + " - " + checkExists.TenCungDuong + " \r\n";
                 }
 
                 var checkDC = await _context.DiaDiem.Where(x => x.MaDiaDiem == DiemCuoi).FirstOrDefaultAsync();
@@ -384,12 +384,12 @@ namespace TBSLogistics.Service.Services.RoadManage
 
                 if (checkDD == null)
                 {
-                    ErrorValidate += "Lỗi Dòng > " + ErrorRow + " - Mã điểm đầu không đúng, vui lòng xem lại \r\n";
+                    ErrorValidate += "Mã điểm đầu không đúng, vui lòng xem lại \r\n";
                 }
 
                 if (checkDC == null)
                 {
-                    ErrorValidate += "Lỗi Dòng > " + ErrorRow + " - Mã điểm cuối không đúng, vui lòng xem lại \r\n";
+                    ErrorValidate += "Mã điểm cuối không đúng, vui lòng xem lại \r\n";
                 }
             }
             return ErrorValidate;

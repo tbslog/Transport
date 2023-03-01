@@ -97,6 +97,7 @@ namespace TBSLogistics.Service.Services.RomoocManage
                 getRomooc.MaLoaiRomooc = request.MaLoaiRomooc;
                 getRomooc.UpdatedTime = DateTime.Now;
                 getRomooc.Updater = tempData.UserName;
+                getRomooc.TrangThai = request.TrangThai;
 
                 _TMScontext.Update(getRomooc);
                 var result = await _TMScontext.SaveChangesAsync();
@@ -164,12 +165,9 @@ namespace TBSLogistics.Service.Services.RomoocManage
 
                 if (!string.IsNullOrEmpty(filter.Keyword))
                 {
-                    listData = listData.Where(x => x.romooc.MaRomooc.Contains(filter.Keyword));
+                    listData = listData.Where(x => x.romooc.MaRomooc.Contains(filter.Keyword) || x.romooc.MaLoaiRomooc.Contains(filter.Keyword));
                 }
-                if (!string.IsNullOrEmpty(filter.Keyword))
-                {
-                    listData = listData.Where(x => x.romooc.MaLoaiRomooc.Contains(filter.Keyword));
-                }
+
                 if (!string.IsNullOrEmpty(filter.fromDate.ToString()) && !string.IsNullOrEmpty(filter.toDate.ToString()))
                 {
                     listData = listData.Where(x => x.romooc.CreatedTime.Date >= filter.fromDate && x.romooc.CreatedTime.Date <= filter.toDate);

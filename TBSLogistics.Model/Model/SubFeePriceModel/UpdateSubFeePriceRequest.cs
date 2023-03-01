@@ -8,6 +8,7 @@ namespace TBSLogistics.Model.Model.SubFeePriceModel
 {
     public class UpdateSubFeePriceRequest
     {
+        public string VehicleType { get; set; }
         public string CusType { get; set; }
         public string ContractId { get; set; }
         public long SfId { get; set; }

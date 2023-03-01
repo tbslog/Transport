@@ -77,7 +77,7 @@ namespace TBSLogistics.Data.TMS
                  .AddJsonFile("appsettings.json")
                  .Build();
 
-                optionsBuilder.UseSqlServer(configuration.GetConnectionString("TMS_Cloud"));
+                optionsBuilder.UseSqlServer(configuration.GetConnectionString("TMS_Local"));
             }
         }
 
@@ -1125,6 +1125,11 @@ namespace TBSLogistics.Data.TMS
                     .HasColumnName("tripID");
 
                 entity.Property(e => e.Updater).HasMaxLength(30);
+
+                entity.Property(e => e.VehicleType)
+                    .HasMaxLength(10)
+                    .IsUnicode(false)
+                    .HasColumnName("vehicleType");
 
                 entity.HasOne(d => d.Contract)
                     .WithMany(p => p.SubFeePrice)

@@ -447,11 +447,6 @@ namespace TBSLogistics.Service.Services.AddressManage
                 ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Tên địa điểm không được rỗng hoặc nhiều hơn 50 ký tự \r\n";
             }
 
-            if (!Regex.IsMatch(TenDiaDiem, "^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9 aAàÀảẢãÃáÁạẠăĂằẰẳẲẵẴắẮặẶâÂầẦẩẨẫẪấẤậẬbBcCdDđĐeEèÈẻẺẽẼéÉẹẸêÊềỀểỂễỄếẾệỆ fFgGhHiIìÌỉỈĩĨíÍịỊjJkKlLmMnNoOòÒỏỎõÕóÓọỌôÔồỒổỔỗỖốỐộỘơƠờỜởỞỡỠớỚợỢpPqQrRsStTu UùÙủỦũŨúÚụỤưƯừỪửỬữỮứỨựỰvVwWxXyYỳỲỷỶỹỸýÝỵỴzZ]+(?<![_.])$", RegexOptions.IgnoreCase))
-            {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Tên địa điểm không được chứa ký tự đặc biệt \r\n";
-            }
-
             if (SoNha.Length > 100)
             {
                 ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Số nhà không được nhiều hơn 100 ký tự \r\n";

@@ -73,7 +73,6 @@ namespace TBSLogistics.Service.Services.PriceTableManage
 
                     var checkDuplicate = request.Where(x =>
                     x.MaKhuVuc == item.MaKhuVuc
-                    && x.DonGia == item.DonGia
                     && x.MaHopDong == item.MaHopDong
                     && x.MaKH == item.MaKH
                     && x.MaPtvc == item.MaPtvc

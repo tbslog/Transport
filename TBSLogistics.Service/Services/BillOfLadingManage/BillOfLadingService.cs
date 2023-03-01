@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Win32.SafeHandles;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -581,6 +582,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                             //    ", Loại Hàng Hóa:" + checkGoodsType +
                             //    ", Đơn Vị Tính: " + checkDVT +
                             //    ", Phương thức vận chuyển: " + checkPTVC
+
                             //    };
                             //}
 
@@ -926,6 +928,8 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 
                 string MaVanDonChung = loadTransports.Select(x => x.MaPtvc).FirstOrDefault().Trim() + DateTime.Now.ToString("yyyyMMddHHmmssffff");
 
+                var getEmptyPlace = await _context.DiaDiem.Where(x => x.MaDiaDiem == request.DiemLayTraRong).FirstOrDefaultAsync();
+
                 foreach (var item in loadTransports)
                 {
                     foreach (var itemRequest in request.arrTransports)
@@ -958,7 +962,8 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                 ", Phương Tiện Vận Chuyển: " + checkVehicleType +
                                 ", Loại Hàng Hóa:" + checkGoodsType +
                                 ", Đơn Vị Tính: " + checkDVT +
-                                ", Phương thức vận chuyển: " + item.MaPtvc
+                                ", Phương thức vận chuyển: " + item.MaPtvc +
+                                   (getEmptyPlace == null ? "" : ", Khu Vực: " + await _context.KhuVuc.Where(x => x.Id == getEmptyPlace.MaKhuVuc).Select(x => x.TenKhuVuc).FirstOrDefaultAsync())
                                 };
                             }
 
@@ -973,7 +978,8 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                 ", Phương Tiện Vận Chuyển: " + checkVehicleType +
                                 ", Loại Hàng Hóa:" + checkGoodsType +
                                 ", Đơn Vị Tính: " + checkDVT +
-                                ", Phương thức vận chuyển: " + item.MaPtvc
+                                ", Phương thức vận chuyển: " + item.MaPtvc +
+                                   (getEmptyPlace == null ? "" : ", Khu Vực: " + await _context.KhuVuc.Where(x => x.Id == getEmptyPlace.MaKhuVuc).Select(x => x.TenKhuVuc).FirstOrDefaultAsync())
                                 };
                             }
 
@@ -1042,7 +1048,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 
                             await _context.SaveChangesAsync();
 
-                            var getSubFee = await _subFeePrice.GetListSubFeePriceActive(item.MaKh, itemRequest.MaLoaiHangHoa, request.DiemLayTraRong, item.MaCungDuong, null);
+                            var getSubFee = await _subFeePrice.GetListSubFeePriceActive(item.MaKh, itemRequest.MaLoaiHangHoa, request.DiemLayTraRong, item.MaCungDuong, null, request.PTVanChuyen);
                             foreach (var sfp in getSubFee)
                             {
                                 await _context.SubFeeByContract.AddAsync(new SubFeeByContract()
@@ -1180,6 +1186,8 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                     var priceSup = await GetPriceTable(request.DonViVanTai, getTransport.MaCungDuong, request.DonViTinh, request.LoaiHangHoa, request.PTVanChuyen, getTransport.MaPtvc, request.DiemLayTraRong);
                     var priceCus = await GetPriceTable(getTransport.MaKh, getTransport.MaCungDuong, request.DonViTinh, request.LoaiHangHoa, request.PTVanChuyen, getTransport.MaPtvc, request.DiemLayTraRong);
 
+                    var getEmptyPlace = await _context.DiaDiem.Where(x => x.MaDiaDiem == request.DiemLayTraRong).FirstOrDefaultAsync();
+
                     if (priceSup == null)
                     {
                         return new BoolActionResult
@@ -1191,7 +1199,8 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                ", Phương Tiện Vận Chuyển: " + request.PTVanChuyen +
                                ", Loại Hàng Hóa:" + request.LoaiHangHoa +
                                ", Đơn Vị Tính: " + request.DonViTinh +
-                               ", Phương thức vận chuyển: " + getTransport.MaPtvc
+                               ", Phương thức vận chuyển: " + getTransport.MaPtvc +
+                              (getEmptyPlace == null ? "" : ", Khu Vực: " + await _context.KhuVuc.Where(x => x.Id == getEmptyPlace.MaKhuVuc).Select(x => x.TenKhuVuc).FirstOrDefaultAsync())
                         };
                     }
 
@@ -1206,7 +1215,8 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                ", Phương Tiện Vận Chuyển: " + request.PTVanChuyen +
                                ", Loại Hàng Hóa:" + request.LoaiHangHoa +
                                ", Đơn Vị Tính: " + request.DonViTinh +
-                               ", Phương thức vận chuyển: " + getTransport.MaPtvc
+                               ", Phương thức vận chuyển: " + getTransport.MaPtvc +
+                              (getEmptyPlace == null ? "" : ", Khu Vực: " + await _context.KhuVuc.Where(x => x.Id == getEmptyPlace.MaKhuVuc).Select(x => x.TenKhuVuc).FirstOrDefaultAsync())
                         };
                     }
 
@@ -1244,7 +1254,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 
                 if (result > 0)
                 {
-                    var getSubFee = await _subFeePrice.GetListSubFeePriceActive(getTransport.MaKh, checkById.MaLoaiHangHoa, checkById.DiemLayTraRong, getTransport.MaCungDuong, checkById.Id);
+                    var getSubFee = await _subFeePrice.GetListSubFeePriceActive(getTransport.MaKh, checkById.MaLoaiHangHoa, checkById.DiemLayTraRong, getTransport.MaCungDuong, checkById.Id, checkById.MaLoaiPhuongTien);
                     foreach (var sfp in getSubFee)
                     {
                         await _context.SubFeeByContract.AddAsync(new SubFeeByContract()
@@ -1290,10 +1300,10 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 
                 var loadTransports = await _context.VanDon.Where(x => request.arrTransports.Select(x => x.MaVanDon).Contains(x.MaVanDon)).ToListAsync();
 
-                //if (loadTransports.Count != request.arrTransports.Count())
-                //{
-                //    return new BoolActionResult { isSuccess = false, Message = "Vui lòng chỉ chọn vận đơn có trạng thái 'Chờ Điều Phối' " };
-                //}
+                if (loadTransports.Where(x => x.TrangThai == 22).Count() > 0)
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Không thể cập nhật chuyến này nữa" };
+                }
 
                 if (loadTransports.Where(x => x.LoaiVanDon == loadTransports.Select(y => y.LoaiVanDon).FirstOrDefault()).Count() != request.arrTransports.Count)
                 {
@@ -1376,6 +1386,8 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                            on vd.MaVanDon equals dp.MaVanDon
                            where dp.MaChuyen == handlingId
                            select new { vd, dp };
+
+                var getEmptyPlace = await _context.DiaDiem.Where(x => x.MaDiaDiem == request.DiemLayTraRong).FirstOrDefaultAsync();
 
                 if (await data.Select(x => x.dp.MaSoXe).FirstOrDefaultAsync() != request.XeVanChuyen)
                 {
@@ -1499,7 +1511,8 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                 ", Phương Tiện Vận Chuyển: " + checkVehicleType +
                                 ", Loại Hàng Hóa:" + checkGoodsType +
                                 ", Đơn Vị Tính: " + checkDVT +
-                                ", Phương thức vận chuyển: " + item.vd.MaPtvc
+                                ", Phương thức vận chuyển: " + item.vd.MaPtvc +
+                                  (getEmptyPlace == null ? "" : ", Khu Vực: " + await _context.KhuVuc.Where(x => x.Id == getEmptyPlace.MaKhuVuc).Select(x => x.TenKhuVuc).FirstOrDefaultAsync())
                                 };
                             }
 
@@ -1514,7 +1527,8 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                 ", Phương Tiện Vận Chuyển: " + checkVehicleType +
                                 ", Loại Hàng Hóa:" + checkGoodsType +
                                 ", Đơn Vị Tính: " + checkDVT +
-                                ", Phương thức vận chuyển: " + item.vd.MaPtvc
+                                ", Phương thức vận chuyển: " + item.vd.MaPtvc +
+                                 (getEmptyPlace == null ? "" : ", Khu Vực: " + await _context.KhuVuc.Where(x => x.Id == getEmptyPlace.MaKhuVuc).Select(x => x.TenKhuVuc).FirstOrDefaultAsync())
                                 };
                             }
 
@@ -1535,7 +1549,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                             item.dp.DiemLayTraRong = request.DiemLayTraRong;
                             item.dp.Updater = tempData.UserName;
 
-                            var getSubFee = await _subFeePrice.GetListSubFeePriceActive(item.vd.MaKh, itemRequest.MaLoaiHangHoa, request.DiemLayTraRong, item.vd.MaCungDuong, item.dp.Id);
+                            var getSubFee = await _subFeePrice.GetListSubFeePriceActive(item.vd.MaKh, itemRequest.MaLoaiHangHoa, request.DiemLayTraRong, item.vd.MaCungDuong, item.dp.Id, item.dp.MaLoaiPhuongTien);
 
                             foreach (var sfp in getSubFee)
                             {
@@ -1589,7 +1603,8 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                 ", Phương Tiện Vận Chuyển: " + checkVehicleType +
                                 ", Loại Hàng Hóa:" + checkGoodsType +
                                 ", Đơn Vị Tính: " + checkDVT +
-                                ", Phương thức vận chuyển: " + item.MaPtvc
+                                ", Phương thức vận chuyển: " + item.MaPtvc +
+                                 getEmptyPlace == null ? "" : "Khu Vực: " + await _context.KhuVuc.Where(x => x.Id == getEmptyPlace.MaKhuVuc).Select(x => x.TenKhuVuc).FirstOrDefaultAsync()
                                 };
                             }
 
@@ -1604,7 +1619,8 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                 ", Phương Tiện Vận Chuyển: " + checkVehicleType +
                                 ", Loại Hàng Hóa:" + checkGoodsType +
                                 ", Đơn Vị Tính: " + checkDVT +
-                                ", Phương thức vận chuyển: " + item.MaPtvc
+                                ", Phương thức vận chuyển: " + item.MaPtvc +
+                                 getEmptyPlace == null ? "" : "Khu Vực: " + await _context.KhuVuc.Where(x => x.Id == getEmptyPlace.MaKhuVuc).Select(x => x.TenKhuVuc).FirstOrDefaultAsync()
                                 };
                             }
 
@@ -1643,7 +1659,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                 Updater = tempData.UserName,
                             });
 
-                            var getSubFee = await _subFeePrice.GetListSubFeePriceActive(item.MaKh, itemRequest.MaLoaiHangHoa, request.DiemLayTraRong, item.MaCungDuong, null);
+                            var getSubFee = await _subFeePrice.GetListSubFeePriceActive(item.MaKh, itemRequest.MaLoaiHangHoa, request.DiemLayTraRong, item.MaCungDuong, null, request.PTVanChuyen);
                             foreach (var sfp in getSubFee)
                             {
                                 await _context.SubFeeByContract.AddAsync(new SubFeeByContract()
@@ -2571,6 +2587,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                 {
                     case 35:
                         handling.TrangThai = 20;
+                        handling.ThoiGianLayTraRongThucTe = DateTime.Now;
                         handling.ThoiGianHoanThanh = DateTime.Now;
                         await _common.Log("BillOfLading", " UserId: " + tempData.UserName + " Set " + handling.Id + " hoan thanh chuyen");
 
@@ -2658,6 +2675,11 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                         }
                         else
                         {
+                            if (string.IsNullOrEmpty(handling.ContNo))
+                            {
+                                return new BoolActionResult { isSuccess = false, Message = "Vui Lòng Cập Nhật ContNo trước đã" };
+                            }
+
                             handling.TrangThai = 18;
                             handling.ThoiGianLayHangThucTe = DateTime.Now;
                             status = " vận chuyển hàng";
@@ -2832,7 +2854,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                     var result = await _context.SaveChangesAsync();
                     if (result > 0)
                     {
-                        var handleVehicleStatus = await HandleVehicleStatus(35, getListHandling.Select(x => x.MaSoXe).FirstOrDefault());
+                        var handleVehicleStatus = await HandleVehicleStatus(20, getListHandling.Select(x => x.MaSoXe).FirstOrDefault());
                         await _common.Log("BillOfLading", " UserId: " + tempData.UserName + "Set " + handlingId + " Completed");
                         await transaction.CommitAsync();
                         return new BoolActionResult { isSuccess = true, Message = "Đã Hoàn Thành Vận Đơn" };

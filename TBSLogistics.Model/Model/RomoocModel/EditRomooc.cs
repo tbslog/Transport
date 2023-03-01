@@ -12,5 +12,6 @@ namespace TBSLogistics.Model.Model.RomoocModel
         public string SoGuRomooc { get; set; }
         public string ThongSoKyThuat { get; set; }
         public string MaLoaiRomooc { get; set; }
+        public int TrangThai { get; set; }
     }
 }

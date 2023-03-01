@@ -44,16 +44,38 @@ namespace TBSLogistics.Service.Services.CustommerManage
                     return new BoolActionResult { isSuccess = false, Message = "Mã Khách hàng này đã tồn tại" };
                 }
 
-                string ErrorValidate = await ValiateCustommer(request.MaKH, request.TenKh, request.MaSoThue, request.Sdt, request.Email, request.LoaiKH, request.NhomKH, request.TrangThai);
+                string ErrorValidate = await ValiateCustommer( request.TenKh, request.MaSoThue, request.Sdt, request.Email, request.LoaiKH, request.NhomKH, request.TrangThai);
 
                 if (ErrorValidate != "")
                 {
                     return new BoolActionResult { isSuccess = false, Message = ErrorValidate };
                 }
 
+                var getMaxMaKH = await _TMSContext.KhachHang.Where(x => x.MaLoaiKh == request.LoaiKH).OrderByDescending(x => x.MaKh).Select(x => x.MaKh).FirstOrDefaultAsync();
+
+                string maKH = "";
+
+                if (request.LoaiKH == "KH")
+                {
+                    maKH = "CUS";
+                }
+                else
+                {
+                    maKH = "SUP";
+                }
+
+                if (string.IsNullOrEmpty(getMaxMaKH))
+                {
+                    maKH = maKH + "00001";
+                }
+                else
+                {
+                    maKH = maKH + (int.Parse(getMaxMaKH.Substring(3, getMaxMaKH.Length - 3)) + 1).ToString("00000");
+                }
+
                 await _TMSContext.AddAsync(new KhachHang()
                 {
-                    MaKh = request.MaKH.ToUpper(),
+                    MaKh = maKH.ToUpper(),
                     Chuoi = request.LoaiKH == "NCC" ? null : request.Chuoi.ToUpper(),
                     TenKh = request.TenKh,
                     MaSoThue = request.MaSoThue,
@@ -102,7 +124,7 @@ namespace TBSLogistics.Service.Services.CustommerManage
                     return new BoolActionResult { isSuccess = false, Message = "Khách hàng không tồn tại" };
                 }
 
-                string ErrorValidate = await ValiateCustommer(CustomerId, request.TenKh, request.MaSoThue, request.Sdt, request.Email, request.LoaiKH, request.NhomKH, request.TrangThai);
+                string ErrorValidate = await ValiateCustommer( request.TenKh, request.MaSoThue, request.Sdt, request.Email, request.LoaiKH, request.NhomKH, request.TrangThai);
 
                 GetCustommer.Chuoi = request.LoaiKH == "NCC" ? null : request.Chuoi.ToUpper();
                 GetCustommer.TenKh = request.TenKh;
@@ -442,19 +464,9 @@ namespace TBSLogistics.Service.Services.CustommerManage
         //    }
         //}
 
-        private async Task<string> ValiateCustommer(string MaKH, string TenKh, string MaSoThue, string Sdt, string Email, string LoaiKH, string NhomKH, int TrangThai, string ErrorRow = "")
+        private async Task<string> ValiateCustommer( string TenKh, string MaSoThue, string Sdt, string Email, string LoaiKH, string NhomKH, int TrangThai, string ErrorRow = "")
         {
             string ErrorValidate = "";
-
-            if (MaKH.Length != 8)
-            {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã KH/NCC không được ít hoặc lớn hơn hơn 8 ký tự \r\n" + Environment.NewLine;
-            }
-
-            if (!Regex.IsMatch(MaKH, "^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9]+(?<![_.])$", RegexOptions.IgnoreCase))
-            {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã KH/NCC chỉ được có ký tự chữ và số \r\n" + Environment.NewLine;
-            }
 
             var checkStatus = await _TMSContext.StatusText.Where(x => x.Id == TrangThai).FirstOrDefaultAsync();
             if (checkStatus == null)
@@ -477,11 +489,6 @@ namespace TBSLogistics.Service.Services.CustommerManage
             if (TenKh.Length > 50 || TenKh.Length == 0)
             {
                 ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Tên khách hàng không được rỗng hoặc nhiều hơn 50 ký tự \r\n" + Environment.NewLine;
-            }
-
-            if (!Regex.IsMatch(TenKh, "^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9 aAàÀảẢãÃáÁạẠăĂằẰẳẲẵẴắẮặẶâÂầẦẩẨẫẪấẤậẬbBcCdDđĐeEèÈẻẺẽẼéÉẹẸêÊềỀểỂễỄếẾệỆ fFgGhHiIìÌỉỈĩĨíÍịỊjJkKlLmMnNoOòÒỏỎõÕóÓọỌôÔồỒổỔỗỖốỐộỘơƠờỜởỞỡỠớỚợỢpPqQrRsStTu UùÙủỦũŨúÚụỤưƯừỪửỬữỮứỨựỰvVwWxXyYỳỲỷỶỹỸýÝỵỴzZ]+(?<![_.])$", RegexOptions.IgnoreCase))
-            {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Tên khách hàng không được chứa ký tự đặc biệt \r\n" + Environment.NewLine;
             }
 
             if (NhomKH.Length > 10 || NhomKH.Length == 0)

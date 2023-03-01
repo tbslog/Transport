@@ -21,6 +21,7 @@
   <ItemGroup>
     <Folder Include="wwwroot\Attachments\Contract\" />
     <Folder Include="wwwroot\Attachments\Transport\" />
+    <Folder Include="wwwroot\Log\" />
   </ItemGroup>
 
 </Project>

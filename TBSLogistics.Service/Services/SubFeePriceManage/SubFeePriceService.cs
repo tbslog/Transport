@@ -45,7 +45,7 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
 
                     if (checkGoodsType == null)
                     {
-                        return new BoolActionResult { isSuccess = false, Message = "Loại Hàng Hóa không tồn tại" };
+                        return new BoolActionResult { isSuccess = false, Message = "Loại Hàng Hóa Không Tồn Tại" };
                     }
                 }
                 else
@@ -53,8 +53,23 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
                     request.GoodsType = null;
                 }
 
+                if (!string.IsNullOrEmpty(request.VehicleType))
+                {
+                    var checkVehicleType = await _context.LoaiPhuongTien.Where(x => x.MaLoaiPhuongTien == request.VehicleType).FirstOrDefaultAsync();
+
+                    if (checkVehicleType == null)
+                    {
+                        return new BoolActionResult { isSuccess = false, Message = "Loại Phương Tiện Không Tồn Tại" };
+                    }
+                }
+                else
+                {
+                    request.VehicleType = null;
+                }
+
                 await _context.AddAsync(new SubFeePrice()
                 {
+                    VehicleType = request.VehicleType,
                     CusType = request.CusType,
                     ContractId = string.IsNullOrEmpty(request.ContractId) ? null : request.ContractId,
                     SfId = request.SfId,
@@ -105,8 +120,37 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
                     return new BoolActionResult { isSuccess = false, Message = "Không thể chỉnh sửa phụ phí này nữa" };
                 }
 
+                if (!string.IsNullOrEmpty(request.VehicleType))
+                {
+                    var checkVehicleType = await _context.LoaiPhuongTien.Where(x => x.MaLoaiPhuongTien == request.VehicleType).FirstOrDefaultAsync();
+
+                    if (checkVehicleType == null)
+                    {
+                        return new BoolActionResult { isSuccess = false, Message = "Loại Phương Tiện Không Tồn Tại" };
+                    }
+                }
+                else
+                {
+                    request.VehicleType = null;
+                }
+
+                if (!string.IsNullOrEmpty(request.GoodsType))
+                {
+                    var checkGoodsType = await _context.LoaiHangHoa.Where(x => x.MaLoaiHangHoa == request.GoodsType).FirstOrDefaultAsync();
+
+                    if (checkGoodsType == null)
+                    {
+                        return new BoolActionResult { isSuccess = false, Message = "Loại Hàng Hóa Không Tồn Tại" };
+                    }
+                }
+                else
+                {
+                    request.GoodsType = null;
+                }
+
                 var checkExists = await _context.SubFeePrice.Where(x => x.ContractId == request.ContractId && x.SfId == request.SfId
                 && x.GoodsType == request.GoodsType && x.AreaId == request.AreaID && x.TripId == request.TripID
+                && x.VehicleType == request.VehicleType
                 && x.Price == request.Price && x.Status == 14
                 ).FirstOrDefaultAsync();
 
@@ -115,6 +159,7 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
                     return new BoolActionResult { isSuccess = false, Message = "Phụ phí đã tồn tại" };
                 }
 
+                getSubFeePrice.VehicleType = request.VehicleType;
                 getSubFeePrice.CusType = request.CusType;
                 getSubFeePrice.ContractId = request.ContractId;
                 getSubFeePrice.SfId = request.SfId;
@@ -194,8 +239,14 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
                             }
                         }
 
-                        var checkExists = await _context.SubFeePrice.Where(x => x.CusType == getById.CusType && x.ContractId == getById.ContractId && x.SfId == getById.SfId
-                         && x.GoodsType == getById.GoodsType && x.TripId == getById.TripId && x.AreaId == getById.AreaId
+                        var checkExists = await _context.SubFeePrice.Where(x =>
+                         x.CusType == getById.CusType
+                         && x.ContractId == getById.ContractId
+                         && x.SfId == getById.SfId
+                         && x.GoodsType == getById.GoodsType
+                         && x.TripId == getById.TripId
+                         && x.AreaId == getById.AreaId
+                         && x.VehicleType == getById.VehicleType
                          && x.Status == 14).FirstOrDefaultAsync();
 
                         if (checkExists != null)
@@ -352,6 +403,7 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
             {
                 var getSFP = await getById.Select(x => new GetSubFeePriceRequest()
                 {
+                    VehicleType = x.sfp.VehicleType,
                     PriceId = x.sfp.PriceId,
                     CustomerType = x.sfp.CusType,
                     CustomerId = string.IsNullOrEmpty(x.sfkh.MaKh) ? "" : x.sfkh.MaKh,
@@ -403,7 +455,7 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
             }
         }
 
-        public async Task<List<SubFeePrice>> GetListSubFeePriceActive(string customerId, string goodTypes, int? getEmptyPlace, string tripID, long? handlingId)
+        public async Task<List<SubFeePrice>> GetListSubFeePriceActive(string customerId, string goodTypes, int? getEmptyPlace, string tripID, long? handlingId, string vehicleType)
         {
             var getRoad = await _context.CungDuong.Where(x => x.MaCungDuong == tripID).FirstOrDefaultAsync();
             var getCus = await _context.KhachHang.Where(x => x.MaKh == customerId).FirstOrDefaultAsync();
@@ -412,45 +464,132 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
             var getSFByCusId = from contract in _context.HopDongVaPhuLuc
                                join sfp in _context.SubFeePrice
                                on contract.MaHopDong equals sfp.ContractId
-                               where contract.MaKh == customerId && sfp.Status == 14
-                               && ((sfp.GoodsType == goodTypes)
-                               || (sfp.AreaId == getPlace.MaKhuVuc)
-                               || (sfp.TripId == tripID)
-                               || (sfp.GoodsType == null && sfp.AreaId == null && sfp.TripId == null))
+                               where
+                               contract.MaKh == customerId
+                               && sfp.Status == 14
+                               && (sfp.AreaId == null || sfp.AreaId == (getPlace == null ? null : getPlace.MaKhuVuc))
+                               && (sfp.VehicleType == null || sfp.VehicleType == vehicleType)
+                               && (sfp.GoodsType == null || sfp.GoodsType == goodTypes)
+                               && (sfp.TripId == null || sfp.TripId == tripID)
                                select new { contract, sfp };
 
-            var getSFByCusType = await _context.SubFeePrice.Where(x => x.Status == 14 && x.CusType == getCus.MaLoaiKh
-            && x.ContractId == null && ((x.GoodsType == goodTypes)
-            || (x.AreaId == getPlace.MaKhuVuc)
-            || (x.TripId == tripID)
-            || (x.GoodsType == null && x.AreaId == null && x.TripId == null))).ToListAsync();
-
-            var dataGetByCusId = await getSFByCusId.Select(x => x.sfp).ToListAsync();
-
-            var listItemRemove = new List<SubFeePrice>();
-
-            foreach (var item in getSFByCusType)
+            if (getSFByCusId.Count() > 0)
             {
-                if (dataGetByCusId.Where(x =>
-                x.CusType == item.CusType
-                && x.SfId == item.SfId
-                && x.GoodsType == item.GoodsType
-                && x.AreaId == item.AreaId
-                && x.TripId == item.TripId).Count() > 0)
+                #region case 1 by 1
+                if (getSFByCusId.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType == null && x.sfp.TripId == null && x.sfp.AreaId == null).Count() > 0)
                 {
-                    listItemRemove.Add(item);
+                    getSFByCusId = getSFByCusId.Where(x => x.sfp.VehicleType == vehicleType);
                 }
+
+                if (getSFByCusId.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType != null && x.sfp.TripId == null && x.sfp.AreaId == null).Count() > 0)
+                {
+                    getSFByCusId = getSFByCusId.Where(x => x.sfp.GoodsType == goodTypes);
+                }
+
+                if (getSFByCusId.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType == null && x.sfp.TripId != null && x.sfp.AreaId == null).Count() > 0)
+                {
+                    getSFByCusId = getSFByCusId.Where(x => x.sfp.TripId == tripID);
+                }
+
+                if (getSFByCusId.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType == null && x.sfp.TripId == null && x.sfp.AreaId != null).Count() > 0)
+                {
+                    getSFByCusId = getSFByCusId.Where(x => x.sfp.AreaId == (getPlace == null ? null : getPlace.MaKhuVuc));
+                }
+                #endregion
+
+                #region case 2 by 2
+                if (getSFByCusId.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType != null && x.sfp.TripId == null && x.sfp.AreaId == null).Count() > 0)
+                {
+                    getSFByCusId = getSFByCusId.Where(x => x.sfp.VehicleType == vehicleType && x.sfp.GoodsType == goodTypes);
+                }
+
+                if (getSFByCusId.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType == null && x.sfp.TripId != null && x.sfp.AreaId == null).Count() > 0)
+                {
+                    getSFByCusId = getSFByCusId.Where(x => x.sfp.VehicleType == vehicleType && x.sfp.TripId == tripID);
+                }
+
+                if (getSFByCusId.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType == null && x.sfp.TripId == null && x.sfp.AreaId != null).Count() > 0)
+                {
+                    getSFByCusId = getSFByCusId.Where(x => x.sfp.VehicleType == vehicleType && x.sfp.AreaId == (getPlace == null ? null : getPlace.MaKhuVuc));
+                }
+
+                if (getSFByCusId.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType != null && x.sfp.TripId != null && x.sfp.AreaId == null).Count() > 0)
+                {
+                    getSFByCusId = getSFByCusId.Where(x => x.sfp.GoodsType == goodTypes && x.sfp.TripId == tripID);
+                }
+
+                if (getSFByCusId.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType != null && x.sfp.TripId == null && x.sfp.AreaId != null).Count() > 0)
+                {
+                    getSFByCusId = getSFByCusId.Where(x => x.sfp.AreaId == (getPlace == null ? null : getPlace.MaKhuVuc) && x.sfp.GoodsType == goodTypes);
+                }
+
+                if (getSFByCusId.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType == null && x.sfp.TripId != null && x.sfp.AreaId != null).Count() > 0)
+                {
+                    getSFByCusId = getSFByCusId.Where(x => x.sfp.TripId == tripID && x.sfp.AreaId == (getPlace == null ? null : getPlace.MaKhuVuc));
+                }
+                #endregion
+
+                #region case 3 by 3
+
+                if (getSFByCusId.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType != null && x.sfp.TripId != null && x.sfp.AreaId != null).Count() > 0)
+                {
+                    getSFByCusId = getSFByCusId.Where(x => x.sfp.GoodsType == goodTypes && x.sfp.AreaId == (getPlace == null ? null : getPlace.MaKhuVuc) && x.sfp.TripId == tripID);
+                }
+
+                if (getSFByCusId.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType != null && x.sfp.TripId != null && x.sfp.AreaId == null).Count() > 0)
+                {
+                    getSFByCusId = getSFByCusId.Where(x => x.sfp.VehicleType == vehicleType && x.sfp.GoodsType == goodTypes && x.sfp.TripId == tripID);
+                }
+
+                if (getSFByCusId.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType == null && x.sfp.TripId != null && x.sfp.AreaId != null).Count() > 0)
+                {
+                    getSFByCusId = getSFByCusId.Where(x => x.sfp.VehicleType == vehicleType && x.sfp.TripId == tripID && x.sfp.AreaId == (getPlace == null ? null : getPlace.MaKhuVuc));
+                }
+
+                if (getSFByCusId.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType != null && x.sfp.TripId == null && x.sfp.AreaId != null).Count() > 0)
+                {
+                    getSFByCusId = getSFByCusId.Where(x => x.sfp.GoodsType == goodTypes && x.sfp.AreaId == (getPlace == null ? null : getPlace.MaKhuVuc) && x.sfp.VehicleType == vehicleType);
+                }
+                #endregion
             }
 
-            if (listItemRemove.Count > 0)
-            {
-                foreach (var item in listItemRemove)
-                {
-                    getSFByCusType.Remove(item);
-                }
-            }
+            //var getSFByCusType = await _context.SubFeePrice.Where(x =>
+            //x.Status == 14
+            //&& x.CusType == getCus.MaLoaiKh
+            //&& x.ContractId == null
+            //&& ((x.GoodsType == goodTypes)
+            //|| (x.AreaId == (getPlace == null ? null : getPlace.MaKhuVuc))
+            //|| (x.TripId == tripID)
+            //|| (x.VehicleType == vehicleType)
+            //|| (x.GoodsType == null && x.AreaId == null && x.TripId == null && x.VehicleType == null))).ToListAsync();
 
-            var data = dataGetByCusId.Concat(getSFByCusType);
+            //var dataGetByCusId = await getSFByCusId.Select(x => x.sfp).ToListAsync();
+
+            //var listItemRemove = new List<SubFeePrice>();
+
+            //foreach (var item in getSFByCusType)
+            //{
+            //    if (dataGetByCusId.Where(x =>
+            //    x.CusType == item.CusType
+            //    && x.SfId == item.SfId
+            //    && x.GoodsType == item.GoodsType
+            //    && x.AreaId == item.AreaId
+            //    && x.VehicleType == item.VehicleType
+            //    && x.TripId == item.TripId).Count() > 0)
+            //    {
+            //        listItemRemove.Add(item);
+            //    }
+            //}
+
+            //if (listItemRemove.Count > 0)
+            //{
+            //    foreach (var item in listItemRemove)
+            //    {
+            //        getSFByCusType.Remove(item);
+            //    }
+            //}
+
+            //var data = dataGetByCusId.Concat(getSFByCusType);
 
             if (handlingId != null)
             {
@@ -459,7 +598,7 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
                 await _context.SaveChangesAsync();
             }
 
-            return data.ToList();
+            return await getSFByCusId.Select(x => x.sfp).ToListAsync();
         }
 
         public async Task<PagedResponseCustom<ListSubFeePriceRequest>> GetListSubFeePrice(PaginationFilter filter)
@@ -477,13 +616,15 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
                               from sfc in sfcc.DefaultIfEmpty()
                               join status in _context.StatusText
                               on sfp.Status equals status.StatusId
+                              join kh in _context.KhachHang
+                              on sfc.MaKh equals kh.MaKh
                               where status.LangId == tempData.LangID
                               orderby sfp.SfId descending
-                              select new { sfp, sf, sft, sfc, status };
+                              select new { sfp, sf, sft, sfc, status, kh };
 
                 if (!string.IsNullOrEmpty(filter.Keyword))
                 {
-                    getList = getList.Where(x => x.sfc.MaHopDong.Contains(filter.Keyword) || x.sfc.MaKh.Contains(filter.Keyword));
+                    getList = getList.Where(x => x.sfc.MaHopDong.Contains(filter.Keyword) || x.sfc.MaKh.Contains(filter.Keyword) || x.kh.TenKh.Contains(filter.Keyword));
                 }
 
                 if (filter.fromDate.HasValue && filter.toDate.HasValue)
@@ -504,8 +645,9 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
 
                 var pagedData = await getList.Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new ListSubFeePriceRequest()
                 {
+                    VehicleType = x.sfp.VehicleType,
                     PriceId = x.sfp.PriceId,
-                    CustomerName = x.sfc.MaKh,
+                    CustomerName = x.kh.TenKh,
                     ContractId = x.sfc.MaHopDong,
                     ContractName = x.sfc.TenHienThi,
                     GoodsType = _context.LoaiHangHoa.Where(y => y.MaLoaiHangHoa == x.sfp.GoodsType).Select(x => x.TenLoaiHangHoa).FirstOrDefault(),

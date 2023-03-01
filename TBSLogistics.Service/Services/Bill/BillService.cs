@@ -149,16 +149,15 @@ namespace TBSLogistics.Service.Services.Bill
                                        orderby vd.ThoiGianHoanThanh
                                        select new { kh, vd, cd };
 
-                var getListSubFeeByContract = from kh in _context.KhachHang
-                                              join hd in _context.HopDongVaPhuLuc
-                                              on kh.MaKh equals hd.MaKh
-                                              join sfPice in _context.SubFeePrice
-                                              on hd.MaHopDong equals sfPice.ContractId
-                                              join sf in _context.SubFee
-                                              on sfPice.SfId equals sf.SubFeeId
-                                              where sfPice.Status == 14
-                                              && kh.MaKh == customerId
-                                              select new { kh, hd, sfPice, sf };
+                var getSFbyContract = from sfc in _context.SubFeeByContract
+                                      join sfp in _context.SubFeePrice
+                                      on sfc.PriceId equals sfp.PriceId
+                                      join sf in _context.SubFee
+                                      on sfp.SfId equals sf.SubFeeId
+                                      join ct in _context.HopDongVaPhuLuc
+                                      on sfp.ContractId equals ct.MaHopDong into ctp
+                                      from ctsf in ctp.DefaultIfEmpty()
+                                      select new { sfc, sfp, sf, ctsf };
 
                 var getListTransport = await getDataTransport.Where(x => x.vd.MaVanDon == transportId).Select(z => new ListVanDon()
                 {
@@ -188,20 +187,15 @@ namespace TBSLogistics.Service.Services.Bill
                         KhoiLuong = x.KhoiLuong,
                         TheTich = x.TheTich,
                         SoKien = x.SoKien,
-                        listSubFeeByContract = getListSubFeeByContract.Where(y =>
-                           (y.sfPice.GoodsType == x.MaLoaiHangHoa)
-                        || (y.sfPice.TripId == z.cd.MaCungDuong)
-                        || (y.sfPice.AreaId == _context.DiaDiem.Where(o => o.MaDiaDiem == x.DiemLayTraRong).Select(o => o.MaKhuVuc).FirstOrDefault())
-                        || (y.sfPice.GoodsType == null && y.sfPice.TripId == null && y.sfPice.AreaId == null)
-                        ).OrderBy(x => x.sfPice).Select(x => new ListSubFeeByContract()
+                        listSubFeeByContract = getSFbyContract.Where(y => y.sfc.MaDieuPhoi == x.Id).Select(x => new ListSubFeeByContract()
                         {
-                            ContractId = x.hd.MaHopDong,
-                            ContractName = x.hd.TenHienThi,
+                            ContractId = x.ctsf.MaHopDong,
+                            ContractName = x.ctsf.TenHienThi,
                             sfName = x.sf.SfName,
-                            goodsType = x.sfPice.GoodsType,
-                            TripName = _context.CungDuong.Where(y => y.MaCungDuong == x.sfPice.TripId).Select(x => x.TenCungDuong).FirstOrDefault(),
-                            AreaName = _context.KhuVuc.Where(y => y.Id == x.sfPice.AreaId).Select(x => x.TenKhuVuc).FirstOrDefault(),
-                            unitPrice = x.sfPice.Price
+                            goodsType = x.sfp.GoodsType,
+                            TripName = _context.CungDuong.Where(y => y.MaCungDuong == x.sfp.TripId).Select(x => x.TenCungDuong).FirstOrDefault(),
+                            AreaName = _context.KhuVuc.Where(y => y.Id == x.sfp.AreaId).Select(x => x.TenKhuVuc).FirstOrDefault(),
+                            unitPrice = x.sfp.Price
                         }).ToList(),
                         listSubFeeIncurreds = _context.SfeeByTcommand.Where(y => y.IdTcommand == x.Id && y.ApproveStatus == 14).OrderBy(x => x.Id).Select(x => new ListSubFeeIncurred()
                         {
@@ -336,15 +330,11 @@ namespace TBSLogistics.Service.Services.Bill
                                   where dp.TrangThai == 20
                                   select new { dp, vd, cd };
 
-            var getListSubFeeByContract = from kh in _context.KhachHang
-                                          join hd in _context.HopDongVaPhuLuc
-                                          on kh.MaKh equals hd.MaKh
-                                          join sfPice in _context.SubFeePrice
-                                          on hd.MaHopDong equals sfPice.ContractId
-                                          join sf in _context.SubFee
-                                          on sfPice.SfId equals sf.SubFeeId
-                                          where sfPice.Status == 14
-                                          select new { kh, hd, sfPice, sf };
+            var getSFbyContract = from sfc in _context.SubFeeByContract
+                                  join sfp in _context.SubFeePrice
+                                  on sfc.PriceId equals sfp.PriceId
+                                  select new { sfc, sfp };
+
 
             if (!string.IsNullOrEmpty(filter.Keyword))
             {
@@ -379,13 +369,8 @@ namespace TBSLogistics.Service.Services.Bill
                 DonGiaKH = x.dp.DonGiaKh,
                 DonGiaNCC = x.dp.DonGiaNcc,
                 LoiNhuan = x.dp.DonGiaKh.Value - x.dp.DonGiaNcc.Value,
-                ChiPhiHopDong = (decimal)getListSubFeeByContract.Where(y => y.kh.MaKh == x.vd.MaKh &&
-                ((y.sfPice.GoodsType == x.dp.MaLoaiHangHoa)
-                        || (y.sfPice.AreaId == _context.DiaDiem.Where(o => o.MaDiaDiem == x.dp.DiemLayTraRong).Select(o => o.MaKhuVuc).FirstOrDefault())
-                        || (y.sfPice.TripId == x.cd.MaCungDuong)
-                        || (y.sfPice.GoodsType == null && y.sfPice.TripId == null && y.sfPice.AreaId == null))
-                ).Sum(y => y.sfPice.Price),
-                ChiPhiPhatSinh = ((decimal)_context.SfeeByTcommand.Where(y => y.IdTcommand == x.dp.Id && y.ApproveStatus == 14).Sum(y => y.Price)),
+                ChiPhiHopDong = (decimal)getSFbyContract.Where(y => y.sfc.MaDieuPhoi == x.dp.Id).Sum(y => y.sfp.Price),
+                ChiPhiPhatSinh = (decimal)_context.SfeeByTcommand.Where(y => y.IdTcommand == x.dp.Id && y.ApproveStatus == 14).Sum(y => y.Price),
             }).Select(x => new ListBillHandling()
             {
                 MaPTVC = x.MaPTVC,

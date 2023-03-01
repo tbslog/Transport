@@ -51,11 +51,11 @@ namespace TBSLogistics.ApplicationAPI
             {
                 option.AddPolicy(name: apiCorsPolicy, policy =>
                  {
-                     policy.WithOrigins("http://localhost:3000", "http://localhost:8888", "https://tms.tbslogistics.com.vn").AllowAnyMethod().AllowAnyHeader();
+                     policy.WithOrigins("http://localhost:3000", "http://192.168.0.84:7777", "https://tms.tbslogistics.com.vn").AllowAnyMethod().AllowAnyHeader();
                  });
             });
 
-            services.AddDbContext<TMSContext>(options => options.UseSqlServer(Configuration["TMS_Cloud"]));
+            services.AddDbContext<TMSContext>(options => options.UseSqlServer(Configuration["TMS_Local"]));
             services.AddHttpContextAccessor();
             services.AddSingleton<IPaginationService>(o =>
             {

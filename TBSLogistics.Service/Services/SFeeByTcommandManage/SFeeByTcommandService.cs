@@ -47,13 +47,13 @@ namespace TBSLogistics.Service.Services.SFeeByTcommandManage
                     string ErrorValidate = await Validate(i.IdTcommand, i.SfId, i.SfPriceId, i.Price, i.FinalPrice);
                     if (ErrorValidate != "")
                     {
-                        IdListFail.Add(" Bản Ghi:" + i.IdTcommand + " -" + i.SfId + " -" + i.SfPriceId + " -" + i.Price + " -" + i.FinalPrice + " </br>" + ErrorValidate + " </br>");
+                        IdListFail.Add(" Bản Ghi:" + i.IdTcommand + " -" + i.SfId + " -" + i.SfPriceId + " -" + i.Price + " -" + i.FinalPrice + ErrorValidate);
                         continue;
                     }
                     var checkSFeeByTcommand = await _context.SfeeByTcommand.Where(x => x.IdTcommand == i.IdTcommand && x.SfId == i.SfId && x.ApproveStatus == 13).FirstOrDefaultAsync();
                     if (checkSFeeByTcommand != null)
                     {
-                        IdListFail.Add(" Phụ phí " + await _context.SubFee.Where(x => x.SubFeeId == i.SfId).Select(x => x.SfName).FirstOrDefaultAsync() + " đã tồn tại và đang chờ duyệt </br>");
+                        IdListFail.Add(" Phụ phí " + await _context.SubFee.Where(x => x.SubFeeId == i.SfId).Select(x => x.SfName).FirstOrDefaultAsync() + " đã tồn tại và đang chờ duyệt");
                         continue;
                     }
                     await _context.AddAsync(new SfeeByTcommand()
@@ -72,11 +72,11 @@ namespace TBSLogistics.Service.Services.SFeeByTcommandManage
                 if (result1 > 0)
                 {
                     await _common.Log("SFeeByTcommandManage", "UserId: " + tempData.UserName + " create new SFeeByTcommand with Data: " + JsonSerializer.Serialize(request));
-                    return new BoolActionResult { isSuccess = true, Message = "Thêm phụ phí phát sinh thành công! </br>" + (IdListFail.Count == 0 ? "" : string.Join(",", IdListFail)) };
+                    return new BoolActionResult { isSuccess = true, Message = "Thêm phụ phí phát sinh thành công! " + (IdListFail.Count == 0 ? "" : string.Join(",", IdListFail)) };
                 }
                 else
                 {
-                    return new BoolActionResult { isSuccess = false, Message = "Thêm phụ phí phát sinh thất bại!  </br>" + (IdListFail.Count == 0 ? "" : string.Join(",", IdListFail)) };
+                    return new BoolActionResult { isSuccess = false, Message = "Thêm phụ phí phát sinh thất bại!  " + (IdListFail.Count == 0 ? "" : string.Join(",", IdListFail)) };
                 }
             }
             catch (Exception ex)
@@ -116,18 +116,18 @@ namespace TBSLogistics.Service.Services.SFeeByTcommandManage
             var checkSubFeeId = await _context.SubFee.Where(x => x.SubFeeId == SfId).FirstOrDefaultAsync();
             if (checkSubFeeId == null)
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã Phụ Phí: " + SfId + " không tồn tại </br>";
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã Phụ Phí: " + SfId + " không tồn tại ";
             }
 
             var checkIdTcommand = await _context.DieuPhoi.Where(x => x.Id == IdTcommand).FirstOrDefaultAsync();
             if (checkIdTcommand == null)
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã Điều Phối: " + IdTcommand + " không tồn tại </br>";
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã Điều Phối: " + IdTcommand + " không tồn tại ";
             }
 
             if (!Regex.IsMatch(FinalPrice.ToString(), "^\\d*(\\.\\d+)?$"))
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Giá: " + FinalPrice + " Phải là số và không được Âm (-) ! </br>";
+                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Giá: " + FinalPrice + " Phải là số và không được Âm (-) ! ";
             }
             return ErrorValidate;
         }
