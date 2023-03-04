@@ -1,5 +1,6 @@
 import { useMemo, useState, useEffect, useCallback, useRef } from "react";
 import { getData, postData, getFileImage } from "../Common/FuncAxios";
+import { useForm, Controller, useFieldArray } from "react-hook-form";
 import DataTable from "react-data-table-component";
 import moment from "moment";
 import Lightbox from "react-awesome-lightbox";
@@ -9,6 +10,19 @@ import Cookies from "js-cookie";
 const HandlingImage = (props) => {
   const { dataClick, checkModal } = props;
   const accountType = Cookies.get("AccType");
+
+  const {
+    register,
+    reset,
+    setValue,
+    control,
+    getValues,
+    validate,
+    formState: { errors },
+    handleSubmit,
+  } = useForm({
+    mode: "onChange",
+  });
 
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -26,6 +40,27 @@ const HandlingImage = (props) => {
     if (del === 1) {
       let datafilter = data.filter((x) => x.id !== fileId);
       setData(datafilter);
+    }
+  };
+
+  const handleOnChangeName = (rowId, newName) => {
+    setValue(`ImageName${rowId}`, newName);
+  };
+
+  const LoadNameImage = (row) => {
+    setValue(`ImageName${row.id}`, row.fileName);
+  };
+
+  const handleOnSave = async (rowId) => {
+    let newName = getValues(`ImageName${rowId}`);
+
+    if (newName && newName.length > 0) {
+      const changeName = await postData(
+        `BillOfLading/ChangeImageName?id=${rowId}&newName=${newName}`
+      );
+
+      if (changeName === 1) {
+      }
     }
   };
 
@@ -72,7 +107,30 @@ const HandlingImage = (props) => {
     },
     {
       //   name: "Tên Hình",
-      selector: (row) => row.fileName,
+      selector: (row) => (
+        <div className="row">
+          <div className="col-sm">
+            <input
+              autoComplete="false"
+              type="text"
+              className="form-control"
+              id="ImageName"
+              {...register(`ImageName${row.id}`)}
+              onLoad={LoadNameImage(row)}
+              onChange={(e) => handleOnChangeName(row.id, e.target.value)}
+            />
+          </div>
+          <div className="col-sm">
+            <button
+              type="button"
+              onClick={() => handleOnSave(row.id)}
+              className="btn-sm mx-1"
+            >
+              <i className="fas fa-check"></i>
+            </button>
+          </div>
+        </div>
+      ),
       sortable: true,
     },
     {
@@ -145,6 +203,8 @@ const HandlingImage = (props) => {
                 data={data}
                 progressPending={loading}
                 highlightOnHover
+                fixedHeader
+                fixedHeaderScrollHeight="60vh"
               />
             </div>
           </div>

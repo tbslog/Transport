@@ -382,7 +382,7 @@ const CreateTransportLess = (props) => {
 
                 <div className="col col-sm">
                   <div className="form-group">
-                    <label htmlFor="MaVDKH">Mã Vận Đơn Của Khách Hàng</label>
+                    <label htmlFor="MaVDKH">Mã Vận Đơn KH/Booking No(*)</label>
                     <input
                       autoComplete="false"
                       type="text"

@@ -4,6 +4,7 @@ import { useForm, Controller } from "react-hook-form";
 import Select from "react-select";
 import DatePicker from "react-datepicker";
 import LoadingPage from "../Common/Loading/LoadingPage";
+import moment from "moment/moment";
 
 const CreateDriver = (props) => {
   const { getListDriver, listStatus } = props;
@@ -22,14 +23,14 @@ const CreateDriver = (props) => {
   const Validate = {
     MaTaiXe: {
       required: "Không được để trống",
-      maxLength: {
-        value: 10,
-        message: "Không được vượt quá 12 ký tự",
-      },
-      minLength: {
-        value: 10,
-        message: "Không được ít hơn 12 ký tự",
-      },
+      // maxLength: {
+      //   value: 10,
+      //   message: "Không được vượt quá 10 ký tự",
+      // },
+      // minLength: {
+      //   value: 10,
+      //   message: "Không được ít hơn 10 ký tự",
+      // },
       pattern: {
         value: /^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9]+(?<![_.])$/,
         message: "Không được chứa ký tự đặc biệt",
@@ -45,11 +46,11 @@ const CreateDriver = (props) => {
         value: 1,
         message: "Không được ít hơn 1 ký tự",
       },
-      pattern: {
-        value:
-          /^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9 -,aAàÀảẢãÃáÁạẠăĂằẰẳẲẵẴắẮặẶâÂầẦẩẨẫẪấẤậẬbBcCdDđĐeEèÈẻẺẽẼéÉẹẸêÊềỀểỂễỄếẾệỆ fFgGhHiIìÌỉỈĩĨíÍịỊjJkKlLmMnNoOòÒỏỎõÕóÓọỌôÔồỒổỔỗỖốỐộỘơƠờỜởỞỡỠớỚợỢpPqQrRsStTu UùÙủỦũŨúÚụỤưƯừỪửỬữỮứỨựỰvVwWxXyYỳỲỷỶỹỸýÝỵỴzZ]+(?<![_.])$/,
-        message: "Tên khách hàng không được chứa ký tự đặc biệt",
-      },
+      // pattern: {
+      //   value:
+      //     /^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9 -,aAàÀảẢãÃáÁạẠăĂằẰẳẲẵẴắẮặẶâÂầẦẩẨẫẪấẤậẬbBcCdDđĐeEèÈẻẺẽẼéÉẹẸêÊềỀểỂễỄếẾệỆ fFgGhHiIìÌỉỈĩĨíÍịỊjJkKlLmMnNoOòÒỏỎõÕóÓọỌôÔồỒổỔỗỖốỐộỘơƠờỜởỞỡỠớỚợỢpPqQrRsStTu UùÙủỦũŨúÚụỤưƯừỪửỬữỮứỨựỰvVwWxXyYỳỲỷỶỹỸýÝỵỴzZ]+(?<![_.])$/,
+      //   message: "Tên khách hàng không được chứa ký tự đặc biệt",
+      // },
     },
     SoDienThoai: {
       required: "Không được để trống",
@@ -122,7 +123,9 @@ const CreateDriver = (props) => {
       cccd: data.CCCD,
       hoVaTen: data.TenTaiXe,
       soDienThoai: data.SoDienThoai,
-      ngaySinh: new Date(data.NgaySinh).toISOString(),
+      ngaySinh: moment(new Date(data.NgaySinh).toISOString()).format(
+        "YYYY-MM-DD"
+      ),
       ghiChu: data.GhiChu,
       maNhaCC: data.NCC.value,
       TaiXeTBS: false,

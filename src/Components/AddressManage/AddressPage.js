@@ -259,6 +259,8 @@ const AddressPage = () => {
                 striped
                 direction="auto"
                 responsive
+                fixedHeader
+                fixedHeaderScrollHeight="60vh"
               />
             </div>
           </div>

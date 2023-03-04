@@ -268,6 +268,8 @@ const HandlingPageNew = () => {
   const [toDate, setToDate] = useState("");
   const [listCustomer, setListCustomer] = useState([]);
   const [listCusSelected, setListCusSelected] = useState([]);
+  const [listUsers, setListUsers] = useState([]);
+  const [listUserSelected, setListUserSelected] = useState([]);
 
   const [selectedRows, setSelectedRows] = useState([]);
   const [toggledClearRows, setToggleClearRows] = useState(false);
@@ -329,6 +331,15 @@ const HandlingPageNew = () => {
 
   useEffect(() => {
     (async () => {
+      let getlistUser = await getData(`Common/GetListUser`);
+      if (getlistUser && getlistUser.length > 0) {
+        let arrUser = [];
+        getlistUser.forEach((val) => {
+          arrUser.push({ label: val.name, value: val.userName });
+        });
+        setListUsers(arrUser);
+      }
+
       let getListCustomer = await getData(`Customer/GetListCustomerFilter`);
       if (getListCustomer && getListCustomer.length > 0) {
         let arrKh = [];
@@ -357,16 +368,22 @@ const HandlingPageNew = () => {
     fromDate = "",
     toDate = "",
     status = "",
-    listCusSelected = []
+    listCusSelected = [],
+    listUserSelected = []
   ) => {
     setLoading(true);
 
     fromDate = !fromDate ? "" : moment(fromDate).format("YYYY-MM-DD");
     toDate = !toDate ? "" : moment(toDate).format("YYYY-MM-DD");
 
+    let listFilter = {
+      customers: listCusSelected,
+      users: listUserSelected,
+    };
+
     const data = await getDataCustom(
       `BillOfLading/GetListHandlingLess?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}&fromDate=${fromDate}&toDate=${toDate}&statusId=${status}`,
-      listCusSelected
+      listFilter
     );
 
     setData(data.data);
@@ -375,20 +392,41 @@ const HandlingPageNew = () => {
   };
 
   const refeshData = () => {
-    fetchData(page, keySearch, fromDate, toDate, status, listCusSelected);
+    fetchData(
+      page,
+      keySearch,
+      fromDate,
+      toDate,
+      status,
+      listCusSelected,
+      listUserSelected
+    );
   };
 
   const handlePageChange = async (page) => {
     setPage(page);
-    fetchData(page, keySearch, fromDate, toDate, status, listCusSelected);
+    fetchData(
+      page,
+      keySearch,
+      fromDate,
+      toDate,
+      status,
+      listCusSelected,
+      listUserSelected
+    );
   };
 
   const handlePerRowsChange = async (newPerPage, page) => {
     setLoading(true);
 
+    let listFilter = {
+      customers: listCusSelected,
+      users: listUserSelected,
+    };
+
     const data = await getDataCustom(
       `BillOfLading/GetListHandlingLess?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}&fromDate=${fromDate}&toDate=${toDate}&statusId=${status}`,
-      listCusSelected
+      listFilter
     );
 
     setData(data.data);
@@ -490,12 +528,28 @@ const HandlingPageNew = () => {
   };
 
   const handleSearchClick = () => {
-    fetchData(1, keySearch, fromDate, toDate, status, listCusSelected);
+    fetchData(
+      1,
+      keySearch,
+      fromDate,
+      toDate,
+      status,
+      listCusSelected,
+      listUserSelected
+    );
   };
 
   const handleOnChangeStatus = (val) => {
     setStatus(val);
-    fetchData(1, keySearch, fromDate, toDate, val, listCusSelected);
+    fetchData(
+      1,
+      keySearch,
+      fromDate,
+      toDate,
+      val,
+      listCusSelected,
+      listUserSelected
+    );
   };
 
   const handleRefeshDataClick = () => {
@@ -505,6 +559,8 @@ const HandlingPageNew = () => {
     setStatus("");
     setListCusSelected([]);
     setValue("listCustomers", []);
+    setListUserSelected([]);
+    setValue("listUsers", []);
     fetchData(1);
   };
 
@@ -514,21 +570,47 @@ const HandlingPageNew = () => {
     setItemSelected([]);
   };
 
-  const handleOnChangeCustomer = (values) => {
-    if (values && values.length > 0) {
-      setLoading(true);
-      setValue("listCustomers", values);
+  const handleOnChangeFilterSelect = async (values, type) => {
+    if (values) {
       let arrCus = [];
-      values.map((val) => {
-        arrCus.push(val.value);
-      });
+      let arrUsr = [];
 
-      fetchData(page, keySearch, fromDate, toDate, status, arrCus);
-      setLoading(false);
-    } else {
-      setListCusSelected([]);
-      setValue("listCustomers", []);
-      fetchData(page, keySearch, fromDate, toDate, status, []);
+      if (type === "customers") {
+        setValue("listCustomers", values);
+
+        values.forEach((val) => {
+          arrCus.push(val.value);
+        });
+
+        setListCusSelected(arrCus);
+      } else {
+        listCusSelected.forEach((val) => {
+          arrCus.push(val);
+        });
+      }
+
+      if (type === "users") {
+        setValue("listUsers", values);
+
+        values.forEach((val) => {
+          arrUsr.push(val.value);
+        });
+        setListUserSelected(arrUsr);
+      } else {
+        listUserSelected.forEach((val) => {
+          arrUsr.push(val);
+        });
+      }
+
+      await fetchData(
+        page,
+        keySearch,
+        fromDate,
+        toDate,
+        status,
+        arrCus,
+        arrUsr
+      );
     }
   };
 
@@ -731,6 +813,29 @@ const HandlingPageNew = () => {
                 <div className="col col-sm">
                   <div className="form-group">
                     <Controller
+                      name="listUsers"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          className="basic-multi-select"
+                          classNamePrefix={"form-control"}
+                          isMulti
+                          value={field.value}
+                          options={listUsers}
+                          styles={customStyles}
+                          onChange={(field) =>
+                            handleOnChangeFilterSelect(field, "users")
+                          }
+                          placeholder="Chọn Users"
+                        />
+                      )}
+                    />
+                  </div>
+                </div>
+                <div className="col col-sm">
+                  <div className="form-group">
+                    <Controller
                       name="listCustomers"
                       control={control}
                       render={({ field }) => (
@@ -742,7 +847,9 @@ const HandlingPageNew = () => {
                           value={field.value}
                           options={listCustomer}
                           styles={customStyles}
-                          onChange={(field) => handleOnChangeCustomer(field)}
+                          onChange={(field) =>
+                            handleOnChangeFilterSelect(field, "customers")
+                          }
                           placeholder="Chọn Khách Hàng"
                         />
                       )}
@@ -851,6 +958,8 @@ const HandlingPageNew = () => {
                 selectableRows
                 highlightOnHover
                 striped
+                fixedHeader
+                fixedHeaderScrollHeight="60vh"
               />
             </div>
           </div>

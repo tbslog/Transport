@@ -4,9 +4,9 @@ import Cookies from "js-cookie";
 import jwt_decode from "jwt-decode";
 import { Buffer } from "buffer";
 
-const Host = "https://api.tbslogistics.com.vn/api/";
-//const Host = "http://192.168.0.84:8088/api/";
-//const Host = "https://localhost:5001/api/";
+//const Host = "https://api.tbslogistics.com.vn/api/";
+//const Host = "http://192.168.0.109:8088/api/";
+const Host = "https://localhost:5001/api/";
 
 axios.interceptors.request.use(
   (config) => {

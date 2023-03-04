@@ -44,20 +44,20 @@ const UpdateHandling = (props) => {
       },
     },
     maTaiXe: {
-      required: "Không được để trống",
-      validate: (val) => {
-        if (!val.value) {
-          return "Không được để trống";
-        }
-      },
+      // required: "Không được để trống",
+      // validate: (val) => {
+      //   if (!val.value) {
+      //     return "Không được để trống";
+      //   }
+      // },
     },
     maSoXe: {
-      required: "Không được để trống",
-      validate: (val) => {
-        if (!val.value) {
-          return "Không được để trống";
-        }
-      },
+      // required: "Không được để trống",
+      // validate: (val) => {
+      //   if (!val.value) {
+      //     return "Không được để trống";
+      //   }
+      // },
     },
     diemLayRong: {
       required: "Không được để trống",
@@ -73,24 +73,24 @@ const UpdateHandling = (props) => {
         message: "Mã CONT NO không đúng, Phải viết HOA",
       },
     },
-    SEALHQ: {
-      pattern: {
-        value: /^(?![_.])(?![_.])(?!.*[_.]{2})[A-Z0-9 ]+(?<![_.])$/,
-        message: "Không được chứa ký tự đặc biệt, phải viết hoa",
-      },
-    },
-    SEALHT: {
-      pattern: {
-        value: /^(?![_.])(?![_.])(?!.*[_.]{2})[A-Z0-9 ]+(?<![_.])$/,
-        message: "Không được chứa ký tự đặc biệt, phải viết hoa",
-      },
-    },
-    SEALNP: {
-      pattern: {
-        value: /^(?![_.])(?![_.])(?!.*[_.]{2})[A-Z0-9 ]+(?<![_.])$/,
-        message: "Không được chứa ký tự đặc biệt, phải viết hoa",
-      },
-    },
+    // SEALHQ: {
+    //   pattern: {
+    //     value: /^(?![_.])(?![_.])(?!.*[_.]{2})[A-Z0-9 ]+(?<![_.])$/,
+    //     message: "Không được chứa ký tự đặc biệt, phải viết hoa",
+    //   },
+    // },
+    // SEALHT: {
+    //   pattern: {
+    //     value: /^(?![_.])(?![_.])(?!.*[_.]{2})[A-Z0-9 ]+(?<![_.])$/,
+    //     message: "Không được chứa ký tự đặc biệt, phải viết hoa",
+    //   },
+    // },
+    // SEALNP: {
+    //   pattern: {
+    //     value: /^(?![_.])(?![_.])(?!.*[_.]{2})[A-Z0-9 ]+(?<![_.])$/,
+    //     message: "Không được chứa ký tự đặc biệt, phải viết hoa",
+    //   },
+    // },
     KhoiLuong: {
       pattern: {
         value:
@@ -183,6 +183,7 @@ const UpdateHandling = (props) => {
 
         if (getDataHandling.listTaiXe && getDataHandling.listTaiXe.length > 0) {
           let arr = [];
+          arr.push({ label: "-- Rỗng --", value: "" });
           getDataHandling.listTaiXe.map((val) => {
             arr.push({
               label: val.maTaiXe + " - " + val.tenTaiXe,
@@ -197,6 +198,7 @@ const UpdateHandling = (props) => {
           getDataHandling.listRomooc.length > 0
         ) {
           let arr = [];
+          arr.push({ label: "-- Rỗng --", value: "" });
           getDataHandling.listRomooc.map((val) => {
             arr.push({
               label: val.maRomooc + " - " + val.tenLoaiRomooc,
@@ -227,6 +229,7 @@ const UpdateHandling = (props) => {
         let listVehicle = await getData("Vehicle/GetListVehicleSelect");
         if (listVehicle && listVehicle.length > 0) {
           let arr = [];
+          arr.push({ label: "-- Rỗng --", value: "" });
           listVehicle.map((val) => {
             arr.push({
               label: val.text,
@@ -402,9 +405,17 @@ const UpdateHandling = (props) => {
       LoaiHangHoa: data.LoaiHangHoa,
       DonViTinh: "CHUYEN",
       DiemLayTraRong: !data.DiemLayTraRong ? null : data.DiemLayTraRong.value,
-      MaSoXe: data.XeVanChuyen.value,
-      MaTaiXe: data.TaiXe.value,
-      MaRomooc: !data.Romooc ? null : data.Romooc.value,
+      MaSoXe: !data.XeVanChuyen
+        ? null
+        : !data.XeVanChuyen.value
+        ? null
+        : data.XeVanChuyen.value,
+      MaTaiXe: !data.TaiXe ? null : !data.TaiXe.value ? null : data.TaiXe.value,
+      MaRomooc: !data.Romooc
+        ? null
+        : !data.Romooc.value
+        ? null
+        : data.TaiXe.value,
       ContNo: data.CONTNO,
       SealNp: data.SEALNP,
       SealHq: data.SEALHQ,
@@ -505,7 +516,7 @@ const UpdateHandling = (props) => {
                 </div>
                 <div className="col col-sm">
                   <div className="form-group">
-                    <label htmlFor="CungDuong">Điểm Lấy Hàng(*)</label>
+                    <label htmlFor="CungDuong">Điểm Đóng Hàng(*)</label>
                     <input
                       autoComplete="false"
                       type="text"
@@ -518,7 +529,7 @@ const UpdateHandling = (props) => {
                 </div>
                 <div className="col col-sm">
                   <div className="form-group">
-                    <label htmlFor="CungDuong">Điểm Trả Hàng(*)</label>
+                    <label htmlFor="CungDuong">Điểm Hạ Hàng(*)</label>
                     <input
                       autoComplete="false"
                       type="text"
@@ -903,7 +914,7 @@ const UpdateHandling = (props) => {
                 </div>
                 <div className="col col-sm">
                   <div className="form-group">
-                    <label htmlFor="TheTich">Thể tích</label>
+                    <label htmlFor="TheTich">Số Khối</label>
                     <input
                       autoComplete="false"
                       type="text"
@@ -946,7 +957,7 @@ const UpdateHandling = (props) => {
               <div className="row">
                 <div className="col col-sm">
                   <div className="form-group">
-                    <label htmlFor="XeVanChuyen">Xe Vận Chuyển(*)</label>
+                    <label htmlFor="XeVanChuyen">Xe Vận Chuyển</label>
                     <Controller
                       name={`XeVanChuyen`}
                       control={control}
@@ -969,7 +980,7 @@ const UpdateHandling = (props) => {
                 </div>
                 <div className="col col-sm">
                   <div className="form-group">
-                    <label htmlFor="TaiXe">Tài Xế(*)</label>
+                    <label htmlFor="TaiXe">Tài Xế</label>
                     <Controller
                       name={`TaiXe`}
                       control={control}
@@ -1020,62 +1031,81 @@ const UpdateHandling = (props) => {
               </div>
               <div className="row">
                 {watch(`PTVanChuyen`) &&
-                  watch(`PTVanChuyen`).includes("CONT") && (
-                    <>
-                      <div className="col col-sm">
-                        <div className="form-group">
-                          <label htmlFor="CONTNO">CONT NO(*)</label>
-                          <input
-                            autoComplete="false"
-                            type="text"
-                            className="form-control"
-                            id="CONTNO"
-                            {...register(`CONTNO`, Validate.CONTNO)}
-                          />
-                          {errors.CONTNO && (
-                            <span className="text-danger">
-                              {errors.CONTNO.message}
-                            </span>
-                          )}
-                        </div>
+                watch(`PTVanChuyen`).includes("CONT") ? (
+                  <>
+                    <div className="col col-sm">
+                      <div className="form-group">
+                        <label htmlFor="CONTNO">CONT NO(*)</label>
+                        <input
+                          autoComplete="false"
+                          type="text"
+                          className="form-control"
+                          id="CONTNO"
+                          {...register(`CONTNO`, Validate.CONTNO)}
+                        />
+                        {errors.CONTNO && (
+                          <span className="text-danger">
+                            {errors.CONTNO.message}
+                          </span>
+                        )}
                       </div>
-                      <div className="col col-sm">
-                        <div className="form-group">
-                          <label htmlFor="SEALHQ">SEAL HQ</label>
-                          <input
-                            autoComplete="false"
-                            type="text"
-                            className="form-control"
-                            id="SEALHQ"
-                            {...register(`SEALHQ`, Validate.SEALHQ)}
-                          />
-                          {errors.SEALHQ && (
-                            <span className="text-danger">
-                              {errors.SEALHQ.message}
-                            </span>
-                          )}
-                        </div>
+                    </div>
+                    <div className="col col-sm">
+                      <div className="form-group">
+                        <label htmlFor="SEALNP">SEAL NP/Hãng Tàu</label>
+                        <input
+                          autoComplete="false"
+                          type="text"
+                          className="form-control"
+                          id="SEALNP"
+                          {...register(`SEALNP`, Validate.SEALNP)}
+                        />
+                        {errors.SEALNP && (
+                          <span className="text-danger">
+                            {errors.SEALNP.message}
+                          </span>
+                        )}
                       </div>
-                    </>
-                  )}
-
-                <div className="col col-sm">
-                  <div className="form-group">
-                    <label htmlFor="SEALNP">SEAL NP</label>
-                    <input
-                      autoComplete="false"
-                      type="text"
-                      className="form-control"
-                      id="SEALNP"
-                      {...register(`SEALNP`, Validate.SEALNP)}
-                    />
-                    {errors.SEALNP && (
-                      <span className="text-danger">
-                        {errors.SEALNP.message}
-                      </span>
-                    )}
-                  </div>
-                </div>
+                    </div>
+                    <div className="col col-sm">
+                      <div className="form-group">
+                        <label htmlFor="SEALHQ">SEAL HQ</label>
+                        <input
+                          autoComplete="false"
+                          type="text"
+                          className="form-control"
+                          id="SEALHQ"
+                          {...register(`SEALHQ`, Validate.SEALHQ)}
+                        />
+                        {errors.SEALHQ && (
+                          <span className="text-danger">
+                            {errors.SEALHQ.message}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="col col-sm">
+                      <div className="form-group">
+                        <label htmlFor="SEALNP">SEAL NP</label>
+                        <input
+                          autoComplete="false"
+                          type="text"
+                          className="form-control"
+                          id="SEALNP"
+                          {...register(`SEALNP`, Validate.SEALNP)}
+                        />
+                        {errors.SEALNP && (
+                          <span className="text-danger">
+                            {errors.SEALNP.message}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
 
               <div className="row">
@@ -1144,12 +1174,12 @@ const UpdateHandling = (props) => {
                         <div className="form-group">
                           {transportType && transportType === "xuat" && (
                             <label htmlFor="TGLayTraRongThucTe">
-                              Thời Gian Lấy Rỗng Thực Tế(*)
+                              Thời Gian Lấy Rỗng Thực Tế
                             </label>
                           )}
                           {transportType && transportType === "nhap" && (
                             <label htmlFor="TGLayTraRongThucTe">
-                              Thời Gian Trả Rỗng Thực Tế(*)
+                              Thời Gian Trả Rỗng Thực Tế
                             </label>
                           )}
 
@@ -1211,7 +1241,7 @@ const UpdateHandling = (props) => {
                           <div className="col col-sm">
                             <div className="form-group">
                               <label htmlFor="TGCoMatThucTe">
-                                Thời Gian Có Mặt Thực Tế(*)
+                                Thời Gian Có Mặt Thực Tế
                               </label>
                               <div className="input-group ">
                                 <Controller

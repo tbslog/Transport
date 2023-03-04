@@ -3,11 +3,7 @@ import background from "../../Image/background/background.jpg";
 const HomePage = () => {
   return (
     <>
-      <div
-        className="content-wrapper iframe-mode"
-        data-widget="iframe"
-        style={{ height: "395px" }}
-      >
+      <div className="content-wrapper iframe-mode" data-widget="iframe">
         <div className="tab-content">
           <div
             className="tab-empty"
@@ -15,12 +11,12 @@ const HomePage = () => {
               backgroundImage: `url(${background})`,
               backgroundRepeat: "no-repeat",
               backgroundSize: "cover",
-              height: "100vh",
+              height: "93.9vh",
             }}
           >
             <div
               style={{
-                top: "6%",
+                top: "2%",
                 position: "absolute",
                 fontSize: "50px",
                 fontWeight: "bold",
@@ -32,7 +28,7 @@ const HomePage = () => {
             <div
               style={{
                 position: "absolute",
-                top: "12%",
+                top: "10%",
                 fontSize: "45PX",
                 fontWeight: "bold",
                 color: "rgb(235 125 76 / 70%)",

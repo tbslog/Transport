@@ -48,10 +48,7 @@ const Header = () => {
 
   return (
     <>
-      <nav
-        className="main-header navbar navbar-expand-md navbar-light navbar-white"
-        style={{ position: "fixed", width: "100%", top: "0" }}
-      >
+      <nav className="main-header navbar navbar-expand-md navbar-light navbar-white">
         <div className="container" style={{ maxWidth: "100%" }}>
           <Link to="/" className="navbar-brand">
             <img

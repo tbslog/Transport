@@ -140,6 +140,7 @@ const CreateTransport = (props) => {
   const [listVehicleType, setlistVehicleType] = useState([]);
   const [listGoodsType, setListGoodsType] = useState([]);
   const [listPoint, setListPoint] = useState([]);
+  const [listShipping, setListShipping] = useState([]);
 
   useEffect(() => {
     SetIsLoading(true);
@@ -169,6 +170,8 @@ const CreateTransport = (props) => {
         setListCus([]);
       }
 
+      let getListShipping = await getData("Common/GetListShipping");
+      setListShipping(getListShipping);
       let getListVehicleType = await getData("Common/GetListVehicleType");
       let getListGoodsType = await getData("Common/GetListGoodsType");
       setlistVehicleType(getListVehicleType);
@@ -477,7 +480,7 @@ const CreateTransport = (props) => {
 
                 <div className="col col-sm">
                   <div className="form-group">
-                    <label htmlFor="MaVDKH">Mã Vận Đơn Của Khách Hàng(*)</label>
+                    <label htmlFor="MaVDKH">Mã Vận Đơn KH/Booking No(*)</label>
                     <input
                       autoComplete="false"
                       type="text"
@@ -496,16 +499,25 @@ const CreateTransport = (props) => {
               <div className="row">
                 {watch("LoaiVanDon") && watch("LoaiVanDon") === "xuat" && (
                   <>
-                    <div className="col col-sm">
+                    <div className="col-sm">
                       <div className="form-group">
-                        <label htmlFor="HangTau">Hãng Tàu</label>
-                        <input
-                          autoComplete="false"
-                          type="text"
+                        <label htmlFor="TenTau">Hãng Tàu</label>
+                        <select
                           className="form-control"
-                          id="TongThungHang"
                           {...register(`HangTau`, Validate.HangTau)}
-                        />
+                        >
+                          {listShipping &&
+                            listShipping.map((val) => {
+                              return (
+                                <option
+                                  value={val.shippingCode}
+                                  key={val.shippingLineName}
+                                >
+                                  {val.shippingLineName}
+                                </option>
+                              );
+                            })}
+                        </select>
                         {errors.HangTau && (
                           <span className="text-danger">
                             {errors.HangTau.message}
@@ -513,6 +525,7 @@ const CreateTransport = (props) => {
                         )}
                       </div>
                     </div>
+
                     <div className="col col-sm">
                       <div className="form-group">
                         <label htmlFor="TenTau">Tên Tàu</label>
@@ -536,7 +549,7 @@ const CreateTransport = (props) => {
               <div className="row">
                 <div className="col col-sm">
                   <div className="form-group">
-                    <label htmlFor="DiemLayHang">Điểm Lấy Hàng(*)</label>
+                    <label htmlFor="DiemLayHang">Điểm Đóng Hàng(*)</label>
                     <Controller
                       name="DiemLayHang"
                       control={control}
@@ -571,7 +584,7 @@ const CreateTransport = (props) => {
                 </div>
                 <div className="col col-sm">
                   <div className="form-group">
-                    <label htmlFor="DiemTraHang">Điểm Trả Hàng(*)</label>
+                    <label htmlFor="DiemTraHang">Điểm Hạ Hàng(*)</label>
                     <Controller
                       name="DiemTraHang"
                       control={control}
@@ -633,7 +646,7 @@ const CreateTransport = (props) => {
                 <div className="col col-sm">
                   <div className="form-group">
                     <label htmlFor="TongKhoiLuong">
-                      Tổng Khối Lượng (Đơn Vị Tấn)(*)
+                      Tổng Khối Lượng (Đơn Vị Tấn)
                     </label>
                     <input
                       autoComplete="false"
@@ -653,7 +666,7 @@ const CreateTransport = (props) => {
                 <div className="col col-sm">
                   <div className="form-group">
                     <label htmlFor="TongTheTich">
-                      Tổng Thể Tích (Đơn Vị m3)(*)
+                      Tổng Số Khối (Đơn Vị CBM)
                     </label>
                     <input
                       autoComplete="false"
@@ -673,7 +686,7 @@ const CreateTransport = (props) => {
                 <div className="col col-sm">
                   <div className="form-group">
                     <label htmlFor="TongSoKien">
-                      Tổng Số Kiện (Đơn Vị PCS)(*)
+                      Tổng Số Kiện (Đơn Vị PCS)
                     </label>
                     <input
                       autoComplete="false"
@@ -711,11 +724,20 @@ const CreateTransport = (props) => {
                               x.PTVanChuyen.includes("CONT")
                             ).length > 0 && (
                               <>
-                                <div className="col-sm-2">Điểm Lấy Rỗng(*)</div>
+                                {watch("LoaiVanDon") &&
+                                watch("LoaiVanDon") === "xuat" ? (
+                                  <div className="col-sm-2">
+                                    Điểm Lấy Rỗng(*)
+                                  </div>
+                                ) : (
+                                  <div className="col-sm-2">
+                                    Điểm trả Rỗng(*)
+                                  </div>
+                                )}
                               </>
                             )}
                           <div className="col-sm-2">Khối Lượng</div>
-                          <div className="col-sm-2">Thể Tích</div>
+                          <div className="col-sm-2">Số Khối</div>
                           <div className="col-sm-2">Số Kiện</div>
                         </div>
                       </th>
@@ -896,7 +918,7 @@ const CreateTransport = (props) => {
                                 <input
                                   type="text"
                                   className="form-control"
-                                  placeholder="Thể Tích"
+                                  placeholder="Số Khối"
                                   id="TheTich"
                                   {...register(
                                     `optionHandling.${index}.TheTich`,
@@ -1013,7 +1035,7 @@ const CreateTransport = (props) => {
                     {watch("LoaiVanDon") === "xuat" && (
                       <div className="col col-sm">
                         <div className="form-group">
-                          <label htmlFor="TGHaCang">Thời Gian Hạ Cảng(*)</label>
+                          <label htmlFor="TGHaCang">Thời Gian CUT OFF(*)</label>
                           <div className="input-group ">
                             <Controller
                               control={control}

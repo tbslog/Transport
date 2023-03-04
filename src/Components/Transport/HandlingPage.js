@@ -54,6 +54,8 @@ const HandlingPage = (props) => {
   const [transportId, setTransportId] = useState("");
   const [listCustomer, setListCustomer] = useState([]);
   const [listCusSelected, setListCusSelected] = useState([]);
+  const [listUsers, setListUsers] = useState([]);
+  const [listUserSelected, setListUserSelected] = useState([]);
 
   const [title, setTitle] = useState("");
 
@@ -188,23 +190,25 @@ const HandlingPage = (props) => {
       omit: true,
     },
     {
-      name: <div>Mã Vận Đơn</div>,
+      name: <div>CONT NUM</div>,
+      selector: (row) => (
+        <div style={{ fontWeight: "Bold", fontSize: "16px" }}>
+          {row.contNum}
+        </div>
+      ),
+    },
+    {
+      name: <div>Booking No</div>,
       selector: (row) => <div className="text-wrap">{row.maVanDonKH}</div>,
       sortable: true,
     },
     {
       name: <div>Loại Vận Đơn</div>,
-      selector: (row) => <div className="text-wrap">{row.phanLoaiVanDon}</div>,
-      sortable: true,
-    },
-    {
-      name: <div>Khách Hàng</div>,
-      selector: (row) => <div className="text-wrap">{row.maKH}</div>,
-      sortable: true,
-    },
-    {
-      name: <div>Đơn Vị Vận Tải</div>,
-      selector: (row) => <div className="text-wrap">{row.donViVanTai}</div>,
+      selector: (row) => (
+        <div className="text-wrap">
+          {row.phanLoaiVanDon === "xuat" ? "XUẤT" : "NHẬP"}
+        </div>
+      ),
       sortable: true,
     },
     {
@@ -213,23 +217,8 @@ const HandlingPage = (props) => {
       sortable: true,
     },
     {
-      name: <div>Điểm Lấy Hàng</div>,
-      selector: (row) => <div className="text-wrap">{row.diemLayHang}</div>,
-      sortable: true,
-    },
-    {
-      name: <div>Điểm Trả Hàng</div>,
-      selector: (row) => <div className="text-wrap">{row.diemTraHang}</div>,
-      sortable: true,
-    },
-    {
-      name: <div>Điểm Lấy Rỗng</div>,
-      selector: (row) => <div className="text-wrap">{row.diemLayRong}</div>,
-      sortable: true,
-    },
-    {
-      name: <div>Mã Số Xe</div>,
-      selector: (row) => <div className="text-wrap">{row.maSoXe}</div>,
+      name: <div>Khách Hàng</div>,
+      selector: (row) => <div className="text-wrap">{row.maKH}</div>,
       sortable: true,
     },
     {
@@ -238,22 +227,50 @@ const HandlingPage = (props) => {
       sortable: true,
     },
     {
+      name: <div>Loại Phương Tiện</div>,
+      selector: (row) => row.ptVanChuyen,
+      sortable: true,
+    },
+    {
       name: <div>Hãng Tàu</div>,
       selector: (row) => <div className="text-wrap">{row.hangTau}</div>,
       sortable: true,
     },
     {
-      name: <div>Loại Phương Tiện</div>,
-      selector: (row) => row.ptVanChuyen,
+      name: <div>Điểm Lấy/Trả Rỗng</div>,
+      selector: (row) => <div className="text-wrap">{row.diemLayRong}</div>,
       sortable: true,
     },
+    {
+      name: <div>Đơn Vị Vận Tải</div>,
+      selector: (row) => <div className="text-wrap">{row.donViVanTai}</div>,
+      sortable: true,
+    },
+
+    {
+      name: <div>Điểm Đóng Hàng</div>,
+      selector: (row) => <div className="text-wrap">{row.diemLayHang}</div>,
+      sortable: true,
+    },
+    {
+      name: <div>Điểm Hạ Hàng</div>,
+      selector: (row) => <div className="text-wrap">{row.diemTraHang}</div>,
+      sortable: true,
+    },
+
+    // {
+    //   name: <div>Mã Số Xe</div>,
+    //   selector: (row) => <div className="text-wrap">{row.maSoXe}</div>,
+    //   sortable: true,
+    // },
+
     {
       name: <div>Khối Lượng</div>,
       selector: (row) => row.khoiLuong,
       sortable: true,
     },
     {
-      name: <div>Thể Tích</div>,
+      name: <div>Số Khối</div>,
       selector: (row) => row.theTich,
       sortable: true,
     },
@@ -290,6 +307,16 @@ const HandlingPage = (props) => {
 
   useEffect(() => {
     (async () => {
+      let getlistUser = await getData(`Common/GetListUser`);
+      if (getlistUser && getlistUser.length > 0) {
+        let arrUser = [];
+        getlistUser.forEach((val) => {
+          arrUser.push({ label: val.name, value: val.userName });
+        });
+
+        setListUsers(arrUser);
+      }
+
       let getListCustomer = await getData(`Customer/GetListCustomerFilter`);
       if (getListCustomer && getListCustomer.length > 0) {
         let arrKh = [];
@@ -449,14 +476,20 @@ const HandlingPage = (props) => {
     fromDate = "",
     toDate = "",
     status = "",
-    listCusSelected = []
+    listCusSelected = [],
+    listUsrSelected = []
   ) => {
-    setLoading(true);
     fromDate = fromDate === "" ? "" : moment(fromDate).format("YYYY-MM-DD");
     toDate = toDate === "" ? "" : moment(toDate).format("YYYY-MM-DD");
+
+    let listFilter = {
+      customers: listCusSelected,
+      users: listUsrSelected,
+    };
+
     const dataCus = await getDataCustom(
       `BillOfLading/GetListHandling?transportId=${transportId}&PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}&fromDate=${fromDate}&toDate=${toDate}&statusId=${status}`,
-      listCusSelected
+      listFilter
     );
 
     setData(dataCus.data);
@@ -464,30 +497,35 @@ const HandlingPage = (props) => {
     setLoading(false);
   };
 
-  const handlePageChange = async (page) => {
-    setPage(page);
-    await fetchData(
+  const handlePageChange = async (newPage) => {
+    fetchData(
       transportId,
-      page,
+      newPage,
       keySearch,
       fromDate,
       toDate,
       status,
-      listCusSelected
+      listCusSelected,
+      listUserSelected
     );
+    setPage(newPage);
   };
 
   const handlePerRowsChange = async (newPerPage, page) => {
-    setLoading(true);
+    if (newPerPage !== perPage) {
+      let listFilter = {
+        customers: listCusSelected,
+        users: listUserSelected,
+      };
 
-    const dataCus = await getDataCustom(
-      `BillOfLading/GetListHandling?transportId=${transportId}&PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}&fromDate=${fromDate}&toDate=${toDate}&statusId=${status}`,
-      listCusSelected
-    );
-    setPerPage(newPerPage);
-    setData(dataCus.data);
-    setTotalRows(dataCus.totalRecords);
-    setLoading(false);
+      const dataCus = await getDataCustom(
+        `BillOfLading/GetListHandling?transportId=${transportId}&PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}&fromDate=${fromDate}&toDate=${toDate}&statusId=${status}`,
+        listFilter
+      );
+      setPerPage(newPerPage);
+      setData(dataCus.data);
+      setTotalRows(dataCus.totalRecords);
+    }
   };
 
   const handleChange = useCallback((state) => {
@@ -535,7 +573,8 @@ const HandlingPage = (props) => {
           fromDate,
           toDate,
           status,
-          listCusSelected
+          listCusSelected,
+          listUserSelected
         );
         setShowConfirm(false);
       } else {
@@ -562,7 +601,8 @@ const HandlingPage = (props) => {
           fromDate,
           toDate,
           status,
-          listCusSelected
+          listCusSelected,
+          listUserSelected
         );
         setShowConfirm(false);
       } else {
@@ -600,7 +640,8 @@ const HandlingPage = (props) => {
           fromDate,
           toDate,
           status,
-          listCusSelected
+          listCusSelected,
+          listUserSelected
         );
         setShowConfirm(false);
       } else {
@@ -627,7 +668,8 @@ const HandlingPage = (props) => {
           fromDate,
           toDate,
           status,
-          listCusSelected
+          listCusSelected,
+          listUserSelected
         );
         setShowConfirm(false);
       } else {
@@ -649,7 +691,8 @@ const HandlingPage = (props) => {
       fromDate,
       toDate,
       status,
-      listCusSelected
+      listCusSelected,
+      listUserSelected
     );
   };
 
@@ -662,18 +705,22 @@ const HandlingPage = (props) => {
       fromDate,
       toDate,
       value,
-      listCusSelected
+      listCusSelected,
+      listUserSelected
     );
   };
 
   const handleRefeshDataClick = () => {
+    setPage(1);
+    setPerPage(10);
     setKeySearch("");
     setFromDate("");
     setToDate("");
     setStatus("");
     setListCusSelected([]);
     setValue("listCustomers", []);
-    setPerPage(10);
+    setListUserSelected([]);
+    setValue("listUsers", []);
     fetchData("", 1);
   };
 
@@ -685,7 +732,8 @@ const HandlingPage = (props) => {
       fromDate,
       toDate,
       status,
-      listCusSelected
+      listCusSelected,
+      listUserSelected
     );
   };
 
@@ -711,28 +759,60 @@ const HandlingPage = (props) => {
     let startDate = moment(fromDate).format("YYYY-MM-DD");
     let endDate = moment(toDate).format("YYYY-MM-DD");
 
+    let listFilter = {
+      customers: listCusSelected,
+      users: listUserSelected,
+    };
+
     const getFileDownLoad = await getFilePost(
       `BillOfLading/ExportExcelHandLing?KeyWord=${keySearch}&fromDate=${startDate}&toDate=${endDate}&statusId=${status}`,
-      listCusSelected,
+      listFilter,
       "DieuPhoi" + moment(new Date()).format("DD/MM/YYYY HHmmss")
     );
   };
 
-  const handleOnChangeCustomer = async (values) => {
-    if (values && values.length > 0) {
-      setLoading(true);
-      setValue("listCustomers", values);
+  const handleOnChangeFilterSelect = async (values, type) => {
+    if (values) {
       let arrCus = [];
-      values.map((val) => {
-        arrCus.push(val.value);
-      });
+      let arrUsr = [];
 
-      fetchData(transportId, page, keySearch, fromDate, toDate, status, arrCus);
-      setLoading(false);
-    } else {
-      setListCusSelected([]);
-      setValue("listCustomers", []);
-      fetchData(transportId, page, keySearch, fromDate, toDate, status, []);
+      if (type === "customers") {
+        setValue("listCustomers", values);
+
+        values.forEach((val) => {
+          arrCus.push(val.value);
+        });
+
+        setListCusSelected(arrCus);
+      } else {
+        listCusSelected.forEach((val) => {
+          arrCus.push(val);
+        });
+      }
+
+      if (type === "users") {
+        setValue("listUsers", values);
+
+        values.forEach((val) => {
+          arrUsr.push(val.value);
+        });
+        setListUserSelected(arrUsr);
+      } else {
+        listUserSelected.forEach((val) => {
+          arrUsr.push(val);
+        });
+      }
+
+      await fetchData(
+        transportId,
+        page,
+        keySearch,
+        fromDate,
+        toDate,
+        status,
+        arrCus,
+        arrUsr
+      );
     }
   };
 
@@ -806,6 +886,29 @@ const HandlingPage = (props) => {
                   <div className="col col-sm">
                     <div className="form-group">
                       <Controller
+                        name="listUsers"
+                        control={control}
+                        render={({ field }) => (
+                          <Select
+                            {...field}
+                            className="basic-multi-select"
+                            classNamePrefix={"form-control"}
+                            isMulti
+                            value={field.value}
+                            options={listUsers}
+                            styles={customStyles}
+                            onChange={(field) =>
+                              handleOnChangeFilterSelect(field, "users")
+                            }
+                            placeholder="Chọn Users"
+                          />
+                        )}
+                      />
+                    </div>
+                  </div>
+                  <div className="col col-sm">
+                    <div className="form-group">
+                      <Controller
                         name="listCustomers"
                         control={control}
                         render={({ field }) => (
@@ -817,7 +920,9 @@ const HandlingPage = (props) => {
                             value={field.value}
                             options={listCustomer}
                             styles={customStyles}
-                            onChange={(field) => handleOnChangeCustomer(field)}
+                            onChange={(field) =>
+                              handleOnChangeFilterSelect(field, "customers")
+                            }
                             placeholder="Chọn Khách Hàng"
                           />
                         )}
@@ -926,6 +1031,8 @@ const HandlingPage = (props) => {
                   striped
                   direction="auto"
                   responsive
+                  fixedHeader
+                  fixedHeaderScrollHeight="60vh"
                 />
               </div>
             </div>

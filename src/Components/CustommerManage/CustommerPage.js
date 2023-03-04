@@ -178,7 +178,7 @@ const CustommerPage = () => {
   const handlePerRowsChange = async (newPerPage, page) => {
     setLoading(true);
     const dataCus = await getData(
-      `Customer/GetListCustomer?PageNumber=${page}&PageSize=${perPage}&KeyWord=${keySearch}&customerType=${cusType}`
+      `Customer/GetListCustomer?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}&customerType=${cusType}`
     );
 
     formatTable(dataCus.data);
@@ -342,6 +342,8 @@ const CustommerPage = () => {
                 striped
                 direction="auto"
                 responsive
+                fixedHeader
+                fixedHeaderScrollHeight="60vh"
               />
             </div>
           </div>

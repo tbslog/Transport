@@ -229,7 +229,7 @@ const ContractPage = () => {
     setLoading(true);
 
     const dataCus = await getData(
-      `Contract/GetListContract?PageNumber=${page}&PageSize=${perPage}&KeyWord=${keySearch}&fromDate=${fromDate}&toDate=${toDate}&contractType=${contractType}&customerType=${
+      `Contract/GetListContract?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}&fromDate=${fromDate}&toDate=${toDate}&contractType=${contractType}&customerType=${
         tabIndex === 0 ? "KH" : "NCC"
       }`
     );
@@ -572,6 +572,8 @@ const ContractPage = () => {
                     striped
                     direction="auto"
                     responsive
+                    fixedHeader
+                    fixedHeaderScrollHeight="55vh"
                   />
                 </div>
               </TabPanel>
@@ -594,6 +596,8 @@ const ContractPage = () => {
                     striped
                     direction="auto"
                     responsive
+                    fixedHeader
+                    fixedHeaderScrollHeight="55vh"
                   />
                 </div>
               </TabPanel>

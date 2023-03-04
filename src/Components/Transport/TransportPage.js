@@ -47,6 +47,8 @@ const TransportPage = () => {
   const [maPTVC, setMaPTVC] = useState("");
   const [listCustomer, setListCustomer] = useState([]);
   const [listCusSelected, setListCusSelected] = useState([]);
+  const [listUsers, setListUsers] = useState([]);
+  const [listUsersSelected, setListUsersSelected] = useState([]);
 
   const [selectedRows, setSelectedRows] = useState([]);
   const [toggledClearRows, setToggleClearRows] = useState(false);
@@ -129,22 +131,28 @@ const TransportPage = () => {
       selector: (row) => <div className="text-wrap">{row.maVanDon}</div>,
       omit: true,
     },
+
     {
       name: <div>Mã Vận Đơn</div>,
       selector: (row) => <div className="text-wrap">{row.maVanDonKH}</div>,
     },
     {
-      name: <div>Khách Hàng</div>,
-      selector: (row) => <div className="text-wrap">{row.tenKH}</div>,
+      name: <div>Loại Vận Đơn</div>,
+      selector: (row) => (
+        <div className="text-wrap">
+          {row.loaiVanDon === "xuat" ? "XUẤT" : "NHẬP"}
+        </div>
+      ),
     },
     {
       name: <div>PTVC</div>,
       selector: (row) => <div className="text-wrap">{row.maPTVC}</div>,
     },
     {
-      name: <div>Loại Vận Đơn</div>,
-      selector: (row) => <div className="text-wrap">{row.loaiVanDon}</div>,
+      name: <div>Khách Hàng</div>,
+      selector: (row) => <div className="text-wrap">{row.tenKH}</div>,
     },
+
     {
       name: <div>Mã Cung Đường</div>,
       selector: (row) => row.maCungDuong,
@@ -272,6 +280,16 @@ const TransportPage = () => {
 
   useEffect(() => {
     (async () => {
+      let getlistUser = await getData(`Common/GetListUser`);
+      if (getlistUser && getlistUser.length > 0) {
+        let arrUser = [];
+        getlistUser.forEach((val) => {
+          arrUser.push({ label: val.name, value: val.userName });
+        });
+
+        setListUsers(arrUser);
+      }
+
       let getListCustomer = await getData(`Customer/GetListCustomerFilter`);
       if (getListCustomer && getListCustomer.length > 0) {
         let arrKh = [];
@@ -302,12 +320,18 @@ const TransportPage = () => {
     toDate = "",
     status = "",
     maptvc = "",
-    listCusSelected = []
+    listCusSelected = [],
+    listUsersSelected = []
   ) => {
     setLoading(true);
+
+    let listFilter = {
+      customers: listCusSelected,
+      users: listUsersSelected,
+    };
     const datatransport = await getDataCustom(
       `BillOfLading/GetListTransport?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}&StatusId=${status}&fromDate=${fromDate}&toDate=${toDate}&maptvc=${maptvc}`,
-      listCusSelected
+      listFilter
     );
 
     setData(datatransport.data);
@@ -324,16 +348,22 @@ const TransportPage = () => {
       !toDate ? "" : moment(toDate).format("YYYY-MM-DD"),
       status,
       maPTVC,
-      listCusSelected
+      listCusSelected,
+      listUsersSelected
     );
   };
 
   const handlePerRowsChange = async (newPerPage, page) => {
     setLoading(true);
 
+    let listFilter = {
+      customers: listCusSelected,
+      users: listUsersSelected,
+    };
+
     const datatransport = await getDataCustom(
       `BillOfLading/GetListTransport?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}&StatusId=${status}&fromDate=${fromDate}&toDate=${toDate}&maptvc=${maPTVC}`,
-      listCusSelected
+      listFilter
     );
     setData(datatransport.data);
     setPerPage(newPerPage);
@@ -383,7 +413,8 @@ const TransportPage = () => {
           toDate,
           status,
           maPTVC,
-          listCusSelected
+          listCusSelected,
+          listUsersSelected
         );
         setShowConfirm(false);
       } else {
@@ -400,13 +431,23 @@ const TransportPage = () => {
       !toDate ? "" : moment(toDate).format("YYYY-MM-DD"),
       status,
       maPTVC,
-      listCusSelected
+      listCusSelected,
+      listUsersSelected
     );
   };
 
   const handleOnChangeStatus = (val) => {
     setStatus(val);
-    fetchData(1, keySearch, fromDate, toDate, val, maPTVC, listCusSelected);
+    fetchData(
+      1,
+      keySearch,
+      fromDate,
+      toDate,
+      val,
+      maPTVC,
+      listCusSelected,
+      listUsersSelected
+    );
   };
 
   const handleOnChangeMaPTVC = (val) => {
@@ -422,6 +463,8 @@ const TransportPage = () => {
     setStatus("");
     setListCusSelected([]);
     setValue("listCustomers", []);
+    setListUsersSelected([]);
+    setValue("listUsers", []);
     fetchData(1);
   };
 
@@ -433,7 +476,8 @@ const TransportPage = () => {
       toDate,
       status,
       maPTVC,
-      listCusSelected
+      listCusSelected,
+      listUsersSelected
     );
   };
 
@@ -441,22 +485,47 @@ const TransportPage = () => {
     setSelectedRows(state.selectedRows);
   };
 
-  const handleOnChangeCustomer = (values) => {
-    if (values && values.length > 0) {
-      setLoading(true);
-
-      setValue("listCustomers", values);
+  const handleOnChangeFilterSelect = async (values, type) => {
+    if (values) {
       let arrCus = [];
-      values.map((val) => {
-        arrCus.push(val.value);
-      });
+      let arrUsr = [];
 
-      fetchData(page, keySearch, fromDate, toDate, status, maPTVC, arrCus);
-      setLoading(false);
-    } else {
-      setListCusSelected([]);
-      setValue("listCustomers", []);
-      fetchData(page, keySearch, fromDate, toDate, status, maPTVC, []);
+      if (type === "customers") {
+        setValue("listCustomers", values);
+
+        values.forEach((val) => {
+          arrCus.push(val.value);
+        });
+
+        setListCusSelected(arrCus);
+      } else {
+        listCusSelected.forEach((val) => {
+          arrCus.push(val);
+        });
+      }
+
+      if (type === "users") {
+        setValue("listUsers", values);
+
+        values.forEach((val) => {
+          arrUsr.push(val.value);
+        });
+        setListUsersSelected(arrUsr);
+      } else {
+        listUsersSelected.forEach((val) => {
+          arrUsr.push(val);
+        });
+      }
+
+      await fetchData(
+        page,
+        keySearch,
+        fromDate,
+        toDate,
+        status,
+        arrCus,
+        arrUsr
+      );
     }
   };
 
@@ -553,6 +622,29 @@ const TransportPage = () => {
                       <div className="col col-sm">
                         <div className="form-group">
                           <Controller
+                            name="listUsers"
+                            control={control}
+                            render={({ field }) => (
+                              <Select
+                                {...field}
+                                className="basic-multi-select"
+                                classNamePrefix={"form-control"}
+                                isMulti
+                                value={field.value}
+                                options={listUsers}
+                                styles={customStyles}
+                                onChange={(field) =>
+                                  handleOnChangeFilterSelect(field, "users")
+                                }
+                                placeholder="Chọn Users"
+                              />
+                            )}
+                          />
+                        </div>
+                      </div>
+                      <div className="col col-sm">
+                        <div className="form-group">
+                          <Controller
                             name="listCustomers"
                             control={control}
                             render={({ field }) => (
@@ -565,7 +657,7 @@ const TransportPage = () => {
                                 options={listCustomer}
                                 styles={customStyles}
                                 onChange={(field) =>
-                                  handleOnChangeCustomer(field)
+                                  handleOnChangeFilterSelect(field, "customers")
                                 }
                                 placeholder="Chọn Khách Hàng"
                               />
@@ -692,6 +784,8 @@ const TransportPage = () => {
                   onChangePage={handlePageChange}
                   highlightOnHover
                   striped
+                  fixedHeader
+                  fixedHeaderScrollHeight="60vh"
                 />
               </div>
             </div>

@@ -386,6 +386,8 @@ const ApprovePriceTable = (props) => {
                 striped
                 direction="auto"
                 responsive
+                fixedHeader
+                fixedHeaderScrollHeight="60vh"
               />
             </div>
           </div>

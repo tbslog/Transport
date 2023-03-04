@@ -4,6 +4,7 @@ import { useForm, Controller } from "react-hook-form";
 import Select from "react-select";
 import DatePicker from "react-datepicker";
 import LoadingPage from "../Common/Loading/LoadingPage";
+import moment from "moment/moment";
 
 const UpdateDriver = (props) => {
   const { selectIdClick, getListDriver, listStatus, hideModal } = props;
@@ -22,14 +23,14 @@ const UpdateDriver = (props) => {
   const Validate = {
     MaTaiXe: {
       required: "Không được để trống",
-      maxLength: {
-        value: 10,
-        message: "Không được vượt quá 12 ký tự",
-      },
-      minLength: {
-        value: 10,
-        message: "Không được ít hơn 12 ký tự",
-      },
+      // maxLength: {
+      //   value: 10,
+      //   message: "Không được vượt quá 12 ký tự",
+      // },
+      // minLength: {
+      //   value: 10,
+      //   message: "Không được ít hơn 12 ký tự",
+      // },
       pattern: {
         value: /^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9]+(?<![_.])$/,
         message: "Không được chứa ký tự đặc biệt",
@@ -144,7 +145,9 @@ const UpdateDriver = (props) => {
       cccd: data.CCCD,
       hoVaTen: data.TenTaiXe,
       soDienThoai: data.SoDienThoai,
-      ngaySinh: new Date(data.NgaySinh).toISOString(),
+      ngaySinh: moment(new Date(data.NgaySinh).toISOString()).format(
+        "YYYY-MM-DD"
+      ),
       ghiChu: data.GhiChu,
       maNhaCungCap: data.NCC.value,
       TaiXeTBS: false,
