@@ -1,15 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.PriceListModel;
 using TBSLogistics.Service.Helpers;
 using TBSLogistics.Service.Panigation;
-using TBSLogistics.Service.Services.PricelistManage;
 using TBSLogistics.Service.Services.Common;
+using TBSLogistics.Service.Services.PricelistManage;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -53,15 +51,30 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             }
         }
 
-
         [HttpGet]
         [Route("[action]")]
         public async Task<IActionResult> GetListPriceTable([FromQuery] PaginationFilter filter)
         {
-            var checkPermission = await _common.CheckPermission("C0001");
-            if (checkPermission.isSuccess == false)
+            var checkPermissionKH = await _common.CheckPermission("C0001");
+            var checkPermissionNCC = await _common.CheckPermission("C0005");
+
+            if (checkPermissionKH.isSuccess == true)
             {
-                return BadRequest(checkPermission.Message);
+                filter.customerType = "KH";
+            }
+
+            if (checkPermissionNCC.isSuccess == true)
+            {
+                filter.customerType = "NCC";
+            }
+
+            if (checkPermissionKH.isSuccess && checkPermissionNCC.isSuccess)
+            {
+                filter.customerType = "";
+            }
+            if (!checkPermissionKH.isSuccess && !checkPermissionNCC.isSuccess)
+            {
+                return BadRequest("Bạn không có quyền hạn");
             }
 
             var route = Request.Path.Value;

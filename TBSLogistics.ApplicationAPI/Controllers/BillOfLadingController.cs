@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
@@ -8,10 +9,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.BillOfLadingModel;
+using TBSLogistics.Model.Model.UserModel;
 using TBSLogistics.Service.Helpers;
 using TBSLogistics.Service.Panigation;
 using TBSLogistics.Service.Services.BillOfLadingManage;
 using TBSLogistics.Service.Services.Common;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -57,7 +60,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<IActionResult> LayTrongTaiXe(string vehicleType, string DonVi,double giaTri)
+        public async Task<IActionResult> LayTrongTaiXe(string vehicleType, string DonVi, double giaTri)
         {
             var trongtai = await _billOfLading.LayTrongTaiXe(vehicleType, DonVi, giaTri);
             return Ok(trongtai);
@@ -65,7 +68,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpPost]
         [Route("[action]")]
-        public async Task<IActionResult> GetListTransport([FromQuery] PaginationFilter filter, string[] customers)
+        public async Task<IActionResult> GetListTransport([FromQuery] PaginationFilter filter, ListFilter listFilter)
         {
             var checkPermission = await _common.CheckPermission("E0003");
             if (checkPermission.isSuccess == false)
@@ -74,7 +77,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             }
 
             var route = Request.Path.Value;
-            var pagedData = await _billOfLading.GetListTransport(customers, filter);
+            var pagedData = await _billOfLading.GetListTransport(listFilter, filter);
 
             var pagedReponse = PaginationHelper.CreatePagedReponse<ListTransport>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _paninationService, route);
             return Ok(pagedReponse);
@@ -82,7 +85,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpPost]
         [Route("[action]")]
-        public async Task<IActionResult> GetListHandling([FromQuery] PaginationFilter filter, string[] customers, string transportId = null)
+        public async Task<IActionResult> GetListHandling([FromQuery] PaginationFilter filter, ListFilter listFilter, string transportId = null)
         {
             var checkPermission = await _common.CheckPermission("F0003");
             if (checkPermission.isSuccess == false)
@@ -91,7 +94,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             }
 
             var route = Request.Path.Value;
-            var pagedData = await _billOfLading.GetListHandling(transportId, customers, filter);
+            var pagedData = await _billOfLading.GetListHandling(transportId, listFilter, filter);
 
             var pagedReponse = PaginationHelper.CreatePagedReponse<ListHandling>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _paninationService, route);
             return Ok(pagedReponse);
@@ -99,7 +102,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpPost]
         [Route("[action]")]
-        public async Task<IActionResult> GetListHandlingLess([FromQuery] PaginationFilter filter, string[] customers)
+        public async Task<IActionResult> GetListHandlingLess([FromQuery] PaginationFilter filter, ListFilter listFilter)
         {
             var checkPermission = await _common.CheckPermission("F0003");
             if (checkPermission.isSuccess == false)
@@ -108,7 +111,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             }
 
             var route = Request.Path.Value;
-            var pagedData = await _billOfLading.GetListHandlingLess(customers, filter);
+            var pagedData = await _billOfLading.GetListHandlingLess(listFilter, filter);
 
             var pagedReponse = PaginationHelper.CreatePagedReponse<ListHandling>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _paninationService, route);
             return Ok(pagedReponse);
@@ -128,6 +131,22 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
             var pagedReponse = PaginationHelper.CreatePagedReponse<ListHandling>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _paninationService, route);
             return Ok(pagedReponse);
+        }
+
+        [HttpPost]
+        [Route("[action]")]
+        public async Task<IActionResult> ReadFileExcelTransport(IFormFile formFile, CancellationToken cancellationToken)
+        {
+            var ImportExcel = await _billOfLading.CreateTransportByExcel(formFile, cancellationToken);
+
+            if (ImportExcel.isSuccess == true)
+            {
+                return Ok(ImportExcel.Message);
+            }
+            else
+            {
+                return BadRequest(ImportExcel.Message);
+            }
         }
 
         [HttpPost]
@@ -340,6 +359,28 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             }
             var list = await _billOfLading.GetListImageByHandlingId(handlingId);
             return Ok(list);
+        }
+
+        [HttpPost]
+        [Route("[action]")]
+        public async Task<IActionResult> ChangeImageName(int id, string newName)
+        {
+            var checkPermission = await _common.CheckPermission("F0013");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
+            var rename = await _billOfLading.ChangeImageName(id, newName);
+
+            if (rename.isSuccess)
+            {
+                return Ok(rename.Message);
+            }
+            else
+            {
+                return BadRequest(rename.Message);
+            }
         }
 
         //[HttpPost]
@@ -596,7 +637,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpPost]
         [Route("[action]")]
-        public async Task<IActionResult> ExportExcelHandLing([FromQuery] PaginationFilter filter, string[] customers, CancellationToken cancellationToken)
+        public async Task<IActionResult> ExportExcelHandLing([FromQuery] PaginationFilter filter, ListFilter listFilter, CancellationToken cancellationToken)
         {
             var checkPermission = await _common.CheckPermission("F0012");
             if (checkPermission.isSuccess == false)
@@ -613,25 +654,25 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             var stream = new MemoryStream();
             filter.PageNumber = 1;
             filter.PageSize = 500000;
-            var data = await _billOfLading.GetListHandling("", customers, filter);
+            var data = await _billOfLading.GetListHandling("", listFilter, filter);
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
             using (var package = new ExcelPackage(stream))
             {
                 var workSheet = package.Workbook.Worksheets.Add("DieuPhoi");
-                workSheet.Cells[1, 1].Value = "Mã Vân Đơn KH";
+                workSheet.Cells[1, 1].Value = "Booking No";
                 workSheet.Cells[1, 2].Value = "Loại Vận Đơn";
-                workSheet.Cells[1, 3].Value = "Khách Hàng";
-                workSheet.Cells[1, 4].Value = "Đơn Vị Vận Tải";
-                workSheet.Cells[1, 5].Value = "Phương Thức Vận Chuyển";
-                workSheet.Cells[1, 6].Value = "Điểm Lấy Hàng";
-                workSheet.Cells[1, 7].Value = "Điểm Trả Hàng";
-                workSheet.Cells[1, 8].Value = "Điểm Lấy Rỗng";
-                workSheet.Cells[1, 9].Value = "Mã Số Xe";
-                workSheet.Cells[1, 10].Value = "Mã CONT";
-                workSheet.Cells[1, 11].Value = "Hãng Tàu";
-                workSheet.Cells[1, 12].Value = "Loại Phương Tiện";
-                workSheet.Cells[1, 13].Value = "Khối Lượng";
-                workSheet.Cells[1, 14].Value = "Thể Tích";
+                workSheet.Cells[1, 3].Value = "Phương Thức Vận Chuyển";
+                workSheet.Cells[1, 4].Value = "Khách Hàng";
+                workSheet.Cells[1, 5].Value = "Mã CONT";
+                workSheet.Cells[1, 6].Value = "Loại Phương Tiện";
+                workSheet.Cells[1, 7].Value = "Hãng Tàu";
+                workSheet.Cells[1, 8].Value = "Điểm Lấy/Trả Rỗng";
+                workSheet.Cells[1, 9].Value = "Điểm Đóng Hàng";
+                workSheet.Cells[1, 10].Value = "Điểm Hạ Hàng";
+                workSheet.Cells[1, 11].Value = "Đơn Vị Vận Tải";
+                workSheet.Cells[1, 12].Value = "Khối Lượng";
+                workSheet.Cells[1, 13].Value = "Thể Tích";
+                workSheet.Cells[1, 14].Value = "Số Kiện";
                 workSheet.Cells[1, 15].Value = "Trạng Thái";
                 workSheet.Cells[1, 16].Value = "Thời Gian Tạo";
                 int row = 2;
@@ -639,18 +680,18 @@ namespace TBSLogistics.ApplicationAPI.Controllers
                 {
                     workSheet.Cells[row, 1].Value = item.MaVanDonKH;
                     workSheet.Cells[row, 2].Value = item.PhanLoaiVanDon == "nhap" ? "Nhập" : "Xuất";
-                    workSheet.Cells[row, 3].Value = item.MaKH;
-                    workSheet.Cells[row, 4].Value = item.DonViVanTai;
-                    workSheet.Cells[row, 5].Value = item.MaPTVC;
-                    workSheet.Cells[row, 6].Value = item.DiemLayHang;
-                    workSheet.Cells[row, 7].Value = item.DiemTraHang;
+                    workSheet.Cells[row, 3].Value = item.MaPTVC;
+                    workSheet.Cells[row, 4].Value = item.MaKH;
+                    workSheet.Cells[row, 5].Value = item.ContNo;
+                    workSheet.Cells[row, 6].Value = item.PTVanChuyen;
+                    workSheet.Cells[row, 7].Value = item.HangTau;
                     workSheet.Cells[row, 8].Value = item.DiemLayRong;
-                    workSheet.Cells[row, 9].Value = item.MaSoXe;
-                    workSheet.Cells[row, 10].Value = item.ContNo;
-                    workSheet.Cells[row, 11].Value = item.HangTau;
-                    workSheet.Cells[row, 12].Value = item.PTVanChuyen;
-                    workSheet.Cells[row, 13].Value = item.KhoiLuong;
-                    workSheet.Cells[row, 14].Value = item.TheTich;
+                    workSheet.Cells[row, 9].Value = item.DiemLayHang;
+                    workSheet.Cells[row, 10].Value = item.DiemTraHang;
+                    workSheet.Cells[row, 11].Value = item.DonViVanTai;
+                    workSheet.Cells[row, 12].Value = item.KhoiLuong;
+                    workSheet.Cells[row, 13].Value = item.TheTich;
+                    workSheet.Cells[row, 14].Value = item.SoKien;
                     workSheet.Cells[row, 15].Value = item.TrangThai;
                     workSheet.Cells[row, 16].Value = item.ThoiGianTaoDon.ToString();
                     row++;
@@ -677,7 +718,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpPost]
         [Route("[action]")]
-        public async Task<IActionResult> ExportExcelHandlingLess([FromQuery] PaginationFilter filter, string[] customers, CancellationToken cancellationToken)
+        public async Task<IActionResult> ExportExcelHandlingLess([FromQuery] PaginationFilter filter, ListFilter listFilter, CancellationToken cancellationToken)
         {
             var checkPermission = await _common.CheckPermission("F0012");
             if (checkPermission.isSuccess == false)
@@ -694,26 +735,26 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             var stream = new MemoryStream();
             filter.PageNumber = 1;
             filter.PageSize = 500000;
-            var data = await _billOfLading.GetListHandlingLess(customers, filter);
+            var data = await _billOfLading.GetListHandlingLess(listFilter, filter);
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
             using (var package = new ExcelPackage(stream))
             {
                 var workSheet = package.Workbook.Worksheets.Add("DieuPhoi");
                 workSheet.Cells[1, 1].Value = "Mã Chuyến";
-                workSheet.Cells[1, 2].Value = "Mã Vận Đơn";
+                workSheet.Cells[1, 2].Value = "Booking No";
                 workSheet.Cells[1, 3].Value = "Loại Vận Đơn";
-                workSheet.Cells[1, 4].Value = "Khách Hàng";
-                workSheet.Cells[1, 5].Value = "Đơn Vị Vận Tải";
-                workSheet.Cells[1, 6].Value = "Phương Thức Vận Chuyển";
-                workSheet.Cells[1, 7].Value = "Điểm Lấy Hàng";
-                workSheet.Cells[1, 8].Value = "Điểm Trả Hàng";
-                workSheet.Cells[1, 9].Value = "Điểm Lấy Rỗng";
-                workSheet.Cells[1, 10].Value = "Mã Số Xe";
-                workSheet.Cells[1, 11].Value = "Mã CONT";
-                workSheet.Cells[1, 12].Value = "Hãng Tàu";
-                workSheet.Cells[1, 13].Value = "Loại Phương Tiện";
-                workSheet.Cells[1, 14].Value = "Khối Lượng";
-                workSheet.Cells[1, 15].Value = "Thể Tích";
+                workSheet.Cells[1, 4].Value = "Phương Thức Vận Chuyển";
+                workSheet.Cells[1, 5].Value = "Khách Hàng";
+                workSheet.Cells[1, 6].Value = "Mã CONT";
+                workSheet.Cells[1, 7].Value = "Loại Phương Tiện";
+                workSheet.Cells[1, 8].Value = "Hãng Tàu";
+                workSheet.Cells[1, 9].Value = "Điểm Lấy/Trả Rỗng";
+                workSheet.Cells[1, 10].Value = "Điểm Đóng Hàng";
+                workSheet.Cells[1, 11].Value = "Điểm Hạ Hàng";
+                workSheet.Cells[1, 12].Value = "Đơn Vị Vận Tải";
+                workSheet.Cells[1, 13].Value = "Khối Lượng";
+                workSheet.Cells[1, 14].Value = "Thể Tích";
+                workSheet.Cells[1, 15].Value = "Số Kiện";
                 workSheet.Cells[1, 16].Value = "Trạng Thái";
                 workSheet.Cells[1, 17].Value = "Thời Gian Tạo";
                 int row = 2;
@@ -722,18 +763,18 @@ namespace TBSLogistics.ApplicationAPI.Controllers
                     workSheet.Cells[row, 1].Value = item.MaChuyen;
                     workSheet.Cells[row, 2].Value = item.MaVanDonKH;
                     workSheet.Cells[row, 3].Value = item.PhanLoaiVanDon == "nhap" ? "Nhập" : "Xuất";
-                    workSheet.Cells[row, 4].Value = item.MaKH;
-                    workSheet.Cells[row, 5].Value = item.DonViVanTai;
-                    workSheet.Cells[row, 6].Value = item.MaPTVC;
-                    workSheet.Cells[row, 7].Value = item.DiemLayHang;
-                    workSheet.Cells[row, 8].Value = item.DiemTraHang;
+                    workSheet.Cells[row, 4].Value = item.MaPTVC;
+                    workSheet.Cells[row, 5].Value = item.MaKH;
+                    workSheet.Cells[row, 6].Value = item.ContNo;
+                    workSheet.Cells[row, 7].Value = item.PTVanChuyen;
+                    workSheet.Cells[row, 8].Value = item.HangTau;
                     workSheet.Cells[row, 9].Value = item.DiemLayRong;
-                    workSheet.Cells[row, 10].Value = item.MaSoXe;
-                    workSheet.Cells[row, 11].Value = item.ContNo;
-                    workSheet.Cells[row, 12].Value = item.HangTau;
-                    workSheet.Cells[row, 13].Value = item.PTVanChuyen;
-                    workSheet.Cells[row, 14].Value = item.KhoiLuong;
-                    workSheet.Cells[row, 15].Value = item.TheTich;
+                    workSheet.Cells[row, 10].Value = item.DiemLayHang;
+                    workSheet.Cells[row, 11].Value = item.DiemTraHang;
+                    workSheet.Cells[row, 12].Value = item.DonViVanTai;
+                    workSheet.Cells[row, 13].Value = item.KhoiLuong;
+                    workSheet.Cells[row, 14].Value = item.TheTich;
+                    workSheet.Cells[row, 15].Value = item.SoKien;
                     workSheet.Cells[row, 16].Value = item.TrangThai;
                     workSheet.Cells[row, 17].Value = item.ThoiGianTaoDon.ToString();
                     row++;

@@ -987,11 +987,10 @@ namespace TBSLogistics.Data.TMS
 
             modelBuilder.Entity<ShippingInfomation>(entity =>
             {
-                entity.Property(e => e.Id).HasColumnName("ID");
+                entity.HasKey(e => e.ShippingCode);
 
                 entity.Property(e => e.ShippingCode)
-                    .IsRequired()
-                    .HasMaxLength(4)
+                    .HasMaxLength(20)
                     .IsUnicode(false);
 
                 entity.Property(e => e.ShippingLineName)

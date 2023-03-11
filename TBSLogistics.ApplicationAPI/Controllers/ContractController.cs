@@ -100,10 +100,22 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> GetListContract([FromQuery] PaginationFilter filter)
         {
-            var checkPermission = await _common.CheckPermission("B0004");
-            if (checkPermission.isSuccess == false)
+            if (filter.customerType == "KH")
             {
-                return BadRequest(checkPermission.Message);
+                var checkPermission = await _common.CheckPermission("B0004");
+                if (checkPermission.isSuccess == false)
+                {
+                    return BadRequest(checkPermission.Message);
+                }
+            }
+
+            if(filter.customerType == "NCC")
+            {
+                var checkPermission = await _common.CheckPermission("B0005");
+                if (checkPermission.isSuccess == false)
+                {
+                    return BadRequest(checkPermission.Message);
+                }
             }
 
             var route = Request.Path.Value;

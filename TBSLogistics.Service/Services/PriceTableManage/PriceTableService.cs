@@ -203,6 +203,11 @@ namespace TBSLogistics.Service.Services.PriceTableManage
                 getData = getData.Where(x => x.hd.MaHopDong.Contains(filter.Keyword));
             }
 
+            if (!string.IsNullOrEmpty(filter.customerType))
+            {
+                getData = getData.Where(x => x.kh.MaLoaiKh == filter.customerType);
+            }
+
             if (!string.IsNullOrEmpty(filter.fromDate.ToString()) && !string.IsNullOrEmpty(filter.toDate.ToString()))
             {
                 getData = getData.Where(x => x.bg.NgayApDung.Date >= filter.fromDate && x.bg.NgayApDung <= filter.toDate);
@@ -317,7 +322,7 @@ namespace TBSLogistics.Service.Services.PriceTableManage
                 KhuVuc = _context.KhuVuc.Where(y => y.Id == x.bg.MaKhuVuc).Select(y => y.TenKhuVuc).FirstOrDefault(),
                 TenKH = x.kh.TenKh,
                 MaHopDong = x.bg.MaHopDong,
-                MaCungDuong = x.bg.MaCungDuong,
+                MaCungDuong = _context.CungDuong.Where(y => y.MaCungDuong == x.bg.MaCungDuong).Select(y => y.TenCungDuong).FirstOrDefault(),
                 NgayApDung = x.bg.NgayApDung,
                 NgayHetHieuLuc = x.bg.NgayHetHieuLuc,
                 DonGia = x.bg.DonGia,

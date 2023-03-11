@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TBSLogistics.Data.TMS;
+using TBSLogistics.Model.Model.UserModel;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -86,11 +87,38 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             return Ok(list);
         }
 
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetListShipping()
+        {
+            var list = await _tMSContext.ShippingInfomation.ToListAsync();
+
+            return Ok(list);
+        }
+
         [HttpPost]
         [Route("[action]")]
         public async Task<IActionResult> GetListStatus(List<string> funcId)
         {
             var list = await _tMSContext.StatusText.Where(x => x.LangId == "VI" && funcId.Contains(x.FunctionId)).Select(x => new { x.StatusId, x.StatusContent }).ToListAsync();
+            return Ok(list);
+        }
+
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetListUser()
+        {
+            var listUser = from user in _tMSContext.NguoiDung
+                           join acc in _tMSContext.Account
+                           on user.Id equals acc.Id
+                           where user.MaBoPhan == "BP0004"
+                           select new { acc, user };
+            var list = await listUser.Select(x => new ListUser()
+            {
+                userName = x.acc.UserName,
+                name = x.user.HoVaTen
+            }).ToListAsync();
+
             return Ok(list);
         }
 

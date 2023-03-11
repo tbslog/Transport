@@ -44,10 +44,10 @@ namespace TBSLogistics.Service.Services.SFeeByTcommandManage
 
                 foreach (var i in request)
                 {
-                    string ErrorValidate = await Validate(i.IdTcommand, i.SfId, i.SfPriceId, i.Price, i.FinalPrice);
+                    string ErrorValidate = await Validate(i.IdTcommand, i.SfId, i.FinalPrice);
                     if (ErrorValidate != "")
                     {
-                        IdListFail.Add(" Bản Ghi:" + i.IdTcommand + " -" + i.SfId + " -" + i.SfPriceId + " -" + i.Price + " -" + i.FinalPrice + ErrorValidate);
+                        IdListFail.Add(" Bản Ghi:" + i.IdTcommand + " - " + i.SfId +" - " + i.FinalPrice + ErrorValidate);
                         continue;
                     }
                     var checkSFeeByTcommand = await _context.SfeeByTcommand.Where(x => x.IdTcommand == i.IdTcommand && x.SfId == i.SfId && x.ApproveStatus == 13).FirstOrDefaultAsync();
@@ -109,7 +109,7 @@ namespace TBSLogistics.Service.Services.SFeeByTcommandManage
                 return new BoolActionResult { isSuccess = false, Message = "Phụ phát sinh thất bại!" };
             }
         }
-        private async Task<string> Validate(long IdTcommand, long SfId, long? SfPriceId, double Price, double FinalPrice, string ErrorRow = "")
+        private async Task<string> Validate(long IdTcommand, long SfId, double FinalPrice, string ErrorRow = "")
         {
             string ErrorValidate = "";
 

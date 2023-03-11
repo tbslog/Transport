@@ -19,6 +19,7 @@ using TBSLogistics.Service.Services.Common;
 using TBSLogistics.Service.Services.ContractManage;
 using TBSLogistics.Service.Services.CustommerManage;
 using TBSLogistics.Service.Services.DriverManage;
+using TBSLogistics.Service.Services.MobileManager;
 using TBSLogistics.Service.Services.NotificationManage;
 using TBSLogistics.Service.Services.PricelistManage;
 using TBSLogistics.Service.Services.PriceTableManage;
@@ -51,7 +52,7 @@ namespace TBSLogistics.ApplicationAPI
             {
                 option.AddPolicy(name: apiCorsPolicy, policy =>
                  {
-                     policy.WithOrigins("http://localhost:3000", "http://192.168.0.84:7777", "https://tms.tbslogistics.com.vn").AllowAnyMethod().AllowAnyHeader();
+                     policy.WithOrigins("http://localhost:3000", "http://192.168.0.10:9999", "https://tms.tbslogistics.com.vn").AllowAnyMethod().AllowAnyHeader();
                  });
             });
 
@@ -99,6 +100,7 @@ namespace TBSLogistics.ApplicationAPI
             services.AddTransient<ISFeeByTcommand, SFeeByTcommandService>();
             services.AddTransient<IBill, BillService>();
             services.AddTransient<IReport, ReportService>();
+            services.AddTransient<IMobile, MobileServices>();
 
             services.AddSwaggerGen(option =>
             {

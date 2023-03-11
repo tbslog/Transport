@@ -285,10 +285,10 @@ namespace TBSLogistics.Service.Services.DriverManage
         private async Task<string> ValidateCreat(string MaTaiXe, string CCCD, string HoVaTen, string SoDienThoai, DateTime? NgaySinh, string MaNhaCungCap, string MaLoaiPhuongTien, bool TaiXeTBS, string ErrorRow = "")
         {
             string ErrorValidate = "";
-            if (MaTaiXe.Length > 12 || MaTaiXe.Length < 5)
-            {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã Tài Xế phải ít hơn 12 ký tự \r\n" + Environment.NewLine;
-            }
+            //if (MaTaiXe.Length > 12 || MaTaiXe.Length < 5)
+            //{
+            //    ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã Tài Xế phải ít hơn 12 ký tự \r\n" + Environment.NewLine;
+            //}
             if (!Regex.IsMatch(MaTaiXe, "^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9 aAàÀảẢãÃáÁạẠăĂằẰẳẲẵẴắẮặẶâÂầẦẩẨẫẪấẤậẬbBcCdDđĐeEèÈẻẺẽẼéÉẹẸêÊềỀểỂễỄếẾệỆ fFgGhHiIìÌỉỈĩĨíÍịỊjJkKlLmMnNoOòÒỏỎõÕóÓọỌôÔồỒổỔỗỖốỐộỘơƠờỜởỞỡỠớỚợỢpPqQrRsStTu UùÙủỦũŨúÚụỤưƯừỪửỬữỮứỨựỰvVwWxXyYỳỲỷỶỹỸýÝỵỴzZ]+(?<![_.])$", RegexOptions.IgnoreCase))
             {
                 ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã Tài Xế không được chứa ký tự đặc biệt \r\n" + Environment.NewLine;
