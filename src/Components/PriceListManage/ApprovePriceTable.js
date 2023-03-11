@@ -201,7 +201,7 @@ const ApprovePriceTable = (props) => {
   };
 
   const handlePageChange = async (page) => {
-    await fetchData(page);
+    await fetchData(page, keySearch, fromDate, toDate);
   };
 
   const handlePerRowsChange = async (newPerPage, page) => {
@@ -210,6 +210,7 @@ const ApprovePriceTable = (props) => {
     const dataCus = await getData(
       `PriceTable/GetListPriceTableApprove?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}&fromDate=${fromDate}&toDate=${toDate}`
     );
+    setData(dataCus.data);
     setPerPage(newPerPage);
     setTotalRows(dataCus.totalRecords);
     setLoading(false);
@@ -376,6 +377,7 @@ const ApprovePriceTable = (props) => {
                 progressPending={loading}
                 pagination
                 paginationServer
+                paginationRowsPerPageOptions={[10, 30, 50, 100]}
                 selectableRows
                 onSelectedRowsChange={handleChange}
                 clearSelectedRows={toggledClearRows}

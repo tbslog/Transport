@@ -1,5 +1,10 @@
 import { useMemo, useState, useEffect, useRef } from "react";
-import { getData, getDataCustom, postData } from "../Common/FuncAxios";
+import {
+  getData,
+  getDataCustom,
+  postData,
+  postFile,
+} from "../Common/FuncAxios";
 import { useForm, Controller } from "react-hook-form";
 import DataTable from "react-data-table-component";
 import moment from "moment";
@@ -15,6 +20,7 @@ import HandlingByTransport from "./HandlingByTransport";
 import Cookies from "js-cookie";
 import ConfirmDialog from "../Common/Dialog/ConfirmDialog";
 import LoadingPage from "../Common/Loading/LoadingPage";
+import FileExcelImport from "../../ExcelFile/TransportTemplate/TemplateImportTransport.xlsx";
 
 const TransportPage = () => {
   const {
@@ -487,6 +493,7 @@ const TransportPage = () => {
 
   const handleOnChangeFilterSelect = async (values, type) => {
     if (values) {
+      setLoading(true);
       let arrCus = [];
       let arrUsr = [];
 
@@ -523,10 +530,31 @@ const TransportPage = () => {
         fromDate,
         toDate,
         status,
+        maPTVC,
         arrCus,
         arrUsr
       );
+      setLoading(false);
     }
+  };
+
+  const handleExcelImportClick = async (e) => {
+    setLoading(true);
+    var file = e.target.files[0];
+    e.target.value = null;
+
+    const importExcelCus = await postFile(
+      "BillOfLading/ReadFileExcelTransport",
+      {
+        formFile: file,
+      }
+    );
+
+    if (importExcelCus === 1) {
+      await fetchData(1);
+    }
+
+    setLoading(false);
   };
 
   const customStyles = {
@@ -789,7 +817,29 @@ const TransportPage = () => {
                 />
               </div>
             </div>
-            <div className="card-footer"></div>
+            <div className="card-footer">
+              <div className="row">
+                <div className="col-sm-3">
+                  <a
+                    href={FileExcelImport}
+                    download="TemplateImportTransport.xlsx"
+                    className="btn btn-sm btn-default mx-1"
+                  >
+                    <i className="fas fa-file-download"></i>
+                  </a>
+                  <div className="upload-btn-wrapper">
+                    <button className="btn btn-sm btn-default mx-1">
+                      <i className="fas fa-upload"></i>
+                    </button>
+                    <input
+                      type="file"
+                      name="myfile"
+                      onChange={(e) => handleExcelImportClick(e)}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
           {ShowConfirm === true && (
             <ConfirmDialog

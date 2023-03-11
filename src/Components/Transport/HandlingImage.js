@@ -6,6 +6,7 @@ import moment from "moment";
 import Lightbox from "react-awesome-lightbox";
 import "react-awesome-lightbox/build/style.css";
 import Cookies from "js-cookie";
+import ConfirmDialog from "../Common/Dialog/ConfirmDialog";
 
 const HandlingImage = (props) => {
   const { dataClick, checkModal } = props;
@@ -24,23 +25,126 @@ const HandlingImage = (props) => {
     mode: "onChange",
   });
 
+  const columns = useMemo(() => [
+    {
+      name: "Xem Hình",
+      cell: (val) => (
+        <button
+          onClick={() => handleEditButtonClick(val, SetShowModal("ShowImage"))}
+          type="button"
+          className="btn btn-title btn-sm btn-default mx-1"
+          gloss="Xem Hình Ảnh"
+        >
+          <i className="far fa-eye"></i>
+        </button>
+      ),
+      ignoreRowClick: true,
+      allowOverflow: true,
+      button: true,
+    },
+    {
+      cell: (val) => (
+        <>
+          {accountType && accountType === "NV" && (
+            <button
+              onClick={() => showConfirmDialog(val, setFuncName("removeImage"))}
+              type="button"
+              className="btn btn-title btn-sm btn-default mx-1"
+              gloss="Xóa Hình Ảnh"
+            >
+              <i className="fas fa-trash"></i>
+            </button>
+          )}
+        </>
+      ),
+      ignoreRowClick: true,
+      allowOverflow: true,
+      button: true,
+    },
+
+    {
+      selector: (row) => row.id,
+      omit: true,
+    },
+    {
+      name: "Tên Chứng Từ",
+      cell: (row) => (
+        <div className="row">
+          <div className="col col-9">
+            <input
+              autoComplete="false"
+              type="text"
+              className="form-control"
+              id="ImageName"
+              {...register(`ImageName${row.id}`)}
+              onLoad={LoadNameImage(row)}
+              onChange={(e) => handleOnChangeName(row.id, e.target.value)}
+            />
+          </div>
+          <div className="col col-3">
+            <button
+              type="button"
+              onClick={() => handleOnSave(row.id)}
+              className="btn-sm mx"
+            >
+              <i className="fas fa-check"></i>
+            </button>
+          </div>
+        </div>
+      ),
+      ignoreRowClick: true,
+      allowOverflow: true,
+    },
+    {
+      name: "Loại File",
+      selector: (row) => row.fileType,
+      sortable: true,
+    },
+    {
+      name: "Trạng Thái",
+      selector: (row) => row.fileType,
+      sortable: true,
+    },
+    {
+      name: "Thời Gian Tải Lên",
+      selector: (row) => moment(row.uploadedTime).format("DD/MM/YYYY HH:mm:ss"),
+      sortable: true,
+    },
+  ]);
+
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  const [funcName, setFuncName] = useState("");
+
   const [ShowModal, SetShowModal] = useState("");
+  const [ShowConfirm, setShowConfirm] = useState(false);
 
   const [selectIdClick, setSelectIdClick] = useState({});
   const [image, setImage] = useState("");
   const [name, setName] = useState("");
 
-  const handleDeleteImage = async (val) => {
-    const fileId = val.id;
-    var del = await postData(`BillOfLading/DeleteImage?fileId=${fileId}`);
+  const handleDeleteImage = async () => {
+    if (
+      ShowConfirm === true &&
+      selectIdClick &&
+      Object.keys(selectIdClick).length > 0
+    ) {
+      const fileId = selectIdClick.id;
+      var del = await postData(`BillOfLading/DeleteImage?fileId=${fileId}`);
 
-    if (del === 1) {
-      let datafilter = data.filter((x) => x.id !== fileId);
-      setData(datafilter);
+      if (del === 1) {
+        await fetchData(dataClick.maDieuPhoi);
+        setShowConfirm(false);
+      }
     }
+  };
+
+  const showConfirmDialog = (val) => {
+    if (val) {
+      setSelectIdClick(val);
+    }
+    setShowConfirm(true);
   };
 
   const handleOnChangeName = (rowId, newName) => {
@@ -64,86 +168,28 @@ const HandlingImage = (props) => {
     }
   };
 
-  const columns = useMemo(() => [
-    {
-      //   name: "Xem Hình",
-      cell: (val) => (
-        <button
-          onClick={() => handleEditButtonClick(val, SetShowModal("ShowImage"))}
-          type="button"
-          className="btn btn-title btn-sm btn-default mx-1"
-          gloss="Xem Hình Ảnh"
-        >
-          <i className="far fa-eye"></i>
-        </button>
-      ),
-      ignoreRowClick: true,
-      allowOverflow: true,
-      button: true,
-    },
-    {
-      cell: (val) => (
-        <>
-          {accountType && accountType === "NV" && (
-            <button
-              onClick={() => handleDeleteImage(val)}
-              type="button"
-              className="btn btn-title btn-sm btn-default mx-1"
-              gloss="Xóa Hình Ảnh"
-            >
-              <i className="fas fa-trash"></i>
-            </button>
-          )}
-        </>
-      ),
-      ignoreRowClick: true,
-      allowOverflow: true,
-      button: true,
-    },
+  const funcAgree = async () => {
+    if (funcName && funcName.length > 0) {
+      switch (funcName) {
+        case "removeImage":
+          return await handleDeleteImage();
+        case "LockDoc":
+          return await ChangeStatusDoc("Lock");
+        case "ConfirmDoc":
+          return await ChangeStatusDoc("Confirm");
+      }
+    }
+  };
 
-    {
-      selector: (row) => row.id,
-      omit: true,
-    },
-    {
-      //   name: "Tên Hình",
-      selector: (row) => (
-        <div className="row">
-          <div className="col-sm">
-            <input
-              autoComplete="false"
-              type="text"
-              className="form-control"
-              id="ImageName"
-              {...register(`ImageName${row.id}`)}
-              onLoad={LoadNameImage(row)}
-              onChange={(e) => handleOnChangeName(row.id, e.target.value)}
-            />
-          </div>
-          <div className="col-sm">
-            <button
-              type="button"
-              onClick={() => handleOnSave(row.id)}
-              className="btn-sm mx-1"
-            >
-              <i className="fas fa-check"></i>
-            </button>
-          </div>
-        </div>
-      ),
-      sortable: true,
-    },
-    {
-      name: "",
-      selector: (row) => row.fileType,
-      sortable: true,
-    },
-    {
-      //   name: "Thời Gian Upload",
-      selector: (row) => moment(row.uploadedTime).format("DD/MM/YYYY HH:mm:ss"),
-      sortable: true,
-    },
-  ]);
+  const ChangeStatusDoc = (action) => {
+    if (action) {
+      if (action === "Lock") {
+      }
+
+      if (action === "Confirm") {
+      }
+    }
+  };
 
   useEffect(() => {
     if (props && dataClick && Object.keys(dataClick).length > 0) {
@@ -179,10 +225,11 @@ const HandlingImage = (props) => {
           <div className="card-header">
             <div className="container-fruid">
               <div className="row">
-                {/* <button
+                <button
                   className="btn btn-title btn-sm btn-default mx-1"
                   gloss="Xác Nhận Đã Đủ Chứng Từ"
                   type="button"
+                  onClick={() => showConfirmDialog(setFuncName("ConfirmDoc"))}
                 >
                   <i className="far fa-check-circle"></i>
                 </button>
@@ -190,9 +237,10 @@ const HandlingImage = (props) => {
                   className="btn btn-title btn-sm btn-default mx-1"
                   gloss="Khóa Chứng Từ"
                   type="button"
+                  onClick={() => showConfirmDialog(setFuncName("LockDoc"))}
                 >
                   <i className="fas fa-lock"></i>
-                </button> */}
+                </button>
               </div>
             </div>
           </div>
@@ -218,6 +266,16 @@ const HandlingImage = (props) => {
               onClose={() => SetShowModal("HideImage")}
             ></Lightbox>
           </div>
+        )}
+        {ShowConfirm === true && (
+          <ConfirmDialog
+            setShowConfirm={setShowConfirm}
+            title={"Bạn có chắc chắn với quyết định này?"}
+            content={
+              "Khi thực hiện hành động này sẽ không thể hoàn tác lại được nữa."
+            }
+            funcAgree={funcAgree}
+          />
         )}
       </section>
     </>

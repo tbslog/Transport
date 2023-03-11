@@ -162,8 +162,6 @@ const AddSubFeeByHandling = (props) => {
       arr.push({
         IdTcommand: dataClick.maDieuPhoi,
         SfId: val.MaPhuPhi.value,
-        SfPriceId: null,
-        Price: 0,
         FinalPrice: val.DonGia,
         Note: val.GhiChu,
       });

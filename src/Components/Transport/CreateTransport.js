@@ -26,7 +26,7 @@ const CreateTransport = (props) => {
       optionHandling: [
         {
           DonViVanTai: { label: "Chọn Đơn Vị Vận Tải", value: null },
-          LoaiHangHoa: null,
+          LoaiHangHoa: "Normal",
           PTVanChuyen: "",
           KhoiLuong: null,
           TheTich: null,
@@ -506,6 +506,7 @@ const CreateTransport = (props) => {
                           className="form-control"
                           {...register(`HangTau`, Validate.HangTau)}
                         >
+                          <option value={""}>-- Để Trống --</option>
                           {listShipping &&
                             listShipping.map((val) => {
                               return (

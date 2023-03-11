@@ -14,6 +14,11 @@ const LoginPage = () => {
   const Validate = {};
 
   const onSubmit = async (data) => {
+    if (!data.UserName || !data.Password) {
+      setErrMsg("Vui Lòng Nhập Đủ Thông Tin");
+      return;
+    }
+
     var login = await postLogin("User/Login", {
       UserName: data.UserName,
       Password: md5(data.Password),

@@ -498,6 +498,7 @@ const HandlingPage = (props) => {
   };
 
   const handlePageChange = async (newPage) => {
+    setLoading(true);
     fetchData(
       transportId,
       newPage,
@@ -509,10 +510,12 @@ const HandlingPage = (props) => {
       listUserSelected
     );
     setPage(newPage);
+    setLoading(false);
   };
 
   const handlePerRowsChange = async (newPerPage, page) => {
     if (newPerPage !== perPage) {
+      setLoading(true);
       let listFilter = {
         customers: listCusSelected,
         users: listUserSelected,
@@ -525,6 +528,7 @@ const HandlingPage = (props) => {
       setPerPage(newPerPage);
       setData(dataCus.data);
       setTotalRows(dataCus.totalRecords);
+      setLoading(false);
     }
   };
 
@@ -773,6 +777,8 @@ const HandlingPage = (props) => {
 
   const handleOnChangeFilterSelect = async (values, type) => {
     if (values) {
+      setLoading(true);
+
       let arrCus = [];
       let arrUsr = [];
 
@@ -813,6 +819,7 @@ const HandlingPage = (props) => {
         arrCus,
         arrUsr
       );
+      setLoading(false);
     }
   };
 
@@ -968,6 +975,9 @@ const HandlingPage = (props) => {
                             className="form-control form-control-sm"
                             placeholderText="Từ ngày"
                             value={fromDate}
+                            showMonthDropdown
+                            showYearDropdown
+                            dropdownMode="select"
                           />
                         </div>
                       </div>

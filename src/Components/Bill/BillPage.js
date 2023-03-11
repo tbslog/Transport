@@ -280,6 +280,7 @@ const BillPage = () => {
                           className="form-control form-control-sm"
                           placeholderText="Từ ngày"
                           value={fromDate}
+                          showWeekNumbers
                         />
                       </div>
                     </div>
@@ -292,6 +293,7 @@ const BillPage = () => {
                           className="form-control form-control-sm"
                           placeholderText="Đến Ngày"
                           value={toDate}
+                          showWeekNumbers
                         />
                       </div>
                     </div>
