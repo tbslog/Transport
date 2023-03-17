@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.PriceListModel;
+using TBSLogistics.Model.Model.UserModel;
 using TBSLogistics.Service.Helpers;
 using TBSLogistics.Service.Panigation;
 using TBSLogistics.Service.Services.Common;
@@ -51,9 +52,9 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("[action]")]
-        public async Task<IActionResult> GetListPriceTable([FromQuery] PaginationFilter filter)
+        public async Task<IActionResult> GetListPriceTable([FromQuery] PaginationFilter filter, ListFilter listFilter)
         {
             var checkPermissionKH = await _common.CheckPermission("C0001");
             var checkPermissionNCC = await _common.CheckPermission("C0005");
@@ -78,15 +79,15 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             }
 
             var route = Request.Path.Value;
-            var pagedData = await _priceTable.GetListPriceTable(filter);
+            var pagedData = await _priceTable.GetListPriceTable(filter, listFilter);
 
             var pagedReponse = PaginationHelper.CreatePagedReponse<GetListPiceTableRequest>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _paninationService, route);
             return Ok(pagedReponse);
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("[action]")]
-        public async Task<IActionResult> GetListPriceTableByContractId(string Id, int PageNumber, int PageSize, string onlyct = null)
+        public async Task<IActionResult> GetListPriceTableByContractId([FromQuery] PaginationFilter filter, ListFilter listFilter, string Id, string onlyct = null)
         {
             var checkPermission = await _common.CheckPermission("C0001");
             if (checkPermission.isSuccess == false)
@@ -95,7 +96,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             }
 
             var route = Request.Path.Value;
-            var pagedData = await _priceTable.GetListPriceTableByContractId(Id, onlyct, PageNumber, PageSize);
+            var pagedData = await _priceTable.GetListPriceTableByContractId(Id, onlyct, listFilter, filter);
             var pagedReponse = PaginationHelper.CreatePagedReponse<GetPriceListRequest>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _paninationService, route);
             return Ok(pagedReponse);
         }
@@ -171,7 +172,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpPost]
         [Route("[action]")]
-        public async Task<IActionResult> UpdatePriceTable(int id, GetPriceListRequest request)
+        public async Task<IActionResult> UpdatePriceTable(int id, GetPriceListById request)
         {
             var checkPermission = await _common.CheckPermission("C0004");
             if (checkPermission.isSuccess == false)

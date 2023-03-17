@@ -33,7 +33,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
         Task<Attachment> GetImageById(int id);
         Task<PagedResponseCustom<ListHandling>> GetListHandling(string transportId, ListFilter listFilter, PaginationFilter filter);
         Task<PagedResponseCustom<ListHandling>> GetListHandlingLess(ListFilter listFilter, PaginationFilter filter);
-        Task<ListPoint> LoadDataRoadTransportByCusId(string customerId);
+        //Task<ListPoint> LoadDataRoadTransportByCusId(string customerId);
         //Task<BoolActionResult> CloneHandling(int id);
         //Task<BoolActionResult> RemoveHandling(int id);
         Task<BoolActionResult> CreateTransportLess(CreateTransportLess request);

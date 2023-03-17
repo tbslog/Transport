@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -484,8 +485,9 @@ namespace TBSLogistics.ApplicationAPI.Controllers
                 return BadRequest(checkPermission.Message);
             }
 
-            var list = await _billOfLading.LoadDataRoadTransportByCusId(id);
-            return Ok(list);
+            //var list = await _billOfLading.LoadDataRoadTransportByCusId(id);
+            //return Ok(list);
+            return Ok();
         }
 
         [HttpPost]
@@ -666,15 +668,16 @@ namespace TBSLogistics.ApplicationAPI.Controllers
                 workSheet.Cells[1, 5].Value = "Mã CONT";
                 workSheet.Cells[1, 6].Value = "Loại Phương Tiện";
                 workSheet.Cells[1, 7].Value = "Hãng Tàu";
-                workSheet.Cells[1, 8].Value = "Điểm Lấy/Trả Rỗng";
-                workSheet.Cells[1, 9].Value = "Điểm Đóng Hàng";
-                workSheet.Cells[1, 10].Value = "Điểm Hạ Hàng";
-                workSheet.Cells[1, 11].Value = "Đơn Vị Vận Tải";
-                workSheet.Cells[1, 12].Value = "Khối Lượng";
-                workSheet.Cells[1, 13].Value = "Thể Tích";
-                workSheet.Cells[1, 14].Value = "Số Kiện";
-                workSheet.Cells[1, 15].Value = "Trạng Thái";
-                workSheet.Cells[1, 16].Value = "Thời Gian Tạo";
+                workSheet.Cells[1, 8].Value = "Điểm Lấy Rỗng";
+                workSheet.Cells[1, 9].Value = "Điểm Trả Rỗng";
+                workSheet.Cells[1, 10].Value = "Điểm Đóng Hàng";
+                workSheet.Cells[1, 11].Value = "Điểm Hạ Hàng";
+                workSheet.Cells[1, 12].Value = "Đơn Vị Vận Tải";
+                workSheet.Cells[1, 13].Value = "Khối Lượng";
+                workSheet.Cells[1, 14].Value = "Thể Tích";
+                workSheet.Cells[1, 15].Value = "Số Kiện";
+                workSheet.Cells[1, 16].Value = "Trạng Thái";
+                workSheet.Cells[1, 17].Value = "Thời Gian Tạo";
                 int row = 2;
                 foreach (var item in data.dataResponse)
                 {
@@ -686,14 +689,15 @@ namespace TBSLogistics.ApplicationAPI.Controllers
                     workSheet.Cells[row, 6].Value = item.PTVanChuyen;
                     workSheet.Cells[row, 7].Value = item.HangTau;
                     workSheet.Cells[row, 8].Value = item.DiemLayRong;
-                    workSheet.Cells[row, 9].Value = item.DiemLayHang;
-                    workSheet.Cells[row, 10].Value = item.DiemTraHang;
-                    workSheet.Cells[row, 11].Value = item.DonViVanTai;
-                    workSheet.Cells[row, 12].Value = item.KhoiLuong;
-                    workSheet.Cells[row, 13].Value = item.TheTich;
-                    workSheet.Cells[row, 14].Value = item.SoKien;
-                    workSheet.Cells[row, 15].Value = item.TrangThai;
-                    workSheet.Cells[row, 16].Value = item.ThoiGianTaoDon.ToString();
+                    workSheet.Cells[row, 9].Value = item.DiemTraRong;
+                    workSheet.Cells[row, 10].Value = item.DiemDau;
+                    workSheet.Cells[row, 11].Value = item.DiemCuoi;
+                    workSheet.Cells[row, 12].Value = item.DonViVanTai;
+                    workSheet.Cells[row, 13].Value = item.KhoiLuong;
+                    workSheet.Cells[row, 14].Value = item.TheTich;
+                    workSheet.Cells[row, 15].Value = item.SoKien;
+                    workSheet.Cells[row, 16].Value = item.TrangThai;
+                    workSheet.Cells[row, 17].Value = item.ThoiGianTaoDon.ToString();
                     row++;
                 }
 
@@ -748,15 +752,16 @@ namespace TBSLogistics.ApplicationAPI.Controllers
                 workSheet.Cells[1, 6].Value = "Mã CONT";
                 workSheet.Cells[1, 7].Value = "Loại Phương Tiện";
                 workSheet.Cells[1, 8].Value = "Hãng Tàu";
-                workSheet.Cells[1, 9].Value = "Điểm Lấy/Trả Rỗng";
-                workSheet.Cells[1, 10].Value = "Điểm Đóng Hàng";
-                workSheet.Cells[1, 11].Value = "Điểm Hạ Hàng";
-                workSheet.Cells[1, 12].Value = "Đơn Vị Vận Tải";
-                workSheet.Cells[1, 13].Value = "Khối Lượng";
-                workSheet.Cells[1, 14].Value = "Thể Tích";
-                workSheet.Cells[1, 15].Value = "Số Kiện";
-                workSheet.Cells[1, 16].Value = "Trạng Thái";
-                workSheet.Cells[1, 17].Value = "Thời Gian Tạo";
+                workSheet.Cells[1, 9].Value = "Điểm Lấy Rỗng";
+                workSheet.Cells[1, 10].Value = "Điểm Trả Rỗng";
+                workSheet.Cells[1, 11].Value = "Điểm Đóng Hàng";
+                workSheet.Cells[1, 12].Value = "Điểm Hạ Hàng";
+                workSheet.Cells[1, 13].Value = "Đơn Vị Vận Tải";
+                workSheet.Cells[1, 14].Value = "Khối Lượng";
+                workSheet.Cells[1, 15].Value = "Thể Tích";
+                workSheet.Cells[1, 16].Value = "Số Kiện";
+                workSheet.Cells[1, 17].Value = "Trạng Thái";
+                workSheet.Cells[1, 18].Value = "Thời Gian Tạo";
                 int row = 2;
                 foreach (var item in data.dataResponse)
                 {
@@ -769,14 +774,15 @@ namespace TBSLogistics.ApplicationAPI.Controllers
                     workSheet.Cells[row, 7].Value = item.PTVanChuyen;
                     workSheet.Cells[row, 8].Value = item.HangTau;
                     workSheet.Cells[row, 9].Value = item.DiemLayRong;
-                    workSheet.Cells[row, 10].Value = item.DiemLayHang;
-                    workSheet.Cells[row, 11].Value = item.DiemTraHang;
-                    workSheet.Cells[row, 12].Value = item.DonViVanTai;
-                    workSheet.Cells[row, 13].Value = item.KhoiLuong;
-                    workSheet.Cells[row, 14].Value = item.TheTich;
-                    workSheet.Cells[row, 15].Value = item.SoKien;
-                    workSheet.Cells[row, 16].Value = item.TrangThai;
-                    workSheet.Cells[row, 17].Value = item.ThoiGianTaoDon.ToString();
+                    workSheet.Cells[row, 10].Value = item.DiemTraRong;
+                    workSheet.Cells[row, 11].Value = item.DiemDau;
+                    workSheet.Cells[row, 12].Value = item.DiemCuoi;
+                    workSheet.Cells[row, 13].Value = item.DonViVanTai;
+                    workSheet.Cells[row, 14].Value = item.KhoiLuong;
+                    workSheet.Cells[row, 15].Value = item.TheTich;
+                    workSheet.Cells[row, 16].Value = item.SoKien;
+                    workSheet.Cells[row, 17].Value = item.TrangThai;
+                    workSheet.Cells[row, 18].Value = item.ThoiGianTaoDon.ToString();
                     row++;
                 }
 

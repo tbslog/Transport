@@ -34,10 +34,12 @@ namespace TBSLogistics.Data.TMS
         public double? TheTich { get; set; }
         public int TrangThaiChungTu { get; set; }
         public string GhiChu { get; set; }
-        public int? DiemLayTraRong { get; set; }
+        public int? DiemLayRong { get; set; }
+        public int? DiemTraRong { get; set; }
         public DateTime? ThoiGianLayHangThucTe { get; set; }
         public DateTime? ThoiGianTraHangThucTe { get; set; }
-        public DateTime? ThoiGianLayTraRongThucTe { get; set; }
+        public DateTime? ThoiGianTraRongThucTe { get; set; }
+        public DateTime? ThoiGianLayRongThucTe { get; set; }
         public DateTime? ThoiGianCoMatThucTe { get; set; }
         public DateTime? ThoiGianHoanThanh { get; set; }
         public int TrangThai { get; set; }

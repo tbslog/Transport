@@ -63,7 +63,7 @@ namespace TBSLogistics.Service.Services.ProductServiceManage
                         // ngày hiệu lực phải bằng ngày kí trong bảng phụ lục hợp đồng join bảng lấy ra
                         MaHopDong = "SPDV_TBSL",
                         MaPtvc = i.MaPTVC,
-                        MaCungDuong = i.MaCungDuong,
+                      
                         MaLoaiPhuongTien = i.MaLoaiPhuongTien,
                         DonGia = i.DonGia,
                         MaDvt = i.MaDVT,
@@ -125,7 +125,7 @@ namespace TBSLogistics.Service.Services.ProductServiceManage
                     return new BoolActionResult { isSuccess = false, Message = ErrorValidate };
                 }
 
-                var checkExists2 = await _TMSContext.BangGia.Where(x => x.Id != request.id && x.MaHopDong == request.MaHopDong && x.MaCungDuong == request.MaCungDuong && x.MaPtvc == request.MaPTVC && x.MaLoaiPhuongTien == request.MaLoaiPhuongTien).FirstOrDefaultAsync();
+                var checkExists2 = await _TMSContext.BangGia.Where(x => x.Id != request.id && x.MaHopDong == request.MaHopDong  && x.MaPtvc == request.MaPTVC && x.MaLoaiPhuongTien == request.MaLoaiPhuongTien).FirstOrDefaultAsync();
                 if (checkExists2 != null)
                 {
                     return new BoolActionResult { isSuccess = false, Message = "Bảng giá đã tồn tại   " };
@@ -135,7 +135,7 @@ namespace TBSLogistics.Service.Services.ProductServiceManage
                         select j.ThoiGianBatDau;
 
                 checkExists.MaPtvc = request.MaPTVC;
-                checkExists.MaCungDuong = request.MaCungDuong;
+          
                 checkExists.MaLoaiPhuongTien = request.MaLoaiPhuongTien;
                 checkExists.DonGia = request.DonGia;
                 checkExists.MaDvt = request.MaDVT;
@@ -238,7 +238,7 @@ namespace TBSLogistics.Service.Services.ProductServiceManage
                                                                   select hd.MaKh).Contains(mhd.MaKh)
                                                            select mhd.MaHopDong).Contains(bg.MaHopDong)
                                                     select bg)
-                                         where x.Id != checkTT.Id && x.MaCungDuong == checkTT.MaCungDuong && x.MaPtvc == checkTT.MaPtvc && x.MaLoaiPhuongTien == checkTT.MaLoaiPhuongTien && x.TrangThai == 4 && x.MaLoaiHangHoa == checkTT.MaLoaiHangHoa && x.MaDvt == checkTT.MaDvt
+                                         where x.Id != checkTT.Id && x.MaPtvc == checkTT.MaPtvc && x.MaLoaiPhuongTien == checkTT.MaLoaiPhuongTien && x.TrangThai == 4 && x.MaLoaiHangHoa == checkTT.MaLoaiHangHoa && x.MaDvt == checkTT.MaDvt
                                          select x;
                             if (editTT != null)
                             {
@@ -430,7 +430,6 @@ namespace TBSLogistics.Service.Services.ProductServiceManage
                     ID = getProductServiceById.Id,
                     MaHopDong = getProductServiceById.MaHopDong,
                     MaPTVC = getProductServiceById.MaPtvc,
-                    MaCungDuong = getProductServiceById.MaCungDuong,
                     MaLoaiPhuongTien = getProductServiceById.MaLoaiPhuongTien,
                     DonGia = getProductServiceById.DonGia,
                     MaDVT = getProductServiceById.MaDvt,
@@ -457,20 +456,18 @@ namespace TBSLogistics.Service.Services.ProductServiceManage
                                join bg in _TMSContext.BangGia
                                on pro.MaHopDong equals bg.MaHopDong
                                join kh in _TMSContext.KhachHang
-                               on pro.MaKh equals kh.MaKh
-                               join cd in _TMSContext.CungDuong
-                               on bg.MaCungDuong equals cd.MaCungDuong
+                               on pro.MaKh equals kh.MaKh                             
                                join tt in _TMSContext.StatusText
                                on bg.TrangThai equals tt.StatusId
                                where tt.LangId == tempData.LangID
                                && bg.MaHopDong == "SPDV_TBSL"
                                orderby bg.Id descending
-                               select new { pro, bg, kh, tt, cd };
+                               select new { pro, bg, kh, tt };
 
-                if (!string.IsNullOrEmpty(filter.Keyword))
-                {
-                    listData = listData.Where(x => x.cd.MaCungDuong.Contains(filter.Keyword) || x.cd.TenCungDuong.Contains(filter.Keyword));
-                }
+                //if (!string.IsNullOrEmpty(filter.Keyword))
+                //{
+                //    listData = listData.Where(x => x.cd.MaCungDuong.Contains(filter.Keyword) || x.cd.TenCungDuong.Contains(filter.Keyword));
+                //}
 
                 if (!string.IsNullOrEmpty(filter.statusId))
                 {
@@ -493,9 +490,7 @@ namespace TBSLogistics.Service.Services.ProductServiceManage
                     MaKh = x.kh.MaKh,
                     TenKh = x.kh.TenKh,
                     TenHopDong = x.pro.TenHienThi,
-                    TenCungDuong = x.cd.TenCungDuong,
                     MaHopDong = x.bg.MaHopDong,
-                    MaCungDuong = x.bg.MaCungDuong,
                     MaLoaiPhuongTien = _TMSContext.LoaiPhuongTien.Where(y => y.MaLoaiPhuongTien == x.bg.MaLoaiPhuongTien).Select(x => x.TenLoaiPhuongTien).FirstOrDefault(),
                     MaLoaiHangHoa = _TMSContext.LoaiHangHoa.Where(y => y.MaLoaiHangHoa == x.bg.MaLoaiHangHoa).Select(x => x.TenLoaiHangHoa).FirstOrDefault(),
                     MaDVT = _TMSContext.DonViTinh.Where(y => y.MaDvt == x.bg.MaDvt).Select(x => x.TenDvt).FirstOrDefault(),
@@ -740,11 +735,11 @@ namespace TBSLogistics.Service.Services.ProductServiceManage
                 }
             }
 
-            var checkExist = await _TMSContext.BangGia.Where(x => x.MaHopDong == MaHopDong && x.MaCungDuong == MaCungDuong && x.MaPtvc == MaPTVC && x.MaDvt == MaDVT && x.MaLoaiDoiTac == MaLoaiHopDong).FirstOrDefaultAsync();
-            if (checkExist != null)
-            {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Đã tồn tại thêm mới thất bại \r\n Vui lòng tạo mới bảng giá khác hoặc vào mục Update \r\n" + System.Environment.NewLine;
-            }
+            //var checkExist = await _TMSContext.BangGia.Where(x => x.MaHopDong == MaHopDong && x.MaCungDuong == MaCungDuong && x.MaPtvc == MaPTVC && x.MaDvt == MaDVT && x.MaLoaiDoiTac == MaLoaiHopDong).FirstOrDefaultAsync();
+            //if (checkExist != null)
+            //{
+            //    ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Đã tồn tại thêm mới thất bại \r\n Vui lòng tạo mới bảng giá khác hoặc vào mục Update \r\n" + System.Environment.NewLine;
+            //}
             return ErrorValidate;
         }
         private async Task<string> ValidateEdit(string MaHopDong, string MaPTVC, string MaCungDuong, string MaLoaiPhuongTien, decimal DonGia, string MaDVT, string MaLoaiHangHoa, string MaLoaiHopDong, DateTime? NgayHetHieuLuc, string ErrorRow = "")

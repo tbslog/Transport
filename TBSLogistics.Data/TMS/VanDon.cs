@@ -16,8 +16,9 @@ namespace TBSLogistics.Data.TMS
         public string Tau { get; set; }
         public string MaKh { get; set; }
         public string LoaiVanDon { get; set; }
-        public string MaCungDuong { get; set; }
         public string MaPtvc { get; set; }
+        public int DiemDau { get; set; }
+        public int DiemCuoi { get; set; }
         public int TongThungHang { get; set; }
         public double? TongKhoiLuong { get; set; }
         public double? TongTheTich { get; set; }
@@ -25,7 +26,8 @@ namespace TBSLogistics.Data.TMS
         public DateTime? ThoiGianCoMat { get; set; }
         public DateTime? ThoiGianHanLenh { get; set; }
         public DateTime? ThoiGianHaCang { get; set; }
-        public DateTime? ThoiGianLayTraRong { get; set; }
+        public DateTime? ThoiGianLayRong { get; set; }
+        public DateTime? ThoiGianTraRong { get; set; }
         public DateTime? ThoiGianLayHang { get; set; }
         public DateTime? ThoiGianTraHang { get; set; }
         public DateTime ThoiGianTaoDon { get; set; }

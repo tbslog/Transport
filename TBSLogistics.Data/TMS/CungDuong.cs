@@ -5,11 +5,6 @@ namespace TBSLogistics.Data.TMS
 {
     public partial class CungDuong
     {
-        public CungDuong()
-        {
-            BangGia = new HashSet<BangGia>();
-        }
-
         public string MaCungDuong { get; set; }
         public string TenCungDuong { get; set; }
         public double Km { get; set; }
@@ -21,7 +16,5 @@ namespace TBSLogistics.Data.TMS
         public DateTime CreatedTime { get; set; }
         public string Creator { get; set; }
         public string Updater { get; set; }
-
-        public virtual ICollection<BangGia> BangGia { get; set; }
     }
 }

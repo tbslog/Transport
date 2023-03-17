@@ -27,10 +27,11 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
 
     public class LoadTransports
     {
+        public string LoaiVanDon { get; set; }
+        public string MaPTVC { get; set; }
         public string MaKH { get; set; }
         public string MaVanDon { get; set; }
         public string MaVanDonKH { get; set; }
-        public string CungDuong { get; set; }
         public string DiemDau { get; set; }
         public string DiemCuoi { get; set; }
         public double? TongKhoiLuong { get; set; }

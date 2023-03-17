@@ -14,8 +14,9 @@ namespace TBSLogistics.Data.TMS
         public long Id { get; set; }
         public string MaHopDong { get; set; }
         public string MaPtvc { get; set; }
-        public int? MaKhuVuc { get; set; }
-        public string MaCungDuong { get; set; }
+        public int? DiemLayTraRong { get; set; }
+        public int DiemDau { get; set; }
+        public int DiemCuoi { get; set; }
         public string MaLoaiPhuongTien { get; set; }
         public decimal DonGia { get; set; }
         public string MaDvt { get; set; }
@@ -31,7 +32,6 @@ namespace TBSLogistics.Data.TMS
         public string Creator { get; set; }
         public string Updater { get; set; }
 
-        public virtual CungDuong MaCungDuongNavigation { get; set; }
         public virtual HopDongVaPhuLuc MaHopDongNavigation { get; set; }
         public virtual ICollection<DieuPhoi> DieuPhoiBangGiaKhNavigation { get; set; }
         public virtual ICollection<DieuPhoi> DieuPhoiBangGiaNccNavigation { get; set; }

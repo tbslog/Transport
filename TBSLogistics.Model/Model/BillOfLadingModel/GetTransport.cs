@@ -31,13 +31,12 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
 
         public DateTime ThoiGianTaoDon { get; set; }
 
-        public DateTime? ThoiGianLayTraRong { get; set; }
+        public DateTime? ThoiGianLayRong { get; set; }
+        public DateTime? ThoiGianTraRong { get; set; }
         public DateTime? ThoiGianLayHang { get; set; }
         public DateTime? ThoiGianTraHang { get; set; }
         public DateTime? ThoiGianHaCang { get; set; }
         public DateTime? ThoiGianCoMat { get; set; }
         public DateTime? ThoiGianHanLenh { get; set; }
     }
-
- 
 }

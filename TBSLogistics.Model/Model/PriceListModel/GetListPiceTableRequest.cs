@@ -8,7 +8,9 @@ namespace TBSLogistics.Model.Model.PriceListModel
 {
     public class GetListPiceTableRequest
     {
-        public string KhuVuc { get; set; }
+        public string DiemLayTraRong { get; set; }
+        public string DiemDau { get; set; }
+        public string DiemCuoi { get; set; }
         public string MaBangGia { get; set; }
         public string MaLoaiDoiTac { get; set; }
         public string SoHopDongCha { get; set; }
@@ -16,8 +18,6 @@ namespace TBSLogistics.Model.Model.PriceListModel
         public string TenHopDong { get; set; }
         public string MaKh { get; set; }
         public string TenKH { get; set; }
-        public string MaCungDuong { get; set; }
-        public string TenCungDuong { get; set; }
         public string MaLoaiPhuongTien { get; set; }
         public decimal DonGia { get; set; }
         public string MaDvt { get; set; }

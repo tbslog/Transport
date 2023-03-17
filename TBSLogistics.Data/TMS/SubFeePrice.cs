@@ -16,11 +16,6 @@ namespace TBSLogistics.Data.TMS
         public long SfId { get; set; }
         public string VehicleType { get; set; }
         public string GoodsType { get; set; }
-        /// <summary>
-        /// if the sub-fee is collected on road, need two place; is collected at a place need one place; independent to place  then 2 place-fields are null 
-        /// </summary>
-        public int? AreaId { get; set; }
-        public string TripId { get; set; }
         public double Price { get; set; }
         /// <summary>
         /// 0: deactivated, 1: create new, 2: approved, 3: deleted
@@ -35,6 +30,9 @@ namespace TBSLogistics.Data.TMS
         public string Approver { get; set; }
         public string Updater { get; set; }
         public string Creator { get; set; }
+        public int? GetEmptyPlace { get; set; }
+        public int? FirstPlace { get; set; }
+        public int? SecondPlace { get; set; }
 
         public virtual HopDongVaPhuLuc Contract { get; set; }
         public virtual SubFee Sf { get; set; }

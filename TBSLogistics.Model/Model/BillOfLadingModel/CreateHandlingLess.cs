@@ -10,7 +10,8 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
     {
         public List<arrTransport> arrTransports { get; set; }
         public string PTVanChuyen { get; set; }
-        public int? DiemLayTraRong { get; set; }
+        public int? DiemTraRong { get; set; }
+        public int? DiemLayRong { get; set; }
         public string DonViVanTai { get; set; }
         public string XeVanChuyen { get; set; }
         public string TaiXe { get; set; }
@@ -21,7 +22,8 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
         public string SEALNP { get; set; }
         public DateTime? TGLayHang { get; set; }
         public DateTime? TGTraHang { get; set; }
-        public DateTime? TGLayTraRong { get; set; }
+        public DateTime? TGTraRong { get; set; }
+        public DateTime? TGLayRong { get; set; }
         public DateTime? TGHanLenh { get; set; }
         public DateTime? TGHaCang { get; set; }
     }
@@ -30,7 +32,8 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
     {
         public List<arrTransport> arrTransports { get; set; }
         public string PTVanChuyen { get; set; }
-        public int? DiemLayTraRong { get; set; }
+        public int? DiemTraRong { get; set; }
+        public int? DiemLayRong { get; set; }
         public string DonViVanTai { get; set; }
         public string XeVanChuyen { get; set; }
         public string TaiXe { get; set; }
@@ -41,7 +44,8 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
         public string SEALNP { get; set; }
         public DateTime? TGLayHang { get; set; }
         public DateTime? TGTraHang { get; set; }
-        public DateTime? TGLayTraRong { get; set; }
+        public DateTime? TGTraRong { get; set; }
+        public DateTime? TGLayRong { get; set; }
         public DateTime? TGHanLenh { get; set; }
         public DateTime? TGHaCang { get; set; }
     }

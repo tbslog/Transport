@@ -8,8 +8,7 @@ namespace TBSLogistics.Model.Model.AddressModel
 {
     public class UpdateAddressRequest
     {
-        public int? MaKhuVuc { get; set; }
-        public int MaDiaDiem { get; set; }
+        public int? DiaDiemCha { get; set; }
         public string TenDiaDiem { get; set; }
         public int MaQuocGia { get; set; }
         public int MaTinh { get; set; }

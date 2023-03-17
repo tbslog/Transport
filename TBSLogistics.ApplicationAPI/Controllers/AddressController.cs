@@ -115,16 +115,18 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> ReadFileExcel(IFormFile formFile, CancellationToken cancellationToken)
         {
-            var ImportExcel = await _address.ReadExcelFile(formFile, cancellationToken);
+            //var ImportExcel = await _address.ReadExcelFile(formFile, cancellationToken);
 
-            if (ImportExcel.isSuccess == true)
-            {
-                return Ok(ImportExcel.Message);
-            }
-            else
-            {
-                return BadRequest(ImportExcel.DataReturn + " --- " + ImportExcel.Message);
-            }
+            //if (ImportExcel.isSuccess == true)
+            //{
+            //    return Ok(ImportExcel.Message);
+            //}
+            //else
+            //{
+            //    return BadRequest(ImportExcel.DataReturn + " --- " + ImportExcel.Message);
+            //}
+
+            return Ok();
         }
 
         [HttpGet]
@@ -154,9 +156,9 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<IActionResult> GetListAddressSelect(string pointType = null)
+        public async Task<IActionResult> GetListAddressSelect(string pointType, string type)
         {
-            var list = await _address.GetListAddress(pointType);
+            var list = await _address.GetListAddressSelect(pointType, type);
 
             return Ok(list);
         }

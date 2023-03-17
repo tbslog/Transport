@@ -30,8 +30,6 @@ namespace TBSLogistics.Model.Model.BillModel
         public string MaKh { get; set; }
         public string TenKh { get; set; }
         public string LoaiVanDon { get; set; }
-        public string MaCungDuong { get; set; }
-        public string TenCungDuong { get; set; }
         public string DiemLayHang { get; set; }
         public string DiemTraHang { get; set; }
         public double? TongTheTich { get; set; }
@@ -44,6 +42,7 @@ namespace TBSLogistics.Model.Model.BillModel
     {
         public string MaSoXe { get; set; }
         public string DiemLayRong { get; set; }
+        public string DiemTraRong { get; set; }
         public string MaRomooc { get; set; }
         public string TaiXe { get; set; }
         public string LoaiHangHoa { get; set; }

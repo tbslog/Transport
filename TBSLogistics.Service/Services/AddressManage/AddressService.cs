@@ -1,18 +1,15 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text.Json;
-using System.Text.RegularExpressions;
-using System.Threading;
 using System.Threading.Tasks;
 using TBSLogistics.Data.TMS;
 using TBSLogistics.Model.CommonModel;
 using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.AddressModel;
+using TBSLogistics.Model.Model.RoadModel;
 using TBSLogistics.Model.Model.TypeCommon;
 using TBSLogistics.Model.TempModel;
 using TBSLogistics.Model.Wrappers;
@@ -75,8 +72,8 @@ namespace TBSLogistics.Service.Services.AddressManage
                     return new BoolActionResult { isSuccess = false, Message = "Địa điểm này đã tồn tại" };
                 }
 
-                string FullAddress = await GetFullAddress(request.SoNha, request.MaTinh, request.MaHuyen, request.MaPhuong);
-                string ErrorValidate = await ValiateAddress(request.TenDiaDiem, request.SoNha, request.MaGps, FullAddress, request.MaLoaiDiaDiem);
+                //string FullAddress = await GetFullAddress(request.SoNha, request.MaTinh, request.MaHuyen, request.MaPhuong);
+                string ErrorValidate = await ValiateAddress(request.DiaDiemCha, request.TenDiaDiem, request.SoNha, request.MaGps, request.PhanLoaiLoaiDiaDiem);
 
                 if (ErrorValidate != "")
                 {
@@ -85,16 +82,17 @@ namespace TBSLogistics.Service.Services.AddressManage
 
                 await _context.AddAsync(new DiaDiem()
                 {
-                    MaKhuVuc = request.MaKhuVuc,
+                    LoaiDiaDiem = request.DiaDiemCha == null ? "KhuVuc" : "Diem",
+                    DiaDiemCha = request.DiaDiemCha,
                     TenDiaDiem = request.TenDiaDiem,
                     MaQuocGia = null,
                     MaTinh = request.MaTinh,
                     MaHuyen = request.MaHuyen,
                     MaPhuong = request.MaPhuong,
                     SoNha = request.SoNha,
-                    DiaChiDayDu = FullAddress,
+                    DiaChiDayDu = "",
                     MaGps = request.MaGps,
-                    MaLoaiDiaDiem = request.MaLoaiDiaDiem,
+                    MaLoaiDiaDiem = request.PhanLoaiLoaiDiaDiem,
                     CreatedTime = DateTime.Now,
                     UpdatedTime = DateTime.Now,
                     Creator = tempData.UserName,
@@ -132,15 +130,25 @@ namespace TBSLogistics.Service.Services.AddressManage
 
                 string FullAddress = await GetFullAddress(request.SoNha, request.MaTinh, request.MaHuyen, request.MaPhuong);
 
-                string ErrorValidate = await ValiateAddress(request.TenDiaDiem, request.SoNha, request.MaGps, FullAddress, request.MaLoaiDiaDiem);
+                string ErrorValidate = await ValiateAddress(request.DiaDiemCha, request.TenDiaDiem, request.SoNha, request.MaGps, FullAddress, request.MaLoaiDiaDiem);
 
                 if (ErrorValidate != "")
                 {
                     return new BoolActionResult { isSuccess = false, Message = ErrorValidate };
                 }
 
+                if (getAddress.DiaDiemCha == null)
+                {
+                    var checkHasChild = await _context.DiaDiem.Where(x => x.DiaDiemCha == id).ToListAsync();
+                    if (checkHasChild.Count > 0)
+                    {
+                        return new BoolActionResult { isSuccess = false, Message = "Khu Vực này đã chứa nhiều điểm, không thể điều chỉnh thành điểm" };
+                    }
+                }
+
+                getAddress.LoaiDiaDiem = request.DiaDiemCha == null ? "KhuVuc" : "Diem";
+                getAddress.DiaDiemCha = request.DiaDiemCha;
                 getAddress.TenDiaDiem = request.TenDiaDiem;
-                getAddress.MaKhuVuc = request.MaKhuVuc;
                 getAddress.MaTinh = request.MaTinh;
                 getAddress.MaHuyen = request.MaHuyen;
                 getAddress.MaPhuong = request.MaPhuong;
@@ -182,15 +190,32 @@ namespace TBSLogistics.Service.Services.AddressManage
 
             return new GetAddressModel()
             {
-                MaKhuVuc = getAddress.MaKhuVuc,
+                DiaDiemCha = getAddress.DiaDiemCha,
                 MaDiaDiem = getAddress.MaDiaDiem,
                 TenDiaDiem = getAddress.TenDiaDiem,
-                LoaiDiaDiem = getAddress.MaLoaiDiaDiem,
+                LoaiDiaDiem = getAddress.LoaiDiaDiem,
+                PhanLoaiDiaDiem = getAddress.MaLoaiDiaDiem,
                 MaHuyen = getAddress.MaHuyen,
                 MaPhuong = getAddress.MaPhuong,
                 MaTinh = getAddress.MaTinh,
                 SoNha = getAddress.SoNha,
                 MaGps = getAddress.MaGps,
+            };
+        }
+
+        public async Task<GetListPlaceSelect> GetListPlaceSelect()
+        {
+            var getListPlace = await _context.DiaDiem.Select(x => new PlaceSelect()
+            {
+                MaDiaDiem = x.MaDiaDiem,
+                TenDiaDiem = x.TenDiaDiem
+            }).ToListAsync();
+
+            return new GetListPlaceSelect()
+            {
+                listGetEmptyPlace = getListPlace,
+                listFirstPlace = getListPlace,
+                listSecondPlace = getListPlace
             };
         }
 
@@ -238,7 +263,7 @@ namespace TBSLogistics.Service.Services.AddressManage
 
                 if (!string.IsNullOrEmpty(filter.Keyword))
                 {
-                    getData = getData.Where(x => x.ar.TenDiaDiem.ToLower().Contains(filter.Keyword.ToLower()));
+                    getData = getData.Where(x => x.ar.TenDiaDiem.Contains(filter.Keyword));
                 }
 
                 if (!string.IsNullOrEmpty(filter.fromDate.ToString()) && !string.IsNullOrEmpty(filter.toDate.ToString()))
@@ -250,13 +275,13 @@ namespace TBSLogistics.Service.Services.AddressManage
 
                 var pagedData = await getData.Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new GetAddressModel()
                 {
-                    TenKhuVuc = _context.KhuVuc.Where(y => y.Id == x.ar.MaKhuVuc).Select(y => y.TenKhuVuc).FirstOrDefault(),
-                    MaKhuVuc = x.ar.MaKhuVuc,
                     MaDiaDiem = x.ar.MaDiaDiem,
+                    KhuVuc = _context.DiaDiem.Where(y => y.MaDiaDiem == x.ar.DiaDiemCha).Select(y => y.TenDiaDiem).FirstOrDefault(),
+                    PhanLoaiDiaDiem = x.loaiDiaDiem.TenPhanLoaiDiaDiem,
                     TenDiaDiem = x.ar.TenDiaDiem,
                     DiaChiDayDu = x.ar.DiaChiDayDu,
                     MaGps = x.ar.MaGps,
-                    LoaiDiaDiem = x.loaiDiaDiem.TenPhanLoaiDiaDiem,
+                    LoaiDiaDiem = x.ar.LoaiDiaDiem,
                     CreatedTime = x.ar.CreatedTime,
                     UpdatedTime = x.ar.UpdatedTime,
                 }).ToListAsync();
@@ -297,145 +322,154 @@ namespace TBSLogistics.Service.Services.AddressManage
             }).ToList();
         }
 
-        public async Task<BoolActionResult> ReadExcelFile(IFormFile formFile, CancellationToken cancellationToken)
-        {
-            int ErrorRow = 0;
-            int ErrorInsert = 1;
+        //public async Task<BoolActionResult> ReadExcelFile(IFormFile formFile, CancellationToken cancellationToken)
+        //{
+        //    int ErrorRow = 0;
+        //    int ErrorInsert = 1;
 
+        //    string ErrorValidate = "";
+
+        //    try
+        //    {
+        //        if (formFile == null || formFile.Length <= 0)
+        //        {
+        //            return new BoolActionResult { isSuccess = false, Message = "Not Support file extension" };
+        //        }
+
+        //        if (!Path.GetExtension(formFile.FileName).Equals(".xlsx", StringComparison.OrdinalIgnoreCase))
+        //        {
+        //            return new BoolActionResult { isSuccess = false, Message = "Not Support file extension" };
+        //        }
+
+        //        var list = new List<CreateAddressRequest>();
+
+        //        using (var stream = new MemoryStream())
+        //        {
+        //            await formFile.CopyToAsync(stream, cancellationToken);
+
+        //            using (var package = new ExcelPackage(stream))
+        //            {
+        //                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+        //                ExcelWorksheet worksheet = package.Workbook.Worksheets[0];
+        //                var rowCount = worksheet.Dimension.Rows;
+
+        //                if (rowCount == 0)
+        //                {
+        //                    return new BoolActionResult { isSuccess = false, Message = "This file is empty" };
+        //                }
+
+        //                if (worksheet.Cells[1, 1].Value.ToString().Trim() != "Tên Địa Điểm" ||
+        //                    worksheet.Cells[1, 2].Value.ToString().Trim() != "Mã GPS" ||
+        //                    worksheet.Cells[1, 3].Value.ToString().Trim() != "Số Nhà" ||
+        //                    worksheet.Cells[1, 4].Value.ToString().Trim() != "Mã Loại Địa Điểm" ||
+        //                    worksheet.Cells[1, 5].Value.ToString().Trim() != "Mã Tỉnh" ||
+        //                    worksheet.Cells[1, 6].Value.ToString().Trim() != "Mã Huyện" ||
+        //                    worksheet.Cells[1, 7].Value.ToString().Trim() != "Mã Phường"
+        //                    )
+        //                {
+        //                    return new BoolActionResult { isSuccess = false, Message = "File excel không đúng " };
+        //                }
+
+        //                for (int row = 2; row <= rowCount; row++)
+        //                {
+        //                    ErrorRow = row;
+
+        //                    string TenDiaDiem = worksheet.Cells[row, 1].Value.ToString().Trim();
+        //                    string SoNha = worksheet.Cells[row, 3].Value.ToString().Trim();
+        //                    int MaTinh = int.Parse(worksheet.Cells[row, 5].Value.ToString().Trim());
+        //                    int MaHuyen = int.Parse(worksheet.Cells[row, 6].Value.ToString().Trim());
+        //                    int MaPhuong = int.Parse(worksheet.Cells[row, 7].Value.ToString().Trim());
+        //                    string MaGPS = worksheet.Cells[row, 2].Value.ToString().Trim();
+        //                    string MaLoaiDiaDiem = worksheet.Cells[row, 4].Value.ToString().Trim();
+
+        //                    var FullAddress = await GetFullAddress(SoNha, MaTinh, MaHuyen, MaPhuong);
+
+        //                    ErrorValidate = await ValiateAddress(TenDiaDiem, SoNha, MaGPS, FullAddress, MaLoaiDiaDiem, ErrorRow.ToString());
+
+        //                    if (ErrorValidate == "")
+        //                    {
+        //                        list.Add(new CreateAddressRequest
+        //                        {
+        //                            TenDiaDiem = TenDiaDiem,
+        //                            MaQuocGia = 1,
+        //                            SoNha = SoNha,
+        //                            MaTinh = MaTinh,
+        //                            MaHuyen = MaHuyen,
+        //                            MaPhuong = MaPhuong,
+        //                            DiaChiDayDu = FullAddress,
+        //                            MaGps = MaGPS,
+        //                            MaLoaiDiaDiem = MaLoaiDiaDiem,
+        //                        });
+        //                    }
+        //                }
+        //            }
+        //        }
+
+        //        string DuplicateCus = "";
+
+        //        foreach (var item in list)
+        //        {
+        //            var checkExists = await _context.DiaDiem.Where(x => x.TenDiaDiem.ToLower() == item.TenDiaDiem.ToLower()).FirstOrDefaultAsync();
+        //            ErrorInsert += 1;
+        //            if (checkExists == null)
+        //            {
+        //                var addAddress = await _context.AddAsync(new DiaDiem()
+        //                {
+        //                    TenDiaDiem = item.TenDiaDiem,
+        //                    MaQuocGia = item.MaQuocGia,
+        //                    MaTinh = item.MaTinh,
+        //                    MaHuyen = item.MaHuyen,
+        //                    MaPhuong = item.MaPhuong,
+        //                    SoNha = item.SoNha,
+        //                    DiaChiDayDu = item.DiaChiDayDu,
+        //                    MaGps = item.MaGps,
+        //                    MaLoaiDiaDiem = item.MaLoaiDiaDiem,
+        //                    CreatedTime = DateTime.Now,
+        //                    UpdatedTime = DateTime.Now
+        //                });
+
+        //                await _context.SaveChangesAsync();
+        //            }
+        //            else
+        //            {
+        //                DuplicateCus += item.TenDiaDiem + ", ";
+        //            }
+        //        }
+
+        //        if (ErrorValidate != "")
+        //        {
+        //            return new BoolActionResult { isSuccess = false, Message = ErrorValidate };
+        //        }
+
+        //        if (DuplicateCus.Length > 1)
+        //        {
+        //            return new BoolActionResult { Message = "Những Địa điểm có mã " + DuplicateCus + " đã tồn tại", isSuccess = true };
+        //        }
+        //        else
+        //        {
+        //            return new BoolActionResult { Message = "OK", isSuccess = true };
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return new BoolActionResult { Message = ex.ToString(), isSuccess = false, DataReturn = "Bị lỗi tại dòng: " + ErrorRow + " >>>Lỗi Insert dòng: " + ErrorInsert };
+        //    }
+        //}
+
+        private async Task<string> ValiateAddress(int? DiaDiemCha, string TenDiaDiem, string SoNha, string MaGps, string PhanLoaiDiaDiem, string ErrorRow = "")
+        {
             string ErrorValidate = "";
 
-            try
+            if (DiaDiemCha.HasValue)
             {
-                if (formFile == null || formFile.Length <= 0)
+                var checkParent = await _context.DiaDiem.Where(x => x.MaDiaDiem == DiaDiemCha).FirstOrDefaultAsync();
+                if (checkParent == null)
                 {
-                    return new BoolActionResult { isSuccess = false, Message = "Not Support file extension" };
-                }
-
-                if (!Path.GetExtension(formFile.FileName).Equals(".xlsx", StringComparison.OrdinalIgnoreCase))
-                {
-                    return new BoolActionResult { isSuccess = false, Message = "Not Support file extension" };
-                }
-
-                var list = new List<CreateAddressRequest>();
-
-                using (var stream = new MemoryStream())
-                {
-                    await formFile.CopyToAsync(stream, cancellationToken);
-
-                    using (var package = new ExcelPackage(stream))
-                    {
-                        ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-                        ExcelWorksheet worksheet = package.Workbook.Worksheets[0];
-                        var rowCount = worksheet.Dimension.Rows;
-
-                        if (rowCount == 0)
-                        {
-                            return new BoolActionResult { isSuccess = false, Message = "This file is empty" };
-                        }
-
-                        if (worksheet.Cells[1, 1].Value.ToString().Trim() != "Tên Địa Điểm" ||
-                            worksheet.Cells[1, 2].Value.ToString().Trim() != "Mã GPS" ||
-                            worksheet.Cells[1, 3].Value.ToString().Trim() != "Số Nhà" ||
-                            worksheet.Cells[1, 4].Value.ToString().Trim() != "Mã Loại Địa Điểm" ||
-                            worksheet.Cells[1, 5].Value.ToString().Trim() != "Mã Tỉnh" ||
-                            worksheet.Cells[1, 6].Value.ToString().Trim() != "Mã Huyện" ||
-                            worksheet.Cells[1, 7].Value.ToString().Trim() != "Mã Phường"
-                            )
-                        {
-                            return new BoolActionResult { isSuccess = false, Message = "File excel không đúng " };
-                        }
-
-                        for (int row = 2; row <= rowCount; row++)
-                        {
-                            ErrorRow = row;
-
-                            string TenDiaDiem = worksheet.Cells[row, 1].Value.ToString().Trim();
-                            string SoNha = worksheet.Cells[row, 3].Value.ToString().Trim();
-                            int MaTinh = int.Parse(worksheet.Cells[row, 5].Value.ToString().Trim());
-                            int MaHuyen = int.Parse(worksheet.Cells[row, 6].Value.ToString().Trim());
-                            int MaPhuong = int.Parse(worksheet.Cells[row, 7].Value.ToString().Trim());
-                            string MaGPS = worksheet.Cells[row, 2].Value.ToString().Trim();
-                            string MaLoaiDiaDiem = worksheet.Cells[row, 4].Value.ToString().Trim();
-
-                            var FullAddress = await GetFullAddress(SoNha, MaTinh, MaHuyen, MaPhuong);
-
-                            ErrorValidate = await ValiateAddress(TenDiaDiem, SoNha, MaGPS, FullAddress, MaLoaiDiaDiem, ErrorRow.ToString());
-
-                            if (ErrorValidate == "")
-                            {
-                                list.Add(new CreateAddressRequest
-                                {
-                                    TenDiaDiem = TenDiaDiem,
-                                    MaQuocGia = 1,
-                                    SoNha = SoNha,
-                                    MaTinh = MaTinh,
-                                    MaHuyen = MaHuyen,
-                                    MaPhuong = MaPhuong,
-                                    DiaChiDayDu = FullAddress,
-                                    MaGps = MaGPS,
-                                    MaLoaiDiaDiem = MaLoaiDiaDiem,
-                                });
-                            }
-                        }
-                    }
-                }
-
-                string DuplicateCus = "";
-
-                foreach (var item in list)
-                {
-                    var checkExists = await _context.DiaDiem.Where(x => x.TenDiaDiem.ToLower() == item.TenDiaDiem.ToLower()).FirstOrDefaultAsync();
-                    ErrorInsert += 1;
-                    if (checkExists == null)
-                    {
-                        var addAddress = await _context.AddAsync(new DiaDiem()
-                        {
-                            TenDiaDiem = item.TenDiaDiem,
-                            MaQuocGia = item.MaQuocGia,
-                            MaTinh = item.MaTinh,
-                            MaHuyen = item.MaHuyen,
-                            MaPhuong = item.MaPhuong,
-                            SoNha = item.SoNha,
-                            DiaChiDayDu = item.DiaChiDayDu,
-                            MaGps = item.MaGps,
-                            MaLoaiDiaDiem = item.MaLoaiDiaDiem,
-                            CreatedTime = DateTime.Now,
-                            UpdatedTime = DateTime.Now
-                        });
-
-                        await _context.SaveChangesAsync();
-                    }
-                    else
-                    {
-                        DuplicateCus += item.TenDiaDiem + ", ";
-                    }
-                }
-
-                if (ErrorValidate != "")
-                {
-                    return new BoolActionResult { isSuccess = false, Message = ErrorValidate };
-                }
-
-                if (DuplicateCus.Length > 1)
-                {
-                    return new BoolActionResult { Message = "Những Địa điểm có mã " + DuplicateCus + " đã tồn tại", isSuccess = true };
-                }
-                else
-                {
-                    return new BoolActionResult { Message = "OK", isSuccess = true };
+                    ErrorValidate += "Lỗi dòng >>>" + ErrorRow + " - Mã loại địa điểm không tồn tại \r\n";
                 }
             }
-            catch (Exception ex)
-            {
-                return new BoolActionResult { Message = ex.ToString(), isSuccess = false, DataReturn = "Bị lỗi tại dòng: " + ErrorRow + " >>>Lỗi Insert dòng: " + ErrorInsert };
-            }
-        }
 
-        private async Task<string> ValiateAddress(string TenDiaDiem, string SoNha, string MaGps, string FullAddress, string MaLoaiDiaDiem, string ErrorRow = "")
-        {
-            string ErrorValidate = "";
-
-            var CheckMaLoai = await _context.LoaiDiaDiem.Where(x => x.MaLoaiDiaDiem == MaLoaiDiaDiem).FirstOrDefaultAsync();
+            var CheckMaLoai = await _context.LoaiDiaDiem.Where(x => x.MaLoaiDiaDiem == PhanLoaiDiaDiem).FirstOrDefaultAsync();
 
             if (CheckMaLoai == null)
             {
@@ -452,20 +486,20 @@ namespace TBSLogistics.Service.Services.AddressManage
                 ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Số nhà không được nhiều hơn 100 ký tự \r\n";
             }
 
-            if (MaGps.Length == 0 || MaGps.Length > 50)
-            {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã GPS không được rỗng hoặc nhiều hơn 50 ký tự \r\n";
-            }
+            //if (MaGps.Length == 0 || MaGps.Length > 50)
+            //{
+            //    ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã GPS không được rỗng hoặc nhiều hơn 50 ký tự \r\n";
+            //}
 
-            if (FullAddress == "")
-            {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã tỉnh, mã huyện, mã phường không khớp, vui lòng kiểm tra lại \r\n";
-            }
+            //if (FullAddress == "")
+            //{
+            //    ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã tỉnh, mã huyện, mã phường không khớp, vui lòng kiểm tra lại \r\n";
+            //}
 
             return ErrorValidate;
         }
 
-        public async Task<List<GetListAddress>> GetListAddress(string pointType)
+        public async Task<List<GetListAddress>> GetListAddressSelect(string pointType, string type)
         {
             try
             {
@@ -479,7 +513,12 @@ namespace TBSLogistics.Service.Services.AddressManage
                     list = list.Where(x => x.MaLoaiDiaDiem == pointType);
                 }
 
-                var data = await _context.DiaDiem.Select(x => new GetListAddress()
+                if (!string.IsNullOrEmpty(type))
+                {
+                    list = list.Where(x => x.LoaiDiaDiem == type);
+                }
+
+                var data = await list.Select(x => new GetListAddress()
                 {
                     MaDiaDiem = x.MaDiaDiem,
                     TenDiaDiem = x.TenDiaDiem,

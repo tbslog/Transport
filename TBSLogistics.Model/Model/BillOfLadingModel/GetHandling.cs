@@ -18,7 +18,6 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
         public string MaLoaiPhuongTien { get; set; }
         public string MaDVT { get; set; }
         public string MaVanDon { get; set; }
-        public string MaCungDuong { get; set; }
         public string MaSoXe { get; set; }
         public string MaTaiXe { get; set; }
         public string DonViVanTai { get; set; }
@@ -38,14 +37,17 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
         public string GhiChu { get; set; }
         public string GhiChuVanDon { get; set; }
         public int? DiemLayRong { get; set; }
-        public DateTime? ThoiGianLayTraRong { get; set; }
+        public int? DiemTraRong { get; set; }
+        public DateTime? ThoiGianLayRong { get; set; }
+        public DateTime? ThoiGianTraRong { get; set; }
         public DateTime? ThoiGianHaCang { get; set; }
         public DateTime? ThoiGianHanLenh { get; set; }
         public DateTime? ThoiGianCoMat { get; set; }
         public DateTime? ThoiGianLayHang { get; set; }
         public DateTime? ThoiGianTraHang { get; set; }
 
-        public DateTime? ThoiGianLayTraRongThucTe { get; set; }
+        public DateTime? ThoiGianTraRongThucTe { get; set; }
+        public DateTime? ThoiGianLayRongThucTe { get; set; }
         public DateTime? ThoiGianHaCangThucTe { get; set; }
         public DateTime? ThoiGianHanLenhThucTe { get; set; }
         public DateTime? ThoiGianCoMatThucTe { get; set; }
@@ -55,10 +57,9 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
 
     public class RoadDetail
     {
-        public string MaCungDuong { get; set; }
-        public string TenCungDuong { get; set; }
         public string DiemLayHang { get; set; }
         public string DiemTraHang { get; set; }
         public string DiemLayRong { get; set; }
+        public string DiemTraRong { get; set; }
     }
 }

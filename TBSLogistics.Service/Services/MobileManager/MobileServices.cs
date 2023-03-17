@@ -34,7 +34,7 @@ namespace TBSLogistics.Service.Services.MobileManager
         {
             try
             {
-                var listStatusPending = new List<int> { 21, 30, 31, 19, 20 };
+                var listStatusPending = new List<int> { 21, 30, 31, 20 };
 
 
                 var dataHandling = from dp in _context.DieuPhoi
@@ -60,9 +60,8 @@ namespace TBSLogistics.Service.Services.MobileManager
                 {
                     BookingNo = x.MaVanDonKh,
                     LoaiVanDon = x.LoaiVanDon,
-                    DiemLayHang = _context.DiaDiem.Where(y => y.MaDiaDiem == _context.CungDuong.Where(u => u.MaCungDuong == x.MaCungDuong).Select(u => u.DiemDau).FirstOrDefault()).Select(x => x.TenDiaDiem).FirstOrDefault(),
-                    DiemTraHang = _context.DiaDiem.Where(y => y.MaDiaDiem == _context.CungDuong.Where(u => u.MaCungDuong == x.MaCungDuong).Select(u => u.DiemCuoi).FirstOrDefault()).Select(x => x.TenDiaDiem).FirstOrDefault(),
-                    CungDuong = _context.CungDuong.Where(u => u.MaCungDuong == x.MaCungDuong).Select(u => u.TenCungDuong).FirstOrDefault(),
+                    DiemLayHang = _context.DiaDiem.Where(y => y.MaDiaDiem == x.DiemDau).Select(y => y.TenDiaDiem).FirstOrDefault(),
+                    DiemTraHang = _context.DiaDiem.Where(y => y.MaDiaDiem == x.DiemCuoi).Select(y => y.TenDiaDiem).FirstOrDefault(),
                     TongKhoiLuong = x.TongKhoiLuong,
                     TongTheTich = x.TongTheTich,
                     TongSoKien = x.TongSoKien,
@@ -70,7 +69,8 @@ namespace TBSLogistics.Service.Services.MobileManager
                     TenTau = x.Tau,
                     GhiChu = x.GhiChu,
                     MaPTVC = x.MaPtvc,
-                    ThoiGianLayTraRong = x.ThoiGianLayTraRong,
+                    ThoiGianLayRong = x.ThoiGianLayRong,
+                    ThoiGianTraRong = x.ThoiGianTraRong,
                     ThoiGianLayHang = x.ThoiGianLayHang,
                     ThoiGianTraHang = x.ThoiGianTraHang,
                     ThoiGianHaCang = x.ThoiGianHaCang,
@@ -82,7 +82,8 @@ namespace TBSLogistics.Service.Services.MobileManager
                         HandlingId = y.dp.Id,
                         MaChuyen = y.dp.MaChuyen,
                         ContNo = y.dp.ContNo,
-                        DiemLayTraRong = y.dp.DiemLayTraRong == null ? null : _context.DiaDiem.Where(u => u.MaDiaDiem == y.dp.DiemLayTraRong).Select(u => u.TenDiaDiem).FirstOrDefault(),
+                        DiemLayRong = y.dp.DiemLayRong == null ? null : _context.DiaDiem.Where(u => u.MaDiaDiem == y.dp.DiemLayRong).Select(u => u.TenDiaDiem).FirstOrDefault(),
+                        DiemTraRong = y.dp.DiemTraRong == null ? null : _context.DiaDiem.Where(u => u.MaDiaDiem == y.dp.DiemTraRong).Select(u => u.TenDiaDiem).FirstOrDefault(),
                         KhoiLuong = y.dp.KhoiLuong,
                         TheTich = y.dp.TheTich,
                         SoKien = y.dp.SoKien,

@@ -23,7 +23,8 @@ namespace TBSLogistics.Model.Model.MobileModel
 
         public List<GetDataHandlingMobile> getDataHandlingMobiles { get; set; }
 
-        public DateTime? ThoiGianLayTraRong { get; set; }
+        public DateTime? ThoiGianLayRong { get; set; }
+        public DateTime? ThoiGianTraRong { get; set; }
         public DateTime? ThoiGianLayHang { get; set; }
         public DateTime? ThoiGianTraHang { get; set; }
         public DateTime? ThoiGianHaCang { get; set; }
@@ -37,7 +38,8 @@ namespace TBSLogistics.Model.Model.MobileModel
         public long HandlingId { get; set; }
         public string MaChuyen { get; set; }
         public string ContNo { get; set; }
-        public string DiemLayTraRong { get; set; }
+        public string DiemTraRong { get; set; }
+        public string DiemLayRong { get; set; }
         public double? KhoiLuong { get; set; }
         public double? TheTich { get; set; }
         public double? SoKien { get; set; }

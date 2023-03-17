@@ -171,12 +171,11 @@ namespace TBSLogistics.Service.Services.RoadManage
                 var getAddress = from diadiem in _context.DiaDiem
                                  join phanloaidd in _context.LoaiDiaDiem
                                  on diadiem.MaLoaiDiaDiem equals phanloaidd.MaLoaiDiaDiem
-
                                  select new { diadiem, phanloaidd };
 
                 if (!string.IsNullOrEmpty(filter.Keyword))
                 {
-                    getData = getData.Where(x => x.cungduong.MaCungDuong.ToLower().Contains(filter.Keyword.ToLower()));
+                    getData = getData.Where(x => x.cungduong.MaCungDuong.Contains(filter.Keyword) || x.cungduong.TenCungDuong.Contains(filter.Keyword));
                 }
 
                 if (!string.IsNullOrEmpty(filter.fromDate.ToString()) && !string.IsNullOrEmpty(filter.toDate.ToString()))
@@ -408,14 +407,11 @@ namespace TBSLogistics.Service.Services.RoadManage
                 return listRoad;
             }
 
-            var getList = from cd in _context.CungDuong
-                          join bg in _context.BangGia
-                          on cd.MaCungDuong equals bg.MaCungDuong
-                          join
-                          hd in _context.HopDongVaPhuLuc
+            var getList =
+                          from bg in _context.BangGia
+                          join hd in _context.HopDongVaPhuLuc
                           on bg.MaHopDong equals hd.MaHopDong
-                          orderby cd.MaCungDuong descending
-                          select new { cd, bg, hd };
+                          select new { bg, hd };
 
             if (!string.IsNullOrEmpty(MaKH))
             {
@@ -427,13 +423,13 @@ namespace TBSLogistics.Service.Services.RoadManage
                 getList = getList.Where(x => x.hd.MaHopDong == ContractId);
             }
 
-            var list = await getList.GroupBy(x => new { x.cd.MaCungDuong, x.cd.TenCungDuong }).Select(x => new GetRoadRequest()
-            {
-                MaCungDuong = x.Key.MaCungDuong,
-                TenCungDuong = x.Key.TenCungDuong,
-            }).ToListAsync();
+            //var list = await getList.GroupBy(x => new { x.cd.MaCungDuong, x.cd.TenCungDuong }).Select(x => new GetRoadRequest()
+            //{
+            //    MaCungDuong = x.Key.MaCungDuong,
+            //    TenCungDuong = x.Key.TenCungDuong,
+            //}).ToListAsync();
 
-            return list;
+            return null;
         }
 
         public async Task<List<GetRoadRequest>> getListRoadByPoint(int diemDau, int diemCuoi)

@@ -9,6 +9,9 @@ namespace TBSLogistics.Model.Model.SubFeePriceModel
 {
     public class GetSubFeePriceRequest
     {
+        public int? firstPlace { get; set; }
+        public int? secondPlace { get; set; }
+        public int? getEmptyPlace { get; set; }
         public string VehicleType { get; set; }
         public long PriceId { get; set; }
         public string CustomerType { get; set; }
@@ -16,8 +19,6 @@ namespace TBSLogistics.Model.Model.SubFeePriceModel
         public string ContractId { get; set; }
         public long SfId { get; set; }
         public string GoodsType { get; set; }
-        public int? AreaID { get; set; }
-        public string TripID { get; set; }
         public double Price { get; set; }
         public byte SfStateByContract { get; set; }
         public string Description { get; set; }
