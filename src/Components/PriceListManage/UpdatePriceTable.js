@@ -47,9 +47,7 @@ const UpdatePriceTable = (props) => {
         message: "Không được chứa ký tự đặc biệt",
       },
     },
-    MaCungDuong: {
-      required: "Không được để trống",
-    },
+
     NgayHetHieuLuc: {
       maxLength: {
         value: 10,
@@ -101,7 +99,10 @@ const UpdatePriceTable = (props) => {
   const [listTransportType, setListTransportType] = useState([]);
   const [listContract, setListContract] = useState([]);
   const [listCustomerType, setListCustomerType] = useState([]);
-  const [listArea, setListArea] = useState([]);
+
+  const [listFPlace, setListFPlace] = useState([]);
+  const [listSPlace, setListSPlace] = useState([]);
+  const [listEPlace, setListEPlace] = useState([]);
 
   useEffect(() => {
     SetIsLoading(true);
@@ -112,8 +113,26 @@ const UpdatePriceTable = (props) => {
       let getListGoodsType = await getData("Common/GetListGoodsType");
       let getListTransportType = await getData("Common/GetListTransportType");
       let getListCustommerType = await getData(`Common/GetListCustommerType`);
-      const getListArea = await getData("Common/GetListArea");
-      setListArea(getListArea);
+      const getListPlace = await getData(
+        "Address/GetListAddressSelect?pointType=&type="
+      );
+
+      let arrPlace = [];
+      getListPlace.forEach((val) => {
+        arrPlace.push({ label: val.tenDiaDiem, value: val.maDiaDiem });
+      });
+
+      setListFPlace(arrPlace);
+      setListSPlace(arrPlace);
+
+      let arrEPlace = [];
+      arrEPlace.push({ label: "-- Rỗng --", value: null });
+
+      getListPlace.forEach((val) => {
+        arrEPlace.push({ label: val.tenDiaDiem, value: val.maDiaDiem });
+      });
+      setListEPlace(arrEPlace);
+
       setListCustomerType(getListCustommerType);
       setListVehicleType(getListVehicleType);
       setListGoodsType(getListGoodsType);
@@ -172,8 +191,8 @@ const UpdatePriceTable = (props) => {
       selectIdClick &&
       listContract &&
       listRoad &&
-      listArea &&
-      listArea.length > 0 &&
+      listFPlace &&
+      listFPlace.length > 0 &&
       Object.keys(selectIdClick).length > 0 &&
       listContract.length > 0 &&
       listRoad.length > 0
@@ -186,9 +205,21 @@ const UpdatePriceTable = (props) => {
       );
 
       setValue(
-        "MaCungDuong",
+        "DiemDau",
         {
-          ...listRoad.filter((x) => x.value === selectIdClick.maCungDuong),
+          ...listFPlace.filter((x) => x.value === selectIdClick.diemDau),
+        }[0]
+      );
+      setValue(
+        "DiemCuoi",
+        {
+          ...listSPlace.filter((x) => x.value === selectIdClick.diemCuoi),
+        }[0]
+      );
+      setValue(
+        "DiemLayTraRong",
+        {
+          ...listEPlace.filter((x) => x.value === selectIdClick.diemLayTraRong),
         }[0]
       );
       setValue("DonGia", selectIdClick.donGia);
@@ -197,11 +228,10 @@ const UpdatePriceTable = (props) => {
       setValue("MaLoaiPhuongTien", selectIdClick.maLoaiPhuongTien);
       setValue("MaLoaiHangHoa", selectIdClick.maLoaiHangHoa);
       setValue("NgayHetHieuLuc", selectIdClick.ngayHetHieuLuc);
-      setValue("KhuVuc", selectIdClick.maKhuVuc);
 
       SetIsLoading(false);
     }
-  }, [selectIdClick, listContract, listRoad, listArea]);
+  }, [selectIdClick, listContract, listRoad, listFPlace]);
 
   const handleOnchangeListCustomer = (val) => {
     SetIsLoading(true);
@@ -270,18 +300,23 @@ const UpdatePriceTable = (props) => {
     SetIsLoading(false);
   };
 
-  const onSubmit = async (data, e) => {
+  const onSubmit = async (data) => {
     SetIsLoading(true);
 
     const updatePriceTable = await postData(
       `PriceTable/UpdatePriceTable?id=${selectIdClick.id}`,
       {
         MaHopDong: data.MaHopDong.value,
+        DiemDau: data.DiemDau.value,
+        DiemCuoi: data.DiemCuoi.value,
+        DiemLayTraRong: !data.DiemLayTraRong
+          ? null
+          : data.DiemLayTraRong.value === ""
+          ? null
+          : data.DiemLayTraRong.value,
         MaPTVC: data.MaPTVC,
-        MaCungDuong: data.MaCungDuong.value,
         MaLoaiPhuongTien: data.MaLoaiPhuongTien,
         DonGia: data.DonGia,
-        MaKhuVuc: !data.KhuVuc ? null : data.KhuVuc,
         MaDVT: data.MaDVT,
         MaLoaiHangHoa: data.MaLoaiHangHoa,
         NgayHetHieuLuc: !data.NgayHetHieuLuc
@@ -399,8 +434,9 @@ const UpdatePriceTable = (props) => {
               >
                 <thead>
                   <tr>
-                    <th>Cung Đường(*)</th>
-                    <th>Khu Vực</th>
+                    <th>Điểm Đóng Hàng(*)</th>
+                    <th>Điểm Trả Hàng(*)</th>
+                    <th> Điểm Lấy/Trả Rỗng</th>
                     <th>Đơn Giá(*)</th>
                     <th>Đơn vị tính(*)</th>
                     <th>Phương Thức Vận Chuyển(*)</th>
@@ -414,22 +450,59 @@ const UpdatePriceTable = (props) => {
                     <td>
                       <div className="form-group">
                         <Controller
-                          name={`MaCungDuong`}
+                          name={`DiemDau`}
                           control={control}
                           render={({ field }) => (
                             <Select
                               {...field}
                               classNamePrefix={"form-control"}
                               value={field.value}
-                              options={listRoad}
-                              defaultValue={null}
+                              options={listFPlace}
+                              placeholder={"Điểm Đóng Hàng"}
                             />
                           )}
-                          rules={{ required: "không được để trống" }}
+                          rules={{
+                            required: "không được để trống",
+                            validate: (value) => {
+                              if (!value.value) {
+                                return "không được để trống";
+                              }
+                            },
+                          }}
                         />
-                        {errors.MaCungDuong && (
+                        {errors.DiemDau && (
                           <span className="text-danger">
-                            {errors.MaCungDuong.message}
+                            {errors.DiemDau.message}
+                          </span>
+                        )}
+                      </div>
+                    </td>
+                    <td>
+                      <div className="form-group">
+                        <Controller
+                          name={`DiemCuoi`}
+                          control={control}
+                          render={({ field }) => (
+                            <Select
+                              {...field}
+                              classNamePrefix={"form-control"}
+                              value={field.value}
+                              options={listSPlace}
+                              placeholder={"Điểm Hạ Hàng"}
+                            />
+                          )}
+                          rules={{
+                            required: "không được để trống",
+                            validate: (value) => {
+                              if (!value.value) {
+                                return "không được để trống";
+                              }
+                            },
+                          }}
+                        />
+                        {errors.DiemCuoi && (
+                          <span className="text-danger">
+                            {errors.DiemCuoi.message}
                           </span>
                         )}
                       </div>
@@ -438,24 +511,22 @@ const UpdatePriceTable = (props) => {
                       <div>
                         <div className="col-sm">
                           <div className="form-group">
-                            <select
-                              className="form-control"
-                              {...register("KhuVuc", Validate.KhuVuc)}
-                            >
-                              <option value="">-- Bỏ Trống --</option>
-                              {listArea &&
-                                listArea.length > 0 &&
-                                listArea.map((val, index) => {
-                                  return (
-                                    <option value={val.id} key={index}>
-                                      {val.tenKhuVuc}
-                                    </option>
-                                  );
-                                })}
-                            </select>
-                            {errors.KhuVuc && (
+                            <Controller
+                              name="DiemLayTraRong"
+                              control={control}
+                              render={({ field }) => (
+                                <Select
+                                  {...field}
+                                  classNamePrefix={"form-control"}
+                                  value={field.value}
+                                  options={listEPlace}
+                                />
+                              )}
+                              rules={Validate.MaKh}
+                            />
+                            {errors.DiemLayTraRong && (
                               <span className="text-danger">
-                                {errors.KhuVuc.message}
+                                {errors.DiemLayTraRong.message}
                               </span>
                             )}
                           </div>

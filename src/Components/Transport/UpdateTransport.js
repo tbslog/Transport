@@ -112,6 +112,7 @@ const UpdateTransport = (props) => {
   const [listPoint, setListPoint] = useState([]);
   const [listSupplier, setListSupplier] = useState([]);
   const [listVehicleType, setlistVehicleType] = useState([]);
+  const [listVehicleTypeTemp, setListVehicleTypeTemp] = useState([]);
   const [listGoodsType, setListGoodsType] = useState([]);
   const [listTransportType, setListTransportType] = useState([]);
   const [listShipping, setListShipping] = useState([]);
@@ -149,8 +150,10 @@ const UpdateTransport = (props) => {
       let getListShipping = await getData("Common/GetListShipping");
       setListShipping(getListShipping);
       let getListVehicleType = await getData("Common/GetListVehicleType");
-      let getListGoodsType = await getData("Common/GetListGoodsType");
       setlistVehicleType(getListVehicleType);
+      setListVehicleTypeTemp(getListVehicleType);
+
+      let getListGoodsType = await getData("Common/GetListGoodsType");
       setListGoodsType(getListGoodsType);
 
       let getListTransportType = await getData("Common/GetListTransportType");
@@ -444,9 +447,24 @@ const UpdateTransport = (props) => {
     }
   };
 
-  const handleOnchangeTransportType = (val) => {
+  const handleOnchangeType = (val) => {
     reset();
-    setValue("LoaiVanDon", val);
+    setValue("LoaiHinh", val);
+
+    if (val) {
+      let temp = listVehicleTypeTemp;
+
+      if (val === "FCL") {
+        temp = temp.filter((x) => x.phanLoai === "Cont");
+      }
+      if (val === "FTL") {
+        temp = temp.filter((x) => x.phanLoai === "Truck");
+      }
+
+      setlistVehicleType(temp);
+    } else {
+      setlistVehicleType([]);
+    }
   };
 
   const onSubmit = async (data) => {
@@ -522,6 +540,7 @@ const UpdateTransport = (props) => {
       getListTransport();
       hideModal();
     }
+
     SetIsLoading(false);
   };
 
@@ -540,10 +559,12 @@ const UpdateTransport = (props) => {
                     <select
                       className="form-control"
                       {...register("LoaiHinh", Validate.LoaiHinh)}
-                      value={watch("LoaiHinh")}
+                      onChange={(e) => handleOnchangeType(e.target.value)}
                     >
                       <option value="">Chọn Loại Hình</option>
-                      {listTransportType &&
+                      <option value="FCL">FCL</option>
+                      <option value="FTL">FTL</option>
+                      {/* {listTransportType &&
                         listTransportType.length > 0 &&
                         listTransportType.map((val) => {
                           return (
@@ -551,7 +572,7 @@ const UpdateTransport = (props) => {
                               {val.tenPtvc}
                             </option>
                           );
-                        })}
+                        })} */}
                     </select>
                     {errors.LoaiHinh && (
                       <span className="text-danger">
@@ -566,10 +587,6 @@ const UpdateTransport = (props) => {
                     <select
                       className="form-control"
                       {...register("LoaiVanDon", Validate.LoaiVanDon)}
-                      value={watch("LoaiVanDon")}
-                      onChange={(e) =>
-                        handleOnchangeTransportType(e.target.value)
-                      }
                     >
                       <option value="nhap">Vận Đơn Nhập</option>
                       <option value="xuat">Vận Đơn Xuất</option>

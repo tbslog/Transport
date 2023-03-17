@@ -68,19 +68,28 @@ const EditAddress = (props) => {
       setValue("TenDiaDiem", props.selectIdClick.tenDiaDiem);
       setValue("GPS", props.selectIdClick.maGps);
       setValue("SoNha", props.selectIdClick.soNha);
-      setValue("KhuVuc", props.selectIdClick.maKhuVuc);
+      setValue("KhuVuc", props.selectIdClick.diaDiemCha);
 
-      LoadTypeAddress(props.selectIdClick.loaiDiaDiem);
-      LoadProvince(props.selectIdClick.maTinh);
-      LoadDistrict(props.selectIdClick.maTinh, props.selectIdClick.maHuyen);
-      LoadWard(props.selectIdClick.maHuyen, props.selectIdClick.maPhuong);
+      LoadTypeAddress(props.selectIdClick.phanLoaiDiaDiem);
+
+      if (props.selectIdClick.maTinh) {
+        LoadProvince(props.selectIdClick.maTinh);
+        if (props.selectIdClick.maHuyen) {
+          LoadDistrict(props.selectIdClick.maTinh, props.selectIdClick.maHuyen);
+          if (props.selectIdClick.maPhuong) {
+            LoadWard(props.selectIdClick.maHuyen, props.selectIdClick.maPhuong);
+          }
+        }
+      }
     }
   }, [props.selectIdClick, listArea]);
 
   useEffect(() => {
     SetIsLoading(true);
     (async () => {
-      const getListArea = await getData("Common/GetListArea");
+      const getListArea = await getData(
+        "Address/GetListAddressSelect?pointType=&type=KhuVuc"
+      );
       setListArea(getListArea);
     })();
 
@@ -219,16 +228,16 @@ const EditAddress = (props) => {
     const Update = await postData(
       `Address/EditAddress?Id=${data.MaDiaDiem}`,
       {
-        MaKhuVuc: !data.KhuVuc ? null : data.KhuVuc,
         tenDiaDiem: data.TenDiaDiem,
         maQuocGia: 1,
-        maTinh: data.MaTinh.value,
-        maHuyen: data.MaHuyen.value,
-        maPhuong: data.MaPhuong.value,
+        maTinh: !data.MaTinh ? null : data.MaTinh.value,
+        maHuyen: !data.MaHuyen ? null : data.MaHuyen.value,
+        maPhuong: !data.MaPhuong ? null : data.MaPhuong.value,
         soNha: data.SoNha,
         diaChiDayDu: "",
         maGps: data.GPS,
-        maLoaiDiaDiem: data.MaLoaiDiaDiem.value,
+        PhanLoaiLoaiDiaDiem: data.MaLoaiDiaDiem.value,
+        DiaDiemCha: !data.KhuVuc ? null : data.KhuVuc,
       },
       {
         accept: "*/*",
@@ -293,8 +302,8 @@ const EditAddress = (props) => {
                         listArea.length > 0 &&
                         listArea.map((val, index) => {
                           return (
-                            <option value={val.id} key={index}>
-                              {val.tenKhuVuc}
+                            <option value={val.maDiaDiem} key={index}>
+                              {val.tenDiaDiem}
                             </option>
                           );
                         })}

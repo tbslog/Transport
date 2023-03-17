@@ -54,9 +54,11 @@ const CreateSubFee = (props) => {
   const [listCustomerType, setListCustomerType] = useState([]);
   const [listSubFee, setListSubFee] = useState([]);
   const [listSubFeeSelect, setListSubFeeSelect] = useState([]);
-  const [listArea, setListArea] = useState([]);
-  const [listRoad, setListRoad] = useState([]);
   const [listVehicleType, setlistVehicleType] = useState([]);
+
+  const [listFPlace, setListFPlace] = useState([]);
+  const [listSPlace, setListSPlace] = useState([]);
+  const [listEPlace, setListEPlace] = useState([]);
 
   useEffect(() => {
     (async () => {
@@ -69,21 +71,20 @@ const CreateSubFee = (props) => {
       setListGoodsTypes(getListGoodsType);
       let getListSubFee = await getData(`SubFeePrice/GetListSubFeeSelect`);
 
-      const getListArea = await getData("Common/GetListArea");
-      setListArea(getListArea);
+      const getListPlace = await getData(
+        "Address/GetListAddressSelect?pointType=&type="
+      );
 
-      let getListRoad = await getData(`Road/GetListRoadOptionSelect`);
-      if (getListRoad && getListRoad.length > 0) {
-        let obj = [];
-        obj.push({ value: "", label: "-- Để Trống --" });
-        getListRoad.map((val) => {
-          obj.push({
-            value: val.maCungDuong,
-            label: val.tenCungDuong,
-          });
-        });
-        setListRoad(obj);
-      }
+      let arrPlace = [];
+      arrPlace.push({ label: "-- Rỗng --", value: null });
+
+      getListPlace.forEach((val) => {
+        arrPlace.push({ label: val.tenDiaDiem, value: val.maDiaDiem });
+      });
+
+      setListFPlace(arrPlace);
+      setListSPlace(arrPlace);
+      setListEPlace(arrPlace);
 
       if (getListSubFee && getListSubFee.length > 0) {
         let obj = [];
@@ -184,13 +185,22 @@ const CreateSubFee = (props) => {
       ContractId: data.MaHopDong.value,
       SfId: data.LoaiPhuPhi.value,
       GoodsType: !data.MaLoaiHangHoa ? null : data.MaLoaiHangHoa,
-      AreaId: !data.KhuVuc ? null : data.KhuVuc,
+      firstPlace: !data.DiemDau
+        ? null
+        : !data.DiemDau.value
+        ? null
+        : data.DiemDau.value,
+      secondPlace: !data.DiemCuoi
+        ? null
+        : !data.DiemCuoi.value
+        ? null
+        : data.DiemCuoi.value,
+      getEmptyPlace: !data.DiemLayTraRong
+        ? null
+        : !data.DiemLayTraRong.value
+        ? null
+        : data.DiemLayTraRong.value,
       VehicleType: !data.LoaiPhuongTien ? null : data.LoaiPhuongTien,
-      TripId: !data.CungDuong
-        ? null
-        : !data.CungDuong.value
-        ? null
-        : data.CungDuong.value,
       Price: data.DonGia,
       Description: !data.Description ? "" : data.Description,
     });
@@ -290,50 +300,93 @@ const CreateSubFee = (props) => {
               </div>
             </div>
             <div className="row">
-              <div className="col-sm">
-                <div className="form-group">
-                  <label htmlFor="KhuVuc">Khu Vực</label>
-                  <select
-                    className="form-control"
-                    {...register("KhuVuc", Validate.KhuVuc)}
-                  >
-                    <option value="">-- Bỏ Trống --</option>
-                    {listArea &&
-                      listArea.length > 0 &&
-                      listArea.map((val, index) => {
-                        return (
-                          <option value={val.id} key={index}>
-                            {val.tenKhuVuc}
-                          </option>
-                        );
-                      })}
-                  </select>
-                  {errors.KhuVuc && (
-                    <span className="text-danger">{errors.KhuVuc.message}</span>
-                  )}
+              <div className="col col-sm">
+                <div className="col-sm">
+                  <div className="form-group">
+                    <label htmlFor="DiemLayTraRong">Điểm Lấy/Trả Rỗng</label>
+                    <Controller
+                      name={`DiemLayTraRong`}
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          classNamePrefix={"form-control"}
+                          value={field.value}
+                          options={listEPlace}
+                          placeholder={"Điểm Lấy/Trả Rỗng"}
+                        />
+                      )}
+                    />
+                    {errors.DiemLayTraRong && (
+                      <span className="text-danger">
+                        {errors.DiemLayTraRong.message}
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
               <div className="col col-sm">
                 <div className="form-group">
-                  <label htmlFor="CungDuong">Cung Đường</label>
+                  <label htmlFor="DiemDau">Điểm Đóng Hàng</label>
                   <Controller
-                    name="CungDuong"
+                    name={`DiemDau`}
                     control={control}
                     render={({ field }) => (
                       <Select
                         {...field}
                         classNamePrefix={"form-control"}
                         value={field.value}
-                        options={listRoad}
+                        options={listFPlace}
+                        placeholder={"Điểm Đóng Hàng"}
                       />
                     )}
-                    rules={Validate.CungDuong}
+                    // rules={{
+                    //   required: "không được để trống",
+                    //   validate: (value) => {
+                    //     if (!value.value) {
+                    //       return "không được để trống";
+                    //     }
+                    //   },
+                    // }}
                   />
-                  {errors.CungDuong && (
+                  {errors.DiemDau && (
                     <span className="text-danger">
-                      {errors.CungDuong.message}
+                      {errors.DiemDau.message}
                     </span>
                   )}
+                </div>
+              </div>
+              <div className="col col-sm">
+                <div className="col-sm">
+                  <div className="form-group">
+                    <label htmlFor="DiemCuoi">Điểm Hạ Hàng</label>
+                    <Controller
+                      name={`DiemCuoi`}
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          classNamePrefix={"form-control"}
+                          value={field.value}
+                          options={listSPlace}
+                          placeholder={"Điểm Hạ Hàng"}
+                        />
+                      )}
+                      // rules={{
+                      //   required: "không được để trống",
+                      //   validate: (value) => {
+                      //     if (!value.value) {
+                      //       return "không được để trống";
+                      //     }
+                      //   },
+                      // }}
+                    />
+                    {errors.DiemCuoi && (
+                      <span className="text-danger">
+                        {errors.DiemCuoi.message}
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

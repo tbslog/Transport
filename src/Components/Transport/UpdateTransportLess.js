@@ -107,10 +107,7 @@ const UpdateTransportLess = (props) => {
 
   const [listFirstPoint, setListFirstPoint] = useState([]);
   const [listSecondPoint, setListSecondPoint] = useState([]);
-  const [listRoad, setListRoad] = useState([]);
-  const [arrRoad, setArrRoad] = useState([]);
   const [listCus, setListCus] = useState([]);
-  const [listPoint, setListPoint] = useState([]);
   const [transportData, setTransportData] = useState({});
   const [transportId, setTransportId] = useState("");
 
@@ -133,7 +130,9 @@ const UpdateTransportLess = (props) => {
         setListCus([]);
       }
 
-      const getListPoint = await getData("address/GetListAddressSelect");
+      const getListPoint = await getData(
+        "Address/GetListAddressSelect?pointType=&type=Diem"
+      );
       if (getListPoint && getListPoint.length > 0) {
         var obj = [];
         getListPoint.map((val) => {
@@ -142,7 +141,8 @@ const UpdateTransportLess = (props) => {
             label: val.maDiaDiem + " - " + val.tenDiaDiem,
           });
         });
-        setListPoint(obj);
+        setListFirstPoint(obj);
+        setListSecondPoint(obj);
       }
       SetIsLoading(false);
     })();
@@ -152,10 +152,12 @@ const UpdateTransportLess = (props) => {
     if (
       selectIdClick &&
       listCus &&
-      listPoint &&
+      listFirstPoint &&
+      listSecondPoint &&
       Object.keys(selectIdClick).length > 0 &&
       listCus.length > 0 &&
-      listPoint.length > 0
+      listFirstPoint.length > 0 &&
+      listSecondPoint.length > 0
     ) {
       (async () => {
         SetIsLoading(true);
@@ -170,6 +172,22 @@ const UpdateTransportLess = (props) => {
         setValue("TenTau", getTransport.tenTau);
         setValue("MaVDKH", getTransport.maVanDonKH);
 
+        setValue(
+          "DiemLayHang",
+          {
+            ...listFirstPoint.filter(
+              (x) => x.value === getTransport.diemLayHang
+            ),
+          }[0]
+        );
+        setValue(
+          "DiemTraHang",
+          {
+            ...listSecondPoint.filter(
+              (x) => x.value === getTransport.diemTraHang
+            ),
+          }[0]
+        );
         setValue("LoaiVanDon", getTransport.loaiVanDon);
         setValue("TongKhoiLuong", getTransport.tongKhoiLuong);
         setValue("TongTheTich", getTransport.tongTheTich);
@@ -194,154 +212,128 @@ const UpdateTransportLess = (props) => {
         SetIsLoading(false);
       })();
     }
-  }, [selectIdClick, listCus, listPoint]);
+  }, [selectIdClick, listCus, listSecondPoint, listFirstPoint]);
+
+  // useEffect(() => {
+  //   if (transportData && Object.keys(transportData).length > 0) {
+  //     SetIsLoading(true);
+  //     // handleOnChangeCustomer(
+  //     //   {
+  //     //     ...listCus.filter((x) => x.value === transportData.maKH),
+  //     //   }[0]
+  //     // );
+  //     SetIsLoading(false);
+  //   }
+  // }, [transportData]);
 
   useEffect(() => {
     if (transportData && Object.keys(transportData).length > 0) {
-      SetIsLoading(true);
-      handleOnChangeCustomer(
-        {
-          ...listCus.filter((x) => x.value === transportData.maKH),
-        }[0]
-      );
-      SetIsLoading(false);
-    }
-  }, [transportData]);
-
-  useEffect(() => {
-    if (
-      arrRoad &&
-      listRoad &&
-      listFirstPoint &&
-      listSecondPoint &&
-      transportData &&
-      arrRoad.length > 0 &&
-      listRoad.length > 0 &&
-      listFirstPoint.length > 0 &&
-      listSecondPoint.length > 0 &&
-      Object.keys(transportData).length > 0
-    ) {
       if (transportId !== selectIdClick.maVanDon) {
         SetIsLoading(true);
-        handleOnChangeRoad(
-          {
-            ...listRoad.filter((x) => x.value === transportData.maCungDuong),
-          }[0]
-        );
         setTransportId(selectIdClick.maVanDon);
         SetIsLoading(false);
       }
     }
-  }, [arrRoad, listRoad, listFirstPoint, listSecondPoint, transportData]);
+  }, [transportData]);
 
-  const handleOnChangeCustomer = async (val) => {
-    if (val && Object.keys(val).length > 0) {
-      setValue("MaKH", val);
-      setValue("MaCungDuong", null);
-      setValue("DiemLayHang", null);
-      setValue("DiemTraHang", null);
-      setArrRoad([]);
-      setListRoad([]);
-      setListFirstPoint([]);
-      setListSecondPoint([]);
+  // const handleOnChangeCustomer = async (val) => {
+  //   if (val && Object.keys(val).length > 0) {
+  //     setValue("MaKH", val);
+  //     setValue("MaCungDuong", null);
+  //     setValue("DiemLayHang", null);
+  //     setValue("DiemTraHang", null);
+  //     setListFirstPoint([]);
+  //     setListSecondPoint([]);
 
-      const getListRoad = await getData(
-        `BillOfLading/LoadDataRoadTransportByCusId?id=${val.value}`
-      );
+  //     const getListRoad = await getData(
+  //       `BillOfLading/LoadDataRoadTransportByCusId?id=${val.value}`
+  //     );
 
-      if (getListRoad && Object.keys(getListRoad).length > 0) {
-        if (getListRoad.cungDuong && getListRoad.cungDuong.length > 0) {
-          let arr = [];
-          getListRoad.cungDuong.map((val) => {
-            arr.push({
-              label: val.tenCungDuong + " - " + val.km + " KM",
-              value: val.maCungDuong,
-            });
-          });
-          setArrRoad(getListRoad.cungDuong);
-          setListRoad(arr);
-        } else {
-          setListRoad([]);
-        }
+  //     if (getListRoad && Object.keys(getListRoad).length > 0) {
+  //       if (getListRoad.cungDuong && getListRoad.cungDuong.length > 0) {
+  //         let arr = [];
+  //         getListRoad.cungDuong.map((val) => {
+  //           arr.push({
+  //             label: val.tenCungDuong + " - " + val.km + " KM",
+  //             value: val.maCungDuong,
+  //           });
+  //         });
+  //         setArrRoad(getListRoad.cungDuong);
+  //         setListRoad(arr);
+  //       } else {
+  //         setListRoad([]);
+  //       }
 
-        if (getListRoad.diemDau && getListRoad.diemDau.length > 0) {
-          let arr = [];
-          getListRoad.diemDau.map((val) => {
-            if (!arr.some((x) => x.value === val.maDiaDiem)) {
-              arr.push({
-                label: val.tenDiaDiem,
-                value: val.maDiaDiem,
-              });
-            }
-          });
-          setListFirstPoint(arr);
-        } else {
-          setListFirstPoint([]);
-        }
+  //       if (getListRoad.diemDau && getListRoad.diemDau.length > 0) {
+  //         let arr = [];
+  //         getListRoad.diemDau.map((val) => {
+  //           if (!arr.some((x) => x.value === val.maDiaDiem)) {
+  //             arr.push({
+  //               label: val.tenDiaDiem,
+  //               value: val.maDiaDiem,
+  //             });
+  //           }
+  //         });
+  //         setListFirstPoint(arr);
+  //       } else {
+  //         setListFirstPoint([]);
+  //       }
 
-        if (getListRoad.diemCuoi && getListRoad.diemCuoi.length > 0) {
-          let arr = [];
-          getListRoad.diemCuoi.map((val) => {
-            if (!arr.some((x) => x.value === val.maDiaDiem)) {
-              arr.push({
-                label: val.tenDiaDiem,
-                value: val.maDiaDiem,
-              });
-            }
-          });
-          setListSecondPoint(arr);
-        } else {
-          setListSecondPoint([]);
-        }
-      }
-    }
-  };
+  //       if (getListRoad.diemCuoi && getListRoad.diemCuoi.length > 0) {
+  //         let arr = [];
+  //         getListRoad.diemCuoi.map((val) => {
+  //           if (!arr.some((x) => x.value === val.maDiaDiem)) {
+  //             arr.push({
+  //               label: val.tenDiaDiem,
+  //               value: val.maDiaDiem,
+  //             });
+  //           }
+  //         });
+  //         setListSecondPoint(arr);
+  //       } else {
+  //         setListSecondPoint([]);
+  //       }
+  //     }
+  //   }
+  // };
 
-  const handleOnChangeRoad = (val) => {
-    if (val && Object.keys(val).length > 0) {
-      setValue("MaCungDuong", val);
-      const point = {
-        ...arrRoad.filter((x) => x.maCungDuong === val.value),
-      }[0];
+  // const handleOnChangeRoad = (val) => {
+  //   if (val && Object.keys(val).length > 0) {
+  //     setValue("MaCungDuong", val);
+  //     const point = {
+  //       ...arrRoad.filter((x) => x.maCungDuong === val.value),
+  //     }[0];
 
-      setValue(
-        "DiemLayHang",
-        { ...listFirstPoint.filter((x) => x.value === point.diemDau) }[0]
-      );
-      setValue(
-        "DiemTraHang",
-        { ...listSecondPoint.filter((x) => x.value === point.diemCuoi) }[0]
-      );
-    } else {
-      setValue("MaCungDuong", null);
-    }
-  };
+  //   } else {
+  //     setValue("MaCungDuong", null);
+  //   }
+  // };
 
-  const handleOnChangePoint = () => {
-    setValue("MaCungDuong", null);
-    var diemdau = watch("DiemLayHang");
-    var diemCuoi = watch("DiemTraHang");
+  // const handleOnChangePoint = () => {
+  //   setValue("MaCungDuong", null);
+  //   var diemdau = watch("DiemLayHang");
+  //   var diemCuoi = watch("DiemTraHang");
 
-    if (
-      diemdau &&
-      diemCuoi &&
-      Object.keys(diemdau).length > 0 &&
-      Object.keys(diemCuoi).length > 0
-    ) {
-      const filterRoad = arrRoad.filter(
-        (x) => x.diemDau === diemdau.value && x.diemCuoi === diemCuoi.value
-      )[0];
+  //   if (
+  //     diemdau &&
+  //     diemCuoi &&
+  //     Object.keys(diemdau).length > 0 &&
+  //     Object.keys(diemCuoi).length > 0
+  //   ) {
+  //     const filterRoad = arrRoad.filter(
+  //       (x) => x.diemDau === diemdau.value && x.diemCuoi === diemCuoi.value
+  //     )[0];
 
-      if (filterRoad && Object.keys(filterRoad).length > 0) {
-        setValue(
-          "MaCungDuong",
-          { ...listRoad.filter((x) => x.value === filterRoad.maCungDuong) }[0]
-        );
-      }
-    } else {
-      setValue("MaCungDuong", null);
-    }
-  };
+  //     if (filterRoad && Object.keys(filterRoad).length > 0) {
+  //       setValue(
+  //         "MaCungDuong",
+  //         { ...listRoad.filter((x) => x.value === filterRoad.maCungDuong) }[0]
+  //       );
+  //     }
+  //   } else {
+  //     setValue("MaCungDuong", null);
+  //   }
+  // };
 
   const handleOnchangeTransportType = (val) => {
     reset();
@@ -350,6 +342,8 @@ const UpdateTransportLess = (props) => {
 
   const onSubmit = async (data) => {
     SetIsLoading(true);
+
+    console.log(data);
     const update = await postData(
       `BillOfLading/UpdateTransportLess?transportId=${selectIdClick.maVanDon}`,
       {
@@ -357,7 +351,8 @@ const UpdateTransportLess = (props) => {
         HangTau: data.HangTau,
         TenTau: data.TenTau,
         MaVanDonKH: data.MaVDKH,
-        MaCungDuong: data.MaCungDuong.value,
+        DiemDau: data.DiemLayHang.value,
+        DiemCuoi: data.DiemTraHang.value,
         LoaiVanDon: data.LoaiVanDon,
         TongKhoiLuong: !data.TongKhoiLuong ? null : data.TongKhoiLuong,
         TongTheTich: !data.TongTheTich ? null : data.TongTheTich,
@@ -392,10 +387,8 @@ const UpdateTransportLess = (props) => {
     setValue("MaCungDuong", null);
     setValue("DiemLayHang", null);
     setValue("DiemTraHang", null);
-    setListFirstPoint([]);
-    setListSecondPoint([]);
-    setListRoad([]);
-    setArrRoad([]);
+    // setListFirstPoint([]);
+    // setListSecondPoint([]);
   };
 
   return (
@@ -465,7 +458,7 @@ const UpdateTransportLess = (props) => {
                           classNamePrefix={"form-control"}
                           value={field.value}
                           options={listCus}
-                          onChange={(field) => handleOnChangeCustomer(field)}
+                          // onChange={(field) => handleOnChangeCustomer(field)}
                         />
                       )}
                       rules={Validate.MaKH}
@@ -547,18 +540,18 @@ const UpdateTransportLess = (props) => {
                           classNamePrefix={"form-control"}
                           value={field.value}
                           options={listFirstPoint}
-                          onChange={(field) =>
-                            handleOnChangePoint(
-                              setValue(
-                                "DiemLayHang",
-                                {
-                                  ...listFirstPoint.filter(
-                                    (x) => x.value === field.value
-                                  ),
-                                }[0]
-                              )
-                            )
-                          }
+                          // onChange={(field) =>
+                          //   handleOnChangePoint(
+                          //     setValue(
+                          //       "DiemLayHang",
+                          //       {
+                          //         ...listFirstPoint.filter(
+                          //           (x) => x.value === field.value
+                          //         ),
+                          //       }[0]
+                          //     )
+                          //   )
+                          // }
                         />
                       )}
                       rules={Validate.DiemLayHang}
@@ -582,18 +575,18 @@ const UpdateTransportLess = (props) => {
                           classNamePrefix={"form-control"}
                           value={field.value}
                           options={listSecondPoint}
-                          onChange={(field) =>
-                            handleOnChangePoint(
-                              setValue(
-                                "DiemTraHang",
-                                {
-                                  ...listSecondPoint.filter(
-                                    (x) => x.value === field.value
-                                  ),
-                                }[0]
-                              )
-                            )
-                          }
+                          // onChange={(field) =>
+                          //   handleOnChangePoint(
+                          //     setValue(
+                          //       "DiemTraHang",
+                          //       {
+                          //         ...listSecondPoint.filter(
+                          //           (x) => x.value === field.value
+                          //         ),
+                          //       }[0]
+                          //     )
+                          //   )
+                          // }
                         />
                       )}
                       rules={Validate.DiemTraHang}
@@ -605,7 +598,7 @@ const UpdateTransportLess = (props) => {
                     )}
                   </div>
                 </div>
-                <div className="col col-sm">
+                {/* <div className="col col-sm">
                   <div className="form-group">
                     <label htmlFor="MaCungDuong">Cung Đường(*)</label>
                     <Controller
@@ -628,7 +621,7 @@ const UpdateTransportLess = (props) => {
                       </span>
                     )}
                   </div>
-                </div>
+                </div> */}
               </div>
               <div className="row">
                 <div className="col col-sm">

@@ -70,12 +70,16 @@ const ApproveSubFee = (props) => {
       selector: (row) => <div className="text-wrap">{row.vehicleType}</div>,
     },
     {
-      name: "Cung Đường",
-      selector: (row) => <div className="text-wrap">{row.tripName}</div>,
+      name: <div>Điểm Đóng Hàng</div>,
+      selector: (row) => <div className="text-wrap">{row.firstPlace}</div>,
     },
     {
-      name: <div>Khu Vực Lấy/Trả Rỗng</div>,
-      selector: (row) => <div className="text-wrap">{row.areaName}</div>,
+      name: <div>Điểm Hạ Hàng</div>,
+      selector: (row) => <div className="text-wrap">{row.secondPlace}</div>,
+    },
+    {
+      name: <div>Điểm Lấy/Trả Rỗng</div>,
+      selector: (row) => <div className="text-wrap">{row.getEmptyPlace}</div>,
     },
     {
       name: "Loại Hàng Hóa",

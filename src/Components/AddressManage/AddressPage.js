@@ -48,8 +48,13 @@ const AddressPage = () => {
       button: true,
     },
     {
+      name: "Mã Địa Điểm",
+      selector: (row) => row.maDiaDiem,
+      sortable: true,
+    },
+    {
       name: "Khu Vực",
-      selector: (row) => row.tenKhuVuc,
+      selector: (row) => row.khuVuc,
       sortable: true,
     },
     {
@@ -59,7 +64,7 @@ const AddressPage = () => {
     },
     {
       name: "Loại địa điểm",
-      selector: (row) => row.loaiDiaDiem,
+      selector: (row) => row.phanLoaiDiaDiem,
       sortable: true,
     },
 

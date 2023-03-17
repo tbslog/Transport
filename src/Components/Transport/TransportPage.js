@@ -158,16 +158,14 @@ const TransportPage = () => {
       name: <div>Khách Hàng</div>,
       selector: (row) => <div className="text-wrap">{row.tenKH}</div>,
     },
-
     {
-      name: <div>Mã Cung Đường</div>,
-      selector: (row) => row.maCungDuong,
+      name: <div>Điểm Đóng Hàng</div>,
+      selector: (row) => row.diemLayHang,
       sortable: true,
-      omit: true,
     },
     {
-      name: <div>Tên Cung Đường</div>,
-      selector: (row) => <div className="text-wrap">{row.tenCungDuong}</div>,
+      name: <div>Điểm Hạ Hàng</div>,
+      selector: (row) => row.diemTraHang,
       sortable: true,
     },
     {
@@ -329,8 +327,6 @@ const TransportPage = () => {
     listCusSelected = [],
     listUsersSelected = []
   ) => {
-    setLoading(true);
-
     let listFilter = {
       customers: listCusSelected,
       users: listUsersSelected,
@@ -360,8 +356,6 @@ const TransportPage = () => {
   };
 
   const handlePerRowsChange = async (newPerPage, page) => {
-    setLoading(true);
-
     let listFilter = {
       customers: listCusSelected,
       users: listUsersSelected,
@@ -373,7 +367,6 @@ const TransportPage = () => {
     );
     setData(datatransport.data);
     setPerPage(newPerPage);
-    setLoading(false);
   };
 
   const handleEditButtonClick = async (value) => {

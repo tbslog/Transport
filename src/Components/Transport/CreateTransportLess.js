@@ -108,10 +108,8 @@ const CreateTransportLess = (props) => {
 
   const [listFirstPoint, setListFirstPoint] = useState([]);
   const [listSecondPoint, setListSecondPoint] = useState([]);
-  const [listRoad, setListRoad] = useState([]);
   const [arrRoad, setArrRoad] = useState([]);
   const [listCus, setListCus] = useState([]);
-  const [listGoodsType, setListGoodsType] = useState([]);
   const [listPoint, setListPoint] = useState([]);
 
   useEffect(() => {
@@ -133,7 +131,9 @@ const CreateTransportLess = (props) => {
         setListCus([]);
       }
 
-      const getListPoint = await getData("address/GetListAddressSelect");
+      const getListPoint = await getData(
+        "Address/GetListAddressSelect?pointType=&type=Diem"
+      );
       if (getListPoint && getListPoint.length > 0) {
         var obj = [];
         getListPoint.map((val) => {
@@ -142,113 +142,114 @@ const CreateTransportLess = (props) => {
             label: val.maDiaDiem + " - " + val.tenDiaDiem,
           });
         });
-        setListPoint(obj);
+        setListFirstPoint(obj);
+        setListSecondPoint(obj);
       }
       SetIsLoading(false);
     })();
   }, []);
 
-  const handleOnChangeCustomer = async (val) => {
-    if (val && Object.keys(val).length > 0) {
-      setValue("MaKH", val);
-      setValue("MaCungDuong", null);
-      setValue("DiemLayHang", null);
-      setValue("DiemTraHang", null);
+  // const handleOnChangeCustomer = async (val) => {
+  //   if (val && Object.keys(val).length > 0) {
+  //     setValue("MaKH", val);
+  //     setValue("MaCungDuong", null);
+  //     setValue("DiemLayHang", null);
+  //     setValue("DiemTraHang", null);
 
-      const getListRoad = await getData(
-        `BillOfLading/LoadDataRoadTransportByCusId?id=${val.value}`
-      );
+  //     const getListRoad = await getData(
+  //       `BillOfLading/LoadDataRoadTransportByCusId?id=${val.value}`
+  //     );
 
-      if (getListRoad && Object.keys(getListRoad).length > 0) {
-        if (getListRoad.cungDuong && getListRoad.cungDuong.length > 0) {
-          let arr = [];
-          getListRoad.cungDuong.map((val) => {
-            arr.push({
-              label: val.tenCungDuong + " - " + val.km + " KM",
-              value: val.maCungDuong,
-            });
-          });
-          setArrRoad(getListRoad.cungDuong);
-          setListRoad(arr);
-        } else {
-          setListRoad([]);
-        }
+  //     if (getListRoad && Object.keys(getListRoad).length > 0) {
+  //       if (getListRoad.cungDuong && getListRoad.cungDuong.length > 0) {
+  //         let arr = [];
+  //         getListRoad.cungDuong.map((val) => {
+  //           arr.push({
+  //             label: val.tenCungDuong + " - " + val.km + " KM",
+  //             value: val.maCungDuong,
+  //           });
+  //         });
+  //         setArrRoad(getListRoad.cungDuong);
+  //         setListRoad(arr);
+  //       } else {
+  //         setListRoad([]);
+  //       }
 
-        if (getListRoad.diemDau && getListRoad.diemDau.length > 0) {
-          let arr = [];
-          getListRoad.diemDau.map((val) => {
-            if (!arr.some((x) => x.value === val.maDiaDiem)) {
-              arr.push({
-                label: val.tenDiaDiem,
-                value: val.maDiaDiem,
-              });
-            }
-          });
-          setListFirstPoint(arr);
-        } else {
-          setListFirstPoint([]);
-        }
+  //       if (getListRoad.diemDau && getListRoad.diemDau.length > 0) {
+  //         let arr = [];
+  //         getListRoad.diemDau.map((val) => {
+  //           if (!arr.some((x) => x.value === val.maDiaDiem)) {
+  //             arr.push({
+  //               label: val.tenDiaDiem,
+  //               value: val.maDiaDiem,
+  //             });
+  //           }
+  //         });
+  //         setListFirstPoint(arr);
+  //       } else {
+  //         setListFirstPoint([]);
+  //       }
 
-        if (getListRoad.diemCuoi && getListRoad.diemCuoi.length > 0) {
-          let arr = [];
-          getListRoad.diemCuoi.map((val) => {
-            if (!arr.some((x) => x.value === val.maDiaDiem)) {
-              arr.push({
-                label: val.tenDiaDiem,
-                value: val.maDiaDiem,
-              });
-            }
-          });
-          setListSecondPoint(arr);
-        } else {
-          setListSecondPoint([]);
-        }
-      }
-    }
-  };
+  //       if (getListRoad.diemCuoi && getListRoad.diemCuoi.length > 0) {
+  //         let arr = [];
+  //         getListRoad.diemCuoi.map((val) => {
+  //           if (!arr.some((x) => x.value === val.maDiaDiem)) {
+  //             arr.push({
+  //               label: val.tenDiaDiem,
+  //               value: val.maDiaDiem,
+  //             });
+  //           }
+  //         });
+  //         setListSecondPoint(arr);
+  //       } else {
+  //         setListSecondPoint([]);
+  //       }
+  //     }
+  //   }
+  // };
 
-  const handleOnChangeRoad = (val) => {
-    if (val && Object.keys(val).length > 0) {
-      setValue("MaCungDuong", val);
-      const point = arrRoad.filter((x) => x.maCungDuong === val.value)[0];
-      setValue(
-        "DiemLayHang",
-        listFirstPoint.filter((x) => x.value === point.diemDau)[0]
-      );
-      setValue(
-        "DiemTraHang",
-        listSecondPoint.filter((x) => x.value === point.diemCuoi)[0]
-      );
-    } else {
-      setValue("MaCungDuong", null);
-    }
-  };
+  // const handleOnChangeRoad = (val) => {
+  //   if (val && Object.keys(val).length > 0) {
+  //     setValue("MaCungDuong", val);
+  //     const point = arrRoad.filter((x) => x.maCungDuong === val.value)[0];
+  //     setValue(
+  //       "DiemLayHang",
+  //       listFirstPoint.filter((x) => x.value === point.diemDau)[0]
+  //     );
+  //     setValue(
+  //       "DiemTraHang",
+  //       listSecondPoint.filter((x) => x.value === point.diemCuoi)[0]
+  //     );
+  //   } else {
+  //     setValue("MaCungDuong", null);
+  //   }
+  // };
 
-  const handleOnChangePoint = () => {
-    setValue("MaCungDuong", null);
-    var diemdau = watch("DiemLayHang");
-    var diemCuoi = watch("DiemTraHang");
+  // const handleOnChangePoint = () => {
+  //   setValue("MaCungDuong", null);
+  //   var diemdau = watch("DiemLayHang");
+  //   var diemCuoi = watch("DiemTraHang");
 
-    if (
-      diemdau &&
-      diemCuoi &&
-      Object.keys(diemdau).length > 0 &&
-      Object.keys(diemCuoi).length > 0
-    ) {
-      const filterRoad = arrRoad.filter(
-        (x) => x.diemDau === diemdau.value && x.diemCuoi === diemCuoi.value
-      )[0];
+  //   if (
+  //     diemdau &&
+  //     diemCuoi &&
+  //     Object.keys(diemdau).length > 0 &&
+  //     Object.keys(diemCuoi).length > 0
+  //   ) {
+  //     const filterRoad = arrRoad.filter(
+  //       (x) => x.diemDau === diemdau.value && x.diemCuoi === diemCuoi.value
+  //     )[0];
 
-      if (filterRoad && Object.keys(filterRoad).length > 0) {
-        setValue(
-          "MaCungDuong",
-          { ...listRoad.filter((x) => x.value === filterRoad.maCungDuong) }[0]
-        );
-      }
-    } else {
-      setValue("MaCungDuong", null);
-    }
-  };
+  //     if (filterRoad && Object.keys(filterRoad).length > 0) {
+  //       setValue(
+  //         "MaCungDuong",
+  //         { ...listRoad.filter((x) => x.value === filterRoad.maCungDuong) }[0]
+  //       );
+  //     }
+  //   } else {
+  //     setValue("MaCungDuong", null);
+  //   }
+  // };
 
   const handleOnchangeTransportType = (val) => {
     reset();
@@ -262,7 +263,8 @@ const CreateTransportLess = (props) => {
       HangTau: data.HangTau,
       TenTau: data.TenTau,
       MaVanDonKH: data.MaVDKH,
-      MaCungDuong: data.MaCungDuong.value,
+      DiemDau: data.DiemLayHang.value,
+      DiemCuoi: data.DiemTraHang.value,
       LoaiVanDon: data.LoaiVanDon,
       TongKhoiLuong: !data.TongKhoiLuong ? null : data.TongKhoiLuong,
       TongTheTich: !data.TongTheTich ? null : data.TongTheTich,
@@ -296,10 +298,6 @@ const CreateTransportLess = (props) => {
     setValue("MaCungDuong", null);
     setValue("DiemLayHang", null);
     setValue("DiemTraHang", null);
-    setListFirstPoint([]);
-    setListSecondPoint([]);
-    setListRoad([]);
-    setArrRoad([]);
   };
 
   return (
@@ -369,7 +367,7 @@ const CreateTransportLess = (props) => {
                           classNamePrefix={"form-control"}
                           value={field.value}
                           options={listCus}
-                          onChange={(field) => handleOnChangeCustomer(field)}
+                          // onChange={(field) => handleOnChangeCustomer(field)}
                         />
                       )}
                       rules={Validate.MaKH}
@@ -451,18 +449,18 @@ const CreateTransportLess = (props) => {
                           classNamePrefix={"form-control"}
                           value={field.value}
                           options={listFirstPoint}
-                          onChange={(field) =>
-                            handleOnChangePoint(
-                              setValue(
-                                "DiemLayHang",
-                                {
-                                  ...listFirstPoint.filter(
-                                    (x) => x.value === field.value
-                                  ),
-                                }[0]
-                              )
-                            )
-                          }
+                          // onChange={(field) =>
+                          //   handleOnChangePoint(
+                          //     setValue(
+                          //       "DiemLayHang",
+                          //       {
+                          //         ...listFirstPoint.filter(
+                          //           (x) => x.value === field.value
+                          //         ),
+                          //       }[0]
+                          //     )
+                          //   )
+                          // }
                         />
                       )}
                       rules={Validate.DiemLayHang}
@@ -486,18 +484,18 @@ const CreateTransportLess = (props) => {
                           classNamePrefix={"form-control"}
                           value={field.value}
                           options={listSecondPoint}
-                          onChange={(field) =>
-                            handleOnChangePoint(
-                              setValue(
-                                "DiemTraHang",
-                                {
-                                  ...listSecondPoint.filter(
-                                    (x) => x.value === field.value
-                                  ),
-                                }[0]
-                              )
-                            )
-                          }
+                          // onChange={(field) =>
+                          //   handleOnChangePoint(
+                          //     setValue(
+                          //       "DiemTraHang",
+                          //       {
+                          //         ...listSecondPoint.filter(
+                          //           (x) => x.value === field.value
+                          //         ),
+                          //       }[0]
+                          //     )
+                          //   )
+                          // }
                         />
                       )}
                       rules={Validate.DiemTraHang}
@@ -509,7 +507,7 @@ const CreateTransportLess = (props) => {
                     )}
                   </div>
                 </div>
-                <div className="col col-sm">
+                {/* <div className="col col-sm">
                   <div className="form-group">
                     <label htmlFor="MaCungDuong">Cung Đường(*)</label>
                     <Controller
@@ -532,7 +530,7 @@ const CreateTransportLess = (props) => {
                       </span>
                     )}
                   </div>
-                </div>
+                </div> */}
               </div>
               <div className="row">
                 <div className="col col-sm">

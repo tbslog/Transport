@@ -14,13 +14,10 @@ const HandlingImage = (props) => {
 
   const {
     register,
-    reset,
     setValue,
     control,
     getValues,
-    validate,
     formState: { errors },
-    handleSubmit,
   } = useForm({
     mode: "onChange",
   });
@@ -29,27 +26,22 @@ const HandlingImage = (props) => {
     {
       name: "Xem Hình",
       cell: (val) => (
-        <button
-          onClick={() => handleEditButtonClick(val, SetShowModal("ShowImage"))}
-          type="button"
-          className="btn btn-title btn-sm btn-default mx-1"
-          gloss="Xem Hình Ảnh"
-        >
-          <i className="far fa-eye"></i>
-        </button>
-      ),
-      ignoreRowClick: true,
-      allowOverflow: true,
-      button: true,
-    },
-    {
-      cell: (val) => (
         <>
+          <button
+            onClick={() =>
+              handleEditButtonClick(val, SetShowModal("ShowImage"))
+            }
+            type="button"
+            className="btn btn-title btn-sm btn-default mx-3"
+            gloss="Xem Hình Ảnh"
+          >
+            <i className="far fa-eye"></i>
+          </button>
           {accountType && accountType === "NV" && (
             <button
               onClick={() => showConfirmDialog(val, setFuncName("removeImage"))}
               type="button"
-              className="btn btn-title btn-sm btn-default mx-1"
+              className="btn btn-title btn-sm btn-default"
               gloss="Xóa Hình Ảnh"
             >
               <i className="fas fa-trash"></i>
@@ -61,7 +53,6 @@ const HandlingImage = (props) => {
       allowOverflow: true,
       button: true,
     },
-
     {
       selector: (row) => row.id,
       omit: true,
@@ -85,7 +76,8 @@ const HandlingImage = (props) => {
             <button
               type="button"
               onClick={() => handleOnSave(row.id)}
-              className="btn-sm mx"
+              className="btn btn-title btn-sm btn-default"
+              gloss="Xác Nhận Đổi Tên"
             >
               <i className="fas fa-check"></i>
             </button>

@@ -164,17 +164,22 @@ const HandlingPageNew = () => {
     // },
     {
       name: <div>Điểm Lấy Hàng</div>,
-      selector: (row) => <div className="text-wrap">{row.diemLayHang}</div>,
+      selector: (row) => <div className="text-wrap">{row.diemDau}</div>,
       sortable: true,
     },
     {
       name: <div>Điểm Trả Hàng</div>,
-      selector: (row) => <div className="text-wrap">{row.diemTraHang}</div>,
+      selector: (row) => <div className="text-wrap">{row.diemCuoi}</div>,
       sortable: true,
     },
     {
       name: <div>Điểm Lấy Rỗng</div>,
       selector: (row) => <div className="text-wrap">{row.diemLayRong}</div>,
+      sortable: true,
+    },
+    {
+      name: <div>Điểm Trả Rỗng</div>,
+      selector: (row) => <div className="text-wrap">{row.diemTraRong}</div>,
       sortable: true,
     },
     {
@@ -371,8 +376,6 @@ const HandlingPageNew = () => {
     listCusSelected = [],
     listUserSelected = []
   ) => {
-    setLoading(true);
-
     fromDate = !fromDate ? "" : moment(fromDate).format("YYYY-MM-DD");
     toDate = !toDate ? "" : moment(toDate).format("YYYY-MM-DD");
 
@@ -417,8 +420,6 @@ const HandlingPageNew = () => {
   };
 
   const handlePerRowsChange = async (newPerPage, page) => {
-    setLoading(true);
-
     let listFilter = {
       customers: listCusSelected,
       users: listUserSelected,
@@ -432,7 +433,6 @@ const HandlingPageNew = () => {
     setData(data.data);
     setPerPage(newPerPage);
     setTotalRows(data.totalRecords);
-    setLoading(false);
   };
 
   const renderButton = (val) => {

@@ -36,7 +36,6 @@ const CreateAddress = (props) => {
       },
     },
     MaGPS: {
-      required: "Không được để trống",
       maxLength: {
         value: 50,
         message: "Không được vượt quá 50 ký tự",
@@ -66,9 +65,7 @@ const CreateAddress = (props) => {
     SetListWard([]);
 
     (async () => {
-      const getListArea = await getData("Common/GetListArea");
-      setListArea(getListArea);
-
+      await loadArea();
       const getListTypeAddress = await getData("address/GetListAddressType");
       if (getListTypeAddress && getListTypeAddress.length > 0) {
         let obj = [];
@@ -86,7 +83,6 @@ const CreateAddress = (props) => {
 
       if (getlistProvince && getlistProvince.length > 0) {
         let obj = [];
-
         getlistProvince.map((val) => {
           obj.push({
             value: val.maTinh,
@@ -100,6 +96,13 @@ const CreateAddress = (props) => {
 
     SetIsLoading(false);
   }, []);
+
+  const loadArea = async () => {
+    const getListArea = await getData(
+      "Address/GetListAddressSelect?pointType=&type=KhuVuc"
+    );
+    setListArea(getListArea);
+  };
 
   const HandleChangeProvince = (val) => {
     try {
@@ -187,20 +190,22 @@ const CreateAddress = (props) => {
   const onSubmit = async (data, e) => {
     SetIsLoading(true);
 
+    console.log(data);
     const post = await postData("Address/CreateAddress", {
       tenDiaDiem: data.TenDiaDiem,
       maQuocGia: 1,
-      maTinh: data.MaTinh.value,
-      maHuyen: data.MaHuyen.value,
-      maPhuong: data.MaPhuong.value,
+      maTinh: !data.MaTinh ? null : data.MaTinh.value,
+      maHuyen: !data.MaHuyen ? null : data.MaHuyen.value,
+      maPhuong: !data.MaPhuong ? null : data.MaPhuong.value,
       soNha: data.SoNha,
       diaChiDayDu: "",
       maGps: data.GPS,
-      maLoaiDiaDiem: data.MaLoaiDiaDiem.value,
-      MaKhuVuc: !data.KhuVuc ? null : data.KhuVuc,
+      PhanLoaiLoaiDiaDiem: data.MaLoaiDiaDiem.value,
+      DiaDiemCha: !data.KhuVuc ? null : data.KhuVuc,
     });
 
     if (post === 1) {
+      await loadArea();
       props.getListAddress(1);
       handleResetClick();
     }
@@ -252,13 +257,13 @@ const CreateAddress = (props) => {
                       className="form-control"
                       {...register("KhuVuc", Validate.KhuVuc)}
                     >
-                      <option value="">-- Bỏ Trống --</option>
+                      <option value="">-- Địa Điểm Khu Vực --</option>
                       {listArea &&
                         listArea.length > 0 &&
                         listArea.map((val, index) => {
                           return (
-                            <option value={val.id} key={index}>
-                              {val.tenKhuVuc}
+                            <option value={val.maDiaDiem} key={index}>
+                              {val.tenDiaDiem}
                             </option>
                           );
                         })}
@@ -320,7 +325,6 @@ const CreateAddress = (props) => {
                           onChange={(field) => HandleChangeProvince(field)}
                         />
                       )}
-                      rules={{ required: "không được để trống" }}
                     />
                     {errors.MaTinh && (
                       <span className="text-danger">
@@ -344,7 +348,6 @@ const CreateAddress = (props) => {
                           onChange={(field) => HandleOnchangeDistrict(field)}
                         />
                       )}
-                      rules={{ required: "không được để trống" }}
                     />
                     {errors.MaHuyen && (
                       <span className="text-danger">
@@ -367,7 +370,6 @@ const CreateAddress = (props) => {
                           options={ListWard}
                         />
                       )}
-                      rules={{ required: "không được để trống" }}
                     />
                     {errors.MaPhuong && (
                       <span className="text-danger">

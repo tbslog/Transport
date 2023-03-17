@@ -1,13 +1,52 @@
 import { useMemo, useState, useEffect, useCallback, useRef } from "react";
 import { getData, getDataCustom } from "../Common/FuncAxios";
+import { useForm, Controller } from "react-hook-form";
 import DataTable from "react-data-table-component";
 import moment from "moment";
 import { Modal } from "bootstrap";
 import DatePicker from "react-datepicker";
 import AddPriceTable from "./AddPriceTable";
 import ApprovePriceTable from "./ApprovePriceTable";
+import Select from "react-select";
+
+const customStyles = {
+  control: (provided, state) => ({
+    ...provided,
+    background: "#fff",
+    borderColor: "#9e9e9e",
+    minHeight: "30px",
+    height: "30px",
+    boxShadow: state.isFocused ? null : null,
+  }),
+
+  valueContainer: (provided, state) => ({
+    ...provided,
+    height: "30px",
+    padding: "0 6px",
+  }),
+
+  input: (provided, state) => ({
+    ...provided,
+    margin: "0px",
+  }),
+  indicatorSeparator: (state) => ({
+    display: "none",
+  }),
+  indicatorsContainer: (provided, state) => ({
+    ...provided,
+    height: "30px",
+  }),
+};
 
 const PriceTablePage = () => {
+  const {
+    control,
+    setValue,
+    formState: { errors },
+  } = useForm({
+    mode: "onChange",
+  });
+
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [totalRows, setTotalRows] = useState(0);
@@ -30,6 +69,13 @@ const PriceTablePage = () => {
   const [vehicleType, setVehicleType] = useState("");
   const [listGoodsType, setListGoodsType] = useState([]);
   const [goodsType, setGoodsType] = useState("");
+
+  const [listFPlace, setListFPlace] = useState([]);
+  const [listSPlace, setListSPlace] = useState([]);
+  const [listEPlace, setListEPlace] = useState([]);
+  const [listFPlaceSelected, setListFPlaceSelected] = useState([]);
+  const [listSPlaceSelected, setListSPlaceSelected] = useState([]);
+  const [listEPlaceSelected, setListEPlaceSelected] = useState([]);
 
   const [title, setTitle] = useState("");
 
@@ -63,16 +109,19 @@ const PriceTablePage = () => {
         }),
     },
     {
-      name: <div>Mã Cung Đường</div>,
-      selector: (row) => <div className="text-wrap">{row.maCungDuong}</div>,
+      name: <div>Điểm Đóng Hàng</div>,
+      selector: (row) => <div className="text-warp">{row.diemDau}</div>,
+      sortable: true,
     },
     {
-      name: <div>Tên Cung Đường</div>,
-      selector: (row) => <div className="text-wrap">{row.tenCungDuong}</div>,
+      name: <div>Điểm Trả Hàng</div>,
+      selector: (row) => <div className="text-warp">{row.diemCuoi}</div>,
+      sortable: true,
     },
+
     {
-      name: <div>Khu Vực</div>,
-      selector: (row) => <div className="text-warp">{row.khuVuc}</div>,
+      name: <div>Điểm Lấy/Trả Rỗng</div>,
+      selector: (row) => <div className="text-warp">{row.diemLayTraRong}</div>,
       sortable: true,
     },
     {
@@ -142,7 +191,10 @@ const PriceTablePage = () => {
     fromDate = "",
     toDate = "",
     vehicleType = "",
-    goodsType = ""
+    goodsType = "",
+    listFPlace = [],
+    listSPlace = [],
+    listEPlace = []
   ) => {
     setLoading(true);
 
@@ -151,8 +203,16 @@ const PriceTablePage = () => {
     }
     fromDate = fromDate === "" ? "" : moment(fromDate).format("YYYY-MM-DD");
     toDate = toDate === "" ? "" : moment(toDate).format("YYYY-MM-DD");
-    const dataCus = await getData(
-      `PriceTable/GetListPriceTable?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}&fromDate=${fromDate}&toDate=${toDate}&goodsType=${goodsType}&vehicleType=${vehicleType}`
+
+    let listFilter = {
+      listDiemDau: listFPlace,
+      listDiemCuoi: listSPlace,
+      listDiemLayTraRong: listEPlace,
+    };
+
+    const dataCus = await getDataCustom(
+      `PriceTable/GetListPriceTable?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}&fromDate=${fromDate}&toDate=${toDate}&goodsType=${goodsType}&vehicleType=${vehicleType}`,
+      listFilter
     );
 
     setData(dataCus.data);
@@ -162,14 +222,32 @@ const PriceTablePage = () => {
 
   const handlePageChange = async (page) => {
     setPage(page);
-    fetchData(page, keySearch, fromDate, toDate, vehicleType, goodsType);
+
+    fetchData(
+      page,
+      keySearch,
+      fromDate,
+      toDate,
+      vehicleType,
+      goodsType,
+      listFPlaceSelected,
+      listSPlaceSelected,
+      listEPlaceSelected
+    );
   };
 
   const handlePerRowsChange = async (newPerPage, page) => {
     setLoading(true);
 
-    const dataCus = await getData(
-      `PriceTable/GetListPriceTable?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}&fromDate=${fromDate}&toDate=${toDate}&goodsType=${goodsType}&vehicleType=${vehicleType}`
+    let listFilter = {
+      listDiemDau: listFPlaceSelected,
+      listDiemCuoi: listSPlaceSelected,
+      listDiemLayTraRong: listEPlaceSelected,
+    };
+
+    const dataCus = await getDataCustom(
+      `PriceTable/GetListPriceTable?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}&fromDate=${fromDate}&toDate=${toDate}&goodsType=${goodsType}&vehicleType=${vehicleType}`,
+      listFilter
     );
     setPerPage(newPerPage);
     setData(dataCus.data);
@@ -182,6 +260,19 @@ const PriceTablePage = () => {
     setLoading(true);
 
     (async () => {
+      const getListPlace = await getData(
+        "Address/GetListAddressSelect?pointType=&type="
+      );
+
+      let arrPlace = [];
+      getListPlace.forEach((val) => {
+        arrPlace.push({ label: val.tenDiaDiem, value: val.maDiaDiem });
+      });
+
+      setListFPlace(arrPlace);
+      setListSPlace(arrPlace);
+      setListEPlace(arrPlace);
+
       let getListCustommerGroup = await getData(`Common/GetListVehicleType`);
       setListVehicleType(getListCustommerGroup);
 
@@ -201,23 +292,63 @@ const PriceTablePage = () => {
   const handleOnChangeVehicleType = (value) => {
     setLoading(true);
     setVehicleType(value);
-    fetchData(page, keySearch, fromDate, toDate, value, goodsType);
+    fetchData(
+      page,
+      keySearch,
+      fromDate,
+      toDate,
+      value,
+      goodsType,
+      listFPlaceSelected,
+      listSPlaceSelected,
+      listEPlaceSelected
+    );
     setLoading(false);
   };
 
   const handleOnChangeGoodsType = (value) => {
     setLoading(true);
     setGoodsType(value);
-    fetchData(page, keySearch, fromDate, toDate, vehicleType, value);
+    fetchData(
+      page,
+      keySearch,
+      fromDate,
+      toDate,
+      vehicleType,
+      value,
+      listFPlaceSelected,
+      listSPlaceSelected,
+      listEPlaceSelected
+    );
     setLoading(false);
   };
 
   const handleSearchClick = () => {
-    fetchData(page, keySearch, fromDate, toDate, vehicleType, goodsType);
+    fetchData(
+      page,
+      keySearch,
+      fromDate,
+      toDate,
+      vehicleType,
+      goodsType,
+      listFPlaceSelected,
+      listSPlaceSelected,
+      listEPlaceSelected
+    );
   };
 
   const ReloadData = () => {
-    fetchData(page, keySearch, fromDate, toDate, vehicleType, goodsType);
+    fetchData(
+      page,
+      keySearch,
+      fromDate,
+      toDate,
+      vehicleType,
+      goodsType,
+      listFPlaceSelected,
+      listSPlaceSelected,
+      listEPlaceSelected
+    );
   };
 
   const handleRefeshDataClick = () => {
@@ -235,6 +366,68 @@ const PriceTablePage = () => {
       `PriceTable/GetListPriceTableApprove?PageNumber=1&PageSize=10`
     );
     return listApprove;
+  };
+
+  const handleOnChangeFilterSelect = async (values, type) => {
+    if (values) {
+      setLoading(true);
+
+      let arrFPlace = [];
+      let arrSPlace = [];
+      let arrEplace = [];
+
+      if (type === "fPlace") {
+        setValue("ListFirstPlace", values);
+        values.forEach((val) => {
+          arrFPlace.push(val.value);
+        });
+
+        setListFPlaceSelected(arrFPlace);
+      } else {
+        listFPlaceSelected.forEach((val) => {
+          arrFPlace.push(val);
+        });
+      }
+
+      if (type === "sPlace") {
+        setValue("ListSecondPlace", values);
+
+        values.forEach((val) => {
+          arrSPlace.push(val.value);
+        });
+        setListSPlaceSelected(arrSPlace);
+      } else {
+        listSPlaceSelected.forEach((val) => {
+          arrSPlace.push(val);
+        });
+      }
+
+      if (type === "ePlace") {
+        setValue("ListEmptyPlace", values);
+
+        values.forEach((val) => {
+          arrEplace.push(val.value);
+        });
+        setListEPlaceSelected(arrEplace);
+      } else {
+        listEPlaceSelected.forEach((val) => {
+          arrEplace.push(val);
+        });
+      }
+
+      fetchData(
+        page,
+        keySearch,
+        fromDate,
+        toDate,
+        vehicleType,
+        goodsType,
+        arrFPlace,
+        arrSPlace,
+        arrEplace
+      );
+      setLoading(false);
+    }
   };
 
   return (
@@ -345,6 +538,75 @@ const PriceTablePage = () => {
                   </div>
                 </div>
                 <div className="col col-sm">
+                  <div className="form-group">
+                    <Controller
+                      name="ListFirstPlace"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          className="basic-multi-select"
+                          classNamePrefix={"form-control"}
+                          isMulti
+                          value={field.value}
+                          options={listFPlace}
+                          styles={customStyles}
+                          onChange={(field) =>
+                            handleOnChangeFilterSelect(field, "fPlace")
+                          }
+                          placeholder="Chọn Điểm Đầu"
+                        />
+                      )}
+                    />
+                  </div>
+                </div>
+                <div className="col col-sm">
+                  <div className="form-group">
+                    <Controller
+                      name="ListSecondPlace"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          className="basic-multi-select"
+                          classNamePrefix={"form-control"}
+                          isMulti
+                          value={field.value}
+                          options={listSPlace}
+                          styles={customStyles}
+                          onChange={(field) =>
+                            handleOnChangeFilterSelect(field, "sPlace")
+                          }
+                          placeholder="Chọn Điểm Cuối"
+                        />
+                      )}
+                    />
+                  </div>
+                </div>
+                <div className="col col-sm">
+                  <div className="form-group">
+                    <Controller
+                      name="ListEmptyPlace"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          className="basic-multi-select"
+                          classNamePrefix={"form-control"}
+                          isMulti
+                          value={field.value}
+                          options={listEPlace}
+                          styles={customStyles}
+                          onChange={(field) =>
+                            handleOnChangeFilterSelect(field, "ePlace")
+                          }
+                          placeholder="Chọn Điểm Lấy/Trả rỗng"
+                        />
+                      )}
+                    />
+                  </div>
+                </div>
+                <div className="col col-sm">
                   <div className="row">
                     <div className="col col-sm">
                       <div className="input-group input-group-sm">
@@ -398,6 +660,9 @@ const PriceTablePage = () => {
                     </button>
                   </div>
                 </div>
+              </div>
+              <div className="row">
+                <div className="col col-6"></div>
               </div>
             </div>
           </div>

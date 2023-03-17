@@ -237,8 +237,13 @@ const HandlingPage = (props) => {
       sortable: true,
     },
     {
-      name: <div>Điểm Lấy/Trả Rỗng</div>,
+      name: <div>Điểm Lấy Rỗng</div>,
       selector: (row) => <div className="text-wrap">{row.diemLayRong}</div>,
+      sortable: true,
+    },
+    {
+      name: <div>Điểm Trả Rỗng</div>,
+      selector: (row) => <div className="text-wrap">{row.diemTraRong}</div>,
       sortable: true,
     },
     {
@@ -249,12 +254,12 @@ const HandlingPage = (props) => {
 
     {
       name: <div>Điểm Đóng Hàng</div>,
-      selector: (row) => <div className="text-wrap">{row.diemLayHang}</div>,
+      selector: (row) => <div className="text-wrap">{row.diemDau}</div>,
       sortable: true,
     },
     {
       name: <div>Điểm Hạ Hàng</div>,
-      selector: (row) => <div className="text-wrap">{row.diemTraHang}</div>,
+      selector: (row) => <div className="text-wrap">{row.diemCuoi}</div>,
       sortable: true,
     },
 
@@ -498,7 +503,6 @@ const HandlingPage = (props) => {
   };
 
   const handlePageChange = async (newPage) => {
-    setLoading(true);
     fetchData(
       transportId,
       newPage,
@@ -510,12 +514,10 @@ const HandlingPage = (props) => {
       listUserSelected
     );
     setPage(newPage);
-    setLoading(false);
   };
 
   const handlePerRowsChange = async (newPerPage, page) => {
     if (newPerPage !== perPage) {
-      setLoading(true);
       let listFilter = {
         customers: listCusSelected,
         users: listUserSelected,
@@ -528,7 +530,6 @@ const HandlingPage = (props) => {
       setPerPage(newPerPage);
       setData(dataCus.data);
       setTotalRows(dataCus.totalRecords);
-      setLoading(false);
     }
   };
 

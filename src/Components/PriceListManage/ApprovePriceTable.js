@@ -78,12 +78,20 @@ const ApprovePriceTable = (props) => {
         }),
     },
     {
-      name: <div>Tên Cung Đường</div>,
-      selector: (row) => <div className="text-wrap">{row.tenCungDuong}</div>,
+      name: <div>Điểm Đóng Hàng</div>,
+      selector: (row) => <div className="text-warp">{row.diemDau}</div>,
+      sortable: true,
     },
     {
-      name: <div>Khu Vực</div>,
-      selector: (row) => <div className="text-wrap">{row.khuVuc}</div>,
+      name: <div>Điểm Trả Hàng</div>,
+      selector: (row) => <div className="text-warp">{row.diemCuoi}</div>,
+      sortable: true,
+    },
+
+    {
+      name: <div>Điểm Lấy/Trả Rỗng</div>,
+      selector: (row) => <div className="text-warp">{row.diemLayTraRong}</div>,
+      sortable: true,
     },
     {
       name: <div>Phương Tiện Vận Tải</div>,

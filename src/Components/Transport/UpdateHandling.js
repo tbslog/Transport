@@ -287,13 +287,23 @@ const UpdateHandling = (props) => {
     );
 
     setValue(
-      "DiemLayTraRong",
+      "DiemLayRong",
       !data.diemLayRong
         ? { label: "Select...", value: null }
         : {
             ...listPoint.filter((x) => x.value === data.diemLayRong),
           }[0]
     );
+
+    setValue(
+      "DiemTraRong",
+      !data.diemTraRong
+        ? { label: "Select...", value: null }
+        : {
+            ...listPoint.filter((x) => x.value === data.diemTraRong),
+          }[0]
+    );
+
     setValue(
       "TaiXe",
       !data.maTaiXe
@@ -328,9 +338,15 @@ const UpdateHandling = (props) => {
     setValue("HangTau", data.hangTau);
     setValue("TenTau", data.tenTau);
     setValue(
-      "TGLayTraRong",
-      !data.thoiGianLayTraRong ? null : new Date(data.thoiGianLayTraRong)
+      "TGLayRong",
+      !data.thoiGianLayTraRong ? null : new Date(data.thoiGianLayRong)
     );
+
+    setValue(
+      "TGTraRong",
+      !data.thoiGianLayTraRong ? null : new Date(data.thoiGianTraRong)
+    );
+
     setValue(
       "TGHaCang",
       !data.thoiGianHaCang ? null : new Date(data.thoiGianHaCang)
@@ -353,11 +369,19 @@ const UpdateHandling = (props) => {
     );
 
     setValue(
-      "TGLayTraRongThucTe",
+      "TGTraRongThucTe",
       !data.thoiGianLayTraRongThucTe
         ? null
-        : new Date(data.thoiGianLayTraRongThucTe)
+        : new Date(data.ThoiGianTraRongThucTe)
     );
+
+    setValue(
+      "TGLayRongThucTe",
+      !data.thoiGianLayTraRongThucTe
+        ? null
+        : new Date(data.ThoiGianLayRongThucTe)
+    );
+
     setValue(
       "TGCoMatThucTe",
       !data.thoiGianCoMatThucTe ? null : new Date(data.thoiGianCoMatThucTe)
@@ -404,7 +428,8 @@ const UpdateHandling = (props) => {
       PTVanChuyen: data.PTVanChuyen,
       LoaiHangHoa: data.LoaiHangHoa,
       DonViTinh: "CHUYEN",
-      DiemLayTraRong: !data.DiemLayTraRong ? null : data.DiemLayTraRong.value,
+      DiemLayRong: !data.DiemLayRong ? null : data.DiemLayRong.value,
+      DiemTraRong: !data.DiemTraRong ? null : data.DiemTraRong.value,
       MaSoXe: !data.XeVanChuyen
         ? null
         : !data.XeVanChuyen.value
@@ -423,9 +448,14 @@ const UpdateHandling = (props) => {
       TheTich: !data.TheTich ? null : data.TheTich,
       SoKien: !data.SoKien ? null : data.SoKien,
       GhiChu: data.GhiChu,
-      ThoiGianLayTraRongThucTe: !data.TGLayTraRongThucTe
+      ThoiGianTraRongThucTe: !data.ThoiGianTraRongThucTe
         ? null
-        : moment(new Date(data.TGLayTraRongThucTe).toISOString()).format(
+        : moment(new Date(data.ThoiGianTraRongThucTe).toISOString()).format(
+            "yyyy-MM-DDTHH:mm:ss.SSS"
+          ),
+      ThoiGianLayRongThucTe: !data.ThoiGianLayRongThucTe
+        ? null
+        : moment(new Date(data.ThoiGianLayRongThucTe).toISOString()).format(
             "yyyy-MM-DDTHH:mm:ss.SSS"
           ),
       ThoiGianCoMatThucTe: !data.TGCoMatThucTe
@@ -499,7 +529,7 @@ const UpdateHandling = (props) => {
                     )}
                   </div>
                 </div>
-                <div className="col col-sm">
+                {/* <div className="col col-sm">
                   <div className="form-group">
                     <label htmlFor="CungDuong">Cung Đường(*)</label>
                     <input
@@ -513,7 +543,7 @@ const UpdateHandling = (props) => {
                       }
                     />
                   </div>
-                </div>
+                </div> */}
                 <div className="col col-sm">
                   <div className="form-group">
                     <label htmlFor="CungDuong">Điểm Đóng Hàng(*)</label>
@@ -774,32 +804,54 @@ const UpdateHandling = (props) => {
                     <div className="col col-sm">
                       <div className="form-group">
                         {transportType && transportType === "xuat" && (
-                          <label htmlFor="DiemLayTraRong">
-                            Điểm Lấy Rỗng(*)
-                          </label>
+                          <>
+                            <label htmlFor="DiemLayRong">
+                              Điểm Lấy Rỗng(*)
+                            </label>
+                            <Controller
+                              name={`DiemLayRong`}
+                              control={control}
+                              render={({ field }) => (
+                                <Select
+                                  {...field}
+                                  classNamePrefix={"form-control"}
+                                  value={field.value}
+                                  options={listPoint}
+                                />
+                              )}
+                              rules={Validate.diemLayRong}
+                            />
+                            {errors.DiemLayRong && (
+                              <span className="text-danger">
+                                {errors.DiemLayRong.message}
+                              </span>
+                            )}
+                          </>
                         )}
                         {transportType && transportType === "nhap" && (
-                          <label htmlFor="DiemLayTraRong">
-                            Điểm Trả Rỗng(*)
-                          </label>
-                        )}
-                        <Controller
-                          name={`DiemLayTraRong`}
-                          control={control}
-                          render={({ field }) => (
-                            <Select
-                              {...field}
-                              classNamePrefix={"form-control"}
-                              value={field.value}
-                              options={listPoint}
+                          <>
+                            <label htmlFor="DiemTraRong">
+                              Điểm Trả Rỗng(*)
+                            </label>
+                            <Controller
+                              name={`DiemTraRong`}
+                              control={control}
+                              render={({ field }) => (
+                                <Select
+                                  {...field}
+                                  classNamePrefix={"form-control"}
+                                  value={field.value}
+                                  options={listPoint}
+                                />
+                              )}
+                              rules={Validate.diemLayRong}
                             />
-                          )}
-                          rules={Validate.diemLayRong}
-                        />
-                        {errors.DiemLayTraRong && (
-                          <span className="text-danger">
-                            {errors.DiemLayTraRong.message}
-                          </span>
+                            {errors.DiemTraRong && (
+                              <span className="text-danger">
+                                {errors.DiemTraRong.message}
+                              </span>
+                            )}
+                          </>
                         )}
                       </div>
                     </div>
@@ -1173,37 +1225,57 @@ const UpdateHandling = (props) => {
                       <div className="col col-sm">
                         <div className="form-group">
                           {transportType && transportType === "xuat" && (
-                            <label htmlFor="TGLayTraRongThucTe">
-                              Thời Gian Lấy Rỗng Thực Tế
-                            </label>
+                            <>
+                              <label htmlFor="TGLayRongThucTe">
+                                Thời Gian Lấy Rỗng Thực Tế
+                              </label>
+                              <Controller
+                                control={control}
+                                name={`TGLayRongThucTe`}
+                                render={({ field }) => (
+                                  <DatePicker
+                                    className="form-control"
+                                    showTimeSelect
+                                    timeFormat="HH:mm"
+                                    dateFormat="dd/MM/yyyy HH:mm"
+                                    onChange={(date) => field.onChange(date)}
+                                    selected={field.value}
+                                  />
+                                )}
+                              />
+                              {errors.TGLayRongThucTe && (
+                                <span className="text-danger">
+                                  {errors.TGLayRongThucTe.message}
+                                </span>
+                              )}
+                            </>
                           )}
                           {transportType && transportType === "nhap" && (
-                            <label htmlFor="TGLayTraRongThucTe">
-                              Thời Gian Trả Rỗng Thực Tế
-                            </label>
-                          )}
-
-                          <div className="input-group ">
-                            <Controller
-                              control={control}
-                              name={`TGLayTraRongThucTe`}
-                              render={({ field }) => (
-                                <DatePicker
-                                  className="form-control"
-                                  showTimeSelect
-                                  timeFormat="HH:mm"
-                                  dateFormat="dd/MM/yyyy HH:mm"
-                                  onChange={(date) => field.onChange(date)}
-                                  selected={field.value}
-                                />
+                            <>
+                              <label htmlFor="TGTraRongThucTe">
+                                Thời Gian Lấy Trả Thực Tế
+                              </label>
+                              <Controller
+                                control={control}
+                                name={`TGTraRongThucTe`}
+                                render={({ field }) => (
+                                  <DatePicker
+                                    className="form-control"
+                                    showTimeSelect
+                                    timeFormat="HH:mm"
+                                    dateFormat="dd/MM/yyyy HH:mm"
+                                    onChange={(date) => field.onChange(date)}
+                                    selected={field.value}
+                                  />
+                                )}
+                              />
+                              {errors.TGTraRongThucTe && (
+                                <span className="text-danger">
+                                  {errors.TGTraRongThucTe.message}
+                                </span>
                               )}
-                            />
-                            {errors.TGLayTraRongThucTe && (
-                              <span className="text-danger">
-                                {errors.TGLayTraRongThucTe.message}
-                              </span>
-                            )}
-                          </div>
+                            </>
+                          )}
                         </div>
                       </div>
                       {transportType && transportType === "xuat" ? (

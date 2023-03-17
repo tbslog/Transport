@@ -31,7 +31,8 @@ const CreateTransport = (props) => {
           KhoiLuong: null,
           TheTich: null,
           SoKien: null,
-          DiemLayTraRong: { label: "Chọn Điểm Lấy Rỗng", value: null },
+          DiemTraRong: { label: "Chọn Điểm Trả Rỗng", value: null },
+          DiemLayRong: { label: "Chọn Điểm Lấy Rỗng", value: null },
         },
       ],
     },
@@ -132,15 +133,19 @@ const CreateTransport = (props) => {
     },
   };
 
-  const [listFirstPoint, setListFirstPoint] = useState([]);
-  const [listSecondPoint, setListSecondPoint] = useState([]);
-  const [listRoad, setListRoad] = useState([]);
-  const [arrRoad, setArrRoad] = useState([]);
+  // const [listFirstPoint, setListFirstPoint] = useState([]);
+  // const [listSecondPoint, setListSecondPoint] = useState([]);
+  // const [listRoad, setListRoad] = useState([]);
+  // const [arrRoad, setArrRoad] = useState([]);
   const [listCus, setListCus] = useState([]);
   const [listVehicleType, setlistVehicleType] = useState([]);
   const [listGoodsType, setListGoodsType] = useState([]);
-  const [listPoint, setListPoint] = useState([]);
+  // const [listPoint, setListPoint] = useState([]);
   const [listShipping, setListShipping] = useState([]);
+
+  const [listFPlace, setListFPlace] = useState([]);
+  const [listSPlace, setListSPlace] = useState([]);
+  const [listEPlace, setListEPlace] = useState([]);
 
   useEffect(() => {
     SetIsLoading(true);
@@ -177,122 +182,120 @@ const CreateTransport = (props) => {
       setlistVehicleType(getListVehicleType);
       setListGoodsType(getListGoodsType);
 
-      const getListPoint = await getData("address/GetListAddressSelect");
-      if (getListPoint && getListPoint.length > 0) {
-        var obj = [];
-        getListPoint.map((val) => {
-          obj.push({
-            value: val.maDiaDiem,
-            label: val.maDiaDiem + " - " + val.tenDiaDiem,
-          });
-        });
-        setListPoint(obj);
-      }
+      const getListPlace = await getData(
+        "Address/GetListAddressSelect?pointType=&type=Diem"
+      );
+
+      let arrPlace = [];
+      getListPlace.forEach((val) => {
+        arrPlace.push({ label: val.tenDiaDiem, value: val.maDiaDiem });
+      });
+
+      setListFPlace(arrPlace);
+      setListSPlace(arrPlace);
+      setListEPlace(arrPlace);
+
+      // const getListPoint = await getData("address/GetListAddressSelect");
+      // if (getListPoint && getListPoint.length > 0) {
+      //   var obj = [];
+      //   getListPoint.map((val) => {
+      //     obj.push({
+      //       value: val.maDiaDiem,
+      //       label: val.maDiaDiem + " - " + val.tenDiaDiem,
+      //     });
+      //   });
+      //   setListPoint(obj);
+      // }
       SetIsLoading(false);
     })();
   }, []);
 
-  const handleOnChangeCustomer = async (val) => {
-    if (val && Object.keys(val).length > 0) {
-      setValue("MaKH", val);
-      setValue("MaCungDuong", null);
-      setValue("DiemLayHang", null);
-      setValue("DiemTraHang", null);
+  // const handleOnChangeCustomer = async (val) => {
+  //   if (val && Object.keys(val).length > 0) {
+  //     setValue("MaKH", val);
+  //     setValue("MaCungDuong", null);
+  //     setValue("DiemLayHang", null);
+  //     setValue("DiemTraHang", null);
 
-      const getListRoad = await getData(
-        `BillOfLading/LoadDataRoadTransportByCusId?id=${val.value}`
-      );
+  //     const getListRoad = await getData(
+  //       `BillOfLading/LoadDataRoadTransportByCusId?id=${val.value}`
+  //     );
 
-      if (getListRoad && Object.keys(getListRoad).length > 0) {
-        if (getListRoad.cungDuong && getListRoad.cungDuong.length > 0) {
-          let arr = [];
-          getListRoad.cungDuong.map((val) => {
-            arr.push({
-              label: val.tenCungDuong + " - " + val.km + " KM",
-              value: val.maCungDuong,
-            });
-          });
-          setArrRoad(getListRoad.cungDuong);
-          setListRoad(arr);
-        } else {
-          setListRoad([]);
-        }
+  //       if (getListRoad.diemDau && getListRoad.diemDau.length > 0) {
+  //         let arr = [];
+  //         getListRoad.diemDau.map((val) => {
+  //           if (!arr.some((x) => x.value === val.maDiaDiem)) {
+  //             arr.push({
+  //               label: val.tenDiaDiem,
+  //               value: val.maDiaDiem,
+  //             });
+  //           }
+  //         });
+  //         setListFirstPoint(arr);
+  //       } else {
+  //         setListFirstPoint([]);
+  //       }
 
-        if (getListRoad.diemDau && getListRoad.diemDau.length > 0) {
-          let arr = [];
-          getListRoad.diemDau.map((val) => {
-            if (!arr.some((x) => x.value === val.maDiaDiem)) {
-              arr.push({
-                label: val.tenDiaDiem,
-                value: val.maDiaDiem,
-              });
-            }
-          });
-          setListFirstPoint(arr);
-        } else {
-          setListFirstPoint([]);
-        }
+  //       if (getListRoad.diemCuoi && getListRoad.diemCuoi.length > 0) {
+  //         let arr = [];
+  //         getListRoad.diemCuoi.map((val) => {
+  //           if (!arr.some((x) => x.value === val.maDiaDiem)) {
+  //             arr.push({
+  //               label: val.tenDiaDiem,
+  //               value: val.maDiaDiem,
+  //             });
+  //           }
+  //         });
+  //         setListSecondPoint(arr);
+  //       } else {
+  //         setListSecondPoint([]);
+  //       }
+  //     }
+  //   }
+  // };
 
-        if (getListRoad.diemCuoi && getListRoad.diemCuoi.length > 0) {
-          let arr = [];
-          getListRoad.diemCuoi.map((val) => {
-            if (!arr.some((x) => x.value === val.maDiaDiem)) {
-              arr.push({
-                label: val.tenDiaDiem,
-                value: val.maDiaDiem,
-              });
-            }
-          });
-          setListSecondPoint(arr);
-        } else {
-          setListSecondPoint([]);
-        }
-      }
-    }
-  };
+  // const handleOnChangeRoad = (val) => {
+  //   if (val && Object.keys(val).length > 0) {
+  //     setValue("MaCungDuong", val);
+  //     const point = arrRoad.filter((x) => x.maCungDuong === val.value)[0];
+  //     setValue(
+  //       "DiemLayHang",
+  //       listFirstPoint.filter((x) => x.value === point.diemDau)[0]
+  //     );
+  //     setValue(
+  //       "DiemTraHang",
+  //       listSecondPoint.filter((x) => x.value === point.diemCuoi)[0]
+  //     );
+  //   } else {
+  //     setValue("MaCungDuong", null);
+  //   }
+  // };
 
-  const handleOnChangeRoad = (val) => {
-    if (val && Object.keys(val).length > 0) {
-      setValue("MaCungDuong", val);
-      const point = arrRoad.filter((x) => x.maCungDuong === val.value)[0];
-      setValue(
-        "DiemLayHang",
-        listFirstPoint.filter((x) => x.value === point.diemDau)[0]
-      );
-      setValue(
-        "DiemTraHang",
-        listSecondPoint.filter((x) => x.value === point.diemCuoi)[0]
-      );
-    } else {
-      setValue("MaCungDuong", null);
-    }
-  };
+  // const handleOnChangePoint = () => {
+  //   setValue("MaCungDuong", null);
+  //   var diemdau = watch("DiemLayHang");
+  //   var diemCuoi = watch("DiemTraHang");
 
-  const handleOnChangePoint = () => {
-    setValue("MaCungDuong", null);
-    var diemdau = watch("DiemLayHang");
-    var diemCuoi = watch("DiemTraHang");
+  //   if (
+  //     diemdau &&
+  //     diemCuoi &&
+  //     Object.keys(diemdau).length > 0 &&
+  //     Object.keys(diemCuoi).length > 0
+  //   ) {
+  //     const filterRoad = arrRoad.filter(
+  //       (x) => x.diemDau === diemdau.value && x.diemCuoi === diemCuoi.value
+  //     )[0];
 
-    if (
-      diemdau &&
-      diemCuoi &&
-      Object.keys(diemdau).length > 0 &&
-      Object.keys(diemCuoi).length > 0
-    ) {
-      const filterRoad = arrRoad.filter(
-        (x) => x.diemDau === diemdau.value && x.diemCuoi === diemCuoi.value
-      )[0];
-
-      if (filterRoad && Object.keys(filterRoad).length > 0) {
-        setValue(
-          "MaCungDuong",
-          { ...listRoad.filter((x) => x.value === filterRoad.maCungDuong) }[0]
-        );
-      }
-    } else {
-      setValue("MaCungDuong", null);
-    }
-  };
+  //     if (filterRoad && Object.keys(filterRoad).length > 0) {
+  //       setValue(
+  //         "MaCungDuong",
+  //         { ...listRoad.filter((x) => x.value === filterRoad.maCungDuong) }[0]
+  //       );
+  //     }
+  //   } else {
+  //     setValue("MaCungDuong", null);
+  //   }
+  // };
 
   const handleOnchangeTransportType = (val) => {
     reset();
@@ -318,7 +321,8 @@ const CreateTransport = (props) => {
     let arr = [];
     data.optionHandling.map((val) => {
       arr.push({
-        DiemLayTraRong: !val.DiemLayTraRong ? null : val.DiemLayTraRong.value,
+        DiemTraRong: !val.DiemTraRong ? null : val.DiemTraRong.value,
+        DiemLayRong: !val.DiemLayRong ? null : val.DiemLayRong.value,
         LoaiHangHoa: val.LoaiHangHoa,
         PTVanChuyen: val.PTVanChuyen,
         KhoiLuong: !val.KhoiLuong ? null : val.KhoiLuong,
@@ -336,10 +340,11 @@ const CreateTransport = (props) => {
     const create = await postData("BillOfLading/CreateTransport", {
       arrHandlings: arr,
       MaPTVC: data.LoaiHinh,
+      DiemDau: data.DiemLayHang.value,
+      DiemCuoi: data.DiemTraHang.value,
       HangTau: data.HangTau,
       TenTau: data.TenTau,
       MaVanDonKH: data.MaVDKH,
-      MaCungDuong: data.MaCungDuong.value,
       LoaiVanDon: data.LoaiVanDon,
       TongKhoiLuong: !data.TongKhoiLuong ? null : data.TongKhoiLuong,
       TongTheTich: !data.TongTheTich ? null : data.TongTheTich,
@@ -347,9 +352,14 @@ const CreateTransport = (props) => {
       MaKH: data.MaKH.value,
       TongThungHang: data.TongThungHang,
       GhiChu: data.GhiChu,
-      ThoiGianLayTraRong: !data.TGLayTraRong
+      ThoiGianTraRong: !data.TGTraRong
         ? null
-        : moment(new Date(data.TGLayTraRong).toISOString()).format(
+        : moment(new Date(data.TGTraRong).toISOString()).format(
+            "yyyy-MM-DDTHH:mm:ss.SSS"
+          ),
+      ThoiGianLayRong: !data.TGLayRong
+        ? null
+        : moment(new Date(data.TGLayRong).toISOString()).format(
             "yyyy-MM-DDTHH:mm:ss.SSS"
           ),
       ThoiGianHaCang: !data.TGHaCang
@@ -394,10 +404,10 @@ const CreateTransport = (props) => {
     setValue("MaCungDuong", null);
     setValue("DiemLayHang", null);
     setValue("DiemTraHang", null);
-    setListFirstPoint([]);
-    setListSecondPoint([]);
-    setListRoad([]);
-    setArrRoad([]);
+    // setListFirstPoint([]);
+    // setListSecondPoint([]);
+    // setListRoad([]);
+    // setArrRoad([]);
   };
 
   return (
@@ -467,7 +477,7 @@ const CreateTransport = (props) => {
                           classNamePrefix={"form-control"}
                           value={field.value}
                           options={listCus}
-                          onChange={(field) => handleOnChangeCustomer(field)}
+                          // onChange={(field) => handleOnChangeCustomer(field)}
                         />
                       )}
                       rules={Validate.MaKH}
@@ -559,19 +569,19 @@ const CreateTransport = (props) => {
                           {...field}
                           classNamePrefix={"form-control"}
                           value={field.value}
-                          options={listFirstPoint}
-                          onChange={(field) =>
-                            handleOnChangePoint(
-                              setValue(
-                                "DiemLayHang",
-                                {
-                                  ...listFirstPoint.filter(
-                                    (x) => x.value === field.value
-                                  ),
-                                }[0]
-                              )
-                            )
-                          }
+                          options={listFPlace}
+                          // onChange={(field) =>
+                          //   handleOnChangePoint(
+                          //     setValue(
+                          //       "DiemLayHang",
+                          //       {
+                          //         ...listFirstPoint.filter(
+                          //           (x) => x.value === field.value
+                          //         ),
+                          //       }[0]
+                          //     )
+                          //   )
+                          // }
                         />
                       )}
                       rules={Validate.DiemLayHang}
@@ -594,19 +604,19 @@ const CreateTransport = (props) => {
                           {...field}
                           classNamePrefix={"form-control"}
                           value={field.value}
-                          options={listSecondPoint}
-                          onChange={(field) =>
-                            handleOnChangePoint(
-                              setValue(
-                                "DiemTraHang",
-                                {
-                                  ...listSecondPoint.filter(
-                                    (x) => x.value === field.value
-                                  ),
-                                }[0]
-                              )
-                            )
-                          }
+                          options={listSPlace}
+                          // onChange={(field) =>
+                          //   handleOnChangePoint(
+                          //     setValue(
+                          //       "DiemTraHang",
+                          //       {
+                          //         ...listSecondPoint.filter(
+                          //           (x) => x.value === field.value
+                          //         ),
+                          //       }[0]
+                          //     )
+                          //   )
+                          // }
                         />
                       )}
                       rules={Validate.DiemTraHang}
@@ -614,30 +624,6 @@ const CreateTransport = (props) => {
                     {errors.DiemTraHang && (
                       <span className="text-danger">
                         {errors.DiemTraHang.message}
-                      </span>
-                    )}
-                  </div>
-                </div>
-                <div className="col col-sm">
-                  <div className="form-group">
-                    <label htmlFor="MaCungDuong">Cung Đường(*)</label>
-                    <Controller
-                      name="MaCungDuong"
-                      control={control}
-                      render={({ field }) => (
-                        <Select
-                          {...field}
-                          classNamePrefix={"form-control"}
-                          value={field.value}
-                          options={listRoad}
-                          onChange={(field) => handleOnChangeRoad(field)}
-                        />
-                      )}
-                      rules={Validate.MaCungDuong}
-                    />
-                    {errors.MaCungDuong && (
-                      <span className="text-danger">
-                        {errors.MaCungDuong.message}
                       </span>
                     )}
                   </div>
@@ -849,37 +835,75 @@ const CreateTransport = (props) => {
                               ).includes("CONT") && (
                                 <>
                                   <div className="col-sm-2">
-                                    <div className="form-group">
-                                      <Controller
-                                        name={`optionHandling.${index}.DiemLayTraRong`}
-                                        control={control}
-                                        render={({ field }) => (
-                                          <Select
-                                            {...field}
-                                            classNamePrefix={"form-control"}
-                                            value={field.value}
-                                            options={listPoint}
+                                    {watch("LoaiVanDon") === "xuat" ? (
+                                      <>
+                                        <div className="form-group">
+                                          <Controller
+                                            name={`optionHandling.${index}.DiemLayRong`}
+                                            control={control}
+                                            render={({ field }) => (
+                                              <Select
+                                                {...field}
+                                                classNamePrefix={"form-control"}
+                                                value={field.value}
+                                                options={listEPlace}
+                                              />
+                                            )}
+                                            rules={{
+                                              required: "không được để trống",
+                                              validate: (value) => {
+                                                if (!value.value) {
+                                                  return "không được để trống";
+                                                }
+                                              },
+                                            }}
                                           />
-                                        )}
-                                        rules={{
-                                          required: "không được để trống",
-                                          validate: (value) => {
-                                            if (!value.value) {
-                                              return "không được để trống";
-                                            }
-                                          },
-                                        }}
-                                      />
-                                      {errors.optionHandling?.[index]
-                                        ?.DiemLayTraRong && (
-                                        <span className="text-danger">
-                                          {
-                                            errors.optionHandling?.[index]
-                                              ?.DiemLayTraRong.message
-                                          }
-                                        </span>
-                                      )}
-                                    </div>
+                                          {errors.optionHandling?.[index]
+                                            ?.DiemLayRong && (
+                                            <span className="text-danger">
+                                              {
+                                                errors.optionHandling?.[index]
+                                                  ?.DiemLayRong.message
+                                              }
+                                            </span>
+                                          )}
+                                        </div>
+                                      </>
+                                    ) : (
+                                      <>
+                                        <div className="form-group">
+                                          <Controller
+                                            name={`optionHandling.${index}.DiemTraRong`}
+                                            control={control}
+                                            render={({ field }) => (
+                                              <Select
+                                                {...field}
+                                                classNamePrefix={"form-control"}
+                                                value={field.value}
+                                                options={listEPlace}
+                                              />
+                                            )}
+                                            rules={{
+                                              required: "không được để trống",
+                                              validate: (value) => {
+                                                if (!value.value) {
+                                                  return "không được để trống";
+                                                }
+                                              },
+                                            }}
+                                          />
+                                          {errors.optionHandling?.[index]
+                                            ?.DiemTraRong && (
+                                            <span className="text-danger">
+                                              {
+                                                errors.optionHandling?.[index]
+                                                  ?.DiemTraRong.message
+                                              }
+                                            </span>
+                                          )}
+                                        </div>
+                                      </>
+                                    )}
                                   </div>
                                 </>
                               )}
@@ -998,39 +1022,63 @@ const CreateTransport = (props) => {
                     <div className="col col-sm">
                       <div className="form-group">
                         {watch("LoaiVanDon") === "xuat" && (
-                          <label htmlFor="TGLayTraRong">
-                            Thời Gian Lấy Rỗng
-                          </label>
+                          <div className="input-group ">
+                            <label htmlFor="TGLayRong">
+                              Thời Gian Lấy Rỗng
+                            </label>
+                            <Controller
+                              control={control}
+                              name={`TGLayRong`}
+                              render={({ field }) => (
+                                <DatePicker
+                                  className="form-control"
+                                  showTimeSelect
+                                  timeFormat="HH:mm"
+                                  dateFormat="dd/MM/yyyy HH:mm"
+                                  onChange={(date) => field.onChange(date)}
+                                  selected={field.value}
+                                />
+                              )}
+                              // rules={{
+                              //   required: "không được để trống",
+                              // }}
+                            />
+                            {errors.TGLayRong && (
+                              <span className="text-danger">
+                                {errors.TGLayRong.message}
+                              </span>
+                            )}
+                          </div>
                         )}
                         {watch("LoaiVanDon") === "nhap" && (
-                          <label htmlFor="TGLayTraRong">
-                            Thời Gian Trả Rỗng
-                          </label>
-                        )}
-                        <div className="input-group ">
-                          <Controller
-                            control={control}
-                            name={`TGLayTraRong`}
-                            render={({ field }) => (
-                              <DatePicker
-                                className="form-control"
-                                showTimeSelect
-                                timeFormat="HH:mm"
-                                dateFormat="dd/MM/yyyy HH:mm"
-                                onChange={(date) => field.onChange(date)}
-                                selected={field.value}
-                              />
+                          <div className="input-group ">
+                            <label htmlFor="TGTraRong">
+                              Thời Gian Trả Rỗng
+                            </label>
+                            <Controller
+                              control={control}
+                              name={`TGTraRong`}
+                              render={({ field }) => (
+                                <DatePicker
+                                  className="form-control"
+                                  showTimeSelect
+                                  timeFormat="HH:mm"
+                                  dateFormat="dd/MM/yyyy HH:mm"
+                                  onChange={(date) => field.onChange(date)}
+                                  selected={field.value}
+                                />
+                              )}
+                              // rules={{
+                              //   required: "không được để trống",
+                              // }}
+                            />
+                            {errors.TGTraRong && (
+                              <span className="text-danger">
+                                {errors.TGTraRong.message}
+                              </span>
                             )}
-                            // rules={{
-                            //   required: "không được để trống",
-                            // }}
-                          />
-                          {errors.TGLayTraRong && (
-                            <span className="text-danger">
-                              {errors.TGLayTraRong.message}
-                            </span>
-                          )}
-                        </div>
+                          </div>
+                        )}
                       </div>
                     </div>
                     {watch("LoaiVanDon") === "xuat" && (

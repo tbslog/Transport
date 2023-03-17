@@ -67,7 +67,9 @@ const JoinTransports = (props) => {
       let getListGoodsType = await getData("Common/GetListGoodsType");
       setListGoodsType(getListGoodsType);
 
-      const getListPoint = await getData("address/GetListAddressSelect");
+      const getListPoint = await getData(
+        "Address/GetListAddressSelect?pointType=&type=Diem"
+      );
       if (getListPoint && getListPoint.length > 0) {
         var obj = [];
         getListPoint.map((val) => {
@@ -158,14 +160,12 @@ const JoinTransports = (props) => {
             `BillOfLading/LoadJoinTransports`,
             { TransportIds: arrTransport }
           );
-
-          setValue("TransportType", dataTransports.loaiVanDon);
-          setValue("MaPTVC", dataTransports.maPTVC);
-
           let data = dataTransports.loadTransports;
           if (data && data.length > 0) {
             setValue("listTransport", data);
             for (let i = 0; i <= data.length - 1; i++) {
+              setValue(`listTransport.${i}.LoaiVanDon`, data[i].loaiVanDon);
+              setValue(`listTransport.${i}.MaPTVC`, data[i].maPTVC);
               setValue(`listTransport.${i}.LoaiHangHoa`, "Normal");
               setValue(`listTransport.${i}.MaVanDon`, data[i].maVanDon);
               setValue(`listTransport.${i}.MaVanDonKH`, data[i].maVanDonKH);
@@ -218,18 +218,22 @@ const JoinTransports = (props) => {
         let dataHandling = dataTransports.handlingLess;
 
         setDataHandling(dataHandling);
-
-        setValue("TransportType", dataTransports.loaiVanDon);
-        setValue("MaPTVC", dataTransports.maPTVC);
-
         setValue("PTVanChuyen", dataHandling.ptVanChuyen);
 
         setValue(
-          "DiemLayTraRong",
+          "DiemTraRong",
           {
-            ...listPoint.filter((x) => x.value === dataHandling.diemLayTraRong),
+            ...listPoint.filter((x) => x.value === dataHandling.diemTraRong),
           }[0]
         );
+
+        setValue(
+          "DiemLayRong",
+          {
+            ...listPoint.filter((x) => x.value === dataHandling.diemLayRong),
+          }[0]
+        );
+
         setValue(
           "NhaCungCap",
           {
@@ -254,11 +258,15 @@ const JoinTransports = (props) => {
         setValue("SEALHQ", dataHandling.sealhq);
         setValue("SEALNP", dataHandling.sealnp);
         setValue(
-          "TGLayTraRong",
-          !dataHandling.tgLayTraRong
-            ? null
-            : new Date(dataHandling.tgLayTraRong)
+          "TGTraRong",
+          !dataHandling.tgTraRong ? null : new Date(dataHandling.tgTraRong)
         );
+
+        setValue(
+          "TGLayRong",
+          !dataHandling.tgLayRong ? null : new Date(dataHandling.tgLayRong)
+        );
+
         setValue(
           "TGHanLenh",
           !dataHandling.tgHanLenh ? null : new Date(dataHandling.tgHanLenh)
@@ -272,6 +280,8 @@ const JoinTransports = (props) => {
         if (data && data.length > 0) {
           setValue("listTransport", data);
           for (let i = 0; i <= data.length - 1; i++) {
+            setValue(`listTransport.${i}.LoaiVanDon`, data[i].loaiVanDon);
+            setValue(`listTransport.${i}.MaPTVC`, data[i].maPTVC);
             setValue(`listTransport.${i}.LoaiHangHoa`, "Normal");
             setValue(`listTransport.${i}.MaVanDon`, data[i].maVanDon);
             setValue(`listTransport.${i}.MaVanDonKH`, data[i].maVanDonKH);
@@ -348,7 +358,8 @@ const JoinTransports = (props) => {
     const dataJoin = {
       arrTransports: arrTransports,
       PTVanChuyen: data.PTVanChuyen,
-      DiemLayTraRong: !data.DiemLayTraRong ? null : data.DiemLayTraRong.value,
+      DiemLayRong: !data.DiemLayRong ? null : data.DiemLayRong.value,
+      DiemTraRong: !data.DiemTraRong ? null : data.DiemTraRong.value,
       DonViVanTai: data.NhaCungCap.value,
       XeVanChuyen: !data.XeVanChuyen ? null : data.XeVanChuyen.value,
       TaiXe: !data.TaiXe ? null : data.TaiXe.value,
@@ -367,9 +378,14 @@ const JoinTransports = (props) => {
         : moment(new Date(data.TGTraHang).toISOString()).format(
             "yyyy-MM-DDTHH:mm:ss.SSS"
           ),
-      TGLayTraRong: !data.TGLayTraRong
+      TGTraRong: !data.TGTraRong
         ? null
-        : moment(new Date(data.TGLayTraRong).toISOString()).format(
+        : moment(new Date(data.TGTraRong).toISOString()).format(
+            "yyyy-MM-DDTHH:mm:ss.SSS"
+          ),
+      TGLayRong: !data.TGLayRong
+        ? null
+        : moment(new Date(data.TGLayRong).toISOString()).format(
             "yyyy-MM-DDTHH:mm:ss.SSS"
           ),
       TGHanLenh: !data.TGHanLenh
@@ -468,7 +484,7 @@ const JoinTransports = (props) => {
         {IsLoading === false && (
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="card-body">
-              <div className="row">
+              {/* <div className="row">
                 <div className="col col-sm">
                   <div className="form-group">
                     <label htmlFor="TransportType">Loại Vận Đơn</label>
@@ -495,7 +511,7 @@ const JoinTransports = (props) => {
                     />
                   </div>
                 </div>
-              </div>
+              </div> */}
               <div className="row">
                 <div className="col col-sm">
                   <div className="form-group">
@@ -527,44 +543,69 @@ const JoinTransports = (props) => {
                     )}
                   </div>
                 </div>
-                {watch(`MaPTVC`) && watch(`MaPTVC`).includes("LCL") && (
-                  <div className="col col-sm">
-                    <div className="form-group">
-                      {watch("TransportType") &&
-                        watch("TransportType") === "xuat" && (
-                          <label htmlFor="DiemLayTraRong">
-                            Điểm Lấy Rỗng(*)
-                          </label>
-                        )}
-                      {watch("TransportType") &&
-                        watch("TransportType") === "nhap" && (
-                          <label htmlFor="DiemLayTraRong">
-                            Điểm Trả Rỗng(*)
-                          </label>
-                        )}
-                      <Controller
-                        name={`DiemLayTraRong`}
-                        control={control}
-                        render={({ field }) => (
-                          <Select
-                            {...field}
-                            classNamePrefix={"form-control"}
-                            value={field.value}
-                            options={listPoint}
-                          />
-                        )}
-                        rules={{
-                          required: "không được để trống",
-                        }}
-                      />
-                      {errors.DiemLayTraRong && (
-                        <span className="text-danger">
-                          {errors.DiemLayTraRong.message}
-                        </span>
-                      )}
+                {watch(`listTransport.0.MaPTVC`) &&
+                  watch(`listTransport.0.MaPTVC`).includes("LCL") && (
+                    <div className="col col-sm">
+                      <div className="form-group">
+                        {watch("listTransport.0.LoaiVanDon") &&
+                          watch("listTransport.0.LoaiVanDon") === "xuat" && (
+                            <>
+                              <label htmlFor="DiemLayRong">
+                                Điểm Lấy Rỗng(*)
+                              </label>
+                              <Controller
+                                name={`DiemLayRong`}
+                                control={control}
+                                render={({ field }) => (
+                                  <Select
+                                    {...field}
+                                    classNamePrefix={"form-control"}
+                                    value={field.value}
+                                    options={listPoint}
+                                  />
+                                )}
+                                rules={{
+                                  required: "không được để trống",
+                                }}
+                              />
+                              {errors.DiemLayRong && (
+                                <span className="text-danger">
+                                  {errors.DiemLayRong.message}
+                                </span>
+                              )}
+                            </>
+                          )}
+                        {watch("listTransport.0.LoaiVanDon") &&
+                          watch("listTransport.0.LoaiVanDon") === "nhap" && (
+                            <>
+                              <label htmlFor="DiemTraRong">
+                                Điểm Trả Rỗng(*)
+                              </label>
+                              <Controller
+                                name={`DiemTraRong`}
+                                control={control}
+                                render={({ field }) => (
+                                  <Select
+                                    {...field}
+                                    classNamePrefix={"form-control"}
+                                    value={field.value}
+                                    options={listPoint}
+                                  />
+                                )}
+                                rules={{
+                                  required: "không được để trống",
+                                }}
+                              />
+                              {errors.DiemTraRong && (
+                                <span className="text-danger">
+                                  {errors.DiemTraRong.message}
+                                </span>
+                              )}
+                            </>
+                          )}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
                 <div className="col col-sm">
                   <div className="form-group">
                     <label htmlFor="NhaCungCap">Đơn Vị Vận Tải(*)</label>
@@ -666,72 +707,74 @@ const JoinTransports = (props) => {
                     )}
                   </div>
                 </div>
-                {watch(`MaPTVC`) && watch(`MaPTVC`).includes("LCL") && (
-                  <>
-                    <div className="col col-sm">
-                      <div className="form-group">
-                        <label htmlFor="Romooc">Số Romooc</label>
-                        <Controller
-                          name={`Romooc`}
-                          control={control}
-                          render={({ field }) => (
-                            <Select
-                              {...field}
-                              classNamePrefix={"form-control"}
-                              value={field.value}
-                              options={listRomooc}
-                            />
+                {watch(`listTransport.0.MaPTVC`) &&
+                  watch(`listTransport.0.MaPTVC`).includes("LCL") && (
+                    <>
+                      <div className="col col-sm">
+                        <div className="form-group">
+                          <label htmlFor="Romooc">Số Romooc</label>
+                          <Controller
+                            name={`Romooc`}
+                            control={control}
+                            render={({ field }) => (
+                              <Select
+                                {...field}
+                                classNamePrefix={"form-control"}
+                                value={field.value}
+                                options={listRomooc}
+                              />
+                            )}
+                          />
+                          {errors.Romooc && (
+                            <span className="text-danger">
+                              {errors.Romooc.message}
+                            </span>
                           )}
-                        />
-                        {errors.Romooc && (
-                          <span className="text-danger">
-                            {errors.Romooc.message}
-                          </span>
-                        )}
+                        </div>
                       </div>
-                    </div>
-                  </>
-                )}
+                    </>
+                  )}
               </div>
               <div className="row">
-                {watch(`MaPTVC`) && watch(`MaPTVC`).includes("LCL") && (
-                  <>
-                    <div className="col col-sm">
-                      <div className="form-group">
-                        <label htmlFor="CONTNO">CONT NO(*)</label>
-                        <input
-                          autoComplete="false"
-                          type="text"
-                          className="form-control"
-                          id="CONTNO"
-                          {...register(`CONTNO`, Validate.CONTNO)}
-                        />
-                        {errors.CONTNO && (
-                          <span className="text-danger">
-                            {errors.CONTNO.message}
-                          </span>
-                        )}
+                {watch(`listTransport.0.MaPTVC`) &&
+                  watch(`listTransport.0.MaPTVC`).includes("LCL") && (
+                    <>
+                      <div className="col col-sm">
+                        <div className="form-group">
+                          <label htmlFor="CONTNO">CONT NO(*)</label>
+                          <input
+                            autoComplete="false"
+                            type="text"
+                            className="form-control"
+                            id="CONTNO"
+                            {...register(`CONTNO`, Validate.CONTNO)}
+                          />
+                          {errors.CONTNO && (
+                            <span className="text-danger">
+                              {errors.CONTNO.message}
+                            </span>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                    <div className="col col-sm">
-                      <div className="form-group">
-                        <label htmlFor="SEALHQ">SEAL HQ</label>
-                        <input
-                          autoComplete="false"
-                          type="text"
-                          className="form-control"
-                          id="SEALHQ"
-                          {...register(`SEALHQ`, Validate.SEALHQ)}
-                        />
-                        {errors.SEALHQ && (
-                          <span className="text-danger">
-                            {errors.SEALHQ.message}
-                          </span>
-                        )}
+                      <div className="col col-sm">
+                        <div className="form-group">
+                          <label htmlFor="SEALHQ">SEAL HQ</label>
+                          <input
+                            autoComplete="false"
+                            type="text"
+                            className="form-control"
+                            id="SEALHQ"
+                            {...register(`SEALHQ`, Validate.SEALHQ)}
+                          />
+                          {errors.SEALHQ && (
+                            <span className="text-danger">
+                              {errors.SEALHQ.message}
+                            </span>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  </>
-                )}
+                    </>
+                  )}
 
                 <div className="col col-sm">
                   <div className="form-group">
@@ -806,59 +849,113 @@ const JoinTransports = (props) => {
                   </div>
                 </div>
               </div>
-              {watch(`MaPTVC`) && watch(`MaPTVC`).includes("LCL") && (
-                <>
-                  <div className="row">
-                    <div className="col col-sm">
-                      <div className="form-group">
-                        {watch("TransportType") &&
-                          watch("TransportType") === "xuat" && (
-                            <label htmlFor="TGLayTraRong">
-                              Thời Gian Lấy Rỗng
-                            </label>
-                          )}
-                        {watch("TransportType") &&
-                          watch("TransportType") === "nhap" && (
-                            <label htmlFor="TGLayTraRong">
-                              Thời Gian Trả Rỗng
-                            </label>
-                          )}
-
-                        <div className="input-group ">
-                          <Controller
-                            control={control}
-                            name={`TGLayTraRong`}
-                            render={({ field }) => (
-                              <DatePicker
-                                className="form-control"
-                                showTimeSelect
-                                timeFormat="HH:mm"
-                                dateFormat="dd/MM/yyyy HH:mm"
-                                onChange={(date) => field.onChange(date)}
-                                selected={field.value}
-                              />
+              {watch(`listTransport.0.MaPTVC`) &&
+                watch(`listTransport.0.MaPTVC`).includes("LCL") && (
+                  <>
+                    <div className="row">
+                      <div className="col col-sm">
+                        <div className="form-group">
+                          {watch("TransportType") &&
+                            watch("TransportType") === "xuat" && (
+                              <>
+                                <label htmlFor="TGLayRong">
+                                  Thời Gian Lấy Rỗng
+                                </label>
+                                <Controller
+                                  control={control}
+                                  name={`TGLayRong`}
+                                  render={({ field }) => (
+                                    <DatePicker
+                                      className="form-control"
+                                      showTimeSelect
+                                      timeFormat="HH:mm"
+                                      dateFormat="dd/MM/yyyy HH:mm"
+                                      onChange={(date) => field.onChange(date)}
+                                      selected={field.value}
+                                    />
+                                  )}
+                                />
+                                {errors.TGLayRong && (
+                                  <span className="text-danger">
+                                    {errors.TGLayRong.message}
+                                  </span>
+                                )}
+                              </>
                             )}
-                          />
-                          {errors.TGLayTraRong && (
-                            <span className="text-danger">
-                              {errors.TGLayTraRong.message}
-                            </span>
-                          )}
+                          {watch("listTransport.0.LoaiVanDon") &&
+                            watch("listTransport.0.LoaiVanDon") === "nhap" && (
+                              <>
+                                <label htmlFor="TGTraRong">
+                                  Thời Gian Lấy Rỗng
+                                </label>
+                                <Controller
+                                  control={control}
+                                  name={`TGTraRong`}
+                                  render={({ field }) => (
+                                    <DatePicker
+                                      className="form-control"
+                                      showTimeSelect
+                                      timeFormat="HH:mm"
+                                      dateFormat="dd/MM/yyyy HH:mm"
+                                      onChange={(date) => field.onChange(date)}
+                                      selected={field.value}
+                                    />
+                                  )}
+                                />
+                                {errors.TGTraRong && (
+                                  <span className="text-danger">
+                                    {errors.TGTraRong.message}
+                                  </span>
+                                )}
+                              </>
+                            )}
                         </div>
                       </div>
-                    </div>
-                    {watch("TransportType") &&
-                    watch("TransportType") === "nhap" ? (
-                      <>
+                      {watch("listTransport.0.LoaiVanDon") &&
+                      watch("listTransport.0.LoaiVanDon") === "nhap" ? (
+                        <>
+                          <div className="col col-sm">
+                            <div className="form-group">
+                              <label htmlFor="TGHanLenh">
+                                Thời Gian Hạn Lệnh(*)
+                              </label>
+                              <div className="input-group ">
+                                <Controller
+                                  control={control}
+                                  name={`TGHanLenh`}
+                                  render={({ field }) => (
+                                    <DatePicker
+                                      className="form-control"
+                                      showTimeSelect
+                                      timeFormat="HH:mm"
+                                      dateFormat="dd/MM/yyyy HH:mm"
+                                      onChange={(date) => field.onChange(date)}
+                                      selected={field.value}
+                                    />
+                                  )}
+                                  rules={{
+                                    required: "không được để trống",
+                                  }}
+                                />
+                                {errors.TGHanLenh && (
+                                  <span className="text-danger">
+                                    {errors.TGHanLenh.message}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </>
+                      ) : (
                         <div className="col col-sm">
                           <div className="form-group">
-                            <label htmlFor="TGHanLenh">
-                              Thời Gian Hạn Lệnh(*)
+                            <label htmlFor="TGHaCang">
+                              Thời Gian Hạ Cảng(*)
                             </label>
                             <div className="input-group ">
                               <Controller
                                 control={control}
-                                name={`TGHanLenh`}
+                                name={`TGHaCang`}
                                 render={({ field }) => (
                                   <DatePicker
                                     className="form-control"
@@ -873,49 +970,18 @@ const JoinTransports = (props) => {
                                   required: "không được để trống",
                                 }}
                               />
-                              {errors.TGHanLenh && (
+                              {errors.TGHaCang && (
                                 <span className="text-danger">
-                                  {errors.TGHanLenh.message}
+                                  {errors.TGHaCang.message}
                                 </span>
                               )}
                             </div>
                           </div>
                         </div>
-                      </>
-                    ) : (
-                      <div className="col col-sm">
-                        <div className="form-group">
-                          <label htmlFor="TGHaCang">Thời Gian Hạ Cảng(*)</label>
-                          <div className="input-group ">
-                            <Controller
-                              control={control}
-                              name={`TGHaCang`}
-                              render={({ field }) => (
-                                <DatePicker
-                                  className="form-control"
-                                  showTimeSelect
-                                  timeFormat="HH:mm"
-                                  dateFormat="dd/MM/yyyy HH:mm"
-                                  onChange={(date) => field.onChange(date)}
-                                  selected={field.value}
-                                />
-                              )}
-                              rules={{
-                                required: "không được để trống",
-                              }}
-                            />
-                            {errors.TGHaCang && (
-                              <span className="text-danger">
-                                {errors.TGHaCang.message}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </>
-              )}
+                      )}
+                    </div>
+                  </>
+                )}
               <div className="row">
                 <div className="col col-12">
                   <div className="form-group">
@@ -942,14 +1008,16 @@ const JoinTransports = (props) => {
                       <th style={{ width: "40px" }}></th>
                       <th>
                         <div className="row">
-                          <div className="col-sm-2">Loại Hàng Hóa</div>
-                          <div className="col-sm-1">Mã Vận Đơn</div>
-                          <div className="col-sm-2">Khách Hàng</div>
-                          <div className="col-sm-2">Điểm Đầu</div>
-                          <div className="col-sm-2">Điểm Cuối</div>
-                          <div className="col-sm-1">Khối Lượng</div>
-                          <div className="col-sm-1">Thể Tích</div>
-                          <div className="col-sm-1">Số Kiện</div>
+                          <div className="col-sm">Loại Vận Đơn</div>
+                          <div className="col-sm">PTVC</div>
+                          <div className="col-sm">Loại Hàng Hóa</div>
+                          <div className="col-sm">Mã Vận Đơn</div>
+                          <div className="col-sm">Khách Hàng</div>
+                          <div className="col-sm">Điểm Đầu</div>
+                          <div className="col-sm">Điểm Cuối</div>
+                          <div className="col-sm">Khối Lượng</div>
+                          <div className="col-sm">Thể Tích</div>
+                          <div className="col-sm">Số Kiện</div>
                         </div>
                       </th>
                       <th></th>
@@ -974,7 +1042,29 @@ const JoinTransports = (props) => {
                                 />
                               </div>
                             </div>
-                            <div className="col col-2">
+                            <div className="col col-sm">
+                              <input
+                                readOnly={true}
+                                autoComplete="false"
+                                type="text"
+                                className="form-control"
+                                id="TransportType"
+                                {...register(
+                                  `listTransport.${index}.LoaiVanDon`
+                                )}
+                              />
+                            </div>
+                            <div className="col col-sm">
+                              <input
+                                readOnly={true}
+                                autoComplete="false"
+                                type="text"
+                                className="form-control"
+                                id="TransportType"
+                                {...register(`listTransport.${index}.MaPTVC`)}
+                              />
+                            </div>
+                            <div className="col col-sm">
                               <div className="form-group">
                                 <select
                                   className="form-control"
@@ -1006,7 +1096,7 @@ const JoinTransports = (props) => {
                                 )}
                               </div>
                             </div>
-                            <div className="col-sm-1">
+                            <div className="col col-sm">
                               <div className="form-group">
                                 <input
                                   readOnly={true}
@@ -1019,7 +1109,7 @@ const JoinTransports = (props) => {
                                 />
                               </div>
                             </div>
-                            <div className="col-sm-2">
+                            <div className="col col-sm">
                               <div className="form-group">
                                 <input
                                   readOnly={true}
@@ -1030,7 +1120,7 @@ const JoinTransports = (props) => {
                                 />
                               </div>
                             </div>
-                            <div className="col-sm-2">
+                            <div className="col col-sm">
                               <div className="form-group">
                                 <input
                                   readOnly={true}
@@ -1043,7 +1133,7 @@ const JoinTransports = (props) => {
                                 />
                               </div>
                             </div>
-                            <div className="col-sm-2">
+                            <div className="col col-sm">
                               <div className="form-group">
                                 <input
                                   readOnly={true}
@@ -1056,7 +1146,7 @@ const JoinTransports = (props) => {
                                 />
                               </div>
                             </div>
-                            <div className="col-sm-1">
+                            <div className="col col-sm">
                               <div className="form-group">
                                 <input
                                   readOnly={true}
@@ -1069,7 +1159,7 @@ const JoinTransports = (props) => {
                                 />
                               </div>
                             </div>
-                            <div className="col-sm-1">
+                            <div className="col col-sm">
                               <div className="form-group">
                                 <input
                                   readOnly={true}
@@ -1082,7 +1172,7 @@ const JoinTransports = (props) => {
                                 />
                               </div>
                             </div>
-                            <div className="col-sm-1">
+                            <div className="col col-sm">
                               <div className="form-group">
                                 <input
                                   readOnly={true}
