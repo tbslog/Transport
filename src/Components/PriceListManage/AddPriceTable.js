@@ -156,7 +156,10 @@ const AddPriceTable = (props) => {
 
       let arrPlace = [];
       getListPlace.forEach((val) => {
-        arrPlace.push({ label: val.tenDiaDiem, value: val.maDiaDiem });
+        arrPlace.push({
+          label: val.tenDiaDiem + " - " + val.loaiDiaDiem,
+          value: val.maDiaDiem,
+        });
       });
 
       setListFPlace(arrPlace);
@@ -166,7 +169,10 @@ const AddPriceTable = (props) => {
       arrEPlace.push({ label: "-- Rỗng --", value: null });
 
       getListPlace.forEach((val) => {
-        arrEPlace.push({ label: val.tenDiaDiem, value: val.maDiaDiem });
+        arrEPlace.push({
+          label: val.tenDiaDiem + " - " + val.loaiDiaDiem,
+          value: val.maDiaDiem,
+        });
       });
 
       setListEPlace(arrEPlace);

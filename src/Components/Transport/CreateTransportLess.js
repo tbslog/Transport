@@ -108,9 +108,7 @@ const CreateTransportLess = (props) => {
 
   const [listFirstPoint, setListFirstPoint] = useState([]);
   const [listSecondPoint, setListSecondPoint] = useState([]);
-  const [arrRoad, setArrRoad] = useState([]);
   const [listCus, setListCus] = useState([]);
-  const [listPoint, setListPoint] = useState([]);
 
   useEffect(() => {
     SetIsLoading(true);

@@ -170,7 +170,10 @@ const PriceListContract = (props) => {
 
       let arrPlace = [];
       getListPlace.forEach((val) => {
-        arrPlace.push({ label: val.tenDiaDiem, value: val.maDiaDiem });
+        arrPlace.push({
+          label: val.tenDiaDiem + " - " + val.loaiDiaDiem,
+          value: val.maDiaDiem,
+        });
       });
 
       setListFPlace(arrPlace);

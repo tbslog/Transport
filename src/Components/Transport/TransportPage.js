@@ -134,6 +134,13 @@ const TransportPage = () => {
       button: true,
     },
     {
+      name: <div>Trạng Thái</div>,
+      selector: (row) => (
+        <div className="text-wrap">{colorStatusText(row.trangThai)}</div>
+      ),
+      sortable: true,
+    },
+    {
       selector: (row) => <div className="text-wrap">{row.maVanDon}</div>,
       omit: true,
     },
@@ -220,13 +227,7 @@ const TransportPage = () => {
       sortable: true,
       omit: true,
     },
-    {
-      name: <div>Trạng Thái</div>,
-      selector: (row) => (
-        <div className="text-wrap">{colorStatusText(row.trangThai)}</div>
-      ),
-      sortable: true,
-    },
+
     {
       name: <div>Thời Gian Lập Đơn</div>,
 

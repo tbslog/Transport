@@ -115,7 +115,7 @@ const EditAddress = (props) => {
         });
         SetListTypeAddress(obj);
 
-        setValue("MaLoaiDiaDiem", { ...obj.filter((x) => x.value === id)[0] });
+        setValue("MaLoaiDiaDiem", { ...obj.filter((x) => x.value === id) }[0]);
       }
     })();
   };
@@ -236,7 +236,7 @@ const EditAddress = (props) => {
         soNha: data.SoNha,
         diaChiDayDu: "",
         maGps: data.GPS,
-        PhanLoaiLoaiDiaDiem: data.MaLoaiDiaDiem.value,
+        NhomDiaDiem: data.MaLoaiDiaDiem.value,
         DiaDiemCha: !data.KhuVuc ? null : data.KhuVuc,
       },
       {
@@ -269,7 +269,7 @@ const EditAddress = (props) => {
               <div className="row">
                 <div className="col-sm">
                   <div className="form-group">
-                    <label htmlFor="Tinh">Loại địa điểm(*)</label>
+                    <label htmlFor="Tinh">Nhóm Địa Điểm(*)</label>
                     <Controller
                       name="MaLoaiDiaDiem"
                       control={control}
@@ -297,7 +297,7 @@ const EditAddress = (props) => {
                       className="form-control"
                       {...register("KhuVuc", Validate.KhuVuc)}
                     >
-                      <option value="">-- Bỏ Trống --</option>
+                      <option value="">-- Là Khu Vực --</option>
                       {listArea &&
                         listArea.length > 0 &&
                         listArea.map((val, index) => {
@@ -365,7 +365,6 @@ const EditAddress = (props) => {
                           onChange={(field) => HandleChangeProvince(field)}
                         />
                       )}
-                      rules={{ required: "không được để trống" }}
                     />
                     {errors.MaTinh && (
                       <span className="text-danger">
@@ -389,7 +388,6 @@ const EditAddress = (props) => {
                           onChange={(field) => HandleOnchangeDistrict(field)}
                         />
                       )}
-                      rules={{ required: "không được để trống" }}
                     />
                     {errors.MaHuyen && (
                       <span className="text-danger">
@@ -412,7 +410,6 @@ const EditAddress = (props) => {
                           options={ListWard}
                         />
                       )}
-                      rules={{ required: "không được để trống" }}
                     />
                     {errors.MaPhuong && (
                       <span className="text-danger">

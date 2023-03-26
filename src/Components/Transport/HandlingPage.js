@@ -182,6 +182,13 @@ const HandlingPage = (props) => {
       button: true,
     },
     {
+      name: <div>Trạng Thái</div>,
+      selector: (row) => (
+        <div className="text-wrap">{colorStatusText(row.trangThai)}</div>
+      ),
+      sortable: true,
+    },
+    {
       selector: (row) => row.maDieuPhoi,
       omit: true,
     },
@@ -279,13 +286,7 @@ const HandlingPage = (props) => {
       selector: (row) => row.theTich,
       sortable: true,
     },
-    {
-      name: <div>Trạng Thái</div>,
-      selector: (row) => (
-        <div className="text-wrap">{colorStatusText(row.trangThai)}</div>
-      ),
-      sortable: true,
-    },
+
     {
       name: "statusId",
       selector: (row) => row.statusId,
@@ -547,7 +548,6 @@ const HandlingPage = (props) => {
     for (let i = 0; i <= files.length - 1; i++) {
       arrfiles.push(files[i]);
     }
-
     const uploadFiles = await postFile("BillOfLading/UploadFile", {
       files: arrfiles,
       transportId: transportId,

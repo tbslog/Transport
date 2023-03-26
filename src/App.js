@@ -49,14 +49,14 @@ function App() {
                 <Route path="/subfee" element={<SubFeePage />} />
                 <Route path="/user" element={<UserPage />} />
                 <Route path="/role" element={<RolePage />} />
-                <Route path="/handlingfull" element={<HandlingPage />} />
+                {/* <Route path="/handlingfull" element={<HandlingPage />} /> */}
                 <Route
                   path="/productService"
                   element={<ProductServicePage />}
                 />
                 <Route path="/bill" element={<BillPage />} />
                 <Route path="/report" element={<ReportPage />} />
-                <Route path="/handlingless" element={<HandlingPageNew />} />
+                <Route path="/handling" element={<HandlingPageNew />} />
               </>
             )}
             <Route path="/transport" element={<TransportPage />} />

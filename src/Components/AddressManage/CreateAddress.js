@@ -229,7 +229,7 @@ const CreateAddress = (props) => {
               <div className="row">
                 <div className="col-sm">
                   <div className="form-group">
-                    <label htmlFor="Tinh">Loại địa điểm(*)</label>
+                    <label htmlFor="MaLoaiDiaDiem">Nhóm Địa Điểm(*)</label>
                     <Controller
                       name="MaLoaiDiaDiem"
                       control={control}
@@ -257,7 +257,7 @@ const CreateAddress = (props) => {
                       className="form-control"
                       {...register("KhuVuc", Validate.KhuVuc)}
                     >
-                      <option value="">-- Địa Điểm Khu Vực --</option>
+                      <option value="">-- Là Khu Vực --</option>
                       {listArea &&
                         listArea.length > 0 &&
                         listArea.map((val, index) => {

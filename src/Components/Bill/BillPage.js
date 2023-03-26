@@ -198,7 +198,7 @@ const BillPage = () => {
     const dataBills = await getData(
       `Bills/GetListBillHandling?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}&fromDate=${fromDate}&toDate=${toDate}`
     );
-    setData(dataBills);
+    setData(dataBills.data);
     setPerPage(newPerPage);
     setLoading(false);
   };

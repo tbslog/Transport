@@ -5,7 +5,6 @@ import DatePicker from "react-datepicker";
 import Select from "react-select";
 import moment from "moment";
 import { ToastError, ToastWarning } from "../Common/FuncToast";
-import Cookies from "js-cookie";
 import LoadingPage from "../Common/Loading/LoadingPage";
 
 const CreateTransport = (props) => {

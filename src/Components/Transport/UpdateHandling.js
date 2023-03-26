@@ -145,7 +145,9 @@ const UpdateHandling = (props) => {
       let getListVehicleType = await getData("Common/GetListVehicleType");
       let getListGoodsType = await getData("Common/GetListGoodsType");
 
-      const getListPoint = await getData("address/GetListAddressSelect");
+      const getListPoint = await getData(
+        "Address/GetListAddressSelect?pointType=&type=Diem"
+      );
       if (getListPoint && getListPoint.length > 0) {
         var obj = [];
         getListPoint.map((val) => {

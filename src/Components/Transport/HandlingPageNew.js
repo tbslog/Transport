@@ -12,7 +12,6 @@ import {
   postFile,
 } from "../Common/FuncAxios";
 import DataTable from "react-data-table-component";
-import CreateTransportLess from "./CreateTransportLess";
 import AddSubFeeByHandling from "./AddSubFeeByHandling";
 import ApproveSubFeeByHandling from "./ApproveSubFeeByHandling";
 import JoinTransports from "./JoinTransports";
@@ -20,6 +19,7 @@ import Select from "react-select";
 import { ToastError } from "../Common/FuncToast";
 import LoadingPage from "../Common/Loading/LoadingPage";
 import HandlingImage from "./HandlingImage";
+import UpdateHandling from "./UpdateHandling";
 
 const HandlingPageNew = () => {
   const Columns = useMemo(() => [
@@ -29,7 +29,10 @@ const HandlingPageNew = () => {
           {val.statusId && (
             <>
               <>
-                {val.statusId === 27 || val.statusId === 19 ? (
+                {val.statusId === 27 ||
+                val.statusId === 19 ||
+                val.statusId === 17 ||
+                val.statusId === 18 ? (
                   <button
                     onClick={() =>
                       showConfirmDialog(val, setFuncName("CancelHandling"))
@@ -118,6 +121,21 @@ const HandlingPageNew = () => {
       ignoreRowClick: true,
       allowOverflow: true,
       button: true,
+    },
+    {
+      name: <div>Trạng Thái</div>,
+      selector: (row) => (
+        <div className="text-wrap">{colorStatusText(row.trangThai)}</div>
+      ),
+      sortable: true,
+    },
+    {
+      name: <div>CONT NUM</div>,
+      selector: (row) => (
+        <div style={{ fontWeight: "Bold", fontSize: "16px" }}>
+          {row.contNum}
+        </div>
+      ),
     },
     {
       selector: (row) => row.maDieuPhoi,
@@ -222,13 +240,7 @@ const HandlingPageNew = () => {
     //   selector: (row) => row.soKien,
     //   sortable: true,
     // },
-    {
-      name: <div>Trạng Thái</div>,
-      selector: (row) => (
-        <div className="text-wrap">{colorStatusText(row.trangThai)}</div>
-      ),
-      sortable: true,
-    },
+
     {
       selector: (row) => row.statusId,
       omit: true,
@@ -672,7 +684,7 @@ const HandlingPageNew = () => {
       Object.keys(selectIdClick).length > 0
     ) {
       var update = await postData(
-        `BillOfLading/CancelHandlingLess?id=${selectIdClick.maChuyen}`
+        `BillOfLading/CancelHandling?id=${selectIdClick.maDieuPhoi}`
       );
 
       if (update === 1) {
@@ -707,12 +719,12 @@ const HandlingPageNew = () => {
   };
 
   const handleOnClickMarge = () => {
-    if (selectedRows && selectedRows.length > 1) {
+    if (selectedRows && selectedRows.length > 0) {
       setItemSelected(selectedRows);
       showModalForm(SetShowModal("MargeTransport"), setTitle("Gộp Chuyến"));
     } else {
       setItemSelected([]);
-      ToastError("Vui lòng chọn nhiều hơn 1 vận đơn để gộp");
+      ToastError("Vui lòng chọn vận đơn để gộp");
       return;
     }
   };
@@ -1031,8 +1043,8 @@ const HandlingPageNew = () => {
               <div className="modal-body">
                 <>
                   {ShowModal === "MargeTransport" &&
-                    itemSelected &&
-                    itemSelected.length > 1 && (
+                    selectIdClick &&
+                    itemSelected.length > 0 && (
                       <JoinTransports
                         getListTransport={refeshData}
                         items={itemSelected}
@@ -1040,21 +1052,32 @@ const HandlingPageNew = () => {
                         hideModal={hideModal}
                       />
                     )}
-                  {ShowModal === "CreateLCL/LTL" && (
-                    <CreateTransportLess
-                      getListTransport={refeshData}
-                      hideModal={hideModal}
-                    />
-                  )}
+
                   {ShowModal === "EditHandling" && (
-                    <JoinTransports
-                      clearItems={handleClearRows}
-                      getListTransport={refeshData}
-                      selectIdClick={selectIdClick}
-                      items={[]}
-                      hideModal={hideModal}
-                    />
+                    <>
+                      {!selectIdClick.tongVanDonGhep && (
+                        <>
+                          <UpdateHandling
+                            getlistData={refeshData}
+                            selectIdClick={selectIdClick}
+                            hideModal={hideModal}
+                          />
+                        </>
+                      )}
+                      {selectIdClick.tongVanDonGhep && (
+                        <>
+                          <JoinTransports
+                            clearItems={handleClearRows}
+                            getListTransport={refeshData}
+                            selectIdClick={selectIdClick}
+                            items={[]}
+                            hideModal={hideModal}
+                          />
+                        </>
+                      )}
+                    </>
                   )}
+
                   {ShowModal === "Image" && (
                     <HandlingImage
                       dataClick={selectIdClick}

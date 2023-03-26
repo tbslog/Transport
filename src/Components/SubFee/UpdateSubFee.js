@@ -49,8 +49,6 @@ const UpdateSubFee = (props) => {
   const [listCustomerType, setListCustomerType] = useState([]);
   const [listSubFee, setListSubFee] = useState([]);
   const [listSubFeeSelect, setListSubFeeSelect] = useState([]);
-  const [listArea, setListArea] = useState([]);
-  const [listRoad, setListRoad] = useState([]);
   const [listVehicleType, setlistVehicleType] = useState([]);
 
   const [listFPlace, setListFPlace] = useState([]);
@@ -75,7 +73,10 @@ const UpdateSubFee = (props) => {
       arrPlace.push({ label: "-- Rỗng --", value: null });
 
       getListPlace.forEach((val) => {
-        arrPlace.push({ label: val.tenDiaDiem, value: val.maDiaDiem });
+        arrPlace.push({
+          label: val.tenDiaDiem + " - " + val.loaiDiaDiem,
+          value: val.maDiaDiem,
+        });
       });
 
       setListFPlace(arrPlace);

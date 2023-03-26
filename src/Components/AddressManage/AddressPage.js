@@ -53,13 +53,13 @@ const AddressPage = () => {
       sortable: true,
     },
     {
-      name: "Khu Vực",
-      selector: (row) => row.khuVuc,
+      name: "Tên Địa Điểm",
+      selector: (row) => row.tenDiaDiem,
       sortable: true,
     },
     {
-      name: "Tên Địa Điểm",
-      selector: (row) => row.tenDiaDiem,
+      name: "Thuộc Khu Vực",
+      selector: (row) => row.khuVuc,
       sortable: true,
     },
     {

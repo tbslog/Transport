@@ -137,6 +137,7 @@ const JoinTransports = (props) => {
       (async () => {
         resetForm();
         SetIsLoading(true);
+
         let arrTransport = [];
         items.map((val) => {
           arrTransport.push(val.maVanDon);
@@ -164,17 +165,75 @@ const JoinTransports = (props) => {
           if (data && data.length > 0) {
             setValue("listTransport", data);
             for (let i = 0; i <= data.length - 1; i++) {
+              setValue(`listTransport.${i}.HandlingId`, data[i].handlingId);
               setValue(`listTransport.${i}.LoaiVanDon`, data[i].loaiVanDon);
               setValue(`listTransport.${i}.MaPTVC`, data[i].maPTVC);
-              setValue(`listTransport.${i}.LoaiHangHoa`, "Normal");
+              setValue(
+                `listTransport.${i}.LoaiHangHoa`,
+                data[i].loaiHangHoa == null ? "Normal" : data[i].loaiHangHoa
+              );
               setValue(`listTransport.${i}.MaVanDon`, data[i].maVanDon);
               setValue(`listTransport.${i}.MaVanDonKH`, data[i].maVanDonKH);
               setValue(`listTransport.${i}.MaKH`, data[i].maKH);
               setValue(`listTransport.${i}.DiemDau`, data[i].diemDau);
               setValue(`listTransport.${i}.DiemCuoi`, data[i].diemCuoi);
               setValue(`listTransport.${i}.KhoiLuong`, data[i].tongKhoiLuong);
-              setValue(`listTransport.${i}.TheTich`, data[i].tongTheTich);
               setValue(`listTransport.${i}.SoKien`, data[i].tongSoKien);
+              setValue(`listTransport.${i}.TheTich`, data[i].tongTheTich);
+              setValue(`listTransport.${i}.SealHQ`, data[i].sealHq);
+              setValue(`listTransport.${i}.SealNP`, data[i].sealNp);
+              setValue(
+                `listTransport.${i}.ContNo`,
+                data[i].contNo === null ? null : data[i].contNo
+              );
+              setValue(
+                `listTransport.${i}.DiemLayRong`,
+                data[i].diemLayRong === null
+                  ? null
+                  : {
+                      ...listPoint.filter(
+                        (x) => x.value === data[i].diemLayRong
+                      ),
+                    }[0]
+              );
+              setValue(
+                `listTransport.${i}.DiemTraRong`,
+                data[i].diemTraRong === null
+                  ? null
+                  : {
+                      ...listPoint.filter(
+                        (x) => x.value === data[i].diemTraRong
+                      ),
+                    }[0]
+              );
+              setValue(
+                `listTransport.${i}.TGHanLenh`,
+                data[i].tgHanLenh === null ? null : new Date(data[i].tgHanLenh)
+              );
+              setValue(
+                `listTransport.${i}.TGLayRong`,
+                data[i].tgLayRong === null ? null : new Date(data[i].tgLayRong)
+              );
+              setValue(
+                `listTransport.${i}.TGTraRong`,
+                data[i].tgTraRong === null ? null : new Date(data[i].tgTraRong)
+              );
+              setValue(
+                `listTransport.${i}.TGHaCang`,
+                data[i].tgHaCang === null ? null : new Date(data[i].tgHaCang)
+              );
+              setValue(
+                `listTransport.${i}.ThoiGianLayHang`,
+                data[i].thoiGianLayHang === null
+                  ? null
+                  : new Date(data[i].thoiGianLayHang)
+              );
+              setValue(
+                `listTransport.${i}.ThoiGianTraHang`,
+                data[i].thoiGianTraHang === null
+                  ? null
+                  : new Date(data[i].thoiGianTraHang)
+              );
             }
           }
         }
@@ -221,20 +280,6 @@ const JoinTransports = (props) => {
         setValue("PTVanChuyen", dataHandling.ptVanChuyen);
 
         setValue(
-          "DiemTraRong",
-          {
-            ...listPoint.filter((x) => x.value === dataHandling.diemTraRong),
-          }[0]
-        );
-
-        setValue(
-          "DiemLayRong",
-          {
-            ...listPoint.filter((x) => x.value === dataHandling.diemLayRong),
-          }[0]
-        );
-
-        setValue(
           "NhaCungCap",
           {
             ...listSupplier.filter((x) => x.value === dataHandling.donViVanTai),
@@ -254,35 +299,17 @@ const JoinTransports = (props) => {
               }[0]
         );
 
-        setValue("CONTNO", dataHandling.contno);
-        setValue("SEALHQ", dataHandling.sealhq);
-        setValue("SEALNP", dataHandling.sealnp);
-        setValue(
-          "TGTraRong",
-          !dataHandling.tgTraRong ? null : new Date(dataHandling.tgTraRong)
-        );
-
-        setValue(
-          "TGLayRong",
-          !dataHandling.tgLayRong ? null : new Date(dataHandling.tgLayRong)
-        );
-
-        setValue(
-          "TGHanLenh",
-          !dataHandling.tgHanLenh ? null : new Date(dataHandling.tgHanLenh)
-        );
-        setValue(
-          "TGHaCang",
-          !dataHandling.tgHaCang ? null : new Date(dataHandling.tgHaCang)
-        );
-
         let data = dataTransports.loadTransports;
         if (data && data.length > 0) {
           setValue("listTransport", data);
           for (let i = 0; i <= data.length - 1; i++) {
+            setValue(`listTransport.${i}.HandlingId`, data[i].handlingId);
             setValue(`listTransport.${i}.LoaiVanDon`, data[i].loaiVanDon);
             setValue(`listTransport.${i}.MaPTVC`, data[i].maPTVC);
-            setValue(`listTransport.${i}.LoaiHangHoa`, "Normal");
+            setValue(
+              `listTransport.${i}.LoaiHangHoa`,
+              data[i].loaiHangHoa == null ? "Normal" : data[i].loaiHangHoa
+            );
             setValue(`listTransport.${i}.MaVanDon`, data[i].maVanDon);
             setValue(`listTransport.${i}.MaVanDonKH`, data[i].maVanDonKH);
             setValue(`listTransport.${i}.MaKH`, data[i].maKH);
@@ -291,6 +318,56 @@ const JoinTransports = (props) => {
             setValue(`listTransport.${i}.KhoiLuong`, data[i].tongKhoiLuong);
             setValue(`listTransport.${i}.TheTich`, data[i].tongTheTich);
             setValue(`listTransport.${i}.SoKien`, data[i].tongSoKien);
+            setValue(`listTransport.${i}.SealHQ`, data[i].sealHq);
+            setValue(`listTransport.${i}.SealNP`, data[i].sealNp);
+            setValue(
+              `listTransport.${i}.ContNo`,
+              data[i].contNo === null ? null : data[i].contNo
+            );
+            setValue(
+              `listTransport.${i}.DiemLayRong`,
+              data[i].diemLayRong === null
+                ? null
+                : {
+                    ...listPoint.filter((x) => x.value === data[i].diemLayRong),
+                  }[0]
+            );
+            setValue(
+              `listTransport.${i}.DiemTraRong`,
+              data[i].diemTraRong === null
+                ? null
+                : {
+                    ...listPoint.filter((x) => x.value === data[i].diemTraRong),
+                  }[0]
+            );
+            setValue(
+              `listTransport.${i}.TGHanLenh`,
+              data[i].tgHanLenh === null ? null : new Date(data[i].tgHanLenh)
+            );
+            setValue(
+              `listTransport.${i}.TGLayRong`,
+              data[i].tgLayRong === null ? null : new Date(data[i].tgLayRong)
+            );
+            setValue(
+              `listTransport.${i}.TGTraRong`,
+              data[i].tgTraRong === null ? null : new Date(data[i].tgTraRong)
+            );
+            setValue(
+              `listTransport.${i}.TGHaCang`,
+              data[i].tgHaCang === null ? null : new Date(data[i].tgHaCang)
+            );
+            setValue(
+              `listTransport.${i}.ThoiGianLayHang`,
+              data[i].thoiGianLayHang === null
+                ? null
+                : new Date(data[i].thoiGianLayHang)
+            );
+            setValue(
+              `listTransport.${i}.ThoiGianTraHang`,
+              data[i].thoiGianTraHang === null
+                ? null
+                : new Date(data[i].thoiGianTraHang)
+            );
           }
         }
         SetIsLoading(false);
@@ -344,60 +421,62 @@ const JoinTransports = (props) => {
     let arrTransports = [];
     data.listTransport.map((val) => {
       arrTransports.push({
+        HandlingId: val.HandlingId,
         MaVanDon: val.maVanDon,
         MaLoaiHangHoa: val.LoaiHangHoa,
         MaDVT: "CHUYEN",
+        ContNo: val.ContNo,
+        DiemTraRong: !val.DiemTraRong ? null : val.DiemTraRong.value,
+        DiemLayRong: !val.DiemLayRong ? null : val.DiemLayRong.value,
+        SealHQ: val.SealHQ,
+        SealNP: val.SealNP,
+        TGLayHang: !val.ThoiGianLayHang
+          ? null
+          : moment(new Date(val.ThoiGianLayHang).toISOString()).format(
+              "yyyy-MM-DDTHH:mm:ss.SSS"
+            ),
+        TGTraHang: !val.ThoiGianTraHang
+          ? null
+          : moment(new Date(val.ThoiGianTraHang).toISOString()).format(
+              "yyyy-MM-DDTHH:mm:ss.SSS"
+            ),
+        TGTraRong: !val.TGTraRong
+          ? null
+          : moment(new Date(val.TGTraRong).toISOString()).format(
+              "yyyy-MM-DDTHH:mm:ss.SSS"
+            ),
+        TGLayRong: !val.TGLayRong
+          ? null
+          : moment(new Date(val.TGLayRong).toISOString()).format(
+              "yyyy-MM-DDTHH:mm:ss.SSS"
+            ),
+        TGHanLenh: !val.TGHanLenh
+          ? null
+          : moment(new Date(val.TGHanLenh).toISOString()).format(
+              "yyyy-MM-DDTHH:mm:ss.SSS"
+            ),
+        TGHaCang: !val.TGHaCang
+          ? null
+          : moment(new Date(val.TGHaCang).toISOString()).format(
+              "yyyy-MM-DDTHH:mm:ss.SSS"
+            ),
       });
     });
 
-    if (arrTransports.length < 2) {
-      ToastError("Vui lòng chọn từ 2 vận đơn trở lên để ghép chuyến");
-      return;
-    }
+    // if (arrTransports.length < 1) {
+    //ToastError("Vui lòng chọn đơn để ghép chuyến");
+    //SetIsLoading(false);
+    //   return;
+    // }
 
     const dataJoin = {
       arrTransports: arrTransports,
       PTVanChuyen: data.PTVanChuyen,
-      DiemLayRong: !data.DiemLayRong ? null : data.DiemLayRong.value,
-      DiemTraRong: !data.DiemTraRong ? null : data.DiemTraRong.value,
       DonViVanTai: data.NhaCungCap.value,
       XeVanChuyen: !data.XeVanChuyen ? null : data.XeVanChuyen.value,
       TaiXe: !data.TaiXe ? null : data.TaiXe.value,
       GhiChu: data.GhiChu,
       Romooc: !data.Romooc ? null : data.Romooc.value,
-      CONTNO: !data.CONTNO ? null : data.CONTNO,
-      SEALHQ: !data.SEALHQ ? null : data.SEALHQ,
-      SEALNP: !data.SEALNP ? null : data.SEALNP,
-      TGLayHang: !data.TGLayHang
-        ? null
-        : moment(new Date(data.TGLayHang).toISOString()).format(
-            "yyyy-MM-DDTHH:mm:ss.SSS"
-          ),
-      TGTraHang: !data.TGTraHang
-        ? null
-        : moment(new Date(data.TGTraHang).toISOString()).format(
-            "yyyy-MM-DDTHH:mm:ss.SSS"
-          ),
-      TGTraRong: !data.TGTraRong
-        ? null
-        : moment(new Date(data.TGTraRong).toISOString()).format(
-            "yyyy-MM-DDTHH:mm:ss.SSS"
-          ),
-      TGLayRong: !data.TGLayRong
-        ? null
-        : moment(new Date(data.TGLayRong).toISOString()).format(
-            "yyyy-MM-DDTHH:mm:ss.SSS"
-          ),
-      TGHanLenh: !data.TGHanLenh
-        ? null
-        : moment(new Date(data.TGHanLenh).toISOString()).format(
-            "yyyy-MM-DDTHH:mm:ss.SSS"
-          ),
-      TGHaCang: !data.TGHaCang
-        ? null
-        : moment(new Date(data.TGHaCang).toISOString()).format(
-            "yyyy-MM-DDTHH:mm:ss.SSS"
-          ),
     };
 
     if (items && items.length > 0) {
@@ -484,34 +563,6 @@ const JoinTransports = (props) => {
         {IsLoading === false && (
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="card-body">
-              {/* <div className="row">
-                <div className="col col-sm">
-                  <div className="form-group">
-                    <label htmlFor="TransportType">Loại Vận Đơn</label>
-                    <input
-                      readOnly={true}
-                      autoComplete="false"
-                      type="text"
-                      className="form-control"
-                      id="TransportType"
-                      {...register(`TransportType`)}
-                    />
-                  </div>
-                </div>
-                <div className="col col-sm">
-                  <div className="form-group">
-                    <label htmlFor="MaPTVC">Phương Thức Vận Chuyển</label>
-                    <input
-                      readOnly={true}
-                      autoComplete="false"
-                      type="text"
-                      className="form-control"
-                      id="MaPTVC"
-                      {...register(`MaPTVC`)}
-                    />
-                  </div>
-                </div>
-              </div> */}
               <div className="row">
                 <div className="col col-sm">
                   <div className="form-group">
@@ -543,69 +594,7 @@ const JoinTransports = (props) => {
                     )}
                   </div>
                 </div>
-                {watch(`listTransport.0.MaPTVC`) &&
-                  watch(`listTransport.0.MaPTVC`).includes("LCL") && (
-                    <div className="col col-sm">
-                      <div className="form-group">
-                        {watch("listTransport.0.LoaiVanDon") &&
-                          watch("listTransport.0.LoaiVanDon") === "xuat" && (
-                            <>
-                              <label htmlFor="DiemLayRong">
-                                Điểm Lấy Rỗng(*)
-                              </label>
-                              <Controller
-                                name={`DiemLayRong`}
-                                control={control}
-                                render={({ field }) => (
-                                  <Select
-                                    {...field}
-                                    classNamePrefix={"form-control"}
-                                    value={field.value}
-                                    options={listPoint}
-                                  />
-                                )}
-                                rules={{
-                                  required: "không được để trống",
-                                }}
-                              />
-                              {errors.DiemLayRong && (
-                                <span className="text-danger">
-                                  {errors.DiemLayRong.message}
-                                </span>
-                              )}
-                            </>
-                          )}
-                        {watch("listTransport.0.LoaiVanDon") &&
-                          watch("listTransport.0.LoaiVanDon") === "nhap" && (
-                            <>
-                              <label htmlFor="DiemTraRong">
-                                Điểm Trả Rỗng(*)
-                              </label>
-                              <Controller
-                                name={`DiemTraRong`}
-                                control={control}
-                                render={({ field }) => (
-                                  <Select
-                                    {...field}
-                                    classNamePrefix={"form-control"}
-                                    value={field.value}
-                                    options={listPoint}
-                                  />
-                                )}
-                                rules={{
-                                  required: "không được để trống",
-                                }}
-                              />
-                              {errors.DiemTraRong && (
-                                <span className="text-danger">
-                                  {errors.DiemTraRong.message}
-                                </span>
-                              )}
-                            </>
-                          )}
-                      </div>
-                    </div>
-                  )}
+
                 <div className="col col-sm">
                   <div className="form-group">
                     <label htmlFor="NhaCungCap">Đơn Vị Vận Tải(*)</label>
@@ -631,35 +620,6 @@ const JoinTransports = (props) => {
                     )}
                   </div>
                 </div>
-
-                {/* <div className="col col-sm">
-                  <div className="form-group">
-                    <label htmlFor="LoaiHangHoa">Loại Hàng Hóa(*)</label>
-                    <select
-                      className="form-control"
-                      {...register(`LoaiHangHoa`, Validate.LoaiHangHoa)}
-                      value={watch(`LoaiHangHoa`)}
-                    >
-                      <option value="">Chọn Loại Hàng Hóa</option>
-                      {listGoodsType &&
-                        listGoodsType.map((val) => {
-                          return (
-                            <option
-                              value={val.maLoaiHangHoa}
-                              key={val.maLoaiHangHoa}
-                            >
-                              {val.tenLoaiHangHoa}
-                            </option>
-                          );
-                        })}
-                    </select>
-                    {errors.LoaiHangHoa && (
-                      <span className="text-danger">
-                        {errors.LoaiHangHoa.message}
-                      </span>
-                    )}
-                  </div>
-                </div> */}
               </div>
 
               <div className="row">
@@ -708,7 +668,8 @@ const JoinTransports = (props) => {
                   </div>
                 </div>
                 {watch(`listTransport.0.MaPTVC`) &&
-                  watch(`listTransport.0.MaPTVC`).includes("LCL") && (
+                  (watch(`listTransport.0.MaPTVC`).includes("LCL") ||
+                    watch(`listTransport.0.MaPTVC`).includes("FCL")) && (
                     <>
                       <div className="col col-sm">
                         <div className="form-group">
@@ -736,253 +697,6 @@ const JoinTransports = (props) => {
                   )}
               </div>
               <div className="row">
-                {watch(`listTransport.0.MaPTVC`) &&
-                  watch(`listTransport.0.MaPTVC`).includes("LCL") && (
-                    <>
-                      <div className="col col-sm">
-                        <div className="form-group">
-                          <label htmlFor="CONTNO">CONT NO(*)</label>
-                          <input
-                            autoComplete="false"
-                            type="text"
-                            className="form-control"
-                            id="CONTNO"
-                            {...register(`CONTNO`, Validate.CONTNO)}
-                          />
-                          {errors.CONTNO && (
-                            <span className="text-danger">
-                              {errors.CONTNO.message}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      <div className="col col-sm">
-                        <div className="form-group">
-                          <label htmlFor="SEALHQ">SEAL HQ</label>
-                          <input
-                            autoComplete="false"
-                            type="text"
-                            className="form-control"
-                            id="SEALHQ"
-                            {...register(`SEALHQ`, Validate.SEALHQ)}
-                          />
-                          {errors.SEALHQ && (
-                            <span className="text-danger">
-                              {errors.SEALHQ.message}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </>
-                  )}
-
-                <div className="col col-sm">
-                  <div className="form-group">
-                    <label htmlFor="SEALNP">SEAL NP</label>
-                    <input
-                      autoComplete="false"
-                      type="text"
-                      className="form-control"
-                      id="SEALNP"
-                      {...register(`SEALNP`, Validate.SEALNP)}
-                    />
-                    {errors.SEALNP && (
-                      <span className="text-danger">
-                        {errors.SEALNP.message}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              <div className="row">
-                <div className="col col-sm">
-                  <div className="form-group">
-                    <label htmlFor="TGLayHang">Thời Gian Lấy Hàng</label>
-                    <div className="input-group ">
-                      <Controller
-                        control={control}
-                        name={`TGLayHang`}
-                        render={({ field }) => (
-                          <DatePicker
-                            className="form-control"
-                            showTimeSelect
-                            timeFormat="HH:mm"
-                            dateFormat="dd/MM/yyyy HH:mm"
-                            onChange={(date) => field.onChange(date)}
-                            selected={field.value}
-                          />
-                        )}
-                      />
-                      {errors.TGLayHang && (
-                        <span className="text-danger">
-                          {errors.TGLayHang.message}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-                <div className="col col-sm">
-                  <div className="form-group">
-                    <label htmlFor="TGTraHang">Thời Gian Trả Hàng</label>
-                    <div className="input-group ">
-                      <Controller
-                        control={control}
-                        name={`TGTraHang`}
-                        render={({ field }) => (
-                          <DatePicker
-                            className="form-control"
-                            showTimeSelect
-                            timeFormat="HH:mm"
-                            dateFormat="dd/MM/yyyy HH:mm"
-                            onChange={(date) => field.onChange(date)}
-                            selected={field.value}
-                          />
-                        )}
-                      />
-                      {errors.TGTraHang && (
-                        <span className="text-danger">
-                          {errors.TGTraHang.message}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-              {watch(`listTransport.0.MaPTVC`) &&
-                watch(`listTransport.0.MaPTVC`).includes("LCL") && (
-                  <>
-                    <div className="row">
-                      <div className="col col-sm">
-                        <div className="form-group">
-                          {watch("TransportType") &&
-                            watch("TransportType") === "xuat" && (
-                              <>
-                                <label htmlFor="TGLayRong">
-                                  Thời Gian Lấy Rỗng
-                                </label>
-                                <Controller
-                                  control={control}
-                                  name={`TGLayRong`}
-                                  render={({ field }) => (
-                                    <DatePicker
-                                      className="form-control"
-                                      showTimeSelect
-                                      timeFormat="HH:mm"
-                                      dateFormat="dd/MM/yyyy HH:mm"
-                                      onChange={(date) => field.onChange(date)}
-                                      selected={field.value}
-                                    />
-                                  )}
-                                />
-                                {errors.TGLayRong && (
-                                  <span className="text-danger">
-                                    {errors.TGLayRong.message}
-                                  </span>
-                                )}
-                              </>
-                            )}
-                          {watch("listTransport.0.LoaiVanDon") &&
-                            watch("listTransport.0.LoaiVanDon") === "nhap" && (
-                              <>
-                                <label htmlFor="TGTraRong">
-                                  Thời Gian Lấy Rỗng
-                                </label>
-                                <Controller
-                                  control={control}
-                                  name={`TGTraRong`}
-                                  render={({ field }) => (
-                                    <DatePicker
-                                      className="form-control"
-                                      showTimeSelect
-                                      timeFormat="HH:mm"
-                                      dateFormat="dd/MM/yyyy HH:mm"
-                                      onChange={(date) => field.onChange(date)}
-                                      selected={field.value}
-                                    />
-                                  )}
-                                />
-                                {errors.TGTraRong && (
-                                  <span className="text-danger">
-                                    {errors.TGTraRong.message}
-                                  </span>
-                                )}
-                              </>
-                            )}
-                        </div>
-                      </div>
-                      {watch("listTransport.0.LoaiVanDon") &&
-                      watch("listTransport.0.LoaiVanDon") === "nhap" ? (
-                        <>
-                          <div className="col col-sm">
-                            <div className="form-group">
-                              <label htmlFor="TGHanLenh">
-                                Thời Gian Hạn Lệnh(*)
-                              </label>
-                              <div className="input-group ">
-                                <Controller
-                                  control={control}
-                                  name={`TGHanLenh`}
-                                  render={({ field }) => (
-                                    <DatePicker
-                                      className="form-control"
-                                      showTimeSelect
-                                      timeFormat="HH:mm"
-                                      dateFormat="dd/MM/yyyy HH:mm"
-                                      onChange={(date) => field.onChange(date)}
-                                      selected={field.value}
-                                    />
-                                  )}
-                                  rules={{
-                                    required: "không được để trống",
-                                  }}
-                                />
-                                {errors.TGHanLenh && (
-                                  <span className="text-danger">
-                                    {errors.TGHanLenh.message}
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        </>
-                      ) : (
-                        <div className="col col-sm">
-                          <div className="form-group">
-                            <label htmlFor="TGHaCang">
-                              Thời Gian Hạ Cảng(*)
-                            </label>
-                            <div className="input-group ">
-                              <Controller
-                                control={control}
-                                name={`TGHaCang`}
-                                render={({ field }) => (
-                                  <DatePicker
-                                    className="form-control"
-                                    showTimeSelect
-                                    timeFormat="HH:mm"
-                                    dateFormat="dd/MM/yyyy HH:mm"
-                                    onChange={(date) => field.onChange(date)}
-                                    selected={field.value}
-                                  />
-                                )}
-                                rules={{
-                                  required: "không được để trống",
-                                }}
-                              />
-                              {errors.TGHaCang && (
-                                <span className="text-danger">
-                                  {errors.TGHaCang.message}
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </>
-                )}
-              <div className="row">
                 <div className="col col-12">
                   <div className="form-group">
                     <label htmlFor="GhiChu">Ghi Chú</label>
@@ -997,38 +711,89 @@ const JoinTransports = (props) => {
                 </div>
               </div>
               <div className="row">
-                <table
-                  className="table table-sm table-bordered "
-                  style={{
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  <thead>
-                    <tr>
-                      <th style={{ width: "40px" }}></th>
-                      <th>
-                        <div className="row">
-                          <div className="col-sm">Loại Vận Đơn</div>
-                          <div className="col-sm">PTVC</div>
-                          <div className="col-sm">Loại Hàng Hóa</div>
-                          <div className="col-sm">Mã Vận Đơn</div>
-                          <div className="col-sm">Khách Hàng</div>
-                          <div className="col-sm">Điểm Đầu</div>
-                          <div className="col-sm">Điểm Cuối</div>
-                          <div className="col-sm">Khối Lượng</div>
-                          <div className="col-sm">Thể Tích</div>
-                          <div className="col-sm">Số Kiện</div>
-                        </div>
-                      </th>
-                      <th></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {fields.map((value, index) => (
-                      <tr key={index}>
-                        <td>{index + 1}</td>
-                        <td>
-                          <div className="row">
+                <div className="table-responsive">
+                  <table
+                    className="table table-bordered table-striped"
+                    style={{
+                      whiteSpace: "nowrap",
+                      width: "80wh",
+                      height: "400px",
+                      overflow: "auto",
+                    }}
+                  >
+                    <thead>
+                      <tr>
+                        <th style={{ width: "40px" }}></th>
+                        <th>
+                          <div>Loại Vận Đơn</div>
+                        </th>
+                        <th>
+                          <div>Booking No</div>
+                        </th>
+                        <th>
+                          <div>Khách Hàng</div>
+                        </th>
+                        <th>
+                          <div>Loại Hàng Hóa</div>
+                        </th>
+                        <th>
+                          <div>PTVC</div>
+                        </th>
+                        <th>
+                          <div>Điểm Đóng Hàng</div>
+                        </th>
+                        <th>
+                          <div>Điểm Hạ Hàng</div>
+                        </th>
+
+                        {(watch(`listTransport.0.MaPTVC`) === "FCL" ||
+                          watch(`listTransport.0.MaPTVC`) === "LCL") && (
+                          <>
+                            <th>
+                              <div>Mã ContNo</div>
+                            </th>
+                            <th>
+                              <div>Điểm Lấy/Trả Rỗng</div>
+                            </th>
+                            <th>
+                              <div>TG Hạn Lệnh/CUT OFF</div>
+                            </th>
+                            <th>
+                              <div>TG Lấy/Trả Rỗng</div>
+                            </th>
+                          </>
+                        )}
+                        <th>
+                          <div>SEAL NP</div>
+                        </th>
+                        <th>
+                          <div>SEAL HQ</div>
+                        </th>
+                        <th>
+                          <div>TG Đóng Hàng</div>
+                        </th>
+                        <th>
+                          <div>TG Hạ Hàng</div>
+                        </th>
+
+                        <th>
+                          <div>Khối Lượng</div>
+                        </th>
+                        <th>
+                          <div>Thể Tích</div>
+                        </th>
+                        <th>
+                          <div>Số Kiện</div>
+                        </th>
+
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {fields.map((value, index) => (
+                        <tr key={index}>
+                          <td>{index + 1}</td>
+                          <td>
                             <div hidden={true}>
                               <div className="form-group">
                                 <input
@@ -1042,28 +807,40 @@ const JoinTransports = (props) => {
                                 />
                               </div>
                             </div>
-                            <div className="col col-sm">
+                            <input
+                              readOnly={true}
+                              autoComplete="false"
+                              type="text"
+                              className="form-control"
+                              id="TransportType"
+                              {...register(`listTransport.${index}.LoaiVanDon`)}
+                            />
+                          </td>
+                          <td>
+                            <div className="form-group">
                               <input
                                 readOnly={true}
-                                autoComplete="false"
                                 type="text"
                                 className="form-control"
-                                id="TransportType"
+                                id="MaVanDonKH"
                                 {...register(
-                                  `listTransport.${index}.LoaiVanDon`
+                                  `listTransport.${index}.MaVanDonKH`
                                 )}
                               />
                             </div>
-                            <div className="col col-sm">
+                          </td>
+                          <td>
+                            <div className="form-group">
                               <input
                                 readOnly={true}
-                                autoComplete="false"
                                 type="text"
                                 className="form-control"
-                                id="TransportType"
-                                {...register(`listTransport.${index}.MaPTVC`)}
+                                id="MaKH"
+                                {...register(`listTransport.${index}.MaKH`)}
                               />
                             </div>
+                          </td>
+                          <td>
                             <div className="col col-sm">
                               <div className="form-group">
                                 <select
@@ -1096,114 +873,384 @@ const JoinTransports = (props) => {
                                 )}
                               </div>
                             </div>
-                            <div className="col col-sm">
-                              <div className="form-group">
-                                <input
-                                  readOnly={true}
-                                  type="text"
-                                  className="form-control"
-                                  id="MaVanDonKH"
-                                  {...register(
-                                    `listTransport.${index}.MaVanDonKH`
-                                  )}
-                                />
-                              </div>
+                          </td>
+                          <td>
+                            <input
+                              readOnly={true}
+                              autoComplete="false"
+                              type="text"
+                              className="form-control"
+                              id="TransportType"
+                              {...register(`listTransport.${index}.MaPTVC`)}
+                            />
+                          </td>
+                          <td>
+                            <div className="form-group">
+                              <input
+                                readOnly={true}
+                                type="text"
+                                className="form-control"
+                                id="DiemDau"
+                                {...register(`listTransport.${index}.DiemDau`)}
+                              />
                             </div>
-                            <div className="col col-sm">
-                              <div className="form-group">
-                                <input
-                                  readOnly={true}
-                                  type="text"
-                                  className="form-control"
-                                  id="MaKH"
-                                  {...register(`listTransport.${index}.MaKH`)}
-                                />
-                              </div>
+                          </td>
+                          <td>
+                            <div className="form-group">
+                              <input
+                                readOnly={true}
+                                type="text"
+                                className="form-control"
+                                id="DiemCuoi"
+                                {...register(`listTransport.${index}.DiemCuoi`)}
+                              />
                             </div>
-                            <div className="col col-sm">
-                              <div className="form-group">
-                                <input
-                                  readOnly={true}
-                                  type="text"
-                                  className="form-control"
-                                  id="DiemDau"
-                                  {...register(
-                                    `listTransport.${index}.DiemDau`
-                                  )}
-                                />
-                              </div>
+                          </td>
+                          {(watch(`listTransport.${index}.MaPTVC`) === "FCL" ||
+                            watch(`listTransport.${index}.MaPTVC`) ===
+                              "LCL") && (
+                            <>
+                              <td>
+                                <div className="form-group">
+                                  <input
+                                    type="text"
+                                    className="form-control"
+                                    id="ContNo"
+                                    {...register(
+                                      `listTransport.${index}.ContNo`
+                                    )}
+                                  />
+                                </div>
+                              </td>
+                              {watch(`listTransport.${index}.LoaiVanDon`) ===
+                                "nhap" && (
+                                <>
+                                  <td>
+                                    <Controller
+                                      name={`listTransport.${index}.DiemTraRong`}
+                                      control={control}
+                                      render={({ field }) => (
+                                        <Select
+                                          {...field}
+                                          classNamePrefix={"form-control"}
+                                          value={field.value}
+                                          options={listPoint}
+                                        />
+                                      )}
+                                      rules={{
+                                        required: "không được để trống",
+                                        validate: (value) => {
+                                          if (!value.value) {
+                                            return "không được để trống";
+                                          }
+                                        },
+                                      }}
+                                    />
+                                    {errors.listTransport?.[index]
+                                      ?.DiemTraRong && (
+                                      <span className="text-danger">
+                                        {
+                                          errors.listTransport?.[index]
+                                            ?.DiemTraRong.message
+                                        }
+                                      </span>
+                                    )}
+                                  </td>
+
+                                  <td>
+                                    <div className="input-group ">
+                                      <Controller
+                                        control={control}
+                                        name={`listTransport.${index}.TGHanLenh`}
+                                        render={({ field }) => (
+                                          <DatePicker
+                                            className="form-control"
+                                            showTimeSelect
+                                            timeFormat="HH:mm"
+                                            dateFormat="dd/MM/yyyy HH:mm"
+                                            onChange={(date) =>
+                                              field.onChange(date)
+                                            }
+                                            selected={field.value}
+                                          />
+                                        )}
+                                        rules={{
+                                          required: "không được để trống",
+                                        }}
+                                      />
+                                      {errors.listTransport?.[index]
+                                        ?.TGHanLenh && (
+                                        <span className="text-danger">
+                                          {
+                                            errors.listTransport?.[index]
+                                              ?.TGHanLenh.message
+                                          }
+                                        </span>
+                                      )}
+                                    </div>
+                                  </td>
+                                  <td>
+                                    <div className="input-group ">
+                                      <Controller
+                                        control={control}
+                                        name={`listTransport.${index}.TGTraRong`}
+                                        render={({ field }) => (
+                                          <DatePicker
+                                            className="form-control"
+                                            showTimeSelect
+                                            timeFormat="HH:mm"
+                                            dateFormat="dd/MM/yyyy HH:mm"
+                                            onChange={(date) =>
+                                              field.onChange(date)
+                                            }
+                                            selected={field.value}
+                                          />
+                                        )}
+                                      />
+                                      {errors.listTransport?.[index]
+                                        ?.TGTraRong && (
+                                        <span className="text-danger">
+                                          {
+                                            errors.listTransport?.[index]
+                                              ?.TGTraRong.message
+                                          }
+                                        </span>
+                                      )}
+                                    </div>
+                                  </td>
+                                </>
+                              )}
+                              {watch(`listTransport.${index}.LoaiVanDon`) ===
+                                "xuat" && (
+                                <>
+                                  <td>
+                                    <Controller
+                                      name={`listTransport.${index}.DiemLayRong`}
+                                      control={control}
+                                      render={({ field }) => (
+                                        <Select
+                                          {...field}
+                                          classNamePrefix={"form-control"}
+                                          value={field.value}
+                                          options={listPoint}
+                                        />
+                                      )}
+                                      rules={{
+                                        required: "không được để trống",
+                                        validate: (value) => {
+                                          if (!value.value) {
+                                            return "không được để trống";
+                                          }
+                                        },
+                                      }}
+                                    />
+                                    {errors.listTransport?.[index]
+                                      ?.DiemLayRong && (
+                                      <span className="text-danger">
+                                        {
+                                          errors.listTransport?.[index]
+                                            ?.DiemLayRong.message
+                                        }
+                                      </span>
+                                    )}
+                                  </td>
+
+                                  <td>
+                                    <div className="input-group ">
+                                      <Controller
+                                        control={control}
+                                        name={`listTransport.${index}.TGHaCang`}
+                                        render={({ field }) => (
+                                          <DatePicker
+                                            className="form-control"
+                                            showTimeSelect
+                                            timeFormat="HH:mm"
+                                            dateFormat="dd/MM/yyyy HH:mm"
+                                            onChange={(date) =>
+                                              field.onChange(date)
+                                            }
+                                            selected={field.value}
+                                          />
+                                        )}
+                                        rules={{
+                                          required: "không được để trống",
+                                        }}
+                                      />
+                                      {errors.listTransport?.[index]
+                                        ?.TGHaCang && (
+                                        <span className="text-danger">
+                                          {
+                                            errors.listTransport?.[index]
+                                              ?.TGHaCang.message
+                                          }
+                                        </span>
+                                      )}
+                                    </div>
+                                  </td>
+                                  <td>
+                                    <div className="input-group ">
+                                      <Controller
+                                        control={control}
+                                        name={`listTransport.${index}.TGLayRong`}
+                                        render={({ field }) => (
+                                          <DatePicker
+                                            className="form-control"
+                                            showTimeSelect
+                                            timeFormat="HH:mm"
+                                            dateFormat="dd/MM/yyyy HH:mm"
+                                            onChange={(date) =>
+                                              field.onChange(date)
+                                            }
+                                            selected={field.value}
+                                          />
+                                        )}
+                                      />
+                                      {errors.listTransport?.[index]
+                                        ?.TGLayRong && (
+                                        <span className="text-danger">
+                                          {
+                                            errors.listTransport?.[index]
+                                              ?.TGLayRong.message
+                                          }
+                                        </span>
+                                      )}
+                                    </div>
+                                  </td>
+                                </>
+                              )}
+                            </>
+                          )}
+
+                          <td>
+                            <div className="form-group">
+                              <input
+                                type="text"
+                                className="form-control"
+                                id="SealNP"
+                                {...register(`listTransport.${index}.SealNP`)}
+                              />
                             </div>
-                            <div className="col col-sm">
-                              <div className="form-group">
-                                <input
-                                  readOnly={true}
-                                  type="text"
-                                  className="form-control"
-                                  id="DiemCuoi"
-                                  {...register(
-                                    `listTransport.${index}.DiemCuoi`
-                                  )}
-                                />
-                              </div>
+                          </td>
+                          <td>
+                            <div className="form-group">
+                              <input
+                                type="text"
+                                className="form-control"
+                                id="SealHQ  "
+                                {...register(`listTransport.${index}.SealHQ`)}
+                              />
                             </div>
-                            <div className="col col-sm">
-                              <div className="form-group">
-                                <input
-                                  readOnly={true}
-                                  type="text"
-                                  className="form-control"
-                                  id="KhoiLuong"
-                                  {...register(
-                                    `listTransport.${index}.KhoiLuong`
-                                  )}
-                                />
-                              </div>
+                          </td>
+                          <td>
+                            <div className="input-group ">
+                              <Controller
+                                control={control}
+                                name={`listTransport.${index}.ThoiGianLayHang`}
+                                render={({ field }) => (
+                                  <DatePicker
+                                    className="form-control"
+                                    showTimeSelect
+                                    timeFormat="HH:mm"
+                                    dateFormat="dd/MM/yyyy HH:mm"
+                                    onChange={(date) => field.onChange(date)}
+                                    selected={field.value}
+                                  />
+                                )}
+                              />
+                              {errors.listTransport?.[index]
+                                ?.ThoiGianLayHang && (
+                                <span className="text-danger">
+                                  {
+                                    errors.listTransport?.[index]
+                                      ?.ThoiGianLayHang.message
+                                  }
+                                </span>
+                              )}
                             </div>
-                            <div className="col col-sm">
-                              <div className="form-group">
-                                <input
-                                  readOnly={true}
-                                  type="text"
-                                  className="form-control"
-                                  id="TheTich"
-                                  {...register(
-                                    `listTransport.${index}.TheTich`
-                                  )}
-                                />
-                              </div>
+                          </td>
+                          <td>
+                            <div className="input-group ">
+                              <Controller
+                                control={control}
+                                name={`listTransport.${index}.ThoiGianTraHang`}
+                                render={({ field }) => (
+                                  <DatePicker
+                                    className="form-control"
+                                    showTimeSelect
+                                    timeFormat="HH:mm"
+                                    dateFormat="dd/MM/yyyy HH:mm"
+                                    onChange={(date) => field.onChange(date)}
+                                    selected={field.value}
+                                  />
+                                )}
+                              />
+                              {errors.listTransport?.[index]
+                                ?.ThoiGianTraHang && (
+                                <span className="text-danger">
+                                  {
+                                    errors.listTransport?.[index]
+                                      ?.ThoiGianTraHang.message
+                                  }
+                                </span>
+                              )}
                             </div>
-                            <div className="col col-sm">
-                              <div className="form-group">
-                                <input
-                                  readOnly={true}
-                                  type="text"
-                                  className="form-control"
-                                  id="SoKien"
-                                  {...register(`listTransport.${index}.SoKien`)}
-                                />
-                              </div>
+                          </td>
+                          <td>
+                            <div className="form-group">
+                              <input
+                                readOnly={true}
+                                type="text"
+                                className="form-control"
+                                id="KhoiLuong"
+                                {...register(
+                                  `listTransport.${index}.KhoiLuong`
+                                )}
+                              />
                             </div>
-                          </div>
-                        </td>
-                        <td>
-                          <div className="form-group">
-                            {fields && fields.length > 2 && (
-                              <button
-                                type="button"
-                                className="btn btn-sm btn-default"
-                                onClick={() => {
-                                  remove(index);
-                                }}
-                              >
-                                <i className="fas fa-minus"></i>
-                              </button>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                          </td>
+                          <td>
+                            <div className="form-group">
+                              <input
+                                readOnly={true}
+                                type="text"
+                                className="form-control"
+                                id="TheTich"
+                                {...register(`listTransport.${index}.TheTich`)}
+                              />
+                            </div>
+                          </td>
+                          <td>
+                            <div className="form-group">
+                              <input
+                                readOnly={true}
+                                type="text"
+                                className="form-control"
+                                id="SoKien"
+                                {...register(`listTransport.${index}.SoKien`)}
+                              />
+                            </div>
+                          </td>
+
+                          <td>
+                            <div className="form-group">
+                              {fields && fields.length > 0 && (
+                                <button
+                                  type="button"
+                                  className="btn btn-sm btn-default"
+                                  onClick={() => {
+                                    remove(index);
+                                  }}
+                                >
+                                  <i className="fas fa-minus"></i>
+                                </button>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
             <div className="card-footer">
