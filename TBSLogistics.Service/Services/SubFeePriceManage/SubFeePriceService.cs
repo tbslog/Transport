@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using TBSLogistics.Data.TMS;
 using TBSLogistics.Model.CommonModel;
 using TBSLogistics.Model.Filter;
+using TBSLogistics.Model.Model.AddressModel;
 using TBSLogistics.Model.Model.SubFeePriceModel;
 using TBSLogistics.Model.TempModel;
 using TBSLogistics.Model.Wrappers;
@@ -39,6 +40,23 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
                     return new BoolActionResult { isSuccess = false, Message = "Đơn giá phải lớn hơn 0" };
                 }
 
+                var getContract = await _context.HopDongVaPhuLuc.Where(x => x.MaHopDong == request.ContractId).FirstOrDefaultAsync();
+                if (getContract == null)
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Mã Hợp Đồng Không Tồn Tại" };
+                }
+
+                var getNewestContract = await _context.HopDongVaPhuLuc.Where(x => x.MaKh == getContract.MaKh).OrderByDescending(x => x.ThoiGianBatDau).FirstOrDefaultAsync();
+                if (getNewestContract.MaHopDong != getContract.MaHopDong)
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Vui Lòng Chọn Hợp Đồng Mới Nhất" };
+                }
+
+                if (request.GoodsType == null && request.VehicleType == null && request.getEmptyPlace == null && request.firstPlace == null && request.secondPlace == null)
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Vui Lòng Chọn ít nhất một điều kiện để tạo phụ phí" };
+                }
+
                 if (!string.IsNullOrEmpty(request.GoodsType))
                 {
                     var checkGoodsType = await _context.LoaiHangHoa.Where(x => x.MaLoaiHangHoa == request.GoodsType).FirstOrDefaultAsync();
@@ -59,7 +77,7 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
                     }
                 }
 
-                if(request.firstPlace != null && request.secondPlace != null)
+                if (request.firstPlace != null && request.secondPlace != null)
                 {
                     if (request.firstPlace == request.secondPlace)
                     {
@@ -84,8 +102,6 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
                     return new BoolActionResult { isSuccess = false, Message = "Vui lòng chọn đủ hai điểm Đóng Hàng và Hạ Hàng hoặc để trống cả hai" };
                 }
 
-               
-
                 if (request.getEmptyPlace.HasValue)
                 {
                     var getEmptyPlace = await _context.DiaDiem.Where(x => x.MaDiaDiem == request.getEmptyPlace).FirstOrDefaultAsync();
@@ -95,7 +111,6 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
                     }
                 }
 
-
                 await _context.AddAsync(new SubFeePrice()
                 {
                     GetEmptyPlace = request.getEmptyPlace,
@@ -103,7 +118,7 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
                     SecondPlace = request.secondPlace,
                     VehicleType = request.VehicleType,
                     CusType = request.CusType,
-                    ContractId = string.IsNullOrEmpty(request.ContractId) ? null : request.ContractId,
+                    ContractId = request.ContractId,
                     SfId = request.SfId,
                     GoodsType = request.GoodsType,
                     Price = request.Price,
@@ -148,6 +163,23 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
                 if (getSubFeePrice.Status != 13)
                 {
                     return new BoolActionResult { isSuccess = false, Message = "Không thể chỉnh sửa phụ phí này nữa" };
+                }
+
+                if (request.GoodsType == null && request.VehicleType == null && request.getEmptyPlace == null && request.firstPlace == null && request.secondPlace == null)
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Vui Lòng Chọn ít nhất một điều kiện để tạo phụ phí" };
+                }
+
+                var getContract = await _context.HopDongVaPhuLuc.Where(x => x.MaHopDong == request.ContractId).FirstOrDefaultAsync();
+                if (getContract == null)
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Mã Hợp Đồng Không Tồn Tại" };
+                }
+
+                var getNewestContract = await _context.HopDongVaPhuLuc.Where(x => x.MaKh == getContract.MaKh).OrderByDescending(x => x.ThoiGianBatDau).FirstOrDefaultAsync();
+                if (getNewestContract.MaHopDong != getContract.MaHopDong)
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Vui Lòng Chọn Hợp Đồng Mới Nhất" };
                 }
 
                 if (!string.IsNullOrEmpty(request.VehicleType))
@@ -519,9 +551,24 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
             }
         }
 
-        public async Task<List<SubFeePrice>> GetListSubFeePriceActive(string customerId, string goodTypes, int firstPlace, int secondPlace, int? getEmptyPlace, long? handlingId, string vehicleType)
+        public async Task<List<SubFeePrice>> GetListSubFeePriceActive(string customerId, string goodTypes, int firstPlace, int secondPlace, int? emptyPlace, long? handlingId, string vehicleType)
         {
-            var getCus = await _context.KhachHang.Where(x => x.MaKh == customerId).FirstOrDefaultAsync();
+            var getFirstPlace = await _context.DiaDiem.Where(x => x.MaDiaDiem == firstPlace).FirstOrDefaultAsync();
+            var getSecondPlace = await _context.DiaDiem.Where(x => x.MaDiaDiem == secondPlace).FirstOrDefaultAsync();
+            var getEmptyPlace = await _context.DiaDiem.Where(x => x.MaDiaDiem == emptyPlace).Select(x => new DataTempAddress()
+            {
+                MaDiaDiem = x.MaDiaDiem,
+                DiaDiemCha = x.DiaDiemCha,
+            }).FirstOrDefaultAsync();
+
+            if (getEmptyPlace == null)
+            {
+                getEmptyPlace = new DataTempAddress()
+                {
+                    MaDiaDiem = null,
+                    DiaDiemCha = null,
+                };
+            }
 
             var getSFByCusId = from contract in _context.HopDongVaPhuLuc
                                join sfp in _context.SubFeePrice
@@ -529,88 +576,472 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
                                where
                                contract.MaKh == customerId
                                && sfp.Status == 14
-                               && (sfp.GetEmptyPlace == null || sfp.GetEmptyPlace == getEmptyPlace)
-                               && ((sfp.FirstPlace == null && sfp.SecondPlace == null) || (sfp.FirstPlace.HasValue && sfp.SecondPlace.HasValue))
                                && (sfp.VehicleType == null || sfp.VehicleType == vehicleType)
                                && (sfp.GoodsType == null || sfp.GoodsType == goodTypes)
                                select new { contract, sfp };
 
-            if (getSFByCusId.Count() > 0)
+            var listSf = new List<SubFeePrice>();
+
+            var listDataSF = await getSFByCusId.ToListAsync();
+
+            if (listDataSF.Count() > 0)
             {
                 #region case 1 by 1
-                if (getSFByCusId.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType == null && (x.sfp.FirstPlace == null && x.sfp.SecondPlace == null) && x.sfp.GetEmptyPlace == null).Count() > 0)
+                if (listDataSF.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType == null && (x.sfp.FirstPlace == null && x.sfp.SecondPlace == null) && x.sfp.GetEmptyPlace == null).Count() > 0)
                 {
-                    getSFByCusId = getSFByCusId.Where(x => x.sfp.VehicleType == vehicleType);
+                    var data = listDataSF.Where(x => x.sfp.VehicleType == vehicleType).Select(x => x.sfp);
+                    listSf.AddRange(data);
                 }
 
-                if (getSFByCusId.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType != null && (x.sfp.FirstPlace == null && x.sfp.SecondPlace == null) && x.sfp.GetEmptyPlace == null).Count() > 0)
+                if (listDataSF.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType != null && (x.sfp.FirstPlace == null && x.sfp.SecondPlace == null) && x.sfp.GetEmptyPlace == null).Count() > 0)
                 {
-                    getSFByCusId = getSFByCusId.Where(x => x.sfp.GoodsType == goodTypes);
+                    var data = listDataSF.Where(x => x.sfp.GoodsType == goodTypes).Select(x => x.sfp);
+                    listSf.AddRange(data);
                 }
 
-                if (getSFByCusId.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType == null && (x.sfp.FirstPlace != null && x.sfp.SecondPlace != null) && x.sfp.GetEmptyPlace == null).Count() > 0)
+                if (listDataSF.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType == null && (x.sfp.FirstPlace != null && x.sfp.SecondPlace != null) && x.sfp.GetEmptyPlace == null).Count() > 0)
                 {
-                    getSFByCusId = getSFByCusId.Where(x => x.sfp.FirstPlace == firstPlace && x.sfp.SecondPlace == secondPlace);
+                    var data = listDataSF.Where(x => x.sfp.FirstPlace == firstPlace && x.sfp.SecondPlace == secondPlace).Select(x => x.sfp);
+                    listSf.AddRange(data);
                 }
 
-                if (getSFByCusId.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType == null && (x.sfp.FirstPlace == null && x.sfp.SecondPlace == null) && x.sfp.GetEmptyPlace != null).Count() > 0)
+                if (emptyPlace != null)
                 {
-                    getSFByCusId = getSFByCusId.Where(x => x.sfp.GetEmptyPlace == getEmptyPlace);
+                    if (listDataSF.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType == null && (x.sfp.FirstPlace == null && x.sfp.SecondPlace == null) && x.sfp.GetEmptyPlace != null).Count() > 0)
+                    {
+                        var data = listDataSF.Where(x => x.sfp.GetEmptyPlace == emptyPlace).Select(x => x.sfp);
+                        listSf.AddRange(data);
+                    }
                 }
                 #endregion
 
                 #region case 2 by 2
-                if (getSFByCusId.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType != null && (x.sfp.FirstPlace == null && x.sfp.SecondPlace == null) && x.sfp.GetEmptyPlace == null).Count() > 0)
+                if (listDataSF.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType != null && (x.sfp.FirstPlace == null && x.sfp.SecondPlace == null) && x.sfp.GetEmptyPlace == null).Count() > 0)
                 {
-                    getSFByCusId = getSFByCusId.Where(x => x.sfp.VehicleType == vehicleType && x.sfp.GoodsType == goodTypes);
+                    var data = listDataSF.Where(x => x.sfp.VehicleType == vehicleType && x.sfp.GoodsType == goodTypes).Select(x => x.sfp);
+                    listSf.AddRange(data);
                 }
 
-                if (getSFByCusId.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType == null && (x.sfp.FirstPlace != null && x.sfp.SecondPlace != null) && x.sfp.GetEmptyPlace == null).Count() > 0)
+                if (listDataSF.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType == null && (x.sfp.FirstPlace != null && x.sfp.SecondPlace != null) && x.sfp.GetEmptyPlace == null).Count() > 0)
                 {
-                    getSFByCusId = getSFByCusId.Where(x => x.sfp.VehicleType == vehicleType && x.sfp.FirstPlace == firstPlace && x.sfp.SecondPlace == secondPlace);
+                    var data = listDataSF.Where(x => x.sfp.VehicleType == vehicleType && x.sfp.FirstPlace == firstPlace && x.sfp.SecondPlace == secondPlace).Select(x => x.sfp);
+                    listSf.AddRange(data);
                 }
 
-                if (getSFByCusId.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType == null && (x.sfp.FirstPlace == null && x.sfp.SecondPlace == null) && x.sfp.GetEmptyPlace != null).Count() > 0)
+                if (listDataSF.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType == null && (x.sfp.FirstPlace == null && x.sfp.SecondPlace == null) && x.sfp.GetEmptyPlace != null).Count() > 0)
                 {
-                    getSFByCusId = getSFByCusId.Where(x => x.sfp.VehicleType == vehicleType && x.sfp.GetEmptyPlace == getEmptyPlace);
+                    var data = listDataSF.Where(x => x.sfp.VehicleType == vehicleType && x.sfp.GetEmptyPlace == emptyPlace).Select(x => x.sfp);
+                    listSf.AddRange(data);
                 }
 
-                if (getSFByCusId.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType != null && (x.sfp.FirstPlace != null && x.sfp.SecondPlace != null) && x.sfp.GetEmptyPlace == null).Count() > 0)
+                if (listDataSF.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType != null && (x.sfp.FirstPlace != null && x.sfp.SecondPlace != null) && x.sfp.GetEmptyPlace == null).Count() > 0)
                 {
-                    getSFByCusId = getSFByCusId.Where(x => x.sfp.GoodsType == goodTypes && x.sfp.FirstPlace == firstPlace && x.sfp.SecondPlace == x.sfp.SecondPlace);
+                    var data = listDataSF.Where(x => x.sfp.GoodsType == goodTypes && x.sfp.FirstPlace == firstPlace && x.sfp.SecondPlace == x.sfp.SecondPlace).Select(x => x.sfp);
+                    listSf.AddRange(data);
                 }
 
-                if (getSFByCusId.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType != null && (x.sfp.FirstPlace == null && x.sfp.SecondPlace == null) && x.sfp.GetEmptyPlace != null).Count() > 0)
+                if (listDataSF.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType != null && (x.sfp.FirstPlace == null && x.sfp.SecondPlace == null) && x.sfp.GetEmptyPlace != null).Count() > 0)
                 {
-                    getSFByCusId = getSFByCusId.Where(x => x.sfp.GetEmptyPlace == getEmptyPlace && x.sfp.GoodsType == goodTypes);
+                    var data = listDataSF.Where(x => x.sfp.GetEmptyPlace == emptyPlace && x.sfp.GoodsType == goodTypes).Select(x => x.sfp);
+                    listSf.AddRange(data);
                 }
 
-                if (getSFByCusId.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType == null && (x.sfp.FirstPlace != null && x.sfp.SecondPlace != null) && x.sfp.GetEmptyPlace != null).Count() > 0)
+                if (listDataSF.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType == null && (x.sfp.FirstPlace != null && x.sfp.SecondPlace != null) && x.sfp.GetEmptyPlace != null).Count() > 0)
                 {
-                    getSFByCusId = getSFByCusId.Where(x => x.sfp.FirstPlace == firstPlace && x.sfp.SecondPlace == secondPlace && x.sfp.GetEmptyPlace == getEmptyPlace);
+                    var data = listDataSF.Where(x => x.sfp.FirstPlace == firstPlace && x.sfp.SecondPlace == secondPlace && x.sfp.GetEmptyPlace == emptyPlace).Select(x => x.sfp);
+                    listSf.AddRange(data);
                 }
                 #endregion
 
                 #region case 3 by 3
 
-                if (getSFByCusId.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType != null && (x.sfp.FirstPlace != null && x.sfp.SecondPlace != null) && x.sfp.GetEmptyPlace != null).Count() > 0)
+                if (listDataSF.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType != null && (x.sfp.FirstPlace != null && x.sfp.SecondPlace != null) && x.sfp.GetEmptyPlace != null).Count() > 0)
                 {
-                    getSFByCusId = getSFByCusId.Where(x => x.sfp.GoodsType == goodTypes && x.sfp.FirstPlace == firstPlace && x.sfp.SecondPlace == secondPlace && x.sfp.GetEmptyPlace == getEmptyPlace);
+                    var data = listDataSF.Where(x => x.sfp.GoodsType == goodTypes && x.sfp.FirstPlace == firstPlace && x.sfp.SecondPlace == secondPlace && x.sfp.GetEmptyPlace == emptyPlace).Select(x => x.sfp);
+                    listSf.AddRange(data);
                 }
 
-                if (getSFByCusId.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType != null && (x.sfp.FirstPlace != null && x.sfp.SecondPlace != null) && x.sfp.GetEmptyPlace == null).Count() > 0)
+                if (listDataSF.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType != null && (x.sfp.FirstPlace != null && x.sfp.SecondPlace != null) && x.sfp.GetEmptyPlace == null).Count() > 0)
                 {
-                    getSFByCusId = getSFByCusId.Where(x => x.sfp.VehicleType == vehicleType && x.sfp.GoodsType == goodTypes && x.sfp.FirstPlace == firstPlace && x.sfp.SecondPlace == secondPlace);
+                    var data = listDataSF.Where(x => x.sfp.VehicleType == vehicleType && x.sfp.GoodsType == goodTypes && x.sfp.FirstPlace == firstPlace && x.sfp.SecondPlace == secondPlace).Select(x => x.sfp);
+                    listSf.AddRange(data);
                 }
 
-                if (getSFByCusId.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType == null && (x.sfp.FirstPlace != null && x.sfp.SecondPlace != null) && x.sfp.GetEmptyPlace != null).Count() > 0)
+                if (listDataSF.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType == null && (x.sfp.FirstPlace != null && x.sfp.SecondPlace != null) && x.sfp.GetEmptyPlace != null).Count() > 0)
                 {
-                    getSFByCusId = getSFByCusId.Where(x => x.sfp.VehicleType == vehicleType && x.sfp.FirstPlace == firstPlace && x.sfp.SecondPlace == secondPlace && x.sfp.GetEmptyPlace == getEmptyPlace);
+                    var data = listDataSF.Where(x => x.sfp.VehicleType == vehicleType && x.sfp.FirstPlace == firstPlace && x.sfp.SecondPlace == secondPlace && x.sfp.GetEmptyPlace == emptyPlace).Select(x => x.sfp);
+                    listSf.AddRange(data);
                 }
 
-                if (getSFByCusId.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType != null && (x.sfp.FirstPlace == null && x.sfp.SecondPlace == null) && x.sfp.GetEmptyPlace != null).Count() > 0)
+                if (listDataSF.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType != null && (x.sfp.FirstPlace == null && x.sfp.SecondPlace == null) && x.sfp.GetEmptyPlace != null).Count() > 0)
                 {
-                    getSFByCusId = getSFByCusId.Where(x => x.sfp.GoodsType == goodTypes && x.sfp.GetEmptyPlace == getEmptyPlace && x.sfp.VehicleType == vehicleType);
+                    var data = listDataSF.Where(x => x.sfp.GoodsType == goodTypes && x.sfp.GetEmptyPlace == emptyPlace && x.sfp.VehicleType == vehicleType).Select(x => x.sfp);
+                    listSf.AddRange(data);
+                }
+                #endregion
+
+                #region
+                foreach (var item in listDataSF.Select(x => x.sfp))
+                {
+                    if (item.GoodsType == null && item.VehicleType == null && item.GetEmptyPlace != null)
+                    {
+                        if (listDataSF.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType == null && (x.sfp.FirstPlace == getFirstPlace.DiaDiemCha && x.sfp.SecondPlace == getSecondPlace.MaDiaDiem) && x.sfp.GetEmptyPlace != getEmptyPlace.MaDiaDiem).Count() > 0)
+                        {
+                            var data = listDataSF.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType == null && (x.sfp.FirstPlace == getFirstPlace.DiaDiemCha && x.sfp.SecondPlace == getSecondPlace.MaDiaDiem) && x.sfp.GetEmptyPlace != getEmptyPlace.MaDiaDiem).Select(x => x.sfp);
+                            listSf.AddRange(data);
+                        }
+
+                        if (listDataSF.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType == null && (x.sfp.FirstPlace == getFirstPlace.MaDiaDiem && x.sfp.SecondPlace == getSecondPlace.DiaDiemCha) && x.sfp.GetEmptyPlace != getEmptyPlace.MaDiaDiem).Count() > 0)
+                        {
+                            var data = listDataSF.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType == null && (x.sfp.FirstPlace == getFirstPlace.MaDiaDiem && x.sfp.SecondPlace == getSecondPlace.DiaDiemCha) && x.sfp.GetEmptyPlace != getEmptyPlace.MaDiaDiem).Select(x => x.sfp);
+                            listSf.AddRange(data);
+                        }
+
+                        if (listDataSF.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType == null && (x.sfp.FirstPlace == getFirstPlace.MaDiaDiem && x.sfp.SecondPlace == getSecondPlace.MaDiaDiem) && x.sfp.GetEmptyPlace != getEmptyPlace.DiaDiemCha).Count() > 0)
+                        {
+                            var data = listDataSF.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType == null && (x.sfp.FirstPlace == getFirstPlace.MaDiaDiem && x.sfp.SecondPlace == getSecondPlace.MaDiaDiem) && x.sfp.GetEmptyPlace != getEmptyPlace.DiaDiemCha).Select(x => x.sfp);
+                            listSf.AddRange(data);
+                        }
+
+                        if (listDataSF.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType == null && (x.sfp.FirstPlace == getFirstPlace.DiaDiemCha && x.sfp.SecondPlace == getSecondPlace.DiaDiemCha) && x.sfp.GetEmptyPlace != getEmptyPlace.MaDiaDiem).Count() > 0)
+                        {
+                            var data = listDataSF.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType == null && (x.sfp.FirstPlace == getFirstPlace.DiaDiemCha && x.sfp.SecondPlace == getSecondPlace.DiaDiemCha) && x.sfp.GetEmptyPlace != getEmptyPlace.MaDiaDiem).Select(x => x.sfp);
+                            listSf.AddRange(data);
+                        }
+
+                        if (listDataSF.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType == null && (x.sfp.FirstPlace == getFirstPlace.MaDiaDiem && x.sfp.SecondPlace == getSecondPlace.DiaDiemCha) && x.sfp.GetEmptyPlace != getEmptyPlace.DiaDiemCha).Count() > 0)
+                        {
+                            var data = listDataSF.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType == null && (x.sfp.FirstPlace == getFirstPlace.MaDiaDiem && x.sfp.SecondPlace == getSecondPlace.DiaDiemCha) && x.sfp.GetEmptyPlace != getEmptyPlace.DiaDiemCha).Select(x => x.sfp);
+                            listSf.AddRange(data);
+                        }
+
+                        if (listDataSF.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType == null && (x.sfp.FirstPlace == getFirstPlace.DiaDiemCha && x.sfp.SecondPlace == getSecondPlace.DiaDiemCha) && x.sfp.GetEmptyPlace != getEmptyPlace.DiaDiemCha).Count() > 0)
+                        {
+                            var data = listDataSF.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType == null && (x.sfp.FirstPlace == getFirstPlace.DiaDiemCha && x.sfp.SecondPlace == getSecondPlace.DiaDiemCha) && x.sfp.GetEmptyPlace != getEmptyPlace.DiaDiemCha).Select(x => x.sfp);
+                            listSf.AddRange(data);
+                        }
+
+                        if (listDataSF.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType == null && (x.sfp.FirstPlace == getFirstPlace.DiaDiemCha && x.sfp.SecondPlace == getSecondPlace.MaDiaDiem) && x.sfp.GetEmptyPlace != getEmptyPlace.DiaDiemCha).Count() > 0)
+                        {
+                            var data = listDataSF.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType == null && (x.sfp.FirstPlace == getFirstPlace.DiaDiemCha && x.sfp.SecondPlace == getSecondPlace.MaDiaDiem) && x.sfp.GetEmptyPlace != getEmptyPlace.DiaDiemCha).Select(x => x.sfp);
+                            listSf.AddRange(data);
+                        }
+                    }
+
+                    if (item.GoodsType != null && item.VehicleType == null && item.GetEmptyPlace != null)
+                    {
+                        if (listDataSF.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType != null && (x.sfp.FirstPlace == getFirstPlace.DiaDiemCha && x.sfp.SecondPlace == getSecondPlace.MaDiaDiem) && x.sfp.GetEmptyPlace != getEmptyPlace.MaDiaDiem).Count() > 0)
+                        {
+                            var data = listDataSF.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType != null && (x.sfp.FirstPlace == getFirstPlace.DiaDiemCha && x.sfp.SecondPlace == getSecondPlace.MaDiaDiem) && x.sfp.GetEmptyPlace != getEmptyPlace.MaDiaDiem).Select(x => x.sfp);
+                            listSf.AddRange(data);
+                        }
+
+                        if (listDataSF.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType != null && (x.sfp.FirstPlace == getFirstPlace.MaDiaDiem && x.sfp.SecondPlace == getSecondPlace.DiaDiemCha) && x.sfp.GetEmptyPlace != getEmptyPlace.MaDiaDiem).Count() > 0)
+                        {
+                            var data = listDataSF.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType != null && (x.sfp.FirstPlace == getFirstPlace.MaDiaDiem && x.sfp.SecondPlace == getSecondPlace.DiaDiemCha) && x.sfp.GetEmptyPlace != getEmptyPlace.MaDiaDiem).Select(x => x.sfp);
+                            listSf.AddRange(data);
+                        }
+
+                        if (listDataSF.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType != null && (x.sfp.FirstPlace == getFirstPlace.MaDiaDiem && x.sfp.SecondPlace == getSecondPlace.MaDiaDiem) && x.sfp.GetEmptyPlace != getEmptyPlace.DiaDiemCha).Count() > 0)
+                        {
+                            var data = listDataSF.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType != null && (x.sfp.FirstPlace == getFirstPlace.MaDiaDiem && x.sfp.SecondPlace == getSecondPlace.MaDiaDiem) && x.sfp.GetEmptyPlace != getEmptyPlace.DiaDiemCha).Select(x => x.sfp);
+                            listSf.AddRange(data);
+                        }
+
+                        if (listDataSF.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType != null && (x.sfp.FirstPlace == getFirstPlace.DiaDiemCha && x.sfp.SecondPlace == getSecondPlace.DiaDiemCha) && x.sfp.GetEmptyPlace != getEmptyPlace.MaDiaDiem).Count() > 0)
+                        {
+                            var data = listDataSF.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType != null && (x.sfp.FirstPlace == getFirstPlace.DiaDiemCha && x.sfp.SecondPlace == getSecondPlace.DiaDiemCha) && x.sfp.GetEmptyPlace != getEmptyPlace.MaDiaDiem).Select(x => x.sfp);
+                            listSf.AddRange(data);
+                        }
+
+                        if (listDataSF.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType != null && (x.sfp.FirstPlace == getFirstPlace.MaDiaDiem && x.sfp.SecondPlace == getSecondPlace.DiaDiemCha) && x.sfp.GetEmptyPlace != getEmptyPlace.DiaDiemCha).Count() > 0)
+                        {
+                            var data = listDataSF.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType != null && (x.sfp.FirstPlace == getFirstPlace.MaDiaDiem && x.sfp.SecondPlace == getSecondPlace.DiaDiemCha) && x.sfp.GetEmptyPlace != getEmptyPlace.DiaDiemCha).Select(x => x.sfp);
+                            listSf.AddRange(data);
+                        }
+
+                        if (listDataSF.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType != null && (x.sfp.FirstPlace == getFirstPlace.DiaDiemCha && x.sfp.SecondPlace == getSecondPlace.DiaDiemCha) && x.sfp.GetEmptyPlace != getEmptyPlace.DiaDiemCha).Count() > 0)
+                        {
+                            var data = listDataSF.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType != null && (x.sfp.FirstPlace == getFirstPlace.DiaDiemCha && x.sfp.SecondPlace == getSecondPlace.DiaDiemCha) && x.sfp.GetEmptyPlace != getEmptyPlace.DiaDiemCha).Select(x => x.sfp);
+                            listSf.AddRange(data);
+                        }
+
+                        if (listDataSF.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType != null && (x.sfp.FirstPlace == getFirstPlace.DiaDiemCha && x.sfp.SecondPlace == getSecondPlace.MaDiaDiem) && x.sfp.GetEmptyPlace != getEmptyPlace.DiaDiemCha).Count() > 0)
+                        {
+                            var data = listDataSF.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType != null && (x.sfp.FirstPlace == getFirstPlace.DiaDiemCha && x.sfp.SecondPlace == getSecondPlace.MaDiaDiem) && x.sfp.GetEmptyPlace != getEmptyPlace.DiaDiemCha).Select(x => x.sfp);
+                            listSf.AddRange(data);
+                        }
+                    }
+
+                    if (item.GoodsType == null && item.VehicleType != null && item.GetEmptyPlace != null)
+                    {
+                        if (listDataSF.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType == null && (x.sfp.FirstPlace == getFirstPlace.DiaDiemCha && x.sfp.SecondPlace == getSecondPlace.MaDiaDiem) && x.sfp.GetEmptyPlace != getEmptyPlace.MaDiaDiem).Count() > 0)
+                        {
+                            var data = listDataSF.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType == null && (x.sfp.FirstPlace == getFirstPlace.DiaDiemCha && x.sfp.SecondPlace == getSecondPlace.MaDiaDiem) && x.sfp.GetEmptyPlace != getEmptyPlace.MaDiaDiem).Select(x => x.sfp);
+                            listSf.AddRange(data);
+                        }
+
+                        if (listDataSF.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType == null && (x.sfp.FirstPlace == getFirstPlace.MaDiaDiem && x.sfp.SecondPlace == getSecondPlace.DiaDiemCha) && x.sfp.GetEmptyPlace != getEmptyPlace.MaDiaDiem).Count() > 0)
+                        {
+                            var data = listDataSF.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType == null && (x.sfp.FirstPlace == getFirstPlace.MaDiaDiem && x.sfp.SecondPlace == getSecondPlace.DiaDiemCha) && x.sfp.GetEmptyPlace != getEmptyPlace.MaDiaDiem).Select(x => x.sfp);
+                            listSf.AddRange(data);
+                        }
+
+                        if (listDataSF.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType == null && (x.sfp.FirstPlace == getFirstPlace.MaDiaDiem && x.sfp.SecondPlace == getSecondPlace.MaDiaDiem) && x.sfp.GetEmptyPlace != getEmptyPlace.DiaDiemCha).Count() > 0)
+                        {
+                            var data = listDataSF.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType == null && (x.sfp.FirstPlace == getFirstPlace.MaDiaDiem && x.sfp.SecondPlace == getSecondPlace.MaDiaDiem) && x.sfp.GetEmptyPlace != getEmptyPlace.DiaDiemCha).Select(x => x.sfp);
+                            listSf.AddRange(data);
+                        }
+
+                        if (listDataSF.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType == null && (x.sfp.FirstPlace == getFirstPlace.DiaDiemCha && x.sfp.SecondPlace == getSecondPlace.DiaDiemCha) && x.sfp.GetEmptyPlace != getEmptyPlace.MaDiaDiem).Count() > 0)
+                        {
+                            var data = listDataSF.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType == null && (x.sfp.FirstPlace == getFirstPlace.DiaDiemCha && x.sfp.SecondPlace == getSecondPlace.DiaDiemCha) && x.sfp.GetEmptyPlace != getEmptyPlace.MaDiaDiem).Select(x => x.sfp);
+                            listSf.AddRange(data);
+                        }
+
+                        if (listDataSF.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType == null && (x.sfp.FirstPlace == getFirstPlace.MaDiaDiem && x.sfp.SecondPlace == getSecondPlace.DiaDiemCha) && x.sfp.GetEmptyPlace != getEmptyPlace.DiaDiemCha).Count() > 0)
+                        {
+                            var data = listDataSF.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType == null && (x.sfp.FirstPlace == getFirstPlace.MaDiaDiem && x.sfp.SecondPlace == getSecondPlace.DiaDiemCha) && x.sfp.GetEmptyPlace != getEmptyPlace.DiaDiemCha).Select(x => x.sfp);
+                            listSf.AddRange(data);
+                        }
+
+                        if (listDataSF.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType == null && (x.sfp.FirstPlace == getFirstPlace.DiaDiemCha && x.sfp.SecondPlace == getSecondPlace.DiaDiemCha) && x.sfp.GetEmptyPlace != getEmptyPlace.DiaDiemCha).Count() > 0)
+                        {
+                            var data = listDataSF.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType == null && (x.sfp.FirstPlace == getFirstPlace.DiaDiemCha && x.sfp.SecondPlace == getSecondPlace.DiaDiemCha) && x.sfp.GetEmptyPlace != getEmptyPlace.DiaDiemCha).Select(x => x.sfp);
+                            listSf.AddRange(data);
+                        }
+
+                        if (listDataSF.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType == null && (x.sfp.FirstPlace == getFirstPlace.DiaDiemCha && x.sfp.SecondPlace == getSecondPlace.MaDiaDiem) && x.sfp.GetEmptyPlace != getEmptyPlace.DiaDiemCha).Count() > 0)
+                        {
+                            var data = listDataSF.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType == null && (x.sfp.FirstPlace == getFirstPlace.DiaDiemCha && x.sfp.SecondPlace == getSecondPlace.MaDiaDiem) && x.sfp.GetEmptyPlace != getEmptyPlace.DiaDiemCha).Select(x => x.sfp);
+                            listSf.AddRange(data);
+                        }
+                    }
+
+                    if (item.GoodsType != null && item.VehicleType != null && item.GetEmptyPlace != null)
+                    {
+                        if (listDataSF.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType != null && (x.sfp.FirstPlace == getFirstPlace.DiaDiemCha && x.sfp.SecondPlace == getSecondPlace.MaDiaDiem) && x.sfp.GetEmptyPlace != getEmptyPlace.MaDiaDiem).Count() > 0)
+                        {
+                            var data = listDataSF.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType != null && (x.sfp.FirstPlace == getFirstPlace.DiaDiemCha && x.sfp.SecondPlace == getSecondPlace.MaDiaDiem) && x.sfp.GetEmptyPlace != getEmptyPlace.MaDiaDiem).Select(x => x.sfp);
+                            listSf.AddRange(data);
+                        }
+
+                        if (listDataSF.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType != null && (x.sfp.FirstPlace == getFirstPlace.MaDiaDiem && x.sfp.SecondPlace == getSecondPlace.DiaDiemCha) && x.sfp.GetEmptyPlace != getEmptyPlace.MaDiaDiem).Count() > 0)
+                        {
+                            var data = listDataSF.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType != null && (x.sfp.FirstPlace == getFirstPlace.MaDiaDiem && x.sfp.SecondPlace == getSecondPlace.DiaDiemCha) && x.sfp.GetEmptyPlace != getEmptyPlace.MaDiaDiem).Select(x => x.sfp);
+                            listSf.AddRange(data);
+                        }
+
+                        if (listDataSF.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType != null && (x.sfp.FirstPlace == getFirstPlace.MaDiaDiem && x.sfp.SecondPlace == getSecondPlace.MaDiaDiem) && x.sfp.GetEmptyPlace != getEmptyPlace.DiaDiemCha).Count() > 0)
+                        {
+                            var data = listDataSF.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType != null && (x.sfp.FirstPlace == getFirstPlace.MaDiaDiem && x.sfp.SecondPlace == getSecondPlace.MaDiaDiem) && x.sfp.GetEmptyPlace != getEmptyPlace.DiaDiemCha).Select(x => x.sfp);
+                            listSf.AddRange(data);
+                        }
+
+                        if (listDataSF.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType != null && (x.sfp.FirstPlace == getFirstPlace.DiaDiemCha && x.sfp.SecondPlace == getSecondPlace.DiaDiemCha) && x.sfp.GetEmptyPlace != getEmptyPlace.MaDiaDiem).Count() > 0)
+                        {
+                            var data = listDataSF.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType != null && (x.sfp.FirstPlace == getFirstPlace.DiaDiemCha && x.sfp.SecondPlace == getSecondPlace.DiaDiemCha) && x.sfp.GetEmptyPlace != getEmptyPlace.MaDiaDiem).Select(x => x.sfp);
+                            listSf.AddRange(data);
+                        }
+
+                        if (listDataSF.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType != null && (x.sfp.FirstPlace == getFirstPlace.MaDiaDiem && x.sfp.SecondPlace == getSecondPlace.DiaDiemCha) && x.sfp.GetEmptyPlace != getEmptyPlace.DiaDiemCha).Count() > 0)
+                        {
+                            var data = listDataSF.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType != null && (x.sfp.FirstPlace == getFirstPlace.MaDiaDiem && x.sfp.SecondPlace == getSecondPlace.DiaDiemCha) && x.sfp.GetEmptyPlace != getEmptyPlace.DiaDiemCha).Select(x => x.sfp);
+                            listSf.AddRange(data);
+                        }
+
+                        if (listDataSF.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType != null && (x.sfp.FirstPlace == getFirstPlace.DiaDiemCha && x.sfp.SecondPlace == getSecondPlace.DiaDiemCha) && x.sfp.GetEmptyPlace != getEmptyPlace.DiaDiemCha).Count() > 0)
+                        {
+                            var data = listDataSF.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType != null && (x.sfp.FirstPlace == getFirstPlace.DiaDiemCha && x.sfp.SecondPlace == getSecondPlace.DiaDiemCha) && x.sfp.GetEmptyPlace != getEmptyPlace.DiaDiemCha).Select(x => x.sfp);
+                            listSf.AddRange(data);
+                        }
+
+                        if (listDataSF.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType != null && (x.sfp.FirstPlace == getFirstPlace.DiaDiemCha && x.sfp.SecondPlace == getSecondPlace.MaDiaDiem) && x.sfp.GetEmptyPlace != getEmptyPlace.DiaDiemCha).Count() > 0)
+                        {
+                            var data = listDataSF.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType != null && (x.sfp.FirstPlace == getFirstPlace.DiaDiemCha && x.sfp.SecondPlace == getSecondPlace.MaDiaDiem) && x.sfp.GetEmptyPlace != getEmptyPlace.DiaDiemCha).Select(x => x.sfp);
+                            listSf.AddRange(data);
+                        }
+                    }
+
+                    if (item.GoodsType == null && item.VehicleType == null && item.GetEmptyPlace == null)
+                    {
+                        if (listDataSF.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType == null && (x.sfp.FirstPlace == getFirstPlace.DiaDiemCha && x.sfp.SecondPlace == getSecondPlace.MaDiaDiem) && x.sfp.GetEmptyPlace == null).Count() > 0)
+                        {
+                            var data = listDataSF.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType == null && (x.sfp.FirstPlace == getFirstPlace.DiaDiemCha && x.sfp.SecondPlace == getSecondPlace.MaDiaDiem) && x.sfp.GetEmptyPlace == null).Select(x => x.sfp);
+                            listSf.AddRange(data);
+                        }
+
+                        if (listDataSF.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType == null && (x.sfp.FirstPlace == getFirstPlace.MaDiaDiem && x.sfp.SecondPlace == getSecondPlace.DiaDiemCha) && x.sfp.GetEmptyPlace == null).Count() > 0)
+                        {
+                            var data = listDataSF.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType == null && (x.sfp.FirstPlace == getFirstPlace.MaDiaDiem && x.sfp.SecondPlace == getSecondPlace.DiaDiemCha) && x.sfp.GetEmptyPlace == null).Select(x => x.sfp);
+                            listSf.AddRange(data);
+                        }
+
+                        if (listDataSF.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType == null && (x.sfp.FirstPlace == getFirstPlace.MaDiaDiem && x.sfp.SecondPlace == getSecondPlace.MaDiaDiem) && x.sfp.GetEmptyPlace == null).Count() > 0)
+                        {
+                            var data = listDataSF.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType == null && (x.sfp.FirstPlace == getFirstPlace.MaDiaDiem && x.sfp.SecondPlace == getSecondPlace.MaDiaDiem) && x.sfp.GetEmptyPlace == null).Select(x => x.sfp);
+                            listSf.AddRange(data);
+                        }
+
+                        if (listDataSF.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType == null && (x.sfp.FirstPlace == getFirstPlace.DiaDiemCha && x.sfp.SecondPlace == getSecondPlace.DiaDiemCha) && x.sfp.GetEmptyPlace == null).Count() > 0)
+                        {
+                            var data = listDataSF.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType == null && (x.sfp.FirstPlace == getFirstPlace.DiaDiemCha && x.sfp.SecondPlace == getSecondPlace.DiaDiemCha) && x.sfp.GetEmptyPlace == null).Select(x => x.sfp);
+                            listSf.AddRange(data);
+                        }
+
+                        if (listDataSF.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType == null && (x.sfp.FirstPlace == getFirstPlace.MaDiaDiem && x.sfp.SecondPlace == getSecondPlace.DiaDiemCha) && x.sfp.GetEmptyPlace == null).Count() > 0)
+                        {
+                            var data = listDataSF.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType == null && (x.sfp.FirstPlace == getFirstPlace.MaDiaDiem && x.sfp.SecondPlace == getSecondPlace.DiaDiemCha) && x.sfp.GetEmptyPlace == null).Select(x => x.sfp);
+                            listSf.AddRange(data);
+                        }
+
+                        if (listDataSF.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType == null && (x.sfp.FirstPlace == getFirstPlace.DiaDiemCha && x.sfp.SecondPlace == getSecondPlace.DiaDiemCha) && x.sfp.GetEmptyPlace == null).Count() > 0)
+                        {
+                            var data = listDataSF.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType == null && (x.sfp.FirstPlace == getFirstPlace.DiaDiemCha && x.sfp.SecondPlace == getSecondPlace.DiaDiemCha) && x.sfp.GetEmptyPlace == null).Select(x => x.sfp);
+                            listSf.AddRange(data);
+                        }
+
+                        if (listDataSF.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType == null && (x.sfp.FirstPlace == getFirstPlace.DiaDiemCha && x.sfp.SecondPlace == getSecondPlace.MaDiaDiem) && x.sfp.GetEmptyPlace == null).Count() > 0)
+                        {
+                            var data = listDataSF.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType == null && (x.sfp.FirstPlace == getFirstPlace.DiaDiemCha && x.sfp.SecondPlace == getSecondPlace.MaDiaDiem) && x.sfp.GetEmptyPlace == null).Select(x => x.sfp);
+                            listSf.AddRange(data);
+                        }
+                    }
+
+                    if (item.GoodsType != null && item.VehicleType == null && item.GetEmptyPlace == null)
+                    {
+                        if (listDataSF.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType != null && (x.sfp.FirstPlace == getFirstPlace.DiaDiemCha && x.sfp.SecondPlace == getSecondPlace.MaDiaDiem) && x.sfp.GetEmptyPlace == null).Count() > 0)
+                        {
+                            var data = listDataSF.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType != null && (x.sfp.FirstPlace == getFirstPlace.DiaDiemCha && x.sfp.SecondPlace == getSecondPlace.MaDiaDiem) && x.sfp.GetEmptyPlace == null).Select(x => x.sfp);
+                            listSf.AddRange(data);
+                        }
+
+                        if (listDataSF.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType != null && (x.sfp.FirstPlace == getFirstPlace.MaDiaDiem && x.sfp.SecondPlace == getSecondPlace.DiaDiemCha) && x.sfp.GetEmptyPlace == null).Count() > 0)
+                        {
+                            var data = listDataSF.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType != null && (x.sfp.FirstPlace == getFirstPlace.MaDiaDiem && x.sfp.SecondPlace == getSecondPlace.DiaDiemCha) && x.sfp.GetEmptyPlace == null).Select(x => x.sfp);
+                            listSf.AddRange(data);
+                        }
+
+                        if (listDataSF.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType != null && (x.sfp.FirstPlace == getFirstPlace.MaDiaDiem && x.sfp.SecondPlace == getSecondPlace.MaDiaDiem) && x.sfp.GetEmptyPlace == null).Count() > 0)
+                        {
+                            var data = listDataSF.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType != null && (x.sfp.FirstPlace == getFirstPlace.MaDiaDiem && x.sfp.SecondPlace == getSecondPlace.MaDiaDiem) && x.sfp.GetEmptyPlace == null).Select(x => x.sfp);
+                            listSf.AddRange(data);
+                        }
+
+                        if (listDataSF.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType != null && (x.sfp.FirstPlace == getFirstPlace.DiaDiemCha && x.sfp.SecondPlace == getSecondPlace.DiaDiemCha) && x.sfp.GetEmptyPlace == null).Count() > 0)
+                        {
+                            var data = listDataSF.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType != null && (x.sfp.FirstPlace == getFirstPlace.DiaDiemCha && x.sfp.SecondPlace == getSecondPlace.DiaDiemCha) && x.sfp.GetEmptyPlace == null).Select(x => x.sfp);
+                            listSf.AddRange(data);
+                        }
+
+                        if (listDataSF.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType != null && (x.sfp.FirstPlace == getFirstPlace.MaDiaDiem && x.sfp.SecondPlace == getSecondPlace.DiaDiemCha) && x.sfp.GetEmptyPlace == null).Count() > 0)
+                        {
+                            var data = listDataSF.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType != null && (x.sfp.FirstPlace == getFirstPlace.MaDiaDiem && x.sfp.SecondPlace == getSecondPlace.DiaDiemCha) && x.sfp.GetEmptyPlace == null).Select(x => x.sfp);
+                            listSf.AddRange(data);
+                        }
+
+                        if (listDataSF.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType != null && (x.sfp.FirstPlace == getFirstPlace.DiaDiemCha && x.sfp.SecondPlace == getSecondPlace.DiaDiemCha) && x.sfp.GetEmptyPlace == null).Count() > 0)
+                        {
+                            var data = listDataSF.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType != null && (x.sfp.FirstPlace == getFirstPlace.DiaDiemCha && x.sfp.SecondPlace == getSecondPlace.DiaDiemCha) && x.sfp.GetEmptyPlace == null).Select(x => x.sfp);
+                            listSf.AddRange(data);
+                        }
+
+                        if (listDataSF.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType != null && (x.sfp.FirstPlace == getFirstPlace.DiaDiemCha && x.sfp.SecondPlace == getSecondPlace.MaDiaDiem) && x.sfp.GetEmptyPlace == null).Count() > 0)
+                        {
+                            var data = listDataSF.Where(x => x.sfp.VehicleType == null && x.sfp.GoodsType != null && (x.sfp.FirstPlace == getFirstPlace.DiaDiemCha && x.sfp.SecondPlace == getSecondPlace.MaDiaDiem) && x.sfp.GetEmptyPlace == null).Select(x => x.sfp);
+                            listSf.AddRange(data);
+                        }
+                    }
+
+                    if (item.GoodsType == null && item.VehicleType != null && item.GetEmptyPlace == null)
+                    {
+                        if (listDataSF.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType == null && (x.sfp.FirstPlace == getFirstPlace.DiaDiemCha && x.sfp.SecondPlace == getSecondPlace.MaDiaDiem) && x.sfp.GetEmptyPlace == null).Count() > 0)
+                        {
+                            var data = listDataSF.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType == null && (x.sfp.FirstPlace == getFirstPlace.DiaDiemCha && x.sfp.SecondPlace == getSecondPlace.MaDiaDiem) && x.sfp.GetEmptyPlace == null).Select(x => x.sfp);
+                            listSf.AddRange(data);
+                        }
+
+                        if (listDataSF.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType == null && (x.sfp.FirstPlace == getFirstPlace.MaDiaDiem && x.sfp.SecondPlace == getSecondPlace.DiaDiemCha) && x.sfp.GetEmptyPlace == null).Count() > 0)
+                        {
+                            var data = listDataSF.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType == null && (x.sfp.FirstPlace == getFirstPlace.MaDiaDiem && x.sfp.SecondPlace == getSecondPlace.DiaDiemCha) && x.sfp.GetEmptyPlace == null).Select(x => x.sfp);
+                            listSf.AddRange(data);
+                        }
+
+                        if (listDataSF.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType == null && (x.sfp.FirstPlace == getFirstPlace.MaDiaDiem && x.sfp.SecondPlace == getSecondPlace.MaDiaDiem) && x.sfp.GetEmptyPlace == null).Count() > 0)
+                        {
+                            var data = listDataSF.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType == null && (x.sfp.FirstPlace == getFirstPlace.MaDiaDiem && x.sfp.SecondPlace == getSecondPlace.MaDiaDiem) && x.sfp.GetEmptyPlace == null).Select(x => x.sfp);
+                            listSf.AddRange(data);
+                        }
+
+                        if (listDataSF.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType == null && (x.sfp.FirstPlace == getFirstPlace.DiaDiemCha && x.sfp.SecondPlace == getSecondPlace.DiaDiemCha) && x.sfp.GetEmptyPlace == null).Count() > 0)
+                        {
+                            var data = listDataSF.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType == null && (x.sfp.FirstPlace == getFirstPlace.DiaDiemCha && x.sfp.SecondPlace == getSecondPlace.DiaDiemCha) && x.sfp.GetEmptyPlace == null).Select(x => x.sfp);
+                            listSf.AddRange(data);
+                        }
+
+                        if (listDataSF.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType == null && (x.sfp.FirstPlace == getFirstPlace.MaDiaDiem && x.sfp.SecondPlace == getSecondPlace.DiaDiemCha) && x.sfp.GetEmptyPlace == null).Count() > 0)
+                        {
+                            var data = listDataSF.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType == null && (x.sfp.FirstPlace == getFirstPlace.MaDiaDiem && x.sfp.SecondPlace == getSecondPlace.DiaDiemCha) && x.sfp.GetEmptyPlace == null).Select(x => x.sfp);
+                            listSf.AddRange(data);
+                        }
+
+                        if (listDataSF.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType == null && (x.sfp.FirstPlace == getFirstPlace.DiaDiemCha && x.sfp.SecondPlace == getSecondPlace.DiaDiemCha) && x.sfp.GetEmptyPlace == null).Count() > 0)
+                        {
+                            var data = listDataSF.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType == null && (x.sfp.FirstPlace == getFirstPlace.DiaDiemCha && x.sfp.SecondPlace == getSecondPlace.DiaDiemCha) && x.sfp.GetEmptyPlace == null).Select(x => x.sfp);
+                            listSf.AddRange(data);
+                        }
+
+                        if (listDataSF.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType == null && (x.sfp.FirstPlace == getFirstPlace.DiaDiemCha && x.sfp.SecondPlace == getSecondPlace.MaDiaDiem) && x.sfp.GetEmptyPlace == null).Count() > 0)
+                        {
+                            var data = listDataSF.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType == null && (x.sfp.FirstPlace == getFirstPlace.DiaDiemCha && x.sfp.SecondPlace == getSecondPlace.MaDiaDiem) && x.sfp.GetEmptyPlace == null).Select(x => x.sfp);
+                            listSf.AddRange(data);
+                        }
+                    }
+
+                    if (item.GoodsType != null && item.VehicleType != null && item.GetEmptyPlace == null)
+                    {
+                        if (listDataSF.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType != null && (x.sfp.FirstPlace == getFirstPlace.DiaDiemCha && x.sfp.SecondPlace == getSecondPlace.MaDiaDiem) && x.sfp.GetEmptyPlace == null).Count() > 0)
+                        {
+                            var data = listDataSF.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType != null && (x.sfp.FirstPlace == getFirstPlace.DiaDiemCha && x.sfp.SecondPlace == getSecondPlace.MaDiaDiem) && x.sfp.GetEmptyPlace == null).Select(x => x.sfp);
+                            listSf.AddRange(data);
+                        }
+
+                        if (listDataSF.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType != null && (x.sfp.FirstPlace == getFirstPlace.MaDiaDiem && x.sfp.SecondPlace == getSecondPlace.DiaDiemCha) && x.sfp.GetEmptyPlace == null).Count() > 0)
+                        {
+                            var data = listDataSF.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType != null && (x.sfp.FirstPlace == getFirstPlace.MaDiaDiem && x.sfp.SecondPlace == getSecondPlace.DiaDiemCha) && x.sfp.GetEmptyPlace == null).Select(x => x.sfp);
+                            listSf.AddRange(data);
+                        }
+
+                        if (listDataSF.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType != null && (x.sfp.FirstPlace == getFirstPlace.MaDiaDiem && x.sfp.SecondPlace == getSecondPlace.MaDiaDiem) && x.sfp.GetEmptyPlace == null).Count() > 0)
+                        {
+                            var data = listDataSF.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType != null && (x.sfp.FirstPlace == getFirstPlace.MaDiaDiem && x.sfp.SecondPlace == getSecondPlace.MaDiaDiem) && x.sfp.GetEmptyPlace == null).Select(x => x.sfp);
+                            listSf.AddRange(data);
+                        }
+
+                        if (listDataSF.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType != null && (x.sfp.FirstPlace == getFirstPlace.DiaDiemCha && x.sfp.SecondPlace == getSecondPlace.DiaDiemCha) && x.sfp.GetEmptyPlace == null).Count() > 0)
+                        {
+                            var data = listDataSF.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType != null && (x.sfp.FirstPlace == getFirstPlace.DiaDiemCha && x.sfp.SecondPlace == getSecondPlace.DiaDiemCha) && x.sfp.GetEmptyPlace == null).Select(x => x.sfp);
+                            listSf.AddRange(data);
+                        }
+
+                        if (listDataSF.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType != null && (x.sfp.FirstPlace == getFirstPlace.MaDiaDiem && x.sfp.SecondPlace == getSecondPlace.DiaDiemCha) && x.sfp.GetEmptyPlace == null).Count() > 0)
+                        {
+                            var data = listDataSF.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType != null && (x.sfp.FirstPlace == getFirstPlace.MaDiaDiem && x.sfp.SecondPlace == getSecondPlace.DiaDiemCha) && x.sfp.GetEmptyPlace == null).Select(x => x.sfp);
+                            listSf.AddRange(data);
+                        }
+
+                        if (listDataSF.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType != null && (x.sfp.FirstPlace == getFirstPlace.DiaDiemCha && x.sfp.SecondPlace == getSecondPlace.DiaDiemCha) && x.sfp.GetEmptyPlace == null).Count() > 0)
+                        {
+                            var data = listDataSF.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType != null && (x.sfp.FirstPlace == getFirstPlace.DiaDiemCha && x.sfp.SecondPlace == getSecondPlace.DiaDiemCha) && x.sfp.GetEmptyPlace == null).Select(x => x.sfp);
+                            listSf.AddRange(data);
+                        }
+
+                        if (listDataSF.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType != null && (x.sfp.FirstPlace == getFirstPlace.DiaDiemCha && x.sfp.SecondPlace == getSecondPlace.MaDiaDiem) && x.sfp.GetEmptyPlace != getEmptyPlace.DiaDiemCha).Count() > 0)
+                        {
+                            var data = listDataSF.Where(x => x.sfp.VehicleType != null && x.sfp.GoodsType != null && (x.sfp.FirstPlace == getFirstPlace.DiaDiemCha && x.sfp.SecondPlace == getSecondPlace.MaDiaDiem) && x.sfp.GetEmptyPlace != getEmptyPlace.DiaDiemCha).Select(x => x.sfp);
+                            listSf.AddRange(data);
+                        }
+                    }
                 }
                 #endregion
             }
@@ -660,7 +1091,20 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
                 await _context.SaveChangesAsync();
             }
 
-            return await getSFByCusId.Select(x => x.sfp).ToListAsync();
+            var listResult = new List<SubFeePrice>();
+
+            foreach (var item in listSf)
+            {
+                if (item != null)
+                {
+                    if (listResult.Where(x => x.PriceId == item.PriceId).Count() == 0)
+                    {
+                        listResult.Add(item);
+                    }
+                }
+            }
+
+            return listResult.ToList();
         }
 
         public async Task<PagedResponseCustom<ListSubFeePriceRequest>> GetListSubFeePrice(PaginationFilter filter)

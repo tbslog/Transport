@@ -10,6 +10,12 @@ namespace TBSLogistics.Model.Model.AddressModel
     {
         public int MaDiaDiem { get; set; }
         public string TenDiaDiem { get; set; }
-        public string DiaChi { get; set; }
+        public string LoaiDiaDiem { get; set; }
+    }
+
+    public class DataTempAddress
+    {
+        public int? MaDiaDiem { get; set; }
+        public int? DiaDiemCha { get; set; }
     }
 }

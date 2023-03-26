@@ -288,7 +288,7 @@ namespace TBSLogistics.Service.Services.PriceTableManage
                           join kh in _context.KhachHang
                           on hd.MaKh equals kh.MaKh
                           where (bg.NgayHetHieuLuc.Value.Date > DateTime.Now.Date || bg.NgayHetHieuLuc == null)
-                          && bg.NgayApDung <= DateTime.Now.Date
+                          && bg.NgayApDung.Date <= DateTime.Now.Date
                           && bg.TrangThai == 4
                           orderby bg.NgayApDung descending
                           select new { bg, hd, kh };
@@ -349,6 +349,16 @@ namespace TBSLogistics.Service.Services.PriceTableManage
             if (listFilter.listDiemLayTraRong.Count > 0)
             {
                 getList = getList.Where(x => listFilter.listDiemLayTraRong.Contains(x.bg.DiemLayTraRong));
+            }
+
+            if (!string.IsNullOrEmpty(filter.goodsType))
+            {
+                getList = getList.Where(x => x.bg.MaLoaiHangHoa == filter.goodsType);
+            }
+
+            if (!string.IsNullOrEmpty(filter.vehicleType))
+            {
+                getList = getList.Where(x => x.bg.MaLoaiPhuongTien == filter.vehicleType);
             }
 
             var totalRecords = await getList.CountAsync();

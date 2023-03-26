@@ -92,7 +92,7 @@ namespace TBSLogistics.Service.Services.AddressManage
                     SoNha = request.SoNha,
                     DiaChiDayDu = "",
                     MaGps = request.MaGps,
-                    MaLoaiDiaDiem = request.PhanLoaiLoaiDiaDiem,
+                    NhomDiaDiem = request.PhanLoaiLoaiDiaDiem,
                     CreatedTime = DateTime.Now,
                     UpdatedTime = DateTime.Now,
                     Creator = tempData.UserName,
@@ -128,9 +128,9 @@ namespace TBSLogistics.Service.Services.AddressManage
                     return new BoolActionResult { isSuccess = false, Message = "Địa điểm không tồn tại" };
                 }
 
-                string FullAddress = await GetFullAddress(request.SoNha, request.MaTinh, request.MaHuyen, request.MaPhuong);
+                //string FullAddress = await GetFullAddress(request.SoNha, request.MaTinh, request.MaHuyen, request.MaPhuong);
 
-                string ErrorValidate = await ValiateAddress(request.DiaDiemCha, request.TenDiaDiem, request.SoNha, request.MaGps, FullAddress, request.MaLoaiDiaDiem);
+                string ErrorValidate = await ValiateAddress(request.DiaDiemCha, request.TenDiaDiem, request.SoNha, request.MaGps, request.NhomDiaDiem);
 
                 if (ErrorValidate != "")
                 {
@@ -154,14 +154,14 @@ namespace TBSLogistics.Service.Services.AddressManage
                 getAddress.MaPhuong = request.MaPhuong;
                 getAddress.SoNha = request.SoNha;
                 getAddress.MaGps = request.MaGps;
-                getAddress.MaLoaiDiaDiem = request.MaLoaiDiaDiem;
+                getAddress.NhomDiaDiem = request.NhomDiaDiem;
                 getAddress.UpdatedTime = DateTime.Now;
                 getAddress.Updater = tempData.UserName;
 
-                if (getAddress.DiaChiDayDu != request.DiaChiDayDu)
-                {
-                    getAddress.DiaChiDayDu = FullAddress;
-                }
+                //if (getAddress.DiaChiDayDu != request.DiaChiDayDu)
+                //{
+                //    getAddress.DiaChiDayDu = FullAddress;
+                //}
 
                 _context.Update(getAddress);
 
@@ -194,7 +194,7 @@ namespace TBSLogistics.Service.Services.AddressManage
                 MaDiaDiem = getAddress.MaDiaDiem,
                 TenDiaDiem = getAddress.TenDiaDiem,
                 LoaiDiaDiem = getAddress.LoaiDiaDiem,
-                PhanLoaiDiaDiem = getAddress.MaLoaiDiaDiem,
+                PhanLoaiDiaDiem = getAddress.NhomDiaDiem,
                 MaHuyen = getAddress.MaHuyen,
                 MaPhuong = getAddress.MaPhuong,
                 MaTinh = getAddress.MaTinh,
@@ -257,7 +257,7 @@ namespace TBSLogistics.Service.Services.AddressManage
 
                 var getData = from ar in _context.DiaDiem
                               join loaiDiaDiem in _context.LoaiDiaDiem
-                              on ar.MaLoaiDiaDiem equals loaiDiaDiem.MaLoaiDiaDiem
+                              on ar.NhomDiaDiem equals loaiDiaDiem.MaLoaiDiaDiem
                               orderby ar.CreatedTime descending
                               select new { ar, loaiDiaDiem };
 
@@ -505,12 +505,12 @@ namespace TBSLogistics.Service.Services.AddressManage
             {
                 var list = from dd in _context.DiaDiem
                            join ddt in _context.LoaiDiaDiem
-                           on dd.MaLoaiDiaDiem equals ddt.MaLoaiDiaDiem
+                           on dd.NhomDiaDiem equals ddt.MaLoaiDiaDiem
                            select dd;
 
                 if (!string.IsNullOrEmpty(pointType))
                 {
-                    list = list.Where(x => x.MaLoaiDiaDiem == pointType);
+                    list = list.Where(x => x.NhomDiaDiem == pointType);
                 }
 
                 if (!string.IsNullOrEmpty(type))
@@ -522,7 +522,7 @@ namespace TBSLogistics.Service.Services.AddressManage
                 {
                     MaDiaDiem = x.MaDiaDiem,
                     TenDiaDiem = x.TenDiaDiem,
-                    DiaChi = x.DiaChiDayDu
+                    LoaiDiaDiem = x.LoaiDiaDiem
                 }).ToListAsync();
 
                 return data;

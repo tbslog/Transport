@@ -11,12 +11,12 @@ namespace TBSLogistics.Model.Model.AddressModel
         public int? DiaDiemCha { get; set; }
         public string TenDiaDiem { get; set; }
         public int MaQuocGia { get; set; }
-        public int MaTinh { get; set; }
-        public int MaHuyen { get; set; }
-        public int MaPhuong { get; set; }
+        public int? MaTinh { get; set; }
+        public int? MaHuyen { get; set; }
+        public int? MaPhuong { get; set; }
         public string SoNha { get; set; }
         public string DiaChiDayDu { get; set; }
         public string MaGps { get; set; }
-        public string MaLoaiDiaDiem { get; set; }
+        public string NhomDiaDiem { get; set; }
     }
 }

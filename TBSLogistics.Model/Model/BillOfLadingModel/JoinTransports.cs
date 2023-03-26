@@ -11,7 +11,7 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
     {
         public List<string> TransportIds { get; set; }
         public string MaChuyen { get; set; }
-      
+
     }
 
     public class LoadJoinTransports
@@ -27,6 +27,11 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
 
     public class LoadTransports
     {
+        public long? handlingId { get; set; }
+        public string LoaiHangHoa { get; set; }
+        public string SealHq { get; set; }
+        public string SealNp { get; set; }
+        public string ContNo { get; set; }
         public string LoaiVanDon { get; set; }
         public string MaPTVC { get; set; }
         public string MaKH { get; set; }
@@ -34,6 +39,12 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
         public string MaVanDonKH { get; set; }
         public string DiemDau { get; set; }
         public string DiemCuoi { get; set; }
+        public int? DiemLayRong { get; set; }
+        public int? DiemTraRong { get; set; }
+        public DateTime? TGHanLenh { get; set; }
+        public DateTime? TGLayRong { get; set; }
+        public DateTime? TGTraRong { get; set; }
+        public DateTime? TGHaCang { get; set; }
         public double? TongKhoiLuong { get; set; }
         public double? TongTheTich { get; set; }
         public double? TongSoKien { get; set; }

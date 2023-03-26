@@ -52,6 +52,22 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpPost]
         [Route("[action]")]
+        public async Task<IActionResult> UpdateContNo(string maChuyen, string contNo)
+        {
+            var update = await _mobile.UpdateContNo(maChuyen, contNo);
+
+            if (update.isSuccess)
+            {
+                return Ok(update);
+            }
+            else
+            {
+                return BadRequest(update);
+            }
+        }
+
+        [HttpPost]
+        [Route("[action]")]
         public async Task<IActionResult> UploadImage([FromForm] UploadImagesHandling request)
         {
             var checkPermission = await _common.CheckPermission("F0006");
@@ -64,11 +80,11 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
             if (uploadFile.isSuccess)
             {
-                return Ok(uploadFile.Message);
+                return Ok(uploadFile);
             }
             else
             {
-                return BadRequest(uploadFile.Message);
+                return BadRequest(uploadFile);
             }
         }
 
@@ -85,11 +101,11 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             var Create = await _SFeeByTcommand.CreateSFeeByTCommand(request);
             if (Create.isSuccess == true)
             {
-                return Ok(Create.Message);
+                return Ok(Create);
             }
             else
             {
-                return BadRequest(Create.Message);
+                return BadRequest(Create);
             }
         }
 
@@ -134,6 +150,38 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             else
             {
                 return BadRequest(update);
+            }
+        }
+
+        [HttpPost]
+        [Route("[action]")]
+        public async Task<IActionResult> WriteNoteHandling(int handlingId, string note)
+        {
+            var update = await _mobile.WriteNoteHandling(handlingId, note);
+
+            if (update.isSuccess)
+            {
+                return Ok(update);
+            }
+            else
+            {
+                return BadRequest(update);
+            }
+        }
+
+        [HttpPost]
+        [Route("[action]")]
+        public async Task<IActionResult> CancelHandling(int handlingId)
+        {
+            var cancel = await _billOfLading.CancelHandling(handlingId);
+
+            if (cancel.isSuccess)
+            {
+                return Ok(cancel);
+            }
+            else
+            {
+                return BadRequest(cancel);
             }
         }
     }

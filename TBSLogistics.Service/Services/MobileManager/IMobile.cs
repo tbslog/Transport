@@ -12,5 +12,6 @@ namespace TBSLogistics.Service.Services.MobileManager
     {
         Task<List<GetDataTransportMobile>> GetDataTransportForMobile(string maTaiXe, bool isCompleted);
         Task<BoolActionResult> UpdateContNo(string maChuyen, string ContNo);
+        Task<BoolActionResult> WriteNoteHandling(int handlingId, string note);
     }
 }

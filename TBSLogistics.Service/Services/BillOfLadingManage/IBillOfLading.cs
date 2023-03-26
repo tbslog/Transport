@@ -43,7 +43,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
         Task<BoolActionResult> UpdateHandlingLess(string handlingId, UpdateHandlingLess request);
         Task<UpdateTransportLess> GetTransportLessById(string transportId);
         Task<BoolActionResult> SetRunningLess(string handlingId);
-        Task<BoolActionResult> CancelHandlingLess(string handlingId);
+        Task<BoolActionResult> CancelHandlingLess(string maChuyen, int handlingId);
         Task<PagedResponseCustom<ListHandling>> GetListHandlingByTransportId(string transportId, PaginationFilter filter);
         Task<BoolActionResult> CancelHandlingByCus(int? id, string transportId);
         Task<BoolActionResult> AcceptOrRejectTransport(string transportId, int action);

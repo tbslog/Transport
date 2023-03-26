@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Intrinsics.Arm;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TBSLogistics.Data.TMS;
@@ -11,7 +10,6 @@ using TBSLogistics.Model.CommonModel;
 using TBSLogistics.Model.Model.MobileModel;
 using TBSLogistics.Model.TempModel;
 using TBSLogistics.Service.Services.Common;
-using TBSLogistics.Service.Services.SubFeePriceManage;
 
 namespace TBSLogistics.Service.Services.MobileManager
 {
@@ -34,15 +32,13 @@ namespace TBSLogistics.Service.Services.MobileManager
         {
             try
             {
-                var listStatusPending = new List<int> { 21, 30, 31, 20 };
+                maTaiXe = tempData.UserName;
 
+                var listStatusPending = new List<int> { 21, 30, 19, 31, 20 };
 
                 var dataHandling = from dp in _context.DieuPhoi
-                                   join tt in _context.StatusText
-                                   on dp.TrangThai equals tt.StatusId
-                                   where tt.LangId == tempData.LangID
-                                   && dp.MaTaiXe == maTaiXe
-                                   select new { dp, tt };
+                                   where dp.MaTaiXe == maTaiXe
+                                   select new { dp };
                 if (!isCompleted)
                 {
                     dataHandling = dataHandling.Where(x => !listStatusPending.Contains(x.dp.TrangThai));
@@ -53,42 +49,58 @@ namespace TBSLogistics.Service.Services.MobileManager
                 }
 
                 var listHandling = await dataHandling.ToListAsync();
+                var list = listHandling.ToList();
+                var strTrasnport = new List<string>();
 
-                var dataTransport = await _context.VanDon.Where(x => listHandling.Select(y => y.dp.MaVanDon).Contains(x.MaVanDon)).ToListAsync();
-
-                var data = dataTransport.Select(x => new GetDataTransportMobile()
+                foreach (var item in listHandling)
                 {
-                    BookingNo = x.MaVanDonKh,
-                    LoaiVanDon = x.LoaiVanDon,
-                    DiemLayHang = _context.DiaDiem.Where(y => y.MaDiaDiem == x.DiemDau).Select(y => y.TenDiaDiem).FirstOrDefault(),
-                    DiemTraHang = _context.DiaDiem.Where(y => y.MaDiaDiem == x.DiemCuoi).Select(y => y.TenDiaDiem).FirstOrDefault(),
-                    TongKhoiLuong = x.TongKhoiLuong,
-                    TongTheTich = x.TongTheTich,
-                    TongSoKien = x.TongSoKien,
-                    HangTau = x.HangTau,
-                    TenTau = x.Tau,
-                    GhiChu = x.GhiChu,
-                    MaPTVC = x.MaPtvc,
-                    ThoiGianLayRong = x.ThoiGianLayRong,
-                    ThoiGianTraRong = x.ThoiGianTraRong,
-                    ThoiGianLayHang = x.ThoiGianLayHang,
-                    ThoiGianTraHang = x.ThoiGianTraHang,
-                    ThoiGianHaCang = x.ThoiGianHaCang,
-                    ThoiGianCoMat = x.ThoiGianCoMat,
-                    ThoiGianHanLenh = x.ThoiGianHanLenh,
-                    getDataHandlingMobiles = listHandling.Where(y => y.dp.MaVanDon == x.MaVanDon).Select(y => new GetDataHandlingMobile()
+                    strTrasnport.Add(item.dp.MaVanDon);
+                    if (list.Where(x => x.dp.MaChuyen == item.dp.MaChuyen).Count() > 1)
                     {
-                        LoaiPhuongTien = y.dp.MaLoaiPhuongTien,
-                        HandlingId = y.dp.Id,
-                        MaChuyen = y.dp.MaChuyen,
-                        ContNo = y.dp.ContNo,
-                        DiemLayRong = y.dp.DiemLayRong == null ? null : _context.DiaDiem.Where(u => u.MaDiaDiem == y.dp.DiemLayRong).Select(u => u.TenDiaDiem).FirstOrDefault(),
-                        DiemTraRong = y.dp.DiemTraRong == null ? null : _context.DiaDiem.Where(u => u.MaDiaDiem == y.dp.DiemTraRong).Select(u => u.TenDiaDiem).FirstOrDefault(),
-                        KhoiLuong = y.dp.KhoiLuong,
-                        TheTich = y.dp.TheTich,
-                        SoKien = y.dp.SoKien,
-                        TrangThai = y.tt.StatusContent,
-                        MaTrangThai = y.dp.TrangThai,
+                        list.Remove(item);
+                    }
+                }
+
+                listHandling = list;
+
+                var listTransport = from dp in _context.DieuPhoi
+                                    join vd in _context.VanDon
+                                    on dp.MaVanDon equals vd.MaVanDon
+                                    where strTrasnport.Contains(dp.MaVanDon)
+                                    select new { dp, vd };
+
+                var listStatus = await _context.StatusText.Where(x => x.LangId == tempData.LangID).ToListAsync();
+
+                var data = listHandling.Select(x => new GetDataTransportMobile()
+                {
+                    MaChuyen = x.dp.MaChuyen,
+                    MaPTVC = _context.VanDon.Where(y => y.MaVanDon == x.dp.MaVanDon).Select(y => y.MaPtvc).FirstOrDefault(),
+                    LoaiPhuongTien = x.dp.MaLoaiPhuongTien,
+                    ThoiGianLayRong = _context.VanDon.Where(y => y.MaVanDon == x.dp.MaVanDon).Select(y => y.ThoiGianLayRong).FirstOrDefault(),
+                    ThoiGianTraRong = _context.VanDon.Where(y => y.MaVanDon == x.dp.MaVanDon).Select(y => y.ThoiGianTraRong).FirstOrDefault(),
+                    ThoiGianHaCang = _context.VanDon.Where(y => y.MaVanDon == x.dp.MaVanDon).Select(y => y.ThoiGianHaCang).FirstOrDefault(),
+                    ThoiGianHanLenh = _context.VanDon.Where(y => y.MaVanDon == x.dp.MaVanDon).Select(y => y.ThoiGianHanLenh).FirstOrDefault(),
+                    getDataHandlingMobiles = listTransport.Where(o => o.dp.MaChuyen == x.dp.MaChuyen).Select(c => new GetDataHandlingMobile()
+                    {
+                        BookingNo = c.vd.MaVanDonKh,
+                        MaVanDon = c.vd.MaVanDon,
+                        HandlingId = (c.vd.MaPtvc == "LCL" || c.vd.MaPtvc == "LTL") ? _context.DieuPhoi.Where(o => o.MaVanDon == c.vd.MaVanDon).Select(o => o.Id).FirstOrDefault() : _context.DieuPhoi.Where(o => o.MaChuyen == x.dp.MaChuyen).Select(o => o.Id).FirstOrDefault(),
+                        LoaiVanDon = c.vd.LoaiVanDon,
+                        DiemLayHang = _context.DiaDiem.Where(o => o.MaDiaDiem == c.vd.DiemDau).Select(o => o.TenDiaDiem).FirstOrDefault(),
+                        DiemTraHang = _context.DiaDiem.Where(o => o.MaDiaDiem == c.vd.DiemCuoi).Select(o => o.TenDiaDiem).FirstOrDefault(),
+                        HangTau = c.vd.HangTau,
+                        GhiChu = (c.vd.MaPtvc == "LCL" || c.vd.MaPtvc == "LTL") ? _context.DieuPhoi.Where(o => o.MaVanDon == c.vd.MaVanDon).Select(o => o.GhiChu).FirstOrDefault() : _context.DieuPhoi.Where(o => o.MaChuyen == x.dp.MaChuyen).Select(o => o.GhiChu).FirstOrDefault(),
+                        ContNo = x.dp.ContNo,
+                        DiemTraRong = x.dp.DiemTraRong == null ? null : _context.DiaDiem.Where(o => o.MaDiaDiem == x.dp.DiemTraRong).Select(o => o.TenDiaDiem).FirstOrDefault(),
+                        DiemLayRong = x.dp.DiemLayRong == null ? null : _context.DiaDiem.Where(o => o.MaDiaDiem == x.dp.DiemLayRong).Select(o => o.TenDiaDiem).FirstOrDefault(),
+                        KhoiLuong = x.dp.KhoiLuong,
+                        TheTich = x.dp.TheTich,
+                        SoKien = x.dp.SoKien,
+                        TrangThai = (c.vd.MaPtvc == "LCL" || c.vd.MaPtvc == "LTL") ? _context.StatusText.Where(z => z.LangId == tempData.LangID && z.FunctionId == "Handling" && z.StatusId == (_context.DieuPhoi.Where(z => z.MaVanDon == c.vd.MaVanDon).Select(z => z.TrangThai).FirstOrDefault())).Select(z => z.StatusContent).FirstOrDefault() : _context.StatusText.Where(z => z.LangId == tempData.LangID && z.FunctionId == "Handling" && z.StatusId == (_context.DieuPhoi.Where(z => z.MaChuyen == c.dp.MaChuyen).Select(z => z.TrangThai).FirstOrDefault())).Select(z => z.StatusContent).FirstOrDefault(),
+                        MaTrangThai = (c.vd.MaPtvc == "LCL" || c.vd.MaPtvc == "LTL") ? _context.DieuPhoi.Where(o => o.MaVanDon == c.vd.MaVanDon).Select(o => o.TrangThai).FirstOrDefault() : _context.DieuPhoi.Where(o => o.MaChuyen == x.dp.MaChuyen).Select(o => o.TrangThai).FirstOrDefault(),
+                        ThoiGianLayHang = c.vd.ThoiGianLayHang,
+                        ThoiGianTraHang = c.vd.ThoiGianTraHang,
+                        ThoiGianCoMat = c.vd.ThoiGianCoMat,
                     }).ToList()
                 }).ToList();
 
@@ -100,7 +112,7 @@ namespace TBSLogistics.Service.Services.MobileManager
             }
         }
 
-        public async Task<BoolActionResult> UpdateContNo(string maChuyen, string ContNo)
+        public async Task<BoolActionResult> UpdateContNo(string maChuyen, string contNo)
         {
             try
             {
@@ -111,14 +123,14 @@ namespace TBSLogistics.Service.Services.MobileManager
                     return new BoolActionResult { isSuccess = false, Message = "Mã chuyến không tồn tại" };
                 }
 
-                if (!Regex.IsMatch(ContNo.ToUpper(), "([A-Z]{3})([UJZ])(\\d{6})(\\d)", RegexOptions.IgnoreCase))
+                if (!Regex.IsMatch(contNo.ToUpper(), "([A-Z]{3})([UJZ])(\\d{6})(\\d)", RegexOptions.IgnoreCase))
                 {
                     return new BoolActionResult { isSuccess = false, Message = "Mã Contno không đúng" };
                 }
 
                 getListHandling.ForEach(x =>
                 {
-                    x.ContNo = ContNo.ToUpper();
+                    x.ContNo = contNo.ToUpper();
                     x.Updater = tempData.UserName;
                     x.UpdatedTime = DateTime.Now;
                 });
@@ -136,8 +148,39 @@ namespace TBSLogistics.Service.Services.MobileManager
             }
             catch (Exception ex)
             {
-
                 return new BoolActionResult { isSuccess = false, Message = ex.ToString() };
+            }
+        }
+
+        public async Task<BoolActionResult> WriteNoteHandling(int handlingId, string note)
+        {
+            try
+            {
+                var getHandling = await _context.DieuPhoi.Where(x => x.Id == handlingId).FirstOrDefaultAsync();
+                if (getHandling == null)
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Mã điều phối không tồn tại" };
+                }
+
+                getHandling.GhiChu = note;
+                getHandling.UpdatedTime = DateTime.Now;
+
+                _context.DieuPhoi.Update(getHandling);
+
+                var result = await _context.SaveChangesAsync();
+
+                if (result > 0)
+                {
+                    return new BoolActionResult { isSuccess = true, Message = "Cập nhật ghi chú thành công" };
+                }
+                else
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Cập nhật ghi chú không thành công" };
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
             }
         }
     }

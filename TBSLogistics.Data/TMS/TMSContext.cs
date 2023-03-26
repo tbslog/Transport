@@ -145,6 +145,10 @@ namespace TBSLogistics.Data.TMS
 
                 entity.Property(e => e.Creator).HasMaxLength(30);
 
+                entity.Property(e => e.DiemCuoi).HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.DiemDau).HasDefaultValueSql("((1))");
+
                 entity.Property(e => e.DonGia).HasColumnType("decimal(18, 0)");
 
                 entity.Property(e => e.MaDvt)
@@ -290,9 +294,6 @@ namespace TBSLogistics.Data.TMS
                 entity.HasKey(e => e.MaDiaDiem)
                     .HasName("PK_DanhMucDiaDiem");
 
-                entity.HasIndex(e => e.MaDiaDiem, "unique_DiaDiem")
-                    .IsUnique();
-
                 entity.Property(e => e.Creator).HasMaxLength(30);
 
                 entity.Property(e => e.DiaChiDayDu)
@@ -308,7 +309,7 @@ namespace TBSLogistics.Data.TMS
                     .IsUnicode(false)
                     .HasColumnName("MaGPS");
 
-                entity.Property(e => e.MaLoaiDiaDiem)
+                entity.Property(e => e.NhomDiaDiem)
                     .IsRequired()
                     .HasMaxLength(50)
                     .IsUnicode(false);
@@ -331,12 +332,6 @@ namespace TBSLogistics.Data.TMS
                     .HasForeignKey(d => d.MaHuyen)
                     .HasConstraintName("FK_DiaDiem_QuanHuyen");
 
-                entity.HasOne(d => d.MaLoaiDiaDiemNavigation)
-                    .WithMany(p => p.DiaDiem)
-                    .HasForeignKey(d => d.MaLoaiDiaDiem)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_DanhMuc_DiaDiem_DanhMuc_LoaiDiaDiem");
-
                 entity.HasOne(d => d.MaPhuongNavigation)
                     .WithMany(p => p.DiaDiem)
                     .HasForeignKey(d => d.MaPhuong)
@@ -351,6 +346,12 @@ namespace TBSLogistics.Data.TMS
                     .WithMany(p => p.DiaDiem)
                     .HasForeignKey(d => d.MaTinh)
                     .HasConstraintName("FK_DiaDiem_TinhThanh");
+
+                entity.HasOne(d => d.NhomDiaDiemNavigation)
+                    .WithMany(p => p.DiaDiem)
+                    .HasForeignKey(d => d.NhomDiaDiem)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_DanhMuc_DiaDiem_DanhMuc_LoaiDiaDiem");
             });
 
             modelBuilder.Entity<DieuPhoi>(entity =>
@@ -981,7 +982,8 @@ namespace TBSLogistics.Data.TMS
 
             modelBuilder.Entity<ShippingInfomation>(entity =>
             {
-                entity.HasKey(e => e.ShippingCode);
+                entity.HasKey(e => e.ShippingCode)
+                    .HasName("PK_ShippingInfomation_1");
 
                 entity.Property(e => e.ShippingCode)
                     .HasMaxLength(20)
@@ -1209,13 +1211,13 @@ namespace TBSLogistics.Data.TMS
                     .WithMany()
                     .HasForeignKey(d => d.MaDieuPhoi)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__TaiXeTheo__MaDie__0DB9F9A8");
+                    .HasConstraintName("FK__TaiXeTheo__MaDie__3E2826D9");
 
                 entity.HasOne(d => d.MaTaiXeNavigation)
                     .WithMany()
                     .HasForeignKey(d => d.MaTaiXe)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__TaiXeTheo__MaTai__0EAE1DE1");
+                    .HasConstraintName("FK__TaiXeTheo__MaTai__3F1C4B12");
             });
 
             modelBuilder.Entity<ThongBao>(entity =>
@@ -1345,6 +1347,10 @@ namespace TBSLogistics.Data.TMS
                     .IsUnicode(false);
 
                 entity.Property(e => e.Creator).HasMaxLength(30);
+
+                entity.Property(e => e.DiemCuoi).HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.DiemDau).HasDefaultValueSql("((1))");
 
                 entity.Property(e => e.HangTau).HasMaxLength(50);
 

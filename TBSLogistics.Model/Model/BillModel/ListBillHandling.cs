@@ -9,6 +9,11 @@ namespace TBSLogistics.Model.Model.BillModel
 {
     public class ListBillHandling
     {
+        public DateTime? CutOffDate { get; set; }
+        public string DiemDau { get; set; }
+        public string DiemCuoi { get; set; }
+        public string DiemLayRong { get; set; }
+        public string DiemTraRong { get; set; }
         public string MaPTVC { get; set; }
         public string LoaiVanDon { get; set; }
         public string MaVanDonKH { get; set; }
@@ -16,10 +21,10 @@ namespace TBSLogistics.Model.Model.BillModel
         public string MaVanDon { get; set; }
         public string LoaiHangHoa { get; set; }
         public string LoaiPhuongTien { get; set; }
-        public string MaKh { get; set; }
-        public string MaNcc { get; set; }
-        public string DonViVanTai { get; set; }
-        public string KhachHang { get; set; }
+        public string MaKH { get; set; }
+        public string MaNCC { get; set; }
+        public string TenKH { get; set; }
+        public string TenNCC { get; set; }
         public decimal? DonGiaKH { get; set; }
         public decimal? DonGiaNCC { get; set; }
         public decimal DoanhThu { get; set; }

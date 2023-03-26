@@ -170,7 +170,7 @@ namespace TBSLogistics.Service.Services.RoadManage
 
                 var getAddress = from diadiem in _context.DiaDiem
                                  join phanloaidd in _context.LoaiDiaDiem
-                                 on diadiem.MaLoaiDiaDiem equals phanloaidd.MaLoaiDiaDiem
+                                 on diadiem.NhomDiaDiem equals phanloaidd.MaLoaiDiaDiem
                                  select new { diadiem, phanloaidd };
 
                 if (!string.IsNullOrEmpty(filter.Keyword))

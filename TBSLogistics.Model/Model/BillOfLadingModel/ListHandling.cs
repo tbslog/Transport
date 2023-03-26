@@ -9,6 +9,7 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
 {
     public class ListHandling
     {
+        public int? TongVanDonGhep { get; set; }
         public int ContNum { get; set; }
         public string MaChuyen { get; set; }
         public string DiemDau { get; set; }

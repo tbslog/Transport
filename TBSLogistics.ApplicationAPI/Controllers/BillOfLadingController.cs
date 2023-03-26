@@ -307,7 +307,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpPost]
         [Route("[action]")]
-        public async Task<IActionResult> CancelHandlingLess(string id)
+        public async Task<IActionResult> CancelHandlingLess(string maChuyen, int handlingId)
         {
             var checkPermission = await _common.CheckPermission("F0002");
             if (checkPermission.isSuccess == false)
@@ -315,7 +315,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
                 return BadRequest(checkPermission.Message);
             }
 
-            var update = await _billOfLading.CancelHandlingLess(id);
+            var update = await _billOfLading.CancelHandlingLess(maChuyen, handlingId);
 
             if (update.isSuccess)
             {
