@@ -30,8 +30,8 @@ const HandlingPageNew = () => {
             <>
               <>
                 {val.statusId === 27 ||
-                val.statusId === 19 ||
-                val.statusId === 17 ||
+                val.statusId === 37 ||
+                val.statusId === 40 ||
                 val.statusId === 18 ? (
                   <button
                     onClick={() =>
@@ -44,10 +44,12 @@ const HandlingPageNew = () => {
                     <i className="fas fa-window-close"></i>
                   </button>
                 ) : (
-                  <span></span>
+                  <span className="mx-1">
+                    <i className="fas fa-window-close"></i>
+                  </span>
                 )}
               </>
-              <>{renderButton(val)}</>
+              <>{renderButtonByStatus(val)}</>
               <>
                 <button
                   onClick={() =>
@@ -287,6 +289,8 @@ const HandlingPageNew = () => {
   const [listCusSelected, setListCusSelected] = useState([]);
   const [listUsers, setListUsers] = useState([]);
   const [listUserSelected, setListUserSelected] = useState([]);
+  const [listAccountCus, setListAccountCus] = useState([]);
+  const [listAccountSelected, setListAccountSelected] = useState([]);
 
   const [selectedRows, setSelectedRows] = useState([]);
   const [toggledClearRows, setToggleClearRows] = useState(false);
@@ -348,6 +352,22 @@ const HandlingPageNew = () => {
 
   useEffect(() => {
     (async () => {
+      const getListAcc = await getData(
+        `AccountCustomer/GetListAccountSelectByCus`
+      );
+      if (getListAcc && getListAcc.length > 0) {
+        var obj = [];
+        getListAcc.map((val) => {
+          obj.push({
+            value: val.accountId,
+            label: val.accountId + " - " + val.accountName,
+          });
+        });
+        setListAccountCus(obj);
+      } else {
+        setListAccountCus([]);
+      }
+
       let getlistUser = await getData(`Common/GetListUser`);
       if (getlistUser && getlistUser.length > 0) {
         let arrUser = [];
@@ -386,7 +406,8 @@ const HandlingPageNew = () => {
     toDate = "",
     status = "",
     listCusSelected = [],
-    listUserSelected = []
+    listUserSelected = [],
+    listAccountSelected = []
   ) => {
     fromDate = !fromDate ? "" : moment(fromDate).format("YYYY-MM-DD");
     toDate = !toDate ? "" : moment(toDate).format("YYYY-MM-DD");
@@ -394,6 +415,7 @@ const HandlingPageNew = () => {
     let listFilter = {
       customers: listCusSelected,
       users: listUserSelected,
+      accountIds: listAccountSelected,
     };
 
     const data = await getDataCustom(
@@ -414,7 +436,8 @@ const HandlingPageNew = () => {
       toDate,
       status,
       listCusSelected,
-      listUserSelected
+      listUserSelected,
+      listAccountSelected
     );
   };
 
@@ -427,7 +450,8 @@ const HandlingPageNew = () => {
       toDate,
       status,
       listCusSelected,
-      listUserSelected
+      listUserSelected,
+      listAccountSelected
     );
   };
 
@@ -435,6 +459,7 @@ const HandlingPageNew = () => {
     let listFilter = {
       customers: listCusSelected,
       users: listUserSelected,
+      accountIds: listAccountSelected,
     };
 
     const data = await getDataCustom(
@@ -447,85 +472,176 @@ const HandlingPageNew = () => {
     setTotalRows(data.totalRecords);
   };
 
-  const renderButton = (val) => {
-    switch (val.statusId) {
-      case 27:
-        return val.ptVanChuyen.includes("CONT") &&
-          val.phanLoaiVanDon === "xuat" ? (
-          <button
-            title="Đi Lấy Rỗng"
-            onClick={() => showConfirmDialog(val, setFuncName("StartRuning"))}
-            type="button"
-            className="btn btn-title btn-sm btn-default mx-1"
-            gloss="Đi Lấy Rỗng"
-          >
-            <i className="fas fa-cube"></i>
-          </button>
-        ) : (
-          <button
-            title="Đi Giao Hàng"
-            onClick={() => showConfirmDialog(val, setFuncName("StartRuning"))}
-            type="button"
-            className="btn btn-title btn-sm btn-default mx-1"
-            gloss="Đi Giao Hàng"
-          >
-            <i className="fas fa-shipping-fast"></i>
-          </button>
-        );
-      case 17:
-        return (
-          <button
-            title="Đi Giao Hàng"
-            onClick={() => showConfirmDialog(val, setFuncName("StartRuning"))}
-            type="button"
-            className="btn btn-title btn-sm btn-default mx-1"
-            gloss="Đi Giao Hàng"
-          >
-            <i className="fas fa-shipping-fast"></i>
-          </button>
-        );
-      case 18:
-        return (
-          <button
-            title="Đã Giao Hàng"
-            onClick={() => showConfirmDialog(val, setFuncName("Completed"))}
-            type="button"
-            className="btn btn-title btn-sm btn-default mx-1"
-            gloss="Đã Giao Hàng"
-          >
-            <i className="fas fa-check"></i>
-          </button>
-        );
-      case 35:
-        return (
-          <button
-            title="Hoàn Thành Chuyến"
-            onClick={() => showConfirmDialog(val, setFuncName("StartRuning"))}
-            type="button"
-            className="btn btn-title btn-sm btn-default mx-1"
-            gloss="Hoàn Thành Chuyến"
-          >
-            <i className="fas fa-check"></i>
-          </button>
-        );
-      case 21:
-        return (
-          <>
-            <span>
-              <i className="fas fa-window-close mx-1"></i>
-            </span>
-          </>
-        );
-      case 20:
-        return (
-          <>
-            <span>
-              <i className="fas fa-check mx-1"></i>
-            </span>
-          </>
-        );
-      default:
-        return null;
+  const renderButtonByStatus = (val) => {
+    if (val.ptVanChuyen.includes("CONT")) {
+      if (val.phanLoaiVanDon === "xuat") {
+        switch (val.statusId) {
+          case 27:
+            return (
+              <button
+                onClick={() =>
+                  showConfirmDialog(val, setFuncName("StartRuning"))
+                }
+                type="button"
+                className="btn btn-title btn-sm btn-default mx-1"
+                gloss="Đi Lấy Rỗng"
+              >
+                <i className="fas fa-cube"></i>
+              </button>
+            );
+          case 17:
+            return (
+              <button
+                onClick={() =>
+                  showConfirmDialog(val, setFuncName("StartRuning"))
+                }
+                type="button"
+                className="btn btn-title btn-sm btn-default mx-1"
+                gloss="Đóng Hàng Lên Xe"
+              >
+                <i className="fas fa-cube"></i>
+              </button>
+            );
+          case 37:
+            return (
+              <button
+                onClick={() =>
+                  showConfirmDialog(val, setFuncName("StartRuning"))
+                }
+                type="button"
+                className="btn btn-title btn-sm btn-default mx-1"
+                gloss="Vận Chuyển Hàng"
+              >
+                <i className="fas fa-cube"></i>
+              </button>
+            );
+          case 18:
+            return (
+              <button
+                onClick={() =>
+                  showConfirmDialog(val, setFuncName("StartRuning"))
+                }
+                type="button"
+                className="btn btn-title btn-sm btn-default mx-1"
+                gloss="Hoàn Thành Chuyến"
+              >
+                <i className="fas fa-cube"></i>
+              </button>
+            );
+          default:
+            return null;
+        }
+      }
+      if (val.phanLoaiVanDon === "nhap") {
+        switch (val.statusId) {
+          case 27:
+            return (
+              <button
+                onClick={() =>
+                  showConfirmDialog(val, setFuncName("StartRuning"))
+                }
+                type="button"
+                className="btn btn-title btn-sm btn-default mx-1"
+                gloss="Đi Lấy Hàng"
+              >
+                <i className="fas fa-cube"></i>
+              </button>
+            );
+          case 40:
+            return (
+              <button
+                onClick={() =>
+                  showConfirmDialog(val, setFuncName("StartRuning"))
+                }
+                type="button"
+                className="btn btn-title btn-sm btn-default mx-1"
+                gloss="Vận Chuyển Hàng"
+              >
+                <i className="fas fa-cube"></i>
+              </button>
+            );
+          case 18:
+            return (
+              <button
+                onClick={() =>
+                  showConfirmDialog(val, setFuncName("StartRuning"))
+                }
+                type="button"
+                className="btn btn-title btn-sm btn-default mx-1"
+                gloss="Hạ Hàng Xuống"
+              >
+                <i className="fas fa-cube"></i>
+              </button>
+            );
+          case 41:
+            return (
+              <button
+                onClick={() =>
+                  showConfirmDialog(val, setFuncName("StartRuning"))
+                }
+                type="button"
+                className="btn btn-title btn-sm btn-default mx-1"
+                gloss="Đi Trả Rỗng"
+              >
+                <i className="fas fa-cube"></i>
+              </button>
+            );
+          case 35:
+            return (
+              <button
+                onClick={() =>
+                  showConfirmDialog(val, setFuncName("StartRuning"))
+                }
+                type="button"
+                className="btn btn-title btn-sm btn-default mx-1"
+                gloss="Hoàn Thành Chuyến"
+              >
+                <i className="fas fa-cube"></i>
+              </button>
+            );
+          default:
+            return null;
+        }
+      }
+    }
+    if (val.ptVanChuyen.includes("TRUCK")) {
+      switch (val.statusId) {
+        case 27:
+          return (
+            <button
+              onClick={() => showConfirmDialog(val, setFuncName("StartRuning"))}
+              type="button"
+              className="btn btn-title btn-sm btn-default mx-1"
+              gloss="Đóng Hàng Lên Xe"
+            >
+              <i className="fas fa-cube"></i>
+            </button>
+          );
+        case 37:
+          return (
+            <button
+              onClick={() => showConfirmDialog(val, setFuncName("StartRuning"))}
+              type="button"
+              className="btn btn-title btn-sm btn-default mx-1"
+              gloss="Đi Vận Chuyển Hàng"
+            >
+              <i className="fas fa-cube"></i>
+            </button>
+          );
+        case 18:
+          return (
+            <button
+              onClick={() => showConfirmDialog(val, setFuncName("StartRuning"))}
+              type="button"
+              className="btn btn-title btn-sm btn-default mx-1"
+              gloss="Hoàn Thành Chuyến"
+            >
+              <i className="fas fa-cube"></i>
+            </button>
+          );
+        default:
+          return null;
+      }
     }
   };
 
@@ -547,7 +663,8 @@ const HandlingPageNew = () => {
       toDate,
       status,
       listCusSelected,
-      listUserSelected
+      listUserSelected,
+      listAccountSelected
     );
   };
 
@@ -560,7 +677,8 @@ const HandlingPageNew = () => {
       toDate,
       val,
       listCusSelected,
-      listUserSelected
+      listUserSelected,
+      listAccountSelected
     );
   };
 
@@ -573,6 +691,7 @@ const HandlingPageNew = () => {
     setValue("listCustomers", []);
     setListUserSelected([]);
     setValue("listUsers", []);
+    setValue("listAccountCus", []);
     fetchData(1);
   };
 
@@ -586,6 +705,7 @@ const HandlingPageNew = () => {
     if (values) {
       let arrCus = [];
       let arrUsr = [];
+      let arrAcc = [];
 
       if (type === "customers") {
         setValue("listCustomers", values);
@@ -598,6 +718,20 @@ const HandlingPageNew = () => {
       } else {
         listCusSelected.forEach((val) => {
           arrCus.push(val);
+        });
+      }
+
+      if (type === "accountCus") {
+        setValue("listAccountCus", values);
+
+        values.forEach((val) => {
+          arrAcc.push(val.value);
+        });
+
+        setListAccountSelected(arrCus);
+      } else {
+        listAccountSelected.forEach((val) => {
+          arrAcc.push(val);
         });
       }
 
@@ -621,7 +755,8 @@ const HandlingPageNew = () => {
         toDate,
         status,
         arrCus,
-        arrUsr
+        arrUsr,
+        arrAcc
       );
     }
   };
@@ -630,26 +765,24 @@ const HandlingPageNew = () => {
     if (funcName && funcName.length > 0) {
       switch (funcName) {
         case "StartRuning":
-          return setRuning();
+          return ChangeStatusHandling();
         case "CancelHandling":
-          return setCancelHandling();
-        case "Completed":
-          return Completed();
+          return CancelHandling();
       }
     }
   };
 
-  const Completed = async () => {
+  const CancelHandling = async () => {
     if (
       ShowConfirm === true &&
       selectIdClick &&
       Object.keys(selectIdClick).length > 0
     ) {
-      var update = await postData(
-        `BillOfLading/SetRuning?id=${selectIdClick.maDieuPhoi}`
+      var cancel = await postData(
+        `BillOfLading/cancelHandling?id=${selectIdClick.maDieuPhoi}`
       );
 
-      if (update === 1) {
+      if (cancel === 1) {
         refeshData();
         setShowConfirm(false);
       } else {
@@ -658,33 +791,14 @@ const HandlingPageNew = () => {
     }
   };
 
-  const setRuning = async () => {
+  const ChangeStatusHandling = async () => {
     if (
       ShowConfirm === true &&
       selectIdClick &&
       Object.keys(selectIdClick).length > 0
     ) {
       var update = await postData(
-        `BillOfLading/SetRuningLess?id=${selectIdClick.maChuyen}`
-      );
-
-      if (update === 1) {
-        refeshData();
-        setShowConfirm(false);
-      } else {
-        setShowConfirm(false);
-      }
-    }
-  };
-
-  const setCancelHandling = async () => {
-    if (
-      ShowConfirm === true &&
-      selectIdClick &&
-      Object.keys(selectIdClick).length > 0
-    ) {
-      var update = await postData(
-        `BillOfLading/CancelHandling?id=${selectIdClick.maDieuPhoi}`
+        `BillOfLading/ChangeStatusHandling?id=${selectIdClick.maDieuPhoi}&maChuyen=${selectIdClick.maChuyen}`
       );
 
       if (update === 1) {
@@ -783,7 +897,7 @@ const HandlingPageNew = () => {
         <div className="container-fluid">
           <div className="row mb-2">
             <div className="col-sm-6">
-              <h1>Quản Lý Điều Phối LTL/LCL</h1>
+              <h1>Quản Lý Điều Phối</h1>
             </div>
           </div>
         </div>
@@ -863,6 +977,29 @@ const HandlingPageNew = () => {
                             handleOnChangeFilterSelect(field, "customers")
                           }
                           placeholder="Chọn Khách Hàng"
+                        />
+                      )}
+                    />
+                  </div>
+                </div>
+                <div className="col col-sm">
+                  <div className="form-group">
+                    <Controller
+                      name="listAccountCus"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          className="basic-multi-select"
+                          classNamePrefix={"form-control"}
+                          isMulti
+                          value={field.value}
+                          options={listAccountCus}
+                          styles={customStyles}
+                          onChange={(field) =>
+                            handleOnChangeFilterSelect(field, "accountCus")
+                          }
+                          placeholder="Chọn Account"
                         />
                       )}
                     />

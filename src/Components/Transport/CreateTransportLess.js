@@ -109,10 +109,14 @@ const CreateTransportLess = (props) => {
   const [listFirstPoint, setListFirstPoint] = useState([]);
   const [listSecondPoint, setListSecondPoint] = useState([]);
   const [listCus, setListCus] = useState([]);
+  const [listAccountCus, setListAccountCus] = useState([]);
+  const [listShipping, setListShipping] = useState([]);
 
   useEffect(() => {
     SetIsLoading(true);
     (async () => {
+      let getListShipping = await getData("Common/GetListShipping");
+      setListShipping(getListShipping);
       const getListCus = await getData(`Customer/GetListCustomerFilter`);
       if (getListCus && getListCus.length > 0) {
         let arrKh = [];
@@ -147,7 +151,27 @@ const CreateTransportLess = (props) => {
     })();
   }, []);
 
-  // const handleOnChangeCustomer = async (val) => {
+  const handleOnChangeCustomer = async (val) => {
+    if (val && Object.keys(val).length > 0) {
+      setValue("MaKH", val);
+      const getListAcc = await getData(
+        `AccountCustomer/GetListAccountSelectByCus`
+      );
+      if (getListAcc && getListAcc.length > 0) {
+        var obj = [];
+        obj.push({ label: "-- Để Trống --", value: null });
+        getListAcc.map((val) => {
+          obj.push({
+            value: val.accountId,
+            label: val.accountId + " - " + val.accountName,
+          });
+        });
+        setListAccountCus(obj);
+      } else {
+        setListAccountCus([]);
+      }
+    }
+  };
   //   if (val && Object.keys(val).length > 0) {
   //     setValue("MaKH", val);
   //     setValue("MaCungDuong", null);
@@ -257,6 +281,7 @@ const CreateTransportLess = (props) => {
   const onSubmit = async (data) => {
     SetIsLoading(true);
     const create = await postData("BillOfLading/CreateTransportLess", {
+      AccountId: !data.AccountCus ? null : data.AccountCus.value,
       MaPTVC: data.LoaiHinh,
       HangTau: data.HangTau,
       TenTau: data.TenTau,
@@ -365,13 +390,36 @@ const CreateTransportLess = (props) => {
                           classNamePrefix={"form-control"}
                           value={field.value}
                           options={listCus}
-                          // onChange={(field) => handleOnChangeCustomer(field)}
+                          onChange={(field) => handleOnChangeCustomer(field)}
                         />
                       )}
                       rules={Validate.MaKH}
                     />
                     {errors.MaKH && (
                       <span className="text-danger">{errors.MaKH.message}</span>
+                    )}
+                  </div>
+                </div>
+                <div className="col col-sm">
+                  <div className="form-group">
+                    <label htmlFor="AccountCus">Account</label>
+                    <Controller
+                      name="AccountCus"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          classNamePrefix={"form-control"}
+                          value={field.value}
+                          options={listAccountCus}
+                        />
+                      )}
+                      rules={Validate.AccountCus}
+                    />
+                    {errors.AccountCus && (
+                      <span className="text-danger">
+                        {errors.AccountCus.message}
+                      </span>
                     )}
                   </div>
                 </div>
@@ -397,16 +445,26 @@ const CreateTransportLess = (props) => {
               <div className="row">
                 {watch("LoaiVanDon") && watch("LoaiVanDon") === "xuat" && (
                   <>
-                    <div className="col col-sm">
+                    <div className="col-sm">
                       <div className="form-group">
                         <label htmlFor="HangTau">Hãng Tàu</label>
-                        <input
-                          autoComplete="false"
-                          type="text"
+                        <select
                           className="form-control"
-                          id="TongThungHang"
                           {...register(`HangTau`, Validate.HangTau)}
-                        />
+                        >
+                          <option value={""}>-- Để Trống --</option>
+                          {listShipping &&
+                            listShipping.map((val) => {
+                              return (
+                                <option
+                                  value={val.shippingCode}
+                                  key={val.shippingLineName}
+                                >
+                                  {val.shippingLineName}
+                                </option>
+                              );
+                            })}
+                        </select>
                         {errors.HangTau && (
                           <span className="text-danger">
                             {errors.HangTau.message}
@@ -414,6 +472,7 @@ const CreateTransportLess = (props) => {
                         )}
                       </div>
                     </div>
+
                     <div className="col col-sm">
                       <div className="form-group">
                         <label htmlFor="TenTau">Tên Tàu</label>

@@ -323,6 +323,7 @@ const UpdateHandling = (props) => {
           }[0]
     );
 
+    setValue("Account", data.accountName);
     setValue("TongKhoiLuong", data.tongKhoiLuong);
     setValue("TongTheTich", data.tongTheTich);
     setValue("GhiChuVanDon", data.ghiChuVanDon);
@@ -510,6 +511,7 @@ const UpdateHandling = (props) => {
                     <label htmlFor="KhachHang">Khách Hàng(*)</label>
                     <Controller
                       name={`KhachHang`}
+                      AccountName
                       control={control}
                       render={({ field }) => (
                         <Select
@@ -531,21 +533,19 @@ const UpdateHandling = (props) => {
                     )}
                   </div>
                 </div>
-                {/* <div className="col col-sm">
+
+                <div className="col col-sm">
                   <div className="form-group">
-                    <label htmlFor="CungDuong">Cung Đường(*)</label>
+                    <label htmlFor="Account">Account</label>
                     <input
                       autoComplete="false"
                       type="text"
                       className="form-control"
-                      id="CungDuong"
+                      id="Account"
                       readOnly
-                      value={
-                        roadDetail.maCungDuong + " - " + roadDetail.tenCungDuong
-                      }
                     />
                   </div>
-                </div> */}
+                </div>
                 <div className="col col-sm">
                   <div className="form-group">
                     <label htmlFor="CungDuong">Điểm Đóng Hàng(*)</label>

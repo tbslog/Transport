@@ -6,7 +6,7 @@ import { Buffer } from "buffer";
 
 //const Host = "https://api.tbslogistics.com.vn/api/";
 const Host = "https://localhost:5001/api/";
-//const Host = "http://192.168.0.10:8088/api/";
+//const Host = "http://192.168.0.254:8088/api/";
 
 axios.interceptors.request.use(
   (config) => {

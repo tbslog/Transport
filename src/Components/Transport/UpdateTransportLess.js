@@ -110,10 +110,14 @@ const UpdateTransportLess = (props) => {
   const [listCus, setListCus] = useState([]);
   const [transportData, setTransportData] = useState({});
   const [transportId, setTransportId] = useState("");
+  const [listShipping, setListShipping] = useState([]);
+  const [listAccountCus, setListAccountCus] = useState([]);
 
   useEffect(() => {
     SetIsLoading(true);
     (async () => {
+      let getListShipping = await getData("Common/GetListShipping");
+      setListShipping(getListShipping);
       const getListCus = await getData(`Customer/GetListCustomerFilter`);
       if (getListCus && getListCus.length > 0) {
         let arrKh = [];
@@ -154,6 +158,8 @@ const UpdateTransportLess = (props) => {
       listCus &&
       listFirstPoint &&
       listSecondPoint &&
+      listShipping &&
+      listShipping.length > 0 &&
       Object.keys(selectIdClick).length > 0 &&
       listCus.length > 0 &&
       listFirstPoint.length > 0 &&
@@ -168,7 +174,14 @@ const UpdateTransportLess = (props) => {
         setTransportData(getTransport);
 
         setValue("LoaiHinh", getTransport.maPTVC);
-        setValue("HangTau", getTransport.hangTau);
+
+        setValue(
+          "HangTau",
+          {
+            ...listShipping.filter((x) => x.value === getTransport.hangTau),
+          }[0]
+        );
+
         setValue("TenTau", getTransport.tenTau);
         setValue("MaVDKH", getTransport.maVanDonKH);
 
@@ -192,10 +205,15 @@ const UpdateTransportLess = (props) => {
         setValue("TongKhoiLuong", getTransport.tongKhoiLuong);
         setValue("TongTheTich", getTransport.tongTheTich);
         setValue("TongSoKien", getTransport.tongSoKien);
-        setValue(
-          "MaKH",
+        // setValue(
+        //   "MaKH",
+
+        // );
+
+        handleOnChangeCustomer(
           { ...listCus.filter((x) => x.value === getTransport.maKH) }[0]
         );
+
         setValue("GhiChu", getTransport.ghiChu);
         setValue(
           "TGLayHang",
@@ -212,19 +230,7 @@ const UpdateTransportLess = (props) => {
         SetIsLoading(false);
       })();
     }
-  }, [selectIdClick, listCus, listSecondPoint, listFirstPoint]);
-
-  // useEffect(() => {
-  //   if (transportData && Object.keys(transportData).length > 0) {
-  //     SetIsLoading(true);
-  //     // handleOnChangeCustomer(
-  //     //   {
-  //     //     ...listCus.filter((x) => x.value === transportData.maKH),
-  //     //   }[0]
-  //     // );
-  //     SetIsLoading(false);
-  //   }
-  // }, [transportData]);
+  }, [selectIdClick, listCus, listSecondPoint, listFirstPoint, listShipping]);
 
   useEffect(() => {
     if (transportData && Object.keys(transportData).length > 0) {
@@ -236,104 +242,27 @@ const UpdateTransportLess = (props) => {
     }
   }, [transportData]);
 
-  // const handleOnChangeCustomer = async (val) => {
-  //   if (val && Object.keys(val).length > 0) {
-  //     setValue("MaKH", val);
-  //     setValue("MaCungDuong", null);
-  //     setValue("DiemLayHang", null);
-  //     setValue("DiemTraHang", null);
-  //     setListFirstPoint([]);
-  //     setListSecondPoint([]);
-
-  //     const getListRoad = await getData(
-  //       `BillOfLading/LoadDataRoadTransportByCusId?id=${val.value}`
-  //     );
-
-  //     if (getListRoad && Object.keys(getListRoad).length > 0) {
-  //       if (getListRoad.cungDuong && getListRoad.cungDuong.length > 0) {
-  //         let arr = [];
-  //         getListRoad.cungDuong.map((val) => {
-  //           arr.push({
-  //             label: val.tenCungDuong + " - " + val.km + " KM",
-  //             value: val.maCungDuong,
-  //           });
-  //         });
-  //         setArrRoad(getListRoad.cungDuong);
-  //         setListRoad(arr);
-  //       } else {
-  //         setListRoad([]);
-  //       }
-
-  //       if (getListRoad.diemDau && getListRoad.diemDau.length > 0) {
-  //         let arr = [];
-  //         getListRoad.diemDau.map((val) => {
-  //           if (!arr.some((x) => x.value === val.maDiaDiem)) {
-  //             arr.push({
-  //               label: val.tenDiaDiem,
-  //               value: val.maDiaDiem,
-  //             });
-  //           }
-  //         });
-  //         setListFirstPoint(arr);
-  //       } else {
-  //         setListFirstPoint([]);
-  //       }
-
-  //       if (getListRoad.diemCuoi && getListRoad.diemCuoi.length > 0) {
-  //         let arr = [];
-  //         getListRoad.diemCuoi.map((val) => {
-  //           if (!arr.some((x) => x.value === val.maDiaDiem)) {
-  //             arr.push({
-  //               label: val.tenDiaDiem,
-  //               value: val.maDiaDiem,
-  //             });
-  //           }
-  //         });
-  //         setListSecondPoint(arr);
-  //       } else {
-  //         setListSecondPoint([]);
-  //       }
-  //     }
-  //   }
-  // };
-
-  // const handleOnChangeRoad = (val) => {
-  //   if (val && Object.keys(val).length > 0) {
-  //     setValue("MaCungDuong", val);
-  //     const point = {
-  //       ...arrRoad.filter((x) => x.maCungDuong === val.value),
-  //     }[0];
-
-  //   } else {
-  //     setValue("MaCungDuong", null);
-  //   }
-  // };
-
-  // const handleOnChangePoint = () => {
-  //   setValue("MaCungDuong", null);
-  //   var diemdau = watch("DiemLayHang");
-  //   var diemCuoi = watch("DiemTraHang");
-
-  //   if (
-  //     diemdau &&
-  //     diemCuoi &&
-  //     Object.keys(diemdau).length > 0 &&
-  //     Object.keys(diemCuoi).length > 0
-  //   ) {
-  //     const filterRoad = arrRoad.filter(
-  //       (x) => x.diemDau === diemdau.value && x.diemCuoi === diemCuoi.value
-  //     )[0];
-
-  //     if (filterRoad && Object.keys(filterRoad).length > 0) {
-  //       setValue(
-  //         "MaCungDuong",
-  //         { ...listRoad.filter((x) => x.value === filterRoad.maCungDuong) }[0]
-  //       );
-  //     }
-  //   } else {
-  //     setValue("MaCungDuong", null);
-  //   }
-  // };
+  const handleOnChangeCustomer = async (val) => {
+    if (val && Object.keys(val).length > 0) {
+      setValue("MaKH", val);
+      const getListAcc = await getData(
+        `AccountCustomer/GetListAccountSelectByCus?accountId=${val.value}`
+      );
+      if (getListAcc && getListAcc.length > 0) {
+        var obj = [];
+        obj.push({ label: "-- Để Trống --", value: null });
+        getListAcc.map((val) => {
+          obj.push({
+            value: val.accountId,
+            label: val.accountId + " - " + val.accountName,
+          });
+        });
+        setListAccountCus(obj);
+      } else {
+        setListAccountCus([]);
+      }
+    }
+  };
 
   const handleOnchangeTransportType = (val) => {
     reset();
@@ -343,7 +272,6 @@ const UpdateTransportLess = (props) => {
   const onSubmit = async (data) => {
     SetIsLoading(true);
 
-    console.log(data);
     const update = await postData(
       `BillOfLading/UpdateTransportLess?transportId=${selectIdClick.maVanDon}`,
       {
@@ -458,7 +386,7 @@ const UpdateTransportLess = (props) => {
                           classNamePrefix={"form-control"}
                           value={field.value}
                           options={listCus}
-                          // onChange={(field) => handleOnChangeCustomer(field)}
+                          onChange={(field) => handleOnChangeCustomer(field)}
                         />
                       )}
                       rules={Validate.MaKH}
@@ -468,7 +396,28 @@ const UpdateTransportLess = (props) => {
                     )}
                   </div>
                 </div>
-
+                <div className="col col-sm">
+                  <div className="form-group">
+                    <label htmlFor="AccountCus">Account</label>
+                    <Controller
+                      name="AccountCus"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          classNamePrefix={"form-control"}
+                          value={field.value}
+                          options={listAccountCus}
+                        />
+                      )}
+                    />
+                    {errors.AccountCus && (
+                      <span className="text-danger">
+                        {errors.AccountCus.message}
+                      </span>
+                    )}
+                  </div>
+                </div>
                 <div className="col col-sm">
                   <div className="form-group">
                     <label htmlFor="MaVDKH">Mã Vận Đơn Của Khách Hàng</label>
@@ -490,16 +439,26 @@ const UpdateTransportLess = (props) => {
               <div className="row">
                 {watch("LoaiVanDon") && watch("LoaiVanDon") === "xuat" && (
                   <>
-                    <div className="col col-sm">
+                    <div className="col-sm">
                       <div className="form-group">
                         <label htmlFor="HangTau">Hãng Tàu</label>
-                        <input
-                          autoComplete="false"
-                          type="text"
+                        <select
                           className="form-control"
-                          id="TongThungHang"
                           {...register(`HangTau`, Validate.HangTau)}
-                        />
+                        >
+                          <option value={""}>-- Để Trống --</option>
+                          {listShipping &&
+                            listShipping.map((val) => {
+                              return (
+                                <option
+                                  value={val.shippingCode}
+                                  key={val.shippingLineName}
+                                >
+                                  {val.shippingLineName}
+                                </option>
+                              );
+                            })}
+                        </select>
                         {errors.HangTau && (
                           <span className="text-danger">
                             {errors.HangTau.message}

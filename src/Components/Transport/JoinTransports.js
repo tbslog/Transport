@@ -36,6 +36,16 @@ const JoinTransports = (props) => {
     LoaiHangHoa: {
       required: "Không được để trống",
     },
+    ThuTuGiaoHang: {
+      maxLength: {
+        value: 2,
+        message: "Không được vượt quá 2 ký tự",
+      },
+      pattern: {
+        value: /^[0-9]*$/,
+        message: "Chỉ được nhập ký tự là số",
+      },
+    },
     CONTNO: {
       pattern: {
         value: /([A-Z]{3})([UJZ])(\d{6})(\d)/,
@@ -165,6 +175,10 @@ const JoinTransports = (props) => {
           if (data && data.length > 0) {
             setValue("listTransport", data);
             for (let i = 0; i <= data.length - 1; i++) {
+              setValue(
+                `listTransport.${i}.ThuTuGiaoHang`,
+                data[i].thuTuGiaoHang
+              );
               setValue(`listTransport.${i}.HandlingId`, data[i].handlingId);
               setValue(`listTransport.${i}.LoaiVanDon`, data[i].loaiVanDon);
               setValue(`listTransport.${i}.MaPTVC`, data[i].maPTVC);
@@ -175,6 +189,7 @@ const JoinTransports = (props) => {
               setValue(`listTransport.${i}.MaVanDon`, data[i].maVanDon);
               setValue(`listTransport.${i}.MaVanDonKH`, data[i].maVanDonKH);
               setValue(`listTransport.${i}.MaKH`, data[i].maKH);
+              setValue(`listTransport.${i}.AccountName`, data[i].accountName);
               setValue(`listTransport.${i}.DiemDau`, data[i].diemDau);
               setValue(`listTransport.${i}.DiemCuoi`, data[i].diemCuoi);
               setValue(`listTransport.${i}.KhoiLuong`, data[i].tongKhoiLuong);
@@ -303,6 +318,7 @@ const JoinTransports = (props) => {
         if (data && data.length > 0) {
           setValue("listTransport", data);
           for (let i = 0; i <= data.length - 1; i++) {
+            setValue(`listTransport.${i}.ThuTuGiaoHang`, data[i].thuTuGiaoHang);
             setValue(`listTransport.${i}.HandlingId`, data[i].handlingId);
             setValue(`listTransport.${i}.LoaiVanDon`, data[i].loaiVanDon);
             setValue(`listTransport.${i}.MaPTVC`, data[i].maPTVC);
@@ -313,6 +329,7 @@ const JoinTransports = (props) => {
             setValue(`listTransport.${i}.MaVanDon`, data[i].maVanDon);
             setValue(`listTransport.${i}.MaVanDonKH`, data[i].maVanDonKH);
             setValue(`listTransport.${i}.MaKH`, data[i].maKH);
+            setValue(`listTransport.${i}.AccountName`, data[i].accountName);
             setValue(`listTransport.${i}.DiemDau`, data[i].diemDau);
             setValue(`listTransport.${i}.DiemCuoi`, data[i].diemCuoi);
             setValue(`listTransport.${i}.KhoiLuong`, data[i].tongKhoiLuong);
@@ -422,6 +439,7 @@ const JoinTransports = (props) => {
     data.listTransport.map((val) => {
       arrTransports.push({
         HandlingId: val.HandlingId,
+        ThuTuGiaoHang: !val.ThuTuGiaoHang ? null : val.ThuTuGiaoHang,
         MaVanDon: val.maVanDon,
         MaLoaiHangHoa: val.LoaiHangHoa,
         MaDVT: "CHUYEN",
@@ -723,7 +741,7 @@ const JoinTransports = (props) => {
                   >
                     <thead>
                       <tr>
-                        <th style={{ width: "40px" }}></th>
+                        <th>Thứ Tự Giao Hàng</th>
                         <th>
                           <div>Loại Vận Đơn</div>
                         </th>
@@ -732,6 +750,9 @@ const JoinTransports = (props) => {
                         </th>
                         <th>
                           <div>Khách Hàng</div>
+                        </th>
+                        <th>
+                          <div>Account</div>
                         </th>
                         <th>
                           <div>Loại Hàng Hóa</div>
@@ -792,7 +813,26 @@ const JoinTransports = (props) => {
                     <tbody>
                       {fields.map((value, index) => (
                         <tr key={index}>
-                          <td>{index + 1}</td>
+                          <td>
+                            <input
+                              autoComplete="false"
+                              type="text"
+                              className="form-control"
+                              id="ThuTuGiaoHang"
+                              {...register(
+                                `listTransport.${index}.ThuTuGiaoHang`,
+                                Validate.ThuTuGiaoHang
+                              )}
+                            />
+                            {errors.listTransport?.[index]?.ThuTuGiaoHang && (
+                              <span className="text-danger">
+                                {
+                                  errors.listTransport?.[index]?.ThuTuGiaoHang
+                                    .message
+                                }
+                              </span>
+                            )}
+                          </td>
                           <td>
                             <div hidden={true}>
                               <div className="form-group">
@@ -837,6 +877,19 @@ const JoinTransports = (props) => {
                                 className="form-control"
                                 id="MaKH"
                                 {...register(`listTransport.${index}.MaKH`)}
+                              />
+                            </div>
+                          </td>
+                          <td>
+                            <div className="form-group">
+                              <input
+                                readOnly={true}
+                                type="text"
+                                className="form-control"
+                                id="AccountName"
+                                {...register(
+                                  `listTransport.${index}.AccountName`
+                                )}
                               />
                             </div>
                           </td>

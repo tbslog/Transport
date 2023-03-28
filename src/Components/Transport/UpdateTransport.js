@@ -116,6 +116,7 @@ const UpdateTransport = (props) => {
   const [listGoodsType, setListGoodsType] = useState([]);
   const [listTransportType, setListTransportType] = useState([]);
   const [listShipping, setListShipping] = useState([]);
+  const [listAccountCus, setListAccountCus] = useState([]);
 
   useEffect(() => {
     SetIsLoading(true);
@@ -200,6 +201,7 @@ const UpdateTransport = (props) => {
         "DiemTraHang",
         { ...listPoint.filter((x) => x.value === selectIdClick.diemCuoi) }[0]
       );
+
       let arrData = [];
       selectIdClick.arrHandlings.map((val) => {
         arrData.push({
@@ -266,16 +268,22 @@ const UpdateTransport = (props) => {
       setValue("TongTheTich", selectIdClick.tongTheTich);
       setValue("TongSoKien", selectIdClick.tongSoKien);
       setValue("LoaiHinh", selectIdClick.maPTVC.replaceAll(" ", ""));
-      setValue(
-        "MaKH",
-        { ...listCus.filter((x) => x.value === selectIdClick.maKh) }[0]
-      );
-      // handleOnChangeCustomer(
+      // setValue(
+      //   "MaKH",
       //   { ...listCus.filter((x) => x.value === selectIdClick.maKh) }[0]
       // );
 
+      handleOnChangeCustomer(
+        { ...listCus.filter((x) => x.value === selectIdClick.maKh) }[0]
+      );
+
       if (selectIdClick.loaiVanDon === "xuat") {
-        setValue("HangTau", selectIdClick.hangTau);
+        setValue(
+          "HangTau",
+          {
+            ...listShipping.filter((x) => x.value === selectIdClick.hangTau),
+          }[0]
+        );
         setValue("TenTau", selectIdClick.tenTau);
         setValue(
           "TGLayRong",
@@ -328,133 +336,6 @@ const UpdateTransport = (props) => {
     }
   }, [listCus, listTransportType, props, selectIdClick, listShipping]);
 
-  // useLayoutEffect(() => {
-  //   if (
-  //     arrRoad &&
-  //     arrRoad.length > 0 &&
-  //     listRoad &&
-  //     listRoad.length > 0 &&
-  //     listFirstPoint &&
-  //     listFirstPoint.length > 0 &&
-  //     listSecondPoint &&
-  //     listSecondPoint.length > 0
-  //   ) {
-  //     SetIsLoading(true);
-
-  //     setValue(
-  //       "MaCungDuong",
-  //       { ...listRoad.filter((x) => x.value === selectIdClick.cungDuong) }[0]
-  //     );
-
-  //     handleOnChangeRoad(
-  //       { ...listRoad.filter((x) => x.value === selectIdClick.cungDuong) }[0]
-  //     );
-  //   }
-  //   SetIsLoading(false);
-  // }, [arrRoad, listRoad, listFirstPoint, listSecondPoint]);
-
-  // const handleOnChangeCustomer = async (val) => {
-  //   if (val && Object.keys(val).length > 0) {
-  //     setValue("MaKH", val);
-  //     setValue("MaCungDuong", null);
-  //     setValue("DiemLayHang", null);
-  //     setValue("DiemTraHang", null);
-
-  //     const getListRoad = await getData(
-  //       `BillOfLading/LoadDataRoadTransportByCusId?id=${val.value}`
-  //     );
-
-  //     if (getListRoad && Object.keys(getListRoad).length > 0) {
-  //       if (getListRoad.cungDuong && getListRoad.cungDuong.length > 0) {
-  //         let arr = [];
-  //         getListRoad.cungDuong.map((val) => {
-  //           arr.push({
-  //             label: val.tenCungDuong + " - " + val.km + " KM",
-  //             value: val.maCungDuong,
-  //           });
-  //         });
-  //         setArrRoad(getListRoad.cungDuong);
-  //         setListRoad(arr);
-  //       } else {
-  //         setListRoad([]);
-  //       }
-
-  //       if (getListRoad.diemDau && getListRoad.diemDau.length > 0) {
-  //         let arr = [];
-  //         getListRoad.diemDau.map((val) => {
-  //           if (!arr.some((x) => x.value === val.maDiaDiem)) {
-  //             arr.push({
-  //               label: val.tenDiaDiem,
-  //               value: val.maDiaDiem,
-  //             });
-  //           }
-  //         });
-  //         setListFirstPoint(arr);
-  //       } else {
-  //         setListFirstPoint([]);
-  //       }
-
-  //       if (getListRoad.diemCuoi && getListRoad.diemCuoi.length > 0) {
-  //         let arr = [];
-  //         getListRoad.diemCuoi.map((val) => {
-  //           if (!arr.some((x) => x.value === val.maDiaDiem)) {
-  //             arr.push({
-  //               label: val.tenDiaDiem,
-  //               value: val.maDiaDiem,
-  //             });
-  //           }
-  //         });
-  //         setListSecondPoint(arr);
-  //       } else {
-  //         setListSecondPoint([]);
-  //       }
-  //     }
-  //   }
-  // };
-
-  // const handleOnChangeRoad = (val) => {
-  //   if (val && Object.keys(val).length > 0) {
-  //     setValue("MaCungDuong", val);
-  //     const point = arrRoad.filter((x) => x.maCungDuong === val.value)[0];
-  //     setValue(
-  //       "DiemLayHang",
-  //       listFirstPoint.filter((x) => x.value === point.diemDau)[0]
-  //     );
-  //     setValue(
-  //       "DiemTraHang",
-  //       listSecondPoint.filter((x) => x.value === point.diemCuoi)[0]
-  //     );
-  //   } else {
-  //     setValue("MaCungDuong", null);
-  //   }
-  // };
-
-  // const handleOnChangePoint = () => {
-  //   setValue("MaCungDuong", null);
-  //   var diemdau = watch("DiemLayHang");
-  //   var diemCuoi = watch("DiemTraHang");
-
-  //   if (
-  //     diemdau &&
-  //     diemCuoi &&
-  //     Object.keys(diemdau).length > 0 &&
-  //     Object.keys(diemCuoi).length > 0
-  //   ) {
-  //     const filterRoad = arrRoad.filter(
-  //       (x) => x.diemDau === diemdau.value && x.diemCuoi === diemCuoi.value
-  //     )[0];
-
-  //     if (filterRoad && Object.keys(filterRoad).length > 0) {
-  //       setValue(
-  //         "MaCungDuong",
-  //         { ...listRoad.filter((x) => x.value === filterRoad.maCungDuong) }[0]
-  //       );
-  //     }
-  //   } else {
-  //     setValue("MaCungDuong", null);
-  //   }
-  // };
-
   const handleOnChangeWeight = async (vehicleType, val, type) => {
     if (val && val > 0) {
       let getTrongTai = await getData(
@@ -464,6 +345,39 @@ const UpdateTransport = (props) => {
       if (getTrongTai) {
         ToastWarning(getTrongTai);
         return;
+      }
+    }
+  };
+
+  useLayoutEffect(() => {
+    if (listAccountCus && listAccountCus.length > 0) {
+      setValue(
+        "AccountCus",
+        {
+          ...listAccountCus.filter((x) => x.value === selectIdClick.accountId),
+        }[0]
+      );
+    }
+  }, [listAccountCus]);
+
+  const handleOnChangeCustomer = async (val) => {
+    if (val && Object.keys(val).length > 0) {
+      setValue("MaKH", val);
+      const getListAcc = await getData(
+        `AccountCustomer/GetListAccountSelectByCus?accountId=${val.value}`
+      );
+      if (getListAcc && getListAcc.length > 0) {
+        var obj = [];
+        obj.push({ label: "-- Để Trống --", value: null });
+        getListAcc.map((val) => {
+          obj.push({
+            value: val.accountId,
+            label: val.accountId + " - " + val.accountName,
+          });
+        });
+        setListAccountCus(obj);
+      } else {
+        setListAccountCus([]);
       }
     }
   };
@@ -638,13 +552,35 @@ const UpdateTransport = (props) => {
                           classNamePrefix={"form-control"}
                           value={field.value}
                           options={listCus}
-                          // onChange={(field) => handleOnChangeCustomer(field)}
+                          onChange={(field) => handleOnChangeCustomer(field)}
                         />
                       )}
                       rules={Validate.MaKH}
                     />
                     {errors.MaKH && (
                       <span className="text-danger">{errors.MaKH.message}</span>
+                    )}
+                  </div>
+                </div>
+                <div className="col col-sm">
+                  <div className="form-group">
+                    <label htmlFor="AccountCus">Account</label>
+                    <Controller
+                      name="AccountCus"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          classNamePrefix={"form-control"}
+                          value={field.value}
+                          options={listAccountCus}
+                        />
+                      )}
+                    />
+                    {errors.AccountCus && (
+                      <span className="text-danger">
+                        {errors.AccountCus.message}
+                      </span>
                     )}
                   </div>
                 </div>
@@ -670,13 +606,14 @@ const UpdateTransport = (props) => {
               <div className="row">
                 {watch("LoaiVanDon") && watch("LoaiVanDon") === "xuat" && (
                   <>
-                    <div className="col col-sm">
+                    <div className="col-sm">
                       <div className="form-group">
                         <label htmlFor="HangTau">Hãng Tàu</label>
                         <select
                           className="form-control"
                           {...register(`HangTau`, Validate.HangTau)}
                         >
+                          <option value={""}>-- Để Trống --</option>
                           {listShipping &&
                             listShipping.map((val) => {
                               return (

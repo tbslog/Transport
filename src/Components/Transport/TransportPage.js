@@ -60,6 +60,9 @@ const TransportPage = () => {
   const [toggledClearRows, setToggleClearRows] = useState(false);
   const [itemSelected, setItemSelected] = useState([]);
 
+  const [listAccountCus, setListAccountCus] = useState([]);
+  const [listAccountSelected, setListAccountSelected] = useState([]);
+
   const [ShowConfirm, setShowConfirm] = useState(false);
   const [funcName, setFuncName] = useState("");
 
@@ -285,6 +288,22 @@ const TransportPage = () => {
 
   useEffect(() => {
     (async () => {
+      const getListAcc = await getData(
+        `AccountCustomer/GetListAccountSelectByCus`
+      );
+      if (getListAcc && getListAcc.length > 0) {
+        var obj = [];
+        getListAcc.map((val) => {
+          obj.push({
+            value: val.accountId,
+            label: val.accountId + " - " + val.accountName,
+          });
+        });
+        setListAccountCus(obj);
+      } else {
+        setListAccountCus([]);
+      }
+
       let getlistUser = await getData(`Common/GetListUser`);
       if (getlistUser && getlistUser.length > 0) {
         let arrUser = [];
@@ -326,11 +345,13 @@ const TransportPage = () => {
     status = "",
     maptvc = "",
     listCusSelected = [],
-    listUsersSelected = []
+    listUsersSelected = [],
+    listAccountSelected = []
   ) => {
     let listFilter = {
       customers: listCusSelected,
       users: listUsersSelected,
+      accountIds: listAccountSelected,
     };
     const datatransport = await getDataCustom(
       `BillOfLading/GetListTransport?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}&StatusId=${status}&fromDate=${fromDate}&toDate=${toDate}&maptvc=${maptvc}`,
@@ -352,7 +373,8 @@ const TransportPage = () => {
       status,
       maPTVC,
       listCusSelected,
-      listUsersSelected
+      listUsersSelected,
+      listAccountSelected
     );
   };
 
@@ -360,6 +382,7 @@ const TransportPage = () => {
     let listFilter = {
       customers: listCusSelected,
       users: listUsersSelected,
+      accountIds: listAccountSelected,
     };
 
     const datatransport = await getDataCustom(
@@ -414,7 +437,8 @@ const TransportPage = () => {
           status,
           maPTVC,
           listCusSelected,
-          listUsersSelected
+          listUsersSelected,
+          listAccountSelected
         );
         setShowConfirm(false);
       } else {
@@ -432,7 +456,8 @@ const TransportPage = () => {
       status,
       maPTVC,
       listCusSelected,
-      listUsersSelected
+      listUsersSelected,
+      listAccountSelected
     );
   };
 
@@ -446,13 +471,24 @@ const TransportPage = () => {
       val,
       maPTVC,
       listCusSelected,
-      listUsersSelected
+      listUsersSelected,
+      listAccountSelected
     );
   };
 
   const handleOnChangeMaPTVC = (val) => {
     setMaPTVC(val);
-    fetchData(1, keySearch, fromDate, toDate, status, val, listCusSelected);
+    fetchData(
+      1,
+      keySearch,
+      fromDate,
+      toDate,
+      status,
+      val,
+      listCusSelected,
+      listCusSelected,
+      listAccountSelected
+    );
   };
 
   const handleRefeshDataClick = () => {
@@ -465,6 +501,7 @@ const TransportPage = () => {
     setValue("listCustomers", []);
     setListUsersSelected([]);
     setValue("listUsers", []);
+    setValue("listAccountCus", []);
     fetchData(1);
   };
 
@@ -477,7 +514,8 @@ const TransportPage = () => {
       status,
       maPTVC,
       listCusSelected,
-      listUsersSelected
+      listUsersSelected,
+      listAccountSelected
     );
   };
 
@@ -490,6 +528,7 @@ const TransportPage = () => {
       setLoading(true);
       let arrCus = [];
       let arrUsr = [];
+      let arrAcc = [];
 
       if (type === "customers") {
         setValue("listCustomers", values);
@@ -502,6 +541,20 @@ const TransportPage = () => {
       } else {
         listCusSelected.forEach((val) => {
           arrCus.push(val);
+        });
+      }
+
+      if (type === "accountCus") {
+        setValue("listAccountCus", values);
+
+        values.forEach((val) => {
+          arrAcc.push(val.value);
+        });
+
+        setListAccountSelected(arrCus);
+      } else {
+        listAccountSelected.forEach((val) => {
+          arrAcc.push(val);
         });
       }
 
@@ -526,7 +579,8 @@ const TransportPage = () => {
         status,
         maPTVC,
         arrCus,
-        arrUsr
+        arrUsr,
+        arrAcc
       );
       setLoading(false);
     }
@@ -682,6 +736,32 @@ const TransportPage = () => {
                                   handleOnChangeFilterSelect(field, "customers")
                                 }
                                 placeholder="Chọn Khách Hàng"
+                              />
+                            )}
+                          />
+                        </div>
+                      </div>
+                      <div className="col col-sm">
+                        <div className="form-group">
+                          <Controller
+                            name="listAccountCus"
+                            control={control}
+                            render={({ field }) => (
+                              <Select
+                                {...field}
+                                className="basic-multi-select"
+                                classNamePrefix={"form-control"}
+                                isMulti
+                                value={field.value}
+                                options={listAccountCus}
+                                styles={customStyles}
+                                onChange={(field) =>
+                                  handleOnChangeFilterSelect(
+                                    field,
+                                    "accountCus"
+                                  )
+                                }
+                                placeholder="Chọn Account"
                               />
                             )}
                           />

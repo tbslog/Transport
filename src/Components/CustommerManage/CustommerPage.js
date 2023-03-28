@@ -6,7 +6,19 @@ import EditCustommer from "./EdtiCustommer";
 import CreateCustommer from "./CreateCustommer";
 import { Modal } from "bootstrap";
 import { ToastWarning } from "../Common/FuncToast";
-import FileExcelImport from "../../ExcelFile/CustommerTemplate/AddnewCus.xlsx";
+
+const customStyles = {
+  rows: {
+    style: {
+      backgroundColor: "#EFE5D0",
+    },
+  },
+  headCells: {
+    style: {
+      backgroundColor: "#EFE5D0",
+    },
+  },
+};
 
 const CustommerPage = () => {
   const [data, setData] = useState([]);
@@ -237,6 +249,69 @@ const CustommerPage = () => {
     await fetchData(1, keySearch, val);
   };
 
+  const ExpandedComponent = ({ data }) => {
+    if (data.listAccount && data.listAccount.length > 0) {
+      return (
+        <div className="container-datatable" style={{ height: "50vm" }}>
+          <DataTable
+            columns={[
+              {
+                cell: (val) => (
+                  <>
+                    <button
+                      onClick={() =>
+                        handleEditButtonClick(
+                          val,
+                          SetShowModal("Edit"),
+                          setTitle("Cập Nhật Hợp Đồng/Phụ Lục")
+                        )
+                      }
+                      type="button"
+                      className="btn btn-title btn-sm btn-default mx-1"
+                      gloss="Cập Nhật Thông Tin"
+                    >
+                      <i className="far fa-edit"></i>
+                    </button>
+                  </>
+                ),
+                width: "200px",
+                ignoreRowClick: true,
+                allowOverflow: true,
+                button: true,
+              },
+              {
+                name: "Mã Account",
+                selector: (row) => row.accountId,
+              },
+              {
+                name: "Tên Account",
+                selector: (row) => row.accountName,
+              },
+              {
+                name: "Thời Gian Tạo",
+                selector: (row) => (
+                  <div className="text-wrap">{row.createdTime}</div>
+                ),
+              },
+              {
+                name: <div>Trạng Thái</div>,
+                selector: (row) => (
+                  <div className="text-wrap">{row.statusId}</div>
+                ),
+              },
+            ]}
+            data={data.listAccount}
+            progressPending={loading}
+            highlightOnHover
+            direction="auto"
+            customStyles={customStyles}
+            responsive
+          />
+        </div>
+      );
+    }
+  };
+
   return (
     <>
       <section className="content-header">
@@ -338,6 +413,8 @@ const CustommerPage = () => {
                 onSelectedRowsChange={handleChange}
                 onChangeRowsPerPage={handlePerRowsChange}
                 onChangePage={handlePageChange}
+                expandableRows
+                expandableRowsComponent={ExpandedComponent}
                 highlightOnHover
                 striped
                 direction="auto"
