@@ -111,7 +111,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpPost]
         [Route("[action]")]
-        public async Task<IActionResult> SetRuningTypeFull(int handlingId)
+        public async Task<IActionResult> ChangeStatusHandling(int id, string maChuyen)
         {
             var checkPermission = await _common.CheckPermission("F0007");
             if (checkPermission.isSuccess == false)
@@ -119,29 +119,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
                 return BadRequest(checkPermission.Message);
             }
 
-            var update = await _billOfLading.SetRunning(handlingId);
-
-            if (update.isSuccess)
-            {
-                return Ok(update);
-            }
-            else
-            {
-                return BadRequest(update);
-            }
-        }
-
-        [HttpPost]
-        [Route("[action]")]
-        public async Task<IActionResult> SetRuningLessType(string maChuyen)
-        {
-            var checkPermission = await _common.CheckPermission("F0007");
-            if (checkPermission.isSuccess == false)
-            {
-                return BadRequest(checkPermission.Message);
-            }
-
-            var update = await _billOfLading.SetRunningLess(maChuyen);
+            var update = await _billOfLading.ChangeStatusHandling(id, maChuyen);
 
             if (update.isSuccess)
             {
@@ -171,9 +149,9 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpPost]
         [Route("[action]")]
-        public async Task<IActionResult> CancelHandling(int handlingId)
+        public async Task<IActionResult> CancelHandling(int handlingId, string note)
         {
-            var cancel = await _billOfLading.CancelHandling(handlingId);
+            var cancel = await _billOfLading.CancelHandling(handlingId, note);
 
             if (cancel.isSuccess)
             {

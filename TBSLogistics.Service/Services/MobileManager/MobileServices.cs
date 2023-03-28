@@ -96,6 +96,7 @@ namespace TBSLogistics.Service.Services.MobileManager
                         KhoiLuong = x.dp.KhoiLuong,
                         TheTich = x.dp.TheTich,
                         SoKien = x.dp.SoKien,
+                        ThuTuGiaoHang = x.dp.ThuTuGiaoHang,
                         TrangThai = (c.vd.MaPtvc == "LCL" || c.vd.MaPtvc == "LTL") ? _context.StatusText.Where(z => z.LangId == tempData.LangID && z.FunctionId == "Handling" && z.StatusId == (_context.DieuPhoi.Where(z => z.MaVanDon == c.vd.MaVanDon).Select(z => z.TrangThai).FirstOrDefault())).Select(z => z.StatusContent).FirstOrDefault() : _context.StatusText.Where(z => z.LangId == tempData.LangID && z.FunctionId == "Handling" && z.StatusId == (_context.DieuPhoi.Where(z => z.MaChuyen == c.dp.MaChuyen).Select(z => z.TrangThai).FirstOrDefault())).Select(z => z.StatusContent).FirstOrDefault(),
                         MaTrangThai = (c.vd.MaPtvc == "LCL" || c.vd.MaPtvc == "LTL") ? _context.DieuPhoi.Where(o => o.MaVanDon == c.vd.MaVanDon).Select(o => o.TrangThai).FirstOrDefault() : _context.DieuPhoi.Where(o => o.MaChuyen == x.dp.MaChuyen).Select(o => o.TrangThai).FirstOrDefault(),
                         ThoiGianLayHang = c.vd.ThoiGianLayHang,
@@ -103,7 +104,6 @@ namespace TBSLogistics.Service.Services.MobileManager
                         ThoiGianCoMat = c.vd.ThoiGianCoMat,
                     }).ToList()
                 }).ToList();
-
                 return data;
             }
             catch (Exception ex)

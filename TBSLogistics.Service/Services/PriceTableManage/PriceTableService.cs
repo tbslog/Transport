@@ -66,15 +66,25 @@ namespace TBSLogistics.Service.Services.PriceTableManage
 
                         item.DiemLayTraRong = null;
                     }
+
+                    if (!string.IsNullOrEmpty(item.AccountId))
+                    {
+                        var checkAccount = await _context.AccountOfCustomer.Where(x => x.MaAccount == item.AccountId).FirstOrDefaultAsync();
+                        if (checkAccount == null)
+                        {
+                            ErrorValidate += "Dòng " + row + ": Account " + item.AccountId + " không tồn tại";
+                        }
+                    }
                 }
 
-                int rows = 0;
+                int rows = 1;
                 foreach (var item in request)
                 {
                     rows++;
 
                     var checkDuplicate = request.Where(x =>
                     x.DiemLayTraRong == item.DiemLayTraRong
+                    && x.AccountId == item.AccountId
                     && x.DiemDau == item.DiemDau
                     && x.DiemCuoi == item.DiemCuoi
                     && x.MaHopDong == item.MaHopDong
@@ -99,6 +109,12 @@ namespace TBSLogistics.Service.Services.PriceTableManage
                     if (checkContract == null)
                     {
                         ErrorValidate += "Mã hợp đồng không tồn tại: " + string.Join(",", item.MaHopDong);
+                    }
+
+                    var getNewestContract = await _context.HopDongVaPhuLuc.Where(x => x.MaKh == checkContract.MaKh).OrderByDescending(x => x.ThoiGianBatDau).FirstOrDefaultAsync();
+                    if (getNewestContract.MaHopDong != checkContract.MaHopDong)
+                    {
+                        ErrorValidate += "Vui Lòng Chọn Hợp Đồng Mới Nhất: " + string.Join(",", item.MaHopDong);
                     }
 
                     var firstPlace = await _context.DiaDiem.Where(x => x.MaDiaDiem == item.DiemDau).FirstOrDefaultAsync();
@@ -159,6 +175,7 @@ namespace TBSLogistics.Service.Services.PriceTableManage
                 {
                     DiemLayTraRong = x.DiemLayTraRong,
                     DiemCuoi = x.DiemCuoi,
+                    MaAccount = x.AccountId,
                     DiemDau = x.DiemDau,
                     MaHopDong = x.MaHopDong,
                     MaPtvc = x.MaPtvc,
@@ -256,6 +273,7 @@ namespace TBSLogistics.Service.Services.PriceTableManage
                 DiemLayTraRong = x.bg.DiemLayTraRong == null ? null : _context.DiaDiem.Where(y => y.MaDiaDiem == x.bg.DiemLayTraRong).Select(y => y.TenDiaDiem).FirstOrDefault(),
                 DiemDau = _context.DiaDiem.Where(y => y.MaDiaDiem == x.bg.DiemDau).Select(y => y.TenDiaDiem).FirstOrDefault(),
                 DiemCuoi = _context.DiaDiem.Where(y => y.MaDiaDiem == x.bg.DiemCuoi).Select(y => y.TenDiaDiem).FirstOrDefault(),
+                AccountName = x.bg.MaAccount == null ? null : _context.AccountOfCustomer.Where(y => y.MaAccount == x.bg.MaAccount).Select(y => y.TenAccount).FirstOrDefault(),
                 MaHopDong = x.bg.MaHopDong,
                 SoHopDongCha = x.hd.MaHopDongCha == null ? "Hợp Đồng" : "Phụ Lục",
                 MaLoaiDoiTac = x.bg.MaLoaiDoiTac,
@@ -300,7 +318,6 @@ namespace TBSLogistics.Service.Services.PriceTableManage
             else
             {
                 var checkContractChild = await _context.HopDongVaPhuLuc.Where(x => x.MaHopDong == contractId).FirstOrDefaultAsync();
-
                 if (checkContractChild == null)
                 {
                     return null;
@@ -319,7 +336,7 @@ namespace TBSLogistics.Service.Services.PriceTableManage
             }
 
             var gr = from t in getList
-                     group t by new { t.bg.MaDvt, t.bg.MaLoaiHangHoa, t.bg.MaLoaiPhuongTien, t.bg.MaPtvc, t.bg.MaLoaiDoiTac, t.bg.DiemDau, t.bg.DiemCuoi, t.bg.DiemLayTraRong }
+                     group t by new { t.bg.MaDvt, t.bg.MaLoaiHangHoa, t.bg.MaLoaiPhuongTien, t.bg.MaPtvc, t.bg.MaLoaiDoiTac, t.bg.DiemDau, t.bg.DiemCuoi, t.bg.DiemLayTraRong, t.bg.MaAccount }
                          into g
                      select new
                      {
@@ -331,6 +348,7 @@ namespace TBSLogistics.Service.Services.PriceTableManage
                          g.Key.MaLoaiPhuongTien,
                          g.Key.MaPtvc,
                          g.Key.MaLoaiDoiTac,
+                         g.Key.MaAccount,
                          Id = (from t2 in g select t2.bg.Id).Max(),
                      };
 
@@ -344,6 +362,11 @@ namespace TBSLogistics.Service.Services.PriceTableManage
             if (listFilter.listDiemCuoi.Count > 0)
             {
                 getList = getList.Where(x => listFilter.listDiemCuoi.Contains(x.bg.DiemCuoi));
+            }
+
+            if (listFilter.accountIds.Count > 0)
+            {
+                getList = getList.Where(x => listFilter.accountIds.Contains(x.bg.MaAccount));
             }
 
             if (listFilter.listDiemLayTraRong.Count > 0)
@@ -366,6 +389,7 @@ namespace TBSLogistics.Service.Services.PriceTableManage
             var pagedData = await getList.Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new GetPriceListRequest()
             {
                 ID = x.bg.Id,
+                AccountName = x.bg.MaAccount == null ? null : _context.AccountOfCustomer.Where(y => y.MaAccount == x.bg.MaAccount).Select(y => y.TenAccount).FirstOrDefault(),
                 DiemLayTraRong = x.bg.DiemLayTraRong == null ? null : _context.DiaDiem.Where(y => y.MaDiaDiem == x.bg.DiemLayTraRong).Select(y => y.TenDiaDiem).FirstOrDefault(),
                 DiemDau = _context.DiaDiem.Where(y => y.MaDiaDiem == x.bg.DiemDau).Select(y => y.TenDiaDiem).FirstOrDefault(),
                 DiemCuoi = _context.DiaDiem.Where(y => y.MaDiaDiem == x.bg.DiemCuoi).Select(y => y.TenDiaDiem).FirstOrDefault(),
@@ -478,6 +502,7 @@ namespace TBSLogistics.Service.Services.PriceTableManage
             var pagedData = await getData.Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new ListApprove()
             {
                 Id = x.bg.Id,
+                AccountId = x.bg.MaAccount == null ? null : _context.AccountOfCustomer.Where(y => y.MaAccount == x.bg.MaAccount).Select(y => y.TenAccount).FirstOrDefault(),
                 DiemLayTraRong = x.bg.DiemLayTraRong == null ? null : _context.DiaDiem.Where(y => y.MaDiaDiem == x.bg.DiemLayTraRong).Select(y => y.TenDiaDiem).FirstOrDefault(),
                 DiemDau = _context.DiaDiem.Where(y => y.MaDiaDiem == x.bg.DiemDau).Select(y => y.TenDiaDiem).FirstOrDefault(),
                 DiemCuoi = _context.DiaDiem.Where(y => y.MaDiaDiem == x.bg.DiemCuoi).Select(y => y.TenDiaDiem).FirstOrDefault(),
@@ -535,10 +560,12 @@ namespace TBSLogistics.Service.Services.PriceTableManage
                         _context.BangGia.Update(dataPriceTable.bg);
                     }
 
+
                     if (item.IsAgree == 0)
                     {
                         var checkOldPriceTable = await _context.BangGia.Where(x =>
                       getListContract.Contains(x.MaHopDong) &&
+                      x.MaAccount == dataPriceTable.bg.MaAccount &&
                       x.DiemDau == dataPriceTable.bg.DiemDau &&
                       x.DiemCuoi == dataPriceTable.bg.DiemCuoi &&
                       x.DiemLayTraRong == dataPriceTable.bg.DiemLayTraRong &&
@@ -591,6 +618,7 @@ namespace TBSLogistics.Service.Services.PriceTableManage
                 var reuslt = await data.Select(x => new GetPriceListById()
                 {
                     ID = x.bg.Id,
+                    AccountId = x.bg.MaAccount,
                     DiemDau = x.bg.DiemDau,
                     DiemCuoi = x.bg.DiemCuoi,
                     DiemLayTraRong = x.bg.DiemLayTraRong,
@@ -660,8 +688,21 @@ namespace TBSLogistics.Service.Services.PriceTableManage
                     return new BoolActionResult { isSuccess = false, Message = "Điểm đóng hàng không được giống điểm hạ hàng" };
                 }
 
+                var checkContract = await _context.HopDongVaPhuLuc.Where(x => x.MaHopDong == request.MaHopDong).FirstOrDefaultAsync();
+                if (checkContract == null)
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Mã hợp đồng không tồn tại" };
+                }
+
+                var getNewestContract = await _context.HopDongVaPhuLuc.Where(x => x.MaKh == checkContract.MaKh).OrderByDescending(x => x.ThoiGianBatDau).FirstOrDefaultAsync();
+                if (getNewestContract.MaHopDong != checkContract.MaHopDong)
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Vui lòng chọn Phụ lục mới nhất" };
+                }
+
                 var checkPriceTable = await _context.BangGia.Where(x =>
                    x.DiemDau == request.DiemDau &&
+                   x.MaAccount == request.AccountId &&
                    x.DiemCuoi == request.DiemCuoi &&
                    x.DiemLayTraRong == request.DiemLayTraRong &&
                    x.MaHopDong == request.MaHopDong &&
@@ -678,6 +719,7 @@ namespace TBSLogistics.Service.Services.PriceTableManage
                     return new BoolActionResult { isSuccess = false, Message = "Dữ liệu muốn cập nhật đã tồn tại và đang được áp dụng" };
                 }
 
+                findById.MaAccount = request.AccountId;
                 findById.DiemCuoi = request.DiemCuoi;
                 findById.DiemDau = request.DiemDau;
                 findById.DiemLayTraRong = request.DiemLayTraRong;
@@ -689,6 +731,7 @@ namespace TBSLogistics.Service.Services.PriceTableManage
                 findById.MaLoaiHangHoa = request.MaLoaiHangHoa;
                 findById.NgayHetHieuLuc = request.NgayHetHieuLuc;
                 findById.Updater = tempData.UserName;
+                findById.UpdatedTime = DateTime.Now;
 
                 _context.Update(findById);
 

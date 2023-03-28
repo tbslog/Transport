@@ -12,6 +12,7 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 using TBSLogistics.Data.TMS;
 using TBSLogistics.Service.Panigation;
+using TBSLogistics.Service.Services.AccountManager;
 using TBSLogistics.Service.Services.AddressManage;
 using TBSLogistics.Service.Services.Bill;
 using TBSLogistics.Service.Services.BillOfLadingManage;
@@ -52,7 +53,7 @@ namespace TBSLogistics.ApplicationAPI
             {
                 option.AddPolicy(name: apiCorsPolicy, policy =>
                  {
-                     policy.WithOrigins("http://localhost:3000", "http://192.168.0.10:9999", "https://tms.tbslogistics.com.vn").AllowAnyMethod().AllowAnyHeader();
+                     policy.WithOrigins("http://localhost:3000", "http://192.168.0.254:9999", "https://tms.tbslogistics.com.vn").AllowAnyMethod().AllowAnyHeader();
                  });
             });
 
@@ -101,6 +102,7 @@ namespace TBSLogistics.ApplicationAPI
             services.AddTransient<IBill, BillService>();
             services.AddTransient<IReport, ReportService>();
             services.AddTransient<IMobile, MobileServices>();
+            services.AddTransient<IAccount, AccountService>();
 
             services.AddSwaggerGen(option =>
             {

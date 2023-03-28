@@ -28,12 +28,15 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
     public class LoadTransports
     {
         public long? handlingId { get; set; }
+        public int? ThuTuGiaoHang { get; set; }
+        public string AccountId { get; set; }
         public string LoaiHangHoa { get; set; }
         public string SealHq { get; set; }
         public string SealNp { get; set; }
         public string ContNo { get; set; }
         public string LoaiVanDon { get; set; }
         public string MaPTVC { get; set; }
+        public string AccountName { get; set; }
         public string MaKH { get; set; }
         public string MaVanDon { get; set; }
         public string MaVanDonKH { get; set; }

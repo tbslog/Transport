@@ -10,6 +10,7 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
     {
         public int DiemDau { get; set; }
         public int DiemCuoi { get; set; }
+        public string AccountId { get; set; }
         public string LoaiVanDon { get; set; }
         public string MaKH { get; set; }
         public string MaVanDonKH { get; set; }

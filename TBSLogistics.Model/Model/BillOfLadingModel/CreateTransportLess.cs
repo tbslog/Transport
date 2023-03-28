@@ -8,6 +8,7 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
 {
     public class CreateTransportLess
     {
+        public string AccountId { get; set; }
         public string DonViTinh { get; set; }
         public int DiemDau { get; set; }
         public int DiemCuoi { get; set; }
@@ -29,6 +30,7 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
     public class UpdateTransportLess
     {
         public string MaKH { get; set; }
+        public string AccountId { get; set; }
         public int DiemDau { get; set; }
         public int DiemCuoi { get; set; }
         public string MaVanDonKH { get; set; }

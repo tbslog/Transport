@@ -3,16 +3,12 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TBSLogistics.Data.TMS;
 using TBSLogistics.Model.CommonModel;
 using TBSLogistics.Model.Filter;
-using TBSLogistics.Model.Model.PriceListModel;
-using TBSLogistics.Model.Model.ProductServiceModel;
-using TBSLogistics.Model.Model.SFeeByTcommand;
 using TBSLogistics.Model.Model.SFeeByTcommandModel;
 using TBSLogistics.Model.Model.SubFeePriceModel;
 using TBSLogistics.Model.TempModel;
@@ -23,7 +19,6 @@ namespace TBSLogistics.Service.Services.SFeeByTcommandManage
 {
     public class SFeeByTcommandService : ISFeeByTcommand
     {
-
         private readonly ICommon _common;
         private readonly TMSContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -36,6 +31,7 @@ namespace TBSLogistics.Service.Services.SFeeByTcommandManage
             _context = context;
             tempData = _common.DecodeToken(_httpContextAccessor.HttpContext.Request.Headers["Authorization"][0].ToString().Replace("Bearer ", ""));
         }
+
         public async Task<BoolActionResult> CreateSFeeByTCommand(List<CreateSFeeByTCommandRequest> request)
         {
             try
@@ -47,15 +43,27 @@ namespace TBSLogistics.Service.Services.SFeeByTcommandManage
                     string ErrorValidate = await Validate(i.IdTcommand, i.SfId, i.FinalPrice);
                     if (ErrorValidate != "")
                     {
-                        IdListFail.Add(" Bản Ghi:" + i.IdTcommand + " - " + i.SfId +" - " + i.FinalPrice + ErrorValidate);
+                        IdListFail.Add(" Bản Ghi:" + i.IdTcommand + " - " + i.SfId + " - " + i.FinalPrice + ErrorValidate);
                         continue;
                     }
+
                     var checkSFeeByTcommand = await _context.SfeeByTcommand.Where(x => x.IdTcommand == i.IdTcommand && x.SfId == i.SfId && x.ApproveStatus == 13).FirstOrDefaultAsync();
                     if (checkSFeeByTcommand != null)
                     {
                         IdListFail.Add(" Phụ phí " + await _context.SubFee.Where(x => x.SubFeeId == i.SfId).Select(x => x.SfName).FirstOrDefaultAsync() + " đã tồn tại và đang chờ duyệt");
                         continue;
                     }
+
+                    if (i.PlaceId != null)
+                    {
+                        var checkPlace = await _context.DiaDiem.Where(x => x.MaDiaDiem == i.PlaceId).FirstOrDefaultAsync();
+                        if (checkPlace == null)
+                        {
+                            IdListFail.Add(" Địa Điểm " + i.PlaceId + " không tồn tại trong hệ thống");
+                            continue;
+                        }
+                    }
+
                     await _context.AddAsync(new SfeeByTcommand()
                     {
                         IdTcommand = i.IdTcommand,
@@ -85,6 +93,7 @@ namespace TBSLogistics.Service.Services.SFeeByTcommandManage
                 return new BoolActionResult { isSuccess = false, Message = ex.ToString(), DataReturn = "Exception" };
             }
         }
+
         public async Task<BoolActionResult> DeleteSFeeByTCommand(DeleteSFeeByTCommand request)
         {
             var checkExists = await _context.SfeeByTcommand.Where(x => x.Id == request.Id).FirstOrDefaultAsync();
@@ -109,6 +118,7 @@ namespace TBSLogistics.Service.Services.SFeeByTcommandManage
                 return new BoolActionResult { isSuccess = false, Message = "Phụ phát sinh thất bại!" };
             }
         }
+
         private async Task<string> Validate(long IdTcommand, long SfId, double FinalPrice, string ErrorRow = "")
         {
             string ErrorValidate = "";
@@ -131,6 +141,7 @@ namespace TBSLogistics.Service.Services.SFeeByTcommandManage
             }
             return ErrorValidate;
         }
+
         public async Task<PagedResponseCustom<ListSubFeeIncurred>> GetListSubFeeIncurredApprove(PaginationFilter filter)
         {
             var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
@@ -163,6 +174,7 @@ namespace TBSLogistics.Service.Services.SFeeByTcommandManage
             {
                 Id = x.sfc.Id,
                 MaVanDon = x.dp.MaVanDon,
+                DiaDiem = x.sfc.PlaceId == null ? null : _context.DiaDiem.Where(y => y.MaDiaDiem == x.sfc.PlaceId).Select(y => y.TenDiaDiem).FirstOrDefault(),
                 MaSoXe = x.dp.MaSoXe,
                 TaiXe = _context.TaiXe.Where(y => y.MaTaiXe == x.dp.MaTaiXe).Select(x => x.HoVaTen).FirstOrDefault(),
                 SubFee = x.sf.SfName,
@@ -178,6 +190,7 @@ namespace TBSLogistics.Service.Services.SFeeByTcommandManage
                 paginationFilter = validFilter
             };
         }
+
         public async Task<List<ListSubFeeIncurred>> GetListSubFeeIncurredByHandling(int id)
         {
             var getListSubFeeByContract = from dp in _context.DieuPhoi
@@ -205,7 +218,6 @@ namespace TBSLogistics.Service.Services.SFeeByTcommandManage
                                      orderby sfc.CreatedDate descending
                                      select new { dp, sfc, sf, status };
 
-
             var dataSubFeeByContract = await getListSubFeeByContract.Select(x => new ListSubFeeIncurred()
             {
                 Id = x.sfp.PriceId,
@@ -218,7 +230,6 @@ namespace TBSLogistics.Service.Services.SFeeByTcommandManage
                 TrangThai = x.tt.StatusContent,
                 ApprovedDate = x.sfp.ApprovedDate,
                 CreatedDate = x.sfp.CreatedDate,
-
             }).ToListAsync();
 
             var listDataSubFeeIncurred = await dataSubFeeIncurred.Select(x => new ListSubFeeIncurred()
@@ -226,6 +237,7 @@ namespace TBSLogistics.Service.Services.SFeeByTcommandManage
                 Id = x.sfc.Id,
                 MaVanDon = x.dp.MaVanDon,
                 MaSoXe = x.dp.MaSoXe,
+                DiaDiem = x.sfc.PlaceId == null ? null : _context.DiaDiem.Where(y => y.MaDiaDiem == x.sfc.PlaceId).Select(y => y.TenDiaDiem).FirstOrDefault(),
                 Type = "Phụ Phí Phát Sinh",
                 TaiXe = _context.TaiXe.Where(y => y.MaTaiXe == x.dp.MaTaiXe).Select(x => x.HoVaTen).FirstOrDefault(),
                 SubFee = x.sf.SfName,
@@ -238,6 +250,7 @@ namespace TBSLogistics.Service.Services.SFeeByTcommandManage
             var data = dataSubFeeByContract.Concat(listDataSubFeeIncurred).ToList();
             return data;
         }
+
         public async Task<GetSubFeeIncurred> GetSubFeeIncurredById(int id)
         {
             var data = from dp in _context.DieuPhoi
@@ -254,6 +267,7 @@ namespace TBSLogistics.Service.Services.SFeeByTcommandManage
             return new GetSubFeeIncurred
             {
                 MaVanDon = result.dp.MaVanDon,
+                PlaceId = result.sfc.PlaceId,
                 TaiXe = _context.TaiXe.Where(y => y.MaTaiXe == result.dp.MaTaiXe).Select(x => x.HoVaTen).FirstOrDefault(),
                 MaSoXe = result.dp.MaSoXe,
                 Romooc = result.dp.MaRomooc,
@@ -264,6 +278,7 @@ namespace TBSLogistics.Service.Services.SFeeByTcommandManage
                 CreatedDate = result.sfc.CreatedDate,
             };
         }
+
         public async Task<BoolActionResult> ApproveSubFeeIncurred(List<ApproveSFeeByTCommand> request)
         {
             var transaction = _context.Database.BeginTransaction();

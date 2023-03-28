@@ -10,6 +10,7 @@ namespace TBSLogistics.Model.Model.UserModel
     {
         public List<string> customers { get; set; }
         public List<string> users { get; set; }
+        public List<string> accountIds { get; set; }
         public List<int> listDiemDau { get; set; }
         public List<int> listDiemCuoi { get; set; }
         public List<int?> listDiemLayTraRong { get; set; }

@@ -38,6 +38,7 @@ namespace TBSLogistics.Data.TMS
         public DateTime? ThoiGianTraRong { get; set; }
         public int DiemDau { get; set; }
         public int DiemCuoi { get; set; }
+        public string MaAccount { get; set; }
 
         public virtual ICollection<DieuPhoi> DieuPhoi { get; set; }
     }

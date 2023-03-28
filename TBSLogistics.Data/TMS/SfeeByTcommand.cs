@@ -16,6 +16,7 @@ namespace TBSLogistics.Data.TMS
         public string Approver { get; set; }
         public string Updater { get; set; }
         public string Creator { get; set; }
+        public int? PlaceId { get; set; }
 
         public virtual DieuPhoi IdTcommandNavigation { get; set; }
         public virtual SubFee Sf { get; set; }

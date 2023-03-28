@@ -3,12 +3,15 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TBSLogistics.Data.TMS;
 using TBSLogistics.Model.CommonModel;
 using TBSLogistics.Model.Filter;
+using TBSLogistics.Model.Model.AccountModel;
 using TBSLogistics.Model.Model.CustomerModel;
 using TBSLogistics.Model.Model.CustommerModel;
 using TBSLogistics.Model.TempModel;
@@ -25,7 +28,7 @@ namespace TBSLogistics.Service.Services.CustommerManage
         private readonly IHttpContextAccessor _httpContextAccessor;
         private TempData tempData;
 
-        public CustomerService(TMSContext TMSContext, ICommon common,  IHttpContextAccessor httpContextAccessor)
+        public CustomerService(TMSContext TMSContext, ICommon common, IHttpContextAccessor httpContextAccessor)
         {
             _httpContextAccessor = httpContextAccessor;
             _TMSContext = TMSContext;
@@ -44,7 +47,7 @@ namespace TBSLogistics.Service.Services.CustommerManage
                     return new BoolActionResult { isSuccess = false, Message = "Mã Khách hàng này đã tồn tại" };
                 }
 
-                string ErrorValidate = await ValiateCustommer( request.TenKh, request.MaSoThue, request.Sdt, request.Email, request.LoaiKH, request.NhomKH, request.TrangThai);
+                string ErrorValidate = await ValiateCustommer(request.TenKh, request.MaSoThue, request.Sdt, request.Email, request.LoaiKH, request.NhomKH, request.TrangThai);
 
                 if (ErrorValidate != "")
                 {
@@ -124,7 +127,7 @@ namespace TBSLogistics.Service.Services.CustommerManage
                     return new BoolActionResult { isSuccess = false, Message = "Khách hàng không tồn tại" };
                 }
 
-                string ErrorValidate = await ValiateCustommer( request.TenKh, request.MaSoThue, request.Sdt, request.Email, request.LoaiKH, request.NhomKH, request.TrangThai);
+                string ErrorValidate = await ValiateCustommer(request.TenKh, request.MaSoThue, request.Sdt, request.Email, request.LoaiKH, request.NhomKH, request.TrangThai);
 
                 GetCustommer.Chuoi = request.LoaiKH == "NCC" ? null : request.Chuoi.ToUpper();
                 GetCustommer.TenKh = request.TenKh;
@@ -261,6 +264,9 @@ namespace TBSLogistics.Service.Services.CustommerManage
 
                 var totalCount = await listData.CountAsync();
 
+
+
+
                 var pagedData = await listData.Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new ListCustommerRequest()
                 {
                     MaKh = x.cus.MaKh,
@@ -274,6 +280,13 @@ namespace TBSLogistics.Service.Services.CustommerManage
                     TrangThai = x.cus.TrangThai,
                     Createdtime = x.cus.CreatedTime,
                     UpdateTime = x.cus.UpdatedTime,
+                    listAccount = _TMSContext.AccountOfCustomer.Where(c => _TMSContext.KhachHangAccount.Where(y => y.MaKh == x.cus.MaKh).Select(y => y.MaAccount).Contains(c.MaAccount)).Select(c => new GetAccountById()
+                    {
+                        AccountId = c.MaAccount,
+                        AccountName = c.TenAccount,
+                        CreatedTime = c.CreatedTime,
+                        StatusId = c.TrangThai,
+                    }).ToList()
                 }).ToListAsync();
 
                 return new PagedResponseCustom<ListCustommerRequest>()
@@ -464,7 +477,7 @@ namespace TBSLogistics.Service.Services.CustommerManage
         //    }
         //}
 
-        private async Task<string> ValiateCustommer( string TenKh, string MaSoThue, string Sdt, string Email, string LoaiKH, string NhomKH, int TrangThai, string ErrorRow = "")
+        private async Task<string> ValiateCustommer(string TenKh, string MaSoThue, string Sdt, string Email, string LoaiKH, string NhomKH, int TrangThai, string ErrorRow = "")
         {
             string ErrorValidate = "";
 

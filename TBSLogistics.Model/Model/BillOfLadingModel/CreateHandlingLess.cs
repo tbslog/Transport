@@ -28,6 +28,7 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
     public class arrTransport
     {
         public long? HandlingId { get; set; }
+        public int? ThuTuGiaoHang { get; set; }
         public string SealHQ { get; set; }
         public string SealNP { get; set; }
         public string ContNo { get; set; }

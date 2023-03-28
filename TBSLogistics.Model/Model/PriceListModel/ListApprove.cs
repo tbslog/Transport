@@ -9,6 +9,7 @@ namespace TBSLogistics.Model.Model.PriceListModel
     public class ListApprove
     {
         public long Id { get; set; }
+        public string AccountId { get; set; }
         public string DiemDau { get; set; }
         public string DiemCuoi { get; set; }
         public string DiemLayTraRong { get; set; }

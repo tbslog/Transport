@@ -210,7 +210,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpPost]
         [Route("[action]")]
-        public async Task<IActionResult> SetRuning(int id)
+        public async Task<IActionResult> ChangeStatusHandling(int id,string maChuyen)
         {
             var checkPermission = await _common.CheckPermission("F0007");
             if (checkPermission.isSuccess == false)
@@ -218,7 +218,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
                 return BadRequest(checkPermission.Message);
             }
 
-            var update = await _billOfLading.SetRunning(id);
+            var update = await _billOfLading.ChangeStatusHandling(id, maChuyen);
 
             if (update.isSuccess)
             {
@@ -254,9 +254,9 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpPost]
         [Route("[action]")]
-        public async Task<IActionResult> CancelHandlingByCus(int? id, string transportId)
+        public async Task<IActionResult> CancelHandlingByCustomer(int id, string note)
         {
-            var action = await _billOfLading.CancelHandlingByCus(id, transportId);
+            var action = await _billOfLading.CancelHandlingByCustomer(id, note);
             if (action.isSuccess)
             {
                 return Ok(action.Message);
@@ -281,50 +281,6 @@ namespace TBSLogistics.ApplicationAPI.Controllers
                 return Ok(result.Message);
             }
             return BadRequest(result.Message);
-        }
-
-        [HttpPost]
-        [Route("[action]")]
-        public async Task<IActionResult> SetRuningLess(string id)
-        {
-            var checkPermission = await _common.CheckPermission("F0007");
-            if (checkPermission.isSuccess == false)
-            {
-                return BadRequest(checkPermission.Message);
-            }
-
-            var update = await _billOfLading.SetRunningLess(id);
-
-            if (update.isSuccess)
-            {
-                return Ok(update.Message);
-            }
-            else
-            {
-                return BadRequest(update.Message);
-            }
-        }
-
-        [HttpPost]
-        [Route("[action]")]
-        public async Task<IActionResult> CancelHandlingLess(string maChuyen, int handlingId)
-        {
-            var checkPermission = await _common.CheckPermission("F0002");
-            if (checkPermission.isSuccess == false)
-            {
-                return BadRequest(checkPermission.Message);
-            }
-
-            var update = await _billOfLading.CancelHandlingLess(maChuyen, handlingId);
-
-            if (update.isSuccess)
-            {
-                return Ok(update.Message);
-            }
-            else
-            {
-                return BadRequest(update.Message);
-            }
         }
 
         [HttpPost]
@@ -383,50 +339,6 @@ namespace TBSLogistics.ApplicationAPI.Controllers
                 return BadRequest(rename.Message);
             }
         }
-
-        //[HttpPost]
-        //[Route("[action]")]
-        //public async Task<IActionResult> CloneHandling(int id)
-        //{
-        //    var checkPermission = await _common.CheckPermission("F0001");
-        //    if (checkPermission.isSuccess == false)
-        //    {
-        //        return BadRequest(checkPermission.Message);
-        //    }
-
-        //    var copy = await _billOfLading.CloneHandling(id);
-
-        //    if (copy.isSuccess)
-        //    {
-        //        return Ok(copy.Message);
-        //    }
-        //    else
-        //    {
-        //        return BadRequest(copy.Message);
-        //    }
-        //}
-
-        //[HttpPost]
-        //[Route("[action]")]
-        //public async Task<IActionResult> RemoveHandling(int id)
-        //{
-        //    var checkPermission = await _common.CheckPermission("F0001");
-        //    if (checkPermission.isSuccess == false)
-        //    {
-        //        return BadRequest(checkPermission.Message);
-        //    }
-
-        //    var remove = await _billOfLading.RemoveHandling(id);
-
-        //    if (remove.isSuccess)
-        //    {
-        //        return Ok(remove.Message);
-        //    }
-        //    else
-        //    {
-        //        return BadRequest(remove.Message);
-        //    }
-        //}
 
         [HttpPost]
         [Route("[action]")]

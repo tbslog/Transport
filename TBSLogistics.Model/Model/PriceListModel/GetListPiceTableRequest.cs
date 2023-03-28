@@ -9,6 +9,7 @@ namespace TBSLogistics.Model.Model.PriceListModel
     public class GetListPiceTableRequest
     {
         public string DiemLayTraRong { get; set; }
+        public string AccountName { get; set; }
         public string DiemDau { get; set; }
         public string DiemCuoi { get; set; }
         public string MaBangGia { get; set; }

@@ -9,6 +9,7 @@ namespace TBSLogistics.Model.Model.SubFeePriceModel
     public class ListSubFeeIncurred
     {
         public long Id { get; set; }
+        public string DiaDiem { get; set; }
         public string MaVanDon { get; set; }
         public string MaSoXe { get; set; }
         public string TaiXe { get; set; }

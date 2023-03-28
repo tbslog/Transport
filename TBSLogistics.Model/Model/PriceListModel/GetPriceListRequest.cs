@@ -9,6 +9,7 @@ namespace TBSLogistics.Model.Model.PriceListModel
    public class GetPriceListRequest
     {
         public long ID { get; set; }
+        public string AccountName { get; set; }
         public string DiemDau { get; set; }
         public string DiemCuoi { get; set; }
         public string DiemLayTraRong { get; set; }
@@ -30,6 +31,7 @@ namespace TBSLogistics.Model.Model.PriceListModel
     public class GetPriceListById
     {
         public long ID { get; set; }
+        public string AccountId { get; set; }
         public int DiemDau { get; set; }
         public int DiemCuoi { get; set; }
         public int? DiemLayTraRong { get; set; }

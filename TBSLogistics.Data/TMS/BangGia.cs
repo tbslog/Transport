@@ -31,7 +31,9 @@ namespace TBSLogistics.Data.TMS
         public int? DiemLayTraRong { get; set; }
         public int DiemDau { get; set; }
         public int DiemCuoi { get; set; }
+        public string MaAccount { get; set; }
 
+        public virtual AccountOfCustomer MaAccountNavigation { get; set; }
         public virtual HopDongVaPhuLuc MaHopDongNavigation { get; set; }
         public virtual ICollection<DieuPhoi> DieuPhoiBangGiaKhNavigation { get; set; }
         public virtual ICollection<DieuPhoi> DieuPhoiBangGiaNccNavigation { get; set; }

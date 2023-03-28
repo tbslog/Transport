@@ -19,6 +19,7 @@ namespace TBSLogistics.Data.TMS
         }
 
         public virtual DbSet<Account> Account { get; set; }
+        public virtual DbSet<AccountOfCustomer> AccountOfCustomer { get; set; }
         public virtual DbSet<Attachment> Attachment { get; set; }
         public virtual DbSet<BangGia> BangGia { get; set; }
         public virtual DbSet<BangGiaDacBiet> BangGiaDacBiet { get; set; }
@@ -31,7 +32,7 @@ namespace TBSLogistics.Data.TMS
         public virtual DbSet<DonViTinh> DonViTinh { get; set; }
         public virtual DbSet<HopDongVaPhuLuc> HopDongVaPhuLuc { get; set; }
         public virtual DbSet<KhachHang> KhachHang { get; set; }
-        public virtual DbSet<KhuVuc> KhuVuc { get; set; }
+        public virtual DbSet<KhachHangAccount> KhachHangAccount { get; set; }
         public virtual DbSet<LoaiDiaDiem> LoaiDiaDiem { get; set; }
         public virtual DbSet<LoaiHangHoa> LoaiHangHoa { get; set; }
         public virtual DbSet<LoaiHinhKho> LoaiHinhKho { get; set; }
@@ -97,6 +98,26 @@ namespace TBSLogistics.Data.TMS
                     .HasMaxLength(30);
             });
 
+            modelBuilder.Entity<AccountOfCustomer>(entity =>
+            {
+                entity.HasKey(e => e.MaAccount)
+                    .HasName("PK_AccountOfCustomer_1");
+
+                entity.Property(e => e.MaAccount)
+                    .HasMaxLength(8)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Creator)
+                    .IsRequired()
+                    .HasMaxLength(30);
+
+                entity.Property(e => e.TenAccount)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.Updater).HasMaxLength(30);
+            });
+
             modelBuilder.Entity<Attachment>(entity =>
             {
                 entity.Property(e => e.Id).HasColumnName("ID");
@@ -151,6 +172,10 @@ namespace TBSLogistics.Data.TMS
 
                 entity.Property(e => e.DonGia).HasColumnType("decimal(18, 0)");
 
+                entity.Property(e => e.MaAccount)
+                    .HasMaxLength(8)
+                    .IsUnicode(false);
+
                 entity.Property(e => e.MaDvt)
                     .IsRequired()
                     .HasMaxLength(10)
@@ -184,6 +209,11 @@ namespace TBSLogistics.Data.TMS
                     .HasColumnName("MaPTVC");
 
                 entity.Property(e => e.Updater).HasMaxLength(30);
+
+                entity.HasOne(d => d.MaAccountNavigation)
+                    .WithMany(p => p.BangGia)
+                    .HasForeignKey(d => d.MaAccount)
+                    .HasConstraintName("fk_MaAccountBG_MaAccountCus");
 
                 entity.HasOne(d => d.MaHopDongNavigation)
                     .WithMany(p => p.BangGia)
@@ -607,13 +637,38 @@ namespace TBSLogistics.Data.TMS
                 entity.Property(e => e.Updater).HasMaxLength(30);
             });
 
-            modelBuilder.Entity<KhuVuc>(entity =>
+            modelBuilder.Entity<KhachHangAccount>(entity =>
             {
+                entity.ToTable("KhachHang_Account");
+
                 entity.Property(e => e.Id).HasColumnName("ID");
 
-                entity.Property(e => e.TenKhuVuc)
+                entity.Property(e => e.Creator)
                     .IsRequired()
-                    .HasMaxLength(50);
+                    .HasMaxLength(30);
+
+                entity.Property(e => e.MaAccount)
+                    .IsRequired()
+                    .HasMaxLength(8)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.MaKh)
+                    .IsRequired()
+                    .HasMaxLength(8)
+                    .IsUnicode(false)
+                    .HasColumnName("MaKH");
+
+                entity.HasOne(d => d.MaAccountNavigation)
+                    .WithMany(p => p.KhachHangAccount)
+                    .HasForeignKey(d => d.MaAccount)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK__KhachHang__MaAcc__66361833");
+
+                entity.HasOne(d => d.MaKhNavigation)
+                    .WithMany(p => p.KhachHangAccount)
+                    .HasForeignKey(d => d.MaKh)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK__KhachHang___MaKH__6541F3FA");
             });
 
             modelBuilder.Entity<LoaiDiaDiem>(entity =>
@@ -1357,6 +1412,10 @@ namespace TBSLogistics.Data.TMS
                 entity.Property(e => e.LoaiVanDon)
                     .IsRequired()
                     .HasMaxLength(20)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.MaAccount)
+                    .HasMaxLength(8)
                     .IsUnicode(false);
 
                 entity.Property(e => e.MaKh)

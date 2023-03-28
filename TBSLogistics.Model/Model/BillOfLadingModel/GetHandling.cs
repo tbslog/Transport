@@ -9,6 +9,7 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
     public class GetHandling
     {
         public RoadDetail CungDuong { get; set; }
+        public string AccountName { get; set; }
         public double? TongKhoiLuong { get; set; }
         public double? TongTheTich { get; set; }
         public double? TongSoKien { get; set; }

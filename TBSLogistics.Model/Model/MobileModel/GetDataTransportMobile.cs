@@ -23,6 +23,7 @@ namespace TBSLogistics.Model.Model.MobileModel
     {
 
         public long HandlingId { get; set; }
+        public int? ThuTuGiaoHang { get; set; }
         public string BookingNo { get; set; }
         public string MaVanDon { get; set; }
         public string LoaiVanDon { get; set; }
