@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using TBSLogistics.Model.Model.BillOfLadingModel;
 using TBSLogistics.Model.Model.SFeeByTcommandModel;
@@ -145,6 +146,46 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             {
                 return BadRequest(update);
             }
+        }
+
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetListImage(int handlingId)
+        {
+            var checkPermission = await _common.CheckPermission("F0004");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
+            var list = await _billOfLading.GetListImageByHandlingId(handlingId);
+            return Ok(list);
+        }
+
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetImageById(int idImage)
+        {
+            var checkPermission = await _common.CheckPermission("F0004");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
+            var image = await _billOfLading.GetImageById(idImage);
+
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), image.FilePath);
+            if (!System.IO.File.Exists(filePath))
+                return NotFound();
+
+            var memory = new MemoryStream();
+            await using (var stream = new FileStream(filePath, FileMode.Open))
+            {
+                await stream.CopyToAsync(memory);
+            }
+            memory.Position = 0;
+
+            return File(memory, "application/octet-stream", image.FileName);
         }
 
         [HttpPost]

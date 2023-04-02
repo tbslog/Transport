@@ -24,6 +24,7 @@ namespace TBSLogistics.Model.Model.BillModel
         public string MaKH { get; set; }
         public string MaNCC { get; set; }
         public string TenKH { get; set; }
+        public string AccountName { get; set; }
         public string TenNCC { get; set; }
         public decimal? DonGiaKH { get; set; }
         public decimal? DonGiaNCC { get; set; }

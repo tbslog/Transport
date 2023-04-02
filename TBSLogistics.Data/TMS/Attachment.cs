@@ -16,6 +16,7 @@ namespace TBSLogistics.Data.TMS
         public DateTime? UploadedTime { get; set; }
         public string Updater { get; set; }
         public string Creator { get; set; }
+        public string Note { get; set; }
 
         public virtual DieuPhoi DieuPhoi { get; set; }
     }

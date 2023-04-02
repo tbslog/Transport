@@ -71,9 +71,9 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<IActionResult> GetListAccountSelectByCus(string accountId)
+        public async Task<IActionResult> GetListAccountSelectByCus(string cusId=null)
         {
-            var listSeelect = await _account.GetListAccountSelectByCus(accountId);
+            var listSeelect = await _account.GetListAccountSelectByCus(cusId);
             return Ok(listSeelect);
         }
 

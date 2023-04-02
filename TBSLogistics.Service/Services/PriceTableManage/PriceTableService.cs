@@ -102,7 +102,7 @@ namespace TBSLogistics.Service.Services.PriceTableManage
 
                     if (item.DiemDau == item.DiemCuoi)
                     {
-                        ErrorValidate += "Điểm đóng hàng không được giống điểm hạ hàng: " + string.Join(",", item.MaHopDong);
+                        ErrorValidate += "Điểm đóng hàng không được giống điểm hạ hàng: ";
                     }
 
                     var checkContract = await _context.HopDongVaPhuLuc.Where(x => x.MaHopDong == item.MaHopDong).FirstOrDefaultAsync();
@@ -114,7 +114,7 @@ namespace TBSLogistics.Service.Services.PriceTableManage
                     var getNewestContract = await _context.HopDongVaPhuLuc.Where(x => x.MaKh == checkContract.MaKh).OrderByDescending(x => x.ThoiGianBatDau).FirstOrDefaultAsync();
                     if (getNewestContract.MaHopDong != checkContract.MaHopDong)
                     {
-                        ErrorValidate += "Vui Lòng Chọn Hợp Đồng Mới Nhất: " + string.Join(",", item.MaHopDong);
+                        ErrorValidate += "Vui Lòng Chọn Hợp Đồng Mới Nhất: " + string.Join(",", getNewestContract.MaHopDong);
                     }
 
                     var firstPlace = await _context.DiaDiem.Where(x => x.MaDiaDiem == item.DiemDau).FirstOrDefaultAsync();
@@ -502,7 +502,7 @@ namespace TBSLogistics.Service.Services.PriceTableManage
             var pagedData = await getData.Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new ListApprove()
             {
                 Id = x.bg.Id,
-                AccountId = x.bg.MaAccount == null ? null : _context.AccountOfCustomer.Where(y => y.MaAccount == x.bg.MaAccount).Select(y => y.TenAccount).FirstOrDefault(),
+                AccountName = x.bg.MaAccount == null ? null : _context.AccountOfCustomer.Where(y => y.MaAccount == x.bg.MaAccount).Select(y => y.TenAccount).FirstOrDefault(),
                 DiemLayTraRong = x.bg.DiemLayTraRong == null ? null : _context.DiaDiem.Where(y => y.MaDiaDiem == x.bg.DiemLayTraRong).Select(y => y.TenDiaDiem).FirstOrDefault(),
                 DiemDau = _context.DiaDiem.Where(y => y.MaDiaDiem == x.bg.DiemDau).Select(y => y.TenDiaDiem).FirstOrDefault(),
                 DiemCuoi = _context.DiaDiem.Where(y => y.MaDiaDiem == x.bg.DiemCuoi).Select(y => y.TenDiaDiem).FirstOrDefault(),
@@ -584,6 +584,7 @@ namespace TBSLogistics.Service.Services.PriceTableManage
 
                         dataPriceTable.bg.TrangThai = 4;
                         dataPriceTable.bg.Approver = tempData.UserName;
+                        dataPriceTable.bg.NgayApDung = DateTime.Now;
                         _context.BangGia.Update(dataPriceTable.bg);
                         await _context.SaveChangesAsync();
                     }

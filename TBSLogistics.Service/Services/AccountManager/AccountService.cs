@@ -3,14 +3,12 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using TBSLogistics.Data.TMS;
 using TBSLogistics.Model.CommonModel;
 using TBSLogistics.Model.Model.AccountModel;
 using TBSLogistics.Model.TempModel;
 using TBSLogistics.Service.Services.Common;
-using TBSLogistics.Service.Services.SubFeePriceManage;
 
 namespace TBSLogistics.Service.Services.AccountManager
 {
@@ -28,7 +26,6 @@ namespace TBSLogistics.Service.Services.AccountManager
             _httpContextAccessor = httpContextAccessor;
             tempData = _common.DecodeToken(_httpContextAccessor.HttpContext.Request.Headers["Authorization"][0].ToString().Replace("Bearer ", ""));
         }
-
 
         public async Task<BoolActionResult> CreateAccount(CreateOrUpdateAccount request)
         {
@@ -106,7 +103,6 @@ namespace TBSLogistics.Service.Services.AccountManager
             }
             catch (Exception ex)
             {
-
                 throw;
             }
         }
@@ -201,15 +197,24 @@ namespace TBSLogistics.Service.Services.AccountManager
             var getListAccount = from acc in _context.AccountOfCustomer
                                  join khacc in _context.KhachHangAccount
                                  on acc.MaAccount equals khacc.MaAccount
-                                 where khacc.MaKh == cusId
                                  select new { acc, khacc };
 
-            var data = await getListAccount.ToListAsync();
+            var getListAccOfUser = await _context.UserHasCustomer.Where(x => x.UserId == tempData.UserID && x.AccountId != null).ToListAsync();
 
-            return data.Select(x => new GetAccountById()
+            var data = await getListAccount.Where(x =>
+            getListAccOfUser.Select(y => y.CustomerId).Contains(x.khacc.MaKh) &&
+            getListAccOfUser.Select(y => y.AccountId).Contains(x.khacc.MaAccount)
+            ).ToListAsync();
+
+            if (!string.IsNullOrEmpty(cusId))
             {
-                AccountId = x.acc.MaAccount,
-                AccountName = x.acc.MaAccount,
+                data = data.Where(x => x.khacc.MaKh == cusId).ToList();
+            }
+
+            return data.GroupBy(x => new { x.acc.MaAccount, x.acc.TenAccount }).Select(x => new { AccountId = x.Key.MaAccount, AccountName = x.Key.TenAccount }).Select(x => new GetAccountById()
+            {
+                AccountId = x.AccountId,
+                AccountName = x.AccountName,
             }).ToList();
         }
     }

@@ -1128,6 +1128,10 @@ namespace TBSLogistics.Data.TMS
 
                 entity.Property(e => e.PriceId).HasColumnName("priceID");
 
+                entity.Property(e => e.AccountId)
+                    .HasMaxLength(8)
+                    .IsUnicode(false);
+
                 entity.Property(e => e.ApprovedDate).HasColumnName("approvedDate");
 
                 entity.Property(e => e.Approver).HasMaxLength(30);
@@ -1178,6 +1182,11 @@ namespace TBSLogistics.Data.TMS
                     .HasMaxLength(10)
                     .IsUnicode(false)
                     .HasColumnName("vehicleType");
+
+                entity.HasOne(d => d.Account)
+                    .WithMany(p => p.SubFeePrice)
+                    .HasForeignKey(d => d.AccountId)
+                    .HasConstraintName("fk_MaAccountSF_MaAccountCus");
 
                 entity.HasOne(d => d.Contract)
                     .WithMany(p => p.SubFeePrice)
@@ -1337,6 +1346,10 @@ namespace TBSLogistics.Data.TMS
             modelBuilder.Entity<UserHasCustomer>(entity =>
             {
                 entity.Property(e => e.Id).HasColumnName("ID");
+
+                entity.Property(e => e.AccountId)
+                    .HasMaxLength(8)
+                    .IsUnicode(false);
 
                 entity.Property(e => e.CustomerId)
                     .IsRequired()

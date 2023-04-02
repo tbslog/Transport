@@ -24,7 +24,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
         Task<List<Attachment>> GetListImageByHandlingId(int handlingId);
         Task<BoolActionResult> DeleteImageById(int imageId);
         Task<Attachment> GetImageById(int id);
-        Task<PagedResponseCustom<ListHandling>> GetListHandling(string transportId, ListFilter listFilter, PaginationFilter filter);
+        //Task<PagedResponseCustom<ListHandling>> GetListHandling(string transportId, ListFilter listFilter, PaginationFilter filter);
         Task<PagedResponseCustom<ListHandling>> GetListHandlingLess(ListFilter listFilter, PaginationFilter filter);
         Task<BoolActionResult> CreateTransportLess(CreateTransportLess request);
         Task<LoadJoinTransports> LoadJoinTransport(JoinTransports request);

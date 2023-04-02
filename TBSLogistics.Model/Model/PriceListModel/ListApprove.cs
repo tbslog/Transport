@@ -10,6 +10,7 @@ namespace TBSLogistics.Model.Model.PriceListModel
     {
         public long Id { get; set; }
         public string AccountId { get; set; }
+        public string AccountName { get; set; }
         public string DiemDau { get; set; }
         public string DiemCuoi { get; set; }
         public string DiemLayTraRong { get; set; }

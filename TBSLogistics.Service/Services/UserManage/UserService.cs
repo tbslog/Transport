@@ -589,6 +589,22 @@ namespace TBSLogistics.Service.Services.UserManage
                     });
                 }
 
+                foreach (var item in request.CusId)
+                {
+                    if (item.Length > 8)
+                    {
+                        var acc = item.Substring(0, item.IndexOf('-'));
+                        var maKH = item.Substring(item.IndexOf('-') + 1);
+
+                        await _context.UserHasCustomer.AddAsync(new UserHasCustomer()
+                        {
+                            UserId = request.UserID,
+                            CustomerId = maKH,
+                            AccountId = acc
+                        });
+                    }
+                }
+
                 var result = await _context.SaveChangesAsync();
 
                 if (result > 0)
@@ -612,6 +628,15 @@ namespace TBSLogistics.Service.Services.UserManage
         {
             var listCus = await _context.KhachHang.ToListAsync();
 
+            //var listCustomer = from cus in _context.KhachHang
+            //                   join khacc in _context.KhachHangAccount
+            //                   on cus.MaKh equals khacc.MaKh into acckh
+            //                   from data in acckh.DefaultIfEmpty()
+            //                   select new { data };
+
+
+            //var to = listCustomer.ToQueryString();
+
             var listTree = new List<ListTree>()
             {
                new ListTree()
@@ -620,8 +645,14 @@ namespace TBSLogistics.Service.Services.UserManage
                 Value = "KH",
                 Children = listCus.Where(y => y.MaLoaiKh == "KH").Select(y => new ListTree()
                 {
-                    Label = y.TenKh,
-                    Value = y.MaKh,
+                    Label =y.TenKh,
+                    Value =y.MaKh                ,
+                    Children = _context.AccountOfCustomer.Where(c=> _context.KhachHangAccount.Where(x=>x.MaKh == y.MaKh).Select(x=>x.MaAccount).Contains(c.MaAccount)).Count()==0?null:
+                    _context.AccountOfCustomer.Where(c=> _context.KhachHangAccount.Where(x=>x.MaKh == y.MaKh).Select(x=>x.MaAccount).Contains(c.MaAccount)).Select(x=> new ListTree()
+                    {
+                        Label = x.TenAccount,
+                        Value= x.MaAccount+ "-" +y.MaKh
+                    }).ToList(),
                 }).ToList(),
                },
                new ListTree()
@@ -630,8 +661,8 @@ namespace TBSLogistics.Service.Services.UserManage
                 Value = "NCC",
                 Children = listCus.Where(y => y.MaLoaiKh == "NCC").Select(y => new ListTree()
                 {
-                    Label = y.TenKh,
-                    Value = y.MaKh,
+                   Label =y.TenKh,
+                    Value =y.MaKh
                 }).ToList(),
                }
             };
@@ -646,9 +677,20 @@ namespace TBSLogistics.Service.Services.UserManage
                 };
             }
 
+            var listAccSelected = new List<string>();
+            var listCusSelected = new List<string>();
+            foreach (var item in listCusOfUser)
+            {
+                listCusSelected.Add(item.CustomerId);
+                if (item.AccountId != null)
+                {
+                    listAccSelected.Add(item.AccountId + "-" + item.CustomerId);
+                }
+            }
+
             return new TreeCustomer()
             {
-                IsChecked = listCusOfUser.Select(x => x.CustomerId).ToList(),
+                IsChecked = listCusSelected.Union(listAccSelected).ToList(),
                 ListTree = listTree
             };
         }

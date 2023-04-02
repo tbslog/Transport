@@ -34,7 +34,7 @@ namespace TBSLogistics.Service.Services.MobileManager
             {
                 maTaiXe = tempData.UserName;
 
-                var listStatusPending = new List<int> { 21, 30, 19, 31, 20 };
+                var listStatusPending = new List<int> {  30, 19, 31 };
 
                 var dataHandling = from dp in _context.DieuPhoi
                                    where dp.MaTaiXe == maTaiXe
@@ -88,11 +88,15 @@ namespace TBSLogistics.Service.Services.MobileManager
                         LoaiVanDon = c.vd.LoaiVanDon,
                         DiemLayHang = _context.DiaDiem.Where(o => o.MaDiaDiem == c.vd.DiemDau).Select(o => o.TenDiaDiem).FirstOrDefault(),
                         DiemTraHang = _context.DiaDiem.Where(o => o.MaDiaDiem == c.vd.DiemCuoi).Select(o => o.TenDiaDiem).FirstOrDefault(),
+                        MaDiemLayHang = c.vd.DiemDau,
+                        MaDiemTraHang = c.vd.DiemCuoi,
+                        MaDiemLayRong = (c.vd.MaPtvc == "LCL" || c.vd.MaPtvc == "FCL") ? _context.DieuPhoi.Where(o => o.MaChuyen == x.dp.MaChuyen).Select(o => o.DiemLayRong).FirstOrDefault() : null,
+                        MaDiemTraRong = (c.vd.MaPtvc == "LCL" || c.vd.MaPtvc == "FCL") ? _context.DieuPhoi.Where(o => o.MaChuyen == x.dp.MaChuyen).Select(o => o.DiemTraRong).FirstOrDefault() : null,
                         HangTau = c.vd.HangTau,
                         GhiChu = (c.vd.MaPtvc == "LCL" || c.vd.MaPtvc == "LTL") ? _context.DieuPhoi.Where(o => o.MaVanDon == c.vd.MaVanDon).Select(o => o.GhiChu).FirstOrDefault() : _context.DieuPhoi.Where(o => o.MaChuyen == x.dp.MaChuyen).Select(o => o.GhiChu).FirstOrDefault(),
                         ContNo = x.dp.ContNo,
-                        DiemTraRong = x.dp.DiemTraRong == null ? null : _context.DiaDiem.Where(o => o.MaDiaDiem == x.dp.DiemTraRong).Select(o => o.TenDiaDiem).FirstOrDefault(),
-                        DiemLayRong = x.dp.DiemLayRong == null ? null : _context.DiaDiem.Where(o => o.MaDiaDiem == x.dp.DiemLayRong).Select(o => o.TenDiaDiem).FirstOrDefault(),
+                        DiemTraRong = x.dp.DiemTraRong == null ? "" : _context.DiaDiem.Where(o => o.MaDiaDiem == x.dp.DiemTraRong).Select(o => o.TenDiaDiem).FirstOrDefault(),
+                        DiemLayRong = x.dp.DiemLayRong == null ? "" : _context.DiaDiem.Where(o => o.MaDiaDiem == x.dp.DiemLayRong).Select(o => o.TenDiaDiem).FirstOrDefault(),
                         KhoiLuong = x.dp.KhoiLuong,
                         TheTich = x.dp.TheTich,
                         SoKien = x.dp.SoKien,

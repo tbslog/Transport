@@ -21,6 +21,6 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
         Task<BoolActionResult> DisableSubFeePrice(List<long> ids);
         Task<BoolActionResult> DeleteSubFeePrice(List<long> ids);
         Task<List<ListSubFee>> GetListSubFeeSelect();
-        Task<List<SubFeePrice>> GetListSubFeePriceActive(string customerId, string goodTypes, int firstPlace, int secondPlace, int? getEmptyPlace, long? handlingId,string vehicleType);
+        Task<List<SubFeePrice>> GetListSubFeePriceActive(string customerId,string accountId, string goodTypes, int firstPlace, int secondPlace, int? getEmptyPlace, long? handlingId,string vehicleType);
     }
 }

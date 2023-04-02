@@ -33,7 +33,9 @@ namespace TBSLogistics.Data.TMS
         public int? GetEmptyPlace { get; set; }
         public int? FirstPlace { get; set; }
         public int? SecondPlace { get; set; }
+        public string AccountId { get; set; }
 
+        public virtual AccountOfCustomer Account { get; set; }
         public virtual HopDongVaPhuLuc Contract { get; set; }
         public virtual SubFee Sf { get; set; }
         public virtual ICollection<SubFeeByContract> SubFeeByContract { get; set; }

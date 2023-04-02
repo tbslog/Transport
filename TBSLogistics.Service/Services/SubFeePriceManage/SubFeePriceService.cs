@@ -111,6 +111,16 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
                     }
                 }
 
+                if (!string.IsNullOrEmpty(request.accountId))
+                {
+                    var checkAccount = _context.AccountOfCustomer.Where(x => x.MaAccount == request.accountId).FirstOrDefaultAsync();
+
+                    if (checkAccount == null)
+                    {
+                        return new BoolActionResult { isSuccess = false, Message = "Account không tồn tại" };
+                    }
+                }
+
                 await _context.AddAsync(new SubFeePrice()
                 {
                     GetEmptyPlace = request.getEmptyPlace,
@@ -119,6 +129,7 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
                     VehicleType = request.VehicleType,
                     CusType = request.CusType,
                     ContractId = request.ContractId,
+                    AccountId = request.accountId,
                     SfId = request.SfId,
                     GoodsType = request.GoodsType,
                     Price = request.Price,
@@ -236,9 +247,20 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
                     }
                 }
 
+                if (!string.IsNullOrEmpty(request.accountId))
+                {
+                    var checkAccount = _context.AccountOfCustomer.Where(x => x.MaAccount == request.accountId).FirstOrDefaultAsync();
+
+                    if (checkAccount == null)
+                    {
+                        return new BoolActionResult { isSuccess = false, Message = "Account không tồn tại" };
+                    }
+                }
+
                 var checkExists = await _context.SubFeePrice.Where(x =>
                 x.ContractId == request.ContractId
                 && x.SfId == request.SfId
+                && x.AccountId == request.accountId
                 && x.GoodsType == request.GoodsType
                 && x.FirstPlace == request.firstPlace
                 && x.SecondPlace == request.secondPlace
@@ -252,6 +274,7 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
                     return new BoolActionResult { isSuccess = false, Message = "Phụ phí đã tồn tại" };
                 }
 
+                getSubFeePrice.AccountId = request.accountId;
                 getSubFeePrice.FirstPlace = request.firstPlace;
                 getSubFeePrice.SecondPlace = request.secondPlace;
                 getSubFeePrice.GetEmptyPlace = request.getEmptyPlace;
@@ -335,6 +358,7 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
 
                         var checkExists = await _context.SubFeePrice.Where(x =>
                          x.CusType == getById.CusType
+                         && x.AccountId == getById.AccountId
                          && x.FirstPlace == getById.FirstPlace
                          && x.SecondPlace == getById.SecondPlace
                          && x.GetEmptyPlace == getById.GetEmptyPlace
@@ -498,6 +522,7 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
             {
                 var getSFP = await getById.Select(x => new GetSubFeePriceRequest()
                 {
+                    accountId = x.sfp.AccountId,
                     VehicleType = x.sfp.VehicleType,
                     PriceId = x.sfp.PriceId,
                     CustomerType = x.sfp.CusType,
@@ -551,7 +576,7 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
             }
         }
 
-        public async Task<List<SubFeePrice>> GetListSubFeePriceActive(string customerId, string goodTypes, int firstPlace, int secondPlace, int? emptyPlace, long? handlingId, string vehicleType)
+        public async Task<List<SubFeePrice>> GetListSubFeePriceActive(string customerId, string accountId, string goodTypes, int firstPlace, int secondPlace, int? emptyPlace, long? handlingId, string vehicleType)
         {
             var getFirstPlace = await _context.DiaDiem.Where(x => x.MaDiaDiem == firstPlace).FirstOrDefaultAsync();
             var getSecondPlace = await _context.DiaDiem.Where(x => x.MaDiaDiem == secondPlace).FirstOrDefaultAsync();
@@ -575,6 +600,7 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
                                on contract.MaHopDong equals sfp.ContractId
                                where
                                contract.MaKh == customerId
+                               && sfp.AccountId == accountId
                                && sfp.Status == 14
                                && (sfp.VehicleType == null || sfp.VehicleType == vehicleType)
                                && (sfp.GoodsType == null || sfp.GoodsType == goodTypes)
@@ -1151,6 +1177,7 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
 
                 var pagedData = await getList.Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new ListSubFeePriceRequest()
                 {
+                    accountId = x.sfp.AccountId,
                     VehicleType = x.sfp.VehicleType,
                     PriceId = x.sfp.PriceId,
                     CustomerName = x.kh.TenKh,

@@ -12,5 +12,6 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
         public IFormCollection files { get; set; }
         public string transportId { get; set; }
         public int handlingId { get; set; }
+        public string Note { get; set; }
     }
 }

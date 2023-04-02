@@ -21,7 +21,6 @@ namespace TBSLogistics.Model.Model.MobileModel
 
     public class GetDataHandlingMobile
     {
-
         public long HandlingId { get; set; }
         public int? ThuTuGiaoHang { get; set; }
         public string BookingNo { get; set; }
@@ -29,12 +28,18 @@ namespace TBSLogistics.Model.Model.MobileModel
         public string LoaiVanDon { get; set; }
         public string DiemLayHang { get; set; }
         public string DiemTraHang { get; set; }
-     
+        public string DiemTraRong { get; set; }
+        public string DiemLayRong { get; set; }
+
+        public int MaDiemLayHang { get; set; }
+        public int MaDiemTraHang { get; set; }
+        public int? MaDiemTraRong { get; set; }
+        public int? MaDiemLayRong { get; set; }
+
         public string HangTau { get; set; }
         public string GhiChu { get; set; }
         public string ContNo { get; set; }
-        public string DiemTraRong { get; set; }
-        public string DiemLayRong { get; set; }
+      
 
         public double? KhoiLuong { get; set; }
         public double? TheTich { get; set; }

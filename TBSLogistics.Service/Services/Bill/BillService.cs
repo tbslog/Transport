@@ -73,6 +73,7 @@ namespace TBSLogistics.Service.Services.Bill
                 {
                     DiemLayHang = _context.DiaDiem.Where(y => y.MaDiaDiem == z.vd.DiemDau).Select(x => x.TenDiaDiem).FirstOrDefault(),
                     DiemTraHang = _context.DiaDiem.Where(y => y.MaDiaDiem == z.vd.DiemCuoi).Select(x => x.TenDiaDiem).FirstOrDefault(),
+                    AccountName = z.vd.MaAccount == null ? null : _context.AccountOfCustomer.Where(y => y.MaAccount == z.vd.MaAccount).Select(y => y.TenAccount).FirstOrDefault(),
                     MaVanDon = z.vd.MaVanDon,
                     MaKh = z.vd.MaKh,
                     TenKh = z.kh.TenKh,
@@ -162,6 +163,7 @@ namespace TBSLogistics.Service.Services.Bill
                     MaVanDon = z.vd.MaVanDon,
                     MaKh = z.kh.MaKh,
                     TenKh = z.kh.TenKh,
+                    AccountName = z.vd.MaAccount == null ? null : _context.AccountOfCustomer.Where(y => y.MaAccount == z.vd.MaAccount).Select(y => y.TenAccount).FirstOrDefault(),
                     LoaiVanDon = z.vd.LoaiVanDon,
                     TongTheTich = z.vd.TongTheTich,
                     TongKhoiLuong = z.vd.TongKhoiLuong,
@@ -344,6 +346,7 @@ namespace TBSLogistics.Service.Services.Bill
             var pagedData = await getlistHandling.Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new ListBillHandling()
             {
                 MaChuyen = x.dp.Id,
+                AccountName = x.vd.MaAccount == null ? null : _context.AccountOfCustomer.Where(y => y.MaAccount == x.vd.MaAccount).Select(y => y.TenAccount).FirstOrDefault(),
                 CutOffDate = x.vd.ThoiGianHaCang,
                 DiemDau = _context.DiaDiem.Where(y => y.MaDiaDiem == x.vd.DiemDau).Select(x => x.TenDiaDiem).FirstOrDefault(),
                 DiemCuoi = _context.DiaDiem.Where(y => y.MaDiaDiem == x.vd.DiemCuoi).Select(x => x.TenDiaDiem).FirstOrDefault(),
@@ -366,6 +369,7 @@ namespace TBSLogistics.Service.Services.Bill
                 ChiPhiPhatSinh = (decimal)_context.SfeeByTcommand.Where(y => y.IdTcommand == x.dp.Id && y.ApproveStatus == 14).Sum(y => y.Price),
             }).Select(x => new ListBillHandling()
             {
+                AccountName = x.AccountName,
                 CutOffDate = x.CutOffDate,
                 DiemDau = x.DiemDau,
                 DiemCuoi = x.DiemCuoi,

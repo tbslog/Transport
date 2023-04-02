@@ -8,6 +8,7 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
 {
     public class UpdateTransport
     {
+        public string AccountId { get; set; }
         public string LoaiVanDon { get; set; }
         public int DiemDau { get; set; }
         public int DiemCuoi { get; set; }

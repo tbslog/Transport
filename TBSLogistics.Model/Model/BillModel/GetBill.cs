@@ -29,6 +29,7 @@ namespace TBSLogistics.Model.Model.BillModel
         public string MaVanDon { get; set; }
         public string MaKh { get; set; }
         public string TenKh { get; set; }
+        public string AccountName { get; set; }
         public string LoaiVanDon { get; set; }
         public string DiemLayHang { get; set; }
         public string DiemTraHang { get; set; }
