@@ -729,14 +729,13 @@ const JoinTransports = (props) => {
                 </div>
               </div>
               <div className="row">
-                <div className="table-responsive">
+                <div className="table-responsive" style={{ overflow: "auto" }}>
                   <table
                     className="table table-bordered table-striped"
                     style={{
                       whiteSpace: "nowrap",
-                      width: "80wh",
-                      height: "400px",
-                      overflow: "auto",
+                      width: "220%",
+                      height: "500px",
                     }}
                   >
                     <thead>
@@ -745,41 +744,41 @@ const JoinTransports = (props) => {
                         <th>
                           <div>Loại Vận Đơn</div>
                         </th>
-                        <th>
+                        <th style={{ width: "6%" }}>
                           <div>Booking No</div>
                         </th>
-                        <th>
+                        <th style={{ width: "6%" }}>
                           <div>Khách Hàng</div>
                         </th>
-                        <th>
+                        <th style={{ width: "6%" }}>
                           <div>Account</div>
                         </th>
-                        <th>
+                        <th style={{ width: "8%" }}>
                           <div>Loại Hàng Hóa</div>
                         </th>
-                        <th>
+                        <th style={{ width: "3%" }}>
                           <div>PTVC</div>
                         </th>
-                        <th>
+                        <th style={{ width: "8%" }}>
                           <div>Điểm Đóng Hàng</div>
                         </th>
-                        <th>
+                        <th style={{ width: "8%" }}>
                           <div>Điểm Hạ Hàng</div>
                         </th>
 
                         {(watch(`listTransport.0.MaPTVC`) === "FCL" ||
                           watch(`listTransport.0.MaPTVC`) === "LCL") && (
                           <>
-                            <th>
+                            <th style={{ width: "5%" }}>
                               <div>Mã ContNo</div>
                             </th>
-                            <th>
+                            <th style={{ width: "8%" }}>
                               <div>Điểm Lấy/Trả Rỗng</div>
                             </th>
-                            <th>
+                            <th style={{ width: "10%" }}>
                               <div>TG Hạn Lệnh/CUT OFF</div>
                             </th>
-                            <th>
+                            <th style={{ width: "10%" }}>
                               <div>TG Lấy/Trả Rỗng</div>
                             </th>
                           </>
@@ -790,10 +789,10 @@ const JoinTransports = (props) => {
                         <th>
                           <div>SEAL HQ</div>
                         </th>
-                        <th>
+                        <th style={{ width: "10%" }}>
                           <div>TG Đóng Hàng</div>
                         </th>
-                        <th>
+                        <th style={{ width: "10%" }}>
                           <div>TG Hạ Hàng</div>
                         </th>
 

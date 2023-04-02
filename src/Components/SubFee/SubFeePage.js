@@ -50,6 +50,11 @@ const SubFeePage = () => {
       sortable: true,
     },
     {
+      name: <div>Account</div>,
+      selector: (row) => <div className="text-wrap">{row.accountId}</div>,
+      sortable: true,
+    },
+    {
       name: <div>Mã Hợp Đồng</div>,
       selector: (row) => <div className="text-wrap">{row.contractId}</div>,
       sortable: true,

@@ -159,38 +159,36 @@ const CreateCustommer = (props) => {
   const onSubmit = async (data) => {
     SetIsLoading(true);
 
-    if (tabIndex) {
-      if (tabIndex === 0) {
-        const post = await postData("Customer/CreateCustomer", {
-          tenKh: data.TenKH,
-          maSoThue: data.MST,
-          sdt: data.SDT,
-          email: data.Email,
-          trangThai: data.TrangThai,
-          nhomKh: data.NhomKH,
-          loaiKh: data.LoaiKH,
-          chuoi: data.Chuoi,
-        });
-        if (post === 1) {
-          props.getListUser();
-          reset();
-        }
+    if (tabIndex === 0) {
+      const post = await postData("Customer/CreateCustomer", {
+        tenKh: data.TenKH,
+        maSoThue: data.MST,
+        sdt: data.SDT,
+        email: data.Email,
+        trangThai: data.TrangThai,
+        nhomKh: data.NhomKH,
+        loaiKh: data.LoaiKH,
+        chuoi: data.Chuoi,
+      });
+      if (post === 1) {
+        props.getListUser();
+        reset();
       }
-      if (tabIndex === 1) {
-        let arrCus = [];
-        data.ListCustomers.forEach((val) => {
-          arrCus.push(val.value);
-        });
+    }
+    if (tabIndex === 1) {
+      let arrCus = [];
+      data.ListCustomers.forEach((val) => {
+        arrCus.push(val.value);
+      });
 
-        const post = await postData("AccountCustomer/CreateAccountCus", {
-          AccountName: data.AccountName,
-          ListCustomer: arrCus,
-        });
+      const post = await postData("AccountCustomer/CreateAccountCus", {
+        AccountName: data.AccountName,
+        ListCustomer: arrCus,
+      });
 
-        if (post === 1) {
-          props.getListUser();
-          reset();
-        }
+      if (post === 1) {
+        props.getListUser();
+        reset();
       }
     }
 
@@ -458,7 +456,7 @@ const CreateCustommer = (props) => {
                             type="text"
                             className="form-control"
                             id="AccountName"
-                            placeholder="Nhập số điện thoại"
+                            placeholder="Nhập tên Account"
                             {...register("AccountName", Validate.AccountName)}
                           />
                           {errors.AccountName && (

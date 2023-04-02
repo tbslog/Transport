@@ -9,6 +9,7 @@ const UpdateSubFee = (props) => {
   const {
     register,
     reset,
+    watch,
     setValue,
     control,
     formState: { errors },
@@ -54,6 +55,7 @@ const UpdateSubFee = (props) => {
   const [listFPlace, setListFPlace] = useState([]);
   const [listSPlace, setListSPlace] = useState([]);
   const [listEPlace, setListEPlace] = useState([]);
+  const [listAccountCus, setListAccountCus] = useState([]);
 
   useEffect(() => {
     (async () => {
@@ -140,6 +142,9 @@ const UpdateSubFee = (props) => {
           ...listCustomer.filter((x) => x.value === selectIdClick.customerId),
         }[0]
       );
+      handleOnChangeCustomer(
+        listCustomer.find((x) => x.value === selectIdClick.customerId)
+      );
       getListContract(selectIdClick.customerId);
     }
   }, [listCustomer, selectIdClick]);
@@ -195,6 +200,20 @@ const UpdateSubFee = (props) => {
     }
   }, [selectIdClick, listContract]);
 
+  useEffect(() => {
+    if (
+      listAccountCus &&
+      listAccountCus.length > 0 &&
+      selectIdClick &&
+      Object.keys(selectIdClick).length > 0
+    ) {
+      setValue(
+        "AccountCus",
+        listAccountCus.find((x) => x.value === selectIdClick.accountId)
+      );
+    }
+  }, [listAccountCus, selectIdClick]);
+
   const handleOnchangeListCustomer = async (val) => {
     SetIsLoading(true);
 
@@ -207,6 +226,28 @@ const UpdateSubFee = (props) => {
     }
 
     SetIsLoading(false);
+  };
+
+  const handleOnChangeCustomer = async (val) => {
+    if (val && Object.keys(val).length > 0) {
+      setValue("MaKH", val);
+      const getListAcc = await getData(
+        `AccountCustomer/GetListAccountSelectByCus?cusId=${val.value}`
+      );
+      if (getListAcc && getListAcc.length > 0) {
+        var obj = [];
+        obj.push({ label: "-- Để Trống --", value: null });
+        getListAcc.map((val) => {
+          obj.push({
+            value: val.accountId,
+            label: val.accountId + " - " + val.accountName,
+          });
+        });
+        setListAccountCus(obj);
+      } else {
+        setListAccountCus([]);
+      }
+    }
   };
 
   const handleOnChangeContractType = async (val) => {
@@ -262,6 +303,7 @@ const UpdateSubFee = (props) => {
   const handleResetClick = () => {
     reset();
     setValue("MaKh", null);
+    setValue("AccountCus", null);
     setValue("MaHopDong", null);
     setValue("LoaiPhuPhi", null);
 
@@ -274,6 +316,7 @@ const UpdateSubFee = (props) => {
     const createSubFreePrice = await postData(
       `SubFeePrice/UpdateSubFeePrice?Id=${selectIdClick.priceId}`,
       {
+        accountId: !data.AccountCus ? null : data.AccountCus.value,
         CusType: data.PhanLoaiDoiTac,
         ContractId: data.MaHopDong.value,
         SfId: data.LoaiPhuPhi.value,
@@ -356,7 +399,10 @@ const UpdateSubFee = (props) => {
                         classNamePrefix={"form-control"}
                         value={field.value}
                         options={listCustomer}
-                        onChange={(field) => handleOnchangeListCustomer(field)}
+                        onChange={(field) => {
+                          handleOnchangeListCustomer(field);
+                          handleOnChangeCustomer(field);
+                        }}
                       />
                     )}
                     rules={Validate.MaKh}
@@ -366,6 +412,30 @@ const UpdateSubFee = (props) => {
                   )}
                 </div>
               </div>
+              {watch("PhanLoaiDoiTac") && watch("PhanLoaiDoiTac") === "KH" && (
+                <div className="col col-sm">
+                  <div className="form-group">
+                    <label htmlFor="AccountCus">Account</label>
+                    <Controller
+                      name="AccountCus"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          classNamePrefix={"form-control"}
+                          value={field.value}
+                          options={listAccountCus}
+                        />
+                      )}
+                    />
+                    {errors.AccountCus && (
+                      <span className="text-danger">
+                        {errors.AccountCus.message}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
               <div className="col col-sm">
                 <div className="form-group">
                   <label htmlFor="MaHopDong">Hợp Đồng(*)</label>

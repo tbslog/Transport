@@ -10,7 +10,7 @@ const DetailBillByTransport = (props) => {
 
   useEffect(() => {
     if (props && dataClick && Object.keys(dataClick).length > 0) {
-      let data = getDataBill(dataClick.maKh, dataClick.maVanDon);
+      getDataBill(dataClick.maKH, dataClick.maVanDon);
     }
   }, [props, dataClick]);
 
@@ -85,7 +85,16 @@ const DetailBillByTransport = (props) => {
                 <div className="row">
                   <div className="col-12">
                     <div className="text-center text-150">
-                      <h1 className="text-default-d3">{dataClick.khachHang}</h1>
+                      <h1 className="text-default-d3">
+                        {dataClick.tenKH}
+                        {!dataClick.accountName ? (
+                          ""
+                        ) : (
+                          <>
+                            <br></br>Account: {dataClick.accountName}
+                          </>
+                        )}
+                      </h1>
                     </div>
                   </div>
                 </div>

@@ -6,6 +6,7 @@ import EditCustommer from "./EdtiCustommer";
 import CreateCustommer from "./CreateCustommer";
 import { Modal } from "bootstrap";
 import { ToastWarning } from "../Common/FuncToast";
+import EditAccount from "../ContractManage/EditAccount";
 
 const customStyles = {
   rows: {
@@ -163,8 +164,13 @@ const CustommerPage = () => {
 
   const handleEditButtonClick = async (val) => {
     showModalForm();
+
     const dataCus = await getData(`Customer/GetCustomerById?Id=${val.maKh}`);
-    setSelectIdClick(dataCus);
+    if (dataCus && Object.keys(dataCus).length > 0) {
+      setSelectIdClick(dataCus);
+    } else {
+      setSelectIdClick(val);
+    }
   };
 
   const fetchData = async (page, KeyWord = "", cusType) => {
@@ -262,8 +268,8 @@ const CustommerPage = () => {
                       onClick={() =>
                         handleEditButtonClick(
                           val,
-                          SetShowModal("Edit"),
-                          setTitle("Cập Nhật Hợp Đồng/Phụ Lục")
+                          SetShowModal("EditAccount"),
+                          setTitle("Cập Nhật Account")
                         )
                       }
                       type="button"
@@ -489,6 +495,12 @@ const CustommerPage = () => {
                       listTypeAddress={ListTypeAddress}
                       listChuoi={listChuoi}
                       hideModal={hideModal}
+                    />
+                  )}
+                  {ShowModal === "EditAccount" && (
+                    <EditAccount
+                      selectIdClick={selectIdClick}
+                      getListUser={ReloadData}
                     />
                   )}
                   {ShowModal === "Create" && (

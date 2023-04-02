@@ -79,11 +79,15 @@ const BillPage = () => {
     },
     {
       name: <div>Khách Hàng</div>,
-      selector: (row) => <div className="text-wrap">{row.khachHang}</div>,
+      selector: (row) => <div className="text-wrap">{row.tenKH}</div>,
+    },
+    {
+      name: <div>Account</div>,
+      selector: (row) => <div className="text-wrap">{row.accountName}</div>,
     },
     {
       name: <div>Đơn Vị Vận Tải</div>,
-      selector: (row) => <div className="text-wrap">{row.donViVanTai}</div>,
+      selector: (row) => <div className="text-wrap">{row.tenNCC}</div>,
     },
     {
       name: <div>Đơn Giá KH</div>,

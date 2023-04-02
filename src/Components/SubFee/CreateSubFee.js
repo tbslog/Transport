@@ -11,6 +11,7 @@ const CreateSubFee = (props) => {
     register,
     reset,
     setValue,
+    watch,
     control,
     formState: { errors },
     handleSubmit,
@@ -60,6 +61,8 @@ const CreateSubFee = (props) => {
   const [listSPlace, setListSPlace] = useState([]);
   const [listEPlace, setListEPlace] = useState([]);
 
+  const [listAccountCus, setListAccountCus] = useState([]);
+
   useEffect(() => {
     (async () => {
       SetIsLoading(true);
@@ -105,9 +108,13 @@ const CreateSubFee = (props) => {
     })();
   }, []);
 
-  const handleOnchangeListCustomer = async (val) => {
-    SetIsLoading(true);
+  useEffect(() => {
+    if (listCustomerType && listCustomerType.length > 0) {
+      handleOnChangeContractType("KH");
+    }
+  }, [listCustomerType]);
 
+  const handleOnchangeListCustomer = async (val) => {
     setListContract([]);
     setValue("MaKh", val);
     setValue("MaHopDong", null);
@@ -115,8 +122,6 @@ const CreateSubFee = (props) => {
     if (val && val.value) {
       await getListContract(val.value);
     }
-
-    SetIsLoading(false);
   };
 
   const handleOnChangeContractType = async (val) => {
@@ -143,8 +148,6 @@ const CreateSubFee = (props) => {
   };
 
   const getListContract = async (CusId) => {
-    SetIsLoading(true);
-
     let getListContract = await getData(
       `Contract/GetListContractSelect?MaKH=${CusId}&getProductService=true`
     );
@@ -160,13 +163,34 @@ const CreateSubFee = (props) => {
       });
       setListContract(obj);
     }
-    SetIsLoading(false);
   };
 
   const handleOnchangeListSubFee = async (val) => {
     setValue("LoaiPhuPhi", val);
     var des = listSubFee.filter((x) => x.subFeeId === val.value)[0];
     setValue("SubFeeDes", des.subFeeDescription);
+  };
+
+  const handleOnChangeCustomer = async (val) => {
+    if (val && Object.keys(val).length > 0) {
+      setValue("MaKH", val);
+      const getListAcc = await getData(
+        `AccountCustomer/GetListAccountSelectByCus?cusId=${val.value}`
+      );
+      if (getListAcc && getListAcc.length > 0) {
+        var obj = [];
+        obj.push({ label: "-- Để Trống --", value: null });
+        getListAcc.map((val) => {
+          obj.push({
+            value: val.accountId,
+            label: val.accountId + " - " + val.accountName,
+          });
+        });
+        setListAccountCus(obj);
+      } else {
+        setListAccountCus([]);
+      }
+    }
   };
 
   const handleResetClick = () => {
@@ -185,6 +209,7 @@ const CreateSubFee = (props) => {
 
     const createSubFreePrice = await postData("SubFeePrice/CreateSubFeePrice", {
       CusType: data.PhanLoaiDoiTac,
+      accountId: !data.AccountCus ? null : data.AccountCus.value,
       ContractId: data.MaHopDong.value,
       SfId: data.LoaiPhuPhi.value,
       GoodsType: !data.MaLoaiHangHoa ? null : data.MaLoaiHangHoa,
@@ -237,7 +262,6 @@ const CreateSubFee = (props) => {
                     {...register("PhanLoaiDoiTac", Validate.PhanLoaiDoiTac)}
                     onChange={(e) => handleOnChangeContractType(e.target.value)}
                   >
-                    <option value="">Chọn phân loại đối tác</option>
                     {listCustomerType &&
                       listCustomerType.map((val) => {
                         return (
@@ -268,7 +292,10 @@ const CreateSubFee = (props) => {
                         classNamePrefix={"form-control"}
                         value={field.value}
                         options={listCustomer}
-                        onChange={(field) => handleOnchangeListCustomer(field)}
+                        onChange={(field) => {
+                          handleOnchangeListCustomer(field);
+                          handleOnChangeCustomer(field);
+                        }}
                       />
                     )}
                     rules={Validate.MaKh}
@@ -278,6 +305,31 @@ const CreateSubFee = (props) => {
                   )}
                 </div>
               </div>
+              {watch("PhanLoaiDoiTac") && watch("PhanLoaiDoiTac") === "KH" && (
+                <div className="col col-sm">
+                  <div className="form-group">
+                    <label htmlFor="AccountCus">Account</label>
+                    <Controller
+                      name="AccountCus"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          classNamePrefix={"form-control"}
+                          value={field.value}
+                          options={listAccountCus}
+                        />
+                      )}
+                    />
+                    {errors.AccountCus && (
+                      <span className="text-danger">
+                        {errors.AccountCus.message}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
+
               <div className="col col-sm">
                 <div className="form-group">
                   <label htmlFor="MaHopDong">Hợp Đồng(*)</label>

@@ -48,6 +48,16 @@ const ApproveSubFee = (props) => {
       button: true,
     },
     {
+      name: <div>Khách Hàng</div>,
+      selector: (row) => <div className="text-wrap">{row.customerName}</div>,
+      sortable: true,
+    },
+    {
+      name: <div>Account</div>,
+      selector: (row) => <div className="text-wrap">{row.accountId}</div>,
+      sortable: true,
+    },
+    {
       name: "Mã Phụ Phí",
       selector: (row) => row.priceId,
     },

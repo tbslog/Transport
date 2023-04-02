@@ -76,6 +76,10 @@ const HandlingByTransport = (props) => {
       omit: true,
     },
     {
+      name: <div>Account</div>,
+      selector: (row) => <div className="text-wrap">{row.accountName}</div>,
+    },
+    {
       name: <div>Mã Vận Đơn</div>,
       selector: (row) => <div className="text-wrap">{row.maVanDonKH}</div>,
       sortable: true,

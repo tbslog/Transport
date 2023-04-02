@@ -275,6 +275,7 @@ const UpdateTransportLess = (props) => {
     const update = await postData(
       `BillOfLading/UpdateTransportLess?transportId=${selectIdClick.maVanDon}`,
       {
+        AccountId: !data.AccountCus ? null : data.AccountCus.value,
         MaPTVC: data.LoaiHinh,
         HangTau: data.HangTau,
         TenTau: data.TenTau,

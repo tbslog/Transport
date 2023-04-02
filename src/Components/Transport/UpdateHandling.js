@@ -542,6 +542,7 @@ const UpdateHandling = (props) => {
                       type="text"
                       className="form-control"
                       id="Account"
+                      value={data.accountName}
                       readOnly
                     />
                   </div>

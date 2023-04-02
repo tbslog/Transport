@@ -13,6 +13,7 @@ const UpdatePriceTable = (props) => {
   const {
     register,
     setValue,
+    watch,
     control,
     formState: { errors },
     handleSubmit,
@@ -103,6 +104,7 @@ const UpdatePriceTable = (props) => {
   const [listFPlace, setListFPlace] = useState([]);
   const [listSPlace, setListSPlace] = useState([]);
   const [listEPlace, setListEPlace] = useState([]);
+  const [listAccountCus, setListAccountCus] = useState([]);
 
   useEffect(() => {
     SetIsLoading(true);
@@ -187,7 +189,9 @@ const UpdatePriceTable = (props) => {
         "MaKh",
         { ...listCustomer.filter((x) => x.value === selectIdClick.maKh) }[0]
       );
-
+      handleOnChangeCustomer(
+        listCustomer.find((x) => x.value === selectIdClick.maKh)
+      );
       getListRoadAndContract(selectIdClick.maKh);
     }
   }, [listCustomer, selectIdClick]);
@@ -246,6 +250,7 @@ const UpdatePriceTable = (props) => {
     setListRoad([]);
     setValue("optionRoad", [{ MaCungDuong: null }]);
     setValue("MaKh", val);
+
     setValue("MaHopDong", null);
     getListRoadAndContract(val.value);
 
@@ -306,6 +311,42 @@ const UpdatePriceTable = (props) => {
     SetIsLoading(false);
   };
 
+  useEffect(() => {
+    if (
+      listAccountCus &&
+      listAccountCus.length > 0 &&
+      selectIdClick &&
+      Object.keys(selectIdClick).length > 0
+    ) {
+      setValue(
+        "AccountCus",
+        listAccountCus.find((x) => x.value === selectIdClick.accountId)
+      );
+    }
+  }, [listAccountCus, selectIdClick]);
+
+  const handleOnChangeCustomer = async (val) => {
+    if (val && Object.keys(val).length > 0) {
+      setValue("MaKH", val);
+      const getListAcc = await getData(
+        `AccountCustomer/GetListAccountSelectByCus?cusId=${val.value}`
+      );
+      if (getListAcc && getListAcc.length > 0) {
+        var obj = [];
+        obj.push({ label: "-- Để Trống --", value: null });
+        getListAcc.map((val) => {
+          obj.push({
+            value: val.accountId,
+            label: val.accountId + " - " + val.accountName,
+          });
+        });
+        setListAccountCus(obj);
+      } else {
+        setListAccountCus([]);
+      }
+    }
+  };
+
   const onSubmit = async (data) => {
     SetIsLoading(true);
 
@@ -314,6 +355,7 @@ const UpdatePriceTable = (props) => {
       {
         MaHopDong: data.MaHopDong.value,
         DiemDau: data.DiemDau.value,
+        AccountId: !data.AccountCus ? null : data.AccountCus.value,
         DiemCuoi: data.DiemCuoi.value,
         DiemLayTraRong: !data.DiemLayTraRong
           ? null
@@ -395,9 +437,10 @@ const UpdatePriceTable = (props) => {
                           classNamePrefix={"form-control"}
                           value={field.value}
                           options={listCustomer}
-                          onChange={(field) =>
-                            handleOnchangeListCustomer(field)
-                          }
+                          onChange={(field) => {
+                            handleOnchangeListCustomer(field);
+                            handleOnChangeCustomer(field);
+                          }}
                         />
                       )}
                       rules={Validate.MaKh}
@@ -407,6 +450,31 @@ const UpdatePriceTable = (props) => {
                     )}
                   </div>
                 </div>
+                {watch("PhanLoaiDoiTac") &&
+                  watch("PhanLoaiDoiTac") === "KH" && (
+                    <div className="col col-sm">
+                      <div className="form-group">
+                        <label htmlFor="AccountCus">Account</label>
+                        <Controller
+                          name="AccountCus"
+                          control={control}
+                          render={({ field }) => (
+                            <Select
+                              {...field}
+                              classNamePrefix={"form-control"}
+                              value={field.value}
+                              options={listAccountCus}
+                            />
+                          )}
+                        />
+                        {errors.AccountCus && (
+                          <span className="text-danger">
+                            {errors.AccountCus.message}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 <div className="col col-sm">
                   <div className="form-group">
                     <label htmlFor="MaHopDong">Hợp Đồng(*)</label>

@@ -214,7 +214,7 @@ const CreateTransport = (props) => {
     if (val && Object.keys(val).length > 0) {
       setValue("MaKH", val);
       const getListAcc = await getData(
-        `AccountCustomer/GetListAccountSelectByCus?accountId=${val.value}`
+        `AccountCustomer/GetListAccountSelectByCus?cusId=${val.value}`
       );
       if (getListAcc && getListAcc.length > 0) {
         var obj = [];

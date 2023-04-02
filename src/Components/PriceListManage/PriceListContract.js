@@ -61,6 +61,10 @@ const PriceListContract = (props) => {
       sortable: true,
     },
     {
+      name: <div>Account</div>,
+      selector: (row) => <div className="text-wrap">{row.accountName}</div>,
+    },
+    {
       name: <div>Mã Hợp Đồng</div>,
       selector: (row) => <div className="text-wrap">{row.maHopDong}</div>,
       sortable: true,
@@ -162,6 +166,9 @@ const PriceListContract = (props) => {
   const [listSPlaceSelected, setListSPlaceSelected] = useState([]);
   const [listEPlaceSelected, setListEPlaceSelected] = useState([]);
 
+  const [listAccountCus, setListAccountCus] = useState([]);
+  const [listAccountSelected, setListAccountSelected] = useState([]);
+
   useEffect(() => {
     (async () => {
       const getListPlace = await getData(
@@ -196,6 +203,23 @@ const PriceListContract = (props) => {
       Object.keys(selectIdClick).length > 0
     ) {
       setSelectedId(selectIdClick);
+      (async () => {
+        const getListAcc = await getData(
+          `AccountCustomer/GetListAccountSelectByCus?cusId=${selectIdClick.maKh}`
+        );
+        if (getListAcc && getListAcc.length > 0) {
+          var obj = [];
+          getListAcc.map((val) => {
+            obj.push({
+              value: val.accountId,
+              label: val.accountId + " - " + val.accountName,
+            });
+          });
+          setListAccountCus(obj);
+        } else {
+          setListAccountCus([]);
+        }
+      })();
     }
   }, [props, selectIdClick, title]);
 
@@ -212,6 +236,7 @@ const PriceListContract = (props) => {
         listDiemDau: listFPlaceSelected,
         listDiemCuoi: listSPlaceSelected,
         listDiemLayTraRong: listEPlaceSelected,
+        accountIds: listAccountSelected,
       };
 
       const dataCus = await getDataCustom(
@@ -231,7 +256,8 @@ const PriceListContract = (props) => {
     goodsType = "",
     listFPlace = [],
     listSPlace = [],
-    listEPlace = []
+    listEPlace = [],
+    listAccountSelected = []
   ) => {
     SetIsLoading(true);
     if (selectedId && Object.keys(selectedId).length > 0) {
@@ -239,6 +265,7 @@ const PriceListContract = (props) => {
         listDiemDau: listFPlace,
         listDiemCuoi: listSPlace,
         listDiemLayTraRong: listEPlace,
+        accountIds: listAccountSelected,
       };
 
       const dataCus = await getDataCustom(
@@ -260,7 +287,8 @@ const PriceListContract = (props) => {
       goodsType,
       listFPlaceSelected,
       listSPlaceSelected,
-      listEPlaceSelected
+      listEPlaceSelected,
+      listAccountSelected
     );
   };
   const handleOnChangeVehicleType = (value) => {
@@ -273,7 +301,8 @@ const PriceListContract = (props) => {
       goodsType,
       listFPlaceSelected,
       listSPlaceSelected,
-      listEPlaceSelected
+      listEPlaceSelected,
+      listAccountSelected
     );
     setLoading(false);
   };
@@ -288,7 +317,8 @@ const PriceListContract = (props) => {
       value,
       listFPlaceSelected,
       listSPlaceSelected,
-      listEPlaceSelected
+      listEPlaceSelected,
+      listAccountSelected
     );
     setLoading(false);
   };
@@ -300,6 +330,21 @@ const PriceListContract = (props) => {
       let arrFPlace = [];
       let arrSPlace = [];
       let arrEplace = [];
+      let arrAcc = [];
+
+      if (type === "accountCus") {
+        setValue("listAccountCus", values);
+
+        values.forEach((val) => {
+          arrAcc.push(val.value);
+        });
+
+        setListAccountSelected(arrAcc);
+      } else {
+        listAccountSelected.forEach((val) => {
+          arrAcc.push(val);
+        });
+      }
 
       if (type === "fPlace") {
         setValue("ListFirstPlace", values);
@@ -347,7 +392,8 @@ const PriceListContract = (props) => {
         goodsType,
         arrFPlace,
         arrSPlace,
-        arrEplace
+        arrEplace,
+        arrAcc
       );
       setLoading(false);
     }
@@ -369,7 +415,8 @@ const PriceListContract = (props) => {
       goodsType,
       listFPlaceSelected,
       listSPlaceSelected,
-      listEPlaceSelected
+      listEPlaceSelected,
+      listAccountSelected
     );
   };
 
@@ -430,6 +477,29 @@ const PriceListContract = (props) => {
                       </select>
                     </div>
                   </div>
+                </div>
+              </div>
+              <div className="col col-sm">
+                <div className="form-group">
+                  <Controller
+                    name="listAccountCus"
+                    control={control}
+                    render={({ field }) => (
+                      <Select
+                        {...field}
+                        className="basic-multi-select"
+                        classNamePrefix={"form-control"}
+                        isMulti
+                        value={field.value}
+                        options={listAccountCus}
+                        styles={customStyles}
+                        onChange={(field) =>
+                          handleOnChangeFilterSelect(field, "accountCus")
+                        }
+                        placeholder="Chọn Account"
+                      />
+                    )}
+                  />
                 </div>
               </div>
               <div className="col col-sm">

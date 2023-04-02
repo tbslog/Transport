@@ -169,6 +169,10 @@ const TransportPage = () => {
       selector: (row) => <div className="text-wrap">{row.tenKH}</div>,
     },
     {
+      name: <div>Account</div>,
+      selector: (row) => <div className="text-wrap">{row.accountName}</div>,
+    },
+    {
       name: <div>Điểm Đóng Hàng</div>,
       selector: (row) => row.diemLayHang,
       sortable: true,
@@ -551,7 +555,7 @@ const TransportPage = () => {
           arrAcc.push(val.value);
         });
 
-        setListAccountSelected(arrCus);
+        setListAccountSelected(arrAcc);
       } else {
         listAccountSelected.forEach((val) => {
           arrAcc.push(val);

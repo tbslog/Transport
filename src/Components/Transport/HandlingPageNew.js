@@ -29,10 +29,7 @@ const HandlingPageNew = () => {
           {val.statusId && (
             <>
               <>
-                {val.statusId === 27 ||
-                val.statusId === 37 ||
-                val.statusId === 40 ||
-                val.statusId === 18 ? (
+                {(val.statusId === 27 || val.statusId === 19) && (
                   <button
                     onClick={() =>
                       showConfirmDialog(val, setFuncName("CancelHandling"))
@@ -43,10 +40,6 @@ const HandlingPageNew = () => {
                   >
                     <i className="fas fa-window-close"></i>
                   </button>
-                ) : (
-                  <span className="mx-1">
-                    <i className="fas fa-window-close"></i>
-                  </span>
                 )}
               </>
               <>{renderButtonByStatus(val)}</>
@@ -166,6 +159,10 @@ const HandlingPageNew = () => {
       name: <div>Khách Hàng</div>,
       selector: (row) => <div className="text-wrap">{row.maKH}</div>,
       sortable: true,
+    },
+    {
+      name: <div>Account</div>,
+      selector: (row) => <div className="text-wrap">{row.accountName}</div>,
     },
     {
       name: <div>Đơn Vị Vận Tải</div>,
@@ -456,6 +453,9 @@ const HandlingPageNew = () => {
   };
 
   const handlePerRowsChange = async (newPerPage, page) => {
+    let startDate = !fromDate ? "" : moment(fromDate).format("YYYY-MM-DD");
+    let endDate = !toDate ? "" : moment(toDate).format("YYYY-MM-DD");
+
     let listFilter = {
       customers: listCusSelected,
       users: listUserSelected,
@@ -463,7 +463,7 @@ const HandlingPageNew = () => {
     };
 
     const data = await getDataCustom(
-      `BillOfLading/GetListHandlingLess?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}&fromDate=${fromDate}&toDate=${toDate}&statusId=${status}`,
+      `BillOfLading/GetListHandlingLess?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}&fromDate=${startDate}&toDate=${endDate}&statusId=${status}`,
       listFilter
     );
 
@@ -497,9 +497,9 @@ const HandlingPageNew = () => {
                 }
                 type="button"
                 className="btn btn-title btn-sm btn-default mx-1"
-                gloss="Đóng Hàng Lên Xe"
+                gloss="Đi Đóng Hàng"
               >
-                <i className="fas fa-cube"></i>
+                <i className="fas fa-truck-loading"></i>
               </button>
             );
           case 37:
@@ -510,9 +510,9 @@ const HandlingPageNew = () => {
                 }
                 type="button"
                 className="btn btn-title btn-sm btn-default mx-1"
-                gloss="Vận Chuyển Hàng"
+                gloss="Đã Đóng Hàng"
               >
-                <i className="fas fa-cube"></i>
+                <i className="fas fa-boxes"></i>
               </button>
             );
           case 18:
@@ -525,7 +525,7 @@ const HandlingPageNew = () => {
                 className="btn btn-title btn-sm btn-default mx-1"
                 gloss="Hoàn Thành Chuyến"
               >
-                <i className="fas fa-cube"></i>
+                <i className="fas fa-check"></i>
               </button>
             );
           default:
@@ -544,7 +544,7 @@ const HandlingPageNew = () => {
                 className="btn btn-title btn-sm btn-default mx-1"
                 gloss="Đi Lấy Hàng"
               >
-                <i className="fas fa-cube"></i>
+                <i className="fas fa-trailer"></i>
               </button>
             );
           case 40:
@@ -557,7 +557,7 @@ const HandlingPageNew = () => {
                 className="btn btn-title btn-sm btn-default mx-1"
                 gloss="Vận Chuyển Hàng"
               >
-                <i className="fas fa-cube"></i>
+                <i className="fas fa-shipping-fast"></i>
               </button>
             );
           case 18:
@@ -568,9 +568,9 @@ const HandlingPageNew = () => {
                 }
                 type="button"
                 className="btn btn-title btn-sm btn-default mx-1"
-                gloss="Hạ Hàng Xuống"
+                gloss="Đã Giao Hàng"
               >
-                <i className="fas fa-cube"></i>
+                <i className="fas fa-truck-loading"></i>
               </button>
             );
           case 41:
@@ -596,7 +596,7 @@ const HandlingPageNew = () => {
                 className="btn btn-title btn-sm btn-default mx-1"
                 gloss="Hoàn Thành Chuyến"
               >
-                <i className="fas fa-cube"></i>
+                <i className="fas fa-check"></i>
               </button>
             );
           default:
@@ -614,7 +614,7 @@ const HandlingPageNew = () => {
               className="btn btn-title btn-sm btn-default mx-1"
               gloss="Đóng Hàng Lên Xe"
             >
-              <i className="fas fa-cube"></i>
+              <i className="fas fa-truck-loading"></i>
             </button>
           );
         case 37:
@@ -625,7 +625,7 @@ const HandlingPageNew = () => {
               className="btn btn-title btn-sm btn-default mx-1"
               gloss="Đi Vận Chuyển Hàng"
             >
-              <i className="fas fa-cube"></i>
+              <i className="fas fa-shipping-fast"></i>
             </button>
           );
         case 18:
@@ -636,7 +636,7 @@ const HandlingPageNew = () => {
               className="btn btn-title btn-sm btn-default mx-1"
               gloss="Hoàn Thành Chuyến"
             >
-              <i className="fas fa-cube"></i>
+              <i className="fas fa-check"></i>
             </button>
           );
         default:
@@ -728,7 +728,7 @@ const HandlingPageNew = () => {
           arrAcc.push(val.value);
         });
 
-        setListAccountSelected(arrCus);
+        setListAccountSelected(arrAcc);
       } else {
         listAccountSelected.forEach((val) => {
           arrAcc.push(val);
@@ -844,7 +844,7 @@ const HandlingPageNew = () => {
   };
 
   const handleExportExcel = async () => {
-    if (!fromDate || !toDate) {
+    if (!fromDate && !toDate) {
       ToastError("Vui lòng chọn mốc thời gian");
       return;
     }
@@ -854,9 +854,15 @@ const HandlingPageNew = () => {
     let startDate = moment(fromDate).format("YYYY-MM-DD");
     let endDate = moment(toDate).format("YYYY-MM-DD");
 
+    let listFilter = {
+      customers: listCusSelected,
+      users: listUserSelected,
+      accountIds: listAccountSelected,
+    };
+
     const getFileDownLoad = await getFilePost(
       `BillOfLading/ExportExcelHandlingLess?KeyWord=${keySearch}&fromDate=${startDate}&toDate=${endDate}&statusId=${status}`,
-      listCusSelected,
+      listFilter,
       "DieuPhoi" + moment(new Date()).format("DD/MM/YYYY HHmmss")
     );
     setLoading(false);

@@ -101,6 +101,10 @@ const PriceTablePage = () => {
       selector: (row) => <div className="text-wrap">{row.tenKH}</div>,
     },
     {
+      name: <div>Account</div>,
+      selector: (row) => <div className="text-wrap">{row.accountName}</div>,
+    },
+    {
       name: <div>Đơn Giá</div>,
       selector: (row) =>
         row.donGia.toLocaleString("vi-VI", {
