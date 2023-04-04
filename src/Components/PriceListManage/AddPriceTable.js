@@ -195,6 +195,14 @@ const AddPriceTable = (props) => {
     })();
   }, [listCustomerType]);
 
+  useEffect(() => {
+    if (selectIdClick && Object.keys(selectIdClick).length > 0) {
+      setTabIndex(2);
+    } else {
+      setTabIndex(0);
+    }
+  }, [selectIdClick]);
+
   const handleOnchangeListCustomer = (val) => {
     SetIsLoading(true);
     setListContract([]);
@@ -256,6 +264,8 @@ const AddPriceTable = (props) => {
     setValue("MaHopDong", null);
     setListContract([]);
     setListCustomer([]);
+    setListAccountCus([]);
+    setValue("AccountCus", null);
   };
 
   const HandleOnChangesVehicleType = (val) => {
@@ -278,6 +288,8 @@ const AddPriceTable = (props) => {
 
   const handleOnChangeCustomer = async (val) => {
     if (val && Object.keys(val).length > 0) {
+      setListAccountCus([]);
+      setValue("AccountCus", null);
       setValue("MaKH", val);
       const getListAcc = await getData(
         `AccountCustomer/GetListAccountSelectByCus?cusId=${val.value}`
@@ -346,13 +358,12 @@ const AddPriceTable = (props) => {
       >
         <TabList>
           <Tab>Tạo Bảng giá</Tab>
-          {props.selectIdClick &&
-            Object.keys(props.selectIdClick).length > 0 && (
-              <>
-                <Tab>Bảng Giá Hiện Hành</Tab>
-                <Tab>Bảng Giá Hợp Đồng</Tab>
-              </>
-            )}
+          {selectIdClick && Object.keys(selectIdClick).length > 0 && (
+            <>
+              <Tab>Bảng Giá Hiện Hành</Tab>
+              <Tab>Bảng Giá Hợp Đồng</Tab>
+            </>
+          )}
         </TabList>
 
         <TabPanel>
@@ -832,7 +843,7 @@ const AddPriceTable = (props) => {
           </div>
         </TabPanel>
 
-        {props.selectIdClick && Object.keys(props.selectIdClick).length > 0 && (
+        {selectIdClick && Object.keys(selectIdClick).length > 0 && (
           <>
             <div>
               <TabPanel>

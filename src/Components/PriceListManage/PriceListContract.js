@@ -76,18 +76,18 @@ const PriceListContract = (props) => {
     },
     {
       name: <div>Điểm Đóng Hàng</div>,
-      selector: (row) => <div className="text-warp">{row.diemDau}</div>,
+      selector: (row) => <div className="text-wrap">{row.diemDau}</div>,
       sortable: true,
     },
     {
       name: <div>Điểm Trả Hàng</div>,
-      selector: (row) => <div className="text-warp">{row.diemCuoi}</div>,
+      selector: (row) => <div className="text-wrap">{row.diemCuoi}</div>,
       sortable: true,
     },
 
     {
       name: <div>Điểm Lấy/Trả Rỗng</div>,
-      selector: (row) => <div className="text-warp">{row.diemLayTraRong}</div>,
+      selector: (row) => <div className="text-wrap">{row.diemLayTraRong}</div>,
       sortable: true,
     },
     {
@@ -100,6 +100,11 @@ const PriceListContract = (props) => {
           })}
         </div>
       ),
+      sortable: true,
+    },
+    {
+      name: <div>PTVC</div>,
+      selector: (row) => <div className="text-wrap">{row.maPTVC}</div>,
       sortable: true,
     },
     {
@@ -204,8 +209,9 @@ const PriceListContract = (props) => {
     ) {
       setSelectedId(selectIdClick);
       (async () => {
+        console.log(selectIdClick);
         const getListAcc = await getData(
-          `AccountCustomer/GetListAccountSelectByCus?cusId=${selectIdClick.maKh}`
+          `AccountCustomer/GetListAccountSelectByCus?cusId=${selectIdClick.maKH}`
         );
         if (getListAcc && getListAcc.length > 0) {
           var obj = [];

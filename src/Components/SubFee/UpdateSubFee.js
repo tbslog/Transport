@@ -230,6 +230,8 @@ const UpdateSubFee = (props) => {
 
   const handleOnChangeCustomer = async (val) => {
     if (val && Object.keys(val).length > 0) {
+      setListAccountCus([]);
+      setValue("AccountCus", null);
       setValue("MaKH", val);
       const getListAcc = await getData(
         `AccountCustomer/GetListAccountSelectByCus?cusId=${val.value}`
@@ -304,9 +306,11 @@ const UpdateSubFee = (props) => {
     reset();
     setValue("MaKh", null);
     setValue("AccountCus", null);
+    setValue("AccountCus", null);
     setValue("MaHopDong", null);
     setValue("LoaiPhuPhi", null);
 
+    setListAccountCus([]);
     setListContract([]);
     setListCustomer([]);
   };

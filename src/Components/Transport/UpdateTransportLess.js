@@ -244,6 +244,8 @@ const UpdateTransportLess = (props) => {
 
   const handleOnChangeCustomer = async (val) => {
     if (val && Object.keys(val).length > 0) {
+      setListAccountCus([]);
+      setValue("AccountCus", null);
       setValue("MaKH", val);
       const getListAcc = await getData(
         `AccountCustomer/GetListAccountSelectByCus?accountId=${val.value}`
@@ -316,6 +318,8 @@ const UpdateTransportLess = (props) => {
     setValue("MaCungDuong", null);
     setValue("DiemLayHang", null);
     setValue("DiemTraHang", null);
+    setListAccountCus([]);
+    setValue("AccountCus", null);
     // setListFirstPoint([]);
     // setListSecondPoint([]);
   };

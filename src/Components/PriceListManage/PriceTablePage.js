@@ -1,15 +1,24 @@
-import { useMemo, useState, useEffect, useCallback, useRef } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import { getData, getDataCustom } from "../Common/FuncAxios";
-import { useForm, Controller } from "react-hook-form";
 import DataTable from "react-data-table-component";
 import moment from "moment";
+import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
 import { Modal } from "bootstrap";
 import DatePicker from "react-datepicker";
 import AddPriceTable from "./AddPriceTable";
 import ApprovePriceTable from "./ApprovePriceTable";
-import Select from "react-select";
 
 const customStyles = {
+  rows: {
+    style: {
+      backgroundColor: "#EFE5D0",
+    },
+  },
+  headCells: {
+    style: {
+      backgroundColor: "#EFE5D0",
+    },
+  },
   control: (provided, state) => ({
     ...provided,
     background: "#fff",
@@ -39,15 +48,8 @@ const customStyles = {
 };
 
 const PriceTablePage = () => {
-  const {
-    control,
-    setValue,
-    formState: { errors },
-  } = useForm({
-    mode: "onChange",
-  });
-
   const [data, setData] = useState([]);
+
   const [loading, setLoading] = useState(false);
   const [totalRows, setTotalRows] = useState(0);
   const [perPage, setPerPage] = useState(10);
@@ -55,27 +57,15 @@ const PriceTablePage = () => {
   const [keySearch, setKeySearch] = useState("");
 
   const [ShowModal, SetShowModal] = useState("");
+  const [tabIndex, setTabIndex] = useState(0);
+  const [custommerType, setCustommerType] = useState("");
   const [modal, setModal] = useState(null);
   const parseExceptionModal = useRef();
 
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
 
-  const [selectedRows, setSelectedRows] = useState([]);
   const [selectIdClick, setSelectIdClick] = useState({});
-
-  const [listStatus, setListStatus] = useState([]);
-  const [listVehicleType, setListVehicleType] = useState([]);
-  const [vehicleType, setVehicleType] = useState("");
-  const [listGoodsType, setListGoodsType] = useState([]);
-  const [goodsType, setGoodsType] = useState("");
-
-  const [listFPlace, setListFPlace] = useState([]);
-  const [listSPlace, setListSPlace] = useState([]);
-  const [listEPlace, setListEPlace] = useState([]);
-  const [listFPlaceSelected, setListFPlaceSelected] = useState([]);
-  const [listSPlaceSelected, setListSPlaceSelected] = useState([]);
-  const [listEPlaceSelected, setListEPlaceSelected] = useState([]);
 
   const [title, setTitle] = useState("");
 
@@ -88,81 +78,26 @@ const PriceTablePage = () => {
 
   const columns = useMemo(() => [
     {
-      name: <div>Mã Hợp Đồng</div>,
-      selector: (row) => row.maHopDong,
+      name: <div>Chuỗi</div>,
+      selector: (row) => row.tenChuoi,
       sortable: true,
     },
     {
-      name: <div>Tên Hợp Đồng</div>,
-      selector: (row) => <div className="text-wrap">{row.tenHopDong}</div>,
+      name: <div>Mã Khách Hàng</div>,
+      selector: (row) => <div className="text-wrap">{row.maKH}</div>,
     },
     {
       name: <div>Tên Khách Hàng</div>,
       selector: (row) => <div className="text-wrap">{row.tenKH}</div>,
     },
     {
-      name: <div>Account</div>,
-      selector: (row) => <div className="text-wrap">{row.accountName}</div>,
-    },
-    {
-      name: <div>Đơn Giá</div>,
-      selector: (row) =>
-        row.donGia.toLocaleString("vi-VI", {
-          style: "currency",
-          currency: "VND",
-        }),
-    },
-    {
-      name: <div>Điểm Đóng Hàng</div>,
-      selector: (row) => <div className="text-warp">{row.diemDau}</div>,
-      sortable: true,
-    },
-    {
-      name: <div>Điểm Trả Hàng</div>,
-      selector: (row) => <div className="text-warp">{row.diemCuoi}</div>,
-      sortable: true,
+      name: <div>Mã Số Thuế</div>,
+      selector: (row) => <div className="text-wrap">{row.maSoThue}</div>,
     },
 
     {
-      name: <div>Điểm Lấy/Trả Rỗng</div>,
-      selector: (row) => <div className="text-warp">{row.diemLayTraRong}</div>,
-      sortable: true,
-    },
-    {
-      name: <div>Phương Tiện Vận Tải</div>,
-      selector: (row) => row.maLoaiPhuongTien,
-    },
-    {
-      name: <div>Loại Hàng Hóa</div>,
-      selector: (row) => row.maLoaiHangHoa,
-    },
-    {
-      name: <div>Phương Thức Vận Chuyển</div>,
-      selector: (row) => row.maPtvc,
-    },
-    {
-      name: <div>Trạng Thái</div>,
-      selector: (row) => row.trangThai,
-    },
-    {
-      name: <div>Thời gian áp dụng</div>,
-      selector: (row) => (
-        <div className="text-wrap">
-          {moment(row.ngayApDung).format("DD/MM/YYYY")}
-        </div>
-      ),
-      sortable: true,
-    },
-    {
-      name: <div>Thời gian hết hiệu lực</div>,
-      selector: (row) =>
-        !row.ngayHetHieuLuc ? (
-          ""
-        ) : (
-          <div className="text-wrap">
-            {moment(row.ngayHetHieuLuc).format("DD/MM/YYYY")}
-          </div>
-        ),
+      name: <div>Số Điện Thoại</div>,
+      selector: (row) => <div className="text-warp">{row.soDienThoai}</div>,
       sortable: true,
     },
   ]);
@@ -180,25 +115,12 @@ const PriceTablePage = () => {
     modal.hide();
   };
 
-  const handleChange = useCallback((state) => {
-    setSelectedRows(state.selectedRows);
-  }, []);
-
-  const handleEditButtonClick = async (val) => {
-    showModalForm();
-    setSelectIdClick(val);
-  };
-
   const fetchData = async (
     page,
     KeyWord = "",
     fromDate = "",
     toDate = "",
-    vehicleType = "",
-    goodsType = "",
-    listFPlace = [],
-    listSPlace = [],
-    listEPlace = []
+    custommerType
   ) => {
     setLoading(true);
 
@@ -208,15 +130,8 @@ const PriceTablePage = () => {
     fromDate = fromDate === "" ? "" : moment(fromDate).format("YYYY-MM-DD");
     toDate = toDate === "" ? "" : moment(toDate).format("YYYY-MM-DD");
 
-    let listFilter = {
-      listDiemDau: listFPlace,
-      listDiemCuoi: listSPlace,
-      listDiemLayTraRong: listEPlace,
-    };
-
     const dataCus = await getDataCustom(
-      `PriceTable/GetListPriceTable?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}&fromDate=${fromDate}&toDate=${toDate}&goodsType=${goodsType}&vehicleType=${vehicleType}`,
-      listFilter
+      `PriceTable/GetListPriceTable?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}&fromDate=${fromDate}&toDate=${toDate}&customerType=${custommerType}`
     );
 
     setData(dataCus.data);
@@ -226,146 +141,42 @@ const PriceTablePage = () => {
 
   const handlePageChange = async (page) => {
     setPage(page);
-
-    fetchData(
-      page,
-      keySearch,
-      fromDate,
-      toDate,
-      vehicleType,
-      goodsType,
-      listFPlaceSelected,
-      listSPlaceSelected,
-      listEPlaceSelected
-    );
+    fetchData(page, keySearch, fromDate, toDate, custommerType);
   };
 
   const handlePerRowsChange = async (newPerPage, page) => {
     setLoading(true);
 
-    let listFilter = {
-      listDiemDau: listFPlaceSelected,
-      listDiemCuoi: listSPlaceSelected,
-      listDiemLayTraRong: listEPlaceSelected,
-    };
-
     const dataCus = await getDataCustom(
-      `PriceTable/GetListPriceTable?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}&fromDate=${fromDate}&toDate=${toDate}&goodsType=${goodsType}&vehicleType=${vehicleType}`,
-      listFilter
+      `PriceTable/GetListPriceTable?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}&fromDate=${fromDate}&toDate=${toDate}&customerType=${custommerType}`
     );
     setPerPage(newPerPage);
     setData(dataCus.data);
     setTotalRows(dataCus.totalRecords);
-
     setLoading(false);
   };
 
   useEffect(() => {
     setLoading(true);
-
-    (async () => {
-      const getListPlace = await getData(
-        "Address/GetListAddressSelect?pointType=&type="
-      );
-
-      let arrPlace = [];
-      getListPlace.forEach((val) => {
-        arrPlace.push({
-          label: val.tenDiaDiem + " - " + val.loaiDiaDiem,
-          value: val.maDiaDiem,
-        });
-      });
-
-      setListFPlace(arrPlace);
-      setListSPlace(arrPlace);
-      setListEPlace(arrPlace);
-
-      let getListCustommerGroup = await getData(`Common/GetListVehicleType`);
-      setListVehicleType(getListCustommerGroup);
-
-      let getListCustommerType = await getData(`Common/GetListGoodsType`);
-      setListGoodsType(getListCustommerType);
-
-      let getStatusList = await getDataCustom(`Common/GetListStatus`, [
-        "common",
-      ]);
-      setListStatus(getStatusList);
-    })();
-
-    fetchData(1);
+    fetchData(1, "", "", "", "KH");
+    setCustommerType("KH");
     setLoading(false);
   }, []);
 
-  const handleOnChangeVehicleType = (value) => {
-    setLoading(true);
-    setVehicleType(value);
-    fetchData(
-      page,
-      keySearch,
-      fromDate,
-      toDate,
-      value,
-      goodsType,
-      listFPlaceSelected,
-      listSPlaceSelected,
-      listEPlaceSelected
-    );
-    setLoading(false);
-  };
-
-  const handleOnChangeGoodsType = (value) => {
-    setLoading(true);
-    setGoodsType(value);
-    fetchData(
-      page,
-      keySearch,
-      fromDate,
-      toDate,
-      vehicleType,
-      value,
-      listFPlaceSelected,
-      listSPlaceSelected,
-      listEPlaceSelected
-    );
-    setLoading(false);
-  };
-
   const handleSearchClick = () => {
-    fetchData(
-      page,
-      keySearch,
-      fromDate,
-      toDate,
-      vehicleType,
-      goodsType,
-      listFPlaceSelected,
-      listSPlaceSelected,
-      listEPlaceSelected
-    );
+    fetchData(page, keySearch, fromDate, toDate, custommerType);
   };
 
   const ReloadData = () => {
-    fetchData(
-      page,
-      keySearch,
-      fromDate,
-      toDate,
-      vehicleType,
-      goodsType,
-      listFPlaceSelected,
-      listSPlaceSelected,
-      listEPlaceSelected
-    );
+    fetchData(page, keySearch, fromDate, toDate, custommerType);
   };
 
   const handleRefeshDataClick = () => {
-    fetchData(1);
     setPerPage(10);
     setKeySearch("");
     setFromDate("");
     setToDate("");
-    setGoodsType("");
-    setVehicleType("");
+    fetchData(1, "", "", "", custommerType);
   };
 
   const getDataApprove = async () => {
@@ -375,66 +186,77 @@ const PriceTablePage = () => {
     return listApprove;
   };
 
-  const handleOnChangeFilterSelect = async (values, type) => {
-    if (values) {
-      setLoading(true);
-
-      let arrFPlace = [];
-      let arrSPlace = [];
-      let arrEplace = [];
-
-      if (type === "fPlace") {
-        setValue("ListFirstPlace", values);
-        values.forEach((val) => {
-          arrFPlace.push(val.value);
-        });
-
-        setListFPlaceSelected(arrFPlace);
-      } else {
-        listFPlaceSelected.forEach((val) => {
-          arrFPlace.push(val);
-        });
-      }
-
-      if (type === "sPlace") {
-        setValue("ListSecondPlace", values);
-
-        values.forEach((val) => {
-          arrSPlace.push(val.value);
-        });
-        setListSPlaceSelected(arrSPlace);
-      } else {
-        listSPlaceSelected.forEach((val) => {
-          arrSPlace.push(val);
-        });
-      }
-
-      if (type === "ePlace") {
-        setValue("ListEmptyPlace", values);
-
-        values.forEach((val) => {
-          arrEplace.push(val.value);
-        });
-        setListEPlaceSelected(arrEplace);
-      } else {
-        listEPlaceSelected.forEach((val) => {
-          arrEplace.push(val);
-        });
-      }
-
-      fetchData(
-        page,
-        keySearch,
-        fromDate,
-        toDate,
-        vehicleType,
-        goodsType,
-        arrFPlace,
-        arrSPlace,
-        arrEplace
+  const ExpandedComponent = ({ data }) => {
+    if (
+      data.listContractOfCustomers &&
+      data.listContractOfCustomers.length > 0
+    ) {
+      return (
+        <div className="container-datatable" style={{ height: "50vm" }}>
+          <DataTable
+            columns={[
+              {
+                cell: (val) => (
+                  <>
+                    <button
+                      onClick={() =>
+                        showModalForm(
+                          setSelectIdClick(val),
+                          SetShowModal("PriceTable"),
+                          setTitle("Thông Tin Bảng Giá")
+                        )
+                      }
+                      type="button"
+                      className="btn btn-title btn-sm btn-default mx-1"
+                      gloss="Xem Bảng Giá"
+                    >
+                      <i className="fas fa-money-check-alt"></i>
+                    </button>
+                  </>
+                ),
+                width: "200px",
+                ignoreRowClick: true,
+                allowOverflow: true,
+                button: true,
+              },
+              {
+                selector: (row) => row.maKH,
+                omit: true,
+              },
+              {
+                name: "Mã Hợp Đồng",
+                selector: (row) => row.maHopDong,
+              },
+              {
+                name: "Tên Hợp Đồng",
+                selector: (row) => row.tenHopDong,
+              },
+              {
+                name: "Loại Hình Hợp Tác",
+                selector: (row) => row.loaiHinhHopTac,
+              },
+              {
+                name: "Sản Phẩm Dịch Vụ",
+                selector: (row) => row.sanPhamDichVu,
+              },
+            ]}
+            data={data.listContractOfCustomers}
+            progressPending={loading}
+            highlightOnHover
+            direction="auto"
+            customStyles={customStyles}
+            responsive
+          />
+        </div>
       );
-      setLoading(false);
     }
+  };
+
+  const HandleOnChangeTabs = (tabIndex) => {
+    setTabIndex(tabIndex);
+    let customerType = tabIndex === 0 ? "KH" : "NCC";
+    fetchData(1, "", "", "", customerType);
+    setCustommerType(customerType);
   };
 
   return (
@@ -445,14 +267,6 @@ const PriceTablePage = () => {
             <div className="col-sm-6">
               <h1>Quản lý bảng giá</h1>
             </div>
-            {/* <div className="col-sm-6">
-                  <ol className="breadcrumb float-sm-right">
-                    <li className="breadcrumb-item">
-                      <a href="#">Home</a>
-                    </li>
-                    <li className="breadcrumb-item active">Blank Page</li>
-                  </ol>
-                </div> */}
           </div>
         </div>
       </section>
@@ -492,127 +306,7 @@ const PriceTablePage = () => {
                     <i className="fas fa-check-double"></i>
                   </button>
                 </div>
-                <div className="col col-sm">
-                  <div className="row">
-                    <div className="col col-sm">
-                      <div className="input-group input-group-sm">
-                        <select
-                          className="form-control form-control-sm"
-                          onChange={(e) =>
-                            handleOnChangeVehicleType(e.target.value)
-                          }
-                          value={vehicleType}
-                        >
-                          <option value="">Phương tiện vận tải</option>
-                          {listVehicleType &&
-                            listVehicleType.map((val) => {
-                              return (
-                                <option
-                                  value={val.maLoaiPhuongTien}
-                                  key={val.maLoaiPhuongTien}
-                                >
-                                  {val.tenLoaiPhuongTien}
-                                </option>
-                              );
-                            })}
-                        </select>
-                      </div>
-                    </div>
-                    <div className="col col-sm">
-                      <div className="input-group input-group-sm">
-                        <select
-                          className="form-control form-control-sm"
-                          onChange={(e) =>
-                            handleOnChangeGoodsType(e.target.value)
-                          }
-                          value={goodsType}
-                        >
-                          <option value="">Loại Hàng Hóa</option>
-                          {listGoodsType &&
-                            listGoodsType.map((val) => {
-                              return (
-                                <option
-                                  value={val.maLoaiHangHoa}
-                                  key={val.maLoaiHangHoa}
-                                >
-                                  {val.tenLoaiHangHoa}
-                                </option>
-                              );
-                            })}
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="col col-sm">
-                  <div className="form-group">
-                    <Controller
-                      name="ListFirstPlace"
-                      control={control}
-                      render={({ field }) => (
-                        <Select
-                          {...field}
-                          className="basic-multi-select"
-                          classNamePrefix={"form-control"}
-                          isMulti
-                          value={field.value}
-                          options={listFPlace}
-                          styles={customStyles}
-                          onChange={(field) =>
-                            handleOnChangeFilterSelect(field, "fPlace")
-                          }
-                          placeholder="Chọn Điểm Đầu"
-                        />
-                      )}
-                    />
-                  </div>
-                </div>
-                <div className="col col-sm">
-                  <div className="form-group">
-                    <Controller
-                      name="ListSecondPlace"
-                      control={control}
-                      render={({ field }) => (
-                        <Select
-                          {...field}
-                          className="basic-multi-select"
-                          classNamePrefix={"form-control"}
-                          isMulti
-                          value={field.value}
-                          options={listSPlace}
-                          styles={customStyles}
-                          onChange={(field) =>
-                            handleOnChangeFilterSelect(field, "sPlace")
-                          }
-                          placeholder="Chọn Điểm Cuối"
-                        />
-                      )}
-                    />
-                  </div>
-                </div>
-                <div className="col col-sm">
-                  <div className="form-group">
-                    <Controller
-                      name="ListEmptyPlace"
-                      control={control}
-                      render={({ field }) => (
-                        <Select
-                          {...field}
-                          className="basic-multi-select"
-                          classNamePrefix={"form-control"}
-                          isMulti
-                          value={field.value}
-                          options={listEPlace}
-                          styles={customStyles}
-                          onChange={(field) =>
-                            handleOnChangeFilterSelect(field, "ePlace")
-                          }
-                          placeholder="Chọn Điểm Lấy/Trả rỗng"
-                        />
-                      )}
-                    />
-                  </div>
-                </div>
+
                 <div className="col col-sm">
                   <div className="row">
                     <div className="col col-sm">
@@ -674,27 +368,62 @@ const PriceTablePage = () => {
             </div>
           </div>
           <div className="card-body">
-            <div className="container-datatable" style={{ height: "50vm" }}>
-              <DataTable
-                title="Danh sách bảng giá"
-                columns={columns}
-                data={data}
-                progressPending={loading}
-                pagination
-                paginationServer
-                paginationTotalRows={totalRows}
-                paginationRowsPerPageOptions={[10, 30, 50, 100]}
-                onSelectedRowsChange={handleChange}
-                onChangeRowsPerPage={handlePerRowsChange}
-                onChangePage={handlePageChange}
-                highlightOnHover
-                striped
-                direction="auto"
-                responsive
-                fixedHeader
-                fixedHeaderScrollHeight="60vh"
-              />
-            </div>
+            <Tabs
+              selectedIndex={tabIndex}
+              onSelect={(index) => HandleOnChangeTabs(index)}
+            >
+              <TabList>
+                <Tab>Bảng Giá Khách Hàng</Tab>
+                <Tab>Bảng Giá Nhà Cung Cấp</Tab>
+              </TabList>
+
+              <TabPanel>
+                <div className="container-datatable" style={{ height: "50vm" }}>
+                  <DataTable
+                    columns={columns}
+                    data={data}
+                    progressPending={loading}
+                    pagination
+                    paginationServer
+                    paginationTotalRows={totalRows}
+                    paginationRowsPerPageOptions={[10, 30, 50, 100]}
+                    onChangeRowsPerPage={handlePerRowsChange}
+                    onChangePage={handlePageChange}
+                    expandableRows
+                    expandableRowsComponent={ExpandedComponent}
+                    highlightOnHover
+                    striped
+                    direction="auto"
+                    responsive
+                    fixedHeader
+                    fixedHeaderScrollHeight="60vh"
+                  />
+                </div>
+              </TabPanel>
+              <TabPanel>
+                <div className="container-datatable" style={{ height: "50vm" }}>
+                  <DataTable
+                    columns={columns}
+                    data={data}
+                    progressPending={loading}
+                    pagination
+                    paginationServer
+                    paginationTotalRows={totalRows}
+                    paginationRowsPerPageOptions={[10, 30, 50, 100]}
+                    onChangeRowsPerPage={handlePerRowsChange}
+                    onChangePage={handlePageChange}
+                    expandableRows
+                    expandableRowsComponent={ExpandedComponent}
+                    highlightOnHover
+                    striped
+                    direction="auto"
+                    responsive
+                    fixedHeader
+                    fixedHeaderScrollHeight="60vh"
+                  />
+                </div>
+              </TabPanel>
+            </Tabs>
           </div>
           <div className="card-footer">
             <div className="row">
@@ -752,9 +481,12 @@ const PriceTablePage = () => {
               <div className="modal-body">
                 <>
                   {ShowModal === "Create" && (
+                    <AddPriceTable selectIdClick={selectIdClick} />
+                  )}
+                  {ShowModal === "PriceTable" && (
                     <AddPriceTable
+                      getListPriceTable={fetchData}
                       selectIdClick={selectIdClick}
-                      listStatus={listStatus}
                     />
                   )}
                   {ShowModal === "ApprovePriceTable" && (

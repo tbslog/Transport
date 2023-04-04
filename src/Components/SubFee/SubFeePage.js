@@ -1,13 +1,52 @@
 import { useMemo, useState, useEffect, useRef } from "react";
-import { getData, getDataCustom, postData } from "../Common/FuncAxios";
+import { getData } from "../Common/FuncAxios";
+import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
 import DataTable from "react-data-table-component";
 import moment from "moment";
 import { Modal } from "bootstrap";
 import DatePicker from "react-datepicker";
 import CreateSubFee from "./CreateSubFee";
 import ApproveSubFee from "./ApproveSubFee";
-import ConfirmDialog from "../Common/Dialog/ConfirmDialog";
-import { ToastError } from "../Common/FuncToast";
+import SubfeeDetail from "./SubfeeDetail";
+
+const customStyles = {
+  rows: {
+    style: {
+      backgroundColor: "#EFE5D0",
+    },
+  },
+  headCells: {
+    style: {
+      backgroundColor: "#EFE5D0",
+    },
+  },
+  control: (provided, state) => ({
+    ...provided,
+    background: "#fff",
+    borderColor: "#9e9e9e",
+    minHeight: "30px",
+    height: "30px",
+    boxShadow: state.isFocused ? null : null,
+  }),
+
+  valueContainer: (provided, state) => ({
+    ...provided,
+    height: "30px",
+    padding: "0 6px",
+  }),
+
+  input: (provided, state) => ({
+    ...provided,
+    margin: "0px",
+  }),
+  indicatorSeparator: (state) => ({
+    display: "none",
+  }),
+  indicatorsContainer: (provided, state) => ({
+    ...provided,
+    height: "30px",
+  }),
+};
 
 const SubFeePage = () => {
   const [data, setData] = useState([]);
@@ -22,101 +61,34 @@ const SubFeePage = () => {
 
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
-  const [toggledClearRows, setToggleClearRows] = useState(false);
-  const [selectedRows, setSelectedRows] = useState([]);
+  const [custommerType, setCustommerType] = useState("");
   const [selectIdClick, setSelectIdClick] = useState({});
-  const [listStatus, setListStatus] = useState([]);
-  const [status, setStatus] = useState("");
-
-  const [ShowConfirm, setShowConfirm] = useState(false);
-  const [functionSubmit, setFunctionSubmit] = useState("");
+  const [tabIndex, setTabIndex] = useState(0);
 
   const [title, setTitle] = useState("");
 
   const columns = useMemo(() => [
     {
-      name: <div>Mã phụ phí</div>,
-      selector: (row) => row.priceId,
+      name: <div>Chuỗi</div>,
+      selector: (row) => row.tenChuoi,
       sortable: true,
     },
     {
-      name: <div>Loại Phụ Phí</div>,
-      selector: (row) => <div className="text-wrap">{row.sfName}</div>,
-      sortable: true,
+      name: <div>Mã Khách Hàng</div>,
+      selector: (row) => <div className="text-wrap">{row.maKH}</div>,
     },
     {
-      name: <div>Khách Hàng</div>,
-      selector: (row) => <div className="text-wrap">{row.customerName}</div>,
-      sortable: true,
+      name: <div>Tên Khách Hàng</div>,
+      selector: (row) => <div className="text-wrap">{row.tenKH}</div>,
     },
     {
-      name: <div>Account</div>,
-      selector: (row) => <div className="text-wrap">{row.accountId}</div>,
-      sortable: true,
+      name: <div>Mã Số Thuế</div>,
+      selector: (row) => <div className="text-wrap">{row.maSoThue}</div>,
     },
+
     {
-      name: <div>Mã Hợp Đồng</div>,
-      selector: (row) => <div className="text-wrap">{row.contractId}</div>,
-      sortable: true,
-    },
-    {
-      name: <div>Tên Hợp Đồng</div>,
-      selector: (row) => <div className="text-wrap">{row.contractName}</div>,
-    },
-    {
-      name: <div>Loại Phương Tiện</div>,
-      selector: (row) => <div className="text-wrap">{row.vehicleType}</div>,
-    },
-    {
-      name: <div>Điểm Đóng Hàng</div>,
-      selector: (row) => <div className="text-wrap">{row.firstPlace}</div>,
-    },
-    {
-      name: <div>Điểm Hạ Hàng</div>,
-      selector: (row) => <div className="text-wrap">{row.secondPlace}</div>,
-    },
-    {
-      name: <div>Điểm Lấy/Trả Rỗng</div>,
-      selector: (row) => <div className="text-wrap">{row.getEmptyPlace}</div>,
-    },
-    {
-      name: <div>Loại Hàng Hóa</div>,
-      selector: (row) => row.goodsType,
-    },
-    {
-      name: <div>Đơn Giá</div>,
-      selector: (row) =>
-        row.unitPrice.toLocaleString("vi-VI", {
-          style: "currency",
-          currency: "VND",
-        }),
-    },
-    {
-      name: <div>Thời gian Áp Dụng</div>,
-      selector: (row) => row.approvedDate,
-      sortable: true,
-    },
-    {
-      name: <div>Thời gian Hết Hiệu Lực</div>,
-      selector: (row) => row.deactiveDate,
-      sortable: true,
-    },
-    {
-      name: <div>Trạng Thái</div>,
-      selector: (row) => row.status,
-      sortable: true,
-    },
-    {
-      name: <div>Người Duyệt</div>,
-      selector: (row) => row.approver,
-    },
-    {
-      name: <div>Thời gian Tạo</div>,
-      selector: (row) => (
-        <div className="text-wrap">
-          {moment(row.createdTime).format("DD-MM-YYYY HH:mm:ss")}
-        </div>
-      ),
+      name: <div>Số Điện Thoại</div>,
+      selector: (row) => <div className="text-warp">{row.soDienThoai}</div>,
       sortable: true,
     },
   ]);
@@ -134,20 +106,12 @@ const SubFeePage = () => {
     modal.hide();
   };
 
-  const handleChange = (state) => {
-    setSelectedRows(state.selectedRows);
-  };
-
-  const handleClearRows = () => {
-    setToggleClearRows(!toggledClearRows);
-  };
-
   const fetchData = async (
     page,
     KeyWord = "",
     fromDate = "",
     toDate = "",
-    status = ""
+    custommerType
   ) => {
     setLoading(true);
 
@@ -157,7 +121,7 @@ const SubFeePage = () => {
     fromDate = fromDate === "" ? "" : moment(fromDate).format("YYYY-MM-DD");
     toDate = toDate === "" ? "" : moment(toDate).format("YYYY-MM-DD");
     const dataCus = await getData(
-      `SubFeePrice/GetListSubFeePrice?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}&fromDate=${fromDate}&toDate=${toDate}&statusId=${status}`
+      `SubFeePrice/GetListSubFeePrice?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}&fromDate=${fromDate}&toDate=${toDate}&customerType=${custommerType}`
     );
 
     formatTable(dataCus.data);
@@ -166,14 +130,14 @@ const SubFeePage = () => {
   };
 
   const handlePageChange = async (page) => {
-    await fetchData(page, keySearch, fromDate, toDate, status);
+    await fetchData(page, keySearch, fromDate, toDate, custommerType);
   };
 
   const handlePerRowsChange = async (newPerPage, page) => {
     setLoading(true);
 
     const dataCus = await getData(
-      `SubFeePrice/GetListSubFeePrice?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}&fromDate=${fromDate}&toDate=${toDate}&statusId=${status}`
+      `SubFeePrice/GetListSubFeePrice?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}&fromDate=${fromDate}&toDate=${toDate}&customerType=${custommerType}`
     );
     setPerPage(newPerPage);
     formatTable(dataCus.data);
@@ -183,14 +147,8 @@ const SubFeePage = () => {
 
   useEffect(() => {
     setLoading(true);
-    (async () => {
-      let getStatusList = await getDataCustom(`Common/GetListStatus`, [
-        "SubFee",
-      ]);
-      setListStatus(getStatusList);
-    })();
 
-    fetchData(1);
+    fetchData(1, "", "", "", custommerType);
     setLoading(false);
   }, []);
 
@@ -206,79 +164,8 @@ const SubFeePage = () => {
     setData(data);
   }
 
-  const ShowConfirmDialog = () => {
-    if (selectedRows.length < 1) {
-      ToastError("Vui lòng chọn phụ phí trước đã");
-      return;
-    } else {
-      setShowConfirm(true);
-    }
-  };
-
-  const DisableSubFee = async () => {
-    if (
-      selectedRows &&
-      selectedRows.length > 0 &&
-      Object.keys(selectedRows).length > 0
-    ) {
-      let arr = [];
-      selectedRows.map((val) => {
-        arr.push(val.priceId);
-      });
-
-      const SetApprove = await postData(`SubFeePrice/DisableSubFeePrice`, arr);
-
-      if (SetApprove === 1) {
-        fetchData(1);
-      }
-      setSelectedRows([]);
-      handleClearRows();
-      setShowConfirm(false);
-    }
-  };
-
-  const DeleteSubFee = async () => {
-    if (
-      selectedRows &&
-      selectedRows.length > 0 &&
-      Object.keys(selectedRows).length > 0
-    ) {
-      let arr = [];
-      selectedRows.map((val) => {
-        arr.push(val.priceId);
-      });
-
-      const SetApprove = await postData(`SubFeePrice/DeleteSubFeePrice`, arr);
-
-      if (SetApprove === 1) {
-        fetchData(1);
-      }
-      setSelectedRows([]);
-      handleClearRows();
-      setShowConfirm(false);
-    }
-  };
-
-  const funcAgree = () => {
-    if (functionSubmit && functionSubmit.length > 0) {
-      switch (functionSubmit) {
-        case "Disable":
-          return DisableSubFee();
-        case "Delete":
-          return DeleteSubFee();
-      }
-    }
-  };
-
   const handleSearchClick = () => {
-    fetchData(1, keySearch, fromDate, toDate, status);
-  };
-
-  const handleOnChangeStatus = (value) => {
-    setLoading(true);
-    setStatus(value);
-    fetchData(1, keySearch, fromDate, toDate, value);
-    setLoading(false);
+    fetchData(1, keySearch, fromDate, toDate, custommerType);
   };
 
   const handleRefeshDataClick = () => {
@@ -286,7 +173,80 @@ const SubFeePage = () => {
     setFromDate("");
     setToDate("");
     setPerPage(10);
-    fetchData(1);
+    fetchData(1, "", "", "", custommerType);
+  };
+
+  const ExpandedComponent = ({ data }) => {
+    if (
+      data.listContractOfCustomers &&
+      data.listContractOfCustomers.length > 0
+    ) {
+      return (
+        <div className="container-datatable" style={{ height: "50vm" }}>
+          <DataTable
+            columns={[
+              {
+                cell: (val) => (
+                  <>
+                    <button
+                      onClick={() =>
+                        showModalForm(
+                          setSelectIdClick(val),
+                          SetShowModal("SubfeePrice"),
+                          setTitle("Thông Tin Phụ Phí")
+                        )
+                      }
+                      type="button"
+                      className="btn btn-title btn-sm btn-default mx-1"
+                      gloss="Xem Phụ Phí"
+                    >
+                      <i className="fas fa-hand-holding-usd"></i>
+                    </button>
+                  </>
+                ),
+                width: "200px",
+                ignoreRowClick: true,
+                allowOverflow: true,
+                button: true,
+              },
+              {
+                selector: (row) => row.maKH,
+                omit: true,
+              },
+              {
+                name: "Mã Hợp Đồng",
+                selector: (row) => row.maHopDong,
+              },
+              {
+                name: "Tên Hợp Đồng",
+                selector: (row) => row.tenHopDong,
+              },
+              {
+                name: "Loại Hình Hợp Tác",
+                selector: (row) => row.loaiHinhHopTac,
+              },
+              {
+                name: "Sản Phẩm Dịch Vụ",
+                selector: (row) => row.sanPhamDichVu,
+              },
+            ]}
+            data={data.listContractOfCustomers}
+            progressPending={loading}
+            highlightOnHover
+            direction="auto"
+            customStyles={customStyles}
+            responsive
+          />
+        </div>
+      );
+    }
+  };
+
+  const HandleOnChangeTabs = (tabIndex) => {
+    setTabIndex(tabIndex);
+    let customerType = tabIndex === 0 ? "KH" : "NCC";
+    fetchData(1, "", "", "", customerType);
+    setCustommerType(customerType);
   };
 
   return (
@@ -335,51 +295,10 @@ const SubFeePage = () => {
                   >
                     <i className="fas fa-check-double"></i>
                   </button>
-                  <button
-                    type="button"
-                    className="btn btn-title btn-sm btn-default mx-1"
-                    gloss="Vô Hiệu Phụ Phí"
-                    onClick={() => {
-                      setFunctionSubmit("Disable");
-                      ShowConfirmDialog();
-                    }}
-                  >
-                    <i className="fas fa-eye-slash"></i>
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn-title btn-sm btn-default mx-1"
-                    gloss="Xóa Phụ Phí"
-                    onClick={() => {
-                      setFunctionSubmit("Delete");
-                      ShowConfirmDialog();
-                    }}
-                  >
-                    <i className="fas fa-trash-alt"></i>
-                  </button>
                 </div>
                 <div className="col col-sm">
                   <div className="row">
                     <div className="col col-sm"></div>
-                    <div className="col col-sm">
-                      <div className="input-group input-group-sm">
-                        <select
-                          className="form-control form-control-sm"
-                          onChange={(e) => handleOnChangeStatus(e.target.value)}
-                          value={status}
-                        >
-                          <option value="">Tất Cả Trạng Thái</option>
-                          {listStatus &&
-                            listStatus.map((val) => {
-                              return (
-                                <option value={val.statusId} key={val.statusId}>
-                                  {val.statusContent}
-                                </option>
-                              );
-                            })}
-                        </select>
-                      </div>
-                    </div>
                   </div>
                 </div>
                 <div className="col col-sm">
@@ -440,29 +359,62 @@ const SubFeePage = () => {
             </div>
           </div>
           <div className="card-body">
-            <div className="container-datatable" style={{ height: "50vm" }}>
-              <DataTable
-                title="Danh sách Phụ Phí"
-                columns={columns}
-                data={data}
-                progressPending={loading}
-                pagination
-                paginationServer
-                selectableRows
-                paginationRowsPerPageOptions={[10, 30, 50, 100]}
-                clearSelectedRows={toggledClearRows}
-                paginationTotalRows={totalRows}
-                onSelectedRowsChange={handleChange}
-                onChangeRowsPerPage={handlePerRowsChange}
-                onChangePage={handlePageChange}
-                highlightOnHover
-                striped
-                direction="auto"
-                responsive
-                fixedHeader
-                fixedHeaderScrollHeight="60vh"
-              />
-            </div>
+            <Tabs
+              selectedIndex={tabIndex}
+              onSelect={(index) => HandleOnChangeTabs(index)}
+            >
+              <TabList>
+                <Tab>Phụ Phí Khách Hàng</Tab>
+                <Tab>Phụ Phí Nhà Cung Cấp</Tab>
+              </TabList>
+
+              <TabPanel>
+                <div className="container-datatable" style={{ height: "50vm" }}>
+                  <DataTable
+                    columns={columns}
+                    data={data}
+                    progressPending={loading}
+                    pagination
+                    paginationServer
+                    paginationTotalRows={totalRows}
+                    paginationRowsPerPageOptions={[10, 30, 50, 100]}
+                    onChangeRowsPerPage={handlePerRowsChange}
+                    onChangePage={handlePageChange}
+                    expandableRows
+                    expandableRowsComponent={ExpandedComponent}
+                    highlightOnHover
+                    striped
+                    direction="auto"
+                    responsive
+                    fixedHeader
+                    fixedHeaderScrollHeight="60vh"
+                  />
+                </div>
+              </TabPanel>
+              <TabPanel>
+                <div className="container-datatable" style={{ height: "50vm" }}>
+                  <DataTable
+                    columns={columns}
+                    data={data}
+                    progressPending={loading}
+                    pagination
+                    paginationServer
+                    paginationTotalRows={totalRows}
+                    paginationRowsPerPageOptions={[10, 30, 50, 100]}
+                    onChangeRowsPerPage={handlePerRowsChange}
+                    onChangePage={handlePageChange}
+                    expandableRows
+                    expandableRowsComponent={ExpandedComponent}
+                    highlightOnHover
+                    striped
+                    direction="auto"
+                    responsive
+                    fixedHeader
+                    fixedHeaderScrollHeight="60vh"
+                  />
+                </div>
+              </TabPanel>
+            </Tabs>
           </div>
           <div className="card-footer">
             <div className="row"></div>
@@ -504,22 +456,15 @@ const SubFeePage = () => {
                       checkShowModal={modal}
                     />
                   )}
+                  {ShowModal === "SubfeePrice" && (
+                    <SubfeeDetail selectIdClick={selectIdClick} title={title} />
+                  )}
                 </>
               </div>
             </div>
           </div>
         </div>
       </section>
-      {ShowConfirm === true && (
-        <ConfirmDialog
-          setShowConfirm={setShowConfirm}
-          title={"Bạn có chắc chắn với quyết định này?"}
-          content={
-            "Khi thực hiện hành động này sẽ không thể hoàn tác lại được nữa."
-          }
-          funcAgree={funcAgree}
-        />
-      )}
     </>
   );
 };

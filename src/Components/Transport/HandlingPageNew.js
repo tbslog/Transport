@@ -497,7 +497,7 @@ const HandlingPageNew = () => {
                 }
                 type="button"
                 className="btn btn-title btn-sm btn-default mx-1"
-                gloss="Đi Đóng Hàng"
+                gloss="Đang Đóng Hàng"
               >
                 <i className="fas fa-truck-loading"></i>
               </button>
@@ -510,7 +510,7 @@ const HandlingPageNew = () => {
                 }
                 type="button"
                 className="btn btn-title btn-sm btn-default mx-1"
-                gloss="Đã Đóng Hàng"
+                gloss="Đi Vận Chuyển"
               >
                 <i className="fas fa-boxes"></i>
               </button>
@@ -523,7 +523,20 @@ const HandlingPageNew = () => {
                 }
                 type="button"
                 className="btn btn-title btn-sm btn-default mx-1"
-                gloss="Hoàn Thành Chuyến"
+                gloss="Đã Giao Hàng"
+              >
+                <i className="fas fa-clipboard-check"></i>
+              </button>
+            );
+          case 36:
+            return (
+              <button
+                onClick={() =>
+                  showConfirmDialog(val, setFuncName("StartRuning"))
+                }
+                type="button"
+                className="btn btn-title btn-sm btn-default mx-1"
+                gloss="Hoàn Thành"
               >
                 <i className="fas fa-check"></i>
               </button>
@@ -568,7 +581,7 @@ const HandlingPageNew = () => {
                 }
                 type="button"
                 className="btn btn-title btn-sm btn-default mx-1"
-                gloss="Đã Giao Hàng"
+                gloss="Đang Giao Hàng"
               >
                 <i className="fas fa-truck-loading"></i>
               </button>
@@ -581,9 +594,22 @@ const HandlingPageNew = () => {
                 }
                 type="button"
                 className="btn btn-title btn-sm btn-default mx-1"
+                gloss="Đã Giao Hàng"
+              >
+                <i className="fas fa-clipboard-check"></i>
+              </button>
+            );
+          case 36:
+            return (
+              <button
+                onClick={() =>
+                  showConfirmDialog(val, setFuncName("StartRuning"))
+                }
+                type="button"
+                className="btn btn-title btn-sm btn-default mx-1"
                 gloss="Đi Trả Rỗng"
               >
-                <i className="fas fa-cube"></i>
+                <i className="fas fa-trailer"></i>
               </button>
             );
           case 35:
@@ -634,7 +660,18 @@ const HandlingPageNew = () => {
               onClick={() => showConfirmDialog(val, setFuncName("StartRuning"))}
               type="button"
               className="btn btn-title btn-sm btn-default mx-1"
-              gloss="Hoàn Thành Chuyến"
+              gloss="Đã Giao Hàng"
+            >
+              <i className="fas fa-clipboard-check"></i>
+            </button>
+          );
+        case 36:
+          return (
+            <button
+              onClick={() => showConfirmDialog(val, setFuncName("StartRuning"))}
+              type="button"
+              className="btn btn-title btn-sm btn-default mx-1"
+              gloss="Đã Giao Hàng"
             >
               <i className="fas fa-check"></i>
             </button>
@@ -690,6 +727,7 @@ const HandlingPageNew = () => {
     setListCusSelected([]);
     setValue("listCustomers", []);
     setListUserSelected([]);
+    setListAccountCus([]);
     setValue("listUsers", []);
     setValue("listAccountCus", []);
     fetchData(1);

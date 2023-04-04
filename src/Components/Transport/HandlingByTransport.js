@@ -34,37 +34,33 @@ const HandlingByTransport = (props) => {
     {
       cell: (val) => (
         <>
-          {accountType && accountType === "KH" && (
-            <div>
-              <>
-                {(val.statusId === 30 || !val.statusId) && (
-                  <button
-                    onClick={() =>
-                      showConfirmDialog(val, setFuncName("CancelHandling"))
-                    }
-                    type="button"
-                    className="btn btn-title btn-sm btn-default mx-1"
-                    gloss="Hủy Chuyến"
-                  >
-                    <i className="fas fa-window-close"></i>
-                  </button>
-                )}
+          <div>
+            <>
+              <button
+                onClick={() =>
+                  showConfirmDialog(val, setFuncName("CancelHandling"))
+                }
+                type="button"
+                className="btn btn-title btn-sm btn-default mx-1"
+                gloss="Hủy Chuyến"
+              >
+                <i className="fas fa-window-close"></i>
+              </button>
 
-                <>
-                  <button
-                    onClick={() =>
-                      handleEditButtonClick(val, SetShowModal("Image"))
-                    }
-                    type="button"
-                    className="btn btn-title btn-sm btn-default mx-1"
-                    gloss="Xem Hình Ảnh"
-                  >
-                    <i className="fas fa-image"></i>
-                  </button>
-                </>
+              <>
+                <button
+                  onClick={() =>
+                    handleEditButtonClick(val, SetShowModal("Image"))
+                  }
+                  type="button"
+                  className="btn btn-title btn-sm btn-default mx-1"
+                  gloss="Xem Hình Ảnh"
+                >
+                  <i className="fas fa-image"></i>
+                </button>
               </>
-            </div>
-          )}
+            </>
+          </div>
         </>
       ),
       ignoreRowClick: true,
@@ -74,6 +70,11 @@ const HandlingByTransport = (props) => {
     {
       selector: (row) => row.maDieuPhoi,
       omit: true,
+    },
+    {
+      name: <div>Trạng Thái</div>,
+      selector: (row) => <div className="text-wrap">{row.trangThai}</div>,
+      sortable: true,
     },
     {
       name: <div>Account</div>,
@@ -160,11 +161,7 @@ const HandlingByTransport = (props) => {
     //   selector: (row) => row.soKien,
     //   sortable: true,
     // },
-    {
-      name: <div>Trạng Thái</div>,
-      selector: (row) => <div className="text-wrap">{row.trangThai}</div>,
-      sortable: true,
-    },
+
     {
       name: "statusId",
       selector: (row) => row.statusId,
@@ -254,9 +251,9 @@ const HandlingByTransport = (props) => {
       Object.keys(selectIdClick).length > 0
     ) {
       var update = await postData(
-        `BillOfLading/CancelHandlingByCus?id=${
-          !selectIdClick.maDieuPhoi ? 0 : selectIdClick.maDieuPhoi
-        }&transportId=${transportId}`
+        `BillOfLading/CancelHandlingByCustomer?id=${
+          !selectIdClick.maDieuPhoi ? null : selectIdClick.maDieuPhoi
+        }&note=`
       );
 
       if (update === 1) {

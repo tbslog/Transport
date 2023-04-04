@@ -212,6 +212,8 @@ const CreateTransport = (props) => {
 
   const handleOnChangeCustomer = async (val) => {
     if (val && Object.keys(val).length > 0) {
+      setListAccountCus([]);
+      setValue("AccountCus", null);
       setValue("MaKH", val);
       const getListAcc = await getData(
         `AccountCustomer/GetListAccountSelectByCus?cusId=${val.value}`
@@ -340,6 +342,8 @@ const CreateTransport = (props) => {
     setValue("MaCungDuong", null);
     setValue("DiemLayHang", null);
     setValue("DiemTraHang", null);
+    setValue("AccountCus", null);
+    setListAccountCus([]);
     // setListFirstPoint([]);
     // setListSecondPoint([]);
     // setListRoad([]);
