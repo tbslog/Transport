@@ -157,16 +157,19 @@ namespace TBSLogistics.Service.Services.UserManage
 
             try
             {
-                var checkExists = await _context.NguoiDung.Where(x => x.MaNhanVien == request.MaNhanVien).FirstOrDefaultAsync();
-
-                if (checkExists != null)
+                if (request.AccountType.Trim() == "NV")
                 {
-                    return new BoolActionResult { isSuccess = false, Message = "Nhân viên này đã có Tài Khoản" };
+                    var checkExists = await _context.NguoiDung.Where(x => x.MaNhanVien == request.MaNhanVien).FirstOrDefaultAsync();
+
+                    if (checkExists != null)
+                    {
+                        return new BoolActionResult { isSuccess = false, Message = "Nhân viên này đã có Tài Khoản" };
+                    }
                 }
 
-                var checkUserName = await _context.Account.Where(x => x.UserName == request.UserName).FirstOrDefaultAsync();
+                var checkUserName = await _context.Account.Where(x => x.UserName == request.UserName.Trim()).FirstOrDefaultAsync();
 
-                if (checkExists != null)
+                if (checkUserName != null)
                 {
                     return new BoolActionResult { isSuccess = false, Message = "Tên tài khoản đã tồn tại" };
                 }

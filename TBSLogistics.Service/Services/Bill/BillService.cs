@@ -343,7 +343,7 @@ namespace TBSLogistics.Service.Services.Bill
 
             var totalCount = await getlistHandling.CountAsync();
 
-            var pagedData = await getlistHandling.Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new ListBillHandling()
+            var pagedData = await getlistHandling.OrderByDescending(x => x.dp.Id).Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new ListBillHandling()
             {
                 MaChuyen = x.dp.Id,
                 AccountName = x.vd.MaAccount == null ? null : _context.AccountOfCustomer.Where(y => y.MaAccount == x.vd.MaAccount).Select(y => y.TenAccount).FirstOrDefault(),

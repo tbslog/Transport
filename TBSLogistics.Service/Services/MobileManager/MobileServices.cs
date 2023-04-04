@@ -3,13 +3,16 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TBSLogistics.Data.TMS;
 using TBSLogistics.Model.CommonModel;
 using TBSLogistics.Model.Model.MobileModel;
+using TBSLogistics.Model.Model.SFeeByTcommandModel;
 using TBSLogistics.Model.TempModel;
 using TBSLogistics.Service.Services.Common;
+using TBSLogistics.Service.Services.SFeeByTcommandManage;
 
 namespace TBSLogistics.Service.Services.MobileManager
 {
@@ -17,12 +20,14 @@ namespace TBSLogistics.Service.Services.MobileManager
     {
         private readonly ICommon _common;
         private readonly TMSContext _context;
+        private readonly ISFeeByTcommand _SFeeByTcommand;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private TempData tempData;
 
-        public MobileServices(ICommon common, TMSContext context, IHttpContextAccessor httpContextAccessor)
+        public MobileServices(ICommon common, TMSContext context, ISFeeByTcommand sFeeByTcommand, IHttpContextAccessor httpContextAccessor)
         {
             _common = common;
+            _SFeeByTcommand = sFeeByTcommand;
             _context = context;
             _httpContextAccessor = httpContextAccessor;
             tempData = _common.DecodeToken(_httpContextAccessor.HttpContext.Request.Headers["Authorization"][0].ToString().Replace("Bearer ", ""));
@@ -34,7 +39,7 @@ namespace TBSLogistics.Service.Services.MobileManager
             {
                 maTaiXe = tempData.UserName;
 
-                var listStatusPending = new List<int> {  30, 19, 31 };
+                var listStatusPending = new List<int> { 30, 19, 31 };
 
                 var dataHandling = from dp in _context.DieuPhoi
                                    where dp.MaTaiXe == maTaiXe
@@ -184,6 +189,48 @@ namespace TBSLogistics.Service.Services.MobileManager
             }
             catch (Exception ex)
             {
+                throw;
+            }
+        }
+
+        public async Task<BoolActionResult> CreateSFeeByTCommand(List<CreateSFeeByTCommandRequest> request, string maChuyen = null)
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(maChuyen))
+                {
+                    var listStatus = new List<int>(new int[] { 21, 31, 38 });
+
+                    var getListHandling = await _context.DieuPhoi.Where(x => x.MaChuyen == maChuyen && !listStatus.Contains(x.TrangThai)).ToListAsync();
+
+                    foreach (var item in getListHandling)
+                    {
+                        foreach (var itemRequest in request)
+                        {
+                            itemRequest.IdTcommand = item.Id;
+                            itemRequest.TransportId = item.MaVanDon;
+                            var add = await _SFeeByTcommand.CreateSFeeByTCommand(request);
+
+                            if (!add.isSuccess)
+                            {
+                                return add;
+                            }
+
+                        }
+                    }
+                    return new BoolActionResult { isSuccess = true, Message = "Thêm phụ phí thành công" };
+                }
+
+                var Create = await _SFeeByTcommand.CreateSFeeByTCommand(request);
+
+                return Create;
+
+
+
+            }
+            catch (Exception ex)
+            {
+
                 throw;
             }
         }

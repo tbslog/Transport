@@ -66,6 +66,7 @@ namespace TBSLogistics.Service.Services.SFeeByTcommandManage
 
                     await _context.AddAsync(new SfeeByTcommand()
                     {
+                        PlaceId = i.PlaceId,
                         IdTcommand = i.IdTcommand,
                         SfId = i.SfId,
                         Price = i.FinalPrice,

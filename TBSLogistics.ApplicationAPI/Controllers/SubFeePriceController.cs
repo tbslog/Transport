@@ -5,8 +5,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TBSLogistics.Model.Filter;
+using TBSLogistics.Model.Model.PriceListModel;
 using TBSLogistics.Model.Model.RomoocModel;
 using TBSLogistics.Model.Model.SubFeePriceModel;
+using TBSLogistics.Model.Model.UserModel;
 using TBSLogistics.Model.Wrappers;
 using TBSLogistics.Service.Helpers;
 using TBSLogistics.Service.Panigation;
@@ -122,7 +124,24 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             }
 
             var route = Request.Path.Value;
-            var pagedData = await _subFeePrice.GetListSubFeePrice(filter);
+            var pagedData = await _subFeePrice.GetListContractOfUser(filter);
+
+            var pagedReponse = PaginationHelper.CreatePagedReponse<ListCustomerOfPriceTable>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _uriService, route);
+            return Ok(pagedReponse);
+        }
+
+        [HttpPost]
+        [Route("[action]")]
+        public async Task<IActionResult> GetListSubFeePriceByCustomer([FromQuery] PaginationFilter filter, string customerId, ListFilter listFilter)
+        {
+            var checkPermission = await _common.CheckPermission("D0001");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
+            var route = Request.Path.Value;
+            var pagedData = await _subFeePrice.GetListSubFeePriceByCustomer(customerId, listFilter, filter);
 
             var pagedReponse = PaginationHelper.CreatePagedReponse<ListSubFeePriceRequest>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _uriService, route);
             return Ok(pagedReponse);

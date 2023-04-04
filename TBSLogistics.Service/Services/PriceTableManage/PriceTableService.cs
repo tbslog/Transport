@@ -211,84 +211,46 @@ namespace TBSLogistics.Service.Services.PriceTableManage
             }
         }
 
-        public async Task<PagedResponseCustom<GetListPiceTableRequest>> GetListPriceTable(PaginationFilter filter, ListFilter listFilter)
+        public async Task<PagedResponseCustom<ListCustomerOfPriceTable>> GetListPriceTable(PaginationFilter filter)
         {
             var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
 
-            var getData = from kh in _context.KhachHang
-                          join hd in _context.HopDongVaPhuLuc
-                          on kh.MaKh equals hd.MaKh
-                          join bg in _context.BangGia
-                          on hd.MaHopDong equals bg.MaHopDong
-                          join tt in _context.StatusText
-                          on bg.TrangThai equals tt.StatusId
-                          where bg.MaHopDong != "SPDV_TBSL" && tt.LangId == tempData.LangID
-                          orderby bg.Id descending
-                          select new { kh, hd, bg, tt };
+            var getData = from cus in _context.KhachHang
+                          select cus;
+
+            var getContract = from hd in _context.HopDongVaPhuLuc
+                              select hd;
 
             if (!string.IsNullOrEmpty(filter.Keyword))
             {
-                getData = getData.Where(x => x.kh.TenKh.Contains(filter.Keyword) || x.kh.MaKh.Contains(filter.Keyword));
-            }
-
-            if (listFilter.listDiemDau.Count > 0)
-            {
-                getData = getData.Where(x => listFilter.listDiemDau.Contains(x.bg.DiemDau));
-            }
-
-            if (listFilter.listDiemCuoi.Count > 0)
-            {
-                getData = getData.Where(x => listFilter.listDiemCuoi.Contains(x.bg.DiemCuoi));
-            }
-
-            if (listFilter.listDiemLayTraRong.Count > 0)
-            {
-                getData = getData.Where(x => listFilter.listDiemLayTraRong.Contains(x.bg.DiemLayTraRong));
+                getData = getData.Where(x => x.TenKh.Contains(filter.Keyword) || x.MaKh.Contains(filter.Keyword));
             }
 
             if (!string.IsNullOrEmpty(filter.customerType))
             {
-                getData = getData.Where(x => x.kh.MaLoaiKh == filter.customerType);
-            }
-
-            if (!string.IsNullOrEmpty(filter.fromDate.ToString()) && !string.IsNullOrEmpty(filter.toDate.ToString()))
-            {
-                getData = getData.Where(x => x.bg.NgayApDung.Date >= filter.fromDate && x.bg.NgayApDung <= filter.toDate);
-            }
-
-            if (!string.IsNullOrEmpty(filter.goodsType))
-            {
-                getData = getData.Where(x => x.bg.MaLoaiHangHoa == filter.goodsType);
-            }
-
-            if (!string.IsNullOrEmpty(filter.vehicleType))
-            {
-                getData = getData.Where(x => x.bg.MaLoaiPhuongTien == filter.vehicleType);
+                getData = getData.Where(x => x.MaLoaiKh == filter.customerType);
             }
 
             var totalRecords = await getData.CountAsync();
 
-            var pagedData = await getData.Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new GetListPiceTableRequest()
+            var pagedData = await getData.Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new ListCustomerOfPriceTable()
             {
-                DiemLayTraRong = x.bg.DiemLayTraRong == null ? null : _context.DiaDiem.Where(y => y.MaDiaDiem == x.bg.DiemLayTraRong).Select(y => y.TenDiaDiem).FirstOrDefault(),
-                DiemDau = _context.DiaDiem.Where(y => y.MaDiaDiem == x.bg.DiemDau).Select(y => y.TenDiaDiem).FirstOrDefault(),
-                DiemCuoi = _context.DiaDiem.Where(y => y.MaDiaDiem == x.bg.DiemCuoi).Select(y => y.TenDiaDiem).FirstOrDefault(),
-                AccountName = x.bg.MaAccount == null ? null : _context.AccountOfCustomer.Where(y => y.MaAccount == x.bg.MaAccount).Select(y => y.TenAccount).FirstOrDefault(),
-                MaHopDong = x.bg.MaHopDong,
-                SoHopDongCha = x.hd.MaHopDongCha == null ? "Hợp Đồng" : "Phụ Lục",
-                MaLoaiDoiTac = x.bg.MaLoaiDoiTac,
-                TenHopDong = x.hd.TenHienThi,
-                TenKH = x.kh.TenKh,
-                DonGia = x.bg.DonGia,
-                MaLoaiPhuongTien = x.bg.MaLoaiPhuongTien,
-                MaLoaiHangHoa = _context.LoaiHangHoa.Where(y => y.MaLoaiHangHoa == x.bg.MaLoaiHangHoa).Select(y => y.TenLoaiHangHoa).FirstOrDefault(),
-                MaPtvc = x.bg.MaPtvc,
-                NgayApDung = x.bg.NgayApDung,
-                NgayHetHieuLuc = x.bg.NgayHetHieuLuc,
-                TrangThai = x.tt.StatusContent,
+                TenChuoi = _context.ChuoiKhachHang.Where(c => c.MaChuoi == x.Chuoi).Select(c => c.TenChuoi).FirstOrDefault(),
+                MaKH = x.MaKh,
+                TenKH = x.TenKh,
+                MaSoThue = x.MaSoThue,
+                SoDienThoai = x.Sdt,
+                listContractOfCustomers = getContract.Where(y => y.MaKh == x.MaKh).Select(y => new ListContractOfCustomer()
+                {
+                    MaKH = y.MaKh,
+                    MaHopDong = y.MaHopDong,
+                    TenHopDong = y.TenHienThi,
+                    LoaiHinhHopTac = y.LoaiHinhHopTac,
+                    SanPhamDichVu = _context.LoaiSpdv.Where(c => c.MaLoaiSpdv == y.MaLoaiSpdv).Select(c => c.TenLoaiSpdv).FirstOrDefault(),
+                }).ToList()
             }).ToListAsync();
 
-            return new PagedResponseCustom<GetListPiceTableRequest>()
+            return new PagedResponseCustom<ListCustomerOfPriceTable>()
             {
                 paginationFilter = validFilter,
                 totalCount = totalRecords,

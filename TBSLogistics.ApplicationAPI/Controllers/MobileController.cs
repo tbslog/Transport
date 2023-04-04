@@ -1,15 +1,12 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using TBSLogistics.Model.Model.BillOfLadingModel;
 using TBSLogistics.Model.Model.SFeeByTcommandModel;
-using TBSLogistics.Service.Panigation;
 using TBSLogistics.Service.Services.BillOfLadingManage;
 using TBSLogistics.Service.Services.Common;
 using TBSLogistics.Service.Services.MobileManager;
-using TBSLogistics.Service.Services.SFeeByTcommandManage;
 using TBSLogistics.Service.Services.SubFeePriceManage;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -22,16 +19,15 @@ namespace TBSLogistics.ApplicationAPI.Controllers
     {
         private readonly ISubFeePrice _subFeePrice;
         private readonly IBillOfLading _billOfLading;
-        private readonly ISFeeByTcommand _SFeeByTcommand;
+
         private readonly IMobile _mobile;
         private readonly ICommon _common;
 
-        public MobileController(IBillOfLading billOfLading, IPaginationService paginationService, ICommon common, IMobile mobile, ISFeeByTcommand sFeeByTcommand, ISubFeePrice subFeePrice)
+        public MobileController(IBillOfLading billOfLading, ICommon common, IMobile mobile, ISubFeePrice subFeePrice)
         {
             _billOfLading = billOfLading;
             _mobile = mobile;
             _common = common;
-            _SFeeByTcommand = sFeeByTcommand;
             _subFeePrice = subFeePrice;
         }
 
@@ -91,7 +87,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpPost]
         [Route("[action]")]
-        public async Task<IActionResult> CreateSFeeByTCommand(List<CreateSFeeByTCommandRequest> request)
+        public async Task<IActionResult> CreateSFeeByTCommand(List<CreateSFeeByTCommandRequest> request, string maChuyen = null)
         {
             var checkPermission = await _common.CheckPermission("F0009");
             if (checkPermission.isSuccess == false)
@@ -99,7 +95,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
                 return BadRequest(checkPermission.Message);
             }
 
-            var Create = await _SFeeByTcommand.CreateSFeeByTCommand(request);
+            var Create = await _mobile.CreateSFeeByTCommand(request, maChuyen);
             if (Create.isSuccess == true)
             {
                 return Ok(Create);

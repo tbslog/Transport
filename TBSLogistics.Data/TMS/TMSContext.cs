@@ -79,7 +79,7 @@ namespace TBSLogistics.Data.TMS
                  .AddJsonFile("appsettings.json")
                  .Build();
 
-                optionsBuilder.UseSqlServer(configuration.GetConnectionString("TMS_Local"));
+                optionsBuilder.UseSqlServer(configuration.GetConnectionString("TMS_Cloud"));
             }
         }
 

@@ -54,34 +54,25 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpPost]
         [Route("[action]")]
-        public async Task<IActionResult> GetListPriceTable([FromQuery] PaginationFilter filter, ListFilter listFilter)
+        public async Task<IActionResult> GetListPriceTable([FromQuery] PaginationFilter filter)
         {
             var checkPermissionKH = await _common.CheckPermission("C0001");
             var checkPermissionNCC = await _common.CheckPermission("C0005");
 
-            if (checkPermissionKH.isSuccess == true)
-            {
-                filter.customerType = "KH";
-            }
-
-            if (checkPermissionNCC.isSuccess == true)
-            {
-                filter.customerType = "NCC";
-            }
-
-            if (checkPermissionKH.isSuccess && checkPermissionNCC.isSuccess)
-            {
-                filter.customerType = "";
-            }
-            if (!checkPermissionKH.isSuccess && !checkPermissionNCC.isSuccess)
+            if (!checkPermissionKH.isSuccess)
             {
                 return BadRequest("Bạn không có quyền hạn");
             }
 
+            if (!checkPermissionNCC.isSuccess)
+            {
+                return BadRequest("Bạn không có quyền hạn");
+            }
+         
             var route = Request.Path.Value;
-            var pagedData = await _priceTable.GetListPriceTable(filter, listFilter);
+            var pagedData = await _priceTable.GetListPriceTable(filter);
 
-            var pagedReponse = PaginationHelper.CreatePagedReponse<GetListPiceTableRequest>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _paninationService, route);
+            var pagedReponse = PaginationHelper.CreatePagedReponse<ListCustomerOfPriceTable>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _paninationService, route);
             return Ok(pagedReponse);
         }
 
