@@ -9,6 +9,7 @@ namespace TBSLogistics.Model.Model.UserModel
     public class ListFilter
     {
         public List<string> customers { get; set; }
+        public List<string> suppliers { get; set; }
         public List<string> users { get; set; }
         public List<string> accountIds { get; set; }
         public List<int> listDiemDau { get; set; }

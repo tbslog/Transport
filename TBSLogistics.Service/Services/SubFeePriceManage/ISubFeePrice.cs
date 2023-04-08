@@ -21,6 +21,7 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
         Task<GetSubFeePriceRequest> GetSubFeePriceById(long id);
         Task<PagedResponseCustom<ListSubFeePriceRequest>> GetListSubFeePriceByCustomer(string customerId, ListFilter listFilter, PaginationFilter filter);
         Task<PagedResponseCustom<ListCustomerOfPriceTable>> GetListContractOfUser(PaginationFilter filter);
+        Task<PagedResponseCustom<ListSubFeePriceRequest>> GetListSubFeePrice(PaginationFilter filter);
         Task<BoolActionResult> DisableSubFeePrice(List<long> ids);
         Task<BoolActionResult> DeleteSubFeePrice(List<long> ids);
         Task<List<ListSubFee>> GetListSubFeeSelect();

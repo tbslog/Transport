@@ -548,6 +548,8 @@ namespace TBSLogistics.Service.Services.UserManage
                     return null;
                 }
 
+
+
                 return new GetUserRequest
                 {
                     UserName = checkUser.UserName,

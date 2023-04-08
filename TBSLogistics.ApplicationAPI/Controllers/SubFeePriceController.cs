@@ -115,6 +115,23 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpGet]
         [Route("[action]")]
+        public async Task<IActionResult> GetListSubfeeApprove([FromQuery] PaginationFilter filter)
+        {
+            var checkPermission = await _common.CheckPermission("D0004");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
+            var route = Request.Path.Value;
+            var pagedData = await _subFeePrice.GetListSubFeePrice(filter);
+
+            var pagedReponse = PaginationHelper.CreatePagedReponse<ListSubFeePriceRequest>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _uriService, route);
+            return Ok(pagedReponse);
+        }
+
+        [HttpGet]
+        [Route("[action]")]
         public async Task<IActionResult> GetListSubFeePrice([FromQuery] PaginationFilter filter)
         {
             var checkPermission = await _common.CheckPermission("D0001");

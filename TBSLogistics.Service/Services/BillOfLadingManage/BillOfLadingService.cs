@@ -7,6 +7,7 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Net.Http.Headers;
+using System.Runtime.Intrinsics.Arm;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -3142,6 +3143,11 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                     listData = listData.Where(x => listFilter.customers.Contains(x.vd.MaKh));
                 }
 
+                if (listFilter.suppliers.Count > 0)
+                {
+                    listData = listData.Where(x => listFilter.suppliers.Contains(x.vddp.DonViVanTai));
+                }
+
                 if (listFilter.users.Count > 0)
                 {
                     listData = listData.Where(x => listFilter.users.Contains(x.vddp.Creator));
@@ -3625,20 +3631,55 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                     mess = "Đã thay đổi trạng thái thành: Đang Đi Lấy Rỗng";
                                     break;
 
+
                                 case 17:
                                     if (string.IsNullOrEmpty(data.dp.ContNo))
                                     {
                                         return new BoolActionResult { isSuccess = false, Message = "Vui lòng cập nhật ContNo" };
                                     }
 
-                                    listData.ForEach(x =>
+                                    if (data.dp.MaLoaiPhuongTien == "CONT20")
                                     {
-                                        x.TrangThai = 37;
-                                        x.UpdatedTime = DateTime.Now;
-                                        x.Updater = tempData.UserName;
-                                    });
-                                    mess = "Đã thay đổi trạng thái thành: Đang Đóng Hàng";
+                                        if (data.vd.MaPtvc == "LCL")
+                                        {
+                                            listData.Where(x => listTransport.Where(y => y.MaPtvc == "LCL").Select(y => y.MaVanDon).Contains(x.MaVanDon)).ToList().ForEach(x =>
+                                            {
+                                                x.TrangThai = 45;
+                                                x.UpdatedTime = DateTime.Now;
+                                                x.Updater = tempData.UserName;
+                                            });
+                                        }
+                                        else
+                                        {
+                                            data.dp.TrangThai = 45;
+                                            data.dp.Updater = tempData.UserName;
+                                            data.dp.ThoiGianLayHangThucTe = DateTime.Now;
+                                            data.dp.UpdatedTime = DateTime.Now;
 
+                                        }
+                                        mess = "Đã thay đổi trạng thái thành: Đã Lấy Rỗng";
+
+                                        if (listData.Count == listData.Where(x => x.TrangThai == 45).Count())
+                                        {
+                                            listData.ForEach(x =>
+                                            {
+                                                x.TrangThai = 37;
+                                                x.UpdatedTime = DateTime.Now;
+                                                x.Updater = tempData.UserName;
+                                            });
+                                            mess = "Đã thay đổi trạng thái thành: Đang đóng hàng";
+                                        }
+                                    }
+                                    else
+                                    {
+                                        listData.ForEach(x =>
+                                        {
+                                            x.TrangThai = 37;
+                                            x.UpdatedTime = DateTime.Now;
+                                            x.Updater = tempData.UserName;
+                                        });
+                                        mess = "Đã thay đổi trạng thái thành: Đang đóng hàng";
+                                    }
                                     break;
 
                                 case 37:
@@ -3662,27 +3703,61 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                     break;
 
                                 case 18:
-                                    listData.ForEach(x =>
+                                    if (data.dp.MaLoaiPhuongTien == "CONT20")
                                     {
-                                        x.TrangThai = 36;
-                                        x.UpdatedTime = DateTime.Now;
-                                        x.Updater = tempData.UserName;
-                                        x.ThoiGianTraHangThucTe = DateTime.Now;
-                                    });
-                                    mess = "Đã thay đổi trạng thái thành: Đã Giao Hàng";
+                                        if (data.vd.MaPtvc == "LCL")
+                                        {
+                                            listData.Where(x => listTransport.Where(y => y.MaPtvc == "LCL").Select(y => y.MaVanDon).Contains(x.MaVanDon)).ToList().ForEach(x =>
+                                            {
+                                                x.TrangThai = 36;
+                                                x.UpdatedTime = DateTime.Now;
+                                                x.Updater = tempData.UserName;
+                                            });
+                                        }
+                                        else
+                                        {
+                                            data.dp.TrangThai = 36;
+                                            data.dp.Updater = tempData.UserName;
+                                            data.dp.ThoiGianLayHangThucTe = DateTime.Now;
+                                            data.dp.UpdatedTime = DateTime.Now;
+
+                                        }
+                                        mess = "Đã thay đổi trạng thái thành: Đã Giao Hàng";
+                                    }
+                                    else
+                                    {
+                                        listData.ForEach(x =>
+                                        {
+                                            x.TrangThai = 36;
+                                            x.UpdatedTime = DateTime.Now;
+                                            x.Updater = tempData.UserName;
+                                            x.ThoiGianTraHangThucTe = DateTime.Now;
+                                        });
+                                        mess = "Đã thay đổi trạng thái thành: Đã Giao Hàng";
+                                    }
                                     break;
 
                                 case 36:
-                                    listData.ForEach(x =>
+                                    if (data.vd.MaPtvc == "LCL")
                                     {
-                                        x.TrangThai = 20;
-                                        x.UpdatedTime = DateTime.Now;
-                                        x.Updater = tempData.UserName;
-                                        x.ThoiGianTraHangThucTe = DateTime.Now;
-                                    });
+                                        listData.Where(x => listTransport.Where(y => y.MaPtvc == "LCL").Select(y => y.MaVanDon).Contains(x.MaVanDon)).ToList().ForEach(x =>
+                                        {
+                                            x.TrangThai = 20;
+                                            x.UpdatedTime = DateTime.Now;
+                                            x.Updater = tempData.UserName;
+                                            x.ThoiGianHoanThanh = DateTime.Now;
+                                        });
+                                    }
+                                    else
+                                    {
+                                        data.dp.TrangThai = 20;
+                                        data.dp.UpdatedTime = DateTime.Now;
+                                        data.dp.Updater = tempData.UserName;
+                                        data.dp.ThoiGianHoanThanh = DateTime.Now;
+
+                                    }
 
                                     var saveData = await _context.SaveChangesAsync();
-
                                     if (saveData > 0)
                                     {
                                         var getListHandling = await _context.DieuPhoi.Where(x => x.MaVanDon == data.dp.MaVanDon).ToListAsync();
@@ -3693,7 +3768,6 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                             data.vd.TrangThai = 22;
                                             data.vd.Updater = tempData.UserName;
                                             data.vd.UpdatedTime = DateTime.Now;
-                                            ;
                                         }
 
                                         //Trường hợp chuyến đã hoàn thành nhưng các chuyến còn lại bị hủy thì đóng vận đơn
@@ -3707,16 +3781,6 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                                 data.vd.Updater = tempData.UserName;
                                             }
                                         }
-
-                                        var listChuyen = await _context.DieuPhoi.Where(x => x.MaChuyen == maChuyen && x.TrangThai == 20).ToListAsync();
-
-                                        listChuyen.ForEach(x =>
-                                        {
-                                            x.ThoiGianHoanThanh = DateTime.Now;
-                                            x.UpdatedTime = DateTime.Now;
-                                            x.Updater = tempData.UserName;
-                                        });
-
                                         mess = "Đã thay đổi trạng thái thành: Hoàn Thành Chuyến";
 
                                         await _context.SaveChangesAsync();
@@ -3762,14 +3826,50 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                         return new BoolActionResult { isSuccess = false, Message = "Vui lòng cập nhật ContNo" };
                                     }
 
-                                    listData.ForEach(x =>
+                                    if (data.dp.MaLoaiPhuongTien == "CONT20")
                                     {
-                                        x.TrangThai = 18;
-                                        x.UpdatedTime = DateTime.Now;
-                                        data.dp.ThoiGianLayHangThucTe = DateTime.Now;
-                                        x.Updater = tempData.UserName;
-                                    });
-                                    mess = "Đã thay đổi trạng thái thành: Đang Vận Chuyển";
+                                        if (data.vd.MaPtvc == "LCL")
+                                        {
+                                            listData.Where(x => listTransport.Where(y => y.MaPtvc == "LCL").Select(y => y.MaVanDon).Contains(x.MaVanDon)).ToList().ForEach(x =>
+                                            {
+                                                x.TrangThai = 43;
+                                                x.UpdatedTime = DateTime.Now;
+                                                x.Updater = tempData.UserName;
+                                                x.ThoiGianLayHangThucTe = DateTime.Now;
+                                            });
+                                        }
+                                        else
+                                        {
+                                            data.dp.TrangThai = 43;
+                                            data.dp.Updater = tempData.UserName;
+                                            data.dp.ThoiGianLayHangThucTe = DateTime.Now;
+                                            data.dp.UpdatedTime = DateTime.Now;
+                                        }
+
+                                        mess = "Đã thay đổi trạng thái thành: Đã Đóng Hàng";
+
+                                        if (listData.Count == listData.Where(x => x.TrangThai == 43).Count())
+                                        {
+                                            listData.ForEach(x =>
+                                            {
+                                                x.TrangThai = 18;
+                                                x.UpdatedTime = DateTime.Now;
+                                                x.Updater = tempData.UserName;
+                                            });
+                                            mess = "Đã thay đổi trạng thái thành: Đang Vận Chuyển";
+                                        }
+                                    }
+                                    else
+                                    {
+                                        listData.ForEach(x =>
+                                        {
+                                            x.TrangThai = 18;
+                                            x.UpdatedTime = DateTime.Now;
+                                            data.dp.ThoiGianLayHangThucTe = DateTime.Now;
+                                            x.Updater = tempData.UserName;
+                                        });
+                                        mess = "Đã thay đổi trạng thái thành: Đang Vận Chuyển";
+                                    }
                                     break;
 
                                 case 18:
@@ -3792,13 +3892,25 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                     break;
 
                                 case 35:
-                                    listData.ForEach(x =>
+
+                                    if (data.vd.MaPtvc == "LCL")
                                     {
-                                        x.TrangThai = 20;
-                                        x.Updater = tempData.UserName;
-                                        x.UpdatedTime = DateTime.Now;
-                                        x.ThoiGianHoanThanh = DateTime.Now;
-                                    });
+                                        listData.Where(x => listTransport.Where(y => y.MaPtvc == "LCL").Select(y => y.MaVanDon).Contains(x.MaVanDon)).ToList().ForEach(x =>
+                                        {
+                                            x.TrangThai = 20;
+                                            x.UpdatedTime = DateTime.Now;
+                                            x.Updater = tempData.UserName;
+                                            x.ThoiGianHoanThanh = DateTime.Now;
+                                        });
+                                    }
+                                    else
+                                    {
+                                        data.dp.TrangThai = 20;
+                                        data.dp.UpdatedTime = DateTime.Now;
+                                        data.dp.Updater = tempData.UserName;
+                                        data.dp.ThoiGianHoanThanh = DateTime.Now;
+                                    }
+
                                     mess = "Đã thay đổi trạng thái thành: Hoàn Thành Chuyến";
 
                                     var saveData = await _context.SaveChangesAsync();
@@ -3999,8 +4111,6 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                     data.dp.BangGiaNcc = null;
                     data.dp.DonGiaKh = null;
                     data.dp.DonGiaNcc = null;
-                    data.dp.MaSoXe = null;
-                    data.dp.MaTaiXe = null;
                     data.dp.DonViVanTai = null;
                     data.dp.MaRomooc = null;
                     data.dp.ThuTuGiaoHang = null;
@@ -4060,9 +4170,9 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                     return new BoolActionResult { isSuccess = false, Message = "Lệnh điều phối không tồn tại" };
                 }
 
-                if (data.vd.TrangThai != 28 && data.vd.TrangThai != 8)
+                if (data.dp.TrangThai != 19 && data.dp.TrangThai != 27 && data.dp.TrangThai != 30)
                 {
-                    return new BoolActionResult { isSuccess = false, Message = "Không thể hủy chuyến của vận đơn này nữa" };
+                    return new BoolActionResult { isSuccess = false, Message = "Không thể hủy chuyến này nữa" };
                 }
 
                 data.dp.TrangThai = 38;
@@ -4087,6 +4197,17 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                         data.vd.TrangThai = 39;
                         _context.Update(data.vd);
                         await _context.SaveChangesAsync();
+                    }
+
+                    var listStatus = new List<int>(new int[] { 21, 31, 38 });
+                    if (getListHandling.Where(x => listStatus.Contains(x.TrangThai)).Count() > 0)
+                    {
+                        if (getListHandling.Where(X => X.TrangThai != 20).Count() == getListHandling.Where(x => listStatus.Contains(x.TrangThai)).Count())
+                        {
+                            data.vd.TrangThai = 44;
+                            data.vd.UpdatedTime = DateTime.Now;
+                            data.vd.Updater = tempData.UserName;
+                        }
                     }
 
                     await transaction.CommitAsync();
@@ -4167,8 +4288,8 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                 Id = x.Id,
                 FileName = x.FileName.Replace(x.FileType, ""),
                 FileType = x.FileType,
-                // FilePath =Path.Combine(_common.GetFile(x.FilePath)),
-                UploadedTime = x.UploadedTime
+                UploadedTime = x.UploadedTime,
+                Note = x.Note
             }).ToList();
         }
 

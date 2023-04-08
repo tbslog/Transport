@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using TBSLogistics.Model.Model.BillOfLadingModel;
+using TBSLogistics.Model.Model.MobileModel;
 using TBSLogistics.Model.Model.SFeeByTcommandModel;
 using TBSLogistics.Service.Services.BillOfLadingManage;
 using TBSLogistics.Service.Services.Common;
@@ -19,7 +21,6 @@ namespace TBSLogistics.ApplicationAPI.Controllers
     {
         private readonly ISubFeePrice _subFeePrice;
         private readonly IBillOfLading _billOfLading;
-
         private readonly IMobile _mobile;
         private readonly ICommon _common;
 
@@ -29,6 +30,15 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             _mobile = mobile;
             _common = common;
             _subFeePrice = subFeePrice;
+        }
+
+        [HttpPost]
+        [Route("[action]")]
+        public async Task<IActionResult> ResetStatus(string maChuyen)
+        {
+            var reset = await _mobile.ResetStatus(maChuyen);
+
+            return Ok(reset);
         }
 
         [HttpGet]
@@ -44,6 +54,14 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         public async Task<IActionResult> GetDataTransport(string driver, bool isCompleted)
         {
             var data = await _mobile.GetDataTransportForMobile(driver, isCompleted);
+            return Ok(data);
+        }
+
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetListSubfeeIncurred(string maChuyen)
+        {
+            var data = await _mobile.GetListSubfeeIncurred(maChuyen);
             return Ok(data);
         }
 
@@ -155,33 +173,41 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             }
 
             var list = await _billOfLading.GetListImageByHandlingId(handlingId);
-            return Ok(list);
-        }
 
-        [HttpGet]
-        [Route("[action]")]
-        public async Task<IActionResult> GetImageById(int idImage)
-        {
-            var checkPermission = await _common.CheckPermission("F0004");
-            if (checkPermission.isSuccess == false)
+            var listImage = new List<GetListImage>();
+
+            foreach (var item in list)
             {
-                return BadRequest(checkPermission.Message);
+                var image = await _billOfLading.GetImageById(Convert.ToInt32(item.Id));
+
+                var filePath = Path.Combine(Directory.GetCurrentDirectory(), image.FilePath);
+                if (!System.IO.File.Exists(filePath))
+                    return NotFound();
+
+                var memory = new MemoryStream();
+                await using (var stream = new FileStream(filePath, FileMode.Open))
+                {
+                    await stream.CopyToAsync(memory);
+                }
+                memory.Position = 0;
+
+                var file = File(memory, "application/octet-stream", image.FileName);
+                byte[] array = new byte[file.FileStream.Length];
+                // reading the data
+                file.FileStream.Read(array, 0, array.Length);
+                // decod bytes in a row
+                string textFromFile = System.Text.Encoding.Default.GetString(array);
+                var base64 = Convert.ToBase64String(array);
+
+                listImage.Add(new GetListImage()
+                {
+                    FileName = item.FileName,
+                    Note = item.Note,
+                    Image = base64
+                });
             }
 
-            var image = await _billOfLading.GetImageById(idImage);
-
-            var filePath = Path.Combine(Directory.GetCurrentDirectory(), image.FilePath);
-            if (!System.IO.File.Exists(filePath))
-                return NotFound();
-
-            var memory = new MemoryStream();
-            await using (var stream = new FileStream(filePath, FileMode.Open))
-            {
-                await stream.CopyToAsync(memory);
-            }
-            memory.Position = 0;
-
-            return File(memory, "application/octet-stream", image.FileName);
+            return Ok(listImage);
         }
 
         [HttpPost]

@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using TBSLogistics.Data.TMS;
 using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.PriceListModel;
 using TBSLogistics.Model.Model.UserModel;
@@ -22,12 +25,14 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         private readonly IPriceTable _priceTable;
         private readonly IPaginationService _paninationService;
         private readonly ICommon _common;
+        private readonly TMSContext _context;
 
-        public PriceTableController(IPriceTable priceTable, IPaginationService paninationService, ICommon common)
+        public PriceTableController(IPriceTable priceTable, IPaginationService paninationService, ICommon common, TMSContext context)
         {
             _priceTable = priceTable;
             _paninationService = paninationService;
             _common = common;
+            _context = context;
         }
 
         [HttpPost]
@@ -59,16 +64,29 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             var checkPermissionKH = await _common.CheckPermission("C0001");
             var checkPermissionNCC = await _common.CheckPermission("C0005");
 
-            if (!checkPermissionKH.isSuccess)
+            if (!checkPermissionKH.isSuccess && !checkPermissionNCC.isSuccess)
             {
                 return BadRequest("Bạn không có quyền hạn");
             }
 
-            if (!checkPermissionNCC.isSuccess)
+
+            if (filter.customerType == "NCC")
             {
-                return BadRequest("Bạn không có quyền hạn");
+                if (!checkPermissionNCC.isSuccess)
+                {
+                    return BadRequest("Bạn không có quyền hạn");
+                }
             }
-         
+
+            if(filter.customerType == "KH")
+            {
+                if (!checkPermissionKH.isSuccess)
+                {
+                    return BadRequest("Bạn không có quyền hạn");
+                }
+            }
+           
+
             var route = Request.Path.Value;
             var pagedData = await _priceTable.GetListPriceTable(filter);
 
@@ -80,10 +98,30 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> GetListPriceTableByContractId([FromQuery] PaginationFilter filter, ListFilter listFilter, string Id, string onlyct = null)
         {
-            var checkPermission = await _common.CheckPermission("C0001");
-            if (checkPermission.isSuccess == false)
+            var checkPermissionKH = await _common.CheckPermission("C0001");
+            var checkPermissionNCC = await _common.CheckPermission("C0005");
+
+            if (!checkPermissionKH.isSuccess && !checkPermissionNCC.isSuccess)
             {
-                return BadRequest(checkPermission.Message);
+                return BadRequest("Bạn không có quyền hạn");
+            }
+
+            var checkContract = await _context.HopDongVaPhuLuc.Where(x => x.MaHopDong == Id).FirstOrDefaultAsync();
+
+            if (checkContract.MaKh.Contains("SUP"))
+            {
+                if (!checkPermissionNCC.isSuccess)
+                {
+                    return BadRequest("Bạn không có quyền hạn");
+                }
+            }
+
+            if (checkContract.MaKh.Contains("CUS"))
+            {
+                if (!checkPermissionKH.isSuccess)
+                {
+                    return BadRequest("Bạn không có quyền hạn");
+                }
             }
 
             var route = Request.Path.Value;

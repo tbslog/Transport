@@ -43,6 +43,11 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
                     return new BoolActionResult { isSuccess = false, Message = "Đơn giá phải lớn hơn 0" };
                 }
 
+                if (request.GoodsType == null && request.VehicleType == null && request.getEmptyPlace == null && request.firstPlace == null && request.secondPlace == null)
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Vui Lòng Chọn ít nhất một điều kiện để tạo phụ phí" };
+                }
+
                 var getContract = await _context.HopDongVaPhuLuc.Where(x => x.MaHopDong == request.ContractId).FirstOrDefaultAsync();
                 if (getContract == null)
                 {
@@ -53,11 +58,6 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
                 if (getNewestContract.MaHopDong != getContract.MaHopDong)
                 {
                     return new BoolActionResult { isSuccess = false, Message = "Vui Lòng Chọn Hợp Đồng Mới Nhất" };
-                }
-
-                if (request.GoodsType == null && request.VehicleType == null && request.getEmptyPlace == null && request.firstPlace == null && request.secondPlace == null)
-                {
-                    return new BoolActionResult { isSuccess = false, Message = "Vui Lòng Chọn ít nhất một điều kiện để tạo phụ phí" };
                 }
 
                 if (!string.IsNullOrEmpty(request.GoodsType))
@@ -661,7 +661,10 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
                                &&
                                (((sfp.FirstPlace == getFirstPlace.MaDiaDiem || sfp.FirstPlace == getFirstPlace.DiaDiemCha) && (sfp.SecondPlace == getSecondPlace.MaDiaDiem || sfp.SecondPlace == getSecondPlace.DiaDiemCha))
                                ||
-                               ((sfp.FirstPlace == getSecondPlace.MaDiaDiem || sfp.FirstPlace == getSecondPlace.DiaDiemCha) && (sfp.SecondPlace == getFirstPlace.MaDiaDiem || sfp.SecondPlace == getFirstPlace.DiaDiemCha)))
+                               ((sfp.FirstPlace == getSecondPlace.MaDiaDiem || sfp.FirstPlace == getSecondPlace.DiaDiemCha) && (sfp.SecondPlace == getFirstPlace.MaDiaDiem || sfp.SecondPlace == getFirstPlace.DiaDiemCha))
+                               ||
+                               (sfp.FirstPlace == null && sfp.FirstPlace == null)
+                               )
                                select new { contract, sfp };
 
             var listSf = new List<SubFeePrice>();
@@ -1191,6 +1194,82 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
             return listResult.ToList();
         }
 
+        public async Task<PagedResponseCustom<ListSubFeePriceRequest>> GetListSubFeePrice(PaginationFilter filter)
+        {
+            try
+            {
+                var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
+                var getList = from sfp in _context.SubFeePrice
+                              join sf in _context.SubFee
+                              on sfp.SfId equals sf.SubFeeId
+                              join sft in _context.SubFeeType
+                              on sf.SfType equals sft.SfTypeId
+                              join hd in _context.HopDongVaPhuLuc
+                              on sfp.ContractId equals hd.MaHopDong into sfcc
+                              from sfc in sfcc.DefaultIfEmpty()
+                              join status in _context.StatusText
+                              on sfp.Status equals status.StatusId
+                              join kh in _context.KhachHang
+                              on sfc.MaKh equals kh.MaKh
+                              where status.LangId == tempData.LangID
+                              orderby sfp.SfId descending
+                              select new { sfp, sf, sft, sfc, status, kh };
+
+                if (!string.IsNullOrEmpty(filter.Keyword))
+                {
+                    getList = getList.Where(x => x.sfc.MaHopDong.Contains(filter.Keyword) || x.sfc.MaKh.Contains(filter.Keyword) || x.kh.TenKh.Contains(filter.Keyword));
+                }
+
+                if (filter.fromDate.HasValue && filter.toDate.HasValue)
+                {
+                    getList = getList.Where(x => x.sfp.ApprovedDate.Value.Date >= filter.fromDate.Value.Date && x.sfp.ApprovedDate.Value.Date <= filter.toDate.Value.Date);
+                }
+
+                if (!string.IsNullOrEmpty(filter.statusId))
+                {
+                    getList = getList.Where(x => x.sfp.Status == int.Parse(filter.statusId));
+                }
+                else
+                {
+                    getList = getList.Where(x => x.sfp.Status != 16 && x.sfp.Status != 15);
+                }
+
+                var totalCount = await getList.CountAsync();
+
+                var pagedData = await getList.Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new ListSubFeePriceRequest()
+                {
+                    accountId = x.sfp.AccountId,
+                    VehicleType = x.sfp.VehicleType,
+                    PriceId = x.sfp.PriceId,
+                    CustomerName = x.kh.TenKh,
+                    ContractId = x.sfc.MaHopDong,
+                    ContractName = x.sfc.TenHienThi,
+                    GoodsType = _context.LoaiHangHoa.Where(y => y.MaLoaiHangHoa == x.sfp.GoodsType).Select(x => x.TenLoaiHangHoa).FirstOrDefault(),
+                    getEmptyPlace = x.sfp.GetEmptyPlace == null ? null : _context.DiaDiem.Where(y => y.MaDiaDiem == x.sfp.GetEmptyPlace).Select(y => y.TenDiaDiem).FirstOrDefault(),
+                    firstPlace = _context.DiaDiem.Where(y => y.MaDiaDiem == x.sfp.FirstPlace).Select(y => y.TenDiaDiem).FirstOrDefault(),
+                    secondPlace = _context.DiaDiem.Where(y => y.MaDiaDiem == x.sfp.SecondPlace).Select(y => y.TenDiaDiem).FirstOrDefault(),
+                    sfName = x.sf.SfName,
+                    Status = x.status.StatusContent,
+                    UnitPrice = x.sfp.Price,
+                    SfStateByContract = x.sfp.SfStateByContract,
+                    Approver = x.sfp.Approver,
+                    ApprovedDate = x.sfp.ApprovedDate,
+                    DeactiveDate = x.sfp.DeactiveDate
+                }).ToListAsync();
+
+                return new PagedResponseCustom<ListSubFeePriceRequest>()
+                {
+                    dataResponse = pagedData,
+                    totalCount = totalCount,
+                    paginationFilter = validFilter
+                };
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
         public async Task<PagedResponseCustom<ListSubFeePriceRequest>> GetListSubFeePriceByCustomer(string customerId, ListFilter listFilter, PaginationFilter filter)
         {
             try
@@ -1269,7 +1348,7 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
 
                 var totalCount = await getList.CountAsync();
 
-                var pagedData = await getList.OrderByDescending(x=>x.sfp.PriceId).Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new ListSubFeePriceRequest()
+                var pagedData = await getList.OrderByDescending(x => x.sfp.PriceId).Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new ListSubFeePriceRequest()
                 {
                     accountId = x.sfp.AccountId,
                     VehicleType = x.sfp.VehicleType,
