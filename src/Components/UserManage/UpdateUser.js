@@ -280,6 +280,7 @@ const UpdateUser = (props) => {
                     {...register(`AccountType`, Validate.AccountType)}
                   >
                     <option value={"NV"}>Nhân Viên</option>
+                    <option value={"NCC"}>Nhà Cung Cấp</option>
                     <option value={"KH"}>Khách Hàng</option>
                   </select>
                   {errors.TrangThai && (

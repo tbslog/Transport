@@ -8,6 +8,7 @@ import LoadingPage from "../Common/Loading/LoadingPage";
 
 const UpdateTransportLess = (props) => {
   const { getListTransport, selectIdClick, hideModal } = props;
+
   const [IsLoading, SetIsLoading] = useState(false);
   const {
     register,

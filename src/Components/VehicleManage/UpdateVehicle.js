@@ -4,10 +4,11 @@ import { useForm, Controller } from "react-hook-form";
 import Select from "react-select";
 import DatePicker from "react-datepicker";
 import LoadingPage from "../Common/Loading/LoadingPage";
+import Cookies from "js-cookie";
 
 const UpdateVehicle = (props) => {
   const { selectIdClick, listStatus, getListVehicle, hideModal } = props;
-
+  const accountType = Cookies.get("AccType");
   const [IsLoading, SetIsLoading] = useState(true);
   const {
     register,
@@ -93,14 +94,56 @@ const UpdateVehicle = (props) => {
 
   const [listVehicleType, setListVehicleType] = useState([]);
   const [listDriver, setListDriver] = useState([]);
+  const [listSupplier, setListSupplier] = useState([]);
+
+  useEffect(() => {
+    SetIsLoading(true);
+    (async () => {
+      let getListVehicleType = await getData("Common/GetListVehicleType");
+      getListVehicleType = getListVehicleType.filter(
+        (x) => !x.maLoaiPhuongTien.includes("CONT")
+      );
+      setListVehicleType(getListVehicleType);
+
+      let getListDriver = await getData(`Driver/GetListSelectDriver`);
+      if (getListDriver && getListDriver.length > 0) {
+        let obj = [];
+        obj.push({ value: null, label: "Không cố định" });
+        getListDriver.map((val) => {
+          obj.push({
+            value: val.maTaiXe,
+            label: val.maTaiXe + " - " + val.hoVaTen,
+          });
+        });
+        setListDriver(obj);
+      }
+
+      let getListNCC = await getData(`Customer/GetListCustomerOptionSelect`);
+      if (getListNCC && getListNCC.length > 0) {
+        let listSup = getListNCC.filter((x) => x.loaiKH === "NCC");
+        let objSup = [];
+
+        listSup.map((val) => {
+          objSup.push({
+            value: val.maKh,
+            label: val.maKh + " - " + val.tenKh,
+          });
+        });
+        setListSupplier(objSup);
+      }
+      SetIsLoading(false);
+    })();
+  }, []);
 
   useEffect(() => {
     if (
       props &&
       selectIdClick &&
+      listSupplier &&
       listDriver &&
       listStatus &&
       listVehicleType &&
+      listSupplier.length > 0 &&
       listDriver.length > 0 &&
       listStatus.length > 0 &&
       listVehicleType.length > 0 &&
@@ -108,6 +151,12 @@ const UpdateVehicle = (props) => {
     ) {
       setValue("MaSoXe", selectIdClick.maSoXe);
       setValue("LoaiXe", selectIdClick.maLoaiPhuongTien);
+
+      setValue(
+        "DonViVanTai",
+        listSupplier.find((x) => x.value === selectIdClick.maNhaCungCap)
+      );
+
       setValue(
         "TaiXeMacDinh",
         {
@@ -127,38 +176,14 @@ const UpdateVehicle = (props) => {
           : new Date(selectIdClick.ngayHoatDong)
       );
     }
-  }, [selectIdClick, listStatus, listDriver, listVehicleType]);
-
-  useEffect(() => {
-    SetIsLoading(true);
-    (async () => {
-      let getListVehicleType = await getData("Common/GetListVehicleType");
-      getListVehicleType = getListVehicleType.filter(
-        (x) => !x.maLoaiPhuongTien.includes("CONT")
-      );
-      setListVehicleType(getListVehicleType);
-
-      let getListDriver = await getData(`Driver/GetListSelectDriver`);
-      if (getListDriver && getListDriver.length > 0) {
-        let obj = [];
-        obj.push({ value: null, label: "Rỗng" });
-        getListDriver.map((val) => {
-          obj.push({
-            value: val.maTaiXe,
-            label: val.maTaiXe + " - " + val.hoVaTen,
-          });
-        });
-        setListDriver(obj);
-      }
-      SetIsLoading(false);
-    })();
-  }, []);
+  }, [selectIdClick, listStatus, listDriver, listVehicleType, listSupplier]);
 
   const onSubmit = async (data) => {
     SetIsLoading(true);
     const post = await postData(
       `Vehicle/EditVehicle?vehicleId=${data.MaSoXe}`,
       {
+        DonViVanTai: data.DonViVanTai.value,
         MaLoaiPhuongTien: data.LoaiXe,
         MaTaiXeMacDinh: !data.TaiXeMacDinh.value
           ? null
@@ -196,6 +221,29 @@ const UpdateVehicle = (props) => {
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="card-body">
               <div className="row">
+                <div className="col col-sm">
+                  <div className="form-group">
+                    <label htmlFor="DonViVanTai">Đơn Vị Vận Tải</label>
+                    <Controller
+                      name="DonViVanTai"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          classNamePrefix={"form-control"}
+                          value={field.value}
+                          options={listSupplier}
+                        />
+                      )}
+                      rules={Validate.DonViVanTai}
+                    />
+                    {errors.DonViVanTai && (
+                      <span className="text-danger">
+                        {errors.DonViVanTai.message}
+                      </span>
+                    )}
+                  </div>
+                </div>
                 <div className="col col-sm">
                   <div className="form-group">
                     <label htmlFor="TaiXeMacDinh">Tài Xế Mặc Định</label>
@@ -338,65 +386,69 @@ const UpdateVehicle = (props) => {
                     )}
                   </div>
                 </div>
-                <div className="col-sm">
-                  <div className="form-group">
-                    <label htmlFor="MaTaiSan">Mã Tài Sản</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      id="MaTaiSan"
-                      {...register("MaTaiSan", Validate.MaTaiSan)}
-                    />
-                    {errors.MaTaiSan && (
-                      <span className="text-danger">
-                        {errors.MaTaiSan.message}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div>
-              <div className="row">
-                <div className="col-sm">
-                  <div className="form-group">
-                    <label htmlFor="TGKhauHao">Thời Gian Khấu Hao</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      id="TGKhauHao"
-                      {...register("TGKhauHao", Validate.TGKhauHao)}
-                    />
-                    {errors.TGKhauHao && (
-                      <span className="text-danger">
-                        {errors.TGKhauHao.message}
-                      </span>
-                    )}
-                  </div>
-                </div>
-                <div className="col col-sm">
-                  <div className="form-group">
-                    <label htmlFor="NgayHoatDong">Ngày Hoạt Động</label>
-                    <div className="input-group ">
-                      <Controller
-                        control={control}
-                        name={`NgayHoatDong`}
-                        render={({ field }) => (
-                          <DatePicker
-                            className="form-control"
-                            dateFormat="dd/MM/yyyy"
-                            onChange={(date) => field.onChange(date)}
-                            selected={field.value}
-                          />
-                        )}
+                {accountType && accountType === "NV" && (
+                  <div className="col-sm">
+                    <div className="form-group">
+                      <label htmlFor="MaTaiSan">Mã Tài Sản</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        id="MaTaiSan"
+                        {...register("MaTaiSan", Validate.MaTaiSan)}
                       />
-                      {errors.NgayHoatDong && (
+                      {errors.MaTaiSan && (
                         <span className="text-danger">
-                          {errors.NgayHoatDong.message}
+                          {errors.MaTaiSan.message}
                         </span>
                       )}
                     </div>
                   </div>
-                </div>
+                )}
               </div>
+              {accountType && accountType === "NV" && (
+                <div className="row">
+                  <div className="col-sm">
+                    <div className="form-group">
+                      <label htmlFor="TGKhauHao">Thời Gian Khấu Hao</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        id="TGKhauHao"
+                        {...register("TGKhauHao", Validate.TGKhauHao)}
+                      />
+                      {errors.TGKhauHao && (
+                        <span className="text-danger">
+                          {errors.TGKhauHao.message}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="col col-sm">
+                    <div className="form-group">
+                      <label htmlFor="NgayHoatDong">Ngày Hoạt Động</label>
+                      <div className="input-group ">
+                        <Controller
+                          control={control}
+                          name={`NgayHoatDong`}
+                          render={({ field }) => (
+                            <DatePicker
+                              className="form-control"
+                              dateFormat="dd/MM/yyyy"
+                              onChange={(date) => field.onChange(date)}
+                              selected={field.value}
+                            />
+                          )}
+                        />
+                        {errors.NgayHoatDong && (
+                          <span className="text-danger">
+                            {errors.NgayHoatDong.message}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
             <div className="card-footer">
               <div>

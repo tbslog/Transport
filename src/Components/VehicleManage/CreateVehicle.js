@@ -4,9 +4,11 @@ import { useForm, Controller } from "react-hook-form";
 import Select from "react-select";
 import DatePicker from "react-datepicker";
 import LoadingPage from "../Common/Loading/LoadingPage";
+import Cookies from "js-cookie";
 
 const CreateVehicle = (props) => {
   const { getListVehicle, listStatus } = props;
+  const accountType = Cookies.get("AccType");
 
   const [IsLoading, SetIsLoading] = useState(true);
   const {
@@ -18,11 +20,14 @@ const CreateVehicle = (props) => {
   } = useForm({
     mode: "onChange",
     defaultValues: {
-      TaiXeMacDinh: { value: "", label: "Rỗng" },
+      TaiXeMacDinh: { value: null, label: "Không cố định" },
     },
   });
 
   const Validate = {
+    DonViVanTai: {
+      required: "Không được để trống",
+    },
     MaSoXe: {
       required: "Không được để trống",
       maxLength: {
@@ -96,6 +101,7 @@ const CreateVehicle = (props) => {
 
   const [listVehicleType, setListVehicleType] = useState([]);
   const [listDriver, setListDriver] = useState([]);
+  const [listSupplier, setListSupplier] = useState([]);
 
   useEffect(() => {
     SetIsLoading(true);
@@ -109,7 +115,7 @@ const CreateVehicle = (props) => {
       let getListDriver = await getData(`Driver/GetListSelectDriver`);
       if (getListDriver && getListDriver.length > 0) {
         let obj = [];
-        obj.push({ value: null, label: "Rỗng" });
+        obj.push({ value: null, label: "Không cố định" });
         getListDriver.map((val) => {
           obj.push({
             value: val.maTaiXe,
@@ -118,6 +124,21 @@ const CreateVehicle = (props) => {
         });
         setListDriver(obj);
       }
+
+      let getListNCC = await getData(`Customer/GetListCustomerOptionSelect`);
+      if (getListNCC && getListNCC.length > 0) {
+        let listSup = getListNCC.filter((x) => x.loaiKH === "NCC");
+        let objSup = [];
+
+        listSup.map((val) => {
+          objSup.push({
+            value: val.maKh,
+            label: val.maKh + " - " + val.tenKh,
+          });
+        });
+        setListSupplier(objSup);
+      }
+
       SetIsLoading(false);
     })();
   }, []);
@@ -125,6 +146,7 @@ const CreateVehicle = (props) => {
   const onSubmit = async (data) => {
     SetIsLoading(true);
     const post = await postData("Vehicle/CreateVehicle", {
+      DonViVanTai: data.DonViVanTai.value,
       MaSoXe: data.MaSoXe,
       MaLoaiPhuongTien: data.LoaiXe,
       MaTaiXeMacDinh: !data.TaiXeMacDinh.value ? null : data.TaiXeMacDinh.value,
@@ -164,6 +186,29 @@ const CreateVehicle = (props) => {
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="card-body">
               <div className="row">
+                <div className="col col-sm">
+                  <div className="form-group">
+                    <label htmlFor="DonViVanTai">Đơn Vị Vận Tải</label>
+                    <Controller
+                      name="DonViVanTai"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          classNamePrefix={"form-control"}
+                          value={field.value}
+                          options={listSupplier}
+                        />
+                      )}
+                      rules={Validate.DonViVanTai}
+                    />
+                    {errors.DonViVanTai && (
+                      <span className="text-danger">
+                        {errors.DonViVanTai.message}
+                      </span>
+                    )}
+                  </div>
+                </div>
                 <div className="col col-sm">
                   <div className="form-group">
                     <label htmlFor="TaiXeMacDinh">Tài Xế Mặc Định</label>
@@ -305,65 +350,69 @@ const CreateVehicle = (props) => {
                     )}
                   </div>
                 </div>
-                <div className="col-sm">
-                  <div className="form-group">
-                    <label htmlFor="MaTaiSan">Mã Tài Sản</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      id="MaTaiSan"
-                      {...register("MaTaiSan", Validate.MaTaiSan)}
-                    />
-                    {errors.MaTaiSan && (
-                      <span className="text-danger">
-                        {errors.MaTaiSan.message}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div>
-              <div className="row">
-                <div className="col-sm">
-                  <div className="form-group">
-                    <label htmlFor="TGKhauHao">Thời Gian Khấu Hao</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      id="TGKhauHao"
-                      {...register("TGKhauHao", Validate.TGKhauHao)}
-                    />
-                    {errors.TGKhauHao && (
-                      <span className="text-danger">
-                        {errors.TGKhauHao.message}
-                      </span>
-                    )}
-                  </div>
-                </div>
-                <div className="col col-sm">
-                  <div className="form-group">
-                    <label htmlFor="NgayHoatDong">Ngày Hoạt Động</label>
-                    <div className="input-group ">
-                      <Controller
-                        control={control}
-                        name={`NgayHoatDong`}
-                        render={({ field }) => (
-                          <DatePicker
-                            className="form-control"
-                            dateFormat="dd/MM/yyyy"
-                            onChange={(date) => field.onChange(date)}
-                            selected={field.value}
-                          />
-                        )}
+                {accountType && accountType === "NV" && (
+                  <div className="col-sm">
+                    <div className="form-group">
+                      <label htmlFor="MaTaiSan">Mã Tài Sản</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        id="MaTaiSan"
+                        {...register("MaTaiSan", Validate.MaTaiSan)}
                       />
-                      {errors.NgayHoatDong && (
+                      {errors.MaTaiSan && (
                         <span className="text-danger">
-                          {errors.NgayHoatDong.message}
+                          {errors.MaTaiSan.message}
                         </span>
                       )}
                     </div>
                   </div>
-                </div>
+                )}
               </div>
+              {accountType && accountType === "NV" && (
+                <div className="row">
+                  <div className="col-sm">
+                    <div className="form-group">
+                      <label htmlFor="TGKhauHao">Thời Gian Khấu Hao</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        id="TGKhauHao"
+                        {...register("TGKhauHao", Validate.TGKhauHao)}
+                      />
+                      {errors.TGKhauHao && (
+                        <span className="text-danger">
+                          {errors.TGKhauHao.message}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="col col-sm">
+                    <div className="form-group">
+                      <label htmlFor="NgayHoatDong">Ngày Hoạt Động</label>
+                      <div className="input-group ">
+                        <Controller
+                          control={control}
+                          name={`NgayHoatDong`}
+                          render={({ field }) => (
+                            <DatePicker
+                              className="form-control"
+                              dateFormat="dd/MM/yyyy"
+                              onChange={(date) => field.onChange(date)}
+                              selected={field.value}
+                            />
+                          )}
+                        />
+                        {errors.NgayHoatDong && (
+                          <span className="text-danger">
+                            {errors.NgayHoatDong.message}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
               {/* <div className="form-group">
                 <label htmlFor="GhiChu">Ghi Chú</label>
                 <input

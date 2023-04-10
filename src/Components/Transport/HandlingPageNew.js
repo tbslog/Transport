@@ -11,6 +11,7 @@ import {
   postData,
   postFile,
 } from "../Common/FuncAxios";
+import Cookies from "js-cookie";
 import DataTable from "react-data-table-component";
 import AddSubFeeByHandling from "./AddSubFeeByHandling";
 import ApproveSubFeeByHandling from "./ApproveSubFeeByHandling";
@@ -18,10 +19,11 @@ import JoinTransports from "./JoinTransports";
 import Select from "react-select";
 import { ToastError } from "../Common/FuncToast";
 import LoadingPage from "../Common/Loading/LoadingPage";
-import HandlingImage from "./HandlingImage";
+import HandlingImage from "../FileManager/HandlingImage";
 import UpdateHandling from "./UpdateHandling";
 
 const HandlingPageNew = () => {
+  const accountType = Cookies.get("AccType");
   const Columns = useMemo(() => [
     {
       cell: (val) => (
@@ -91,23 +93,6 @@ const HandlingPageNew = () => {
                   <i className="fas fa-image"></i>
                 </button>
               </>
-              <>
-                <div
-                  className="upload-btn-wrapper mx-1 btn-title"
-                  gloss="Upload Hình Ảnh"
-                >
-                  <button className="btn btn-sm btn-default mx-1">
-                    <i className="fas fa-file-upload"></i>
-                  </button>
-                  <input
-                    type="file"
-                    name="myfile"
-                    multiple
-                    accept="image/png, image/jpg, image/jpeg"
-                    onChange={(e) => handleUploadImage(val, e)}
-                  />
-                </div>
-              </>
             </>
           )}
         </>
@@ -155,30 +140,28 @@ const HandlingPageNew = () => {
       selector: (row) => <div className="text-wrap">{row.phanLoaiVanDon}</div>,
       sortable: true,
     },
-    {
-      name: <div>Khách Hàng</div>,
-      selector: (row) => <div className="text-wrap">{row.maKH}</div>,
-      sortable: true,
-    },
-    {
-      name: <div>Account</div>,
-      selector: (row) => <div className="text-wrap">{row.accountName}</div>,
-    },
-    {
-      name: <div>Đơn Vị Vận Tải</div>,
-      selector: (row) => <div className="text-wrap">{row.donViVanTai}</div>,
-      sortable: true,
-    },
+    accountType &&
+      accountType === "NV" &&
+      ({
+        name: <div>Khách Hàng</div>,
+        selector: (row) => <div className="text-wrap">{row.maKH}</div>,
+        sortable: true,
+      },
+      {
+        name: <div>Account</div>,
+        selector: (row) => <div className="text-wrap">{row.accountName}</div>,
+      },
+      {
+        name: <div>Đơn Vị Vận Tải</div>,
+        selector: (row) => <div className="text-wrap">{row.donViVanTai}</div>,
+        sortable: true,
+      }),
     {
       name: "PTVC",
       selector: (row) => <div className="text-wrap">{row.maPTVC}</div>,
       sortable: true,
     },
-    // {
-    //   name: <div>Cung Đường</div>,
-    //   selector: (row) => <div className="text-wrap">{row.cungDuong}</div>,
-    //   sortable: true,
-    // },
+
     {
       name: <div>Điểm Lấy Hàng</div>,
       selector: (row) => <div className="text-wrap">{row.diemDau}</div>,
@@ -234,12 +217,6 @@ const HandlingPageNew = () => {
       selector: (row) => row.theTich,
       sortable: true,
     },
-    // {
-    //   name: <div>Số Kiện</div>,
-    //   selector: (row) => row.soKien,
-    //   sortable: true,
-    // },
-
     {
       selector: (row) => row.statusId,
       omit: true,
@@ -288,6 +265,8 @@ const HandlingPageNew = () => {
   const [listUserSelected, setListUserSelected] = useState([]);
   const [listAccountCus, setListAccountCus] = useState([]);
   const [listAccountSelected, setListAccountSelected] = useState([]);
+  const [listSupplier, setListSupplier] = useState([]);
+  const [listSupplierSelected, setListSupplierSelected] = useState([]);
 
   const [selectedRows, setSelectedRows] = useState([]);
   const [toggledClearRows, setToggleClearRows] = useState(false);
@@ -386,6 +365,17 @@ const HandlingPageNew = () => {
             });
           });
         setListCustomer(arrKh);
+
+        let arrSup = [];
+        getListCustomer
+          .filter((x) => x.loaiKH === "NCC")
+          .map((val) => {
+            arrSup.push({
+              label: val.tenKh,
+              value: val.maKh,
+            });
+          });
+        setListSupplier(arrSup);
       }
 
       let getStatusList = await getDataCustom(`Common/GetListStatus`, [
@@ -404,7 +394,8 @@ const HandlingPageNew = () => {
     status = "",
     listCusSelected = [],
     listUserSelected = [],
-    listAccountSelected = []
+    listAccountSelected = [],
+    listSupplierSelected = []
   ) => {
     fromDate = !fromDate ? "" : moment(fromDate).format("YYYY-MM-DD");
     toDate = !toDate ? "" : moment(toDate).format("YYYY-MM-DD");
@@ -413,6 +404,7 @@ const HandlingPageNew = () => {
       customers: listCusSelected,
       users: listUserSelected,
       accountIds: listAccountSelected,
+      suppliers: listSupplierSelected,
     };
 
     const data = await getDataCustom(
@@ -434,7 +426,8 @@ const HandlingPageNew = () => {
       status,
       listCusSelected,
       listUserSelected,
-      listAccountSelected
+      listAccountSelected,
+      listSupplierSelected
     );
   };
 
@@ -448,7 +441,8 @@ const HandlingPageNew = () => {
       status,
       listCusSelected,
       listUserSelected,
-      listAccountSelected
+      listAccountSelected,
+      listSupplierSelected
     );
   };
 
@@ -460,6 +454,7 @@ const HandlingPageNew = () => {
       customers: listCusSelected,
       users: listUserSelected,
       accountIds: listAccountSelected,
+      suppliers: listSupplierSelected,
     };
 
     const data = await getDataCustom(
@@ -701,7 +696,8 @@ const HandlingPageNew = () => {
       status,
       listCusSelected,
       listUserSelected,
-      listAccountSelected
+      listAccountSelected,
+      listSupplierSelected
     );
   };
 
@@ -715,7 +711,8 @@ const HandlingPageNew = () => {
       val,
       listCusSelected,
       listUserSelected,
-      listAccountSelected
+      listAccountSelected,
+      listSupplierSelected
     );
   };
 
@@ -726,9 +723,11 @@ const HandlingPageNew = () => {
     setStatus("");
     setListCusSelected([]);
     setValue("listCustomers", []);
+    setListSupplierSelected([]);
+    setValue("listSuppliers", []);
     setListUserSelected([]);
-    setListAccountCus([]);
     setValue("listUsers", []);
+    setListAccountCus([]);
     setValue("listAccountCus", []);
     fetchData(1);
   };
@@ -744,6 +743,21 @@ const HandlingPageNew = () => {
       let arrCus = [];
       let arrUsr = [];
       let arrAcc = [];
+      let arrSup = [];
+
+      if (type === "suppliers") {
+        setValue("listSuppliers", values);
+
+        values.forEach((val) => {
+          arrSup.push(val.value);
+        });
+
+        setListSupplierSelected(arrSup);
+      } else {
+        listSupplierSelected.forEach((val) => {
+          arrSup.push(val);
+        });
+      }
 
       if (type === "customers") {
         setValue("listCustomers", values);
@@ -794,7 +808,8 @@ const HandlingPageNew = () => {
         status,
         arrCus,
         arrUsr,
-        arrAcc
+        arrAcc,
+        arrSup
       );
     }
   };
@@ -819,12 +834,9 @@ const HandlingPageNew = () => {
       var cancel = await postData(
         `BillOfLading/cancelHandling?id=${selectIdClick.maDieuPhoi}`
       );
-
+      setShowConfirm(false);
       if (cancel === 1) {
         refeshData();
-        setShowConfirm(false);
-      } else {
-        setShowConfirm(false);
       }
     }
   };
@@ -838,32 +850,11 @@ const HandlingPageNew = () => {
       var update = await postData(
         `BillOfLading/ChangeStatusHandling?id=${selectIdClick.maDieuPhoi}&maChuyen=${selectIdClick.maChuyen}`
       );
-
+      setShowConfirm(false);
       if (update === 1) {
         refeshData();
-        setShowConfirm(false);
-      } else {
-        setShowConfirm(false);
       }
     }
-  };
-
-  const handleUploadImage = async (val, e) => {
-    let files = e.target.files;
-    const transportId = val.maVanDon;
-    const handlingId = val.maDieuPhoi;
-
-    let arrfiles = [];
-
-    for (let i = 0; i <= files.length - 1; i++) {
-      arrfiles.push(files[i]);
-    }
-
-    const uploadFiles = await postFile("BillOfLading/UploadFile", {
-      files: arrfiles,
-      transportId: transportId,
-      handlingId: handlingId,
-    });
   };
 
   const handleChange = (state) => {
@@ -896,6 +887,7 @@ const HandlingPageNew = () => {
       customers: listCusSelected,
       users: listUserSelected,
       accountIds: listAccountSelected,
+      suppliers: listSupplierSelected,
     };
 
     const getFileDownLoad = await getFilePost(
@@ -956,99 +948,127 @@ const HandlingPageNew = () => {
           <div className="card-header">
             <div className="container-fruid">
               <div className="row">
-                <div className="col col-sm">
-                  <button
-                    className="btn btn-title btn-sm btn-default mx-1"
-                    gloss="Duyệt Phụ Phí"
-                    type="button"
-                    onClick={() =>
-                      showModalForm(
-                        SetShowModal("ApproveSubFee"),
-                        setSelectIdClick({}),
-                        setTitle("Duyệt Phụ Phí Phát Sinh")
-                      )
-                    }
-                  >
-                    <i className="fas fa-check-double"></i>
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn-title btn-sm btn-default mx-1"
-                    gloss="Gộp Chuyến "
-                    onClick={() => handleOnClickMarge()}
-                  >
-                    <i className="fas fa-layer-group"></i>
-                  </button>
-                </div>
-                <div className="col col-sm">
-                  <div className="form-group">
-                    <Controller
-                      name="listUsers"
-                      control={control}
-                      render={({ field }) => (
-                        <Select
-                          {...field}
-                          className="basic-multi-select"
-                          classNamePrefix={"form-control"}
-                          isMulti
-                          value={field.value}
-                          options={listUsers}
-                          styles={customStyles}
-                          onChange={(field) =>
-                            handleOnChangeFilterSelect(field, "users")
-                          }
-                          placeholder="Chọn Users"
+                {accountType && accountType === "NV" && (
+                  <>
+                    <div className="col col-sm">
+                      <button
+                        className="btn btn-title btn-sm btn-default mx-1"
+                        gloss="Duyệt Phụ Phí"
+                        type="button"
+                        onClick={() =>
+                          showModalForm(
+                            SetShowModal("ApproveSubFee"),
+                            setSelectIdClick({}),
+                            setTitle("Duyệt Phụ Phí Phát Sinh")
+                          )
+                        }
+                      >
+                        <i className="fas fa-check-double"></i>
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-title btn-sm btn-default mx-1"
+                        gloss="Gộp Chuyến "
+                        onClick={() => handleOnClickMarge()}
+                      >
+                        <i className="fas fa-layer-group"></i>
+                      </button>
+                    </div>
+                    <div className="col col-sm">
+                      <div className="form-group">
+                        <Controller
+                          name="listUsers"
+                          control={control}
+                          render={({ field }) => (
+                            <Select
+                              {...field}
+                              className="basic-multi-select"
+                              classNamePrefix={"form-control"}
+                              isMulti
+                              value={field.value}
+                              options={listUsers}
+                              styles={customStyles}
+                              onChange={(field) =>
+                                handleOnChangeFilterSelect(field, "users")
+                              }
+                              placeholder="Chọn Users"
+                            />
+                          )}
                         />
-                      )}
-                    />
-                  </div>
-                </div>
-                <div className="col col-sm">
-                  <div className="form-group">
-                    <Controller
-                      name="listCustomers"
-                      control={control}
-                      render={({ field }) => (
-                        <Select
-                          {...field}
-                          className="basic-multi-select"
-                          classNamePrefix={"form-control"}
-                          isMulti
-                          value={field.value}
-                          options={listCustomer}
-                          styles={customStyles}
-                          onChange={(field) =>
-                            handleOnChangeFilterSelect(field, "customers")
-                          }
-                          placeholder="Chọn Khách Hàng"
+                      </div>
+                    </div>
+                    <div className="col col-sm">
+                      <div className="form-group">
+                        <Controller
+                          name="listSuppliers"
+                          control={control}
+                          render={({ field }) => (
+                            <Select
+                              {...field}
+                              className="basic-multi-select"
+                              classNamePrefix={"form-control"}
+                              isMulti
+                              value={field.value}
+                              options={listSupplier}
+                              styles={customStyles}
+                              onChange={(field) =>
+                                handleOnChangeFilterSelect(field, "suppliers")
+                              }
+                              placeholder="Chọn NCC"
+                            />
+                          )}
                         />
-                      )}
-                    />
-                  </div>
-                </div>
-                <div className="col col-sm">
-                  <div className="form-group">
-                    <Controller
-                      name="listAccountCus"
-                      control={control}
-                      render={({ field }) => (
-                        <Select
-                          {...field}
-                          className="basic-multi-select"
-                          classNamePrefix={"form-control"}
-                          isMulti
-                          value={field.value}
-                          options={listAccountCus}
-                          styles={customStyles}
-                          onChange={(field) =>
-                            handleOnChangeFilterSelect(field, "accountCus")
-                          }
-                          placeholder="Chọn Account"
+                      </div>
+                    </div>
+                    <div className="col col-sm">
+                      <div className="form-group">
+                        <Controller
+                          name="listCustomers"
+                          control={control}
+                          render={({ field }) => (
+                            <Select
+                              {...field}
+                              className="basic-multi-select"
+                              classNamePrefix={"form-control"}
+                              isMulti
+                              value={field.value}
+                              options={listCustomer}
+                              styles={customStyles}
+                              onChange={(field) =>
+                                handleOnChangeFilterSelect(field, "customers")
+                              }
+                              placeholder="Chọn Khách Hàng"
+                            />
+                          )}
                         />
-                      )}
-                    />
-                  </div>
-                </div>
+                      </div>
+                    </div>
+                    <div className="col col-sm">
+                      <div className="form-group">
+                        <Controller
+                          name="listAccountCus"
+                          control={control}
+                          render={({ field }) => (
+                            <Select
+                              {...field}
+                              className="basic-multi-select"
+                              classNamePrefix={"form-control"}
+                              isMulti
+                              value={field.value}
+                              options={listAccountCus}
+                              styles={customStyles}
+                              onChange={(field) =>
+                                handleOnChangeFilterSelect(field, "accountCus")
+                              }
+                              placeholder="Chọn Account"
+                            />
+                          )}
+                        />
+                      </div>
+                    </div>
+                  </>
+                )}
+
                 <div className="col col-sm">
                   <div className="row">
                     <div className="col col-sm">

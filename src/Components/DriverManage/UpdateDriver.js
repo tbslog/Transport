@@ -82,9 +82,7 @@ const UpdateDriver = (props) => {
         message: "Phải là số",
       },
     },
-    LoaiXe: {
-      required: "Không được bỏ trống",
-    },
+
     TrangThai: {
       required: "Không được bỏ trống",
     },
@@ -151,7 +149,7 @@ const UpdateDriver = (props) => {
       ghiChu: data.GhiChu,
       maNhaCungCap: data.NCC.value,
       TaiXeTBS: false,
-      maLoaiPhuongTien: data.LoaiXe,
+      maLoaiPhuongTien: !data.LoaiXe ? null : data.LoaiXe,
       trangThai: data.TrangThai,
     });
 
@@ -205,7 +203,7 @@ const UpdateDriver = (props) => {
                       className="form-control"
                       {...register("LoaiXe", Validate.LoaiXe)}
                     >
-                      <option value="">Chọn Loại Xe</option>
+                      <option value="">Không cố định</option>
                       {listVehicleType &&
                         listVehicleType.map((val) => {
                           return (

@@ -66,6 +66,11 @@ const ApproveSubFeeByHandling = (props) => {
       sortable: true,
     },
     {
+      name: "Địa Điểm",
+      selector: (row) => row.diaDiem,
+      sortable: true,
+    },
+    {
       name: "Tài Xế",
       selector: (row) => row.taiXe,
       sortable: true,
@@ -124,13 +129,13 @@ const ApproveSubFeeByHandling = (props) => {
         `SFeeByTcommand/ApproveSubFeeIncurred`,
         arr
       );
+      setShowConfirm(false);
+      setSelectedRows([]);
+      handleClearRows();
 
       if (SetApprove === 1) {
         fetchData(1);
       }
-      setSelectedRows([]);
-      handleClearRows();
-      setShowConfirm(false);
     }
   };
 

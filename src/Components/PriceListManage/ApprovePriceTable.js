@@ -165,14 +165,14 @@ const ApprovePriceTable = (props) => {
       const SetApprove = await postData(`PriceTable/ApprovePriceTable`, {
         result: arr,
       });
+      setShowConfirm(false);
+      setSelectedRows([]);
+      handleClearRows();
 
       if (SetApprove === 1) {
         reLoadData();
         fetchData(1);
       }
-      setSelectedRows([]);
-      handleClearRows();
-      setShowConfirm(false);
     }
   };
 

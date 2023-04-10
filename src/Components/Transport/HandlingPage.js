@@ -13,7 +13,7 @@ import { Modal } from "bootstrap";
 import DatePicker from "react-datepicker";
 import UpdateHandling from "./UpdateHandling";
 import Select from "react-select";
-import HandlingImage from "./HandlingImage";
+import HandlingImage from "../FileManager/HandlingImage";
 import ConfirmDialog from "../Common/Dialog/ConfirmDialog";
 import AddSubFeeByHandling from "./AddSubFeeByHandling";
 import ApproveSubFeeByHandling from "./ApproveSubFeeByHandling";

@@ -214,8 +214,14 @@ const AddPriceTable = (props) => {
   };
 
   const handleOnChangeContractType = async (val) => {
-    handleResetClick();
     setValue("PhanLoaiDoiTac", val);
+    setValue("AccountCus", null);
+    setValue("MaHopDong", null);
+    setValue("MaKh", null);
+    setListCustomer([]);
+    setListAccountCus([]);
+    setListContract([]);
+
     if (val && val !== "") {
       let getListCustomer = await getData(
         `Customer/GetListCustomerOptionSelect`

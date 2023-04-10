@@ -47,6 +47,10 @@ const DriverPage = () => {
       button: true,
     },
     {
+      name: "Đơn Vị Vận Tải",
+      selector: (row) => row.tenDonViVanTai,
+    },
+    {
       name: "Mã Tài Xế",
       selector: (row) => row.maTaiXe,
     },

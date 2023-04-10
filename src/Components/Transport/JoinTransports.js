@@ -6,10 +6,12 @@ import Select from "react-select";
 import moment from "moment";
 import { ToastError, ToastWarning } from "../Common/FuncToast";
 import LoadingPage from "../Common/Loading/LoadingPage";
+import Cookies from "js-cookie";
 
 const JoinTransports = (props) => {
   const { items, clearItems, hideModal, getListTransport, selectIdClick } =
     props;
+  const accountType = Cookies.get("AccType");
   const [IsLoading, SetIsLoading] = useState(false);
   const {
     register,
@@ -91,43 +93,55 @@ const JoinTransports = (props) => {
         setListPoint(obj);
       }
 
-      let getDataHandling = await getData("BillOfLading/LoadDataHandling");
-      if (getDataHandling && Object.keys(getDataHandling).length > 0) {
-        if (
-          getDataHandling.listNhaPhanPhoi &&
-          getDataHandling.listNhaPhanPhoi.length > 0
-        ) {
-          let arr = [];
-          getDataHandling.listNhaPhanPhoi.map((val) => {
-            arr.push({ label: val.tenNPP, value: val.maNPP });
-          });
-          setListSupplier(arr);
-        }
+      let getListNCC = await getData(`Customer/GetListCustomerOptionSelect`);
+      if (getListNCC && getListNCC.length > 0) {
+        let listSup = getListNCC.filter((x) => x.loaiKH === "NCC");
+        let objSup = [];
 
-        if (getDataHandling.listTaiXe && getDataHandling.listTaiXe.length > 0) {
-          let arr = [];
-          getDataHandling.listTaiXe.map((val) => {
-            arr.push({
-              label: val.maTaiXe + " - " + val.tenTaiXe,
-              value: val.maTaiXe,
-            });
+        listSup.map((val) => {
+          objSup.push({
+            value: val.maKh,
+            label: val.maKh + " - " + val.tenKh,
           });
-          setListDriver(arr);
-        }
+        });
+        setListSupplier(objSup);
+      }
 
-        if (
-          getDataHandling.listRomooc &&
-          getDataHandling.listRomooc.length > 0
-        ) {
-          let arr = [];
-          getDataHandling.listRomooc.map((val) => {
-            arr.push({
-              label: val.maRomooc + " - " + val.tenLoaiRomooc,
-              value: val.maRomooc,
-            });
+      let getListDriver = await getData(`Driver/GetListSelectDriver`);
+      if (getListDriver && getListDriver.length > 0) {
+        let obj = [];
+        getListDriver.map((val) => {
+          obj.push({
+            value: val.maTaiXe,
+            label: val.maTaiXe + " - " + val.hoVaTen,
           });
-          setListRomooc(arr);
-        }
+        });
+        setListDriver(obj);
+      }
+
+      let getRomooc = await getData(`Romooc/GetListRomoocSelect`);
+      if (getRomooc && getRomooc.length > 0) {
+        let obj = [];
+        obj.push({ label: "--Rỗng--", value: null });
+        getRomooc.map((val) => {
+          obj.push({
+            value: val.maRomooc,
+            label: val.maRomooc + " - " + val.romoocType,
+          });
+        });
+        setListRomooc(obj);
+      }
+
+      let listVehicle = await getData("Vehicle/GetListVehicleSelect");
+      if (listVehicle && listVehicle.length > 0) {
+        let arr = [];
+        listVehicle.map((val) => {
+          arr.push({
+            label: val.text,
+            value: val.vehicleId,
+          });
+        });
+        setListVehicle(arr);
       }
       SetIsLoading(false);
     })();
@@ -140,9 +154,7 @@ const JoinTransports = (props) => {
       listDriver &&
       listRomooc &&
       listVehicleType &&
-      listVehicleType.length > 0 &&
-      listDriver.length > 0 &&
-      listRomooc.length > 0
+      listVehicleType.length > 0
     ) {
       (async () => {
         resetForm();
@@ -264,9 +276,7 @@ const JoinTransports = (props) => {
       listRomooc &&
       listVehicleType &&
       Object.keys(selectIdClick).length > 0 &&
-      listVehicleType.length > 0 &&
-      listDriver.length > 0 &&
-      listRomooc.length > 0
+      listVehicleType.length > 0
     ) {
       (async () => {
         resetForm();
@@ -398,8 +408,7 @@ const JoinTransports = (props) => {
       listVehicle &&
       dataHandling &&
       Object.keys(dataHandling).length > 0 &&
-      Object.keys(selectIdClick).length > 0 &&
-      listVehicle.length > 0
+      Object.keys(selectIdClick).length > 0
     ) {
       setValue(
         "XeVanChuyen",
@@ -590,6 +599,9 @@ const JoinTransports = (props) => {
                     <select
                       className="form-control"
                       {...register(`PTVanChuyen`, Validate.PTVanChuyen)}
+                      disabled={
+                        accountType && accountType === "NV" ? false : true
+                      }
                       onChange={(e) => handleOnChangeWeight(e.target.value)}
                     >
                       <option value="">Chọn phương Tiện Vận Chuyển</option>
@@ -622,6 +634,9 @@ const JoinTransports = (props) => {
                       render={({ field }) => (
                         <Select
                           {...field}
+                          isDisabled={
+                            accountType && accountType === "NV" ? false : true
+                          }
                           classNamePrefix={"form-control"}
                           value={field.value}
                           options={listSupplier}
@@ -731,7 +746,7 @@ const JoinTransports = (props) => {
               <div className="row">
                 <div className="table-responsive" style={{ overflow: "auto" }}>
                   <table
-                    className="table table-bordered table-striped"
+                    className="table table-bordered "
                     style={{
                       whiteSpace: "nowrap",
                       width: "220%",
@@ -747,12 +762,16 @@ const JoinTransports = (props) => {
                         <th style={{ width: "6%" }}>
                           <div>Booking No</div>
                         </th>
-                        <th style={{ width: "6%" }}>
-                          <div>Khách Hàng</div>
-                        </th>
-                        <th style={{ width: "6%" }}>
-                          <div>Account</div>
-                        </th>
+                        {accountType && accountType === "NV" && (
+                          <>
+                            <th style={{ width: "6%" }}>
+                              <div>Khách Hàng</div>
+                            </th>
+                            <th style={{ width: "6%" }}>
+                              <div>Account</div>
+                            </th>
+                          </>
+                        )}
                         <th style={{ width: "8%" }}>
                           <div>Loại Hàng Hóa</div>
                         </th>
@@ -769,11 +788,11 @@ const JoinTransports = (props) => {
                         {(watch(`listTransport.0.MaPTVC`) === "FCL" ||
                           watch(`listTransport.0.MaPTVC`) === "LCL") && (
                           <>
-                            <th style={{ width: "5%" }}>
-                              <div>Mã ContNo</div>
-                            </th>
                             <th style={{ width: "8%" }}>
                               <div>Điểm Lấy/Trả Rỗng</div>
+                            </th>
+                            <th style={{ width: "5%" }}>
+                              <div>Mã ContNo</div>
                             </th>
                             <th style={{ width: "10%" }}>
                               <div>TG Hạn Lệnh/CUT OFF</div>
@@ -822,6 +841,11 @@ const JoinTransports = (props) => {
                                 `listTransport.${index}.ThuTuGiaoHang`,
                                 Validate.ThuTuGiaoHang
                               )}
+                              disabled={
+                                accountType && accountType === "NV"
+                                  ? false
+                                  : true
+                              }
                             />
                             {errors.listTransport?.[index]?.ThuTuGiaoHang && (
                               <span className="text-danger">
@@ -868,30 +892,35 @@ const JoinTransports = (props) => {
                               />
                             </div>
                           </td>
-                          <td>
-                            <div className="form-group">
-                              <input
-                                readOnly={true}
-                                type="text"
-                                className="form-control"
-                                id="MaKH"
-                                {...register(`listTransport.${index}.MaKH`)}
-                              />
-                            </div>
-                          </td>
-                          <td>
-                            <div className="form-group">
-                              <input
-                                readOnly={true}
-                                type="text"
-                                className="form-control"
-                                id="AccountName"
-                                {...register(
-                                  `listTransport.${index}.AccountName`
-                                )}
-                              />
-                            </div>
-                          </td>
+                          {accountType && accountType === "NV" && (
+                            <>
+                              <td>
+                                <div className="form-group">
+                                  <input
+                                    readOnly={true}
+                                    type="text"
+                                    className="form-control"
+                                    id="MaKH"
+                                    {...register(`listTransport.${index}.MaKH`)}
+                                  />
+                                </div>
+                              </td>
+                              <td>
+                                <div className="form-group">
+                                  <input
+                                    readOnly={true}
+                                    type="text"
+                                    className="form-control"
+                                    id="AccountName"
+                                    {...register(
+                                      `listTransport.${index}.AccountName`
+                                    )}
+                                  />
+                                </div>
+                              </td>
+                            </>
+                          )}
+
                           <td>
                             <div className="col col-sm">
                               <div className="form-group">
@@ -901,6 +930,11 @@ const JoinTransports = (props) => {
                                     `listTransport.${index}.LoaiHangHoa`,
                                     Validate.LoaiHangHoa
                                   )}
+                                  disabled={
+                                    accountType && accountType === "NV"
+                                      ? false
+                                      : true
+                                  }
                                 >
                                   <option value="">Chọn Loại Hàng Hóa</option>
                                   {listGoodsType &&
@@ -962,18 +996,6 @@ const JoinTransports = (props) => {
                             watch(`listTransport.${index}.MaPTVC`) ===
                               "LCL") && (
                             <>
-                              <td>
-                                <div className="form-group">
-                                  <input
-                                    type="text"
-                                    className="form-control"
-                                    id="ContNo"
-                                    {...register(
-                                      `listTransport.${index}.ContNo`
-                                    )}
-                                  />
-                                </div>
-                              </td>
                               {watch(`listTransport.${index}.LoaiVanDon`) ===
                                 "nhap" && (
                                 <>
@@ -984,6 +1006,11 @@ const JoinTransports = (props) => {
                                       render={({ field }) => (
                                         <Select
                                           {...field}
+                                          isDisabled={
+                                            accountType && accountType === "NV"
+                                              ? false
+                                              : true
+                                          }
                                           classNamePrefix={"form-control"}
                                           value={field.value}
                                           options={listPoint}
@@ -1008,7 +1035,18 @@ const JoinTransports = (props) => {
                                       </span>
                                     )}
                                   </td>
-
+                                  <td>
+                                    <div className="form-group">
+                                      <input
+                                        type="text"
+                                        className="form-control"
+                                        id="ContNo"
+                                        {...register(
+                                          `listTransport.${index}.ContNo`
+                                        )}
+                                      />
+                                    </div>
+                                  </td>
                                   <td>
                                     <div className="input-group ">
                                       <Controller
@@ -1016,6 +1054,12 @@ const JoinTransports = (props) => {
                                         name={`listTransport.${index}.TGHanLenh`}
                                         render={({ field }) => (
                                           <DatePicker
+                                            disabled={
+                                              accountType &&
+                                              accountType === "NV"
+                                                ? false
+                                                : true
+                                            }
                                             className="form-control"
                                             showTimeSelect
                                             timeFormat="HH:mm"
@@ -1048,6 +1092,12 @@ const JoinTransports = (props) => {
                                         name={`listTransport.${index}.TGTraRong`}
                                         render={({ field }) => (
                                           <DatePicker
+                                            disabled={
+                                              accountType &&
+                                              accountType === "NV"
+                                                ? false
+                                                : true
+                                            }
                                             className="form-control"
                                             showTimeSelect
                                             timeFormat="HH:mm"
@@ -1082,6 +1132,11 @@ const JoinTransports = (props) => {
                                       render={({ field }) => (
                                         <Select
                                           {...field}
+                                          isDisabled={
+                                            accountType && accountType === "NV"
+                                              ? false
+                                              : true
+                                          }
                                           classNamePrefix={"form-control"}
                                           value={field.value}
                                           options={listPoint}
@@ -1106,7 +1161,18 @@ const JoinTransports = (props) => {
                                       </span>
                                     )}
                                   </td>
-
+                                  <td>
+                                    <div className="form-group">
+                                      <input
+                                        type="text"
+                                        className="form-control"
+                                        id="ContNo"
+                                        {...register(
+                                          `listTransport.${index}.ContNo`
+                                        )}
+                                      />
+                                    </div>
+                                  </td>
                                   <td>
                                     <div className="input-group ">
                                       <Controller
@@ -1114,6 +1180,12 @@ const JoinTransports = (props) => {
                                         name={`listTransport.${index}.TGHaCang`}
                                         render={({ field }) => (
                                           <DatePicker
+                                            disabled={
+                                              accountType &&
+                                              accountType === "NV"
+                                                ? false
+                                                : true
+                                            }
                                             className="form-control"
                                             showTimeSelect
                                             timeFormat="HH:mm"
@@ -1146,6 +1218,12 @@ const JoinTransports = (props) => {
                                         name={`listTransport.${index}.TGLayRong`}
                                         render={({ field }) => (
                                           <DatePicker
+                                            disabled={
+                                              accountType &&
+                                              accountType === "NV"
+                                                ? false
+                                                : true
+                                            }
                                             className="form-control"
                                             showTimeSelect
                                             timeFormat="HH:mm"
@@ -1200,6 +1278,11 @@ const JoinTransports = (props) => {
                                 name={`listTransport.${index}.ThoiGianLayHang`}
                                 render={({ field }) => (
                                   <DatePicker
+                                    disabled={
+                                      accountType && accountType === "NV"
+                                        ? false
+                                        : true
+                                    }
                                     className="form-control"
                                     showTimeSelect
                                     timeFormat="HH:mm"
@@ -1227,6 +1310,11 @@ const JoinTransports = (props) => {
                                 name={`listTransport.${index}.ThoiGianTraHang`}
                                 render={({ field }) => (
                                   <DatePicker
+                                    disabled={
+                                      accountType && accountType === "NV"
+                                        ? false
+                                        : true
+                                    }
                                     className="form-control"
                                     showTimeSelect
                                     timeFormat="HH:mm"
@@ -1285,16 +1373,20 @@ const JoinTransports = (props) => {
 
                           <td>
                             <div className="form-group">
-                              {fields && fields.length > 0 && (
-                                <button
-                                  type="button"
-                                  className="btn btn-sm btn-default"
-                                  onClick={() => {
-                                    remove(index);
-                                  }}
-                                >
-                                  <i className="fas fa-minus"></i>
-                                </button>
+                              {accountType && accountType === "NV" && (
+                                <>
+                                  {fields && fields.length > 0 && (
+                                    <button
+                                      type="button"
+                                      className="btn btn-sm btn-default"
+                                      onClick={() => {
+                                        remove(index);
+                                      }}
+                                    >
+                                      <i className="fas fa-minus"></i>
+                                    </button>
+                                  )}
+                                </>
                               )}
                             </div>
                           </td>

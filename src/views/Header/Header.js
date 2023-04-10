@@ -74,7 +74,7 @@ const Header = () => {
             <ul className="navbar-nav">
               <li className="nav-item"></li>
 
-              {Cookies.get("AccType") === "NV" ? (
+              {Cookies.get("AccType") === "NV" && (
                 <>
                   {getRouterList() &&
                     getRouterList().length > 0 &&
@@ -114,7 +114,67 @@ const Header = () => {
                       );
                     })}
                 </>
-              ) : (
+              )}
+              {Cookies.get("AccType") === "NCC" && (
+                <>
+                  <li className="nav-item dropdown">
+                    <a
+                      id="dropdownSubMenu1"
+                      href="#"
+                      data-toggle="dropdown"
+                      aria-haspopup="true"
+                      aria-expanded="false"
+                      className="nav-link dropdown-toggle"
+                    >
+                      Thiết Lập
+                    </a>
+                    <ul
+                      aria-labelledby="dropdownSubMenu1"
+                      className="dropdown-menu border-0 shadow"
+                    >
+                      <li>
+                        <Link to={"/driver"} className="dropdown-item">
+                          Tài Xế
+                        </Link>
+                      </li>
+                      <li>
+                        <Link to={"/vehicle"} className="dropdown-item">
+                          Phương Tiện
+                        </Link>
+                      </li>
+                      <li>
+                        <Link to={"/romooc"} className="dropdown-item">
+                          Romooc
+                        </Link>
+                      </li>
+                    </ul>
+                  </li>
+                  <li className="nav-item dropdown">
+                    <a
+                      id="dropdownSubMenu1"
+                      href="#"
+                      data-toggle="dropdown"
+                      aria-haspopup="true"
+                      aria-expanded="false"
+                      className="nav-link dropdown-toggle"
+                    >
+                      Vận Hành
+                    </a>
+                    <ul
+                      aria-labelledby="dropdownSubMenu1"
+                      className="dropdown-menu border-0 shadow"
+                    >
+                      <li>
+                        <Link to={"/handling"} className="dropdown-item">
+                          Điều Phối
+                        </Link>
+                      </li>
+                    </ul>
+                  </li>
+                </>
+              )}
+
+              {Cookies.get("AccType") === "KH" && (
                 <>
                   <li className="nav-item dropdown">
                     <a
@@ -224,7 +284,11 @@ const Header = () => {
                 {/* User image */}
                 <li className="user-body text-center">
                   <p>{Cookies.get("fullname")}</p>
-                  <p>{Cookies.get("BoPhan")}</p>
+                  <p>
+                    {Cookies.get("BoPhan") === "null"
+                      ? ""
+                      : Cookies.get("BoPhan")}
+                  </p>
                 </li>
                 {/* Menu Footer*/}
                 <li className="user-footer">

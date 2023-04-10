@@ -5,6 +5,7 @@ import Cookies from "js-cookie";
 import md5 from "md5";
 
 const UserInfor = (props) => {
+  const accountType = Cookies.get("AccType");
   const { userInformation, hideModal } = props;
   const {
     register,
@@ -73,18 +74,21 @@ const UserInfor = (props) => {
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="card-body">
             <div className="row">
-              <div className="col col-sm">
-                <div className="form-group">
-                  <label htmlFor="MaNhanVien">Mã Nhân Viên</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="MaNhanVien"
-                    readOnly={true}
-                    {...register(`MaNhanVien`)}
-                  />
+              {accountType && accountType === "NV" && (
+                <div className="col col-sm">
+                  <div className="form-group">
+                    <label htmlFor="MaNhanVien">Mã Nhân Viên</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="MaNhanVien"
+                      readOnly={true}
+                      {...register(`MaNhanVien`)}
+                    />
+                  </div>
                 </div>
-              </div>
+              )}
+
               <div className="col col-sm">
                 <div className="form-group">
                   <label htmlFor="FullName">Họ Và Tên</label>
@@ -97,18 +101,20 @@ const UserInfor = (props) => {
                   />
                 </div>
               </div>
-              <div className="col col-sm">
-                <div className="form-group">
-                  <label htmlFor="BoPhan">Bộ Phận</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="BoPhan"
-                    readOnly={true}
-                    {...register(`BoPhan`)}
-                  />
+              {accountType && accountType === "NV" && (
+                <div className="col col-sm">
+                  <div className="form-group">
+                    <label htmlFor="BoPhan">Bộ Phận</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="BoPhan"
+                      readOnly={true}
+                      {...register(`BoPhan`)}
+                    />
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
             <div className="row">
               <div className="col col-sm">

@@ -23,14 +23,6 @@ const CreateDriver = (props) => {
   const Validate = {
     MaTaiXe: {
       required: "Không được để trống",
-      // maxLength: {
-      //   value: 10,
-      //   message: "Không được vượt quá 10 ký tự",
-      // },
-      // minLength: {
-      //   value: 10,
-      //   message: "Không được ít hơn 10 ký tự",
-      // },
       pattern: {
         value: /^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9]+(?<![_.])$/,
         message: "Không được chứa ký tự đặc biệt",
@@ -46,11 +38,6 @@ const CreateDriver = (props) => {
         value: 1,
         message: "Không được ít hơn 1 ký tự",
       },
-      // pattern: {
-      //   value:
-      //     /^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9 -,aAàÀảẢãÃáÁạẠăĂằẰẳẲẵẴắẮặẶâÂầẦẩẨẫẪấẤậẬbBcCdDđĐeEèÈẻẺẽẼéÉẹẸêÊềỀểỂễỄếẾệỆ fFgGhHiIìÌỉỈĩĨíÍịỊjJkKlLmMnNoOòÒỏỎõÕóÓọỌôÔồỒổỔỗỖốỐộỘơƠờỜởỞỡỠớỚợỢpPqQrRsStTu UùÙủỦũŨúÚụỤưƯừỪửỬữỮứỨựỰvVwWxXyYỳỲỷỶỹỸýÝỵỴzZ]+(?<![_.])$/,
-      //   message: "Tên khách hàng không được chứa ký tự đặc biệt",
-      // },
     },
     SoDienThoai: {
       required: "Không được để trống",
@@ -81,12 +68,6 @@ const CreateDriver = (props) => {
         value: /^(?![_.])(?![_.])(?!.*[_.]{2})[0-9]+(?<![_.])$/,
         message: "Phải là số",
       },
-    },
-    LoaiXe: {
-      required: "Không được bỏ trống",
-    },
-    TrangThai: {
-      required: "Không được bỏ trống",
     },
   };
 
@@ -129,7 +110,7 @@ const CreateDriver = (props) => {
       ghiChu: data.GhiChu,
       maNhaCC: data.NCC.value,
       TaiXeTBS: false,
-      maLoaiPhuongTien: data.LoaiXe,
+      maLoaiPhuongTien: !data.LoaiXe ? null : data.LoaiXe,
       trangThai: data.TrangThai,
     });
 
@@ -187,7 +168,7 @@ const CreateDriver = (props) => {
                       className="form-control"
                       {...register("LoaiXe", Validate.LoaiXe)}
                     >
-                      <option value="">Chọn Loại Xe</option>
+                      <option value="">Không cố định</option>
                       {listVehicleType &&
                         listVehicleType.map((val) => {
                           return (
@@ -313,7 +294,7 @@ const CreateDriver = (props) => {
                   <span className="text-danger">{errors.GhiChu.message}</span>
                 )}
               </div>
-              <div className="form-group">
+              {/* <div className="form-group">
                 <label htmlFor="TrangThai">Trạng Thái(*)</label>
                 <select
                   className="form-control"
@@ -334,7 +315,7 @@ const CreateDriver = (props) => {
                     {errors.TrangThai.message}
                   </span>
                 )}
-              </div>
+              </div> */}
             </div>
             <div className="card-footer">
               <div>

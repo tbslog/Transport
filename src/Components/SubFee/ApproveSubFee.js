@@ -146,14 +146,14 @@ const ApproveSubFee = (props) => {
       });
 
       const SetApprove = await postData(`SubFeePrice/ApproveSubFeePrice`, arr);
+      setShowConfirm(false);
+      setSelectedRows([]);
+      handleClearRows();
 
       if (SetApprove === 1) {
         fetchData(1);
         getListSubFee(1);
       }
-      setSelectedRows([]);
-      handleClearRows();
-      setShowConfirm(false);
     }
   };
 
@@ -202,7 +202,7 @@ const ApproveSubFee = (props) => {
     fromDate = fromDate === "" ? "" : moment(fromDate).format("YYYY-MM-DD");
     toDate = toDate === "" ? "" : moment(toDate).format("YYYY-MM-DD");
     const dataCus = await getData(
-      `SubFeePrice/GetListSubFeePrice?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}&fromDate=${fromDate}&toDate=${toDate}&statusId=13`
+      `SubFeePrice/GetListSubfeeApprove?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}&fromDate=${fromDate}&toDate=${toDate}&statusId=13`
     );
 
     formatTable(dataCus.data);
@@ -218,7 +218,7 @@ const ApproveSubFee = (props) => {
     setLoading(true);
 
     const dataCus = await getData(
-      `SubFeePrice/GetListSubFeePrice?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}&fromDate=${fromDate}&toDate=${toDate}&statusId=13`
+      `SubFeePrice/GetListSubfeeApprove?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}&fromDate=${fromDate}&toDate=${toDate}&statusId=13`
     );
     setPerPage(newPerPage);
     formatTable(dataCus.data);

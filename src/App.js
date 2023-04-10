@@ -49,7 +49,6 @@ function App() {
                 <Route path="/subfee" element={<SubFeePage />} />
                 <Route path="/user" element={<UserPage />} />
                 <Route path="/role" element={<RolePage />} />
-                {/* <Route path="/handlingfull" element={<HandlingPage />} /> */}
                 <Route
                   path="/productService"
                   element={<ProductServicePage />}
@@ -57,9 +56,22 @@ function App() {
                 <Route path="/bill" element={<BillPage />} />
                 <Route path="/report" element={<ReportPage />} />
                 <Route path="/handling" element={<HandlingPageNew />} />
+                <Route path="/transport" element={<TransportPage />} />
               </>
             )}
-            <Route path="/transport" element={<TransportPage />} />
+            {accountType && accountType === "NCC" && (
+              <>
+                <Route path="/driver" element={<DriverPage />} />
+                <Route path="/vehicle" element={<VehiclePage />} />
+                <Route path="/romooc" element={<RomoocPage />} />
+                <Route path="/handling" element={<HandlingPageNew />} />
+              </>
+            )}
+            {accountType && accountType === "KH" && (
+              <>
+                <Route path="/transport" element={<TransportPage />} />
+              </>
+            )}
             <Route path="/" element={<HomePage />} exact />
             <Route path="*" element={<HomePage />} />
           </Route>

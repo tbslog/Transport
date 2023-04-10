@@ -5,7 +5,7 @@ import moment from "moment";
 import { Modal } from "bootstrap";
 import ConfirmDialog from "../Common/Dialog/ConfirmDialog";
 import Cookies from "js-cookie";
-import HandlingImage from "./HandlingImage";
+import HandlingImage from "../FileManager/HandlingImage";
 
 const HandlingByTransport = (props) => {
   const { dataClick, refeshData } = props;

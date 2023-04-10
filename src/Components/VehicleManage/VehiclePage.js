@@ -47,9 +47,14 @@ const VehiclePage = () => {
       button: true,
     },
     {
+      name: "Đơn vị vận tải",
+      selector: (row) => row.tenNhaCungCap,
+    },
+    {
       name: "Mã Số Xe",
       selector: (row) => row.maSoXe,
     },
+
     {
       name: "Tài Xế Mặc Định",
       selector: (row) => row.maTaiXeMacDinh,

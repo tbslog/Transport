@@ -12,13 +12,6 @@ let routerList = [
         exact: true,
         child: [],
       },
-      // {
-      //   name: "Cung Đường",
-      //   pathName: "/road",
-      //   path: "road",
-      //   exact: true,
-      //   child: [],
-      // },
       {
         name: "Thông tin tài xế",
         pathName: "/driver",
@@ -99,13 +92,7 @@ let routerList = [
         exact: true,
         child: [],
       },
-      // {
-      //   name: "Điều Phối FCL/FTL",
-      //   pathName: "/handlingfull",
-      //   path: "handlingfull",
-      //   exact: true,
-      //   child: [],
-      // },
+
       {
         name: "Điều Phối",
         pathName: "/handling",

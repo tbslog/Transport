@@ -1,14 +1,16 @@
 import { useState, useEffect } from "react";
 import { getData, postData } from "../Common/FuncAxios";
-import { useForm, Controller, useFieldArray } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import DatePicker from "react-datepicker";
 import Select from "react-select";
 import moment from "moment";
 import LoadingPage from "../Common/Loading/LoadingPage";
 import { ToastWarning } from "../Common/FuncToast";
+import Cookies from "js-cookie";
 
 const UpdateHandling = (props) => {
   const { getlistData, selectIdClick, hideModal } = props;
+  const accountType = Cookies.get("AccType");
   const {
     register,
     reset,
@@ -159,57 +161,67 @@ const UpdateHandling = (props) => {
         setListPoint(obj);
       }
 
-      let getDataHandling = await getData("BillOfLading/LoadDataHandling");
-      if (getDataHandling && Object.keys(getDataHandling).length > 0) {
-        if (
-          getDataHandling.listNhaPhanPhoi &&
-          getDataHandling.listNhaPhanPhoi.length > 0
-        ) {
-          let arr = [];
-          getDataHandling.listNhaPhanPhoi.map((val) => {
-            arr.push({ label: val.tenNPP, value: val.maNPP });
-          });
-          setListSupplier(arr);
-        }
+      let getListNCC = await getData(`Customer/GetListCustomerOptionSelect`);
+      if (getListNCC && getListNCC.length > 0) {
+        let listSup = getListNCC.filter((x) => x.loaiKH === "NCC");
+        let objSup = [];
 
-        if (
-          getDataHandling.listKhachHang &&
-          getDataHandling.listKhachHang.length > 0
-        ) {
-          let arr = [];
-          getDataHandling.listKhachHang.map((val) => {
-            arr.push({ label: val.tenKH, value: val.maKH });
+        listSup.map((val) => {
+          objSup.push({
+            value: val.maKh,
+            label: val.maKh + " - " + val.tenKh,
           });
-          setListCustomer(arr);
-        }
+        });
+        setListSupplier(objSup);
 
-        if (getDataHandling.listTaiXe && getDataHandling.listTaiXe.length > 0) {
-          let arr = [];
-          arr.push({ label: "-- Rỗng --", value: "" });
-          getDataHandling.listTaiXe.map((val) => {
-            arr.push({
-              label: val.maTaiXe + " - " + val.tenTaiXe,
-              value: val.maTaiXe,
-            });
+        let objCus = [];
+        let listCus = getListNCC.filter((x) => x.loaiKH === "KH");
+        listCus.map((val) => {
+          objCus.push({
+            value: val.maKh,
+            label: val.maKh + " - " + val.tenKh,
           });
-          setListDriver(arr);
-        }
-
-        if (
-          getDataHandling.listRomooc &&
-          getDataHandling.listRomooc.length > 0
-        ) {
-          let arr = [];
-          arr.push({ label: "-- Rỗng --", value: "" });
-          getDataHandling.listRomooc.map((val) => {
-            arr.push({
-              label: val.maRomooc + " - " + val.tenLoaiRomooc,
-              value: val.maRomooc,
-            });
-          });
-          setListRomooc(arr);
-        }
+        });
+        setListCustomer(objCus);
       }
+
+      let getListDriver = await getData(`Driver/GetListSelectDriver`);
+      if (getListDriver && getListDriver.length > 0) {
+        let obj = [];
+        getListDriver.map((val) => {
+          obj.push({
+            value: val.maTaiXe,
+            label: val.maTaiXe + " - " + val.hoVaTen,
+          });
+        });
+        setListDriver(obj);
+      }
+
+      let getRomooc = await getData(`Romooc/GetListRomoocSelect`);
+      if (getRomooc && getRomooc.length > 0) {
+        let obj = [];
+        obj.push({ label: "--Rỗng--", value: null });
+        getRomooc.map((val) => {
+          obj.push({
+            value: val.maRomooc,
+            label: val.maRomooc + " - " + val.romoocType,
+          });
+        });
+        setListRomooc(obj);
+      }
+
+      let listVehicle = await getData("Vehicle/GetListVehicleSelect");
+      if (listVehicle && listVehicle.length > 0) {
+        let arr = [];
+        listVehicle.map((val) => {
+          arr.push({
+            label: val.text,
+            value: val.vehicleId,
+          });
+        });
+        setListVehicle(arr);
+      }
+
       setlistVehicleType(getListVehicleType);
       setListGoodsType(getListGoodsType);
       SetIsLoading(false);
@@ -228,19 +240,6 @@ const UpdateHandling = (props) => {
     ) {
       handleResetClick();
       (async () => {
-        let listVehicle = await getData("Vehicle/GetListVehicleSelect");
-        if (listVehicle && listVehicle.length > 0) {
-          let arr = [];
-          arr.push({ label: "-- Rỗng --", value: "" });
-          listVehicle.map((val) => {
-            arr.push({
-              label: val.text,
-              value: val.vehicleId,
-            });
-          });
-          setListVehicle(arr);
-        }
-
         let data = await getData(
           `BillOfLading/GetHandlingById?id=${selectIdClick.maDieuPhoi}`
         );
@@ -260,10 +259,7 @@ const UpdateHandling = (props) => {
       data &&
       listDriver &&
       listRomooc &&
-      listVehicle &&
-      listDriver.length > 0 &&
-      listRomooc.length > 0 &&
-      listVehicle.length > 0
+      listVehicle
     ) {
       setValueData(data);
     }
@@ -506,47 +502,51 @@ const UpdateHandling = (props) => {
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="card-body">
               <div className="row">
-                <div className="col col-sm">
-                  <div className="form-group">
-                    <label htmlFor="KhachHang">Khách Hàng(*)</label>
-                    <Controller
-                      name={`KhachHang`}
-                      AccountName
-                      control={control}
-                      render={({ field }) => (
-                        <Select
-                          isDisabled={true}
-                          {...field}
-                          classNamePrefix={"form-control"}
-                          value={field.value}
-                          options={listCustomer}
+                {accountType && accountType === "NV" && (
+                  <>
+                    <div className="col col-sm">
+                      <div className="form-group">
+                        <label htmlFor="KhachHang">Khách Hàng(*)</label>
+                        <Controller
+                          name={`KhachHang`}
+                          AccountName
+                          control={control}
+                          render={({ field }) => (
+                            <Select
+                              isDisabled={true}
+                              {...field}
+                              classNamePrefix={"form-control"}
+                              value={field.value}
+                              options={listCustomer}
+                            />
+                          )}
+                          rules={{
+                            required: "không được để trống",
+                          }}
                         />
-                      )}
-                      rules={{
-                        required: "không được để trống",
-                      }}
-                    />
-                    {errors.KhachHang && (
-                      <span className="text-danger">
-                        {errors.KhachHang.message}
-                      </span>
-                    )}
-                  </div>
-                </div>
+                        {errors.KhachHang && (
+                          <span className="text-danger">
+                            {errors.KhachHang.message}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="col col-sm">
+                      <div className="form-group">
+                        <label htmlFor="Account">Account</label>
+                        <input
+                          autoComplete="false"
+                          type="text"
+                          className="form-control"
+                          id="Account"
+                          value={data.accountName}
+                          readOnly
+                        />
+                      </div>
+                    </div>
+                  </>
+                )}
 
-                <div className="col col-sm">
-                  <div className="form-group">
-                    <label htmlFor="Account">Account</label>
-                    <input
-                      autoComplete="false"
-                      type="text"
-                      className="form-control"
-                      id="Account"
-                      value={data.accountName}
-                      readOnly
-                    />
-                  </div>
-                </div>
                 <div className="col col-sm">
                   <div className="form-group">
                     <label htmlFor="CungDuong">Điểm Đóng Hàng(*)</label>
@@ -817,6 +817,11 @@ const UpdateHandling = (props) => {
                               render={({ field }) => (
                                 <Select
                                   {...field}
+                                  isDisabled={
+                                    accountType && accountType === "NV"
+                                      ? false
+                                      : true
+                                  }
                                   classNamePrefix={"form-control"}
                                   value={field.value}
                                   options={listPoint}
@@ -842,6 +847,11 @@ const UpdateHandling = (props) => {
                               render={({ field }) => (
                                 <Select
                                   {...field}
+                                  isDisabled={
+                                    accountType && accountType === "NV"
+                                      ? false
+                                      : true
+                                  }
                                   classNamePrefix={"form-control"}
                                   value={field.value}
                                   options={listPoint}
@@ -859,30 +869,33 @@ const UpdateHandling = (props) => {
                       </div>
                     </div>
                   )}
-                <div className="col col-sm">
-                  <div className="form-group">
-                    <label htmlFor="NhaCungCap">Đơn Vị Vận Tải(*)</label>
-                    <Controller
-                      name={`NhaCungCap`}
-                      control={control}
-                      render={({ field }) => (
-                        <Select
-                          {...field}
-                          classNamePrefix={"form-control"}
-                          value={field.value}
-                          options={listSupplier}
+                {accountType && accountType === "NV" && (
+                  <>
+                    <div className="col col-sm">
+                      <div className="form-group">
+                        <label htmlFor="NhaCungCap">Đơn Vị Vận Tải(*)</label>
+                        <Controller
+                          name={`NhaCungCap`}
+                          control={control}
+                          render={({ field }) => (
+                            <Select
+                              {...field}
+                              classNamePrefix={"form-control"}
+                              value={field.value}
+                              options={listSupplier}
+                            />
+                          )}
+                          rules={Validate.NhaCungCap}
                         />
-                      )}
-                      rules={Validate.NhaCungCap}
-                    />
-                    {errors.NhaCungCap && (
-                      <span className="text-danger">
-                        {errors.NhaCungCap.message}
-                      </span>
-                    )}
-                  </div>
-                </div>
-
+                        {errors.NhaCungCap && (
+                          <span className="text-danger">
+                            {errors.NhaCungCap.message}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </>
+                )}
                 <div className="col col-sm">
                   <div className="form-group">
                     <label htmlFor="PTVanChuyen">
@@ -892,6 +905,9 @@ const UpdateHandling = (props) => {
                       className="form-control"
                       {...register(`PTVanChuyen`, Validate.PTVanChuyen)}
                       value={watch(`PTVanChuyen`)}
+                      disabled={
+                        accountType && accountType === "NV" ? false : true
+                      }
                     >
                       <option value="">Chọn phương Tiện Vận Chuyển</option>
                       {listVehicleType &&
@@ -920,6 +936,9 @@ const UpdateHandling = (props) => {
                       className="form-control"
                       {...register(`LoaiHangHoa`, Validate.LoaiHangHoa)}
                       value={watch(`LoaiHangHoa`)}
+                      disabled={
+                        accountType && accountType === "NV" ? false : true
+                      }
                     >
                       <option value="">Chọn Loại Hàng Hóa</option>
                       {listGoodsType &&
