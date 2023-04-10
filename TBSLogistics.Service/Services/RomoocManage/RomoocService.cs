@@ -217,6 +217,16 @@ namespace TBSLogistics.Service.Services.RomoocManage
         public async Task<List<LoaiRomooc>> GetListSelectRomoocType()
         {
             var list = await _TMScontext.LoaiRomooc.ToListAsync();
+            return list;
+        }
+
+        public async Task<List<ListRomoocSelect>> GetListRomoocSelect()
+        {
+            var list = await _TMScontext.Romooc.Select(x => new ListRomoocSelect()
+            {
+                MaRomooc = x.MaRomooc,
+                RomoocType = _TMScontext.LoaiRomooc.Where(y => y.MaLoaiRomooc == x.MaLoaiRomooc).Select(y => y.TenLoaiRomooc).FirstOrDefault()
+            }).ToListAsync();
 
             return list;
         }

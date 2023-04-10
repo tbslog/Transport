@@ -157,8 +157,20 @@ namespace TBSLogistics.Service.Services.UserManage
 
             try
             {
+
+
                 if (request.AccountType.Trim() == "NV")
                 {
+                    if (string.IsNullOrEmpty(request.MaNhanVien.Trim()))
+                    {
+                        return new BoolActionResult { isSuccess = false, Message = "Mã nhân viên không được bỏ trống" };
+                    }
+
+                    if (request.MaNhanVien.Length > 10)
+                    {
+                        return new BoolActionResult { isSuccess = false, Message = "Mã nhân viên không được lớn hơn 10 ký tự" };
+                    }
+
                     var checkExists = await _context.NguoiDung.Where(x => x.MaNhanVien == request.MaNhanVien).FirstOrDefaultAsync();
 
                     if (checkExists != null)

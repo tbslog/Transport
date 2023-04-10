@@ -102,13 +102,13 @@ namespace TBSLogistics.Service.Services.Common
         {
             try
             {
-                await _context.Attachment.AddAsync(attachment);
+                var add = await _context.Attachment.AddAsync(attachment);
 
                 var result = await _context.SaveChangesAsync();
 
                 if (result > 0)
                 {
-                    return new BoolActionResult { isSuccess = true };
+                    return new BoolActionResult { isSuccess = true, DataReturn = add.Entity.Id.ToString() };
                 }
                 else
                 {

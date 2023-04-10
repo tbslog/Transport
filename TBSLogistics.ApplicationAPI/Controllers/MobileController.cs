@@ -1,9 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
+using TBSLogistics.Data.TMS;
 using TBSLogistics.Model.Model.BillOfLadingModel;
+using TBSLogistics.Model.Model.FileModel;
 using TBSLogistics.Model.Model.MobileModel;
 using TBSLogistics.Model.Model.SFeeByTcommandModel;
 using TBSLogistics.Service.Services.BillOfLadingManage;
@@ -22,14 +26,16 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         private readonly ISubFeePrice _subFeePrice;
         private readonly IBillOfLading _billOfLading;
         private readonly IMobile _mobile;
+        private readonly TMSContext _tMSContext;
         private readonly ICommon _common;
 
-        public MobileController(IBillOfLading billOfLading, ICommon common, IMobile mobile, ISubFeePrice subFeePrice)
+        public MobileController(IBillOfLading billOfLading, ICommon common, IMobile mobile, ISubFeePrice subFeePrice, TMSContext tMSContext)
         {
             _billOfLading = billOfLading;
             _mobile = mobile;
             _common = common;
             _subFeePrice = subFeePrice;
+            _tMSContext = tMSContext;
         }
 
         [HttpPost]
@@ -83,7 +89,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpPost]
         [Route("[action]")]
-        public async Task<IActionResult> UploadImage([FromForm] UploadImagesHandling request)
+        public async Task<IActionResult> UploadImage([FromForm] DocumentType request)
         {
             var checkPermission = await _common.CheckPermission("F0006");
             if (checkPermission.isSuccess == false)
@@ -91,7 +97,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
                 return BadRequest(checkPermission.Message);
             }
 
-            var uploadFile = await _billOfLading.UploadFile(request);
+            var uploadFile = await _billOfLading.CreateDoc(request);
 
             if (uploadFile.isSuccess)
             {
@@ -101,6 +107,14 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             {
                 return BadRequest(uploadFile);
             }
+        }
+
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetListDocType()
+        {
+            var list = await _tMSContext.LoaiChungTu.ToListAsync();
+            return Ok(list);
         }
 
         [HttpPost]
@@ -173,13 +187,11 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             }
 
             var list = await _billOfLading.GetListImageByHandlingId(handlingId);
-
             var listImage = new List<GetListImage>();
 
             foreach (var item in list)
             {
-                var image = await _billOfLading.GetImageById(Convert.ToInt32(item.Id));
-
+                var image = await _billOfLading.GetImageById(item.MaHinhAnh);
                 var filePath = Path.Combine(Directory.GetCurrentDirectory(), image.FilePath);
                 if (!System.IO.File.Exists(filePath))
                     return NotFound();
@@ -201,8 +213,9 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
                 listImage.Add(new GetListImage()
                 {
-                    FileName = item.FileName,
-                    Note = item.Note,
+                    FileName = item.TenChungTu,
+                    FileType = item.TenLoaiChungTu,
+                    Note = item.GhiChu,
                     Image = base64
                 });
             }

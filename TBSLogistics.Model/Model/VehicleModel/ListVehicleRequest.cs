@@ -10,6 +10,7 @@ namespace TBSLogistics.Model.Model.VehicleModel
     {
         public string MaSoXe { get; set; }
         public string MaNhaCungCap { get; set; }
+        public string TenNhaCungCap { get; set; }
         public string MaLoaiPhuongTien { get; set; }
         public string MaTaiXeMacDinh { get; set; }
         public double? TrongTaiToiThieu { get; set; }

@@ -33,6 +33,8 @@ namespace TBSLogistics.Data.TMS
         public virtual DbSet<HopDongVaPhuLuc> HopDongVaPhuLuc { get; set; }
         public virtual DbSet<KhachHang> KhachHang { get; set; }
         public virtual DbSet<KhachHangAccount> KhachHangAccount { get; set; }
+        public virtual DbSet<KhuVuc> KhuVuc { get; set; }
+        public virtual DbSet<LoaiChungTu> LoaiChungTu { get; set; }
         public virtual DbSet<LoaiDiaDiem> LoaiDiaDiem { get; set; }
         public virtual DbSet<LoaiHangHoa> LoaiHangHoa { get; set; }
         public virtual DbSet<LoaiHinhKho> LoaiHinhKho { get; set; }
@@ -60,6 +62,8 @@ namespace TBSLogistics.Data.TMS
         public virtual DbSet<SubFeeType> SubFeeType { get; set; }
         public virtual DbSet<TaiXe> TaiXe { get; set; }
         public virtual DbSet<TaiXeTheoChang> TaiXeTheoChang { get; set; }
+        public virtual DbSet<TepChungTu> TepChungTu { get; set; }
+        public virtual DbSet<TepHopDong> TepHopDong { get; set; }
         public virtual DbSet<ThongBao> ThongBao { get; set; }
         public virtual DbSet<TinhThanh> TinhThanh { get; set; }
         public virtual DbSet<TrongTaiXe> TrongTaiXe { get; set; }
@@ -79,7 +83,7 @@ namespace TBSLogistics.Data.TMS
                  .AddJsonFile("appsettings.json")
                  .Build();
 
-                optionsBuilder.UseSqlServer(configuration.GetConnectionString("TMS_Cloud"));
+                optionsBuilder.UseSqlServer(configuration.GetConnectionString("TMS_Local"));
             }
         }
 
@@ -101,7 +105,7 @@ namespace TBSLogistics.Data.TMS
             modelBuilder.Entity<AccountOfCustomer>(entity =>
             {
                 entity.HasKey(e => e.MaAccount)
-                    .HasName("PK_AccountOfCustomer_1");
+                    .HasName("PK__AccountO__0A2B8E3462D97A7E");
 
                 entity.Property(e => e.MaAccount)
                     .HasMaxLength(8)
@@ -123,8 +127,6 @@ namespace TBSLogistics.Data.TMS
                 entity.Property(e => e.Id).HasColumnName("ID");
 
                 entity.Property(e => e.Creator).HasMaxLength(30);
-
-                entity.Property(e => e.DieuPhoiId).HasColumnName("DieuPhoiID");
 
                 entity.Property(e => e.FileName)
                     .IsRequired()
@@ -151,11 +153,6 @@ namespace TBSLogistics.Data.TMS
                     .IsUnicode(false);
 
                 entity.Property(e => e.Updater).HasMaxLength(30);
-
-                entity.HasOne(d => d.DieuPhoi)
-                    .WithMany(p => p.Attachment)
-                    .HasForeignKey(d => d.DieuPhoiId)
-                    .HasConstraintName("FK_Attachment_DieuPhoi");
             });
 
             modelBuilder.Entity<BangGia>(entity =>
@@ -662,13 +659,32 @@ namespace TBSLogistics.Data.TMS
                     .WithMany(p => p.KhachHangAccount)
                     .HasForeignKey(d => d.MaAccount)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__KhachHang__MaAcc__66361833");
+                    .HasConstraintName("FK__KhachHang__MaAcc__4999D985");
 
                 entity.HasOne(d => d.MaKhNavigation)
                     .WithMany(p => p.KhachHangAccount)
                     .HasForeignKey(d => d.MaKh)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__KhachHang___MaKH__6541F3FA");
+                    .HasConstraintName("FK__KhachHang___MaKH__48A5B54C");
+            });
+
+            modelBuilder.Entity<KhuVuc>(entity =>
+            {
+                entity.Property(e => e.Id).HasColumnName("ID");
+
+                entity.Property(e => e.TenKhuVuc)
+                    .IsRequired()
+                    .HasMaxLength(50);
+            });
+
+            modelBuilder.Entity<LoaiChungTu>(entity =>
+            {
+                entity.HasKey(e => e.MaLoaiChungTu)
+                    .HasName("PK__LoaiChun__AC69987254F1D928");
+
+                entity.Property(e => e.TenLoaiChungTu)
+                    .IsRequired()
+                    .HasMaxLength(150);
             });
 
             modelBuilder.Entity<LoaiDiaDiem>(entity =>
@@ -1284,6 +1300,65 @@ namespace TBSLogistics.Data.TMS
                     .HasConstraintName("FK__TaiXeTheo__MaTai__3F1C4B12");
             });
 
+            modelBuilder.Entity<TepChungTu>(entity =>
+            {
+                entity.Property(e => e.Id).HasColumnName("ID");
+
+                entity.Property(e => e.Creator)
+                    .IsRequired()
+                    .HasMaxLength(30);
+
+                entity.Property(e => e.TenChungTu).IsRequired();
+
+                entity.Property(e => e.Updater).HasMaxLength(30);
+
+                entity.HasOne(d => d.LoaiChungTuNavigation)
+                    .WithMany(p => p.TepChungTu)
+                    .HasForeignKey(d => d.LoaiChungTu)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK__TepChungT__LoaiC__6CE315C2");
+
+                entity.HasOne(d => d.MaDieuPhoiNavigation)
+                    .WithMany(p => p.TepChungTu)
+                    .HasForeignKey(d => d.MaDieuPhoi)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK__TepChungT__MaDie__6AFACD50");
+
+                entity.HasOne(d => d.MaHinhAnhNavigation)
+                    .WithMany(p => p.TepChungTu)
+                    .HasForeignKey(d => d.MaHinhAnh)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK__TepChungT__MaHin__6BEEF189");
+            });
+
+            modelBuilder.Entity<TepHopDong>(entity =>
+            {
+                entity.Property(e => e.Id).HasColumnName("ID");
+
+                entity.Property(e => e.Creator)
+                    .IsRequired()
+                    .HasMaxLength(30);
+
+                entity.Property(e => e.MaHopDong)
+                    .IsRequired()
+                    .HasMaxLength(20)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Updater).HasMaxLength(30);
+
+                entity.HasOne(d => d.MaHopDongNavigation)
+                    .WithMany(p => p.TepHopDong)
+                    .HasForeignKey(d => d.MaHopDong)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK__TepHopDon__MaHop__644DCFC1");
+
+                entity.HasOne(d => d.MaTepHongDongNavigation)
+                    .WithMany(p => p.TepHopDong)
+                    .HasForeignKey(d => d.MaTepHongDong)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK__TepHopDon__MaTep__6541F3FA");
+            });
+
             modelBuilder.Entity<ThongBao>(entity =>
             {
                 entity.Property(e => e.Id).HasColumnName("ID");
@@ -1497,6 +1572,10 @@ namespace TBSLogistics.Data.TMS
                     .HasMaxLength(10)
                     .IsUnicode(false);
 
+                entity.Property(e => e.MaNhaCungCap)
+                    .HasMaxLength(8)
+                    .IsUnicode(false);
+
                 entity.Property(e => e.MaTaiSan)
                     .HasMaxLength(50)
                     .IsUnicode(false);
@@ -1508,6 +1587,11 @@ namespace TBSLogistics.Data.TMS
                 entity.Property(e => e.NgayHoatDong).HasColumnType("date");
 
                 entity.Property(e => e.Updater).HasMaxLength(30);
+
+                entity.HasOne(d => d.MaNhaCungCapNavigation)
+                    .WithMany(p => p.XeVanChuyen)
+                    .HasForeignKey(d => d.MaNhaCungCap)
+                    .HasConstraintName("FK__XeVanChuy__MaNha__681E60A5");
 
                 entity.HasOne(d => d.MaTaiXeMacDinhNavigation)
                     .WithMany(p => p.XeVanChuyen)

@@ -33,6 +33,14 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpGet]
         [Route("[action]")]
+        public async Task<IActionResult> GetListDocType()
+        {
+            var list = await _tMSContext.LoaiChungTu.ToListAsync();
+            return Ok(list);
+        }
+
+        [HttpGet]
+        [Route("[action]")]
         public async Task<IActionResult> GetListDVT()
         {
             var list = await _tMSContext.DonViTinh.ToListAsync();

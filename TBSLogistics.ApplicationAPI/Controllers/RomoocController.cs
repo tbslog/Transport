@@ -123,5 +123,13 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             var list = await _Romooc.GetListSelectRomoocType();
             return Ok(list);
         }
+
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetListRomoocSelect()
+        {
+            var list = await _Romooc.GetListRomoocSelect();
+            return Ok(list);
+        }
     }
 }

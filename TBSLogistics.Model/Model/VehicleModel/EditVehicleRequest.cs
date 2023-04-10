@@ -8,6 +8,7 @@ namespace TBSLogistics.Model.Model.VehicleModel
 {
    public class EditVehicleRequest
     {
+        public string DonViVanTai { get; set; }
         public string MaLoaiPhuongTien { get; set; }
         public string MaTaiXeMacDinh { get; set; }
         public double? TrongTaiToiThieu { get; set; }

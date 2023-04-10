@@ -37,7 +37,6 @@ namespace TBSLogistics.Service.Services.VehicleManage
             try
             {
                 var checkExists = await _context.XeVanChuyen.Where(x => x.MaSoXe == request.MaSoXe).FirstOrDefaultAsync();
-
                 if (checkExists != null)
                 {
                     return new BoolActionResult { isSuccess = false, Message = "Xe này đã tồn tại trong dữ liệu" };
@@ -48,8 +47,16 @@ namespace TBSLogistics.Service.Services.VehicleManage
                     return new BoolActionResult { isSuccess = false, Message = ErrorValidate };
                 }
 
+                var getlistCus = await _context.UserHasCustomer.Where(x => x.UserId == tempData.UserID).Select(x => x.CustomerId).ToListAsync();
+                var checkSup = await _context.KhachHang.Where(x => x.MaKh == request.DonViVanTai && x.MaLoaiKh == "NCC" && getlistCus.Contains(x.MaKh)).FirstOrDefaultAsync();
+                if (checkSup == null)
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Đơn vị vận tải không tồn tại" };
+                }
+
                 await _context.XeVanChuyen.AddAsync(new XeVanChuyen()
                 {
+                    MaNhaCungCap = request.DonViVanTai,
                     MaSoXe = request.MaSoXe.ToUpper(),
                     MaLoaiPhuongTien = request.MaLoaiPhuongTien,
                     MaTaiXeMacDinh = request.MaTaiXeMacDinh,
@@ -96,6 +103,14 @@ namespace TBSLogistics.Service.Services.VehicleManage
                     return new BoolActionResult { isSuccess = false, Message = "Xe này không tồn tại trong dữ liệu" };
                 }
 
+                var getlistCus = await _context.UserHasCustomer.Where(x => x.UserId == tempData.UserID).Select(x => x.CustomerId).ToListAsync();
+                var checkSup = await _context.KhachHang.Where(x => x.MaKh == request.DonViVanTai && x.MaLoaiKh == "NCC" && getlistCus.Contains(x.MaKh)).FirstOrDefaultAsync();
+                if (checkSup == null)
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Đơn vị vận tải không tồn tại" };
+                }
+
+                getVehicle.MaNhaCungCap = checkSup.MaKh;
                 getVehicle.MaLoaiPhuongTien = request.MaLoaiPhuongTien;
                 getVehicle.MaTaiXeMacDinh = request.MaTaiXeMacDinh;
                 getVehicle.TrongTaiToiThieu = request.TrongTaiToiThieu;
@@ -180,6 +195,9 @@ namespace TBSLogistics.Service.Services.VehicleManage
                                orderby vehicle.CreatedTime descending
                                select new { vehicle, status };
 
+                var getlistCus = await _context.UserHasCustomer.Where(x => x.UserId == tempData.UserID).Select(x => x.CustomerId).ToListAsync();
+                listData = listData.Where(x => getlistCus.Contains(x.vehicle.MaNhaCungCap));
+
                 if (!string.IsNullOrEmpty(filter.Keyword))
                 {
                     listData = listData.Where(x => x.vehicle.MaSoXe.Contains(filter.Keyword));
@@ -194,6 +212,7 @@ namespace TBSLogistics.Service.Services.VehicleManage
 
                 var pagedData = await listData.Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new ListVehicleRequest()
                 {
+                    TenNhaCungCap = _context.KhachHang.Where(y => y.MaKh == x.vehicle.MaNhaCungCap).Select(y => y.TenKh).FirstOrDefault(),
                     MaSoXe = x.vehicle.MaSoXe,
                     MaLoaiPhuongTien = x.vehicle.MaLoaiPhuongTien,
                     MaTaiXeMacDinh = x.vehicle.MaTaiXeMacDinh,
@@ -226,6 +245,7 @@ namespace TBSLogistics.Service.Services.VehicleManage
         {
             var vehicle = await _context.XeVanChuyen.Where(x => x.MaSoXe == vehicleId).Select(x => new GetVehicleRequest()
             {
+                MaNhaCungCap = x.MaNhaCungCap,
                 MaSoXe = x.MaSoXe,
                 MaLoaiPhuongTien = x.MaLoaiPhuongTien,
                 MaTaiXeMacDinh = x.MaTaiXeMacDinh,
@@ -252,7 +272,8 @@ namespace TBSLogistics.Service.Services.VehicleManage
                           where status.LangId == tempData.LangID
                           select new { status, vehicle };
 
-            var listData = await getData.Select(x => new ListVehicleSelect()
+            var getlistCus = await _context.UserHasCustomer.Where(x => x.UserId == tempData.UserID).Select(x => x.CustomerId).ToListAsync();
+            var listData = await getData.Where(x => getlistCus.Contains(x.vehicle.MaNhaCungCap)).Select(x => new ListVehicleSelect()
             {
                 VehicleId = x.vehicle.MaSoXe,
                 Text = x.vehicle.MaSoXe + " / " + x.vehicle.MaLoaiPhuongTien + " --- " + x.status.StatusContent

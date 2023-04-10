@@ -187,7 +187,8 @@ namespace TBSLogistics.Service.Services.CustommerManage
 
         public async Task<List<GetCustomerRequest>> getListCustomerOptionSelect(string type)
         {
-            var getList = await _TMSContext.KhachHang.Where(x => x.TrangThai == 1).Select(x => new GetCustomerRequest()
+            var getlistCus = await _TMSContext.UserHasCustomer.Where(x => x.UserId == tempData.UserID).Select(x => x.CustomerId).ToListAsync();
+            var getList = await _TMSContext.KhachHang.Where(x => x.TrangThai == 1 && getlistCus.Contains(x.MaKh)).Select(x => new GetCustomerRequest()
             {
                 MaKh = x.MaKh,
                 TenKh = x.TenKh,
@@ -205,7 +206,6 @@ namespace TBSLogistics.Service.Services.CustommerManage
         public async Task<List<GetCustomerRequest>> GetListCustomerFilter(string type)
         {
             var getListFilter = await _TMSContext.UserHasCustomer.Where(x => x.UserId == tempData.UserID).Select(x => x.CustomerId).ToListAsync();
-
             var getList = await _TMSContext.KhachHang.Where(x => x.TrangThai == 1 && getListFilter.Contains(x.MaKh)).Select(x => new GetCustomerRequest()
             {
                 MaKh = x.MaKh,
@@ -263,9 +263,6 @@ namespace TBSLogistics.Service.Services.CustommerManage
                 }
 
                 var totalCount = await listData.CountAsync();
-
-
-
 
                 var pagedData = await listData.Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new ListCustommerRequest()
                 {

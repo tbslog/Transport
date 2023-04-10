@@ -9,9 +9,8 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
 {
     public class UploadImagesHandling
     {
-        public IFormCollection files { get; set; }
+        public IFormFile file { get; set; }
         public string transportId { get; set; }
-        public int handlingId { get; set; }
-        public string Note { get; set; }
+        public long handlingId { get; set; }
     }
 }

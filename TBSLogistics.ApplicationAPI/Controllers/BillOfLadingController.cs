@@ -4,12 +4,12 @@ using Microsoft.AspNetCore.Mvc;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.BillOfLadingModel;
+using TBSLogistics.Model.Model.FileModel;
 using TBSLogistics.Model.Model.UserModel;
 using TBSLogistics.Service.Helpers;
 using TBSLogistics.Service.Panigation;
@@ -35,14 +35,6 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             _billOfLading = billOfLading;
             _paninationService = paginationService;
             _common = common;
-        }
-
-        [HttpGet]
-        [Route("[action]")]
-        public async Task<IActionResult> LoadDataHandling()
-        {
-            var data = await _billOfLading.LoadDataHandling();
-            return Ok(data);
         }
 
         [HttpGet]
@@ -83,23 +75,6 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             var pagedReponse = PaginationHelper.CreatePagedReponse<ListTransport>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _paninationService, route);
             return Ok(pagedReponse);
         }
-
-        //[HttpPost]
-        //[Route("[action]")]
-        //public async Task<IActionResult> GetListHandling([FromQuery] PaginationFilter filter, ListFilter listFilter, string transportId = null)
-        //{
-        //    var checkPermission = await _common.CheckPermission("F0003");
-        //    if (checkPermission.isSuccess == false)
-        //    {
-        //        return BadRequest(checkPermission.Message);
-        //    }
-
-        //    var route = Request.Path.Value;
-        //    var pagedData = await _billOfLading.GetListHandling(transportId, listFilter, filter);
-
-        //    var pagedReponse = PaginationHelper.CreatePagedReponse<ListHandling>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _paninationService, route);
-        //    return Ok(pagedReponse);
-        //}
 
         [HttpPost]
         [Route("[action]")]
@@ -320,36 +295,14 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpPost]
         [Route("[action]")]
-        public async Task<IActionResult> ChangeImageName(int id, string newName)
-        {
-            var checkPermission = await _common.CheckPermission("F0013");
-            if (checkPermission.isSuccess == false)
-            {
-                return BadRequest(checkPermission.Message);
-            }
-
-            var rename = await _billOfLading.ChangeImageName(id, newName);
-
-            if (rename.isSuccess)
-            {
-                return Ok(rename.Message);
-            }
-            else
-            {
-                return BadRequest(rename.Message);
-            }
-        }
-
-        [HttpPost]
-        [Route("[action]")]
-        public async Task<IActionResult> DeleteImage(int fileId)
+        public async Task<IActionResult> DeleteImage(int docId)
         {
             var checkPermission = await _common.CheckPermission("F0005");
             if (checkPermission.isSuccess == false)
             {
                 return BadRequest(checkPermission.Message);
             }
-            var del = await _billOfLading.DeleteImageById(fileId);
+            var del = await _billOfLading.DeleteImageById(docId);
 
             if (del.isSuccess)
             {
@@ -389,39 +342,47 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<IActionResult> LoadDataRoadTransportByCusId(string id)
+        public async Task<IActionResult> GetDocById(int docId)
         {
-            var checkPermission = await _common.CheckPermission("E0001");
-            if (checkPermission.isSuccess == false)
-            {
-                return BadRequest(checkPermission.Message);
-            }
-
-            //var list = await _billOfLading.LoadDataRoadTransportByCusId(id);
-            //return Ok(list);
-            return Ok();
+            var doc = await _billOfLading.GetDocById(docId);
+            return Ok(doc);
         }
 
         [HttpPost]
         [Route("[action]")]
-        public async Task<IActionResult> UploadFile([FromForm] UploadImagesHandling request)
+        public async Task<IActionResult> CreateDoc([FromForm] DocumentType request)
         {
             var checkPermission = await _common.CheckPermission("F0006");
             if (checkPermission.isSuccess == false)
             {
                 return BadRequest(checkPermission.Message);
             }
+            var create = await _billOfLading.CreateDoc(request);
 
-            var uploadFile = await _billOfLading.UploadFile(request);
+            if (create.isSuccess == true)
+            {
+                return Ok(create.Message);
+            }
 
-            if (uploadFile.isSuccess)
+            return BadRequest(create.Message);
+        }
+
+        [HttpPost]
+        [Route("[action]")]
+        public async Task<IActionResult> UpdateDoc(int docId, [FromForm] DocumentType request)
+        {
+            var checkPermission = await _common.CheckPermission("F0006");
+            if (checkPermission.isSuccess == false)
             {
-                return Ok(uploadFile.Message);
+                return BadRequest(checkPermission.Message);
             }
-            else
+            var update = await _billOfLading.UpdateDoc(docId,request);
+            if (update.isSuccess == true)
             {
-                return BadRequest(uploadFile.Message);
+                return Ok(update.Message);
             }
+
+            return BadRequest(update.Message);
         }
 
         [HttpPost]

@@ -19,5 +19,6 @@ namespace TBSLogistics.Service.Services.RomoocManage
         public Task<PagedResponseCustom<ListRomooc>> GetListRomooc(PaginationFilter filter);
         public Task<ListRomooc> GetRomoocById(string MaRomooc);
         Task<List<LoaiRomooc>> GetListSelectRomoocType();
+        Task<List<ListRomoocSelect>> GetListRomoocSelect();
     }
 }

@@ -8,6 +8,7 @@ namespace TBSLogistics.Model.Model.VehicleModel
 {
     public class CreateVehicleRequest
     {
+        public string DonViVanTai { get; set; }
         public string MaSoXe { get; set; }
         public string MaLoaiPhuongTien { get; set; }
         public string MaTaiXeMacDinh { get; set; }

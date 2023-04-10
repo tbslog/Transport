@@ -8,6 +8,7 @@ namespace TBSLogistics.Model.Model.DriverModel
 {
    public  class ListDriverRequest
     {
+        public string TenDonViVanTai { get; set; }
         public string MaTaiXe { get; set; }
         public string Cccd { get; set; }
         public string HoVaTen { get; set; }

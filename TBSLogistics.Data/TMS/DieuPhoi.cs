@@ -7,9 +7,9 @@ namespace TBSLogistics.Data.TMS
     {
         public DieuPhoi()
         {
-            Attachment = new HashSet<Attachment>();
             SfeeByTcommand = new HashSet<SfeeByTcommand>();
             SubFeeByContract = new HashSet<SubFeeByContract>();
+            TepChungTu = new HashSet<TepChungTu>();
         }
 
         public long Id { get; set; }
@@ -58,8 +58,8 @@ namespace TBSLogistics.Data.TMS
         public virtual XeVanChuyen MaSoXeNavigation { get; set; }
         public virtual TaiXe MaTaiXeNavigation { get; set; }
         public virtual VanDon MaVanDonNavigation { get; set; }
-        public virtual ICollection<Attachment> Attachment { get; set; }
         public virtual ICollection<SfeeByTcommand> SfeeByTcommand { get; set; }
         public virtual ICollection<SubFeeByContract> SubFeeByContract { get; set; }
+        public virtual ICollection<TepChungTu> TepChungTu { get; set; }
     }
 }

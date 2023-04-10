@@ -48,6 +48,14 @@ namespace TBSLogistics.Service.Services.DriverManage
                 {
                     return new BoolActionResult { isSuccess = false, Message = ErrorValidate };
                 }
+
+                var getlistCus = await _context.UserHasCustomer.Where(x => x.UserId == tempData.UserID).Select(x => x.CustomerId).ToListAsync();
+                var checkSup = await _context.KhachHang.Where(x => x.MaKh == request.MaNhaCC && x.MaLoaiKh == "NCC" && getlistCus.Contains(x.MaKh)).FirstOrDefaultAsync();
+                if (checkSup == null)
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Đơn vị vận tải không tồn tại" };
+                }
+
                 await _context.TaiXe.AddAsync(new TaiXe()
                 {
                     MaTaiXe = request.MaTaiXe.ToUpper(),
@@ -103,6 +111,13 @@ namespace TBSLogistics.Service.Services.DriverManage
                 if (ErrorValidate != "")
                 {
                     return new BoolActionResult { isSuccess = false, Message = ErrorValidate };
+                }
+
+                var getlistCus = await _context.UserHasCustomer.Where(x => x.UserId == tempData.UserID).Select(x => x.CustomerId).ToListAsync();
+                var checkSup = await _context.KhachHang.Where(x => x.MaKh == request.MaNhaCungCap && x.MaLoaiKh == "NCC" && getlistCus.Contains(x.MaKh)).FirstOrDefaultAsync();
+                if (checkSup == null)
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Đơn vị vận tải không tồn tại" };
                 }
 
                 getDriver.Cccd = request.Cccd;
@@ -198,6 +213,7 @@ namespace TBSLogistics.Service.Services.DriverManage
         {
             var driver = await _context.TaiXe.Where(x => x.MaTaiXe == driverId).Select(x => new GetDriverRequest()
             {
+                DonViVanTai = x.MaNhaCungCap,
                 MaTaiXe = x.MaTaiXe,
                 Cccd = x.Cccd,
                 HoVaTen = x.HoVaTen,
@@ -215,7 +231,9 @@ namespace TBSLogistics.Service.Services.DriverManage
         }
         public async Task<List<GetDriverRequest>> GetListDriverSelect()
         {
-            var list = await _context.TaiXe.Where(x => x.TaiXeTbs == true).ToListAsync();
+            var getlistCus = await _context.UserHasCustomer.Where(x => x.UserId == tempData.UserID).Select(x => x.CustomerId).ToListAsync();
+
+            var list = await _context.TaiXe.Where(x => getlistCus.Contains(x.MaNhaCungCap)).ToListAsync();
 
             return list.Select(x => new GetDriverRequest()
             {
@@ -229,9 +247,11 @@ namespace TBSLogistics.Service.Services.DriverManage
         {
             try
             {
+                var getlistCus = await _context.UserHasCustomer.Where(x => x.UserId == tempData.UserID).Select(x => x.CustomerId).ToListAsync();
 
                 var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
                 var getData = from driver in _context.TaiXe
+                              where getlistCus.Contains(driver.MaNhaCungCap)
                               orderby driver.CreatedTime descending
                               select new { driver };
 
@@ -243,6 +263,7 @@ namespace TBSLogistics.Service.Services.DriverManage
                     || x.driver.Cccd.ToLower().Contains(filter.Keyword.ToLower())
                     );
                 }
+
                 if (!string.IsNullOrEmpty(filter.statusId))
                 {
                     getData = getData.Where(x => x.driver.TrangThai == int.Parse(filter.statusId));
@@ -256,6 +277,7 @@ namespace TBSLogistics.Service.Services.DriverManage
 
                 var pagedData = await getData.Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new ListDriverRequest()
                 {
+                    TenDonViVanTai = _context.KhachHang.Where(y => y.MaKh == x.driver.MaNhaCungCap).Select(y => y.TenKh).FirstOrDefault(),
                     MaTaiXe = x.driver.MaTaiXe,
                     Cccd = x.driver.Cccd,
                     HoVaTen = x.driver.HoVaTen,

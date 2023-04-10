@@ -6,6 +6,7 @@ using TBSLogistics.Data.TMS;
 using TBSLogistics.Model.CommonModel;
 using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.BillOfLadingModel;
+using TBSLogistics.Model.Model.FileModel;
 using TBSLogistics.Model.Model.UserModel;
 using TBSLogistics.Model.Wrappers;
 
@@ -13,18 +14,15 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 {
     public interface IBillOfLading
     {
-        Task<LoadDataHandling> LoadDataHandling();
         Task<BoolActionResult> CreateTransport(CreateTransport request);
         Task<BoolActionResult> UpdateTransport(string transPortId, UpdateTransport request);
         Task<GetTransport> GetTransportById(string transportId);
         Task<PagedResponseCustom<ListTransport>> GetListTransport(ListFilter listFilter, PaginationFilter filter);
         Task<GetHandling> GetHandlingById(int id);
         Task<BoolActionResult> UpdateHandling(int id, UpdateHandling request);
-        Task<BoolActionResult> UploadFile(UploadImagesHandling request);
-        Task<List<Attachment>> GetListImageByHandlingId(int handlingId);
-        Task<BoolActionResult> DeleteImageById(int imageId);
-        Task<Attachment> GetImageById(int id);
-        //Task<PagedResponseCustom<ListHandling>> GetListHandling(string transportId, ListFilter listFilter, PaginationFilter filter);
+        Task<List<DocumentType>> GetListImageByHandlingId(long handlingId);
+        Task<BoolActionResult> DeleteImageById(int docId);
+        Task<Attachment> GetImageById(long imageId);
         Task<PagedResponseCustom<ListHandling>> GetListHandlingLess(ListFilter listFilter, PaginationFilter filter);
         Task<BoolActionResult> CreateTransportLess(CreateTransportLess request);
         Task<LoadJoinTransports> LoadJoinTransport(JoinTransports request);
@@ -35,10 +33,13 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
         Task<PagedResponseCustom<ListHandling>> GetListHandlingByTransportId(string transportId, PaginationFilter filter);
         Task<BoolActionResult> AcceptOrRejectTransport(string transportId, int action);
         Task<string> LayTrongTaiXe(string vehicleType, string DonVi, double giaTri);
-        Task<BoolActionResult> ChangeImageName(int id, string newName);
         Task<BoolActionResult> CreateTransportByExcel(IFormFile formFile, CancellationToken cancellationToken);
         Task<BoolActionResult> ChangeStatusHandling(int id, string maChuyen);
         Task<BoolActionResult> CancelHandling(int id, string note = null);
         Task<BoolActionResult> CancelHandlingByCustomer(int id, string note = null);
+        Task<DocumentType> GetDocById(int docId);
+        Task<BoolActionResult> UpdateDoc(int docId, DocumentType request);
+        Task<BoolActionResult> CreateDoc(DocumentType request);
+
     }
 }
