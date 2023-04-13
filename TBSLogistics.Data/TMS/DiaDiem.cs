@@ -8,6 +8,10 @@ namespace TBSLogistics.Data.TMS
         public DiaDiem()
         {
             InverseDiaDiemChaNavigation = new HashSet<DiaDiem>();
+            LogGpsDiemCuoiNavigation = new HashSet<LogGps>();
+            LogGpsDiemDauNavigation = new HashSet<LogGps>();
+            LogGpsDiemLayRongNavigation = new HashSet<LogGps>();
+            LogGpsDiemTraRongNavigation = new HashSet<LogGps>();
         }
 
         public int MaDiaDiem { get; set; }
@@ -34,5 +38,9 @@ namespace TBSLogistics.Data.TMS
         public virtual TinhThanh MaTinhNavigation { get; set; }
         public virtual LoaiDiaDiem NhomDiaDiemNavigation { get; set; }
         public virtual ICollection<DiaDiem> InverseDiaDiemChaNavigation { get; set; }
+        public virtual ICollection<LogGps> LogGpsDiemCuoiNavigation { get; set; }
+        public virtual ICollection<LogGps> LogGpsDiemDauNavigation { get; set; }
+        public virtual ICollection<LogGps> LogGpsDiemLayRongNavigation { get; set; }
+        public virtual ICollection<LogGps> LogGpsDiemTraRongNavigation { get; set; }
     }
 }

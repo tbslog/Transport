@@ -790,5 +790,40 @@ namespace TBSLogistics.Service.Services.PriceTableManage
             }
             return ErrorValidate;
         }
+
+        public Task<List<GetPriceListRequest>> GetListPriceTableExportExcel(string cusType)
+        {
+            var getList = from bg in _context.BangGia
+                          join hd in _context.HopDongVaPhuLuc
+                          on bg.MaHopDong equals hd.MaHopDong
+                          join kh in _context.KhachHang
+                          on hd.MaKh equals kh.MaKh
+                          where (bg.NgayHetHieuLuc.Value.Date > DateTime.Now.Date || bg.NgayHetHieuLuc == null)
+                          && bg.NgayApDung.Date <= DateTime.Now.Date
+                          && bg.TrangThai == 4
+                          && bg.MaLoaiDoiTac == cusType
+                          orderby kh.TenKh 
+                          select new { bg, hd, kh };
+
+            var data = getList.Select(x => new GetPriceListRequest()
+            {
+                AccountName = x.bg.MaAccount == null ? x.kh.TenKh : _context.AccountOfCustomer.Where(y => y.MaAccount == x.bg.MaAccount).Select(y => y.TenAccount).FirstOrDefault(),
+                DiemLayTraRong = x.bg.DiemLayTraRong == null ? null : _context.DiaDiem.Where(y => y.MaDiaDiem == x.bg.DiemLayTraRong).Select(y => y.TenDiaDiem).FirstOrDefault(),
+                DiemDau = _context.DiaDiem.Where(y => y.MaDiaDiem == x.bg.DiemDau).Select(y => y.TenDiaDiem).FirstOrDefault(),
+                DiemCuoi = _context.DiaDiem.Where(y => y.MaDiaDiem == x.bg.DiemCuoi).Select(y => y.TenDiaDiem).FirstOrDefault(),
+                TenKH = x.kh.TenKh,
+                MaHopDong = x.bg.MaHopDong,
+                NgayApDung = x.bg.NgayApDung,
+                DonGia = x.bg.DonGia,
+                MaLoaiPhuongTien = _context.LoaiPhuongTien.Where(y => y.MaLoaiPhuongTien == x.bg.MaLoaiPhuongTien).Select(x => x.TenLoaiPhuongTien).FirstOrDefault(),
+                MaLoaiHangHoa = _context.LoaiHangHoa.Where(y => y.MaLoaiHangHoa == x.bg.MaLoaiHangHoa).Select(x => x.TenLoaiHangHoa).FirstOrDefault(),
+                MaDVT = _context.DonViTinh.Where(y => y.MaDvt == x.bg.MaDvt).Select(x => x.TenDvt).FirstOrDefault(),
+                MaPTVC = _context.PhuongThucVanChuyen.Where(y => y.MaPtvc == x.bg.MaPtvc).Select(x => x.TenPtvc).FirstOrDefault(),
+                SoHopDongCha = x.hd.MaHopDongCha == null ? "Hợp Đồng" : "Phụ Lục",
+                MaLoaiDoiTac = x.bg.MaLoaiDoiTac,
+            }).ToListAsync();
+
+            return data;
+        }
     }
 }

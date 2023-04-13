@@ -369,7 +369,7 @@ namespace TBSLogistics.Service.Services.Bill
                 ChiPhiPhatSinh = (decimal)_context.SfeeByTcommand.Where(y => y.IdTcommand == x.dp.Id && y.ApproveStatus == 14).Sum(y => y.Price),
             }).Select(x => new ListBillHandling()
             {
-                AccountName = x.AccountName,
+                AccountName = x.AccountName == null ? x.TenKH : x.AccountName,
                 CutOffDate = x.CutOffDate,
                 DiemDau = x.DiemDau,
                 DiemCuoi = x.DiemCuoi,

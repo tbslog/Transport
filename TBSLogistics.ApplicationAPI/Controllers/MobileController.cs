@@ -49,9 +49,9 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<IActionResult> GetListSubFeeSelect()
+        public async Task<IActionResult> GetListSubFeeSelect(int placeId)
         {
-            var list = await _subFeePrice.GetListSubFeeSelect();
+            var list = await _subFeePrice.GetListSubFeeSelect(placeId);
             return Ok(list);
         }
 
@@ -65,9 +65,9 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<IActionResult> GetListSubfeeIncurred(string maChuyen)
+        public async Task<IActionResult> GetListSubfeeIncurred(string maChuyen, int placeId)
         {
-            var data = await _mobile.GetListSubfeeIncurred(maChuyen);
+            var data = await _mobile.GetListSubfeeIncurred(maChuyen, placeId);
             return Ok(data);
         }
 
@@ -89,7 +89,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpPost]
         [Route("[action]")]
-        public async Task<IActionResult> UploadImage([FromForm] DocumentType request)
+        public async Task<IActionResult> CreateDoc([FromForm] CreateOrUpdateDoc request)
         {
             var checkPermission = await _common.CheckPermission("F0006");
             if (checkPermission.isSuccess == false)
@@ -97,7 +97,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
                 return BadRequest(checkPermission.Message);
             }
 
-            var uploadFile = await _billOfLading.CreateDoc(request);
+            var uploadFile = await _mobile.CreateDoc(request);
 
             if (uploadFile.isSuccess)
             {
@@ -111,15 +111,17 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<IActionResult> GetListDocType()
+        public async Task<IActionResult> GetListDocType(int placeId)
         {
             var list = await _tMSContext.LoaiChungTu.ToListAsync();
+            var getPlace = await _tMSContext.DiaDiem.Where(x => x.MaDiaDiem == placeId).FirstOrDefaultAsync();
+            list = list.Where(x => x.MaLoaiDiaDiem == getPlace.NhomDiaDiem).ToList();
             return Ok(list);
         }
 
         [HttpPost]
         [Route("[action]")]
-        public async Task<IActionResult> CreateSFeeByTCommand(List<CreateSFeeByTCommandRequest> request, string maChuyen = null)
+        public async Task<IActionResult> CreateSFeeByTCommand(List<CreateSFeeByTCommandMobile> request, string maChuyen)
         {
             var checkPermission = await _common.CheckPermission("F0009");
             if (checkPermission.isSuccess == false)
@@ -128,6 +130,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             }
 
             var Create = await _mobile.CreateSFeeByTCommand(request, maChuyen);
+
             if (Create.isSuccess == true)
             {
                 return Ok(Create);
@@ -221,6 +224,20 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             }
 
             return Ok(listImage);
+        }
+
+        [HttpPost]
+        [Route("[action]")]
+        public async Task<IActionResult> LogGPS(string maChuyen, LogGPSByMobile request)
+        {
+            var log = await _mobile.LogGPS(request, maChuyen);
+
+            if (log.isSuccess == true)
+            {
+                return Ok(log);
+            }
+
+            return BadRequest(log);
         }
 
         [HttpPost]

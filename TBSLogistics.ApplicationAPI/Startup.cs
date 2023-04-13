@@ -11,6 +11,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using TBSLogistics.Data.TMS;
+using TBSLogistics.Model.Model.MailSettings;
 using TBSLogistics.Service.Panigation;
 using TBSLogistics.Service.Services.AccountManager;
 using TBSLogistics.Service.Services.AddressManage;
@@ -53,12 +54,14 @@ namespace TBSLogistics.ApplicationAPI
             {
                 option.AddPolicy(name: apiCorsPolicy, policy =>
                  {
-                     policy.WithOrigins("http://localhost:3000", "http://192.168.0.254:9999", "https://tms.tbslogistics.com.vn").AllowAnyMethod().AllowAnyHeader();
-                     //policy.WithOrigins("*").AllowAnyMethod().AllowAnyHeader();
+                     //policy.WithOrigins("http://localhost:3000", "http://192.168.0.254:9999", "https://tms.tbslogistics.com.vn").AllowAnyMethod().AllowAnyHeader();
+                     policy.WithOrigins("*").AllowAnyMethod().AllowAnyHeader();
                  });
             });
 
-            services.AddDbContext<TMSContext>(options => options.UseSqlServer(Configuration["TMS_Local"]));
+
+
+            services.AddDbContext<TMSContext>(options => options.UseSqlServer(Configuration["TMS_Cloud"]));
             services.AddHttpContextAccessor();
             services.AddSingleton<IPaginationService>(o =>
             {
@@ -67,6 +70,11 @@ namespace TBSLogistics.ApplicationAPI
                 var uri = string.Concat(request.Scheme, "://", request.Host.ToUriComponent());
                 return new PaginationService(uri);
             });
+
+            services.AddOptions();                                        
+            var mailsettings = Configuration.GetSection("MailSettings");  
+            services.Configure<MailSettings>(mailsettings);                
+
 
             services.AddControllersWithViews();
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>

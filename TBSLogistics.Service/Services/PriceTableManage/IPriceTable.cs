@@ -21,5 +21,6 @@ namespace TBSLogistics.Service.Services.PricelistManage
         Task<BoolActionResult> ApprovePriceTable(ApprovePriceTable request);
         Task<BoolActionResult> UpdatePriceTable(int id, GetPriceListById request);
         Task<GetPriceListById> GetPriceTableById(int id);
+        Task<List<GetPriceListRequest>> GetListPriceTableExportExcel(string cusType);
     }
 }

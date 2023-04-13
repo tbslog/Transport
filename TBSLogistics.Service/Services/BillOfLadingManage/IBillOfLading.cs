@@ -7,6 +7,7 @@ using TBSLogistics.Model.CommonModel;
 using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.BillOfLadingModel;
 using TBSLogistics.Model.Model.FileModel;
+using TBSLogistics.Model.Model.MailSettings;
 using TBSLogistics.Model.Model.UserModel;
 using TBSLogistics.Model.Wrappers;
 
@@ -40,6 +41,6 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
         Task<DocumentType> GetDocById(int docId);
         Task<BoolActionResult> UpdateDoc(int docId, DocumentType request);
         Task<BoolActionResult> CreateDoc(DocumentType request);
-
+        Task<BoolActionResult> SendMailToSuppliers(GetIdHandling handlingIds);
     }
 }

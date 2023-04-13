@@ -13,6 +13,7 @@ namespace TBSLogistics.Data.TMS
         public int MaLoaiChungTu { get; set; }
         public string TenLoaiChungTu { get; set; }
         public string MoTa { get; set; }
+        public string MaLoaiDiaDiem { get; set; }
 
         public virtual ICollection<TepChungTu> TepChungTu { get; set; }
     }

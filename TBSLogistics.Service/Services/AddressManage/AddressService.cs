@@ -84,14 +84,14 @@ namespace TBSLogistics.Service.Services.AddressManage
                 {
                     LoaiDiaDiem = request.DiaDiemCha == null ? "KhuVuc" : "Diem",
                     DiaDiemCha = request.DiaDiemCha,
-                    TenDiaDiem = request.TenDiaDiem,
+                    TenDiaDiem = request.TenDiaDiem.Trim(),
                     MaQuocGia = null,
                     MaTinh = request.MaTinh,
                     MaHuyen = request.MaHuyen,
                     MaPhuong = request.MaPhuong,
                     SoNha = request.SoNha,
                     DiaChiDayDu = "",
-                    MaGps = request.MaGps,
+                    MaGps = request.MaGps.Trim(),
                     NhomDiaDiem = request.PhanLoaiLoaiDiaDiem,
                     CreatedTime = DateTime.Now,
                     UpdatedTime = DateTime.Now,
@@ -148,7 +148,7 @@ namespace TBSLogistics.Service.Services.AddressManage
 
                 getAddress.LoaiDiaDiem = request.DiaDiemCha == null ? "KhuVuc" : "Diem";
                 getAddress.DiaDiemCha = request.DiaDiemCha;
-                getAddress.TenDiaDiem = request.TenDiaDiem;
+                getAddress.TenDiaDiem = request.TenDiaDiem.Trim();
                 getAddress.MaTinh = request.MaTinh;
                 getAddress.MaHuyen = request.MaHuyen;
                 getAddress.MaPhuong = request.MaPhuong;

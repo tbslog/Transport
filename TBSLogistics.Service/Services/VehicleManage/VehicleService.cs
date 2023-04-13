@@ -195,6 +195,7 @@ namespace TBSLogistics.Service.Services.VehicleManage
                                orderby vehicle.CreatedTime descending
                                select new { vehicle, status };
 
+
                 var getlistCus = await _context.UserHasCustomer.Where(x => x.UserId == tempData.UserID).Select(x => x.CustomerId).ToListAsync();
                 listData = listData.Where(x => getlistCus.Contains(x.vehicle.MaNhaCungCap));
 
@@ -214,7 +215,7 @@ namespace TBSLogistics.Service.Services.VehicleManage
                 {
                     TenNhaCungCap = _context.KhachHang.Where(y => y.MaKh == x.vehicle.MaNhaCungCap).Select(y => y.TenKh).FirstOrDefault(),
                     MaSoXe = x.vehicle.MaSoXe,
-                    MaLoaiPhuongTien = x.vehicle.MaLoaiPhuongTien,
+                    MaLoaiPhuongTien = x.vehicle == null ? null : x.vehicle.MaLoaiPhuongTien,
                     MaTaiXeMacDinh = x.vehicle.MaTaiXeMacDinh,
                     TrongTaiToiThieu = x.vehicle.TrongTaiToiThieu,
                     TrongTaiToiDa = x.vehicle.TrongTaiToiDa,

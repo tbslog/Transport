@@ -120,6 +120,7 @@ namespace TBSLogistics.Service.Services.DriverManage
                     return new BoolActionResult { isSuccess = false, Message = "Đơn vị vận tải không tồn tại" };
                 }
 
+                getDriver.MaNhaCungCap = request.MaNhaCungCap;
                 getDriver.Cccd = request.Cccd;
                 getDriver.HoVaTen = request.HoVaTen;
                 getDriver.SoDienThoai = request.SoDienThoai;
@@ -344,12 +345,16 @@ namespace TBSLogistics.Service.Services.DriverManage
                 ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã nhà cung cấp: " + MaNhaCungCap + " không tồn tại \r\n" + Environment.NewLine;
             }
 
-            var checkMapt = await _context.LoaiPhuongTien.Where(x => x.MaLoaiPhuongTien == MaLoaiPhuongTien).FirstOrDefaultAsync();
-
-            if (checkMapt == null)
+            if (!string.IsNullOrEmpty(MaLoaiPhuongTien))
             {
-                ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã Loại Phương Tiện: " + MaLoaiPhuongTien + " không tồn tại \r\n" + Environment.NewLine;
+                var checkMapt = await _context.LoaiPhuongTien.Where(x => x.MaLoaiPhuongTien == MaLoaiPhuongTien).FirstOrDefaultAsync();
+
+                if (checkMapt == null)
+                {
+                    ErrorValidate += "Lỗi Dòng >>> " + ErrorRow + " - Mã Loại Phương Tiện: " + MaLoaiPhuongTien + " không tồn tại \r\n" + Environment.NewLine;
+                }
             }
+
             return ErrorValidate;
         }
     }

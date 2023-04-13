@@ -12,6 +12,7 @@ using TBSLogistics.Model.Model.MobileModel;
 using TBSLogistics.Model.Model.SFeeByTcommandModel;
 using TBSLogistics.Model.Model.SubFeePriceModel;
 using TBSLogistics.Model.TempModel;
+using TBSLogistics.Service.Services.BillOfLadingManage;
 using TBSLogistics.Service.Services.Common;
 using TBSLogistics.Service.Services.SFeeByTcommandManage;
 
@@ -22,13 +23,15 @@ namespace TBSLogistics.Service.Services.MobileManager
         private readonly ICommon _common;
         private readonly TMSContext _context;
         private readonly ISFeeByTcommand _SFeeByTcommand;
+        private readonly IBillOfLading _billOfLading;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private TempData tempData;
 
-        public MobileServices(ICommon common, TMSContext context, ISFeeByTcommand sFeeByTcommand, IHttpContextAccessor httpContextAccessor)
+        public MobileServices(ICommon common, TMSContext context, IBillOfLading billOfLading, ISFeeByTcommand sFeeByTcommand, IHttpContextAccessor httpContextAccessor)
         {
             _common = common;
             _SFeeByTcommand = sFeeByTcommand;
+
             _context = context;
             _httpContextAccessor = httpContextAccessor;
             tempData = _common.DecodeToken(_httpContextAccessor.HttpContext.Request.Headers["Authorization"][0].ToString().Replace("Bearer ", ""));
@@ -190,6 +193,88 @@ namespace TBSLogistics.Service.Services.MobileManager
             }
         }
 
+        public async Task<BoolActionResult> CreateDoc(CreateOrUpdateDoc request)
+        {
+            var getHandlingById = await _context.DieuPhoi.Where(x => x.Id == request.handlingId).FirstOrDefaultAsync();
+            var getTransport = await _context.VanDon.Where(x => x.MaVanDon == getHandlingById.MaVanDon).FirstOrDefaultAsync();
+
+            if (getTransport.MaPtvc == "FCL" || getTransport.MaPtvc == "FTL")
+            {
+                if (!string.IsNullOrEmpty(request.contNo))
+                {
+                    getHandlingById.ContNo = request.contNo;
+                }
+
+                if (!string.IsNullOrEmpty(request.sealNp))
+                {
+                    getHandlingById.SealNp = request.sealNp;
+                }
+
+                _context.Update(getHandlingById);
+
+                var createDoc = await _billOfLading.CreateDoc(new Model.Model.FileModel.DocumentType
+                {
+                    MaDieuPhoi = getHandlingById.Id,
+                    LoaiChungTu = request.docType,
+                    fileImage = request.fileImage,
+                    GhiChu = request.note,
+                });
+
+                if (createDoc.isSuccess == false)
+                {
+                    return createDoc;
+                }
+            }
+
+            if (getTransport.MaPtvc == "LCL" || getTransport.MaPtvc == "LTL")
+            {
+                var listHandling = await _context.DieuPhoi.Where(x => x.MaChuyen == getHandlingById.MaChuyen && (x.MaChuyen.Contains("LCL") || x.MaChuyen.Contains("LTL"))).ToListAsync();
+
+                foreach (var item in listHandling)
+                {
+                    if (!string.IsNullOrEmpty(request.contNo))
+                    {
+                        listHandling.ForEach(x =>
+                        {
+                            x.ContNo = request.contNo;
+                        });
+                    }
+
+                    if (!string.IsNullOrEmpty(request.sealNp))
+                    {
+                        listHandling.ForEach(x =>
+                        {
+                            x.SealNp = request.sealNp;
+                        });
+                    }
+
+                    var createDoc = await _billOfLading.CreateDoc(new Model.Model.FileModel.DocumentType
+                    {
+                        MaDieuPhoi = item.Id,
+                        LoaiChungTu = request.docType,
+                        fileImage = request.fileImage,
+                        GhiChu = request.note,
+                    });
+
+                    if (createDoc.isSuccess == false)
+                    {
+                        return createDoc;
+                    }
+                }
+            }
+
+            var result = await _context.SaveChangesAsync();
+
+            if (result > 0)
+            {
+                return new BoolActionResult { isSuccess = true, Message = "Không có gì được thực thi" };
+            }
+            else
+            {
+                return new BoolActionResult { isSuccess = false, Message = "Không có gì được thực thi" };
+            }
+        }
+
         public async Task<BoolActionResult> WriteNoteHandling(int handlingId, string note)
         {
             try
@@ -222,7 +307,7 @@ namespace TBSLogistics.Service.Services.MobileManager
             }
         }
 
-        public async Task<List<ListSubFeeIncurred>> GetListSubfeeIncurred(string maChuyen)
+        public async Task<List<ListSubFeeIncurred>> GetListSubfeeIncurred(string maChuyen, int placeId)
         {
             var listHandling = await _context.DieuPhoi.Where(x => x.MaChuyen == maChuyen).ToListAsync();
 
@@ -233,7 +318,7 @@ namespace TBSLogistics.Service.Services.MobileManager
                                      on sfc.SfId equals sf.SubFeeId
                                      join status in _context.StatusText
                                      on sfc.ApproveStatus equals status.StatusId
-                                     where sfc.ApproveStatus == 14
+                                     where sfc.PlaceId == placeId
                                      && status.LangId == tempData.LangID
                                      orderby sfc.CreatedDate descending
                                      select new { dp, sfc, sf, status };
@@ -256,44 +341,130 @@ namespace TBSLogistics.Service.Services.MobileManager
             return listDataSubFeeIncurred;
         }
 
-        public async Task<BoolActionResult> CreateSFeeByTCommand(List<CreateSFeeByTCommandRequest> request, string maChuyen = null)
+        public async Task<BoolActionResult> CreateSFeeByTCommand(List<CreateSFeeByTCommandMobile> request, string maChuyen)
         {
             try
             {
-                if (!string.IsNullOrEmpty(maChuyen))
+                var listStatus = new List<int>(new int[] { 21, 31, 38 });
+                var getListHandling = await _context.DieuPhoi.Where(x => x.MaChuyen == maChuyen && !listStatus.Contains(x.TrangThai)).ToListAsync();
+
+                var listData = new List<CreateSFeeByTCommandRequest>();
+
+                foreach (var itemRequest in request)
                 {
-                    var listStatus = new List<int>(new int[] { 21, 31, 38 });
-
-                    var getListHandling = await _context.DieuPhoi.Where(x => x.MaChuyen == maChuyen && !listStatus.Contains(x.TrangThai)).ToListAsync();
-
-                    foreach (var item in getListHandling)
+                    var dataModel = new CreateSFeeByTCommandRequest()
                     {
-                        foreach (var itemRequest in request)
-                        {
-                            itemRequest.IdTcommand = item.Id;
-                            itemRequest.TransportId = item.MaVanDon;
-                            var add = await _SFeeByTcommand.CreateSFeeByTCommand(request);
-
-                            if (!add.isSuccess)
-                            {
-                                return add;
-                            }
-
-                        }
-                    }
-                    return new BoolActionResult { isSuccess = true, Message = "Thêm phụ phí thành công" };
+                        PlaceId = itemRequest.PlaceId,
+                        FinalPrice = itemRequest.FinalPrice,
+                        Note = itemRequest.Note,
+                        SfId = itemRequest.SfId,
+                    };
+                    listData.Add(dataModel);
                 }
 
-                var Create = await _SFeeByTcommand.CreateSFeeByTCommand(request);
+                foreach (var item in getListHandling)
+                {
+                    foreach (var itemModel in listData)
+                    {
+                        itemModel.IdTcommand = item.Id;
+                        itemModel.TransportId = item.MaVanDon;
+                    }
+                    var add = await _SFeeByTcommand.CreateSFeeByTCommand(listData);
 
-                return Create;
-
-
-
+                    if (!add.isSuccess)
+                    {
+                        return add;
+                    }
+                }
+                return new BoolActionResult { isSuccess = true, Message = "Thêm phụ phí thành công" };
             }
+
             catch (Exception ex)
             {
 
+                throw;
+            }
+        }
+
+        public async Task<BoolActionResult> LogGPS(LogGPSByMobile request, string maChuyen)
+        {
+            var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                var getListHandling = await _context.DieuPhoi.Where(x => x.MaChuyen == maChuyen).ToListAsync();
+
+                var placeEmpty = getListHandling.Where(x => x.DiemLayRong == request.placeId || x.DiemTraRong == request.placeId).ToList();
+
+                if (placeEmpty.Count() > 0)
+                {
+                    foreach (var item in placeEmpty)
+                    {
+                        var getTransport = await _context.VanDon.Where(x => x.MaVanDon == item.MaVanDon).FirstOrDefaultAsync();
+                        await _context.LogGps.AddAsync(new LogGps()
+                        {
+                            MaDieuPhoi = item.Id,
+                            DiemLayRong = getTransport.LoaiVanDon == "xuat" ? request.placeId : null,
+                            DiemTraRong = getTransport.LoaiVanDon == "nhap" ? request.placeId : null,
+                            MaGps = request.gps,
+                            TrangThaiDp = item.TrangThai
+                        });
+                    }
+                }
+
+                var getListTransport = await _context.VanDon.Where(x => getListHandling.Select(x => x.MaVanDon).Contains(x.MaVanDon)
+                && (x.DiemDau == request.placeId || x.DiemCuoi == request.placeId)).ToListAsync();
+
+                if (getListTransport.Count() > 0)
+                {
+                    foreach (var itemTrs in getListTransport.Where(x => x.DiemDau == request.placeId))
+                    {
+                        foreach (var item in getListHandling)
+                        {
+                            if (itemTrs.MaVanDon == item.MaVanDon)
+                            {
+                                await _context.LogGps.AddAsync(new LogGps()
+                                {
+                                    MaDieuPhoi = item.Id,
+                                    DiemDau = request.placeId,
+                                    DiemCuoi = null,
+                                    MaGps = request.gps,
+                                    TrangThaiDp = item.TrangThai
+                                });
+                            }
+                        }
+                    }
+
+                    foreach (var itemTrs in getListTransport.Where(x => x.DiemCuoi == request.placeId))
+                    {
+                        foreach (var item in getListHandling)
+                        {
+                            if (itemTrs.MaVanDon == item.MaVanDon)
+                            {
+                                await _context.LogGps.AddAsync(new LogGps()
+                                {
+                                    MaDieuPhoi = item.Id,
+                                    DiemDau = null,
+                                    DiemCuoi = request.placeId,
+                                    MaGps = request.gps,
+                                    TrangThaiDp = item.TrangThai
+                                });
+                            }
+                        }
+                    }
+                }
+
+                var result = await _context.SaveChangesAsync();
+                if (result > 0)
+                {
+                    return new BoolActionResult { isSuccess = true, Message = "Đã lưu vị trí thành công" };
+                }
+                else
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Lưu vị trí thất bại" };
+                }
+            }
+            catch (Exception ex)
+            {
                 throw;
             }
         }

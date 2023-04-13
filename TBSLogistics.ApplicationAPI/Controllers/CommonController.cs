@@ -113,6 +113,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
                            on user.Id equals acc.Id
                            where user.MaBoPhan == "BP0004"
                            select new { acc, user };
+
             var list = await listUser.Select(x => new ListUser()
             {
                 userName = x.acc.UserName,

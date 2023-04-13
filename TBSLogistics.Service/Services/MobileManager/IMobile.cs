@@ -15,8 +15,10 @@ namespace TBSLogistics.Service.Services.MobileManager
         Task<List<GetDataTransportMobile>> GetDataTransportForMobile(string maTaiXe, bool isCompleted);
         Task<BoolActionResult> UpdateContNo(string maChuyen, string ContNo);
         Task<BoolActionResult> WriteNoteHandling(int handlingId, string note);
-        Task<BoolActionResult> CreateSFeeByTCommand(List<CreateSFeeByTCommandRequest> request, string maChuyen = null);
+        Task<BoolActionResult> CreateSFeeByTCommand(List<CreateSFeeByTCommandMobile> request, string maChuyen = null);
         Task<BoolActionResult> ResetStatus(string maChuyen);
-        Task<List<ListSubFeeIncurred>> GetListSubfeeIncurred(string maChuyen);
+        Task<List<ListSubFeeIncurred>> GetListSubfeeIncurred(string maChuyen,int placeId);
+        Task<BoolActionResult> CreateDoc(CreateOrUpdateDoc request);
+        Task<BoolActionResult> LogGPS(LogGPSByMobile request, string maChuyen);
     }
 }

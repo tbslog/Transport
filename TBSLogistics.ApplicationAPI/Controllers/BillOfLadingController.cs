@@ -4,12 +4,14 @@ using Microsoft.AspNetCore.Mvc;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.BillOfLadingModel;
 using TBSLogistics.Model.Model.FileModel;
+using TBSLogistics.Model.Model.MailSettings;
 using TBSLogistics.Model.Model.UserModel;
 using TBSLogistics.Service.Helpers;
 using TBSLogistics.Service.Panigation;
@@ -508,6 +510,20 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             {
                 return BadRequest(update.Message);
             }
+        }
+
+        [HttpPost]
+        [Route("[action]")]
+        public async Task<IActionResult> SendMailToSupplier(GetIdHandling handlingIds)
+        {
+            var checkPermission = await _common.CheckPermission("F0014");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
+            var sendmail = await _billOfLading.SendMailToSuppliers(handlingIds);
+            return Ok(sendmail.Message);
         }
 
         //[HttpPost]

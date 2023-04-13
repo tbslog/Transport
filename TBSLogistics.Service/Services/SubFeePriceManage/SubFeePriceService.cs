@@ -556,7 +556,7 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
             }
         }
 
-        public async Task<List<ListSubFee>> GetListSubFeeSelect()
+        public async Task<List<ListSubFee>> GetListSubFeeSelect(int? placeId)
         {
             try
             {
@@ -566,6 +566,12 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
                               on sf.SfType equals sft.SfTypeId
                               orderby sf.SubFeeId
                               select new { sf, sft };
+
+                if (placeId != null)
+                {
+                    var getPlace = await _context.DiaDiem.Where(x => x.MaDiaDiem == placeId).FirstOrDefaultAsync();
+                    getList = getList.Where(x => x.sft.MaLoaiDiaDiem == getPlace.NhomDiaDiem.Trim());
+                }
 
                 var list = await getList.Select(x => new ListSubFee()
                 {

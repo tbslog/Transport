@@ -18,6 +18,7 @@ using TBSLogistics.Model.CommonModel;
 using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.BillOfLadingModel;
 using TBSLogistics.Model.Model.FileModel;
+using TBSLogistics.Model.Model.MailSettings;
 using TBSLogistics.Model.Model.PriceListModel;
 using TBSLogistics.Model.Model.UserModel;
 using TBSLogistics.Model.TempModel;
@@ -1236,7 +1237,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                         if (checkById.TrangThai == 19)
                         {
                             checkById.TrangThai = 27;
-                            var listStatusTransport = new List<int>(new int[] { 19, 21, 31, 38 });
+                            var listStatusTransport = new List<int>(new int[] { 27, 21, 31, 38 });
                             var getListHandlingOfTransport = await _context.DieuPhoi.Where(x => x.MaVanDon == checkById.MaVanDon).ToListAsync();
                             if (getListHandlingOfTransport.Count == getListHandlingOfTransport.Where(x => listStatusTransport.Contains(x.TrangThai)).Count())
                             {
@@ -2061,7 +2062,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                         item.dp.TrangThai = 27;
                                     }
 
-                                    var listStatusTransport = new List<int>(new int[] { 19, 21, 31, 38 });
+                                    var listStatusTransport = new List<int>(new int[] { 27, 21, 31, 38 });
                                     var getListHandlingOfTransport = await _context.DieuPhoi.Where(x => x.MaVanDon == item.dp.MaVanDon).ToListAsync();
                                     if (getListHandlingOfTransport.Count == getListHandlingOfTransport.Where(x => listStatusTransport.Contains(x.TrangThai)).Count())
                                     {
@@ -3768,7 +3769,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                         x.Updater = tempData.UserName;
                                         x.ThoiGianLayRongThucTe = DateTime.Now;
                                     });
-                                    listTransport.Where(x => x.TrangThai == 8).ToList().ForEach(x =>
+                                    listTransport.Where(x => x.TrangThai == 9).ToList().ForEach(x =>
                                     {
                                         x.TrangThai = 10;
                                         x.Updater = tempData.UserName;
@@ -3958,7 +3959,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                         x.Updater = tempData.UserName;
                                         x.ThoiGianLayHangThucTe = DateTime.Now;
                                     });
-                                    listTransport.Where(x => x.TrangThai == 8).ToList().ForEach(x =>
+                                    listTransport.Where(x => x.TrangThai == 9).ToList().ForEach(x =>
                                     {
                                         x.TrangThai = 10;
                                         x.UpdatedTime = DateTime.Now;
@@ -4029,6 +4030,19 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                     if (listData.Count == listData.Where(x => x.TrangThai == 36).Count())
                                     {
                                         listData.ForEach(x =>
+                                        {
+                                            x.UpdatedTime = DateTime.Now;
+                                            x.Updater = tempData.UserName;
+                                            x.TrangThai = 35;
+                                        });
+                                        mess = "Đã thay đổi trạng thái thành: Đang Trả Rỗng";
+                                    }
+                                    break;
+
+                                case 36:
+                                    if (listData.Count == listData.Where(x => x.TrangThai == 20 || x.TrangThai == 36).Count())
+                                    {
+                                        listData.Where(x => x.TrangThai == 36).ToList().ForEach(x =>
                                         {
                                             x.UpdatedTime = DateTime.Now;
                                             x.Updater = tempData.UserName;
@@ -4248,11 +4262,12 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                     if (countTransport.Count() == 1)
                     {
                         data.vd.TrangThai = 42;
+                        _context.Update(data.vd);
                     }
 
-                    string MaVanDonChung = data.vd.MaPtvc + DateTime.Now.ToString("yyyyMMddHHmmssffff");
+                    //string MaVanDonChung = data.vd.MaPtvc + DateTime.Now.ToString("yyyyMMddHHmmssffff");
                     data.dp.Updater = tempData.UserName;
-                    data.dp.MaChuyen = MaVanDonChung;
+                    data.dp.MaChuyen = "";
                     data.dp.MaSoXe = null;
                     data.dp.MaTaiXe = null;
                     data.dp.TrangThai = 19;
@@ -4277,9 +4292,14 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                     data.dp.ThoiGianHoanThanh = DateTime.Now;
                     data.dp.UpdatedTime = DateTime.Now;
                     data.dp.Updater = tempData.UserName;
-                }
+                    _context.DieuPhoi.Update(data.dp);
 
-                _context.DieuPhoi.Update(data.dp);
+                    if (countTransport.Count() == 1)
+                    {
+                        data.vd.TrangThai = 42;
+                        _context.Update(data.vd);
+                    }
+                }
 
                 var result = await _context.SaveChangesAsync();
                 if (result > 0)
@@ -4586,6 +4606,81 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 
         }
 
+        public async Task<BoolActionResult> SendMailToSuppliers(GetIdHandling handlingIds)
+        {
+            try
+            {
+                var getlistHandling = await _context.DieuPhoi.Where(x => handlingIds.Ids.Contains(x.Id) && x.DonViVanTai != null && x.TrangThai == 27).ToListAsync();
+
+                var listSup = new List<string>();
+                foreach (var item in getlistHandling)
+                {
+                    if (!listSup.Contains(item.DonViVanTai))
+                    {
+                        listSup.Add(item.DonViVanTai);
+                    }
+                }
+
+                foreach (var itemSup in listSup)
+                {
+                    var filterHandling = getlistHandling.Where(x => x.DonViVanTai == itemSup).ToList();
+                    var stringhtml = "<html><body>" +
+                        "<h3> <strong>Kính gửi Nhà cung cấp,<br> Vận tải TBS Logistics gửi Danh sách vận đơn cần vận chuyển ngày " + DateTime.Now.ToString("yyyy/MM/dd") + "</strong></h3>" +
+                        "<table style='border-collapse:collapse; text-align:center;'>";
+                    stringhtml += "<tr>" +
+                        "<th style='font-weight:bold;border-style:solid; border-width:thin; padding: 5px;background-color:#99ccff'>Mã Chuyến</th>" +
+                        "<th style='font-weight:bold;border-style:solid; border-width:thin; padding: 5px;background-color:#99ccff'>Booking No</th>" +
+                        "<th style='font-weight:bold;border-style:solid; border-width:thin; padding: 5px;background-color:#99ccff'>Phân Loại Vận Đơn</th>" +
+                        "<th style='font-weight:bold;border-style:solid; border-width:thin; padding: 5px;background-color:#99ccff'>Điểm Đóng Hàng</th>" +
+                        "<th style='font-weight:bold;border-style:solid; border-width:thin; padding: 5px;background-color:#99ccff'>Điểm Hạ Hàng</th>" +
+                        "<th style='font-weight:bold;border-style:solid; border-width:thin; padding: 5px;background-color:#99ccff'>Điểm Lấy rỗng</th>" +
+                        "<th style='font-weight:bold;border-style:solid; border-width:thin; padding: 5px;background-color:#99ccff'>Điểm Trả rỗng</th>" +
+                        "<th style='font-weight:bold;border-style:solid; border-width:thin; padding: 5px;background-color:#99ccff'>Loại Phương Tiện</th>" +
+                        "<th style='font-weight:bold;border-style:solid; border-width:thin; padding: 5px;background-color:#99ccff'>Phương Thức Vận Chuyển</th>" +
+                        "<th style='font-weight:bold;border-style:solid; border-width:thin; padding: 5px;background-color:#99ccff'>Mã Container</th>" +
+                        "<th style='font-weight:bold;border-style:solid; border-width:thin; padding: 5px;background-color:#99ccff'>Khối Lượng</th>" +
+                        "<th style='font-weight:bold;border-style:solid; border-width:thin; padding: 5px;background-color:#99ccff'>Số Kiện</th>" +
+                        "<th style='font-weight:bold;border-style:solid; border-width:thin; padding: 5px;background-color:#99ccff'>Thể tích</th>" +
+                        "<th style='font-weight:bold;border-style:solid; border-width:thin; padding: 5px;background-color:#99ccff'>Thời Gian Hạn Lệnh</th>" +
+                        "<th style='font-weight:bold;border-style:solid; border-width:thin; padding: 5px;background-color:#99ccff'>Thời Gian CUT OFF</th>" +
+                        "</tr>";
+
+                    foreach (var item in filterHandling)
+                    {
+                        var getTransport = await _context.VanDon.Where(x => x.MaVanDon == item.MaVanDon).FirstOrDefaultAsync();
+                        stringhtml += "<tr>" +
+                        "<td style='border-style:solid; border-width:thin; padding: 5px;'>" + item.MaChuyen + "</td>" +
+                        "<td style='border-style:solid; border-width:thin; padding: 5px;'>" + getTransport.MaVanDonKh + "</td>" +
+                        "<td style='border-style:solid; border-width:thin; padding: 5px;'>" + (getTransport.LoaiVanDon == "xuat" ? "Xuất" : "Nhập") + "</td>" +
+                        "<td style='border-style:solid; border-width:thin; padding: 5px;'>" + _context.DiaDiem.Where(y => y.MaDiaDiem == getTransport.DiemDau).Select(x => x.TenDiaDiem).FirstOrDefault() + "</td>" +
+                        "<td style='border-style:solid; border-width:thin; padding: 5px;'>" + _context.DiaDiem.Where(y => y.MaDiaDiem == getTransport.DiemCuoi).Select(x => x.TenDiaDiem).FirstOrDefault() + "</td>" +
+                        "<td style='border-style:solid; border-width:thin; padding: 5px;'>" + (item.DiemLayRong == null ? "" : _context.DiaDiem.Where(y => y.MaDiaDiem == item.DiemLayRong).Select(x => x.TenDiaDiem).FirstOrDefault()) + "</td>" +
+                        "<td style='border-style:solid; border-width:thin; padding: 5px;'>" + (item.DiemTraRong == null ? "" : _context.DiaDiem.Where(y => y.MaDiaDiem == item.DiemTraRong).Select(x => x.TenDiaDiem).FirstOrDefault()) + "</td>" +
+                        "<td style='border-style:solid; border-width:thin; padding: 5px;'>" + item.MaLoaiPhuongTien + "</td>" +
+                        "<td style='border-style:solid; border-width:thin; padding: 5px;'>" + getTransport.MaPtvc + "</td>" +
+                        "<td style='border-style:solid; border-width:thin; padding: 5px;'>" + item.ContNo + "</td>" +
+                        "<td style='border-style:solid; border-width:thin; padding: 5px;'>" + item.KhoiLuong + "</td>" +
+                        "<td style='border-style:solid; border-width:thin; padding: 5px;'>" + item.SoKien + "</td>" +
+                        "<td style='border-style:solid; border-width:thin; padding: 5px;'>" + item.TheTich + "</td>" +
+                        "<td style='border-style:solid; border-width:thin; padding: 5px;'>" + (getTransport.ThoiGianHanLenh == null ? "" : getTransport.ThoiGianHanLenh.Value.ToString("yyyy-MM-dd HH:mm:ss")) + "</td>" +
+                        "<td style='border-style:solid; border-width:thin; padding: 5px;'>" + (getTransport.ThoiGianHaCang == null ? "" : getTransport.ThoiGianHaCang.Value.ToString("yyyy-MM-dd HH:mm:ss")) + "</td>" +
+                        "</tr>";
+                    }
+
+                    stringhtml += "</table></body></html>";
+
+                    var getSup = await _context.KhachHang.Where(x => x.MaKh == itemSup).FirstOrDefaultAsync();
+                    await _common.SendEmailAsync(getSup.Email, "Danh Sách Chuyến Chờ Vận Chuyển", stringhtml);
+                }
+
+                return new BoolActionResult { isSuccess = true, Message = "Đã gửi mail cho đơn vị vận tải" };
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
         public async Task<BoolActionResult> CreateDoc(DocumentType request)
         {
             var transaction = await _context.Database.BeginTransactionAsync();
@@ -4624,7 +4719,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                 await _context.TepChungTu.AddAsync(new TepChungTu()
                 {
                     MaDieuPhoi = request.MaDieuPhoi,
-                    TenChungTu = request.TenChungTu,
+                    TenChungTu = "",
                     MaHinhAnh = long.Parse(uploadFile.DataReturn.Trim()),
                     LoaiChungTu = request.LoaiChungTu,
                     CreatedTime = DateTime.Now,
@@ -4695,7 +4790,6 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                 return new BoolActionResult { isSuccess = false, Message = "Tải file lên không thành công" };
             }
         }
-
 
         //public async Task<BoolActionResult> ChangeStatusDoc(int idHandling, int type)
         //{
