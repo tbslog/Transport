@@ -63,7 +63,6 @@ const CreateDocFile = (props) => {
       {
         MaDieuPhoi: selectIdClick.maDieuPhoi,
         fileImage: data.fileDoc[0],
-        TenChungTu: data.TenChungTu,
         LoaiChungTu: data.LoaiChungTu.value,
         GhiChu: data.GhiChu,
       },
@@ -98,23 +97,6 @@ const CreateDocFile = (props) => {
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="card-body">
               <div className="row">
-                <div className="col col-sm">
-                  <div className="form-group">
-                    <label htmlFor="TenChungTu">Tên Chứng Từ(*)</label>
-                    <input
-                      autoComplete="false"
-                      type="text"
-                      className="form-control"
-                      id="TenChungTu"
-                      {...register("TenChungTu", Validate.TenChungTu)}
-                    />
-                    {errors.TenChungTu && (
-                      <span className="text-danger">
-                        {errors.TenChungTu.message}
-                      </span>
-                    )}
-                  </div>
-                </div>
                 <div className="col col-sm">
                   <div className="form-group">
                     <label htmlFor="LoaiChungTu">Loại Chứng Từ(*)</label>

@@ -31,18 +31,16 @@ const HandlingPageNew = () => {
           {val.statusId && (
             <>
               <>
-                {(val.statusId === 27 || val.statusId === 19) && (
-                  <button
-                    onClick={() =>
-                      showConfirmDialog(val, setFuncName("CancelHandling"))
-                    }
-                    type="button"
-                    className="btn btn-title btn-sm btn-default mx-1"
-                    gloss="Hủy Chuyến"
-                  >
-                    <i className="fas fa-window-close"></i>
-                  </button>
-                )}
+                <button
+                  onClick={() =>
+                    showConfirmDialog(val, setFuncName("CancelHandling"))
+                  }
+                  type="button"
+                  className="btn btn-title btn-sm btn-default mx-1"
+                  gloss="Hủy Chuyến"
+                >
+                  <i className="fas fa-window-close"></i>
+                </button>
               </>
               <>{renderButtonByStatus(val)}</>
               <>
@@ -898,6 +896,27 @@ const HandlingPageNew = () => {
     setLoading(false);
   };
 
+  const sendMailToSupplier = async () => {
+    if (selectedRows && selectedRows.length > 0) {
+      setItemSelected(selectedRows);
+      let handlingIds = [];
+
+      selectedRows.forEach((element) => {
+        handlingIds.push(parseInt(element.maDieuPhoi));
+      });
+
+      let sendMail = await postData("BillOfLading/SendMailToSupplier", {
+        ids: handlingIds,
+      });
+
+      handleClearRows();
+    } else {
+      handleClearRows();
+      ToastError("Vui lòng chọn chuyến để gửi mail");
+      return;
+    }
+  };
+
   const customStyles = {
     control: (provided, state) => ({
       ...provided,
@@ -972,6 +991,14 @@ const HandlingPageNew = () => {
                         onClick={() => handleOnClickMarge()}
                       >
                         <i className="fas fa-layer-group"></i>
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-title btn-sm btn-default mx-1"
+                        gloss="Gửi Mail NCC "
+                        onClick={() => sendMailToSupplier()}
+                      >
+                        <i className="fas fa-mail-bulk"></i>
                       </button>
                     </div>
                     <div className="col col-sm">

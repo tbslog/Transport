@@ -74,13 +74,6 @@ const HandlingImage = (props) => {
       sortable: true,
     },
     {
-      name: "Tên Chứng Từ",
-      cell: (row) => <div className="row">{row.tenChungTu}</div>,
-      ignoreRowClick: true,
-      allowOverflow: true,
-    },
-
-    {
       name: "Loại Chứng Từ",
       selector: (row) => row.tenLoaiChungTu,
       sortable: true,

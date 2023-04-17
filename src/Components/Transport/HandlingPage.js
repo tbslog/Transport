@@ -627,62 +627,6 @@ const HandlingPage = (props) => {
     }
   };
 
-  const CloneHandling = async () => {
-    if (
-      ShowConfirm === true &&
-      selectIdClick &&
-      Object.keys(selectIdClick).length > 0
-    ) {
-      var update = await postData(
-        `BillOfLading/CloneHandling?id=${selectIdClick.maDieuPhoi}`
-      );
-
-      if (update === 1) {
-        fetchData(
-          transportId,
-          page,
-          keySearch,
-          fromDate,
-          toDate,
-          status,
-          listCusSelected,
-          listUserSelected
-        );
-        setShowConfirm(false);
-      } else {
-        setShowConfirm(false);
-      }
-    }
-  };
-
-  const RemoveHandling = async () => {
-    if (
-      ShowConfirm === true &&
-      selectIdClick &&
-      Object.keys(selectIdClick).length > 0
-    ) {
-      var update = await postData(
-        `BillOfLading/RemoveHandling?id=${selectIdClick.maDieuPhoi}`
-      );
-
-      if (update === 1) {
-        fetchData(
-          transportId,
-          page,
-          keySearch,
-          fromDate,
-          toDate,
-          status,
-          listCusSelected,
-          listUserSelected
-        );
-        setShowConfirm(false);
-      } else {
-        setShowConfirm(false);
-      }
-    }
-  };
-
   const handleEditButtonClick = (value) => {
     setSelectIdClick(value);
     showModalForm();

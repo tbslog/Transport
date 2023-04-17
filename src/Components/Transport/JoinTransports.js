@@ -824,7 +824,6 @@ const JoinTransports = (props) => {
                         <th>
                           <div>Số Kiện</div>
                         </th>
-
                         <th></th>
                       </tr>
                     </thead>
