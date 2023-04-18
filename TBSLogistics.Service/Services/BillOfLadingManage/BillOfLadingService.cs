@@ -171,10 +171,10 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 
                                 list.Add(new CreateTransport()
                                 {
-                                    LoaiVanDon = LoaiVanDon,
-                                    MaKH = MaKH,
-                                    AccountId = Account,
-                                    MaVanDonKH = MaVanDonKH,
+                                    LoaiVanDon = LoaiVanDon.ToLower(),
+                                    MaKH = MaKH.ToUpper(),
+                                    AccountId = Account.ToUpper(),
+                                    MaVanDonKH = MaVanDonKH.ToUpper(),
                                     HangTau = HangTau,
                                     TenTau = Tau,
                                     DiemCuoi = int.Parse(DiemCuoi),
@@ -183,7 +183,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                     TongTheTich = string.IsNullOrEmpty(TongTheTich) ? null : double.Parse(TongTheTich),
                                     TongSoKien = string.IsNullOrEmpty(TongSoKien) ? null : double.Parse(TongSoKien),
                                     GhiChu = GhiChu,
-                                    MaPTVC = MaPTVC,
+                                    MaPTVC = MaPTVC.ToUpper(),
                                     ThoiGianLayHang = string.IsNullOrEmpty(ThoiGianLayHang) ? null : DateTime.Parse(ThoiGianLayHang),
                                     ThoiGianTraHang = string.IsNullOrEmpty(ThoiGianTraHang) ? null : DateTime.Parse(ThoiGianTraHang),
                                     ThoiGianLayRong = string.IsNullOrEmpty(ThoiGianLayTraRong) ? null : DateTime.Parse(ThoiGianLayTraRong),
@@ -195,16 +195,16 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                        new arrHandling()
                                        {
                                         GhiChu = GhiChuDP,
-                                        ContNo = string.IsNullOrEmpty(Cont_No)? null:Cont_No,
-                                        DonViVanTai =  string.IsNullOrEmpty(DonViVanTai)? null:DonViVanTai,
-                                        PTVanChuyen = MaLoaiPhuongTien ,
-                                        LoaiHangHoa = MaLoaiHangHoa ,
+                                        ContNo = string.IsNullOrEmpty(Cont_No) ? null:Cont_No.ToUpper(),
+                                        DonViVanTai =  string.IsNullOrEmpty(DonViVanTai) ? null:DonViVanTai.ToUpper(),
+                                        PTVanChuyen = MaLoaiPhuongTien.ToUpper(),
+                                        LoaiHangHoa = MaLoaiHangHoa,
                                         DonViTinh = "CHUYEN",
                                         DiemLayRong = string.IsNullOrEmpty(DiemLayRong)?null: int.Parse(DiemLayRong),
                                         DiemTraRong = string.IsNullOrEmpty(DiemTraRong)?null: int.Parse(DiemTraRong),
-                                        KhoiLuong =  string.IsNullOrEmpty(KhoiLuong)?null: double.Parse(KhoiLuong) ,
-                                        TheTich =  string.IsNullOrEmpty(TheTich)?null: double.Parse(TheTich) ,
-                                        SoKien =  string.IsNullOrEmpty(SoKien)?null: double.Parse(SoKien) ,
+                                        KhoiLuong =  string.IsNullOrEmpty(KhoiLuong)?null: double.Parse(KhoiLuong),
+                                        TheTich =  string.IsNullOrEmpty(TheTich)?null: double.Parse(TheTich),
+                                        SoKien =  string.IsNullOrEmpty(SoKien)?null: double.Parse(SoKien),
                                        },
                                     }
                                 });
@@ -444,15 +444,15 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                         {
                             if (request.ThoiGianLayHang >= request.ThoiGianTraHang)
                             {
-                                return new BoolActionResult { isSuccess = false, Message = "Thời gian lấy hàng không được nhỏ hơn thời gian trả hàng" };
+                                return new BoolActionResult { isSuccess = false, Message = "Thời gian lấy hàng không được lớn hơn thời gian trả hàng" };
                             }
 
-                            if (request.ThoiGianTraRong >= request.ThoiGianLayHang)
+                            if (request.ThoiGianTraRong <= request.ThoiGianLayHang)
                             {
                                 return new BoolActionResult { isSuccess = false, Message = "Thời gian trả rỗng không được nhỏ hơn hoặc bằng Thời Gian Lấy Hàng" };
                             }
 
-                            if (request.ThoiGianTraRong >= request.ThoiGianTraHang)
+                            if (request.ThoiGianTraRong <= request.ThoiGianTraHang)
                             {
                                 return new BoolActionResult { isSuccess = false, Message = "Thời gian trả rỗng không được nhỏ hơn hoặc bằng Thời Gian Trả Hàng" };
                             }
@@ -469,14 +469,14 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                         {
                             if (request.ThoiGianLayHang >= request.ThoiGianTraHang)
                             {
-                                return new BoolActionResult { isSuccess = false, Message = "Thời gian lấy hàng không được nhỏ hơn thời gian trả hàng" };
+                                return new BoolActionResult { isSuccess = false, Message = "Thời gian lấy hàng không được lớn hơn thời gian trả hàng" };
                             }
 
-                            if (request.ThoiGianLayRong <= request.ThoiGianLayHang)
+                            if (request.ThoiGianLayRong >= request.ThoiGianLayHang)
                             {
                                 return new BoolActionResult { isSuccess = false, Message = "Thời gian lấy rỗng không được lớn hơn hoặc bằng Thời Gian Lấy Hàng" };
                             }
-                            if (request.ThoiGianLayRong <= request.ThoiGianTraHang)
+                            if (request.ThoiGianLayRong >= request.ThoiGianTraHang)
                             {
                                 return new BoolActionResult { isSuccess = false, Message = "Thời gian lấy rỗng không được lớn hơn hoặc bằng Thời Gian Trả Hàng" };
                             }
@@ -826,7 +826,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                 {
                     if (request.ThoiGianLayHang >= request.ThoiGianTraHang)
                     {
-                        return new BoolActionResult { isSuccess = false, Message = "Mốc thời gian không đúng" };
+                        return new BoolActionResult { isSuccess = false, Message = "Thời gian lấy hàng không được lớn hơn thời gian trả hàng" };
                     }
                 }
 
@@ -1070,7 +1070,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                         return new BoolActionResult { isSuccess = false, Message = " Xe vận chuyển không tồn tại \r\n" };
                     }
 
-                    if (!request.PTVanChuyen.Contains(checkVehicle.MaLoaiPhuongTien))
+                    if (!request.PTVanChuyen.Contains(checkVehicle.MaLoaiPhuongTien.Substring(0, 4)))
                     {
                         return new BoolActionResult { isSuccess = false, Message = "Loại xe không khớp với xe vận chuyển \r\n" };
                     }
@@ -1094,7 +1094,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                             return new BoolActionResult { isSuccess = false, Message = " Xe vận chuyển không tồn tại \r\n" };
                         }
 
-                        if (!request.PTVanChuyen.Contains(checkVehicle.MaLoaiPhuongTien))
+                        if (!request.PTVanChuyen.Contains(checkVehicle.MaLoaiPhuongTien.Substring(0, 4)))
                         {
                             return new BoolActionResult { isSuccess = false, Message = "Loại xe không khớp với xe vận chuyển \r\n" };
                         }
@@ -2579,12 +2579,12 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                 return new BoolActionResult { isSuccess = false, Message = "Thời gian lấy hàng không được nhỏ hơn thời gian trả hàng" };
                             }
 
-                            if (request.ThoiGianTraRong >= request.ThoiGianLayHang)
+                            if (request.ThoiGianTraRong <= request.ThoiGianLayHang)
                             {
                                 return new BoolActionResult { isSuccess = false, Message = "Thời gian trả rỗng không được nhỏ hơn hoặc bằng Thời Gian Lấy Hàng" };
                             }
 
-                            if (request.ThoiGianTraRong >= request.ThoiGianTraHang)
+                            if (request.ThoiGianTraRong <= request.ThoiGianTraHang)
                             {
                                 return new BoolActionResult { isSuccess = false, Message = "Thời gian trả rỗng không được nhỏ hơn hoặc bằng Thời Gian Trả Hàng" };
                             }
@@ -2604,11 +2604,11 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                 return new BoolActionResult { isSuccess = false, Message = "Thời gian lấy hàng không được nhỏ hơn thời gian trả hàng" };
                             }
 
-                            if (request.ThoiGianLayRong <= request.ThoiGianLayHang)
+                            if (request.ThoiGianLayRong >= request.ThoiGianLayHang)
                             {
                                 return new BoolActionResult { isSuccess = false, Message = "Thời gian lấy rỗng không được lớn hơn hoặc bằng Thời Gian Lấy Hàng" };
                             }
-                            if (request.ThoiGianLayRong <= request.ThoiGianTraHang)
+                            if (request.ThoiGianLayRong >= request.ThoiGianTraHang)
                             {
                                 return new BoolActionResult { isSuccess = false, Message = "Thời gian lấy rỗng không được lớn hơn hoặc bằng Thời Gian Trả Hàng" };
                             }
@@ -2702,6 +2702,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                     _context.SubFeeByContract.RemoveRange(_context.SubFeeByContract.Where(x => getListHandling.Select(y => y.Id).Contains(x.MaDieuPhoi)));
                     _context.SfeeByTcommand.RemoveRange(_context.SfeeByTcommand.Where(x => getListHandling.Select(y => y.Id).Contains(x.IdTcommand)));
                     _context.DieuPhoi.RemoveRange(getListHandling);
+                    _context.TaiXeTheoChang.RemoveRange(_context.TaiXeTheoChang.Where(x => getListHandling.Select(y => y.Id).Contains(x.MaDieuPhoi)));
 
                     foreach (var item in request.arrHandlings)
                     {
