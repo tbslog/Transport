@@ -299,7 +299,7 @@ const UpdateTransport = (props) => {
         );
       } else {
         setValue(
-          "TGLayTraRong",
+          "TGTraRong",
           !selectIdClick.thoiGianTraRong
             ? null
             : new Date(selectIdClick.thoiGianTraRong)
