@@ -9,7 +9,6 @@ namespace TBSLogistics.Model.Model.MobileModel
 {
     public class LogGPSByMobile
     {
-        public long handlingId { get; set; }
         public int placeId { get; set; }
         public string gps { get; set; }
     }

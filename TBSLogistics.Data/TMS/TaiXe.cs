@@ -8,6 +8,7 @@ namespace TBSLogistics.Data.TMS
         public TaiXe()
         {
             DieuPhoi = new HashSet<DieuPhoi>();
+            TaiXeTheoChang = new HashSet<TaiXeTheoChang>();
             XeVanChuyen = new HashSet<XeVanChuyen>();
         }
 
@@ -28,6 +29,7 @@ namespace TBSLogistics.Data.TMS
 
         public virtual KhachHang MaNhaCungCapNavigation { get; set; }
         public virtual ICollection<DieuPhoi> DieuPhoi { get; set; }
+        public virtual ICollection<TaiXeTheoChang> TaiXeTheoChang { get; set; }
         public virtual ICollection<XeVanChuyen> XeVanChuyen { get; set; }
     }
 }

@@ -74,7 +74,6 @@ namespace TBSLogistics.Data.TMS
         public virtual DbSet<VanDon> VanDon { get; set; }
         public virtual DbSet<XaPhuong> XaPhuong { get; set; }
         public virtual DbSet<XeVanChuyen> XeVanChuyen { get; set; }
-
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
@@ -1328,23 +1327,32 @@ namespace TBSLogistics.Data.TMS
 
             modelBuilder.Entity<TaiXeTheoChang>(entity =>
             {
-                entity.HasNoKey();
+                entity.Property(e => e.Id).HasColumnName("ID");
+
+                entity.Property(e => e.MaSoXe)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
 
                 entity.Property(e => e.MaTaiXe)
-                    .IsRequired()
                     .HasMaxLength(12)
                     .IsUnicode(false);
 
+                entity.Property(e => e.SoChan).HasDefaultValueSql("((1))");
+
                 entity.HasOne(d => d.MaDieuPhoiNavigation)
-                    .WithMany()
+                    .WithMany(p => p.TaiXeTheoChang)
                     .HasForeignKey(d => d.MaDieuPhoi)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK__TaiXeTheo__MaDie__3E2826D9");
 
+                entity.HasOne(d => d.MaSoXeNavigation)
+                    .WithMany(p => p.TaiXeTheoChang)
+                    .HasForeignKey(d => d.MaSoXe)
+                    .HasConstraintName("FK_TaiXeTheoChang_XeVanChuyen");
+
                 entity.HasOne(d => d.MaTaiXeNavigation)
-                    .WithMany()
+                    .WithMany(p => p.TaiXeTheoChang)
                     .HasForeignKey(d => d.MaTaiXe)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK__TaiXeTheo__MaTai__3F1C4B12");
             });
 

@@ -202,7 +202,11 @@ namespace TBSLogistics.Service.Services.MobileManager
             {
                 if (!string.IsNullOrEmpty(request.contNo))
                 {
-                    getHandlingById.ContNo = request.contNo;
+                    if (!Regex.IsMatch(request.contNo.ToUpper(), "([A-Z]{3})([UJZ])(\\d{6})(\\d)", RegexOptions.IgnoreCase))
+                    {
+                        return new BoolActionResult { isSuccess = false, Message = "Mã Contno không đúng" };
+                    }
+                    getHandlingById.ContNo = request.contNo.ToUpper();
                 }
 
                 if (!string.IsNullOrEmpty(request.sealNp))
@@ -234,9 +238,14 @@ namespace TBSLogistics.Service.Services.MobileManager
                 {
                     if (!string.IsNullOrEmpty(request.contNo))
                     {
+                        if (!Regex.IsMatch(request.contNo.ToUpper(), "([A-Z]{3})([UJZ])(\\d{6})(\\d)", RegexOptions.IgnoreCase))
+                        {
+                            return new BoolActionResult { isSuccess = false, Message = "Mã Contno không đúng" };
+                        }
+
                         listHandling.ForEach(x =>
                         {
-                            x.ContNo = request.contNo;
+                            x.ContNo = request.contNo.ToUpper();
                         });
                     }
 
@@ -376,6 +385,7 @@ namespace TBSLogistics.Service.Services.MobileManager
                         return add;
                     }
                 }
+
                 return new BoolActionResult { isSuccess = true, Message = "Thêm phụ phí thành công" };
             }
 
@@ -456,6 +466,7 @@ namespace TBSLogistics.Service.Services.MobileManager
                 var result = await _context.SaveChangesAsync();
                 if (result > 0)
                 {
+                    await transaction.CommitAsync();
                     return new BoolActionResult { isSuccess = true, Message = "Đã lưu vị trí thành công" };
                 }
                 else
