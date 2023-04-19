@@ -12,6 +12,8 @@ namespace TBSLogistics.Model.Model.FileModel
         public long MaChungTu { get; set; }
         public long MaDieuPhoi { get; set; }
         public long MaHinhAnh { get; set; }
+        public string contNo { get; set; }
+        public string sealNp { get; set; }
         public IFormFile fileImage { get; set; }
         public string codeBase64 { get; set; }
         public string TenChungTu { get; set; }

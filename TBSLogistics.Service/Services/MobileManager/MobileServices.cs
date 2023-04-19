@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TBSLogistics.Data.TMS;
 using TBSLogistics.Model.CommonModel;
+using TBSLogistics.Model.Model.FileModel;
 using TBSLogistics.Model.Model.MobileModel;
 using TBSLogistics.Model.Model.SFeeByTcommandModel;
 using TBSLogistics.Model.Model.SubFeePriceModel;
@@ -31,7 +32,7 @@ namespace TBSLogistics.Service.Services.MobileManager
         {
             _common = common;
             _SFeeByTcommand = sFeeByTcommand;
-
+            _billOfLading = billOfLading;
             _context = context;
             _httpContextAccessor = httpContextAccessor;
             tempData = _common.DecodeToken(_httpContextAccessor.HttpContext.Request.Headers["Authorization"][0].ToString().Replace("Bearer ", ""));
@@ -193,7 +194,7 @@ namespace TBSLogistics.Service.Services.MobileManager
             }
         }
 
-        public async Task<BoolActionResult> CreateDoc(CreateOrUpdateDoc request)
+        public async Task<BoolActionResult> CreateDoc(CreateDoc request)
         {
             var getHandlingById = await _context.DieuPhoi.Where(x => x.Id == request.handlingId).FirstOrDefaultAsync();
             var getTransport = await _context.VanDon.Where(x => x.MaVanDon == getHandlingById.MaVanDon).FirstOrDefaultAsync();
@@ -215,14 +216,9 @@ namespace TBSLogistics.Service.Services.MobileManager
                 }
 
                 _context.Update(getHandlingById);
+                await _context.SaveChangesAsync();
 
-                var createDoc = await _billOfLading.CreateDoc(new Model.Model.FileModel.DocumentType
-                {
-                    MaDieuPhoi = getHandlingById.Id,
-                    LoaiChungTu = request.docType,
-                    fileImage = request.fileImage,
-                    GhiChu = request.note,
-                });
+                var createDoc = await _billOfLading.CreateDoc(request);
 
                 if (createDoc.isSuccess == false)
                 {
@@ -257,13 +253,9 @@ namespace TBSLogistics.Service.Services.MobileManager
                         });
                     }
 
-                    var createDoc = await _billOfLading.CreateDoc(new Model.Model.FileModel.DocumentType
-                    {
-                        MaDieuPhoi = item.Id,
-                        LoaiChungTu = request.docType,
-                        fileImage = request.fileImage,
-                        GhiChu = request.note,
-                    });
+
+                    await _context.SaveChangesAsync();
+                    var createDoc = await _billOfLading.CreateDoc(request);
 
                     if (createDoc.isSuccess == false)
                     {
@@ -271,17 +263,7 @@ namespace TBSLogistics.Service.Services.MobileManager
                     }
                 }
             }
-
-            var result = await _context.SaveChangesAsync();
-
-            if (result > 0)
-            {
-                return new BoolActionResult { isSuccess = true, Message = "Không có gì được thực thi" };
-            }
-            else
-            {
-                return new BoolActionResult { isSuccess = false, Message = "Không có gì được thực thi" };
-            }
+            return new BoolActionResult { isSuccess = true, Message = "Thêm chứng từ thành công!" };
         }
 
         public async Task<BoolActionResult> WriteNoteHandling(int handlingId, string note)

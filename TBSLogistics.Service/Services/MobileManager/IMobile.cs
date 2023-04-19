@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TBSLogistics.Model.CommonModel;
+using TBSLogistics.Model.Model.FileModel;
 using TBSLogistics.Model.Model.MobileModel;
 using TBSLogistics.Model.Model.SFeeByTcommandModel;
 using TBSLogistics.Model.Model.SubFeePriceModel;
@@ -18,7 +19,7 @@ namespace TBSLogistics.Service.Services.MobileManager
         Task<BoolActionResult> CreateSFeeByTCommand(List<CreateSFeeByTCommandMobile> request, string maChuyen = null);
         Task<BoolActionResult> ResetStatus(string maChuyen);
         Task<List<ListSubFeeIncurred>> GetListSubfeeIncurred(string maChuyen,int placeId);
-        Task<BoolActionResult> CreateDoc(CreateOrUpdateDoc request);
+        Task<BoolActionResult> CreateDoc(CreateDoc request);
         Task<BoolActionResult> LogGPS(LogGPSByMobile request, string maChuyen);
     }
 }

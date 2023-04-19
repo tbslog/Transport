@@ -187,7 +187,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpPost]
         [Route("[action]")]
-        public async Task<IActionResult> ChangeStatusHandling(int id,string maChuyen)
+        public async Task<IActionResult> ChangeStatusHandling(int id, string maChuyen)
         {
             var checkPermission = await _common.CheckPermission("F0007");
             if (checkPermission.isSuccess == false)
@@ -352,7 +352,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpPost]
         [Route("[action]")]
-        public async Task<IActionResult> CreateDoc([FromForm] DocumentType request)
+        public async Task<IActionResult> CreateDoc([FromForm] CreateDoc request)
         {
             var checkPermission = await _common.CheckPermission("F0006");
             if (checkPermission.isSuccess == false)
@@ -371,14 +371,14 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpPost]
         [Route("[action]")]
-        public async Task<IActionResult> UpdateDoc(int docId, [FromForm] DocumentType request)
+        public async Task<IActionResult> UpdateDoc(int docId, [FromForm] UpdateDoc request)
         {
             var checkPermission = await _common.CheckPermission("F0006");
             if (checkPermission.isSuccess == false)
             {
                 return BadRequest(checkPermission.Message);
             }
-            var update = await _billOfLading.UpdateDoc(docId,request);
+            var update = await _billOfLading.UpdateDoc(docId, request);
             if (update.isSuccess == true)
             {
                 return Ok(update.Message);

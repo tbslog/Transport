@@ -89,7 +89,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpPost]
         [Route("[action]")]
-        public async Task<IActionResult> CreateDoc([FromForm] CreateOrUpdateDoc request)
+        public async Task<IActionResult> CreateDoc([FromForm] CreateDoc request)
         {
             var checkPermission = await _common.CheckPermission("F0006");
             if (checkPermission.isSuccess == false)

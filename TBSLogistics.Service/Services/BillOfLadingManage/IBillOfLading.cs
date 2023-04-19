@@ -39,8 +39,8 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
         Task<BoolActionResult> CancelHandling(int id, string note = null);
         Task<BoolActionResult> CancelHandlingByCustomer(int id, string note = null);
         Task<DocumentType> GetDocById(int docId);
-        Task<BoolActionResult> UpdateDoc(int docId, DocumentType request);
-        Task<BoolActionResult> CreateDoc(DocumentType request);
+        Task<BoolActionResult> UpdateDoc(int docId, UpdateDoc request);
+        Task<BoolActionResult> CreateDoc(CreateDoc request);
         Task<BoolActionResult> SendMailToSuppliers(GetIdHandling handlingIds);
     }
 }
