@@ -132,14 +132,10 @@ const CreateTransport = (props) => {
     },
   };
 
-  // const [listFirstPoint, setListFirstPoint] = useState([]);
-  // const [listSecondPoint, setListSecondPoint] = useState([]);
-  // const [listRoad, setListRoad] = useState([]);
-  // const [arrRoad, setArrRoad] = useState([]);
   const [listCus, setListCus] = useState([]);
   const [listVehicleType, setlistVehicleType] = useState([]);
+  const [listVehicleTypeTemp, setListVehicleTypeTemp] = useState([]);
   const [listGoodsType, setListGoodsType] = useState([]);
-  // const [listPoint, setListPoint] = useState([]);
   const [listShipping, setListShipping] = useState([]);
 
   const [listFPlace, setListFPlace] = useState([]);
@@ -180,6 +176,7 @@ const CreateTransport = (props) => {
       let getListVehicleType = await getData("Common/GetListVehicleType");
       let getListGoodsType = await getData("Common/GetListGoodsType");
       setlistVehicleType(getListVehicleType);
+      setListVehicleTypeTemp(getListVehicleType);
       setListGoodsType(getListGoodsType);
 
       const getListPlace = await getData(
@@ -350,6 +347,28 @@ const CreateTransport = (props) => {
     // setArrRoad([]);
   };
 
+  const handleOnChangeLH = (val) => {
+    setValue("LoaiHinh", val);
+
+    if (val && val === "FCL") {
+      let filter = listVehicleTypeTemp.filter((x) =>
+        x.maLoaiPhuongTien.includes("CONT")
+      );
+
+      if (filter && filter.length > 0) {
+        setlistVehicleType(filter);
+      }
+    } else if (val && val === "FTL") {
+      let filter = listVehicleTypeTemp.filter((x) =>
+        x.maLoaiPhuongTien.includes("TRUCK")
+      );
+
+      if (filter && filter.length > 0) {
+        setlistVehicleType(filter);
+      }
+    }
+  };
+
   return (
     <>
       <div className="card card-primary">
@@ -392,7 +411,7 @@ const CreateTransport = (props) => {
                     <select
                       className="form-control"
                       {...register("LoaiHinh", Validate.LoaiHinh)}
-                      value={watch("LoaiHinh")}
+                      onChange={(e) => handleOnChangeLH(e.target.value)}
                     >
                       <option value="">Chọn Loại Hình</option>
                       <option value="FCL">FCL</option>

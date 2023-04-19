@@ -132,6 +132,7 @@ const UpdateHandling = (props) => {
   const [IsLoading, SetIsLoading] = useState(false);
   const [listCustomer, setListCustomer] = useState([]);
   const [listVehicleType, setlistVehicleType] = useState([]);
+  const [listVehicleTypeTemp, setlistVehicleTypeTemp] = useState([]);
   const [listGoodsType, setListGoodsType] = useState([]);
   const [listDriver, setListDriver] = useState([]);
   const [listVehicle, setListVehicle] = useState([]);
@@ -223,6 +224,7 @@ const UpdateHandling = (props) => {
       }
 
       setlistVehicleType(getListVehicleType);
+      setlistVehicleTypeTemp(getListVehicleType);
       setListGoodsType(getListGoodsType);
       SetIsLoading(false);
     })();
@@ -502,6 +504,19 @@ const UpdateHandling = (props) => {
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="card-body">
               <div className="row">
+                <div className="col col-sm">
+                  <div className="form-group">
+                    <label htmlFor="LoaiHinh">Loại Hình</label>
+                    <input
+                      autoComplete="false"
+                      type="text"
+                      className="form-control"
+                      id="Account"
+                      value={data.maPTVC}
+                      readOnly
+                    />
+                  </div>
+                </div>
                 {accountType && accountType === "NV" && (
                   <>
                     <div className="col col-sm">

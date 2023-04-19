@@ -61,10 +61,10 @@ const CreateDocFile = (props) => {
     let create = await postData(
       "BillOfLading/CreateDoc",
       {
-        MaDieuPhoi: selectIdClick.maDieuPhoi,
+        handlingId: selectIdClick.maDieuPhoi,
         fileImage: data.fileDoc[0],
-        LoaiChungTu: data.LoaiChungTu.value,
-        GhiChu: data.GhiChu,
+        docType: data.LoaiChungTu.value,
+        note: data.GhiChu,
       },
       {
         headers: { "Content-Type": "multipart/form-data" },

@@ -385,7 +385,6 @@ const UpdateTransport = (props) => {
   };
 
   const handleOnchangeType = (val) => {
-    reset();
     setValue("LoaiHinh", val);
 
     if (val) {
@@ -744,7 +743,7 @@ const UpdateTransport = (props) => {
                 <div className="col col-sm">
                   <div className="form-group">
                     <label htmlFor="TongKhoiLuong">
-                      Tổng Khối Lượng (Đơn Vị Tấn)
+                      Tổng Khối Lượng (Đơn Vị KG)
                     </label>
                     <input
                       autoComplete="false"

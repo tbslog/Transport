@@ -83,10 +83,9 @@ const UpdateDocFile = (props) => {
     let create = await postData(
       `BillOfLading/UpdateDoc?docId=${dataClick.maChungTu}`,
       {
-        MaDieuPhoi: data.MaDieuPhoi,
         fileImage: !data.fileDoc ? null : data.fileDoc[0],
-        LoaiChungTu: data.LoaiChungTu.value,
-        GhiChu: data.GhiChu,
+        docType: data.LoaiChungTu.value,
+        note: data.GhiChu,
       },
       {
         headers: { "Content-Type": "multipart/form-data" },
