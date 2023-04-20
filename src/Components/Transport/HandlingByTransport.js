@@ -46,7 +46,20 @@ const HandlingByTransport = (props) => {
               >
                 <i className="fas fa-window-close"></i>
               </button>
-
+              {val.statusId && val.statusId === 46 && (
+                <>
+                  <button
+                    onClick={() =>
+                      showConfirmDialog(val, setFuncName("RestartHandling"))
+                    }
+                    type="button"
+                    className="btn btn-title btn-sm btn-default mx-1"
+                    gloss="Điều Phối Lại"
+                  >
+                    <i className="fas fa-redo"></i>
+                  </button>
+                </>
+              )}
               <>
                 <button
                   onClick={() =>
@@ -212,6 +225,8 @@ const HandlingByTransport = (props) => {
       switch (funcName) {
         case "CancelHandling":
           return setCancelHandling();
+        case "RestartHandling":
+          return restartHandling();
       }
     }
   };
@@ -242,6 +257,28 @@ const HandlingByTransport = (props) => {
     setData(dataCus.data);
     setTotalRows(dataCus.totalRecords);
     setLoading(false);
+  };
+
+  const restartHandling = async () => {
+    if (
+      ShowConfirm === true &&
+      selectIdClick &&
+      Object.keys(selectIdClick).length > 0
+    ) {
+      var update = await postData(
+        `BillOfLading/RestartHandling?handlingId=${
+          !selectIdClick.maDieuPhoi ? null : selectIdClick.maDieuPhoi
+        }&note=`
+      );
+
+      if (update === 1) {
+        fetchData(transportId, page, keySearch, status);
+        refeshData();
+        setShowConfirm(false);
+      } else {
+        setShowConfirm(false);
+      }
+    }
   };
 
   const setCancelHandling = async () => {
