@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
+using OfficeOpenXml.FormulaParsing.LexicalAnalysis;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -1029,7 +1030,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                     return new BoolActionResult { isSuccess = false, Message = "Vui lòng duyệt chuyến trước khi điều phối" };
                 }
 
-                var listStatus = new List<int>(new int[] { 38, 31, 30, 20, 21 });
+                var listStatus = new List<int>(new int[] { 38, 31, 30, 20, 21, 46, 47 });
 
                 if (listStatus.Contains(checkById.TrangThai))
                 {
@@ -1720,6 +1721,8 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                     return new BoolActionResult { isSuccess = false, Message = "Đơn vị vận tải không tồn tại" };
                 }
 
+                var listStatusHandling = new List<int>(new int[] { 38, 31, 30, 20, 21, 46, 47 });
+
                 if (tempData.AccType == "NCC")
                 {
                     var checkDriver = await _context.TaiXe.Where(x => x.MaTaiXe == request.TaiXe).FirstOrDefaultAsync();
@@ -1748,7 +1751,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 
                     var dataHandling = await data.ToListAsync();
 
-                    var listStatusHandling = new List<int>(new int[] { 38, 31, 30, 20, 21 });
+                  
 
                     foreach (var item in data.Where(x => request.arrTransports.Select(y => y.MaVanDon).Contains(x.dp.MaVanDon)).ToList())
                     {
@@ -1937,7 +1940,6 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 
                     #region Cập nhật thông tin các chuyến đã tồn tại trong Db
 
-                    var listStatusHandling = new List<int>(new int[] { 38, 31, 30, 20, 21 });
 
                     foreach (var item in data.Where(x => request.arrTransports.Select(y => y.MaVanDon).Contains(x.dp.MaVanDon)).ToList())
                     {
@@ -3076,7 +3078,6 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                where (status.LangId == tempData.LangID || status.LangId == null)
                                && vd.MaVanDon == transportId
                                && ttvd.LangId == tempData.LangID
-                               && vddp.TrangThai != 46
                                select new { vd, vddp, status, ttvd };
 
                 var que = listData.ToQueryString();
@@ -3151,7 +3152,6 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                on vd.TrangThai equals ttvd.StatusId
                                where (ttdp.LangId == tempData.LangID || ttdp.LangId == null)
                                && ttvd.LangId == tempData.LangID
-                               && vddp.TrangThai != 46
                                select new { vd, vddp, ttdp, ttvd };
 
                 var filterByCus = await _context.UserHasCustomer.Where(x => x.UserId == tempData.UserID).ToListAsync();
@@ -3424,7 +3424,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                         }
 
                                         //Trường hợp chuyến đã hoàn thành nhưng các chuyến còn lại bị hủy thì đóng vận đơn
-                                        var listStatus = new List<int>(new int[] { 21, 31, 38 });
+                                        var listStatus = new List<int>(new int[] { 21, 31, 38, 47 });
                                         if (getListHandling.Where(x => listStatus.Contains(x.TrangThai)).Count() > 0)
                                         {
                                             if (getListHandling.Where(X => X.TrangThai != 20).Count() == getListHandling.Where(x => listStatus.Contains(x.TrangThai)).Count())
@@ -3477,14 +3477,14 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                     mess = "Đã thay đổi trạng thái thành: Đang Vận Chuyển";
                                     break;
 
-                                case 18:
-                                    data.dp.TrangThai = 36;
-                                    data.dp.UpdatedTime = DateTime.Now;
-                                    data.dp.Updater = tempData.UserName;
-                                    mess = "Đã thay đổi trạng thái thành: Đã Giao Hàng";
-                                    break;
+                                //case 18:
+                                //    data.dp.TrangThai = 36;
+                                //    data.dp.UpdatedTime = DateTime.Now;
+                                //    data.dp.Updater = tempData.UserName;
+                                //    mess = "Đã thay đổi trạng thái thành: Đã Giao Hàng";
+                                //    break;
 
-                                case 36:
+                                case 18:
                                     data.dp.TrangThai = 35;
                                     data.dp.UpdatedTime = DateTime.Now;
                                     data.dp.Updater = tempData.UserName;
@@ -3516,7 +3516,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                         }
 
                                         //Trường hợp chuyến đã hoàn thành nhưng các chuyến còn lại bị hủy thì đóng vận đơn
-                                        var listStatus = new List<int>(new int[] { 21, 31, 38 });
+                                        var listStatus = new List<int>(new int[] { 21, 31, 38, 47 });
                                         if (getListHandling.Where(x => listStatus.Contains(x.TrangThai)).Count() > 0)
                                         {
                                             if (getListHandling.Where(X => X.TrangThai != 20).Count() == getListHandling.Where(x => listStatus.Contains(x.TrangThai)).Count())
@@ -3599,7 +3599,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                     }
 
                                     //Trường hợp chuyến đã hoàn thành nhưng các chuyến còn lại bị hủy thì đóng vận đơn
-                                    var listStatus = new List<int>(new int[] { 21, 31, 38 });
+                                    var listStatus = new List<int>(new int[] { 21, 31, 38, 47 });
                                     if (getListHandling.Where(x => listStatus.Contains(x.TrangThai)).Count() > 0)
                                     {
                                         if (getListHandling.Where(X => X.TrangThai != 20).Count() == getListHandling.Where(x => listStatus.Contains(x.TrangThai)).Count())
@@ -3631,7 +3631,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                 }
                 else
                 {
-                    var listData = getListChuyen.Where(x => x.TrangThai != 21).ToList();
+                    var listData = getListChuyen.Where(x => x.TrangThai != 21 && x.TrangThai != 46 && x.TrangThai != 47).ToList();
                     var listTransport = await _context.VanDon.Where(x => listData.Select(x => x.MaVanDon).Contains(x.MaVanDon)).ToListAsync();
 
                     if (listData.Select(x => x.MaLoaiPhuongTien).FirstOrDefault().Contains("CONT"))
@@ -3807,7 +3807,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                         }
 
                                         //Trường hợp chuyến đã hoàn thành nhưng các chuyến còn lại bị hủy thì đóng vận đơn
-                                        var listStatus = new List<int>(new int[] { 21, 31, 38 });
+                                        var listStatus = new List<int>(new int[] { 21, 31, 38, 47 });
                                         if (getListHandling.Where(x => listStatus.Contains(x.TrangThai)).Count() > 0)
                                         {
                                             if (getListHandling.Where(X => X.TrangThai != 20).Count() == getListHandling.Where(x => listStatus.Contains(x.TrangThai)).Count())
@@ -3915,7 +3915,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                     data.dp.ThoiGianTraHangThucTe = DateTime.Now;
                                     mess = "Đã thay đổi trạng thái thành: Đã Giao Hàng";
 
-                                    if (listData.Count == listData.Where(x => x.TrangThai == 36).Count())
+                                    if (listData.Count() == listData.Where(x => x.TrangThai == 36).Count())
                                     {
                                         listData.ForEach(x =>
                                         {
@@ -3941,7 +3941,6 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                     break;
 
                                 case 35:
-
                                     if (data.vd.MaPtvc == "LCL")
                                     {
                                         listData.Where(x => listTransport.Where(y => y.MaPtvc == "LCL").Select(y => y.MaVanDon).Contains(x.MaVanDon)).ToList().ForEach(x =>
@@ -3981,7 +3980,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                         }
 
                                         //Trường hợp chuyến đã hoàn thành nhưng các chuyến còn lại bị hủy thì đóng vận đơn
-                                        var listStatus = new List<int>(new int[] { 21, 31, 38 });
+                                        var listStatus = new List<int>(new int[] { 21, 31, 38, 47 });
                                         if (getListHandling.Where(x => listStatus.Contains(x.TrangThai)).Count() > 0)
                                         {
                                             if (getListHandling.Where(X => X.TrangThai != 20).Count() == getListHandling.Where(x => listStatus.Contains(x.TrangThai)).Count())
@@ -4050,7 +4049,9 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                 dataById.UpdatedTime = DateTime.Now;
 
                                 mess = "Đã thay đổi trạng thái thành: Đã Giao Hàng";
+                                break;
 
+                            case 36:
                                 if (listData.Count() == listData.Where(x => x.TrangThai == 36).Count())
                                 {
                                     listData.ForEach(x =>
@@ -4065,15 +4066,19 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                     var saveData = await _context.SaveChangesAsync();
                                     if (saveData > 0)
                                     {
+                                        var changeStatusVehicle = await HandleVehicleStatus(20, dataById.MaSoXe);
                                         var getTransport = await _context.VanDon.Where(x => x.MaVanDon == dataById.MaVanDon).FirstOrDefaultAsync();
-                                        var getListHandling = await _context.DieuPhoi.Where(x => x.MaVanDon == getTransport.MaVanDon).ToListAsync();
-
+                                        var getListHandling = await _context.DieuPhoi.Where(x => x.MaChuyen == maChuyen).ToListAsync();
                                         //Trường hợp toàn bộ chuyến đã hoàn thành thì hoàn thành vận đơn
-                                        if (getListHandling.Count() == getListHandling.Where(x => x.TrangThai == 20).Count())
+                                        foreach (var item in getListHandling)
                                         {
-                                            getTransport.TrangThai = 22;
-                                            getTransport.UpdatedTime = DateTime.Now;
-                                            getTransport.Updater = tempData.UserName;
+                                            if (getListHandling.Where(x => x.MaVanDon == item.MaVanDon).Count() == getListHandling.Where(x => x.MaVanDon == item.MaVanDon && x.TrangThai == 20).Count())
+                                            {
+                                                var transport = await _context.VanDon.Where(x => x.MaVanDon == item.MaVanDon).FirstOrDefaultAsync();
+                                                transport.TrangThai = 22;
+                                                transport.UpdatedTime = DateTime.Now;
+                                                transport.Updater = tempData.UserName;
+                                            }
                                         }
 
                                         //Trường hợp chuyến đã hoàn thành nhưng các chuyến còn lại bị hủy thì đóng vận đơn
@@ -4099,7 +4104,6 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                     }
                                 }
                                 break;
-
                             default:
                                 return new BoolActionResult { isSuccess = false, Message = "Không có gì được thực thi" };
                                 break;
@@ -4128,6 +4132,60 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
             }
         }
 
+        public async Task<BoolActionResult> RestartHandling(long handlingId)
+        {
+            try
+            {
+                var checkHandling = await _context.DieuPhoi.Where(x => x.Id == handlingId && x.TrangThai == 46).FirstOrDefaultAsync();
+
+                if (checkHandling == null)
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Chuyến này không thể điều phối lại" };
+                }
+
+                await _context.DieuPhoi.AddAsync(new DieuPhoi
+                {
+                    MaChuyen = "",
+                    MaVanDon = checkHandling.MaVanDon,
+                    MaLoaiHangHoa = checkHandling.MaLoaiHangHoa,
+                    MaLoaiPhuongTien = checkHandling.MaLoaiPhuongTien,
+                    MaDvt = checkHandling.MaDvt,
+                    ContNo = checkHandling.ContNo,
+                    SealNp = checkHandling.SealNp,
+                    SealHq = checkHandling.SealHq,
+                    SoKien = checkHandling.SoKien,
+                    KhoiLuong = checkHandling.KhoiLuong,
+                    TheTich = checkHandling.TheTich,
+                    DiemTraRong = checkHandling.DiemTraRong,
+                    TrangThai = 19,
+                    CreatedTime = DateTime.Now,
+                    Creator = tempData.UserName,
+                    DiemLayRong = checkHandling.DiemLayRong,
+                });
+
+                checkHandling.TrangThai = 47;
+
+                _context.DieuPhoi.Update(checkHandling);
+
+                var result = await _context.SaveChangesAsync();
+
+                if (result > 0)
+                {
+                    return new BoolActionResult { isSuccess = true, Message = "Điều phối chuyến thành công" };
+                }
+                else
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Điều phối chuyến thất bại" };
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
+
         public async Task<BoolActionResult> CancelHandling(int id, string note = null)
         {
             var transaction = await _context.Database.BeginTransactionAsync();
@@ -4146,7 +4204,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                     return new BoolActionResult { isSuccess = false, Message = "Lệnh điều phối không tồn tại" };
                 }
 
-                var listStatusCancel = new List<int>(new int[] { 17, 27, 37, 40 });
+                var listStatusCancel = new List<int>(new int[] { 17, 27, 37, 40, 18 });
 
                 var countTransport = await _context.VanDon.Where(x => x.MaVanDon == data.vd.MaVanDon).ToListAsync();
 
@@ -4158,81 +4216,28 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                         _context.Update(data.vd);
                     }
 
-                    data.dp.Updater = tempData.UserName;
-                    data.dp.MaChuyen = "";
-                    data.dp.MaSoXe = null;
-                    data.dp.MaTaiXe = null;
-                    data.dp.TrangThai = 19;
-                    data.dp.BangGiaKh = null;
-                    data.dp.BangGiaNcc = null;
-                    data.dp.DonGiaKh = null;
-                    data.dp.DonGiaNcc = null;
-                    data.dp.DonViVanTai = null;
-                    data.dp.MaRomooc = null;
-                    data.dp.ThuTuGiaoHang = null;
-                    data.dp.TongVanDonGhep = null;
+                    data.dp.TrangThai = 46;
                     if (!string.IsNullOrEmpty(note))
                     {
                         data.dp.GhiChu = data.dp.GhiChu + ",\r\n " + note;
                     }
                 }
 
-                var listStatusComplete = new List<int>(new int[] { 18 });
-                if (listStatusComplete.Contains(data.dp.TrangThai))
-                {
-                    data.dp.TrangThai = 20;
-                    data.dp.ThoiGianHoanThanh = DateTime.Now;
-                    data.dp.UpdatedTime = DateTime.Now;
-                    data.dp.Updater = tempData.UserName;
-                    _context.DieuPhoi.Update(data.dp);
+                //var listStatusComplete = new List<int>(new int[] { 18 });
+                //if (listStatusComplete.Contains(data.dp.TrangThai))
+                //{
+                //    data.dp.TrangThai = 20;
+                //    data.dp.ThoiGianHoanThanh = DateTime.Now;
+                //    data.dp.UpdatedTime = DateTime.Now;
+                //    data.dp.Updater = tempData.UserName;
+                //    _context.DieuPhoi.Update(data.dp);
 
-                    if (countTransport.Count() == 1)
-                    {
-                        data.vd.TrangThai = 42;
-                        _context.Update(data.vd);
-                    }
-                }
-
-                await _context.DieuPhoi.AddAsync(new DieuPhoi()
-                {
-                    MaVanDon = data.dp.MaVanDon,
-                    MaChuyen = data.dp.MaChuyen,
-                    MaSoXe = data.dp.MaSoXe,
-                    MaTaiXe = data.dp.MaTaiXe,
-                    MaLoaiHangHoa = data.dp.MaLoaiHangHoa,
-                    MaLoaiPhuongTien = data.dp.MaLoaiPhuongTien,
-                    MaDvt = data.dp.MaDvt,
-                    DonViVanTai = data.dp.DonViVanTai,
-                    BangGiaKh = data.dp.BangGiaKh,
-                    BangGiaNcc = data.dp.BangGiaNcc,
-                    DonGiaKh = data.dp.DonGiaKh,
-                    DonGiaNcc = data.dp.DonGiaNcc,
-                    MaRomooc = data.dp.MaRomooc,
-                    ContNo = data.dp.ContNo,
-                    SealNp = data.dp.SealNp,
-                    SealHq = data.dp.SealHq,
-                    SoKien = data.dp.SoKien,
-                    KhoiLuong = data.dp.KhoiLuong,
-                    TheTich = data.dp.TheTich,
-                    TrangThaiChungTu = data.dp.TrangThaiChungTu,
-                    GhiChu = note,
-                    DiemTraRong = data.dp.DiemTraRong,
-                    ThoiGianLayHangThucTe = data.dp.ThoiGianLayHangThucTe,
-                    ThoiGianTraHangThucTe = data.dp.ThoiGianTraHangThucTe,
-                    ThoiGianTraRongThucTe = data.dp.ThoiGianTraRongThucTe,
-                    ThoiGianCoMatThucTe = data.dp.ThoiGianCoMatThucTe,
-                    ThoiGianHoanThanh = data.dp.ThoiGianHoanThanh,
-                    TrangThai = 46,
-                    CreatedTime = data.dp.CreatedTime,
-                    UpdatedTime = data.dp.UpdatedTime,
-                    DeletedTime = data.dp.DeletedTime,
-                    Updater = tempData.UserName,
-                    Creator = data.dp.Creator,
-                    ThoiGianLayRongThucTe = data.dp.ThoiGianTraRongThucTe,
-                    DiemLayRong = data.dp.DiemLayRong,
-                    TongVanDonGhep = data.dp.TongVanDonGhep,
-                    ThuTuGiaoHang = data.dp.ThuTuGiaoHang,
-                });
+                //    if (countTransport.Count() == 1)
+                //    {
+                //        data.vd.TrangThai = 42;
+                //        _context.Update(data.vd);
+                //    }
+                //}
 
                 var result = await _context.SaveChangesAsync();
                 if (result > 0)

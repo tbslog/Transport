@@ -352,6 +352,22 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpPost]
         [Route("[action]")]
+        public async Task<IActionResult> RestartHandling(long handlingId)
+        {
+            var re = await _billOfLading.RestartHandling(handlingId);
+
+            if (re.isSuccess == true)
+            {
+                return Ok(re.Message);
+            }
+            else
+            {
+                return BadRequest(re.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("[action]")]
         public async Task<IActionResult> CreateDoc([FromForm] CreateDoc request)
         {
             var checkPermission = await _common.CheckPermission("F0006");

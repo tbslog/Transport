@@ -491,6 +491,11 @@ namespace TBSLogistics.Service.Services.UserManage
                     return new BoolActionResult { isSuccess = false, Message = "Tài khoản không tồn tại!" };
                 }
 
+                if (username != tempData.UserName)
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Tài khoản không tồn tại!" };
+                }
+
                 if (getAccount.PassWord == model.OldPassword.ToUpper())
                 {
                     if (model.NewPassword == model.ReNewPassword)

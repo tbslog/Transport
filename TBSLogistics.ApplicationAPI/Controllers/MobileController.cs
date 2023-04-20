@@ -10,10 +10,12 @@ using TBSLogistics.Model.Model.BillOfLadingModel;
 using TBSLogistics.Model.Model.FileModel;
 using TBSLogistics.Model.Model.MobileModel;
 using TBSLogistics.Model.Model.SFeeByTcommandModel;
+using TBSLogistics.Model.Model.UserModel;
 using TBSLogistics.Service.Services.BillOfLadingManage;
 using TBSLogistics.Service.Services.Common;
 using TBSLogistics.Service.Services.MobileManager;
 using TBSLogistics.Service.Services.SubFeePriceManage;
+using TBSLogistics.Service.Services.UserManage;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -28,14 +30,16 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         private readonly IMobile _mobile;
         private readonly TMSContext _tMSContext;
         private readonly ICommon _common;
+        private readonly IUser _user;
 
-        public MobileController(IBillOfLading billOfLading, ICommon common, IMobile mobile, ISubFeePrice subFeePrice, TMSContext tMSContext)
+        public MobileController(IBillOfLading billOfLading, ICommon common, IMobile mobile, ISubFeePrice subFeePrice, TMSContext tMSContext, IUser user)
         {
             _billOfLading = billOfLading;
             _mobile = mobile;
             _common = common;
             _subFeePrice = subFeePrice;
             _tMSContext = tMSContext;
+            _user = user;
         }
 
         [HttpPost]
@@ -254,6 +258,20 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             {
                 return BadRequest(cancel);
             }
+        }
+
+        [HttpPost]
+        [Route("[action]")]
+        public async Task<IActionResult> ChangePassword(string username, ChangePasswordModel model)
+        {
+            var changePass = await _user.ChangePassword(username, model);
+
+            if (changePass.isSuccess)
+            {
+                return Ok(changePass);
+            }
+
+            return BadRequest(changePass);
         }
     }
 }

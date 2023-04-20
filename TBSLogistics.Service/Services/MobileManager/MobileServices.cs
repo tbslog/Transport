@@ -83,7 +83,7 @@ namespace TBSLogistics.Service.Services.MobileManager
                 }
                 else
                 {
-                    dataHandling = dataHandling.Where(x => x.dp.TrangThai == 20);
+                    dataHandling = dataHandling.Where(x => x.dp.TrangThai == 20 || x.dp.TrangThai == 46);
                 }
 
                 var listHandling = await dataHandling.ToListAsync();
@@ -253,8 +253,8 @@ namespace TBSLogistics.Service.Services.MobileManager
                         });
                     }
 
-
                     await _context.SaveChangesAsync();
+                    request.handlingId = item.Id;
                     var createDoc = await _billOfLading.CreateDoc(request);
 
                     if (createDoc.isSuccess == false)
@@ -338,39 +338,66 @@ namespace TBSLogistics.Service.Services.MobileManager
             {
                 var listStatus = new List<int>(new int[] { 21, 31, 38 });
                 var getListHandling = await _context.DieuPhoi.Where(x => x.MaChuyen == maChuyen && !listStatus.Contains(x.TrangThai)).ToListAsync();
+                var getListTransport = await _context.VanDon.Where(x => getListHandling.Select(y => y.MaVanDon).Contains(x.MaVanDon)).ToListAsync();
 
                 var listData = new List<CreateSFeeByTCommandRequest>();
-
                 foreach (var itemRequest in request)
                 {
-                    var dataModel = new CreateSFeeByTCommandRequest()
+                    foreach (var item in getListHandling)
                     {
-                        PlaceId = itemRequest.PlaceId,
-                        FinalPrice = itemRequest.FinalPrice,
-                        Note = itemRequest.Note,
-                        SfId = itemRequest.SfId,
-                    };
-                    listData.Add(dataModel);
+                        foreach (var itemTR in getListTransport.Where(x => x.DiemDau == itemRequest.PlaceId.Value || x.DiemCuoi == itemRequest.PlaceId.Value))
+                        {
+                            if (itemTR.MaVanDon == item.MaVanDon)
+                            {
+                                if (itemRequest.PlaceId == itemTR.DiemDau || itemRequest.PlaceId == itemTR.DiemCuoi)
+                                {
+                                    var dataModel = new CreateSFeeByTCommandRequest()
+                                    {
+                                        IdTcommand = item.Id,
+                                        TransportId = itemTR.MaVanDon,
+                                        PlaceId = itemRequest.PlaceId,
+                                        FinalPrice = itemRequest.FinalPrice,
+                                        Note = itemRequest.Note,
+                                        SfId = itemRequest.SfId,
+                                    };
+                                    listData.Add(dataModel);
+                                }
+                            }
+                        }
+                    }
+
+                    if (getListHandling.Select(x => x.MaLoaiPhuongTien.Contains("CONT")).Count() > 0)
+                    {
+                        foreach (var itemHL in getListHandling.Where(x => (x.DiemLayRong == itemRequest.PlaceId) || (x.DiemTraRong == itemRequest.PlaceId)))
+                        {
+                            if (itemHL.DiemLayRong == itemRequest.PlaceId.Value || itemHL.DiemTraRong == itemRequest.PlaceId.Value)
+                            {
+                                var dataModel = new CreateSFeeByTCommandRequest()
+                                {
+                                    IdTcommand = itemHL.Id,
+                                    TransportId = itemHL.MaVanDon,
+                                    PlaceId = itemRequest.PlaceId,
+                                    FinalPrice = itemRequest.FinalPrice,
+                                    Note = itemRequest.Note,
+                                    SfId = itemRequest.SfId,
+                                };
+                                listData.Add(dataModel);
+                            }
+                        }
+                    }
                 }
 
-                foreach (var item in getListHandling)
+                foreach (var itemModel in listData)
                 {
-                    foreach (var itemModel in listData)
-                    {
-                        itemModel.IdTcommand = item.Id;
-                        itemModel.TransportId = item.MaVanDon;
-                    }
                     var add = await _SFeeByTcommand.CreateSFeeByTCommand(listData);
 
-                    if (!add.isSuccess)
+                    if (add.isSuccess == false)
                     {
                         return add;
                     }
                 }
-
                 return new BoolActionResult { isSuccess = true, Message = "Thêm phụ phí thành công" };
             }
-
             catch (Exception ex)
             {
 
