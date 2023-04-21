@@ -1751,7 +1751,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 
                     var dataHandling = await data.ToListAsync();
 
-                  
+
 
                     foreach (var item in data.Where(x => request.arrTransports.Select(y => y.MaVanDon).Contains(x.dp.MaVanDon)).ToList())
                     {
@@ -3351,7 +3351,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                     var getdata = from dp in _context.DieuPhoi
                                   join vd in _context.VanDon
                                   on dp.MaVanDon equals vd.MaVanDon
-                                  where dp.Id == id
+                                  where dp.Id == (id == 0 ? getListChuyen.Select(x => x.Id).FirstOrDefault() : id)
                                   select new { vd, dp };
 
                     var data = await getdata.FirstOrDefaultAsync();
@@ -3493,6 +3493,13 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                     break;
 
                                 case 35:
+                                    data.dp.TrangThai = 48;
+                                    data.dp.UpdatedTime = DateTime.Now;
+                                    data.dp.Updater = tempData.UserName;
+                                    mess = "Đã thay đổi trạng thái thành: Đã Trả Rỗng";
+                                    break;
+
+                                case 48:
                                     data.vd.UpdatedTime = DateTime.Now;
                                     data.vd.Updater = tempData.UserName;
                                     data.dp.TrangThai = 20;
@@ -3639,7 +3646,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                         var getdata = from dp in _context.DieuPhoi
                                       join vd in _context.VanDon
                                       on dp.MaVanDon equals vd.MaVanDon
-                                      where dp.Id == id
+                                      where dp.Id == (id == 0 ? listData.Select(x => x.Id).FirstOrDefault() : id)
                                       select new { vd, dp };
 
                         var data = await getdata.FirstOrDefaultAsync();
@@ -3807,14 +3814,17 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                         }
 
                                         //Trường hợp chuyến đã hoàn thành nhưng các chuyến còn lại bị hủy thì đóng vận đơn
-                                        var listStatus = new List<int>(new int[] { 21, 31, 38, 47 });
+                                        var listStatus = new List<int>(new int[] { 20, 21, 31, 38 });
                                         if (getListHandling.Where(x => listStatus.Contains(x.TrangThai)).Count() > 0)
                                         {
-                                            if (getListHandling.Where(X => X.TrangThai != 20).Count() == getListHandling.Where(x => listStatus.Contains(x.TrangThai)).Count())
+                                            foreach (var item in getListHandling.Where(x => listStatus.Contains(x.TrangThai)))
                                             {
-                                                data.vd.TrangThai = 44;
-                                                data.vd.UpdatedTime = DateTime.Now;
-                                                data.vd.Updater = tempData.UserName;
+                                                if (getListHandling.Where(x => x.MaVanDon == item.MaVanDon).Count() == getListHandling.Where(x => x.MaVanDon == item.MaVanDon && listStatus.Contains(x.TrangThai)).Count())
+                                                {
+                                                    data.vd.TrangThai = 44;
+                                                    data.vd.UpdatedTime = DateTime.Now;
+                                                    data.vd.Updater = tempData.UserName;
+                                                }
                                             }
                                         }
                                         mess = "Đã thay đổi trạng thái thành: Hoàn Thành Chuyến";
@@ -3945,7 +3955,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                     {
                                         listData.Where(x => listTransport.Where(y => y.MaPtvc == "LCL").Select(y => y.MaVanDon).Contains(x.MaVanDon)).ToList().ForEach(x =>
                                         {
-                                            x.TrangThai = 20;
+                                            x.TrangThai = 48;
                                             x.UpdatedTime = DateTime.Now;
                                             x.Updater = tempData.UserName;
                                             x.ThoiGianHoanThanh = DateTime.Now;
@@ -3953,12 +3963,25 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                     }
                                     else
                                     {
-                                        data.dp.TrangThai = 20;
+                                        data.dp.TrangThai = 48;
                                         data.dp.UpdatedTime = DateTime.Now;
                                         data.dp.Updater = tempData.UserName;
                                         data.dp.ThoiGianHoanThanh = DateTime.Now;
                                     }
+                                    mess = "Đã thay đổi trạng thái thành: Đã Trả Rỗng";
+                                    break;
 
+                                case 48:
+                                    if (listData.Count == listData.Where(x => x.TrangThai == 48).Count())
+                                    {
+                                        listData.Where(x => x.TrangThai == 48).ToList().ForEach(x =>
+                                        {
+                                            x.TrangThai = 20;
+                                            x.UpdatedTime = DateTime.Now;
+                                            x.Updater = tempData.UserName;
+                                            x.ThoiGianHoanThanh = DateTime.Now;
+                                        });
+                                    }
                                     mess = "Đã thay đổi trạng thái thành: Hoàn Thành Chuyến";
 
                                     var saveData = await _context.SaveChangesAsync();
@@ -3980,14 +4003,17 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                         }
 
                                         //Trường hợp chuyến đã hoàn thành nhưng các chuyến còn lại bị hủy thì đóng vận đơn
-                                        var listStatus = new List<int>(new int[] { 21, 31, 38, 47 });
+                                        var listStatus = new List<int>(new int[] { 20, 21, 31, 38 });
                                         if (getListHandling.Where(x => listStatus.Contains(x.TrangThai)).Count() > 0)
                                         {
-                                            if (getListHandling.Where(X => X.TrangThai != 20).Count() == getListHandling.Where(x => listStatus.Contains(x.TrangThai)).Count())
+                                            foreach (var item in getListHandling.Where(x => listStatus.Contains(x.TrangThai)))
                                             {
-                                                data.vd.TrangThai = 44;
-                                                data.vd.UpdatedTime = DateTime.Now;
-                                                data.vd.Updater = tempData.UserName;
+                                                if (getListHandling.Where(x => x.MaVanDon == item.MaVanDon).Count() == getListHandling.Where(x => x.MaVanDon == item.MaVanDon && listStatus.Contains(x.TrangThai)).Count())
+                                                {
+                                                    data.vd.TrangThai = 44;
+                                                    data.vd.UpdatedTime = DateTime.Now;
+                                                    data.vd.Updater = tempData.UserName;
+                                                }
                                             }
                                         }
 
@@ -4011,7 +4037,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                     }
                     else if (listData.Select(x => x.MaLoaiPhuongTien).FirstOrDefault().Contains("TRUCK"))
                     {
-                        var dataById = listData.Where(x => x.Id == id).FirstOrDefault();
+                        var dataById = listData.Where(x => x.Id == (id == 0 ? listData.Select(x => x.Id).FirstOrDefault() : id)).FirstOrDefault();
 
                         switch (dataById.TrangThai)
                         {
@@ -4085,11 +4111,14 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                         var listStatus = new List<int>(new int[] { 20, 21, 31, 38 });
                                         if (getListHandling.Where(x => listStatus.Contains(x.TrangThai)).Count() > 0)
                                         {
-                                            if (getListHandling.Count() == getListHandling.Where(x => listStatus.Contains(x.TrangThai)).Count())
+                                            foreach (var item in getListHandling.Where(x => listStatus.Contains(x.TrangThai)))
                                             {
-                                                getTransport.TrangThai = 39;
-                                                getTransport.UpdatedTime = DateTime.Now;
-                                                getTransport.Updater = tempData.UserName;
+                                                if (getListHandling.Where(x => x.MaVanDon == item.MaVanDon).Count() == getListHandling.Where(x => x.MaVanDon == item.MaVanDon && listStatus.Contains(x.TrangThai)).Count())
+                                                {
+                                                    getTransport.TrangThai = 44;
+                                                    getTransport.UpdatedTime = DateTime.Now;
+                                                    getTransport.Updater = tempData.UserName;
+                                                }
                                             }
                                         }
 
