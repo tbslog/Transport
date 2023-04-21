@@ -613,6 +613,19 @@ const HandlingPageNew = () => {
                 }
                 type="button"
                 className="btn btn-title btn-sm btn-default mx-1"
+                gloss="Đã Trả Rỗng"
+              >
+                <i className="fas fa-clipboard-check"></i>
+              </button>
+            );
+          case 48:
+            return (
+              <button
+                onClick={() =>
+                  showConfirmDialog(val, setFuncName("StartRuning"))
+                }
+                type="button"
+                className="btn btn-title btn-sm btn-default mx-1"
                 gloss="Hoàn Thành Chuyến"
               >
                 <i className="fas fa-check"></i>
