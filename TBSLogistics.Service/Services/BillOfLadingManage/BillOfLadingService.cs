@@ -617,7 +617,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                         if (tempData.AccType == "KH")
                         {
                             var itemHandling = new DieuPhoi();
-                            itemHandling.MaChuyen = request.MaPTVC.Trim() + DateTime.Now.ToString("yyyyMMddHHmmssffff");
+                            itemHandling.MaChuyen = "";
                             itemHandling.MaVanDon = transPortId;
                             itemHandling.ContNo = item.ContNo;
                             itemHandling.MaLoaiHangHoa = item.LoaiHangHoa;
@@ -3663,6 +3663,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                         x.Updater = tempData.UserName;
                                         x.ThoiGianLayRongThucTe = DateTime.Now;
                                     });
+
                                     listTransport.Where(x => x.TrangThai == 9).ToList().ForEach(x =>
                                     {
                                         x.TrangThai = 10;

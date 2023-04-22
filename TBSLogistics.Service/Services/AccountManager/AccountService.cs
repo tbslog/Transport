@@ -84,6 +84,13 @@ namespace TBSLogistics.Service.Services.AccountManager
                             CreatedTime = DateTime.Now,
                             Creator = tempData.UserName,
                         });
+
+                        await _context.UserHasCustomer.AddAsync(new UserHasCustomer()
+                        {
+                            UserId = tempData.UserID,
+                            CustomerId = item.MaKh,
+                            AccountId = AccountId
+                        });
                     }
 
                     var add = await _context.SaveChangesAsync();

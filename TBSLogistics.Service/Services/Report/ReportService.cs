@@ -111,9 +111,7 @@ namespace TBSLogistics.Service.Services.Report
                 .Select(x => new
                 {
                     x.dp.ThoiGianHoanThanh.Value.Date,
-                    totalSf = _context.SubFeePrice.Where(y =>
-                    _context.HopDongVaPhuLuc.Where(z => z.MaKh == x.vd.MaKh && z.ThoiGianBatDau.Date <= DateTime.Now.Date && (z.ThoiGianKetThuc.Date > DateTime.Now.Date))
-                    .Select(z => z.MaHopDong).Contains(y.ContractId) && y.Status == 14).Sum(y => y.Price) +
+                    totalSf = _context.SubFeePrice.Where(c => _context.SubFeeByContract.Where(y => y.MaDieuPhoi == x.dp.Id).Select(y => y.PriceId).ToList().Contains(c.PriceId)).Sum(c => c.Price) +
                     _context.SfeeByTcommand.Where(y => y.IdTcommand == x.dp.Id && y.ApproveStatus == 14).Sum(y => y.Price)
                     + _context.SubFeePrice.Where(c => _context.SubFeeByContract.Where(y => y.MaDieuPhoi == x.dp.Id).Select(y => y.PriceId).Contains(c.PriceId)).Sum(y => y.Price),
                 }).ToListAsync();
@@ -133,14 +131,13 @@ namespace TBSLogistics.Service.Services.Report
             })).ToList();
 
             var revenue = await getData.Where(x => getAllDaysInMonth.Select(y => y.Date).Contains(x.dp.ThoiGianHoanThanh.Value.Date))
-                  .Select(x => new
-                  {
-                      x.dp.ThoiGianHoanThanh.Value.Date,
-                      totalPrice = _context.SubFeePrice.Where(y =>
-                      _context.HopDongVaPhuLuc.Where(z => z.MaKh == x.vd.MaKh && z.ThoiGianBatDau.Date <= DateTime.Now.Date && (z.ThoiGianKetThuc.Date > DateTime.Now.Date))
-                      .Select(z => z.MaHopDong).Contains(y.ContractId) && y.Status == 14).Sum(y => y.Price) +
-                    _context.SfeeByTcommand.Where(y => y.IdTcommand == x.dp.Id && y.ApproveStatus == 14).Sum(y => y.Price) + ((double)x.dp.DonGiaKh),
-                  }).ToListAsync();
+                .Select(x => new
+                {
+                    x.dp.ThoiGianHoanThanh.Value.Date,
+                    totalPrice = _context.SubFeePrice.Where(c => _context.SubFeeByContract.Where(y => y.MaDieuPhoi == x.dp.Id).Select(y => y.PriceId).ToList().Contains(c.PriceId)).Sum(c => c.Price) +
+                    _context.SfeeByTcommand.Where(y => y.IdTcommand == x.dp.Id && y.ApproveStatus == 14).Sum(y => y.Price) +
+                    ((double)x.dp.DonGiaKh),
+                }).ToListAsync();
             var listRevenue = revenue.GroupBy(x => x.Date).Select(x => new
             {
                 x.Key.Date,

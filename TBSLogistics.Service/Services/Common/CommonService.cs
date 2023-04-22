@@ -194,6 +194,8 @@ namespace TBSLogistics.Service.Services.Common
             email.Sender = new MailboxAddress(_mailSettings.DisplayName, _mailSettings.Mail);
             email.From.Add(new MailboxAddress(_mailSettings.DisplayName, _mailSettings.Mail));
             email.To.Add(MailboxAddress.Parse(mailContent.To));
+            email.Cc.Add(MailboxAddress.Parse("hongthai.pham@tbslogistics.com"));
+            email.Cc.Add(MailboxAddress.Parse("hai.le@tbslogistics.com"));
             email.Subject = mailContent.Subject;
 
             var builder = new BodyBuilder();

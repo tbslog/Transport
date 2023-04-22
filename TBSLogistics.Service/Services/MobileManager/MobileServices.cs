@@ -72,11 +72,12 @@ namespace TBSLogistics.Service.Services.MobileManager
             {
                 maTaiXe = tempData.UserName;
 
-                var listStatusPending = new List<int> { 30, 19, 31 };
+                var listStatusPending = new List<int> { 30, 19, 31, 20 };
 
                 var dataHandling = from dp in _context.DieuPhoi
                                    where dp.MaTaiXe == maTaiXe
                                    select new { dp };
+
                 if (!isCompleted)
                 {
                     dataHandling = dataHandling.Where(x => !listStatusPending.Contains(x.dp.TrangThai));
@@ -362,26 +363,42 @@ namespace TBSLogistics.Service.Services.MobileManager
                                     };
                                     listData.Add(dataModel);
                                 }
-                            }
-                        }
-                    }
 
-                    if (getListHandling.Select(x => x.MaLoaiPhuongTien.Contains("CONT")).Count() > 0)
-                    {
-                        foreach (var itemHL in getListHandling.Where(x => (x.DiemLayRong == itemRequest.PlaceId) || (x.DiemTraRong == itemRequest.PlaceId)))
-                        {
-                            if (itemHL.DiemLayRong == itemRequest.PlaceId.Value || itemHL.DiemTraRong == itemRequest.PlaceId.Value)
-                            {
-                                var dataModel = new CreateSFeeByTCommandRequest()
+                                if (item.DiemLayRong != null || item.DiemTraRong != null)
                                 {
-                                    IdTcommand = itemHL.Id,
-                                    TransportId = itemHL.MaVanDon,
-                                    PlaceId = itemRequest.PlaceId,
-                                    FinalPrice = itemRequest.FinalPrice,
-                                    Note = itemRequest.Note,
-                                    SfId = itemRequest.SfId,
-                                };
-                                listData.Add(dataModel);
+                                    if (itemTR.LoaiVanDon == "xuat")
+                                    {
+                                        if (item.DiemLayRong.Value == itemRequest.PlaceId.Value)
+                                        {
+                                            var dataModel = new CreateSFeeByTCommandRequest()
+                                            {
+                                                IdTcommand = item.Id,
+                                                TransportId = item.MaVanDon,
+                                                PlaceId = itemRequest.PlaceId,
+                                                FinalPrice = itemRequest.FinalPrice,
+                                                Note = itemRequest.Note,
+                                                SfId = itemRequest.SfId,
+                                            };
+                                            listData.Add(dataModel);
+                                        }
+                                    }
+                                    else if (itemTR.LoaiVanDon == "nhap")
+                                    {
+                                        if (item.DiemTraRong.Value == itemRequest.PlaceId.Value)
+                                        {
+                                            var dataModel = new CreateSFeeByTCommandRequest()
+                                            {
+                                                IdTcommand = item.Id,
+                                                TransportId = item.MaVanDon,
+                                                PlaceId = itemRequest.PlaceId,
+                                                FinalPrice = itemRequest.FinalPrice,
+                                                Note = itemRequest.Note,
+                                                SfId = itemRequest.SfId,
+                                            };
+                                            listData.Add(dataModel);
+                                        }
+                                    }
+                                }
                             }
                         }
                     }

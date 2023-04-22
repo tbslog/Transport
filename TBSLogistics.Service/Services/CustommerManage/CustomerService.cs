@@ -92,6 +92,8 @@ namespace TBSLogistics.Service.Services.CustommerManage
                     Creator = tempData.UserName,
                 });
 
+
+
                 var result = await _TMSContext.SaveChangesAsync();
 
                 if (ErrorValidate != "")
@@ -101,6 +103,14 @@ namespace TBSLogistics.Service.Services.CustommerManage
 
                 if (result > 0)
                 {
+                    await _TMSContext.AddAsync(new UserHasCustomer()
+                    {
+                        UserId = tempData.UserID,
+                        CustomerId = maKH.ToUpper(),
+                    });
+
+                    await _TMSContext.SaveChangesAsync();
+
                     await _common.Log("CustomerManage", "UserId: " + tempData.UserName + " create new customer with Data: " + JsonSerializer.Serialize(request));
                     return new BoolActionResult { isSuccess = true, Message = "Tạo mới khách hàng thành công!" };
                 }

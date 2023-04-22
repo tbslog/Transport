@@ -47,7 +47,7 @@ namespace TBSLogistics.Service.Services.SFeeByTcommandManage
                         continue;
                     }
 
-                    var checkSFeeByTcommand = await _context.SfeeByTcommand.Where(x => x.IdTcommand == i.IdTcommand && x.SfId == i.SfId && x.ApproveStatus == 13).FirstOrDefaultAsync();
+                    var checkSFeeByTcommand = await _context.SfeeByTcommand.Where(x => x.IdTcommand == i.IdTcommand && x.PlaceId == i.PlaceId && x.SfId == i.SfId && x.ApproveStatus == 13).FirstOrDefaultAsync();
                     if (checkSFeeByTcommand != null)
                     {
                         IdListFail.Add(" Phụ phí " + await _context.SubFee.Where(x => x.SubFeeId == i.SfId).Select(x => x.SfName).FirstOrDefaultAsync() + " đã tồn tại và đang chờ duyệt");
