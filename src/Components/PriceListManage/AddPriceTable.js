@@ -246,7 +246,7 @@ const AddPriceTable = (props) => {
   const getListRoadAndContract = async (MaKh) => {
     SetIsLoading(true);
     let getListContract = await getData(
-      `Contract/GetListContractSelect?MaKH=${MaKh}`
+      `Contract/GetListContractSelect?MaKH=${MaKh}&getListApprove=true`
     );
 
     if (getListContract && getListContract.length > 0) {

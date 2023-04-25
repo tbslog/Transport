@@ -9,7 +9,7 @@ import ConfirmDialog from "../Common/Dialog/ConfirmDialog";
 import { ToastError } from "../Common/FuncToast";
 
 const ApprovePriceTable = (props) => {
-  const { getDataApprove, checkShowModal, reLoadData } = props;
+  const { contractId, checkShowModal, reLoadData } = props;
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [totalRows, setTotalRows] = useState(0);
@@ -204,7 +204,7 @@ const ApprovePriceTable = (props) => {
     fromDate = fromDate === "" ? "" : moment(fromDate).format("YYYY-MM-DD");
     toDate = toDate === "" ? "" : moment(toDate).format("YYYY-MM-DD");
     const dataCus = await getData(
-      `PriceTable/GetListPriceTableApprove?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}&fromDate=${fromDate}&toDate=${toDate}`
+      `PriceTable/GetListPriceTableApprove?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}&fromDate=${fromDate}&toDate=${toDate}&contractId=${contractId}`
     );
     setData(dataCus.data);
     setTotalRows(dataCus.totalRecords);
@@ -219,7 +219,7 @@ const ApprovePriceTable = (props) => {
     setLoading(true);
 
     const dataCus = await getData(
-      `PriceTable/GetListPriceTableApprove?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}&fromDate=${fromDate}&toDate=${toDate}`
+      `PriceTable/GetListPriceTableApprove?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}&fromDate=${fromDate}&toDate=${toDate}&contractId=${contractId}`
     );
     setData(dataCus.data);
     setPerPage(newPerPage);
@@ -246,7 +246,7 @@ const ApprovePriceTable = (props) => {
           <div className="card-header">
             <div className="container-fruid">
               <div className="row">
-                <div className="col col-sm">
+                {/* <div className="col col-sm">
                   <button
                     type="button"
                     className="btn btn-title btn-sm btn-default mx-1"
@@ -270,7 +270,7 @@ const ApprovePriceTable = (props) => {
                   >
                     <i className="fas fa-thumbs-down"></i>
                   </button>
-                </div>
+                </div> */}
                 <div className="col col-sm">
                   <div className="row">
                     <div className="col col-sm">
@@ -389,9 +389,9 @@ const ApprovePriceTable = (props) => {
                 pagination
                 paginationServer
                 paginationRowsPerPageOptions={[10, 30, 50, 100]}
-                selectableRows
+                // selectableRows
                 onSelectedRowsChange={handleChange}
-                clearSelectedRows={toggledClearRows}
+                // clearSelectedRows={toggledClearRows}
                 paginationTotalRows={totalRows}
                 onChangeRowsPerPage={handlePerRowsChange}
                 onChangePage={handlePageChange}

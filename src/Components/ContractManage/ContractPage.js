@@ -8,6 +8,7 @@ import AddContract from "./AddContract";
 import EditContract from "./EditContract";
 import DatePicker from "react-datepicker";
 import AddPriceTable from "../PriceListManage/AddPriceTable";
+import ApproveContract from "./ApproveContract";
 
 const ContractPage = () => {
   const [data, setData] = useState([]);
@@ -182,7 +183,6 @@ const ContractPage = () => {
     const getDataContract = await getData(
       `Contract/GetContractById?Id=${val.maHopDong}`
     );
-
     setSelectIdClick(getDataContract);
   };
 
@@ -478,6 +478,20 @@ const ContractPage = () => {
                   >
                     <i className="fas fa-plus-circle"></i>
                   </button>
+                  <button
+                    type="button"
+                    className="btn btn-title btn-sm btn-default mx-1"
+                    gloss="Duyệt Hợp Đồng/Phụ Lục"
+                    onClick={() =>
+                      showModalForm(
+                        SetShowModal("ApproveContract"),
+                        setSelectIdClick({}),
+                        setTitle("Duyệt Hợp Đồng/Phụ Lục")
+                      )
+                    }
+                  >
+                    <i className="fas fa-check-double"></i>
+                  </button>
                 </div>
                 <div className="col-sm-3">
                   <div className="row">
@@ -676,6 +690,13 @@ const ContractPage = () => {
                   {ShowModal === "PriceTable" && (
                     <AddPriceTable
                       getListPriceTable={fetchData}
+                      selectIdClick={priceTable}
+                      listStatus={listStatus}
+                    />
+                  )}
+                  {ShowModal === "ApproveContract" && (
+                    <ApproveContract
+                      getListContract={fetchData}
                       selectIdClick={priceTable}
                       listStatus={listStatus}
                     />

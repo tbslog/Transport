@@ -280,20 +280,20 @@ const UpdatePriceTable = (props) => {
 
   const getListRoadAndContract = async (MaKh) => {
     SetIsLoading(true);
-    let getListRoad = await getData(`Road/GetListRoadOptionSelect`);
-    if (getListRoad && getListRoad.length > 0) {
-      let obj = [];
-      getListRoad.map((val) => {
-        obj.push({
-          value: val.maCungDuong,
-          label: val.maCungDuong + " - " + val.tenCungDuong,
-        });
-      });
-      setListRoad(obj);
-    }
+    // let getListRoad = await getData(`Road/GetListRoadOptionSelect`);
+    // if (getListRoad && getListRoad.length > 0) {
+    //   let obj = [];
+    //   getListRoad.map((val) => {
+    //     obj.push({
+    //       value: val.maCungDuong,
+    //       label: val.maCungDuong + " - " + val.tenCungDuong,
+    //     });
+    //   });
+    //   setListRoad(obj);
+    // }
 
     let getListContract = await getData(
-      `Contract/GetListContractSelect?MaKH=${MaKh}`
+      `Contract/GetListContractSelect?MaKH=${MaKh}&getListApprove=true`
     );
 
     if (getListContract && getListContract.length > 0) {

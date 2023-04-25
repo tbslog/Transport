@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect, useRef } from "react";
-import { getData, getDataCustom, getFile } from "../Common/FuncAxios";
+import { getData, getDataCustom, getFile, postFile } from "../Common/FuncAxios";
 import DataTable from "react-data-table-component";
 import moment from "moment";
 import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
@@ -8,6 +8,7 @@ import DatePicker from "react-datepicker";
 import AddPriceTable from "./AddPriceTable";
 import ApprovePriceTable from "./ApprovePriceTable";
 import { ToastError } from "../Common/FuncToast";
+import FileExcelImport from "../../ExcelFile/PriceTableTemplate/TemplatePriceTable.xlsx";
 
 const customStyles = {
   rows: {
@@ -253,6 +254,20 @@ const PriceTablePage = () => {
     }
   };
 
+  const handleExcelImportClick = async (e) => {
+    setLoading(true);
+    var file = e.target.files[0];
+    e.target.value = null;
+
+    const importExcelCus = await postFile(
+      "PriceTable/ReadFileExcelPricetable",
+      {
+        formFile: file,
+      }
+    );
+    setLoading(false);
+  };
+
   const handleExportExcel = async () => {
     if (!custommerType) {
       ToastError("Vui lòng loại đối tác");
@@ -305,7 +320,7 @@ const PriceTablePage = () => {
                   >
                     <i className="fas fa-plus-circle"></i>
                   </button>
-                  <button
+                  {/* <button
                     type="button"
                     className="btn btn-title btn-sm btn-default mx-1"
                     gloss="Duyệt Bảng Giá"
@@ -318,7 +333,7 @@ const PriceTablePage = () => {
                     }
                   >
                     <i className="fas fa-check-double"></i>
-                  </button>
+                  </button> */}
                 </div>
 
                 <div className="col col-sm">
@@ -450,6 +465,23 @@ const PriceTablePage = () => {
                 >
                   <i className="fas fa-file-excel"></i>
                 </button>
+                <div className="upload-btn-wrapper">
+                  <button className="btn btn-sm btn-default mx-1">
+                    <i className="fas fa-upload"></i>
+                  </button>
+                  <input
+                    type="file"
+                    name="myfile"
+                    onChange={(e) => handleExcelImportClick(e)}
+                  />
+                </div>
+                <a
+                  href={FileExcelImport}
+                  download="TemplateImportTransport.xlsx"
+                  className="btn btn-sm btn-default mx-1"
+                >
+                  <i className="fas fa-file-download"></i>
+                </a>
               </div>
             </div>
           </div>

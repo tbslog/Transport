@@ -177,13 +177,19 @@ const EditContract = (props) => {
     SetIsLoading(false);
   }, []);
 
-  const handleDownloadContact = async () => {
-    SetIsLoading(true);
-    const getFileDownLoad = getFile(
-      `Contract/DownloadFile?fileId=${downloadFile}`,
-      watch("TenHopDong")
-    );
-    SetIsLoading(false);
+  const handleDownloadContact = async (type) => {
+    if (props.selectIdClick && type) {
+      let file = props.selectIdClick.fileContract;
+      let name = props.selectIdClick.tenHienThi;
+      if (type === "costing") {
+        file = props.selectIdClick.fileCosing;
+        name = name + "_Costing";
+      }
+      const getFileDownLoad = await getFile(
+        `Contract/DownloadFile?fileId=${file}`,
+        name
+      );
+    }
   };
 
   const onSubmit = async (data) => {
@@ -522,81 +528,124 @@ const EditContract = (props) => {
                           )}
                         </div>
 
-                        <div className="form-group">
-                          <label htmlFor="FileContact">
-                            Tải lên tệp Hợp Đồng
-                          </label>
-                          <input
-                            type="file"
-                            className="form-control-file"
-                            {...register("FileContact", Validate.FileContact)}
-                          />
-                          {errors.FileContact && (
-                            <span className="text-danger">
-                              {errors.FileContact.message}
-                            </span>
-                          )}
-                        </div>
-                        <div className="form-group">
-                          <label htmlFor="FileCosting">
-                            Tải lên tệp Costing(*)
-                          </label>
-                          <input
-                            type="file"
-                            className="form-control-file"
-                            {...register("FileCosting", Validate.FileCosting)}
-                          />
-                          {errors.FileCosting && (
-                            <span className="text-danger">
-                              {errors.FileCosting.message}
-                            </span>
-                          )}
-                        </div>
-
-                        {/* {downloadFile && downloadFile !== "0" && (
-                          <div>
+                        <div className="row">
+                          <div className="col col-sm">
                             <div className="form-group">
                               <label htmlFor="FileContact">
-                                Tải về tệp Hợp Đồng
+                                Tải lên tệp Phục Lục
                               </label>
-                              <br />
-                              <button
-                                type="button"
-                                className="btn btn-default"
-                                onClick={() => handleDownloadContact()}
-                              >
-                                <i className="fas fa-file-download">
-                                  Tải tệp hợp đồng
-                                </i>
-                              </button>
+                              <input
+                                type="file"
+                                className="form-control-file"
+                                {...register(
+                                  "FileContact",
+                                  Validate.FileContact
+                                )}
+                              />
+                              {errors.FileContact && (
+                                <span className="text-danger">
+                                  {errors.FileContact.message}
+                                </span>
+                              )}
                             </div>
                           </div>
-                        )} */}
-
-                        <div className="form-group">
-                          <label htmlFor="TrangThai">Trạng thái(*)</label>
-                          <select
-                            className="form-control"
-                            {...register("TrangThai", Validate.TrangThai)}
-                          >
-                            <option value="">Chọn trạng thái</option>
-                            {listStatusType &&
-                              listStatusType.map((val) => {
-                                return (
-                                  <option
-                                    value={val.statusId}
-                                    key={val.statusId}
-                                  >
-                                    {val.statusContent}
-                                  </option>
-                                );
-                              })}
-                          </select>
-                          {errors.TrangThai && (
-                            <span className="text-danger">
-                              {errors.TrangThai.message}
-                            </span>
-                          )}
+                          <div className="col col-sm">
+                            {props.selectIdClick.fileContract &&
+                              props.selectIdClick.fileContract !== "0" && (
+                                <div>
+                                  <div className="form-group">
+                                    <label htmlFor="FileContact">
+                                      Tải về tệp Phụ Lục
+                                    </label>
+                                    <br />
+                                    <button
+                                      type="button"
+                                      className="btn btn-default"
+                                      onClick={() =>
+                                        handleDownloadContact("contract")
+                                      }
+                                    >
+                                      <i className="fas fa-file-download">
+                                        Tải về tệp Phụ Lục
+                                      </i>
+                                    </button>
+                                  </div>
+                                </div>
+                              )}
+                          </div>
+                        </div>
+                        <div className="row">
+                          <div className="col col-sm">
+                            <div className="form-group">
+                              <label htmlFor="FileCosting">
+                                Tải lên tệp Costing(*)
+                              </label>
+                              <input
+                                type="file"
+                                className="form-control-file"
+                                {...register(
+                                  "FileCosting",
+                                  Validate.FileCosting
+                                )}
+                              />
+                              {errors.FileCosting && (
+                                <span className="text-danger">
+                                  {errors.FileCosting.message}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <div className="col col-sm">
+                            {props.selectIdClick.fileCosing &&
+                              props.selectIdClick.fileCosing !== "0" && (
+                                <div>
+                                  <div className="form-group">
+                                    <label htmlFor="fileCosing">
+                                      Tải về tệp Cosing
+                                    </label>
+                                    <br />
+                                    <button
+                                      type="button"
+                                      className="btn btn-default"
+                                      onClick={() =>
+                                        handleDownloadContact("costing")
+                                      }
+                                    >
+                                      <i className="fas fa-file-download">
+                                        Tải tệp Cosing
+                                      </i>
+                                    </button>
+                                  </div>
+                                </div>
+                              )}
+                          </div>
+                        </div>
+                        <div className="row">
+                          <div className="form-group">
+                            <label htmlFor="TrangThai">Trạng thái(*)</label>
+                            <select
+                              className="form-control"
+                              {...register("TrangThai", Validate.TrangThai)}
+                            >
+                              <option value="">Chọn trạng thái</option>
+                              {listStatusType &&
+                                listStatusType.map((val) => {
+                                  return (
+                                    <option
+                                      value={val.statusId}
+                                      key={val.statusId}
+                                    >
+                                      {val.statusContent}
+                                    </option>
+                                  );
+                                })}
+                            </select>
+                            {errors.TrangThai && (
+                              <span className="text-danger">
+                                {errors.TrangThai.message}
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
                       <div className="card-footer">
@@ -913,36 +962,100 @@ const EditContract = (props) => {
                             {...register("GhiChu")}
                           ></textarea>
                         </div>
-                        <div className="form-group">
-                          <label htmlFor="FileContact">
-                            Tải lên tệp Phục Lục
-                          </label>
-                          <input
-                            type="file"
-                            className="form-control-file"
-                            {...register("FileContact", Validate.FileContact)}
-                          />
-                          {errors.FileContact && (
-                            <span className="text-danger">
-                              {errors.FileContact.message}
-                            </span>
-                          )}
-                          <div className="form-group">
-                            <label htmlFor="FileCosting">
-                              Tải lên tệp Costing(*)
-                            </label>
-                            <input
-                              type="file"
-                              className="form-control-file"
-                              {...register("FileCosting", Validate.FileCosting)}
-                            />
-                            {errors.FileCosting && (
-                              <span className="text-danger">
-                                {errors.FileCosting.message}
-                              </span>
-                            )}
+
+                        <div className="row">
+                          <div className="col col-sm">
+                            <div className="form-group">
+                              <label htmlFor="FileContact">
+                                Tải lên tệp Phục Lục
+                              </label>
+                              <input
+                                type="file"
+                                className="form-control-file"
+                                {...register(
+                                  "FileContact",
+                                  Validate.FileContact
+                                )}
+                              />
+                              {errors.FileContact && (
+                                <span className="text-danger">
+                                  {errors.FileContact.message}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <div className="col col-sm">
+                            {props.selectIdClick.fileContract &&
+                              props.selectIdClick.fileContract !== "0" && (
+                                <div>
+                                  <div className="form-group">
+                                    <label htmlFor="FileContact">
+                                      Tải về tệp Phụ Lục
+                                    </label>
+                                    <br />
+                                    <button
+                                      type="button"
+                                      className="btn btn-default"
+                                      onClick={() =>
+                                        handleDownloadContact("contract")
+                                      }
+                                    >
+                                      <i className="fas fa-file-download">
+                                        Tải về tệp Phụ Lục
+                                      </i>
+                                    </button>
+                                  </div>
+                                </div>
+                              )}
                           </div>
                         </div>
+                        <div className="row">
+                          <div className="col col-sm">
+                            <div className="form-group">
+                              <label htmlFor="FileCosting">
+                                Tải lên tệp Costing(*)
+                              </label>
+                              <input
+                                type="file"
+                                className="form-control-file"
+                                {...register(
+                                  "FileCosting",
+                                  Validate.FileCosting
+                                )}
+                              />
+                              {errors.FileCosting && (
+                                <span className="text-danger">
+                                  {errors.FileCosting.message}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <div className="col col-sm">
+                            {props.selectIdClick.fileCosing &&
+                              props.selectIdClick.fileCosing !== "0" && (
+                                <div>
+                                  <div className="form-group">
+                                    <label htmlFor="fileCosing">
+                                      Tải về tệp Cosing
+                                    </label>
+                                    <br />
+                                    <button
+                                      type="button"
+                                      className="btn btn-default"
+                                      onClick={() =>
+                                        handleDownloadContact("costing")
+                                      }
+                                    >
+                                      <i className="fas fa-file-download">
+                                        Tải tệp Cosing
+                                      </i>
+                                    </button>
+                                  </div>
+                                </div>
+                              )}
+                          </div>
+                        </div>
+
                         <div className="form-group">
                           <label htmlFor="TrangThai">Trạng thái(*)</label>
                           <select
