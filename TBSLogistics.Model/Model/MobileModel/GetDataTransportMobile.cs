@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -24,6 +25,7 @@ namespace TBSLogistics.Model.Model.MobileModel
         public long HandlingId { get; set; }
         public int? ThuTuGiaoHang { get; set; }
         public string BookingNo { get; set; }
+        public string MaPTVC { get; set; }
         public string MaVanDon { get; set; }
         public string LoaiVanDon { get; set; }
         public string DiemLayHang { get; set; }
@@ -39,7 +41,7 @@ namespace TBSLogistics.Model.Model.MobileModel
         public string HangTau { get; set; }
         public string GhiChu { get; set; }
         public string ContNo { get; set; }
-      
+
 
         public double? KhoiLuong { get; set; }
         public double? TheTich { get; set; }

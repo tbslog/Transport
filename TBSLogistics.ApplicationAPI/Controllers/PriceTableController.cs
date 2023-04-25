@@ -17,6 +17,9 @@ using TBSLogistics.Service.Panigation;
 using TBSLogistics.Service.Services.Bill;
 using TBSLogistics.Service.Services.Common;
 using TBSLogistics.Service.Services.PricelistManage;
+using Microsoft.AspNetCore.Http;
+using System.Threading;
+using TBSLogistics.Service.Services.BillOfLadingManage;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -152,7 +155,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<IActionResult> GetListPriceTableApprove([FromQuery] PaginationFilter filter)
+        public async Task<IActionResult> GetListPriceTableApprove([FromQuery] PaginationFilter filter, string contractId = null)
         {
             var checkPermission = await _common.CheckPermission("C0002");
             if (checkPermission.isSuccess == false)
@@ -161,7 +164,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             }
 
             var route = Request.Path.Value;
-            var pagedData = await _priceTable.GetListPriceTableApprove(filter);
+            var pagedData = await _priceTable.GetListPriceTableApprove(contractId, filter);
 
             var pagedReponse = PaginationHelper.CreatePagedReponse<ListApprove>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _paninationService, route);
             return Ok(pagedReponse);
@@ -223,6 +226,22 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             else
             {
                 return BadRequest(update.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("[action]")]
+        public async Task<IActionResult> ReadFileExcelPricetable(IFormFile formFile, CancellationToken cancellationToken)
+        {
+            var ImportExcel = await _priceTable.CreatePriceByExcel(formFile, cancellationToken);
+
+            if (ImportExcel.isSuccess == true)
+            {
+                return Ok(ImportExcel.Message);
+            }
+            else
+            {
+                return BadRequest(ImportExcel.Message);
             }
         }
 

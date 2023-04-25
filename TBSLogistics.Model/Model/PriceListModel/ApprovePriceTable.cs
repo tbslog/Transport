@@ -13,7 +13,7 @@ namespace TBSLogistics.Model.Model.PriceListModel
 
     public class Result
     {
-        public int Id { get; set; }
+        public long Id { get; set; }
         public int IsAgree { get; set; }
     }
 }

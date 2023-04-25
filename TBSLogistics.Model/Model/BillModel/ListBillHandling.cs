@@ -32,6 +32,5 @@ namespace TBSLogistics.Model.Model.BillModel
         public decimal LoiNhuan { get; set; }
         public decimal ChiPhiHopDong { get; set; }
         public decimal ChiPhiPhatSinh { get; set; }
-
     }
 }

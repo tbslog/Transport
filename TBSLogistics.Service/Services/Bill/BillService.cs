@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using TBSLogistics.Data.TMS;
 using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.BillModel;
+using TBSLogistics.Model.Model.UserModel;
 using TBSLogistics.Model.TempModel;
 using TBSLogistics.Model.Wrappers;
 using TBSLogistics.Service.Services.Common;
@@ -309,6 +310,62 @@ namespace TBSLogistics.Service.Services.Bill
 
             return listKy;
         }
+
+        //public async Task<ListBillTransportWeb> GetListBillWeb(PaginationFilter filter, ListFilter listFilter)
+        //{
+        //    var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
+
+        //    var getlistHandling = from dp in _context.DieuPhoi
+        //                          join vd in _context.VanDon
+        //                          on dp.MaVanDon equals vd.MaVanDon
+        //                          where dp.TrangThai == 20
+        //                          select new { dp, vd };
+
+        //    var getListTransport = 
+
+        //    var getSFbyContract = from sfc in _context.SubFeeByContract
+        //                          join sfp in _context.SubFeePrice
+        //                          on sfc.PriceId equals sfp.PriceId
+        //                          select new { sfc, sfp };
+
+        //    if (!string.IsNullOrEmpty(filter.Keyword))
+        //    {
+        //        getlistHandling = getlistHandling.Where(x => x.vd.MaVanDonKh.Contains(filter.Keyword) || x.vd.MaKh.Contains(filter.Keyword));
+        //    }
+
+        //    if (!string.IsNullOrEmpty(filter.fromDate.ToString()) && !string.IsNullOrEmpty(filter.toDate.ToString()))
+        //    {
+        //        getlistHandling = getlistHandling.Where(x => x.dp.ThoiGianHoanThanh.Value >= filter.fromDate.Value && x.dp.ThoiGianHoanThanh.Value <= filter.toDate.Value);
+        //    }
+
+        //    var totalCount = await getlistHandling.CountAsync();
+
+        //    var pagedData = await getlistHandling.OrderByDescending(x => x.vd.MaVanDon).Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new ListBillTransportWeb()
+        //    {
+        //        BookingNo = x.vd.MaVanDonKh,
+        //        HangTau = x.vd.HangTau == null ? "" : _context.ShippingInfomation.Where(y => y.ShippingCode == x.vd.HangTau).Select(y => y.ShippingLineName).FirstOrDefault(),
+        //        TenKH = _context.KhachHang.Where(y => y.MaKh == x.vd.MaKh).Select(y => y.TenKh).FirstOrDefault(),
+        //        Account = x.vd.MaAccount == null ? "" : _context.AccountOfCustomer.Where(y => y.MaAccount == x.vd.MaAccount).Select(y => y.TenAccount).FirstOrDefault(),
+        //        LoaiVanDon = x.vd.LoaiVanDon.Trim() == "xuat" ? "Xuất" : "Nhập",
+        //        MaPTVC = x.vd.MaPtvc,
+        //        listBillHandlingWebs = getlistHandling.Where(y => y.dp.MaVanDon == x.vd.MaVanDon).Select(z => new ListBillHandlingWeb()
+        //        {
+        //            DiemDau = z.vd.DiemDau,
+        //            DiemCuoi = z.vd.DiemCuoi,
+        //            LoaiHangHoa = z.dp.MaLoaiHangHoa,
+        //            LoaiPhuongTien = z.dp.MaLoaiPhuongTien,
+        //            MaSoXe = z.dp.MaSoXe,
+        //            TaiXe = z.dp.MaTaiXe,
+        //            DonGiaKH = z.dp.DonGiaKh,
+        //            ContNo = z. ,
+        //            SealNP = z. ,
+        //            SealHQ = z. ,
+        //            DiemLayRong = z. ,
+        //            DiemTraRong = z. ,
+        //        }).ToList(),
+        //    }).ToListAsync();
+
+        //}
 
         public async Task<PagedResponseCustom<ListBillHandling>> GetListBillHandling(PaginationFilter filter)
         {

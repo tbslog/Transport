@@ -12,23 +12,27 @@ using TBSLogistics.Data.TMS;
 using TBSLogistics.Model.CommonModel;
 using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.ContractModel;
+using TBSLogistics.Model.Model.SubFeePriceModel;
 using TBSLogistics.Model.TempModel;
 using TBSLogistics.Model.Wrappers;
 using TBSLogistics.Service.Services.Common;
+using TBSLogistics.Service.Services.PricelistManage;
 
 namespace TBSLogistics.Service.Services.ContractManage
 {
     public class ContractService : IContract
     {
         private readonly TMSContext _TMSContext;
+        private readonly IPriceTable _priceTable;
         private readonly ICommon _common;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private TempData tempData;
 
-        public ContractService(TMSContext tMSContext, ICommon common, IHttpContextAccessor httpContextAccessor)
+        public ContractService(TMSContext tMSContext, ICommon common, IPriceTable priceTable, IHttpContextAccessor httpContextAccessor)
         {
             _httpContextAccessor = httpContextAccessor;
             _TMSContext = tMSContext;
+            _priceTable = priceTable;
             _common = common;
             tempData = _common.DecodeToken(_httpContextAccessor.HttpContext.Request.Headers["Authorization"][0].ToString().Replace("Bearer ", ""));
         }
@@ -96,7 +100,7 @@ namespace TBSLogistics.Service.Services.ContractManage
                     NgayThanhToan = request.NgayThanhToan,
                     MaKh = request.MaKh,
                     GhiChu = request.GhiChu,
-                    TrangThai = 24,
+                    TrangThai = 49,
                     UpdatedTime = DateTime.Now,
                     CreatedTime = DateTime.Now,
                     Creator = tempData.UserName,
@@ -254,6 +258,8 @@ namespace TBSLogistics.Service.Services.ContractManage
                     ThoiGianKetThuc = getContractById.ThoiGianKetThuc,
                     GhiChu = getContractById.GhiChu,
                     TrangThai = getContractById.TrangThai,
+                    FileContract = _TMSContext.Attachment.Where(y => y.MaHopDong == getContractById.MaHopDong).OrderByDescending(x => x.Id).Select(y => y.Id).FirstOrDefault().ToString(),
+                    FileCosing = _TMSContext.Attachment.Where(y => y.MaHopDong == getContractById.MaHopDong + "_Costing").OrderByDescending(x => x.Id).Select(y => y.Id).FirstOrDefault().ToString(),
                 };
             }
             catch (Exception ex)
@@ -262,12 +268,151 @@ namespace TBSLogistics.Service.Services.ContractManage
             }
         }
 
+        public async Task<PagedResponseCustom<ListContract>> GetListContractApprove(PaginationFilter filter)
+        {
+            var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
+
+            var listData = from contract in _TMSContext.HopDongVaPhuLuc
+                           join cus in _TMSContext.KhachHang
+                           on contract.MaKh equals cus.MaKh
+                           join tt in _TMSContext.StatusText
+                           on contract.TrangThai equals tt.StatusId
+                           where tt.LangId == tempData.LangID && tt.StatusId == 49
+                           orderby contract.UpdatedTime descending
+                           select new
+                           {
+                               contract,
+                               cus,
+                               tt
+                           };
+
+            var qd = listData.ToQueryString();
+
+            if (!string.IsNullOrEmpty(filter.Keyword))
+            {
+                listData = listData.Where(x => x.cus.TenKh.Contains(filter.Keyword));
+            }
+
+            var totalCount = await listData.CountAsync();
+
+            var pagedData = await listData.Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new ListContract()
+            {
+                Account = x.contract.Account,
+                ChuoiKhachHang = _TMSContext.ChuoiKhachHang.Where(y => y.MaChuoi == x.cus.Chuoi).Select(y => y.TenChuoi).FirstOrDefault(),
+                NgayThanhToan = x.contract.NgayThanhToan,
+                MaHopDong = x.contract.MaHopDong,
+                TenHienThi = x.contract.TenHienThi,
+                LoaiHinhHopTac = x.contract.LoaiHinhHopTac == "TrucTiep" ? "Trực Tiếp" : "Gián Tiếp",
+                MaLoaiSPDV = _TMSContext.LoaiSpdv.Where(y => y.MaLoaiSpdv == x.contract.MaLoaiSpdv).Select(y => y.TenLoaiSpdv).FirstOrDefault(),
+                MaLoaiHinh = _TMSContext.LoaiHinhKho.Where(y => y.MaLoaiHinh == x.contract.MaLoaiHinh).Select(y => y.TenLoaiHinh).FirstOrDefault(),
+                HinhThucThue = x.contract.HinhThucThue != null ? (x.contract.HinhThucThue == "CoDinh" ? "Cố Định" : "Không Cố Định") : "",
+                MaKh = x.contract.MaKh,
+                TenKH = x.cus.TenKh,
+                PhanLoaiHopDong = x.contract.MaLoaiHopDong,
+                TrangThai = x.tt.StatusContent,
+                ThoiGianBatDau = x.contract.ThoiGianBatDau,
+                ThoiGianKetThuc = x.contract.ThoiGianKetThuc,
+                FileCosing = _TMSContext.Attachment.Where(y => y.MaHopDong == x.contract.MaHopDong + "_Costing").OrderByDescending(x => x.Id).Select(y => y.Id).FirstOrDefault().ToString(),
+                FileContract = _TMSContext.Attachment.Where(y => y.MaHopDong == x.contract.MaHopDong).OrderByDescending(x => x.Id).Select(y => y.Id).FirstOrDefault().ToString(),
+            }).ToListAsync();
+
+            return new PagedResponseCustom<ListContract>()
+            {
+                dataResponse = pagedData,
+                totalCount = totalCount,
+                paginationFilter = validFilter
+            };
+        }
+
+        public async Task<BoolActionResult> ApproveContract(List<ApproveContract> request)
+        {
+            try
+            {
+                if (request.Count < 1)
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Input không hợp lệ" };
+                }
+
+                foreach (var item in request)
+                {
+                    var getById = await _TMSContext.HopDongVaPhuLuc.Where(x => x.MaHopDong == item.contractId).FirstOrDefaultAsync();
+
+                    if (getById == null)
+                    {
+                        return new BoolActionResult { isSuccess = false, Message = "Mã Hợp Đồng/Phụ Lục: " + getById.MaHopDong + ", không tồn tại trong hệ thống" };
+                    }
+
+                    if (getById.TrangThai != 49)
+                    {
+                        return new BoolActionResult { isSuccess = false, Message = "Không thể duyệt hợp đồng/phụ lục: " + getById.MaHopDong };
+                    }
+
+                    var getListPriceTableByConTract = await _TMSContext.BangGia.Where(x => x.MaHopDong == getById.MaHopDong && x.TrangThai == 3).ToListAsync();
+
+                    if (item.Selection == 1)
+                    {
+                        getById.TrangThai = 50;
+                        getById.Updater = tempData.UserName;
+                        getById.UpdatedTime = DateTime.Now;
+
+                        if (getListPriceTableByConTract.Count > 0)
+                        {
+                            var approve = await _priceTable.ApprovePriceTable(new Model.Model.PriceListModel.ApprovePriceTable()
+                            {
+                                Result = getListPriceTableByConTract.Select(x => new Model.Model.PriceListModel.Result
+                                {
+                                    Id = x.Id,
+                                    IsAgree = 1
+                                }).ToList()
+                            });
+                        }
+                    }
+                    else
+                    {
+                        getById.TrangThai = 24;
+                        getById.Updater = tempData.UserName;
+                        getById.UpdatedTime = DateTime.Now;
+
+                        if (getListPriceTableByConTract.Count > 0)
+                        {
+                            var approve = await _priceTable.ApprovePriceTable(new Model.Model.PriceListModel.ApprovePriceTable()
+                            {
+                                Result = getListPriceTableByConTract.Select(x => new Model.Model.PriceListModel.Result
+                                {
+                                    Id = x.Id,
+                                    IsAgree = 0
+                                }).ToList()
+                            });
+                        }
+                    }
+
+                    _TMSContext.Update(getById);
+                }
+
+                var result = await _TMSContext.SaveChangesAsync();
+
+                if (result > 0)
+                {
+                    await _common.Log("SubFeePriceManage", "UserId: " + tempData.UserID + " Approve SubFeePrice with data: " + JsonSerializer.Serialize(request));
+                    return new BoolActionResult { isSuccess = true, Message = "Duyệt Hợp đồng/Phụ Lục thành công!" };
+                }
+                else
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Duyệt Hợp đồng/Phụ Lục thất bại!" };
+                }
+            }
+            catch (Exception ex)
+            {
+                await _common.Log("SubFeePriceManage", "UserId: " + tempData.UserID + " approve SubFeePrice with ERROR: " + ex.ToString());
+                return new BoolActionResult { isSuccess = false, Message = ex.ToString(), DataReturn = "Exception" };
+            }
+        }
+
         public async Task<PagedResponseCustom<ListContract>> GetListContract(PaginationFilter filter)
         {
             try
             {
                 var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
-
 
                 var listData = from contract in _TMSContext.HopDongVaPhuLuc
                                join cus in _TMSContext.KhachHang
@@ -280,7 +425,7 @@ namespace TBSLogistics.Service.Services.ContractManage
                                {
                                    contract,
                                    cus,
-                                   tt,
+                                   tt
                                };
 
                 var listAddendums = listData;
@@ -357,7 +502,7 @@ namespace TBSLogistics.Service.Services.ContractManage
             }
         }
 
-        public async Task<List<GetContractById>> GetListContractSelect(string MaKH, bool getChild, bool getProductService)
+        public async Task<List<GetContractById>> GetListContractSelect(string MaKH, bool getChild, bool getProductService, bool listApprove)
         {
             var getList = from ct in _TMSContext.HopDongVaPhuLuc
                           join kh in _TMSContext.KhachHang on ct.MaKh equals kh.MaKh
@@ -377,6 +522,11 @@ namespace TBSLogistics.Service.Services.ContractManage
             if (getProductService == false)
             {
                 getList = getList.Where(x => x.ct.MaHopDong != "SPDV_TBSL");
+            }
+
+            if (listApprove == true)
+            {
+                getList = getList.Where(x => x.ct.TrangThai == 49);
             }
 
             var list = await getList.Select(x => new GetContractById()

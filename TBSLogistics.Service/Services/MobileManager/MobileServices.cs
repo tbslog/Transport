@@ -122,6 +122,7 @@ namespace TBSLogistics.Service.Services.MobileManager
                     getDataHandlingMobiles = listTransport.Where(o => o.dp.MaChuyen == x.dp.MaChuyen).Select(c => new GetDataHandlingMobile()
                     {
                         BookingNo = c.vd.MaVanDonKh,
+                        MaPTVC = c.vd.MaPtvc,
                         MaVanDon = c.vd.MaVanDon,
                         HandlingId = (c.vd.MaPtvc == "LCL" || c.vd.MaPtvc == "LTL") ? _context.DieuPhoi.Where(o => o.MaVanDon == c.vd.MaVanDon).Select(o => o.Id).FirstOrDefault() : _context.DieuPhoi.Where(o => o.MaChuyen == x.dp.MaChuyen).Select(o => o.Id).FirstOrDefault(),
                         LoaiVanDon = c.vd.LoaiVanDon,

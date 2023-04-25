@@ -16,7 +16,9 @@ namespace TBSLogistics.Service.Services.ContractManage
         public Task<BoolActionResult> EditContract(string id, EditContract request);
         public Task<GetContractById> GetContractById(string id);
         Task<PagedResponseCustom<ListContract>> GetListContract(PaginationFilter filter);
-        Task<List<GetContractById>> GetListContractSelect(string MaKH, bool getChild, bool getProductService);
+        Task<List<GetContractById>> GetListContractSelect(string MaKH, bool getChild, bool getProductService, bool listApprove);
         Task<ListOptionSelect> GetListOptionSelect();
+        Task<PagedResponseCustom<ListContract>> GetListContractApprove(PaginationFilter filter);
+        Task<BoolActionResult> ApproveContract(List<ApproveContract> request);
     }
 }

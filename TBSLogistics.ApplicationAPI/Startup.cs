@@ -55,11 +55,9 @@ namespace TBSLogistics.ApplicationAPI
                 option.AddPolicy(name: apiCorsPolicy, policy =>
                  {
                      //policy.WithOrigins("http://localhost:3000", "http://192.168.0.254:9999", "https://tms.tbslogistics.com.vn").AllowAnyMethod().AllowAnyHeader();
-                    policy.WithOrigins("*").AllowAnyMethod().AllowAnyHeader();
+                     policy.WithOrigins("*").AllowAnyMethod().AllowAnyHeader();
                  });
             });
-
-
 
             services.AddDbContext<TMSContext>(options => options.UseSqlServer(Configuration["TMS_Cloud"]));
             services.AddHttpContextAccessor();
@@ -71,9 +69,9 @@ namespace TBSLogistics.ApplicationAPI
                 return new PaginationService(uri);
             });
 
-            services.AddOptions();                                        
-            var mailsettings = Configuration.GetSection("MailSettings");  
-            services.Configure<MailSettings>(mailsettings);                
+            services.AddOptions();
+            var mailsettings = Configuration.GetSection("MailSettings");
+            services.Configure<MailSettings>(mailsettings);
 
 
             services.AddControllersWithViews();

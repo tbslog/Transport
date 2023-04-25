@@ -25,6 +25,7 @@ namespace TBSLogistics.Model.Model.ContractModel
         public DateTime ThoiGianKetThuc { get; set; }
         public string GhiChu { get; set; }
         public int TrangThai { get; set; }
-        public string File { get; set; }
+        public string FileContract { get; set; }
+        public string FileCosing { get; set; }
     }
 }

@@ -1,19 +1,22 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using TBSLogistics.Data.TMS;
 using TBSLogistics.Model.CommonModel;
 using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.PriceListModel;
+using TBSLogistics.Model.Model.UserModel;
 using TBSLogistics.Model.TempModel;
 using TBSLogistics.Model.Wrappers;
-using TBSLogistics.Service.Services.PricelistManage;
 using TBSLogistics.Service.Services.Common;
-using TBSLogistics.Model.Model.UserModel;
+using TBSLogistics.Service.Services.PricelistManage;
 
 namespace TBSLogistics.Service.Services.PriceTableManage
 {
@@ -55,6 +58,11 @@ namespace TBSLogistics.Service.Services.PriceTableManage
                         {
                             ErrorValidate += "Dòng " + row + ": Mã phương tiện không đúng với phương thức vận chuyển";
                         }
+
+                        if (item.DiemLayTraRong == null)
+                        {
+                            ErrorValidate += "Dòng " + row + ": Vui lòng chọn điểm lấy/trả rỗng";
+                        }
                     }
 
                     if (item.MaPtvc == "FTL" || item.MaPtvc == "LTL")
@@ -63,13 +71,12 @@ namespace TBSLogistics.Service.Services.PriceTableManage
                         {
                             ErrorValidate += "Dòng " + row + ": Mã phương tiện không đúng với phương thức vận chuyển";
                         }
-
                         item.DiemLayTraRong = null;
                     }
 
                     if (!string.IsNullOrEmpty(item.AccountId))
                     {
-                        var checkAccount = await _context.AccountOfCustomer.Where(x => x.MaAccount == item.AccountId).FirstOrDefaultAsync();
+                        var checkAccount = await _context.KhachHangAccount.Where(x => x.MaAccount == item.AccountId && x.MaKh == item.MaKH).FirstOrDefaultAsync();
                         if (checkAccount == null)
                         {
                             ErrorValidate += "Dòng " + row + ": Account " + item.AccountId + " không tồn tại";
@@ -93,7 +100,7 @@ namespace TBSLogistics.Service.Services.PriceTableManage
                     && x.MaLoaiPhuongTien == item.MaLoaiPhuongTien
                     && x.MaDvt == item.MaDvt
                     && x.MaLoaiHangHoa == item.MaLoaiHangHoa
-                    && x.MaLoaiDoiTac == item.MaLoaiDoiTac).ToList();
+                    ).ToList();
 
                     if (checkDuplicate.Count > 1)
                     {
@@ -105,17 +112,17 @@ namespace TBSLogistics.Service.Services.PriceTableManage
                         ErrorValidate += "Điểm đóng hàng không được giống điểm hạ hàng: ";
                     }
 
-                    var checkContract = await _context.HopDongVaPhuLuc.Where(x => x.MaHopDong == item.MaHopDong).FirstOrDefaultAsync();
+                    var checkContract = await _context.HopDongVaPhuLuc.Where(x => x.MaHopDong == item.MaHopDong && x.MaKh == item.MaKH && x.TrangThai == 49).FirstOrDefaultAsync();
                     if (checkContract == null)
                     {
-                        ErrorValidate += "Mã hợp đồng không tồn tại: " + string.Join(",", item.MaHopDong);
+                        ErrorValidate += "Hợp đồng không thể thêm bảng giá: " + string.Join(",", item.MaHopDong);
                     }
 
-                    var getNewestContract = await _context.HopDongVaPhuLuc.Where(x => x.MaKh == checkContract.MaKh).OrderByDescending(x => x.ThoiGianBatDau).FirstOrDefaultAsync();
-                    if (getNewestContract.MaHopDong != checkContract.MaHopDong)
-                    {
-                        ErrorValidate += "Vui Lòng Chọn Hợp Đồng Mới Nhất: " + string.Join(",", getNewestContract.MaHopDong);
-                    }
+                    //var getNewestContract = await _context.HopDongVaPhuLuc.Where(x => x.MaKh == checkContract.MaKh).OrderByDescending(x => x.ThoiGianBatDau).FirstOrDefaultAsync();
+                    //if (getNewestContract.MaHopDong != checkContract.MaHopDong)
+                    //{
+                    //    ErrorValidate += "Vui Lòng Chọn Hợp Đồng Mới Nhất: " + string.Join(",", getNewestContract.MaHopDong);
+                    //}
 
                     var firstPlace = await _context.DiaDiem.Where(x => x.MaDiaDiem == item.DiemDau).FirstOrDefaultAsync();
                     if (firstPlace == null)
@@ -185,7 +192,7 @@ namespace TBSLogistics.Service.Services.PriceTableManage
                     MaLoaiHangHoa = x.MaLoaiHangHoa,
                     NgayApDung = _context.HopDongVaPhuLuc.Where(y => y.MaHopDong == x.MaHopDong).Select(x => x.ThoiGianBatDau).FirstOrDefault(),
                     NgayHetHieuLuc = x.NgayHetHieuLuc,
-                    MaLoaiDoiTac = x.MaLoaiDoiTac,
+                    MaLoaiDoiTac = _context.KhachHang.Where(y => y.MaKh == x.MaKH).Select(y => y.MaLoaiKh).FirstOrDefault(),
                     TrangThai = 3,
                     CreatedTime = DateTime.Now,
                     UpdatedTime = DateTime.Now,
@@ -297,25 +304,6 @@ namespace TBSLogistics.Service.Services.PriceTableManage
                 }
             }
 
-            var gr = from t in getList
-                     group t by new { t.bg.MaDvt, t.bg.MaLoaiHangHoa, t.bg.MaLoaiPhuongTien, t.bg.MaPtvc, t.bg.MaLoaiDoiTac, t.bg.DiemDau, t.bg.DiemCuoi, t.bg.DiemLayTraRong, t.bg.MaAccount }
-                         into g
-                     select new
-                     {
-                         g.Key.DiemCuoi,
-                         g.Key.DiemDau,
-                         g.Key.DiemLayTraRong,
-                         g.Key.MaDvt,
-                         g.Key.MaLoaiHangHoa,
-                         g.Key.MaLoaiPhuongTien,
-                         g.Key.MaPtvc,
-                         g.Key.MaLoaiDoiTac,
-                         g.Key.MaAccount,
-                         Id = (from t2 in g select t2.bg.Id).Max(),
-                     };
-
-            getList = getList.Where(x => gr.Select(y => y.Id).Contains(x.bg.Id));
-
             if (listFilter.listDiemDau.Count > 0)
             {
                 getList = getList.Where(x => listFilter.listDiemDau.Contains(x.bg.DiemDau));
@@ -409,7 +397,6 @@ namespace TBSLogistics.Service.Services.PriceTableManage
 
             listPriceTable = listPriceTable.Where(x => gr.Select(y => y.Id).Contains(x.bg.Id));
 
-
             return await listPriceTable.Select(x => new GetPriceListRequest()
             {
                 ID = x.bg.Id,
@@ -429,11 +416,9 @@ namespace TBSLogistics.Service.Services.PriceTableManage
                 MaLoaiDoiTac = x.bg.MaLoaiDoiTac,
                 TrangThai = x.bg.TrangThai,
             }).ToListAsync();
-
-
         }
 
-        public async Task<PagedResponseCustom<ListApprove>> GetListPriceTableApprove(PaginationFilter filter)
+        public async Task<PagedResponseCustom<ListApprove>> GetListPriceTableApprove(string contractId, PaginationFilter filter)
         {
             var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
 
@@ -444,6 +429,11 @@ namespace TBSLogistics.Service.Services.PriceTableManage
                           on hd.MaHopDong equals bg.MaHopDong
                           orderby bg.CreatedTime descending
                           select new { kh, hd, bg };
+
+            if (!string.IsNullOrEmpty(contractId))
+            {
+                getData = getData.Where(x => x.hd.MaHopDong == contractId.Trim());
+            }
 
             if (!string.IsNullOrEmpty(filter.Keyword))
             {
@@ -522,7 +512,6 @@ namespace TBSLogistics.Service.Services.PriceTableManage
                         _context.BangGia.Update(dataPriceTable.bg);
                     }
 
-
                     if (item.IsAgree == 0)
                     {
                         var checkOldPriceTable = await _context.BangGia.Where(x =>
@@ -554,7 +543,6 @@ namespace TBSLogistics.Service.Services.PriceTableManage
 
                 await _common.Log("PriceTableManage", "UserId: " + tempData.UserName + " Approve PriceTable with Data: " + JsonSerializer.Serialize(request));
                 return new BoolActionResult { isSuccess = true, Message = "Duyệt bảng giá thành công" };
-
             }
             catch (Exception ex)
             {
@@ -651,10 +639,10 @@ namespace TBSLogistics.Service.Services.PriceTableManage
                     return new BoolActionResult { isSuccess = false, Message = "Điểm đóng hàng không được giống điểm hạ hàng" };
                 }
 
-                var checkContract = await _context.HopDongVaPhuLuc.Where(x => x.MaHopDong == request.MaHopDong).FirstOrDefaultAsync();
+                var checkContract = await _context.HopDongVaPhuLuc.Where(x => x.MaHopDong == request.MaHopDong && x.TrangThai == 49).FirstOrDefaultAsync();
                 if (checkContract == null)
                 {
-                    return new BoolActionResult { isSuccess = false, Message = "Mã hợp đồng không tồn tại" };
+                    return new BoolActionResult { isSuccess = false, Message = "Hợp đồng này không thể sửa giá" };
                 }
 
                 var getNewestContract = await _context.HopDongVaPhuLuc.Where(x => x.MaKh == checkContract.MaKh).OrderByDescending(x => x.ThoiGianBatDau).FirstOrDefaultAsync();
@@ -791,6 +779,181 @@ namespace TBSLogistics.Service.Services.PriceTableManage
             return ErrorValidate;
         }
 
+        public async Task<BoolActionResult> CreatePriceByExcel(IFormFile formFile, CancellationToken cancellationToken)
+        {
+            try
+            {
+                int ErrorRow = 0;
+                if (formFile == null || formFile.Length <= 0)
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Not Support file extension" };
+                }
+
+                if (!Path.GetExtension(formFile.FileName).Equals(".xlsx", StringComparison.OrdinalIgnoreCase))
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Not Support file extension" };
+                }
+
+                var list = new List<CreatePriceListRequest>();
+
+                using (var stream = new MemoryStream())
+                {
+                    await formFile.CopyToAsync(stream, cancellationToken);
+
+                    using (var package = new ExcelPackage(stream))
+                    {
+                        ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                        ExcelWorksheet worksheet = package.Workbook.Worksheets[0];
+                        var rowCount = worksheet.Dimension.Rows;
+
+                        if (rowCount == 0)
+                        {
+                            return new BoolActionResult { isSuccess = false, Message = "This file is empty" };
+                        }
+
+                        if (
+                            worksheet.Cells[1, 1].Value.ToString().Trim() != "MaKH" ||
+                            worksheet.Cells[1, 2].Value.ToString().Trim() != "Account" ||
+                            worksheet.Cells[1, 3].Value.ToString().Trim() != "MaHopDong" ||
+                            worksheet.Cells[1, 4].Value.ToString().Trim() != "DiemDau" ||
+                            worksheet.Cells[1, 5].Value.ToString().Trim() != "DiemCuoi" ||
+                            worksheet.Cells[1, 6].Value.ToString().Trim() != "DiemLayTraRong" ||
+                            worksheet.Cells[1, 7].Value.ToString().Trim() != "DonGia" ||
+                            worksheet.Cells[1, 8].Value.ToString().Trim() != "MaPtvc" ||
+                            worksheet.Cells[1, 9].Value.ToString().Trim() != "MaLoaiPhuongTien" ||
+                            worksheet.Cells[1, 10].Value.ToString().Trim() != "MaLoaiHangHoa"
+                            )
+                        {
+                            return new BoolActionResult { isSuccess = false, Message = "File excel không đúng định dạng chuẩn" };
+                        }
+
+                        for (int row = 3; row <= rowCount; row++)
+                        {
+                            ErrorRow = row;
+
+                            string MaKH = worksheet.Cells[row, 1].Value == null ? null : worksheet.Cells[row, 1].Value.ToString().Trim().ToUpper();
+                            string AccountId = worksheet.Cells[row, 2].Value == null ? null : worksheet.Cells[row, 2].Value.ToString().Trim().ToUpper();
+                            string ContractId = worksheet.Cells[row, 3].Value == null ? null : worksheet.Cells[row, 3].Value.ToString().Trim().ToUpper();
+                            string FirstPlace = worksheet.Cells[row, 4].Value == null ? null : worksheet.Cells[row, 4].Value.ToString().Trim();
+                            string SecondPlace = worksheet.Cells[row, 5].Value == null ? null : worksheet.Cells[row, 5].Value.ToString().Trim();
+                            string getEmptyPlace = worksheet.Cells[row, 6].Value == null ? null : worksheet.Cells[row, 6].Value.ToString();
+                            string Price = worksheet.Cells[row, 7].Value == null ? null : worksheet.Cells[row, 7].Value.ToString().Trim();
+                            string Ptvc = worksheet.Cells[row, 8].Value == null ? null : worksheet.Cells[row, 8].Value.ToString().Trim().ToUpper();
+                            string VehicleType = worksheet.Cells[row, 9].Value == null ? null : worksheet.Cells[row, 9].Value.ToString().Trim().ToUpper();
+                            string GoodsType = worksheet.Cells[row, 10].Value == null ? null : worksheet.Cells[row, 10].Value.ToString().Trim();
+
+                            if (MaKH == null)
+                            {
+                                return new BoolActionResult { isSuccess = false, Message = "Dòng " + row + ": Không được để trống Mã Khách Hàng" };
+                            }
+                            if (ContractId == null)
+                            {
+                                return new BoolActionResult { isSuccess = false, Message = "Dòng " + row + ":Không được để trống Mã Hợp Đồng" };
+                            }
+                            if (FirstPlace == null)
+                            {
+                                return new BoolActionResult { isSuccess = false, Message = "Dòng " + row + ":Không được để trống Điểm Đóng Hàng" };
+                            }
+                            else
+                            {
+                                var checkIsNum = int.TryParse(FirstPlace, out _);
+
+                                if (checkIsNum == false)
+                                {
+                                    return new BoolActionResult { isSuccess = false, Message = "Dòng " + row + ":Sai mã địa điểm" };
+                                }
+                            }
+                            if (SecondPlace == null)
+                            {
+                                return new BoolActionResult { isSuccess = false, Message = "Dòng " + row + ":Không được để trống Điểm Trả Hàng" };
+                            }
+                            else
+                            {
+                                var checkIsNum = int.TryParse(SecondPlace, out _);
+
+                                if (checkIsNum == false)
+                                {
+                                    return new BoolActionResult { isSuccess = false, Message = "Dòng " + row + ":Sai mã địa điểm" };
+                                }
+                            }
+
+                            if (getEmptyPlace != null)
+                            {
+                                var checkIsNum = int.TryParse(getEmptyPlace, out _);
+
+                                if (checkIsNum == false)
+                                {
+                                    return new BoolActionResult { isSuccess = false, Message = "Dòng " + row + ":Sai mã địa điểm" };
+                                }
+                            }
+
+                            if (Price == null)
+                            {
+                                return new BoolActionResult { isSuccess = false, Message = "Dòng " + row + ":Không được để trống Đơn Giá" };
+                            }
+                            else
+                            {
+                                var checkIsNum = decimal.TryParse(Price, out _);
+
+                                if (checkIsNum == false)
+                                {
+                                    return new BoolActionResult { isSuccess = false, Message = "Dòng " + row + ":Sai mã địa điểm" };
+                                }
+                            }
+                            //if (Dvt == null)
+                            //{
+                            //    return new BoolActionResult { isSuccess = false, Message = "Dòng " + row + ":Không được để trống Đơn Vị Tính" };
+                            //}
+                            if (Ptvc == null)
+                            {
+                                return new BoolActionResult { isSuccess = false, Message = "Dòng " + row + ":Không được để trống Phương Thức Vận Chuyển" };
+                            }
+                            if (VehicleType == null)
+                            {
+                                return new BoolActionResult { isSuccess = false, Message = "Dòng " + row + ":Không được để trống Loại Phương Tiện" };
+                            }
+                            if (GoodsType == null)
+                            {
+                                return new BoolActionResult { isSuccess = false, Message = "Dòng " + row + ":Không được để trống Loại Hàng Hóa" };
+                            }
+
+                            list.Add(new CreatePriceListRequest()
+                            {
+                                DiemLayTraRong = getEmptyPlace == null ? null : int.Parse(getEmptyPlace),
+                                AccountId = AccountId,
+                                DiemDau = int.Parse(FirstPlace),
+                                DiemCuoi = int.Parse(SecondPlace),
+                                MaHopDong = ContractId,
+                                MaKH = MaKH,
+                                MaPtvc = Ptvc,
+                                MaLoaiPhuongTien = VehicleType,
+                                DonGia = decimal.Parse(Price),
+                                MaDvt = "CHUYEN",
+                                MaLoaiHangHoa = GoodsType,
+                                MaLoaiDoiTac = "",
+                                NgayHetHieuLuc = null,
+                            });
+                        }
+                    }
+                }
+
+                var addPriceTable = await CreatePriceTable(list);
+
+                if (addPriceTable.isSuccess == true)
+                {
+                    return new BoolActionResult { isSuccess = true, Message = "Tạo bảng giá thành công!" };
+                }
+                else
+                {
+                    return addPriceTable;
+                }
+            }
+            catch (Exception ex)
+            {
+                return new BoolActionResult { isSuccess = false, Message = ex.ToString() };
+            }
+        }
+
         public Task<List<GetPriceListRequest>> GetListPriceTableExportExcel(string cusType)
         {
             var getList = from bg in _context.BangGia
@@ -802,7 +965,7 @@ namespace TBSLogistics.Service.Services.PriceTableManage
                           && bg.NgayApDung.Date <= DateTime.Now.Date
                           && bg.TrangThai == 4
                           && bg.MaLoaiDoiTac == cusType
-                          orderby kh.TenKh 
+                          orderby kh.TenKh
                           select new { bg, hd, kh };
 
             var data = getList.Select(x => new GetPriceListRequest()

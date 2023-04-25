@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using TBSLogistics.Model.Filter;
@@ -109,7 +110,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
                 }
             }
 
-            if(filter.customerType == "NCC")
+            if (filter.customerType == "NCC")
             {
                 var checkPermission = await _common.CheckPermission("B0005");
                 if (checkPermission.isSuccess == false)
@@ -127,9 +128,42 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<IActionResult> GetListContractSelect(string MaKH = null, bool getChild = true, bool getProductService = false)
+        public async Task<IActionResult> GetListContractApprove([FromQuery] PaginationFilter filter)
         {
-            var list = await _contract.GetListContractSelect(MaKH, getChild, getProductService);
+            var route = Request.Path.Value;
+            var pagedData = await _contract.GetListContractApprove(filter);
+
+            var pagedReponse = PaginationHelper.CreatePagedReponse<ListContract>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _pagination, route);
+            return Ok(pagedReponse);
+        }
+
+        [HttpPost]
+        [Route("[action]")]
+        public async Task<IActionResult> ApproveContract(List<ApproveContract> request)
+        {
+            var checkPermission = await _common.CheckPermission("B0005");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
+            var add = await _contract.ApproveContract(request);
+
+            if (add.isSuccess == true)
+            {
+                return Ok(add.Message);
+            }
+            else
+            {
+                return BadRequest(add.Message);
+            }
+        }
+
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetListContractSelect(string MaKH = null, bool getChild = true, bool getProductService = false, bool getListApprove = false)
+        {
+            var list = await _contract.GetListContractSelect(MaKH, getChild, getProductService, getListApprove);
             return Ok(list);
         }
 

@@ -5,6 +5,7 @@ using OfficeOpenXml.FormulaParsing.LexicalAnalysis;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Http.Headers;
@@ -134,11 +135,11 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                         for (int row = 3; row <= rowCount; row++)
                         {
                             ErrorRow = row;
-                            string LoaiVanDon = worksheet.Cells[row, 1].Value == null ? null : worksheet.Cells[row, 1].Value.ToString().Trim();
-                            string MaPTVC = worksheet.Cells[row, 2].Value == null ? null : worksheet.Cells[row, 2].Value.ToString().Trim();
-                            string MaKH = worksheet.Cells[row, 3].Value == null ? null : worksheet.Cells[row, 3].Value.ToString().Trim();
+                            string LoaiVanDon = worksheet.Cells[row, 1].Value == null ? null : worksheet.Cells[row, 1].Value.ToString().Trim().ToLower();
+                            string MaPTVC = worksheet.Cells[row, 2].Value == null ? null : worksheet.Cells[row, 2].Value.ToString().Trim().ToUpper();
+                            string MaKH = worksheet.Cells[row, 3].Value == null ? null : worksheet.Cells[row, 3].Value.ToString().Trim().ToUpper();
                             string Account = worksheet.Cells[row, 4].Value == null ? null : worksheet.Cells[row, 4].Value.ToString().Trim();
-                            string MaVanDonKH = worksheet.Cells[row, 5].Value == null ? null : worksheet.Cells[row, 5].Value.ToString().Trim();
+                            string MaVanDonKH = worksheet.Cells[row, 5].Value == null ? null : worksheet.Cells[row, 5].Value.ToString().Trim().ToUpper();
                             string HangTau = worksheet.Cells[row, 6].Value == null ? null : worksheet.Cells[row, 6].Value.ToString().Trim();
                             string Tau = worksheet.Cells[row, 7].Value == null ? null : worksheet.Cells[row, 7].Value.ToString().Trim();
                             string DiemDau = worksheet.Cells[row, 8].Value == null ? null : worksheet.Cells[row, 8].Value.ToString().Trim();
@@ -147,7 +148,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                             string TongTheTich = worksheet.Cells[row, 11].Value == null ? null : worksheet.Cells[row, 11].Value.ToString().Trim();
                             string TongSoKien = worksheet.Cells[row, 12].Value == null ? null : worksheet.Cells[row, 12].Value.ToString().Trim();
                             string MaLoaiHangHoa = worksheet.Cells[row, 13].Value == null ? null : worksheet.Cells[row, 13].Value.ToString().Trim();
-                            string MaLoaiPhuongTien = worksheet.Cells[row, 14].Value == null ? null : worksheet.Cells[row, 14].Value.ToString().Trim();
+                            string MaLoaiPhuongTien = worksheet.Cells[row, 14].Value == null ? null : worksheet.Cells[row, 14].Value.ToString().Trim().ToUpper();
                             string DiemTraRong = worksheet.Cells[row, 15].Value == null ? null : worksheet.Cells[row, 15].Value.ToString().Trim();
                             string DiemLayRong = worksheet.Cells[row, 16].Value == null ? null : worksheet.Cells[row, 16].Value.ToString().Trim();
                             string KhoiLuong = worksheet.Cells[row, 17].Value == null ? null : worksheet.Cells[row, 17].Value.ToString().Trim();
@@ -158,10 +159,10 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                             string ThoiGianLayHang = worksheet.Cells[row, 22].Value == null ? null : worksheet.Cells[row, 22].Value.ToString().Trim();
                             string ThoiGianTraHang = worksheet.Cells[row, 23].Value == null ? null : worksheet.Cells[row, 23].Value.ToString().Trim();
                             string GhiChu = worksheet.Cells[row, 24].Value == null ? null : worksheet.Cells[row, 24].Value.ToString().Trim();
-                            string DonViVanTai = worksheet.Cells[row, 25].Value == null ? null : worksheet.Cells[row, 25].Value.ToString().Trim();
+                            string DonViVanTai = worksheet.Cells[row, 25].Value == null ? null : worksheet.Cells[row, 25].Value.ToString().Trim().ToUpper();
                             string MaSoXe = worksheet.Cells[row, 26].Value == null ? null : worksheet.Cells[row, 26].Value.ToString().Trim();
                             string MaTaiXe = worksheet.Cells[row, 27].Value == null ? null : worksheet.Cells[row, 27].Value.ToString().Trim();
-                            string Cont_No = worksheet.Cells[row, 28].Value == null ? null : worksheet.Cells[row, 28].Value.ToString().Trim();
+                            string Cont_No = worksheet.Cells[row, 28].Value == null ? null : worksheet.Cells[row, 28].Value.ToString().Trim().ToUpper();
                             string SEAL_NP = worksheet.Cells[row, 29].Value == null ? null : worksheet.Cells[row, 29].Value.ToString().Trim();
                             string SEAL_HQ = worksheet.Cells[row, 30].Value == null ? null : worksheet.Cells[row, 30].Value.ToString().Trim();
                             string GhiChuDP = worksheet.Cells[row, 31].Value == null ? null : worksheet.Cells[row, 31].Value.ToString().Trim();
@@ -172,10 +173,10 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 
                                 list.Add(new CreateTransport()
                                 {
-                                    LoaiVanDon = LoaiVanDon.ToLower(),
-                                    MaKH = MaKH.ToUpper(),
-                                    AccountId = Account.ToUpper(),
-                                    MaVanDonKH = MaVanDonKH.ToUpper(),
+                                    LoaiVanDon = LoaiVanDon,
+                                    MaKH = MaKH,
+                                    AccountId = Account == null ? null : Account,
+                                    MaVanDonKH = MaVanDonKH,
                                     HangTau = HangTau,
                                     TenTau = Tau,
                                     DiemCuoi = int.Parse(DiemCuoi),
@@ -184,21 +185,21 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                     TongTheTich = string.IsNullOrEmpty(TongTheTich) ? null : double.Parse(TongTheTich),
                                     TongSoKien = string.IsNullOrEmpty(TongSoKien) ? null : double.Parse(TongSoKien),
                                     GhiChu = GhiChu,
-                                    MaPTVC = MaPTVC.ToUpper(),
-                                    ThoiGianLayHang = string.IsNullOrEmpty(ThoiGianLayHang) ? null : DateTime.Parse(ThoiGianLayHang),
-                                    ThoiGianTraHang = string.IsNullOrEmpty(ThoiGianTraHang) ? null : DateTime.Parse(ThoiGianTraHang),
-                                    ThoiGianLayRong = string.IsNullOrEmpty(ThoiGianLayTraRong) ? null : DateTime.Parse(ThoiGianLayTraRong),
-                                    ThoiGianTraRong = string.IsNullOrEmpty(ThoiGianLayTraRong) ? null : DateTime.Parse(ThoiGianLayTraRong),
-                                    ThoiGianHaCang = LoaiVanDon == "xuat" ? string.IsNullOrEmpty(ThoiGianHanLenhOrThoiGianHaCang) ? null : DateTime.Parse(ThoiGianHanLenhOrThoiGianHaCang) : null,
-                                    ThoiGianHanLenh = LoaiVanDon == "nhap" ? string.IsNullOrEmpty(ThoiGianHanLenhOrThoiGianHaCang) ? null : DateTime.Parse(ThoiGianHanLenhOrThoiGianHaCang) : null,
+                                    MaPTVC = MaPTVC,
+                                    ThoiGianLayHang = string.IsNullOrEmpty(ThoiGianLayHang) ? null : DateTime.ParseExact(ThoiGianLayHang, "dd/MM/yyyy HH:mm", CultureInfo.InvariantCulture),
+                                    ThoiGianTraHang = string.IsNullOrEmpty(ThoiGianTraHang) ? null : DateTime.ParseExact(ThoiGianTraHang, "dd/MM/yyyy HH:mm", CultureInfo.InvariantCulture),
+                                    ThoiGianLayRong = string.IsNullOrEmpty(ThoiGianLayTraRong) ? null : DateTime.ParseExact(ThoiGianLayTraRong, "dd/MM/yyyy HH:mm", CultureInfo.InvariantCulture),
+                                    ThoiGianTraRong = string.IsNullOrEmpty(ThoiGianLayTraRong) ? null : DateTime.ParseExact(ThoiGianLayTraRong, "dd/MM/yyyy HH:mm", CultureInfo.InvariantCulture),
+                                    ThoiGianHaCang = LoaiVanDon == "xuat" ? string.IsNullOrEmpty(ThoiGianHanLenhOrThoiGianHaCang) ? null : DateTime.ParseExact(ThoiGianHanLenhOrThoiGianHaCang, "dd/MM/yyyy HH:mm", CultureInfo.InvariantCulture) : null,
+                                    ThoiGianHanLenh = LoaiVanDon == "nhap" ? string.IsNullOrEmpty(ThoiGianHanLenhOrThoiGianHaCang) ? null : DateTime.ParseExact(ThoiGianHanLenhOrThoiGianHaCang, "dd/MM/yyyy HH:mm", CultureInfo.InvariantCulture) : null,
                                     arrHandlings = new List<arrHandling>()
                                     {
                                        new arrHandling()
                                        {
                                         GhiChu = GhiChuDP,
-                                        ContNo = string.IsNullOrEmpty(Cont_No) ? null:Cont_No.ToUpper(),
-                                        DonViVanTai =  string.IsNullOrEmpty(DonViVanTai) ? null:DonViVanTai.ToUpper(),
-                                        PTVanChuyen = MaLoaiPhuongTien.ToUpper(),
+                                        ContNo = string.IsNullOrEmpty(Cont_No) ? null:Cont_No,
+                                        DonViVanTai =  string.IsNullOrEmpty(DonViVanTai) ? null:DonViVanTai,
+                                        PTVanChuyen = MaLoaiPhuongTien,
                                         LoaiHangHoa = MaLoaiHangHoa,
                                         DonViTinh = "CHUYEN",
                                         DiemLayRong = string.IsNullOrEmpty(DiemLayRong)?null: int.Parse(DiemLayRong),
@@ -212,9 +213,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                             }
                             else
                             {
-                                list = list.Where(x => x.MaVanDonKH == MaVanDonKH).ToList();
-
-                                foreach (var item in list)
+                                foreach (var item in list.Where(x => x.MaVanDonKH == MaVanDonKH).ToList())
                                 {
                                     item.arrHandlings.Add(new arrHandling
                                     {
@@ -359,7 +358,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
             }
             catch (Exception ex)
             {
-                return new BoolActionResult { isSuccess = false, Message = "Lỗi dữ liệu tại dòng " + ErrorRow };
+                return new BoolActionResult { isSuccess = false, Message = "Lỗi dữ liệu tại dòng " + ErrorRow + "\r\n" + ex.ToString() };
             }
         }
 
@@ -415,7 +414,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 
                 if (!string.IsNullOrEmpty(request.AccountId))
                 {
-                    var checkAccount = await _context.AccountOfCustomer.Where(x => x.MaAccount == request.AccountId.Trim()).FirstOrDefaultAsync();
+                    var checkAccount = await _context.KhachHangAccount.Where(x => x.MaAccount == request.AccountId.Trim() && x.MaKh == request.MaKH).FirstOrDefaultAsync();
                     if (checkAccount == null)
                     {
                         return new BoolActionResult { isSuccess = false, Message = "Account không tồn tại" };
@@ -4578,7 +4577,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
             {
                 var getlistHandling = await _context.DieuPhoi.Where(x => handlingIds.Ids.Contains(x.Id)).ToListAsync();
 
-                if (getlistHandling.Where(x => x.DonViVanTai != null).Count() > 0)
+                if (getlistHandling.Where(x => x.DonViVanTai == null).Count() > 0)
                 {
                     return new BoolActionResult { isSuccess = false, Message = "Vui lòng chỉ chọn những chuyến đã gán Đơn Vị Vân Tải" };
                 }

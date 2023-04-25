@@ -539,7 +539,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             }
 
             var sendmail = await _billOfLading.SendMailToSuppliers(handlingIds);
-            return Ok(sendmail.Message);
+
+            if (sendmail.isSuccess == true)
+            {
+                return Ok(sendmail.Message);
+            }
+            return BadRequest(sendmail.Message);
         }
 
         //[HttpPost]
