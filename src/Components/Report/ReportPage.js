@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { getData } from "../Common/FuncAxios";
 import moment from "moment";
 import { Modal } from "bootstrap";
@@ -151,7 +151,7 @@ const ReportPage = () => {
                   </div>
                   <div className="card-body">
                     <div className="row">
-                      <div className="col-6">
+                      <div className="col-12">
                         <div className="card">
                           <div className="card-header">
                             <h3 className="card-title">
@@ -162,14 +162,28 @@ const ReportPage = () => {
                             <table className="table table-hover text-nowrap table-bordered">
                               <thead>
                                 <tr>
-                                  <th>Tên Khách Hàng</th>
+                                  <th>Khách Hàng</th>
                                   <th>Tổng Số Chuyến</th>
-                                  <th>Chuyến Nhập Khẩu</th>
-                                  <th>Chuyến Xuất Khẩu</th>
-                                  <th>FCL</th>
-                                  <th>FTL</th>
-                                  <th>LCL</th>
-                                  <th>LTL</th>
+                                  <th>20</th>
+                                  <th>40</th>
+                                  <th>40RF</th>
+                                  <th>45</th>
+                                  <th>1T</th>
+                                  <th>1.5T</th>
+                                  <th>1.7T</th>
+                                  <th>10T</th>
+                                  <th>15T</th>
+                                  <th>2T</th>
+                                  <th>2.5T</th>
+                                  <th>3T</th>
+                                  <th>3.5T</th>
+                                  <th>5T</th>
+                                  <th>7T</th>
+                                  <th>8T</th>
+                                  <th>9T</th>
+                                  <th>Doanh Thu</th>
+                                  <th>Chi Phí</th>
+                                  <th>Lợi Nhuận</th>
                                 </tr>
                               </thead>
                               <tbody>
@@ -186,12 +200,50 @@ const ReportPage = () => {
                                               <tr key={index}>
                                                 <td>{val.customerName}</td>
                                                 <td>{val.total}</td>
-                                                <td>{val.inPut}</td>
-                                                <td>{val.outPut}</td>
-                                                <td>{val.fcl}</td>
-                                                <td>{val.ftl}</td>
-                                                <td>{val.lcl}</td>
-                                                <td>{val.ltl}</td>
+                                                <td>{val.conT20}</td>
+                                                <td>{val.conT40}</td>
+                                                <td>{val.conT40RF}</td>
+                                                <td>{val.conT45}</td>
+                                                <td>{val.trucK1}</td>
+                                                <td>{val.trucK15}</td>
+                                                <td>{val.trucK17}</td>
+                                                <td>{val.trucK10}</td>
+                                                <td>{val.trucK150}</td>
+                                                <td>{val.trucK2}</td>
+                                                <td>{val.trucK25}</td>
+                                                <td>{val.trucK3}</td>
+                                                <td>{val.trucK35}</td>
+                                                <td>{val.trucK5}</td>
+                                                <td>{val.trucK7}</td>
+                                                <td>{val.trucK8}</td>
+                                                <td>{val.trucK9}</td>
+                                                <td>
+                                                  {val.totalMoney.toLocaleString(
+                                                    "vi-VI",
+                                                    {
+                                                      style: "currency",
+                                                      currency: "VND",
+                                                    }
+                                                  )}
+                                                </td>
+                                                <td>
+                                                  {val.totalSf.toLocaleString(
+                                                    "vi-VI",
+                                                    {
+                                                      style: "currency",
+                                                      currency: "VND",
+                                                    }
+                                                  )}
+                                                </td>
+                                                <td>
+                                                  {val.profit.toLocaleString(
+                                                    "vi-VI",
+                                                    {
+                                                      style: "currency",
+                                                      currency: "VND",
+                                                    }
+                                                  )}
+                                                </td>
                                               </tr>
                                             );
                                           }
@@ -203,7 +255,9 @@ const ReportPage = () => {
                           </div>
                         </div>
                       </div>
-                      <div className="col-6">
+                    </div>
+                    <div className="row">
+                      <div className="col-12">
                         <div className="card">
                           <div className="card-header">
                             <h3 className="card-title">
@@ -216,12 +270,26 @@ const ReportPage = () => {
                                 <tr>
                                   <th>Tên Nhà Cung Cấp</th>
                                   <th>Tổng Số Chuyến</th>
-                                  <th>Chuyến Nhập Khẩu</th>
-                                  <th>Chuyến Xuất Khẩu</th>
-                                  <th>FCL</th>
-                                  <th>FTL</th>
-                                  <th>LCL</th>
-                                  <th>LTL</th>
+                                  <th>20</th>
+                                  <th>40</th>
+                                  <th>40RF</th>
+                                  <th>45</th>
+                                  <th>1T</th>
+                                  <th>1.5T</th>
+                                  <th>1.7T</th>
+                                  <th>10T</th>
+                                  <th>15T</th>
+                                  <th>2T</th>
+                                  <th>2.5T</th>
+                                  <th>3T</th>
+                                  <th>3.5T</th>
+                                  <th>5T</th>
+                                  <th>7T</th>
+                                  <th>8T</th>
+                                  <th>9T</th>
+                                  {/* <th>Doanh Thu</th> */}
+                                  <th>Chi Phí</th>
+                                  {/* <th>Lợi Nhuận</th> */}
                                 </tr>
                               </thead>
                               <tbody>
@@ -238,12 +306,50 @@ const ReportPage = () => {
                                               <tr key={index}>
                                                 <td>{val.customerName}</td>
                                                 <td>{val.total}</td>
-                                                <td>{val.inPut}</td>
-                                                <td>{val.outPut}</td>
-                                                <td>{val.fcl}</td>
-                                                <td>{val.ftl}</td>
-                                                <td>{val.lcl}</td>
-                                                <td>{val.ltl}</td>
+                                                <td>{val.conT20}</td>
+                                                <td>{val.conT40}</td>
+                                                <td>{val.conT40RF}</td>
+                                                <td>{val.conT45}</td>
+                                                <td>{val.trucK1}</td>
+                                                <td>{val.trucK15}</td>
+                                                <td>{val.trucK17}</td>
+                                                <td>{val.trucK10}</td>
+                                                <td>{val.trucK150}</td>
+                                                <td>{val.trucK2}</td>
+                                                <td>{val.trucK25}</td>
+                                                <td>{val.trucK3}</td>
+                                                <td>{val.trucK35}</td>
+                                                <td>{val.trucK5}</td>
+                                                <td>{val.trucK7}</td>
+                                                <td>{val.trucK8}</td>
+                                                <td>{val.trucK9}</td>
+                                                {/* <td>
+                                                  {val.totalMoney.toLocaleString(
+                                                    "vi-VI",
+                                                    {
+                                                      style: "currency",
+                                                      currency: "VND",
+                                                    }
+                                                  )}
+                                                </td> */}
+                                                <td>
+                                                  {val.totalSf.toLocaleString(
+                                                    "vi-VI",
+                                                    {
+                                                      style: "currency",
+                                                      currency: "VND",
+                                                    }
+                                                  )}
+                                                </td>
+                                                {/* <td>
+                                                  {val.profit.toLocaleString(
+                                                    "vi-VI",
+                                                    {
+                                                      style: "currency",
+                                                      currency: "VND",
+                                                    }
+                                                  )}
+                                                </td> */}
                                               </tr>
                                             );
                                           }

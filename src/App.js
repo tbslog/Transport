@@ -23,10 +23,9 @@ import HomePage from "./Components/Home/HomePage";
 import AddressPage from "./Components/AddressManage/AddressPage";
 import DriverPage from "./Components/DriverManage/DriverPage";
 import CustommerPage from "./Components/CustommerManage/CustommerPage";
-import HandlingPage from "./Components/Transport/HandlingPage";
-import BillPage from "./Components/Bill/BillPage";
 import ReportPage from "./Components/Report/ReportPage";
 import HandlingPageNew from "./Components/Transport/HandlingPageNew";
+import BillPage from "./Components/Bill/BillPage";
 
 function App() {
   const accountType = Cookies.get("AccType");

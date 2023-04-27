@@ -47,8 +47,9 @@ const PriceListContract = (props) => {
 
   const columns = useMemo(() => [
     {
-      omit: true,
+      name: "ID",
       selector: (row) => row.id,
+      sortable: true,
     },
     {
       name: <div>Mã Khách Hàng</div>,

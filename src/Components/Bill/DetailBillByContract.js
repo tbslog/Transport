@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import { getData } from "../Common/FuncAxios";
-import { Modal } from "bootstrap";
-import Logo from "../../Image/Logo/logo2x.png";
 import "./bill.css";
+import PrintComponent from "../Common/Print/PrintPDF";
 
 const DetailBillByTransport = (props) => {
   const { dataClick } = props;
@@ -10,14 +9,23 @@ const DetailBillByTransport = (props) => {
 
   useEffect(() => {
     if (props && dataClick && Object.keys(dataClick).length > 0) {
-      getDataBill(dataClick.maKH, dataClick.maVanDon);
+      console.log(dataClick);
+      getDataBill(dataClick.maVanDon, dataClick.handlingId);
     }
   }, [props, dataClick]);
 
-  const getDataBill = async (customerId, transportId) => {
-    if (customerId) {
-      var dataBill = await getData(
-        `Bills/GetBillByTransportId?customerId=${customerId}&transportId=${transportId}`
+  const getDataBill = async (transportId, handlingId) => {
+    if (transportId && !handlingId) {
+      let dataBill = await getData(
+        `Bills/GetBillByTransportId?transportId=${transportId}`
+      );
+
+      if (dataBill.billReuslt && dataBill.billReuslt.length > 0) {
+        setDataBill(dataBill.billReuslt);
+      }
+    } else if (handlingId && !transportId) {
+      let dataBill = await getData(
+        `Bills/GetBillByTransportId?transportId=&handlingId=${handlingId}`
       );
 
       if (dataBill.billReuslt && dataBill.billReuslt.length > 0) {
@@ -54,31 +62,23 @@ const DetailBillByTransport = (props) => {
     <>
       <div>
         <div className="page-content">
-          {/* <div className="page-header text-blue-d2">
-            <h1 className="page-title text-secondary-d1">
+          <div className="page-header text-blue-d2">
+            {/* <h1 className="page-title text-secondary-d1">
               <img src={Logo}></img>
-            </h1>
+            </h1> */}
             <div className="page-tools">
               <div className="action-buttons">
                 <a
                   className="btn bg-white btn-light mx-1px text-95"
                   href="#"
-                  data-title="Print"
+                  data-title="In Hóa Đơn"
                 >
                   <i className="mr-1 fa fa-print text-primary-m1 text-120 w-2" />
-                  Print
-                </a>
-                <a
-                  className="btn bg-white btn-light mx-1px text-95"
-                  href="#"
-                  data-title="PDF"
-                >
-                  <i className="mr-1 fa fa-file-pdf-o text-danger-m1 text-120 w-2" />
-                  Export
+                  In Hóa Đơn
                 </a>
               </div>
             </div>
-          </div> */}
+          </div>
           <div className="col-12">
             <div className="row mt-4">
               <div className="col-12 col-lg-12">
@@ -157,21 +157,27 @@ const DetailBillByTransport = (props) => {
                             <thead>
                               <tr>
                                 <th scope="col">{index + 1}</th>
-                                <th scope="col">Mã Vận Đơn</th>
+                                <th scope="col">Booking No</th>
+                                <th scope="col">Account</th>
                                 <th scope="col">Loại Vận Đơn</th>
-                                <th scope="col">Cung Đường</th>
-                                <th scope="col">Tổng Khối Lượng</th>
+                                <th scope="col">Điểm Đóng Hàng</th>
+                                <th scope="col">Điểm Hạ Hàng</th>
+                                {/* <th scope="col">Tổng Khối Lượng</th>
                                 <th scope="col">Tổng Thể Tích</th>
+                                <th scope="col">Tổng Số Kiện</th> */}
                               </tr>
                             </thead>
                             <tbody>
                               <tr>
                                 <th scope="row"></th>
                                 <td>{val.maVanDonKH}</td>
+                                <td>{val.accountName}</td>
                                 <td>{val.loaiVanDon}</td>
-                                <td>{val.tenCungDuong}</td>
-                                <td>{val.tongKhoiLuong}</td>
+                                <td>{val.diemLayHang}</td>
+                                <td>{val.diemTraHang}</td>
+                                {/* <td>{val.tongKhoiLuong}</td>
                                 <td>{val.tongTheTich}</td>
+                                <td>{val.tongSoKien}</td> */}
                               </tr>
 
                               <tr>
@@ -182,8 +188,9 @@ const DetailBillByTransport = (props) => {
                                       <tr>
                                         <th>Chuyến</th>
                                         <th>Điểm Lấy Rỗng</th>
+                                        <th>Điểm Trả Rỗng</th>
                                         <th>Đơn Vị Tính</th>
-                                        <th>Đơn Vị Vận Tải</th>
+                                        {/* <th>Đơn Vị Vận Tải</th> */}
                                         <th>Loại Hàng Hóa</th>
                                         <th>Loại Phương Tiện</th>
                                         <th>Đơn Giá Tuyến</th>
@@ -198,8 +205,9 @@ const DetailBillByTransport = (props) => {
                                               <tr>
                                                 <th>{index1 + 1}</th>
                                                 <td>{val1.diemLayRong}</td>
+                                                <td>{val1.diemTraRong}</td>
                                                 <td>{val1.donViTinh}</td>
-                                                <td>{val1.donViVanTai}</td>
+                                                {/* <td>{val1.donViVanTai}</td> */}
                                                 <td>{val1.loaiHangHoa}</td>
                                                 <td>{val1.loaiPhuongTien}</td>
                                                 <td>
@@ -236,6 +244,14 @@ const DetailBillByTransport = (props) => {
                                                             <tr>
                                                               <th></th>
                                                               <th>
+                                                                Mã Hợp Đồng/Phụ
+                                                                Lục
+                                                              </th>
+                                                              <th>
+                                                                Tên Hợp Đồng/Phụ
+                                                                Lục
+                                                              </th>
+                                                              <th>
                                                                 Tên Phụ Phí
                                                               </th>
                                                               <th>Đơn Giá</th>
@@ -253,6 +269,16 @@ const DetailBillByTransport = (props) => {
                                                                       <td>
                                                                         {index2 +
                                                                           1}
+                                                                      </td>
+                                                                      <td>
+                                                                        {
+                                                                          val2.contractId
+                                                                        }
+                                                                      </td>
+                                                                      <td>
+                                                                        {
+                                                                          val2.contractName
+                                                                        }
                                                                       </td>
                                                                       <td>
                                                                         {
