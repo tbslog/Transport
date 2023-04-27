@@ -11,6 +11,7 @@ namespace TBSLogistics.Model.Filter
         public string contractType { get; set; }
         public string contractId { get; set; }
         public string customerId { get; set; }
+        public string supplierId { get; set; }
         public string statusId { get; set; }
         public DateTime date { get; set; }
         public string customerType { get; set; }

@@ -214,25 +214,58 @@ namespace TBSLogistics.Service.Services.Report
             var DataCustomer = await data.GroupBy(x => x.vd.MaKh).Select(x => new CustomerReport
             {
                 CustomerName = _context.KhachHang.Where(v => v.MaKh == x.First().vd.MaKh).Select(v => v.TenKh).FirstOrDefault(),
+                totalBooking = x.Select(c=>c.vd).GroupBy(c=>c.MaVanDonKh).Count(),
                 Total = x.Count(),
-                InPut = x.Count(c => c.vd.LoaiVanDon == "nhap"),
-                OutPut = x.Count(c => c.vd.LoaiVanDon == "xuat"),
-                FCL = x.Count(c => c.vd.MaPtvc == "FCL"),
-                FTL = x.Count(c => c.vd.MaPtvc == "FTL"),
-                LTL = x.Count(c => c.vd.MaPtvc == "LTL"),
-                LCL = x.Count(c => c.vd.MaPtvc == "LCL"),
+                CONT20 = x.Count(c => c.dp.MaLoaiPhuongTien == "CONT20"),
+                CONT40 = x.Count(c => c.dp.MaLoaiPhuongTien == "CONT40"),
+                CONT40RF = x.Count(c => c.dp.MaLoaiPhuongTien == "CONT40RF"),
+                CONT45 = x.Count(c => c.dp.MaLoaiPhuongTien == "CONT45"),
+                TRUCK1 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK1"),
+                TRUCK15 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK1.5"),
+                TRUCK17 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK1.7"),
+                TRUCK10 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK10"),
+                TRUCK150 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK15"),
+                TRUCK2 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK2"),
+                TRUCK25 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK2.5"),
+                TRUCK3 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK3"),
+                TRUCK35 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK3.5"),
+                TRUCK5 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK5"),
+                TRUCK7 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK7"),
+                TRUCK8 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK8"),
+                TRUCK9 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK9"),
+                totalSf = ((double)x.Sum(y => y.dp.DonGiaNcc)) + _context.SfeeByTcommand.Where(y => x.Select(c => c.dp.Id).Contains(y.IdTcommand) && y.ApproveStatus == 14).Sum(y => y.Price) + _context.SubFeePrice.Where(y => _context.SubFeeByContract.Where(z => x.Select(v => v.dp.Id).Contains(z.Id)).Select(z => z.PriceId).Contains(y.PriceId)).Sum(y => y.Price),
+                totalMoney = _context.SfeeByTcommand.Where(y => x.Select(c => c.dp.Id).Contains(y.IdTcommand) && y.ApproveStatus == 14).Sum(y => y.Price) +
+                    ((double)x.Sum(y => y.dp.DonGiaKh)) +
+                    _context.SubFeePrice.Where(y => _context.SubFeeByContract.Where(z => x.Select(v => v.dp.Id).Contains(z.Id)).Select(z => z.PriceId).Contains(y.PriceId)).Sum(y => y.Price),
+                profit = (double)x.Sum(c => c.dp.DonGiaKh.Value - c.dp.DonGiaNcc.Value)
             }).OrderBy(x => x.CustomerName).ToListAsync();
 
             var DataSupplier = await data.GroupBy(x => x.dp.DonViVanTai).Select(x => new CustomerReport
             {
                 CustomerName = _context.KhachHang.Where(v => v.MaKh == x.First().dp.DonViVanTai).Select(v => v.TenKh).FirstOrDefault(),
                 Total = x.Count(),
-                InPut = x.Count(c => c.vd.LoaiVanDon == "nhap"),
-                OutPut = x.Count(c => c.vd.LoaiVanDon == "xuat"),
-                FCL = x.Count(c => c.vd.MaPtvc == "FCL"),
-                FTL = x.Count(c => c.vd.MaPtvc == "FTL"),
-                LTL = x.Count(c => c.vd.MaPtvc == "LTL"),
-                LCL = x.Count(c => c.vd.MaPtvc == "LCL"),
+                CONT20 = x.Count(c => c.dp.MaLoaiPhuongTien == "CONT20"),
+                CONT40 = x.Count(c => c.dp.MaLoaiPhuongTien == "CONT40"),
+                CONT40RF = x.Count(c => c.dp.MaLoaiPhuongTien == "CONT40RF"),
+                CONT45 = x.Count(c => c.dp.MaLoaiPhuongTien == "CONT45"),
+                TRUCK1 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK1"),
+                TRUCK15 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK1.5"),
+                TRUCK17 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK1.7"),
+                TRUCK10 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK10"),
+                TRUCK150 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK15"),
+                TRUCK2 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK2"),
+                TRUCK25 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK2.5"),
+                TRUCK3 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK3"),
+                TRUCK35 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK3.5"),
+                TRUCK5 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK5"),
+                TRUCK7 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK7"),
+                TRUCK8 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK8"),
+                TRUCK9 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK9"),
+                totalSf = ((double)x.Sum(y => y.dp.DonGiaNcc)) + _context.SfeeByTcommand.Where(y => x.Select(c => c.dp.Id).Contains(y.IdTcommand) && y.ApproveStatus == 14).Sum(y => y.Price) + _context.SubFeePrice.Where(y => _context.SubFeeByContract.Where(z => x.Select(v => v.dp.Id).Contains(z.Id)).Select(z => z.PriceId).Contains(y.PriceId)).Sum(y => y.Price),
+                //totalMoney = _context.SfeeByTcommand.Where(y => x.Select(c => c.dp.Id).Contains(y.IdTcommand) && y.ApproveStatus == 14).Sum(y => y.Price) +
+                //    ((double)x.Sum(y => y.dp.DonGiaKh)) +
+                //    _context.SubFeePrice.Where(y => _context.SubFeeByContract.Where(z => x.Select(v => v.dp.Id).Contains(z.Id)).Select(z => z.PriceId).Contains(y.PriceId)).Sum(y => y.Price),
+                //profit = (double)x.Sum(c => c.dp.DonGiaKh.Value - c.dp.DonGiaNcc.Value)
             }).OrderBy(x => x.CustomerName).ToListAsync();
 
             var listPartner = await _context.KhachHang.ToListAsync();

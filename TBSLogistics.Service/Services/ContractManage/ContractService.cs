@@ -297,6 +297,7 @@ namespace TBSLogistics.Service.Services.ContractManage
 
             var pagedData = await listData.Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new ListContract()
             {
+                countPriceTable = _TMSContext.BangGia.Where(y => y.MaHopDong == x.contract.MaHopDong && y.TrangThai == 3).Count(),
                 Account = x.contract.Account,
                 ChuoiKhachHang = _TMSContext.ChuoiKhachHang.Where(y => y.MaChuoi == x.cus.Chuoi).Select(y => y.TenChuoi).FirstOrDefault(),
                 NgayThanhToan = x.contract.NgayThanhToan,

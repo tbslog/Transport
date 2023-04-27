@@ -16,6 +16,10 @@ using TBSLogistics.Service.Services.Bill;
 using TBSLogistics.Service.Services.BillOfLadingManage;
 using TBSLogistics.Service.Services.Common;
 using TBSLogistics.Service.Services.CustommerManage;
+using Microsoft.EntityFrameworkCore;
+using TBSLogistics.Model.Model.PriceListModel;
+using TBSLogistics.Model.Model.UserModel;
+using TBSLogistics.Service.Services.PricelistManage;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -38,7 +42,6 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             _bill = bill;
         }
 
-
         [HttpGet]
         [Route("[action]")]
         public async Task<IActionResult> GetListTransportByCustomerId(string customerId, int ky, [FromQuery] PaginationFilter filter)
@@ -58,21 +61,21 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<IActionResult> GetBillByCustomerId(string customerId, int ky)
+        public async Task<IActionResult> GetBillByCustomerId(string customerId, DateTime fromDate, DateTime toDate)
         {
             var checkPermission = await _common.CheckPermission("G0001");
             if (checkPermission.isSuccess == false)
             {
                 return BadRequest(checkPermission.Message);
             }
-            var billResult = await _bill.GetBillByCustomerId(customerId, ky);
+            var billResult = await _bill.GetBillByCustomerId(customerId, fromDate, toDate);
 
             return Ok(billResult);
         }
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<IActionResult> GetBillByTransportId(string customerId, string transportId)
+        public async Task<IActionResult> GetBillByTransportId(string transportId, long? handlingId = null)
         {
             var checkPermission = await _common.CheckPermission("G0001");
             if (checkPermission.isSuccess == false)
@@ -80,7 +83,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
                 return BadRequest(checkPermission.Message);
             }
 
-            var data = await _bill.GetBillByTransportId(customerId, transportId);
+            var data = await _bill.GetBillByTransportId(transportId, handlingId);
             return Ok(data);
         }
 
@@ -98,6 +101,22 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             var pagedData = await _bill.GetListBillHandling(filter);
 
             var pagedReponse = PaginationHelper.CreatePagedReponse<ListBillHandling>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _uriService, route);
+            return Ok(pagedReponse);
+        }
+
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> ListBillByTransport([FromQuery] PaginationFilter filter)
+        {
+            var checkPermission = await _common.CheckPermission("G0001");
+            if (checkPermission.isSuccess == false)
+            {
+                return BadRequest(checkPermission.Message);
+            }
+
+            var route = Request.Path.Value;
+            var pagedData = await _bill.GetListBillWeb(filter);
+            var pagedReponse = PaginationHelper.CreatePagedReponse<ListBillTransportWeb>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _uriService, route); ;
             return Ok(pagedReponse);
         }
 
@@ -176,7 +195,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
                 }
 
 
-                workSheet.Cells["C2:C" + row ].Style.Numberformat.Format = "DD-MM-YYYY HH:mm";
+                workSheet.Cells["C2:C" + row].Style.Numberformat.Format = "DD-MM-YYYY HH:mm";
                 workSheet.Cells["A1:S1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
                 workSheet.Cells["A1:S1"].Style.Font.Bold = true;
                 workSheet.Cells["A1:S1"].Style.Font.Size = 14;

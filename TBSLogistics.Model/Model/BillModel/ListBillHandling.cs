@@ -9,6 +9,9 @@ namespace TBSLogistics.Model.Model.BillModel
 {
     public class ListBillHandling
     {
+        public string HangTau { get; set; }
+        public long handlingId { get; set; }
+        public string ContNo { get; set; }
         public DateTime? CutOffDate { get; set; }
         public string DiemDau { get; set; }
         public string DiemCuoi { get; set; }
@@ -17,7 +20,7 @@ namespace TBSLogistics.Model.Model.BillModel
         public string MaPTVC { get; set; }
         public string LoaiVanDon { get; set; }
         public string MaVanDonKH { get; set; }
-        public long MaChuyen { get; set; }
+        public string MaChuyen { get; set; }
         public string MaVanDon { get; set; }
         public string LoaiHangHoa { get; set; }
         public string LoaiPhuongTien { get; set; }

@@ -8,6 +8,7 @@ namespace TBSLogistics.Model.Model.PriceListModel
 {
     public class ListApprove
     {
+   
         public long Id { get; set; }
         public string AccountId { get; set; }
         public string AccountName { get; set; }

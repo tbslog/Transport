@@ -470,7 +470,7 @@ namespace TBSLogistics.Service.Services.PriceTableManage
                 MaLoaiDoiTac = _context.LoaiKhachHang.Where(y => y.MaLoaiKh == x.bg.MaLoaiDoiTac).Select(x => x.TenLoaiKh).FirstOrDefault(),
                 NgayApDung = x.bg.NgayApDung.ToString("dd-MM-yyyy"),
                 NgayHetHieuLuc = x.bg.NgayHetHieuLuc == null ? null : x.bg.NgayHetHieuLuc.Value.ToString("dd-MM-yyyy"),
-                ThoiGianTao = x.bg.CreatedTime.ToString("dd-MM-yyyy HH:mm:ss")
+                ThoiGianTao = x.bg.CreatedTime.ToString("dd-MM-yyyy HH:mm:ss"),
             }).ToListAsync();
 
             return new PagedResponseCustom<ListApprove>()

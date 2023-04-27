@@ -29,27 +29,23 @@ namespace TBSLogistics.Service.Services.Bill
             tempData = _common.DecodeToken(_httpContextAccessor.HttpContext.Request.Headers["Authorization"][0].ToString().Replace("Bearer ", ""));
         }
 
-        public async Task<GetBill> GetBillByCustomerId(string customerId, int ky)
+        public async Task<GetBill> GetBillByCustomerId(string customerId, DateTime fromDate, DateTime toDate)
         {
             try
             {
-                var checkexists = await GetListKyThanhToan(customerId);
-
-                if (checkexists == null)
-                {
-                    return null;
-                }
-
-                var kyThanhToan = checkexists.Where(x => x.Ky == ky).FirstOrDefault();
+                //var checkexists = await GetListKyThanhToan(customerId);
+                //if (checkexists == null)
+                //{
+                //    return null;
+                //}
 
                 var getlistHandling = from dp in _context.DieuPhoi
                                       join vd in _context.VanDon
                                       on dp.MaVanDon equals vd.MaVanDon
-                                      where
-                                      (vd.MaKh == customerId || dp.DonViVanTai == customerId)
+                                      where (vd.MaKh == customerId || dp.DonViVanTai == customerId)
                                       && dp.TrangThai == 20
-                                      && dp.ThoiGianHoanThanh.Value.Date >= kyThanhToan.StartDate
-                                      && dp.ThoiGianHoanThanh.Value.Date <= kyThanhToan.EndDate
+                                      && dp.ThoiGianHoanThanh.Value.Date >= fromDate.Date
+                                      && dp.ThoiGianHoanThanh.Value.Date <= toDate.Date
                                       select dp;
 
                 var getDataTransport = from kh in _context.KhachHang
@@ -59,28 +55,26 @@ namespace TBSLogistics.Service.Services.Bill
                                        orderby vd.ThoiGianHoanThanh
                                        select new { kh, vd };
 
-                var getListSubFeeByContract = from kh in _context.KhachHang
-                                              join hd in _context.HopDongVaPhuLuc
-                                              on kh.MaKh equals hd.MaKh
-                                              join sfPice in _context.SubFeePrice
-                                              on hd.MaHopDong equals sfPice.ContractId
-                                              join sf in _context.SubFee
-                                              on sfPice.SfId equals sf.SubFeeId
-                                              where sfPice.Status == 14
-                                              && kh.MaKh == customerId
-                                              select new { kh, hd, sfPice, sf };
+                var getListSFOfContract = from sfp in _context.SubFeePrice
+                                          join sfc in _context.SubFeeByContract
+                                          on sfp.PriceId equals sfc.PriceId
+                                          join sf in _context.SubFee
+                                          on sfp.SfId equals sf.SubFeeId
+                                          select new { sfp, sfc, sf };
 
-                var getListTransport = await getDataTransport.Where(x => getlistHandling.Select(s => s.MaVanDon).Contains(x.vd.MaVanDon)).OrderBy(x => x.vd.MaVanDon).Select(z => new ListVanDon()
+                var getListTransport = await getDataTransport.Where(x => getlistHandling.Select(s => s.MaVanDon).Contains(x.vd.MaVanDon)).OrderBy(x => x.vd.MaVanDonKh).Select(z => new ListVanDon()
                 {
+                    MaVanDonKH = z.vd.MaVanDonKh,
                     DiemLayHang = _context.DiaDiem.Where(y => y.MaDiaDiem == z.vd.DiemDau).Select(x => x.TenDiaDiem).FirstOrDefault(),
                     DiemTraHang = _context.DiaDiem.Where(y => y.MaDiaDiem == z.vd.DiemCuoi).Select(x => x.TenDiaDiem).FirstOrDefault(),
-                    AccountName = z.vd.MaAccount == null ? null : _context.AccountOfCustomer.Where(y => y.MaAccount == z.vd.MaAccount).Select(y => y.TenAccount).FirstOrDefault(),
                     MaVanDon = z.vd.MaVanDon,
-                    MaKh = z.vd.MaKh,
+                    MaKh = z.kh.MaKh,
                     TenKh = z.kh.TenKh,
-                    LoaiVanDon = z.vd.LoaiVanDon,
-                    TongTheTich = z.vd.TongTheTich.Value,
-                    TongKhoiLuong = z.vd.TongKhoiLuong.Value,
+                    AccountName = z.vd.MaAccount == null ? _context.KhachHang.Where(y => y.MaKh == z.vd.MaKh).Select(y => y.TenKh).FirstOrDefault() : _context.AccountOfCustomer.Where(y => y.MaAccount == z.vd.MaAccount).Select(y => y.TenAccount).FirstOrDefault(),
+                    LoaiVanDon = z.vd.LoaiVanDon == "xuat" ? "Xuất" : "Nhập",
+                    TongTheTich = z.vd.TongTheTich,
+                    TongKhoiLuong = z.vd.TongKhoiLuong,
+                    TongSoKien = z.vd.TongSoKien,
                     listHandling = getlistHandling.Where(y => y.MaVanDon == z.vd.MaVanDon).OrderBy(x => x.Id).Select(x => new Model.Model.BillModel.ListHandling()
                     {
                         MaSoXe = x.MaSoXe,
@@ -92,22 +86,17 @@ namespace TBSLogistics.Service.Services.Bill
                         LoaiPhuongTien = _context.LoaiPhuongTien.Where(y => y.MaLoaiPhuongTien == x.MaLoaiPhuongTien).Select(x => x.TenLoaiPhuongTien).FirstOrDefault(),
                         DonViTinh = _context.DonViTinh.Where(y => y.MaDvt == x.MaDvt).Select(x => x.TenDvt).FirstOrDefault(),
                         DonViVanTai = _context.KhachHang.Where(y => y.MaKh == x.DonViVanTai).Select(x => x.TenKh).FirstOrDefault(),
-                        DonGia = _context.KhachHang.Where(x => x.MaKh == customerId).Select(x => x.MaLoaiKh).FirstOrDefault() == "NCC" ? x.DonGiaNcc : x.DonGiaKh,
+                        DonGia = x.DonGiaKh,
                         KhoiLuong = x.KhoiLuong,
                         TheTich = x.TheTich,
-                        listSubFeeByContract = getListSubFeeByContract.Where(y => (y.sfPice.GoodsType == x.MaLoaiHangHoa)
-                        || (y.sfPice.GetEmptyPlace == _context.DiaDiem.Where(o => o.MaDiaDiem == (z.vd.LoaiVanDon == "xuat" ? x.DiemLayRong : x.DiemTraRong)).Select(o => o.MaDiaDiem).FirstOrDefault())
-                        || (y.sfPice.FirstPlace == z.vd.DiemDau && y.sfPice.SecondPlace == z.vd.DiemCuoi)
-                        || (y.sfPice.GoodsType == null && (y.sfPice.FirstPlace == null && y.sfPice.SecondPlace == null) && y.sfPice.GetEmptyPlace == null)
-                        ).OrderBy(x => x.sfPice).Select(x => new ListSubFeeByContract()
+                        SoKien = x.SoKien,
+                        listSubFeeByContract = getListSFOfContract.Where(y => y.sfc.MaDieuPhoi == x.Id).Select(x => new ListSubFeeByContract()
                         {
-                            ContractId = x.hd.MaHopDong,
-                            ContractName = x.hd.TenHienThi,
+                            ContractId = x.sfp.ContractId,
+                            ContractName = _context.HopDongVaPhuLuc.Where(c => c.MaHopDong == x.sfp.ContractId).Select(c => c.TenHienThi).FirstOrDefault(),
                             sfName = x.sf.SfName,
-                            goodsType = x.sfPice.GoodsType,
-                            //TripName = _context.CungDuong.Where(y => y.MaCungDuong == x.sfPice.TripId).Select(x => x.TenCungDuong).FirstOrDefault(),
-                            //AreaName = _context.KhuVuc.Where(y => y.Id == x.sfPice.AreaId).Select(x => x.TenKhuVuc).FirstOrDefault(),
-                            unitPrice = x.sfPice.Price
+                            goodsType = x.sfp.GoodsType,
+                            unitPrice = x.sfp.Price
                         }).ToList(),
                         listSubFeeIncurreds = _context.SfeeByTcommand.Where(y => y.IdTcommand == x.Id && y.ApproveStatus == 14).OrderBy(x => x.Id).Select(x => new ListSubFeeIncurred()
                         {
@@ -129,15 +118,14 @@ namespace TBSLogistics.Service.Services.Bill
             }
         }
 
-        public async Task<GetBill> GetBillByTransportId(string customerId, string transportId)
+        public async Task<GetBill> GetBillByTransportId(string transportId, long? handlingId)
         {
             try
             {
                 var getlistHandling = from dp in _context.DieuPhoi
                                       join vd in _context.VanDon
                                       on dp.MaVanDon equals vd.MaVanDon
-                                      where (vd.MaKh == customerId || dp.DonViVanTai == customerId)
-                                      && dp.TrangThai == 20
+                                      where dp.TrangThai == 20
                                       select dp;
 
                 var getDataTransport = from kh in _context.KhachHang
@@ -146,17 +134,28 @@ namespace TBSLogistics.Service.Services.Bill
                                        orderby vd.ThoiGianHoanThanh
                                        select new { kh, vd };
 
-                var getSFbyContract = from sfc in _context.SubFeeByContract
-                                      join sfp in _context.SubFeePrice
-                                      on sfc.PriceId equals sfp.PriceId
-                                      join sf in _context.SubFee
-                                      on sfp.SfId equals sf.SubFeeId
-                                      join ct in _context.HopDongVaPhuLuc
-                                      on sfp.ContractId equals ct.MaHopDong into ctp
-                                      from ctsf in ctp.DefaultIfEmpty()
-                                      select new { sfc, sfp, sf, ctsf };
+                var getListSFOfContract = from sfp in _context.SubFeePrice
+                                          join sfc in _context.SubFeeByContract
+                                          on sfp.PriceId equals sfc.PriceId
+                                          join sf in _context.SubFee
+                                          on sfp.SfId equals sf.SubFeeId
+                                          select new { sfp, sfc, sf };
 
-                var getListTransport = await getDataTransport.Where(x => x.vd.MaVanDon == transportId).Select(z => new ListVanDon()
+                if (handlingId != null)
+                {
+                    getlistHandling = getlistHandling.Where(x => x.Id == handlingId);
+                }
+
+                if (!string.IsNullOrEmpty(transportId))
+                {
+                    getDataTransport = getDataTransport.Where(x => x.vd.MaVanDon == transportId);
+                }
+                else
+                {
+                    getDataTransport = getDataTransport.Where(x => x.vd.MaVanDon == getlistHandling.Select(y => y.MaVanDon).FirstOrDefault());
+                }
+
+                var getListTransport = await getDataTransport.Select(z => new ListVanDon()
                 {
                     MaVanDonKH = z.vd.MaVanDonKh,
                     DiemLayHang = _context.DiaDiem.Where(y => y.MaDiaDiem == z.vd.DiemDau).Select(x => x.TenDiaDiem).FirstOrDefault(),
@@ -164,8 +163,8 @@ namespace TBSLogistics.Service.Services.Bill
                     MaVanDon = z.vd.MaVanDon,
                     MaKh = z.kh.MaKh,
                     TenKh = z.kh.TenKh,
-                    AccountName = z.vd.MaAccount == null ? null : _context.AccountOfCustomer.Where(y => y.MaAccount == z.vd.MaAccount).Select(y => y.TenAccount).FirstOrDefault(),
-                    LoaiVanDon = z.vd.LoaiVanDon,
+                    AccountName = z.vd.MaAccount == null ? _context.KhachHang.Where(y => y.MaKh == z.vd.MaKh).Select(y => y.TenKh).FirstOrDefault() : _context.AccountOfCustomer.Where(y => y.MaAccount == z.vd.MaAccount).Select(y => y.TenAccount).FirstOrDefault(),
+                    LoaiVanDon = z.vd.LoaiVanDon == "xuat" ? "Xuất" : "Nhập",
                     TongTheTich = z.vd.TongTheTich,
                     TongKhoiLuong = z.vd.TongKhoiLuong,
                     TongSoKien = z.vd.TongSoKien,
@@ -180,18 +179,16 @@ namespace TBSLogistics.Service.Services.Bill
                         LoaiPhuongTien = _context.LoaiPhuongTien.Where(y => y.MaLoaiPhuongTien == x.MaLoaiPhuongTien).Select(x => x.TenLoaiPhuongTien).FirstOrDefault(),
                         DonViTinh = _context.DonViTinh.Where(y => y.MaDvt == x.MaDvt).Select(x => x.TenDvt).FirstOrDefault(),
                         DonViVanTai = _context.KhachHang.Where(y => y.MaKh == x.DonViVanTai).Select(x => x.TenKh).FirstOrDefault(),
-                        DonGia = _context.KhachHang.Where(x => x.MaKh == customerId).Select(x => x.MaLoaiKh).FirstOrDefault() == "NCC" ? x.DonGiaNcc : x.DonGiaKh,
+                        DonGia = x.DonGiaKh,
                         KhoiLuong = x.KhoiLuong,
                         TheTich = x.TheTich,
                         SoKien = x.SoKien,
-                        listSubFeeByContract = getSFbyContract.Where(y => y.sfc.MaDieuPhoi == x.Id).Select(x => new ListSubFeeByContract()
+                        listSubFeeByContract = getListSFOfContract.Where(y => y.sfc.MaDieuPhoi == x.Id).Select(x => new ListSubFeeByContract()
                         {
-                            ContractId = x.ctsf.MaHopDong,
-                            ContractName = x.ctsf.TenHienThi,
+                            ContractId = x.sfp.ContractId,
+                            ContractName = _context.HopDongVaPhuLuc.Where(c => c.MaHopDong == x.sfp.ContractId).Select(c => c.TenHienThi).FirstOrDefault(),
                             sfName = x.sf.SfName,
                             goodsType = x.sfp.GoodsType,
-                            //TripName = _context.CungDuong.Where(y => y.MaCungDuong == x.sfp.TripId).Select(x => x.TenCungDuong).FirstOrDefault(),
-                            //AreaName = _context.KhuVuc.Where(y => y.Id == x.sfp.AreaId).Select(x => x.TenKhuVuc).FirstOrDefault(),
                             unitPrice = x.sfp.Price
                         }).ToList(),
                         listSubFeeIncurreds = _context.SfeeByTcommand.Where(y => y.IdTcommand == x.Id && y.ApproveStatus == 14).OrderBy(x => x.Id).Select(x => new ListSubFeeIncurred()
@@ -254,7 +251,6 @@ namespace TBSLogistics.Service.Services.Bill
             var pagedData = await listData.Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new ListVanDon()
             {
                 MaVanDon = x.vd.MaVanDon,
-
                 MaKh = x.kh.MaKh,
                 TenKh = x.kh.TenKh,
                 LoaiVanDon = x.vd.LoaiVanDon,
@@ -311,61 +307,82 @@ namespace TBSLogistics.Service.Services.Bill
             return listKy;
         }
 
-        //public async Task<ListBillTransportWeb> GetListBillWeb(PaginationFilter filter, ListFilter listFilter)
-        //{
-        //    var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
+        public async Task<PagedResponseCustom<ListBillTransportWeb>> GetListBillWeb(PaginationFilter filter)
+        {
+            var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
 
-        //    var getlistHandling = from dp in _context.DieuPhoi
-        //                          join vd in _context.VanDon
-        //                          on dp.MaVanDon equals vd.MaVanDon
-        //                          where dp.TrangThai == 20
-        //                          select new { dp, vd };
+            var getlistHandling = from dp in _context.DieuPhoi
+                                  join vd in _context.VanDon
+                                  on dp.MaVanDon equals vd.MaVanDon
+                                  where dp.TrangThai == 20
+                                  select new { dp, vd };
 
-        //    var getListTransport = 
+            var getListSFOfContract = from sfp in _context.SubFeePrice
+                                      join sfc in _context.SubFeeByContract
+                                      on sfp.PriceId equals sfc.PriceId
+                                      select new { sfp, sfc };
 
-        //    var getSFbyContract = from sfc in _context.SubFeeByContract
-        //                          join sfp in _context.SubFeePrice
-        //                          on sfc.PriceId equals sfp.PriceId
-        //                          select new { sfc, sfp };
+            if (!string.IsNullOrEmpty(filter.Keyword))
+            {
+                getlistHandling = getlistHandling.Where(x => x.vd.MaVanDonKh.Contains(filter.Keyword) || x.vd.MaKh.Contains(filter.Keyword));
+            }
 
-        //    if (!string.IsNullOrEmpty(filter.Keyword))
-        //    {
-        //        getlistHandling = getlistHandling.Where(x => x.vd.MaVanDonKh.Contains(filter.Keyword) || x.vd.MaKh.Contains(filter.Keyword));
-        //    }
+            if (!string.IsNullOrEmpty(filter.customerId))
+            {
+                getlistHandling = getlistHandling.Where(x => x.vd.MaKh == filter.customerId);
+            }
 
-        //    if (!string.IsNullOrEmpty(filter.fromDate.ToString()) && !string.IsNullOrEmpty(filter.toDate.ToString()))
-        //    {
-        //        getlistHandling = getlistHandling.Where(x => x.dp.ThoiGianHoanThanh.Value >= filter.fromDate.Value && x.dp.ThoiGianHoanThanh.Value <= filter.toDate.Value);
-        //    }
+            if (!string.IsNullOrEmpty(filter.fromDate.ToString()) && !string.IsNullOrEmpty(filter.toDate.ToString()))
+            {
+                getlistHandling = getlistHandling.Where(x => x.dp.ThoiGianHoanThanh.Value >= filter.fromDate.Value && x.dp.ThoiGianHoanThanh.Value <= filter.toDate.Value);
+            }
 
-        //    var totalCount = await getlistHandling.CountAsync();
 
-        //    var pagedData = await getlistHandling.OrderByDescending(x => x.vd.MaVanDon).Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new ListBillTransportWeb()
-        //    {
-        //        BookingNo = x.vd.MaVanDonKh,
-        //        HangTau = x.vd.HangTau == null ? "" : _context.ShippingInfomation.Where(y => y.ShippingCode == x.vd.HangTau).Select(y => y.ShippingLineName).FirstOrDefault(),
-        //        TenKH = _context.KhachHang.Where(y => y.MaKh == x.vd.MaKh).Select(y => y.TenKh).FirstOrDefault(),
-        //        Account = x.vd.MaAccount == null ? "" : _context.AccountOfCustomer.Where(y => y.MaAccount == x.vd.MaAccount).Select(y => y.TenAccount).FirstOrDefault(),
-        //        LoaiVanDon = x.vd.LoaiVanDon.Trim() == "xuat" ? "Xuất" : "Nhập",
-        //        MaPTVC = x.vd.MaPtvc,
-        //        listBillHandlingWebs = getlistHandling.Where(y => y.dp.MaVanDon == x.vd.MaVanDon).Select(z => new ListBillHandlingWeb()
-        //        {
-        //            DiemDau = z.vd.DiemDau,
-        //            DiemCuoi = z.vd.DiemCuoi,
-        //            LoaiHangHoa = z.dp.MaLoaiHangHoa,
-        //            LoaiPhuongTien = z.dp.MaLoaiPhuongTien,
-        //            MaSoXe = z.dp.MaSoXe,
-        //            TaiXe = z.dp.MaTaiXe,
-        //            DonGiaKH = z.dp.DonGiaKh,
-        //            ContNo = z. ,
-        //            SealNP = z. ,
-        //            SealHQ = z. ,
-        //            DiemLayRong = z. ,
-        //            DiemTraRong = z. ,
-        //        }).ToList(),
-        //    }).ToListAsync();
 
-        //}
+            var totalCount = await getlistHandling.CountAsync();
+
+            var pagedData = getlistHandling.OrderBy(x => x.vd.MaVanDon).Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize);
+
+            var getlistTransport = await _context.VanDon.Where(x => pagedData.Select(y => y.vd.MaVanDon).Contains(x.MaVanDon)).OrderByDescending(x => x.MaVanDon).Select(x => new ListBillTransportWeb()
+            {
+                MaVanDon = x.MaVanDon,
+                BookingNo = x.MaVanDonKh,
+                TongTien = pagedData.Where(y => y.dp.MaVanDon == x.MaVanDon).Sum(y => y.dp.DonGiaKh.Value),
+                TongPhuPhi = getListSFOfContract.Where(y => pagedData.Where(c => c.vd.MaVanDon == x.MaVanDon).Select(c => c.dp.Id).Contains(y.sfc.MaDieuPhoi)).Sum(y => y.sfp.Price)
+                + _context.SfeeByTcommand.Where(y => pagedData.Where(c => c.vd.MaVanDon == x.MaVanDon).Select(c => c.dp.Id).Contains(y.IdTcommand) && y.ApproveStatus == 14).Sum(y => y.Price),
+                HangTau = x.HangTau == null ? "" : _context.ShippingInfomation.Where(y => y.ShippingCode == x.HangTau).Select(y => y.ShippingLineName).FirstOrDefault(),
+                TenKH = _context.KhachHang.Where(y => y.MaKh == x.MaKh).Select(y => y.TenKh).FirstOrDefault(),
+                Account = x.MaAccount == null ? "" : _context.AccountOfCustomer.Where(y => y.MaAccount == x.MaAccount).Select(y => y.TenAccount).FirstOrDefault(),
+                LoaiVanDon = x.LoaiVanDon.Trim() == "xuat" ? "Xuất" : "Nhập",
+                MaPTVC = x.MaPtvc,
+                listBillHandlingWebs = getlistHandling.Where(y => y.dp.MaVanDon == x.MaVanDon).Select(z => new ListBillHandlingWeb()
+                {
+                    handlingId = z.dp.Id,
+                    DonViVanTai = _context.KhachHang.Where(y => y.MaKh == z.dp.DonViVanTai).Select(y => y.TenKh).FirstOrDefault(),
+                    DiemDau = _context.DiaDiem.Where(y => y.MaDiaDiem == x.DiemDau).Select(y => y.TenDiaDiem).FirstOrDefault(),
+                    DiemCuoi = _context.DiaDiem.Where(y => y.MaDiaDiem == x.DiemCuoi).Select(y => y.TenDiaDiem).FirstOrDefault(),
+                    LoaiHangHoa = _context.LoaiHangHoa.Where(y => y.MaLoaiHangHoa == z.dp.MaLoaiHangHoa).Select(y => y.TenLoaiHangHoa).FirstOrDefault(),
+                    LoaiPhuongTien = _context.LoaiPhuongTien.Where(y => y.MaLoaiPhuongTien == z.dp.MaLoaiPhuongTien).Select(y => y.TenLoaiPhuongTien).FirstOrDefault(),
+                    MaSoXe = z.dp.MaSoXe,
+                    TaiXe = z.dp.MaTaiXe,
+                    DonGiaKH = z.dp.DonGiaKh.Value,
+                    PhuPhiHD = _context.SubFeeByContract.Where(y => y.MaDieuPhoi == z.dp.Id).Select(y => y.Price).Sum(y => y.Price),
+                    PhuPhiPhatSinh = getListSFOfContract.Where(y => y.sfc.MaDieuPhoi == z.dp.Id).Sum(y => y.sfp.Price),
+                    ContNo = z.dp.ContNo,
+                    SealNP = z.dp.SealNp,
+                    SealHQ = z.dp.SealHq,
+                    DiemLayRong = z.dp.DiemLayRong == null ? null : _context.DiaDiem.Where(y => y.MaDiaDiem == z.dp.DiemLayRong).Select(y => y.TenDiaDiem).FirstOrDefault(),
+                    DiemTraRong = z.dp.DiemTraRong == null ? null : _context.DiaDiem.Where(y => y.MaDiaDiem == z.dp.DiemTraRong).Select(y => y.TenDiaDiem).FirstOrDefault(),
+                }).ToList(),
+            }).ToListAsync();
+
+            return new PagedResponseCustom<ListBillTransportWeb>()
+            {
+                dataResponse = getlistTransport,
+                totalCount = totalCount,
+                paginationFilter = validFilter
+            };
+        }
 
         public async Task<PagedResponseCustom<ListBillHandling>> GetListBillHandling(PaginationFilter filter)
         {
@@ -402,7 +419,10 @@ namespace TBSLogistics.Service.Services.Bill
 
             var pagedData = await getlistHandling.OrderByDescending(x => x.dp.Id).Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new ListBillHandling()
             {
-                MaChuyen = x.dp.Id,
+                HangTau = x.vd.HangTau,
+                handlingId = x.dp.Id,
+                ContNo = x.dp.ContNo,
+                MaChuyen = x.dp.MaChuyen,
                 AccountName = x.vd.MaAccount == null ? null : _context.AccountOfCustomer.Where(y => y.MaAccount == x.vd.MaAccount).Select(y => y.TenAccount).FirstOrDefault(),
                 CutOffDate = x.vd.ThoiGianHaCang,
                 DiemDau = _context.DiaDiem.Where(y => y.MaDiaDiem == x.vd.DiemDau).Select(x => x.TenDiaDiem).FirstOrDefault(),
@@ -426,6 +446,10 @@ namespace TBSLogistics.Service.Services.Bill
                 ChiPhiPhatSinh = (decimal)_context.SfeeByTcommand.Where(y => y.IdTcommand == x.dp.Id && y.ApproveStatus == 14).Sum(y => y.Price),
             }).Select(x => new ListBillHandling()
             {
+                HangTau = x.HangTau,
+                MaVanDon = "",
+                handlingId = x.handlingId,
+                ContNo = x.ContNo,
                 AccountName = x.AccountName == null ? x.TenKH : x.AccountName,
                 CutOffDate = x.CutOffDate,
                 DiemDau = x.DiemDau,
@@ -435,7 +459,6 @@ namespace TBSLogistics.Service.Services.Bill
                 MaPTVC = x.MaPTVC,
                 LoaiVanDon = x.LoaiVanDon,
                 MaVanDonKH = x.MaVanDonKH,
-                MaVanDon = x.MaVanDon,
                 MaChuyen = x.MaChuyen,
                 LoaiHangHoa = x.LoaiHangHoa,
                 LoaiPhuongTien = x.LoaiPhuongTien,

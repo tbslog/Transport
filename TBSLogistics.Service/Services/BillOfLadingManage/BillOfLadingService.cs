@@ -89,7 +89,17 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                     {
                         ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
                         ExcelWorksheet worksheet = package.Workbook.Worksheets[0];
-                        var rowCount = worksheet.Dimension.Rows;
+                        var rowCount = worksheet.Dimension.End.Row;
+
+                        while (rowCount >= 1)
+                        {
+                            var range = worksheet.Cells[rowCount, 1, rowCount, worksheet.Dimension.End.Column];
+                            if (range.Any(c => !string.IsNullOrEmpty(c.Text)))
+                            {
+                                break;
+                            }
+                            rowCount--;
+                        }
 
                         if (rowCount == 0)
                         {
@@ -170,7 +180,6 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                             if (!listBooking.Contains(MaVanDonKH))
                             {
                                 listBooking.Add(MaVanDonKH);
-
                                 list.Add(new CreateTransport()
                                 {
                                     LoaiVanDon = LoaiVanDon,
@@ -336,6 +345,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                             }
                         }
 
+                        string listError = "";
                         if (ErrorValidate == "")
                         {
                             foreach (var item in list)
@@ -344,10 +354,18 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 
                                 if (!createTransport.isSuccess)
                                 {
-                                    return createTransport;
+                                    listError += "Mã Vận Đơn " + item.MaVanDonKH + " lỗi: " + createTransport.Message + " ,";
                                 }
                             }
-                            return new BoolActionResult { isSuccess = true, Message = "Tạo Đơn Hàng Từ Excel Thành Công!" };
+
+                            if (string.IsNullOrEmpty(listError))
+                            {
+                                return new BoolActionResult { isSuccess = true, Message = "Tạo Đơn Hàng Từ Excel Thành Công!" };
+                            }
+                            else
+                            {
+                                return new BoolActionResult { isSuccess = false, Message = listError };
+                            }
                         }
                         else
                         {
