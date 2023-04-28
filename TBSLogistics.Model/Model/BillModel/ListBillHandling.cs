@@ -13,6 +13,7 @@ namespace TBSLogistics.Model.Model.BillModel
         public long handlingId { get; set; }
         public string ContNo { get; set; }
         public DateTime? CutOffDate { get; set; }
+        public DateTime createdTime { get; set; }
         public string DiemDau { get; set; }
         public string DiemCuoi { get; set; }
         public string DiemLayRong { get; set; }

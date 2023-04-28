@@ -130,13 +130,13 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                             worksheet.Cells[1, 22].Value.ToString().Trim() != "ThoiGianLayHang" ||
                             worksheet.Cells[1, 23].Value.ToString().Trim() != "ThoiGianTraHang" ||
                             worksheet.Cells[1, 24].Value.ToString().Trim() != "GhiChu" ||
-                            worksheet.Cells[1, 25].Value.ToString().Trim() != "DonViVanTai" ||
-                            worksheet.Cells[1, 26].Value.ToString().Trim() != "MaSoXe" ||
-                            worksheet.Cells[1, 27].Value.ToString().Trim() != "MaTaiXe" ||
-                            worksheet.Cells[1, 28].Value.ToString().Trim() != "Cont_No" ||
-                            worksheet.Cells[1, 29].Value.ToString().Trim() != "SEAL_NP" ||
-                            worksheet.Cells[1, 30].Value.ToString().Trim() != "SEAL_HQ" ||
-                            worksheet.Cells[1, 31].Value.ToString().Trim() != "GhiChuDP"
+                            //worksheet.Cells[1, 25].Value.ToString().Trim() != "DonViVanTai" ||
+                            //worksheet.Cells[1, 26].Value.ToString().Trim() != "MaSoXe" ||
+                            //worksheet.Cells[1, 27].Value.ToString().Trim() != "MaTaiXe" ||
+                            worksheet.Cells[1, 25].Value.ToString().Trim() != "Cont_No" ||
+                            worksheet.Cells[1, 26].Value.ToString().Trim() != "SEAL_NP" ||
+                            worksheet.Cells[1, 27].Value.ToString().Trim() != "SEAL_HQ" ||
+                            worksheet.Cells[1, 28].Value.ToString().Trim() != "GhiChuDP"
                             )
                         {
                             return new BoolActionResult { isSuccess = false, Message = "File excel không đúng định dạng chuẩn" };
@@ -169,13 +169,13 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                             string ThoiGianLayHang = worksheet.Cells[row, 22].Value == null ? null : worksheet.Cells[row, 22].Value.ToString().Trim();
                             string ThoiGianTraHang = worksheet.Cells[row, 23].Value == null ? null : worksheet.Cells[row, 23].Value.ToString().Trim();
                             string GhiChu = worksheet.Cells[row, 24].Value == null ? null : worksheet.Cells[row, 24].Value.ToString().Trim();
-                            string DonViVanTai = worksheet.Cells[row, 25].Value == null ? null : worksheet.Cells[row, 25].Value.ToString().Trim().ToUpper();
-                            string MaSoXe = worksheet.Cells[row, 26].Value == null ? null : worksheet.Cells[row, 26].Value.ToString().Trim();
-                            string MaTaiXe = worksheet.Cells[row, 27].Value == null ? null : worksheet.Cells[row, 27].Value.ToString().Trim();
-                            string Cont_No = worksheet.Cells[row, 28].Value == null ? null : worksheet.Cells[row, 28].Value.ToString().Trim().ToUpper();
-                            string SEAL_NP = worksheet.Cells[row, 29].Value == null ? null : worksheet.Cells[row, 29].Value.ToString().Trim();
-                            string SEAL_HQ = worksheet.Cells[row, 30].Value == null ? null : worksheet.Cells[row, 30].Value.ToString().Trim();
-                            string GhiChuDP = worksheet.Cells[row, 31].Value == null ? null : worksheet.Cells[row, 31].Value.ToString().Trim();
+                            //string DonViVanTai = worksheet.Cells[row, 25].Value == null ? null : worksheet.Cells[row, 25].Value.ToString().Trim().ToUpper();
+                            //string MaSoXe = worksheet.Cells[row, 26].Value == null ? null : worksheet.Cells[row, 26].Value.ToString().Trim();
+                            //string MaTaiXe = worksheet.Cells[row, 27].Value == null ? null : worksheet.Cells[row, 27].Value.ToString().Trim();
+                            string Cont_No = worksheet.Cells[row, 25].Value == null ? null : worksheet.Cells[row, 25].Value.ToString().Trim().ToUpper();
+                            string SEAL_NP = worksheet.Cells[row, 26].Value == null ? null : worksheet.Cells[row, 26].Value.ToString().Trim();
+                            string SEAL_HQ = worksheet.Cells[row, 27].Value == null ? null : worksheet.Cells[row, 27].Value.ToString().Trim();
+                            string GhiChuDP = worksheet.Cells[row, 28].Value == null ? null : worksheet.Cells[row, 28].Value.ToString().Trim();
 
                             if (!listBooking.Contains(MaVanDonKH))
                             {
@@ -206,8 +206,8 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                        new arrHandling()
                                        {
                                         GhiChu = GhiChuDP,
-                                        ContNo = string.IsNullOrEmpty(Cont_No) ? null:Cont_No,
-                                        DonViVanTai =  string.IsNullOrEmpty(DonViVanTai) ? null:DonViVanTai,
+                                        ContNo = string.IsNullOrEmpty(Cont_No) ? null: Cont_No,
+                                        //DonViVanTai =  string.IsNullOrEmpty(DonViVanTai) ? null:DonViVanTai,
                                         PTVanChuyen = MaLoaiPhuongTien,
                                         LoaiHangHoa = MaLoaiHangHoa,
                                         DonViTinh = "CHUYEN",
@@ -228,7 +228,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                     {
                                         GhiChu = GhiChuDP,
                                         ContNo = string.IsNullOrEmpty(Cont_No) ? null : Cont_No,
-                                        DonViVanTai = string.IsNullOrEmpty(DonViVanTai) ? null : DonViVanTai,
+                                        //DonViVanTai = string.IsNullOrEmpty(DonViVanTai) ? null : DonViVanTai,
                                         PTVanChuyen = MaLoaiPhuongTien,
                                         LoaiHangHoa = MaLoaiHangHoa,
                                         DonViTinh = "CHUYEN",
@@ -346,24 +346,30 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                         }
 
                         string listError = "";
+                        int rowc = 3;
                         if (ErrorValidate == "")
                         {
+                            var transaction = await _context.Database.BeginTransactionAsync();
                             foreach (var item in list)
                             {
+                                rowc += 1;
                                 var createTransport = await CreateTransport(item);
 
                                 if (!createTransport.isSuccess)
                                 {
-                                    listError += "Mã Vận Đơn " + item.MaVanDonKH + " lỗi: " + createTransport.Message + " ,";
+                                    listError += "Dòng " + rowc + "-- Mã Vận Đơn " + item.MaVanDonKH + " lỗi: " + createTransport.Message + " ,";
                                 }
                             }
 
                             if (string.IsNullOrEmpty(listError))
                             {
+                                await transaction.CommitAsync();
                                 return new BoolActionResult { isSuccess = true, Message = "Tạo Đơn Hàng Từ Excel Thành Công!" };
                             }
                             else
                             {
+
+                                await transaction.RollbackAsync();
                                 return new BoolActionResult { isSuccess = false, Message = listError };
                             }
                         }
@@ -382,7 +388,6 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 
         public async Task<BoolActionResult> CreateTransport(CreateTransport request)
         {
-            var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
                 var checkTransportByBooking = await _context.VanDon.Where(x =>
@@ -774,7 +779,6 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                     var resultDP = await _context.SaveChangesAsync();
                     if (resultDP > 0)
                     {
-                        await transaction.CommitAsync();
                         await _common.Log("BillOfLading ", "UserId: " + tempData.UserName + " create new Transport with Data: " + JsonSerializer.Serialize(request));
                         return new BoolActionResult { isSuccess = true, Message = "Tạo vận đơn Thành Công!" };
                     }
@@ -785,13 +789,11 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                 }
                 else
                 {
-                    await transaction.RollbackAsync();
                     return new BoolActionResult { isSuccess = false, Message = "Tạo vận đơn thất Bại" };
                 }
             }
             catch (Exception ex)
             {
-                await transaction.RollbackAsync();
                 await _common.Log("BillOfLading", "UserId: " + tempData.UserName + " create new Transport with ERRORS: " + ex.ToString());
                 return new BoolActionResult { isSuccess = false, Message = ex.ToString() };
             }

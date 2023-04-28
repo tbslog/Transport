@@ -147,58 +147,61 @@ namespace TBSLogistics.ApplicationAPI.Controllers
             using (var package = new ExcelPackage(stream))
             {
                 var workSheet = package.Workbook.Worksheets.Add("DieuPhoi");
-                workSheet.Cells[1, 1].Value = "Mã Vận Đơn";
-                workSheet.Cells[1, 2].Value = "Booking No";
-                workSheet.Cells[1, 3].Value = "Ngày CUT OFF ";
-                workSheet.Cells[1, 4].Value = "Loại Vận Đơn";
-                workSheet.Cells[1, 5].Value = "Loại Hàng Hóa";
-                workSheet.Cells[1, 6].Value = "Loại Phương Tiện";
-                workSheet.Cells[1, 7].Value = "Phương Thức Vận Chuyển";
-                workSheet.Cells[1, 8].Value = "Khách Hàng";
-                workSheet.Cells[1, 9].Value = "Account";
-                workSheet.Cells[1, 10].Value = "Đơn Vị Vận Tải";
-                workSheet.Cells[1, 11].Value = "Điểm Đóng Hàng";
-                workSheet.Cells[1, 12].Value = "Điểm Hạ Hàng";
-                workSheet.Cells[1, 13].Value = "Điểm Lấy Rỗng";
-                workSheet.Cells[1, 14].Value = "Điểm Trả Rỗng";
-                workSheet.Cells[1, 15].Value = "Đơn Giá Khách Hàng";
-                workSheet.Cells[1, 16].Value = "Đơn Giá Nhà Cung Cấp";
-                workSheet.Cells[1, 17].Value = "Doanh Thu";
-                workSheet.Cells[1, 18].Value = "Lợi Nhuận";
-                workSheet.Cells[1, 19].Value = "Phụ Phí Hợp Đồng";
-                workSheet.Cells[1, 20].Value = "Phụ Phí Phát Sinh";
+                workSheet.Cells[1, 1].Value = "Booking No";
+                workSheet.Cells[1, 2].Value = "CONT NO";
+                workSheet.Cells[1, 3].Value = "Thời Gian Tạo";
+                workSheet.Cells[1, 4].Value = "Ngày CUT OFF ";
+                workSheet.Cells[1, 5].Value = "Loại Vận Đơn";
+                workSheet.Cells[1, 6].Value = "Loại Hàng Hóa";
+                workSheet.Cells[1, 7].Value = "Loại Phương Tiện";
+                workSheet.Cells[1, 8].Value = "Phương Thức Vận Chuyển";
+                workSheet.Cells[1, 9].Value = "Khách Hàng";
+                workSheet.Cells[1, 10].Value = "Account";
+                workSheet.Cells[1, 11].Value = "Đơn Vị Vận Tải";
+                workSheet.Cells[1, 12].Value = "Điểm Đóng Hàng";
+                workSheet.Cells[1, 13].Value = "Điểm Hạ Hàng";
+                workSheet.Cells[1, 14].Value = "Điểm Lấy Rỗng";
+                workSheet.Cells[1, 15].Value = "Điểm Trả Rỗng";
+                workSheet.Cells[1, 16].Value = "Đơn Giá Khách Hàng";
+                workSheet.Cells[1, 17].Value = "Đơn Giá Nhà Cung Cấp";
+                workSheet.Cells[1, 18].Value = "Doanh Thu";
+                workSheet.Cells[1, 19].Value = "Lợi Nhuận";
+                workSheet.Cells[1, 20].Value = "Phụ Phí Hợp Đồng";
+                workSheet.Cells[1, 21].Value = "Phụ Phí Phát Sinh";
 
                 int row = 2;
                 foreach (var item in data.dataResponse)
                 {
-                    workSheet.Cells[row, 1].Value = item.MaVanDon;
-                    workSheet.Cells[row, 2].Value = item.MaVanDonKH;
-                    workSheet.Cells[row, 3].Value = item.CutOffDate;
-                    workSheet.Cells[row, 4].Value = item.LoaiVanDon == "nhap" ? "Nhập" : "Xuất";
-                    workSheet.Cells[row, 5].Value = item.LoaiHangHoa;
-                    workSheet.Cells[row, 6].Value = item.LoaiPhuongTien;
-                    workSheet.Cells[row, 7].Value = item.MaPTVC;
-                    workSheet.Cells[row, 8].Value = item.TenKH;
-                    workSheet.Cells[row, 9].Value = item.AccountName;
-                    workSheet.Cells[row, 10].Value = item.TenNCC;
-                    workSheet.Cells[row, 11].Value = item.DiemDau;
-                    workSheet.Cells[row, 12].Value = item.DiemCuoi;
-                    workSheet.Cells[row, 13].Value = item.DiemLayRong;
-                    workSheet.Cells[row, 14].Value = item.DiemTraRong;
-                    workSheet.Cells[row, 15].Value = item.DonGiaKH;
-                    workSheet.Cells[row, 16].Value = item.DonGiaNCC;
-                    workSheet.Cells[row, 17].Value = item.DoanhThu;
-                    workSheet.Cells[row, 18].Value = item.LoiNhuan;
-                    workSheet.Cells[row, 19].Value = item.ChiPhiHopDong;
-                    workSheet.Cells[row, 20].Value = item.ChiPhiPhatSinh;
+                    workSheet.Cells[row, 1].Value = item.MaVanDonKH;
+                    workSheet.Cells[row, 2].Value = item.ContNo;
+                    workSheet.Cells[row, 3].Value = item.createdTime;
+                    workSheet.Cells[row, 4].Value = item.CutOffDate;
+                    workSheet.Cells[row, 5].Value = item.LoaiVanDon == "nhap" ? "Nhập" : "Xuất";
+                    workSheet.Cells[row, 6].Value = item.LoaiHangHoa;
+                    workSheet.Cells[row, 7].Value = item.LoaiPhuongTien;
+                    workSheet.Cells[row, 8].Value = item.MaPTVC;
+                    workSheet.Cells[row, 9].Value = item.TenKH;
+                    workSheet.Cells[row, 10].Value = item.AccountName;
+                    workSheet.Cells[row, 11].Value = item.TenNCC;
+                    workSheet.Cells[row, 12].Value = item.DiemDau;
+                    workSheet.Cells[row, 13].Value = item.DiemCuoi;
+                    workSheet.Cells[row, 14].Value = item.DiemLayRong;
+                    workSheet.Cells[row, 15].Value = item.DiemTraRong;
+                    workSheet.Cells[row, 16].Value = item.DonGiaKH;
+                    workSheet.Cells[row, 17].Value = item.DonGiaNCC;
+                    workSheet.Cells[row, 18].Value = item.DoanhThu;
+                    workSheet.Cells[row, 19].Value = item.LoiNhuan;
+                    workSheet.Cells[row, 20].Value = item.ChiPhiHopDong;
+                    workSheet.Cells[row, 21].Value = item.ChiPhiPhatSinh;
                     row++;
                 }
 
 
-                workSheet.Cells["C2:C" + row].Style.Numberformat.Format = "DD-MM-YYYY HH:mm";
-                workSheet.Cells["A1:S1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                workSheet.Cells["A1:S1"].Style.Font.Bold = true;
-                workSheet.Cells["A1:S1"].Style.Font.Size = 14;
+                workSheet.Cells["D3:D" + row].Style.Numberformat.Format = "DD-MM-YYYY HH:mm";
+                workSheet.Cells["E3:E" + row].Style.Numberformat.Format = "DD-MM-YYYY HH:mm";
+                workSheet.Cells["A1:U1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                workSheet.Cells["A1:U1"].Style.Font.Bold = true;
+                workSheet.Cells["A1:U1"].Style.Font.Size = 14;
 
                 workSheet.Cells[workSheet.Dimension.Address].AutoFitColumns();
                 workSheet.Cells[workSheet.Dimension.Address].Style.Border.Top.Style = ExcelBorderStyle.Thin;

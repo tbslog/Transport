@@ -103,14 +103,14 @@ namespace TBSLogistics.Service.Services.Report
                           join vd in _context.VanDon
                           on dp.MaVanDon equals vd.MaVanDon
                           where dp.TrangThai == 20
-                          && dp.ThoiGianHoanThanh.Value.Date >= firstDateOfMonth.Date
-                          && dp.ThoiGianHoanThanh.Value.Date <= lastDateOfMonth.Date
+                          && dp.CreatedTime.Date >= firstDateOfMonth.Date
+                          && dp.CreatedTime.Date <= lastDateOfMonth.Date
                           select new { dp, vd };
 
-            var SubFee = await getData.Where(x => getAllDaysInMonth.Select(y => y.Date).Contains(x.dp.ThoiGianHoanThanh.Value.Date))
+            var SubFee = await getData.Where(x => getAllDaysInMonth.Select(y => y.Date).Contains(x.dp.CreatedTime.Date))
                 .Select(x => new
                 {
-                    x.dp.ThoiGianHoanThanh.Value.Date,
+                    x.dp.CreatedTime.Date,
                     totalSf = _context.SubFeePrice.Where(c => _context.SubFeeByContract.Where(y => y.MaDieuPhoi == x.dp.Id).Select(y => y.PriceId).ToList().Contains(c.PriceId)).Sum(c => c.Price) +
                     _context.SfeeByTcommand.Where(y => y.IdTcommand == x.dp.Id && y.ApproveStatus == 14).Sum(y => y.Price)
                     + _context.SubFeePrice.Where(c => _context.SubFeeByContract.Where(y => y.MaDieuPhoi == x.dp.Id).Select(y => y.PriceId).Contains(c.PriceId)).Sum(y => y.Price) + ((double)x.dp.DonGiaNcc),
@@ -130,10 +130,10 @@ namespace TBSLogistics.Service.Services.Report
                 value = 0,
             })).ToList();
 
-            var revenue = await getData.Where(x => getAllDaysInMonth.Select(y => y.Date).Contains(x.dp.ThoiGianHoanThanh.Value.Date))
+            var revenue = await getData.Where(x => getAllDaysInMonth.Select(y => y.Date).Contains(x.dp.CreatedTime.Date))
                 .Select(x => new
                 {
-                    x.dp.ThoiGianHoanThanh.Value.Date,
+                    x.dp.CreatedTime.Date,
                     totalPrice =
                     _context.SubFeePrice.Where(c => _context.SubFeeByContract.Where(y => y.MaDieuPhoi == x.dp.Id).Select(y => y.PriceId).ToList().Contains(c.PriceId)).Sum(c => c.Price) +
                     _context.SfeeByTcommand.Where(y => y.IdTcommand == x.dp.Id && y.ApproveStatus == 14).Sum(y => y.Price) +
@@ -154,8 +154,8 @@ namespace TBSLogistics.Service.Services.Report
                 value = 0,
             })).ToList();
 
-            var Profit = await getData.Where(x => getAllDaysInMonth.Select(y => y.Date).Contains(x.dp.ThoiGianHoanThanh.Value.Date))
-                .GroupBy(x => new { x.dp.ThoiGianHoanThanh.Value.Date })
+            var Profit = await getData.Where(x => getAllDaysInMonth.Select(y => y.Date).Contains(x.dp.CreatedTime.Date))
+                .GroupBy(x => new { x.dp.CreatedTime.Date })
                 .Select(x => new { date = x.Key.Date, sumProfit = x.Sum(x => x.dp.DonGiaKh - x.dp.DonGiaNcc) }).Select(x => new arrDouble()
                 {
                     date = x.date,
@@ -214,7 +214,7 @@ namespace TBSLogistics.Service.Services.Report
             var DataCustomer = await data.GroupBy(x => x.vd.MaKh).Select(x => new CustomerReport
             {
                 CustomerName = _context.KhachHang.Where(v => v.MaKh == x.First().vd.MaKh).Select(v => v.TenKh).FirstOrDefault(),
-                totalBooking = x.Select(c=>c.vd).GroupBy(c=>c.MaVanDonKh).Count(),
+                totalBooking = _context.VanDon.Where(c => x.Select(z => z.vd.MaVanDon).Contains(c.MaVanDon)).Count(),
                 Total = x.Count(),
                 CONT20 = x.Count(c => c.dp.MaLoaiPhuongTien == "CONT20"),
                 CONT40 = x.Count(c => c.dp.MaLoaiPhuongTien == "CONT40"),
@@ -262,10 +262,10 @@ namespace TBSLogistics.Service.Services.Report
                 TRUCK8 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK8"),
                 TRUCK9 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK9"),
                 totalSf = ((double)x.Sum(y => y.dp.DonGiaNcc)) + _context.SfeeByTcommand.Where(y => x.Select(c => c.dp.Id).Contains(y.IdTcommand) && y.ApproveStatus == 14).Sum(y => y.Price) + _context.SubFeePrice.Where(y => _context.SubFeeByContract.Where(z => x.Select(v => v.dp.Id).Contains(z.Id)).Select(z => z.PriceId).Contains(y.PriceId)).Sum(y => y.Price),
-                //totalMoney = _context.SfeeByTcommand.Where(y => x.Select(c => c.dp.Id).Contains(y.IdTcommand) && y.ApproveStatus == 14).Sum(y => y.Price) +
-                //    ((double)x.Sum(y => y.dp.DonGiaKh)) +
-                //    _context.SubFeePrice.Where(y => _context.SubFeeByContract.Where(z => x.Select(v => v.dp.Id).Contains(z.Id)).Select(z => z.PriceId).Contains(y.PriceId)).Sum(y => y.Price),
-                //profit = (double)x.Sum(c => c.dp.DonGiaKh.Value - c.dp.DonGiaNcc.Value)
+                totalMoney = _context.SfeeByTcommand.Where(y => x.Select(c => c.dp.Id).Contains(y.IdTcommand) && y.ApproveStatus == 14).Sum(y => y.Price) +
+                    ((double)x.Sum(y => y.dp.DonGiaKh)) +
+                    _context.SubFeePrice.Where(y => _context.SubFeeByContract.Where(z => x.Select(v => v.dp.Id).Contains(z.Id)).Select(z => z.PriceId).Contains(y.PriceId)).Sum(y => y.Price),
+                profit = (double)x.Sum(c => c.dp.DonGiaKh.Value - c.dp.DonGiaNcc.Value)
             }).OrderBy(x => x.CustomerName).ToListAsync();
 
             var listPartner = await _context.KhachHang.ToListAsync();

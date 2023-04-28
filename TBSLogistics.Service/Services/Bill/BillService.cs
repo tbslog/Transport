@@ -44,8 +44,8 @@ namespace TBSLogistics.Service.Services.Bill
                                       on dp.MaVanDon equals vd.MaVanDon
                                       where (vd.MaKh == customerId || dp.DonViVanTai == customerId)
                                       && dp.TrangThai == 20
-                                      && dp.ThoiGianHoanThanh.Value.Date >= fromDate.Date
-                                      && dp.ThoiGianHoanThanh.Value.Date <= toDate.Date
+                                      && dp.CreatedTime.Date >= fromDate.Date
+                                      && dp.CreatedTime.Date <= toDate.Date
                                       select dp;
 
                 var getDataTransport = from kh in _context.KhachHang
@@ -334,7 +334,7 @@ namespace TBSLogistics.Service.Services.Bill
 
             if (!string.IsNullOrEmpty(filter.fromDate.ToString()) && !string.IsNullOrEmpty(filter.toDate.ToString()))
             {
-                getlistHandling = getlistHandling.Where(x => x.dp.ThoiGianHoanThanh.Value >= filter.fromDate.Value && x.dp.ThoiGianHoanThanh.Value <= filter.toDate.Value);
+                getlistHandling = getlistHandling.Where(x => x.dp.CreatedTime >= filter.fromDate.Value && x.dp.CreatedTime <= filter.toDate.Value);
             }
 
 
@@ -367,7 +367,7 @@ namespace TBSLogistics.Service.Services.Bill
                     TaiXe = z.dp.MaTaiXe,
                     DonGiaKH = z.dp.DonGiaKh.Value,
                     PhuPhiHD = _context.SubFeeByContract.Where(y => y.MaDieuPhoi == z.dp.Id).Select(y => y.Price).Sum(y => y.Price),
-                    PhuPhiPhatSinh = getListSFOfContract.Where(y => y.sfc.MaDieuPhoi == z.dp.Id).Sum(y => y.sfp.Price),
+                    PhuPhiPhatSinh = _context.SfeeByTcommand.Where(y => y.IdTcommand == z.dp.Id && y.ApproveStatus == 14).Sum(y => y.Price),
                     ContNo = z.dp.ContNo,
                     SealNP = z.dp.SealNp,
                     SealHQ = z.dp.SealHq,
@@ -407,7 +407,7 @@ namespace TBSLogistics.Service.Services.Bill
 
             if (!string.IsNullOrEmpty(filter.fromDate.ToString()) && !string.IsNullOrEmpty(filter.toDate.ToString()))
             {
-                getlistHandling = getlistHandling.Where(x => x.dp.ThoiGianHoanThanh.Value >= filter.fromDate.Value && x.dp.ThoiGianHoanThanh.Value <= filter.toDate.Value);
+                getlistHandling = getlistHandling.Where(x => x.dp.CreatedTime >= filter.fromDate.Value && x.dp.CreatedTime <= filter.toDate.Value);
             }
 
             if (!string.IsNullOrEmpty(filter.customerId))
@@ -442,10 +442,12 @@ namespace TBSLogistics.Service.Services.Bill
                 DonGiaKH = x.dp.DonGiaKh,
                 DonGiaNCC = x.dp.DonGiaNcc,
                 LoiNhuan = x.dp.DonGiaKh.Value - x.dp.DonGiaNcc.Value,
+                createdTime = x.dp.CreatedTime,
                 ChiPhiHopDong = (decimal)getSFbyContract.Where(y => y.sfc.MaDieuPhoi == x.dp.Id).Sum(y => y.sfp.Price),
                 ChiPhiPhatSinh = (decimal)_context.SfeeByTcommand.Where(y => y.IdTcommand == x.dp.Id && y.ApproveStatus == 14).Sum(y => y.Price),
             }).Select(x => new ListBillHandling()
             {
+                createdTime = x.createdTime,
                 HangTau = x.HangTau,
                 MaVanDon = "",
                 handlingId = x.handlingId,
