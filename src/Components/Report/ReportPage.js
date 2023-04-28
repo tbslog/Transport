@@ -163,6 +163,7 @@ const ReportPage = () => {
                               <thead>
                                 <tr>
                                   <th>Khách Hàng</th>
+                                  <th>Tổng Số Booking</th>
                                   <th>Tổng Số Chuyến</th>
                                   <th>20</th>
                                   <th>40</th>
@@ -184,6 +185,7 @@ const ReportPage = () => {
                                   <th>Doanh Thu</th>
                                   <th>Chi Phí</th>
                                   <th>Lợi Nhuận</th>
+                                  <th>Tỉ Xuất LN/CP</th>
                                 </tr>
                               </thead>
                               <tbody>
@@ -199,6 +201,7 @@ const ReportPage = () => {
                                             return (
                                               <tr key={index}>
                                                 <td>{val.customerName}</td>
+                                                <td>{val.totalBooking}</td>
                                                 <td>{val.total}</td>
                                                 <td>{val.conT20}</td>
                                                 <td>{val.conT40}</td>
@@ -217,6 +220,7 @@ const ReportPage = () => {
                                                 <td>{val.trucK7}</td>
                                                 <td>{val.trucK8}</td>
                                                 <td>{val.trucK9}</td>
+
                                                 <td>
                                                   {val.totalMoney.toLocaleString(
                                                     "vi-VI",
@@ -243,6 +247,13 @@ const ReportPage = () => {
                                                       currency: "VND",
                                                     }
                                                   )}
+                                                </td>
+                                                <td>
+                                                  {Math.round(
+                                                    (val.profit / val.totalSf) *
+                                                      100
+                                                  )}
+                                                  %
                                                 </td>
                                               </tr>
                                             );
@@ -287,9 +298,10 @@ const ReportPage = () => {
                                   <th>7T</th>
                                   <th>8T</th>
                                   <th>9T</th>
-                                  {/* <th>Doanh Thu</th> */}
+                                  <th>Doanh Thu</th>
                                   <th>Chi Phí</th>
-                                  {/* <th>Lợi Nhuận</th> */}
+                                  <th>Lợi Nhuận</th>
+                                  <th>Tỉ Xuất LN/CP</th>
                                 </tr>
                               </thead>
                               <tbody>
@@ -323,7 +335,7 @@ const ReportPage = () => {
                                                 <td>{val.trucK7}</td>
                                                 <td>{val.trucK8}</td>
                                                 <td>{val.trucK9}</td>
-                                                {/* <td>
+                                                <td>
                                                   {val.totalMoney.toLocaleString(
                                                     "vi-VI",
                                                     {
@@ -331,7 +343,7 @@ const ReportPage = () => {
                                                       currency: "VND",
                                                     }
                                                   )}
-                                                </td> */}
+                                                </td>
                                                 <td>
                                                   {val.totalSf.toLocaleString(
                                                     "vi-VI",
@@ -341,7 +353,7 @@ const ReportPage = () => {
                                                     }
                                                   )}
                                                 </td>
-                                                {/* <td>
+                                                <td>
                                                   {val.profit.toLocaleString(
                                                     "vi-VI",
                                                     {
@@ -349,7 +361,14 @@ const ReportPage = () => {
                                                       currency: "VND",
                                                     }
                                                   )}
-                                                </td> */}
+                                                </td>
+                                                <td>
+                                                  {Math.round(
+                                                    (val.profit / val.totalSf) *
+                                                      100
+                                                  )}
+                                                  %
+                                                </td>
                                               </tr>
                                             );
                                           }

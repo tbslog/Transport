@@ -92,7 +92,6 @@ const UpdatePriceTable = (props) => {
   };
 
   const [IsLoading, SetIsLoading] = useState(false);
-  const [listRoad, setListRoad] = useState([]);
   const [listCustomer, setListCustomer] = useState([]);
   const [listVehicleType, setListVehicleType] = useState([]);
   const [listGoodsType, setListGoodsType] = useState([]);
@@ -185,10 +184,6 @@ const UpdatePriceTable = (props) => {
       listCustomer.length > 0 &&
       Object.keys(selectIdClick).length > 0
     ) {
-      setValue(
-        "MaKh",
-        { ...listCustomer.filter((x) => x.value === selectIdClick.maKh) }[0]
-      );
       handleOnChangeCustomer(
         listCustomer.find((x) => x.value === selectIdClick.maKh)
       );
@@ -200,37 +195,28 @@ const UpdatePriceTable = (props) => {
     if (
       selectIdClick &&
       listContract &&
-      listRoad &&
       listFPlace &&
       listFPlace.length > 0 &&
       Object.keys(selectIdClick).length > 0 &&
-      listContract.length > 0 &&
-      listRoad.length > 0
+      listContract.length > 0
     ) {
       setValue(
         "MaHopDong",
-        {
-          ...listContract.filter((x) => x.value === selectIdClick.maHopDong),
-        }[0]
+        listContract.find((x) => x.value === selectIdClick.maHopDong)
       );
 
       setValue(
         "DiemDau",
-        {
-          ...listFPlace.filter((x) => x.value === selectIdClick.diemDau),
-        }[0]
+        listFPlace.find((x) => x.value === selectIdClick.diemDau)
       );
       setValue(
         "DiemCuoi",
-        {
-          ...listSPlace.filter((x) => x.value === selectIdClick.diemCuoi),
-        }[0]
+
+        listSPlace.find((x) => x.value === selectIdClick.diemCuoi)
       );
       setValue(
         "DiemLayTraRong",
-        {
-          ...listEPlace.filter((x) => x.value === selectIdClick.diemLayTraRong),
-        }[0]
+        listEPlace.find((x) => x.value === selectIdClick.diemLayTraRong)
       );
       setValue("DonGia", selectIdClick.donGia);
       setValue("MaDVT", selectIdClick.maDVT);
@@ -241,30 +227,27 @@ const UpdatePriceTable = (props) => {
 
       SetIsLoading(false);
     }
-  }, [selectIdClick, listContract, listRoad, listFPlace]);
+  }, [selectIdClick, listContract, listFPlace]);
 
   const handleOnchangeListCustomer = (val) => {
     SetIsLoading(true);
 
     setListContract([]);
-    setListRoad([]);
-    setValue("optionRoad", [{ MaCungDuong: null }]);
     setValue("MaKh", val);
-
     setValue("MaHopDong", null);
     getListRoadAndContract(val.value);
-
     SetIsLoading(false);
   };
 
   const handleOnChangeContractType = async (val) => {
     setValue("PhanLoaiDoiTac", val);
+
     if (val && val !== "") {
       let getListCustomer = await getData(
-        `Customer/GetListCustomerOptionSelect`
+        `Customer/GetListCustomerOptionSelect?type=${val}`
       );
+
       if (getListCustomer && getListCustomer.length > 0) {
-        getListCustomer = getListCustomer.filter((x) => x.loaiKH === val);
         let obj = [];
 
         getListCustomer.map((val) => {
@@ -280,18 +263,6 @@ const UpdatePriceTable = (props) => {
 
   const getListRoadAndContract = async (MaKh) => {
     SetIsLoading(true);
-    // let getListRoad = await getData(`Road/GetListRoadOptionSelect`);
-    // if (getListRoad && getListRoad.length > 0) {
-    //   let obj = [];
-    //   getListRoad.map((val) => {
-    //     obj.push({
-    //       value: val.maCungDuong,
-    //       label: val.maCungDuong + " - " + val.tenCungDuong,
-    //     });
-    //   });
-    //   setListRoad(obj);
-    // }
-
     let getListContract = await getData(
       `Contract/GetListContractSelect?MaKH=${MaKh}&getListApprove=true`
     );
@@ -329,7 +300,7 @@ const UpdatePriceTable = (props) => {
     if (val && Object.keys(val).length > 0) {
       setListAccountCus([]);
       setValue("AccountCus", null);
-      setValue("MaKH", val);
+      setValue("MaKh", val);
       const getListAcc = await getData(
         `AccountCustomer/GetListAccountSelectByCus?cusId=${val.value}`
       );
