@@ -73,12 +73,22 @@ const ApprovePriceTable = (props) => {
       selector: (row) => <div className="text-wrap">{row.tenHopDong}</div>,
     },
     {
-      name: "Đơn Giá",
+      name: "Đơn Giá VND",
       selector: (row) =>
-        row.donGia.toLocaleString("vi-VI", {
+        row.donGiaVnd.toLocaleString("vi-VI", {
           style: "currency",
           currency: "VND",
         }),
+    },
+    {
+      name: "Đơn Giá USD",
+      selector: (row) =>
+        !row.donGiaUsd
+          ? ""
+          : row.donGiaUsd.toLocaleString("en-EN", {
+              style: "currency",
+              currency: "USD",
+            }),
     },
     {
       name: <div>Điểm Đóng Hàng</div>,
@@ -131,10 +141,8 @@ const ApprovePriceTable = (props) => {
   useEffect(() => {
     setLoading(true);
     if (checkShowModal && Object.keys(checkShowModal).length > 0) {
-      (async () => {
-        fetchData(1);
-        setLoading(false);
-      })();
+      fetchData(1);
+      setLoading(false);
     }
   }, [props, checkShowModal]);
 

@@ -8,7 +8,7 @@ import DatePicker from "react-datepicker";
 import AddPriceTable from "./AddPriceTable";
 import ApprovePriceTable from "./ApprovePriceTable";
 import { ToastError } from "../Common/FuncToast";
-import FileExcelImport from "../../ExcelFile/PriceTableTemplate/TemplatePriceTable.xlsx";
+import FileExcelImport from "../../ExcelFile/PriceTableTemplate/TemplateImportPriceTable.xlsx";
 
 const customStyles = {
   rows: {
@@ -477,7 +477,7 @@ const PriceTablePage = () => {
                 </div>
                 <a
                   href={FileExcelImport}
-                  download="TemplateImportTransport.xlsx"
+                  download="TemplateImportPriceTable.xlsx"
                   className="btn btn-sm btn-default mx-1"
                 >
                   <i className="fas fa-file-download"></i>

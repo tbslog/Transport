@@ -27,7 +27,8 @@ const AddPriceTable = (props) => {
           DiemCuoi: null,
           DiemLayTraRong: null,
           AccountId: null,
-          DonGia: "",
+          DonGiaVND: null,
+          DonGiaUSD: null,
           MaDVT: "",
           MaPTVC: "",
           MaLoaiPhuongTien: "",
@@ -74,21 +75,21 @@ const AddPriceTable = (props) => {
     MaCungDuong: {
       required: "Không được để trống",
     },
-    NgayApDung: {
-      maxLength: {
-        value: 10,
-        message: "Không được vượt quá 10 ký tự",
-      },
-      minLength: {
-        value: 10,
-        message: "Không được ít hơn 10 ký tự",
-      },
-      pattern: {
-        value:
-          /^(?:(?:31(\/|-|\.)(?:0?[13578]|1[02]))\1|(?:(?:29|30)(\/|-|\.)(?:0?[13-9]|1[0-2])\2))(?:(?:1[6-9]|[2-9]\d)?\d{2})$|^(?:29(\/|-|\.)0?2\3(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\d|2[0-8])(\/|-|\.)(?:(?:0?[1-9])|(?:1[0-2]))\4(?:(?:1[6-9]|[2-9]\d)?\d{2})$/,
-        message: "Không phải định dạng ngày",
-      },
-    },
+    // NgayApDung: {
+    //   maxLength: {
+    //     value: 10,
+    //     message: "Không được vượt quá 10 ký tự",
+    //   },
+    //   minLength: {
+    //     value: 10,
+    //     message: "Không được ít hơn 10 ký tự",
+    //   },
+    //   pattern: {
+    //     value:
+    //       /^(?:(?:31(\/|-|\.)(?:0?[13578]|1[02]))\1|(?:(?:29|30)(\/|-|\.)(?:0?[13-9]|1[0-2])\2))(?:(?:1[6-9]|[2-9]\d)?\d{2})$|^(?:29(\/|-|\.)0?2\3(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\d|2[0-8])(\/|-|\.)(?:(?:0?[1-9])|(?:1[0-2]))\4(?:(?:1[6-9]|[2-9]\d)?\d{2})$/,
+    //     message: "Không phải định dạng ngày",
+    //   },
+    // },
     NgayHetHieuLuc: {
       maxLength: {
         value: 10,
@@ -104,12 +105,18 @@ const AddPriceTable = (props) => {
         message: "Không phải định dạng ngày",
       },
     },
-    DonGia: {
+    DonGiaVND: {
       pattern: {
         value: /^[0-9]*$/,
         message: "Chỉ được nhập ký tự là số",
       },
       required: "Không được để trống",
+    },
+    DonGiaUSD: {
+      pattern: {
+        value: /^[0-9.]*$/,
+        message: "Chỉ được nhập ký tự là số",
+      },
     },
     MaLoaiPhuongTien: {
       required: "Không được để trống",
@@ -335,16 +342,14 @@ const AddPriceTable = (props) => {
         maPtvc: val.MaPTVC,
         maLoaiPhuongTien: val.MaLoaiPhuongTien,
         maLoaiDoiTac: data.PhanLoaiDoiTac,
-        donGia: val.DonGia,
+        DonGiaVnd: val.DonGiaVND,
+        DonGiaUsd: !val.DonGiaUSD ? null : val.DonGiaUSD,
         maDvt: val.MaDVT,
         maLoaiHangHoa: val.MaLoaiHangHoa,
-        ngayHetHieuLuc: !val.NgayHetHieuLuc
-          ? null
-          : moment(new Date(val.NgayHetHieuLuc).toISOString()).format(
-              "YYYY-MM-DD"
-            ),
+        ngayHetHieuLuc: null,
       });
     });
+
     const createPriceTable = await postData("PriceTable/CreatePriceTable", arr);
     if (createPriceTable === 1) {
       reset();
@@ -509,12 +514,13 @@ const AddPriceTable = (props) => {
                         <th style={{ width: "13%" }}>Điểm Đóng Hàng</th>
                         <th style={{ width: "13%" }}>Điểm Trả Hàng</th>
                         <th style={{ width: "13%" }}>Điểm Lấy/Trả Rỗng</th>
-                        <th>Đơn Giá(*)</th>
+                        <th>Đơn Giá VND(*)</th>
+                        <th>Đơn Giá USD</th>
                         <th>Đơn vị tính(*)</th>
                         <th style={{ width: "10%" }}>PTVC(*)</th>
                         <th style={{ width: "12%" }}>Loại phương tiện(*)</th>
                         <th>Loại Hàng Hóa(*)</th>
-                        <th>Ngày Hết Hiệu Lực</th>
+                        {/* <th>Ngày Hết Hiệu Lực</th> */}
                         <th style={{ width: "40px" }}></th>
                       </tr>
                     </thead>
@@ -604,15 +610,39 @@ const AddPriceTable = (props) => {
                               <input
                                 type="text"
                                 className="form-control"
-                                id="DonGia"
+                                id="DonGiaVND"
                                 {...register(
-                                  `optionRoad.${index}.DonGia`,
-                                  Validate.DonGia
+                                  `optionRoad.${index}.DonGiaVND`,
+                                  Validate.DonGiaVND
                                 )}
                               />
-                              {errors.optionRoad?.[index]?.DonGia && (
+                              {errors.optionRoad?.[index]?.DonGiaVND && (
                                 <span className="text-danger">
-                                  {errors.optionRoad?.[index]?.DonGia.message}
+                                  {
+                                    errors.optionRoad?.[index]?.DonGiaVND
+                                      .message
+                                  }
+                                </span>
+                              )}
+                            </div>
+                          </td>
+                          <td>
+                            <div className="form-group">
+                              <input
+                                type="text"
+                                className="form-control"
+                                id="DonGiaUSD"
+                                {...register(
+                                  `optionRoad.${index}.DonGiaUSD`,
+                                  Validate.DonGiaUSD
+                                )}
+                              />
+                              {errors.optionRoad?.[index]?.DonGiaUSD && (
+                                <span className="text-danger">
+                                  {
+                                    errors.optionRoad?.[index]?.DonGiaUSD
+                                      .message
+                                  }
                                 </span>
                               )}
                             </div>
@@ -767,7 +797,7 @@ const AddPriceTable = (props) => {
                               </div>
                             </div>
                           </td> */}
-                          <td>
+                          {/* <td>
                             <div className="form-group">
                               <div className="input-group ">
                                 <Controller
@@ -793,7 +823,7 @@ const AddPriceTable = (props) => {
                                 )}
                               </div>
                             </div>
-                          </td>
+                          </td> */}
                           <td>
                             <div className="form-group">
                               {index >= 1 && (

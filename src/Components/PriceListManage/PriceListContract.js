@@ -92,16 +92,22 @@ const PriceListContract = (props) => {
       sortable: true,
     },
     {
-      name: <div>Đơn Giá</div>,
-      selector: (row) => (
-        <div className="text-wrap">
-          {row.donGia.toLocaleString("vi-VI", {
-            style: "currency",
-            currency: "VND",
-          })}
-        </div>
-      ),
-      sortable: true,
+      name: "Đơn Giá VND",
+      selector: (row) =>
+        row.donGiaVnd.toLocaleString("vi-VI", {
+          style: "currency",
+          currency: "VND",
+        }),
+    },
+    {
+      name: "Đơn Giá USD",
+      selector: (row) =>
+        !row.donGiaUsd
+          ? ""
+          : row.donGiaUsd.toLocaleString("en-EN", {
+              style: "currency",
+              currency: "USD",
+            }),
     },
     {
       name: <div>PTVC</div>,

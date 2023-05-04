@@ -64,12 +64,18 @@ const UpdatePriceTable = (props) => {
         message: "Không phải định dạng ngày",
       },
     },
-    DonGia: {
+    DonGiaVND: {
       pattern: {
         value: /^[0-9]*$/,
         message: "Chỉ được nhập ký tự là số",
       },
       required: "Không được để trống",
+    },
+    DonGiaUSD: {
+      pattern: {
+        value: /^[0-9.]*$/,
+        message: "Chỉ được nhập ký tự là số",
+      },
     },
     MaLoaiPhuongTien: {
       required: "Không được để trống",
@@ -218,7 +224,8 @@ const UpdatePriceTable = (props) => {
         "DiemLayTraRong",
         listEPlace.find((x) => x.value === selectIdClick.diemLayTraRong)
       );
-      setValue("DonGia", selectIdClick.donGia);
+      setValue("DonGiaVND", selectIdClick.donGiaVnd);
+      setValue("DonGiaUSD", selectIdClick.donGiaUsd);
       setValue("MaDVT", selectIdClick.maDVT);
       setValue("MaPTVC", selectIdClick.maPTVC);
       setValue("MaLoaiPhuongTien", selectIdClick.maLoaiPhuongTien);
@@ -337,7 +344,8 @@ const UpdatePriceTable = (props) => {
           : data.DiemLayTraRong.value,
         MaPTVC: data.MaPTVC,
         MaLoaiPhuongTien: data.MaLoaiPhuongTien,
-        DonGia: data.DonGia,
+        DonGiaVnd: data.DonGiaVND,
+        DonGiaUsd: !data.DonGiaUSD ? null : data.DonGiaUSD,
         MaDVT: data.MaDVT,
         MaLoaiHangHoa: data.MaLoaiHangHoa,
         NgayHetHieuLuc: !data.NgayHetHieuLuc
@@ -484,12 +492,12 @@ const UpdatePriceTable = (props) => {
                     <th>Điểm Đóng Hàng(*)</th>
                     <th>Điểm Trả Hàng(*)</th>
                     <th> Điểm Lấy/Trả Rỗng</th>
-                    <th>Đơn Giá(*)</th>
+                    <th>Đơn Giá VND(*)</th>
+                    <th>Đơn Giá USD</th>
                     <th>Đơn vị tính(*)</th>
                     <th>Phương Thức Vận Chuyển(*)</th>
                     <th>Loại phương tiện(*)</th>
                     <th>Loại Hàng Hóa(*)</th>
-                    <th>Ngày Hết Hiệu Lực</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -585,12 +593,27 @@ const UpdatePriceTable = (props) => {
                         <input
                           type="text"
                           className="form-control"
-                          id="DonGia"
-                          {...register(`DonGia`, Validate.DonGia)}
+                          id="DonGiaVND"
+                          {...register(`DonGiaVND`, Validate.DonGiaVND)}
                         />
-                        {errors.DonGia && (
+                        {errors.DonGiaVND && (
                           <span className="text-danger">
-                            {errors.DonGia.message}
+                            {errors.DonGiaVND.message}
+                          </span>
+                        )}
+                      </div>
+                    </td>
+                    <td>
+                      <div className="form-group">
+                        <input
+                          type="text"
+                          className="form-control"
+                          id="DonGiaUSD"
+                          {...register(`DonGiaUSD`, Validate.DonGiaUSD)}
+                        />
+                        {errors.DonGiaUSD && (
+                          <span className="text-danger">
+                            {errors.DonGiaUSD.message}
                           </span>
                         )}
                       </div>
@@ -697,7 +720,7 @@ const UpdatePriceTable = (props) => {
                       </div>
                     </td>
 
-                    <td>
+                    {/* <td>
                       <div className="form-group">
                         <div className="input-group ">
                           <Controller
@@ -720,7 +743,7 @@ const UpdatePriceTable = (props) => {
                           )}
                         </div>
                       </div>
-                    </td>
+                    </td> */}
                   </tr>
                 </tbody>
               </table>
