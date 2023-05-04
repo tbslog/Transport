@@ -52,7 +52,7 @@ namespace TBSLogistics.Service.Services.Bill
                                        join vd in _context.VanDon
                                        on kh.MaKh equals vd.MaKh
                                        where getlistHandling.Select(x => x.MaVanDon).Contains(vd.MaVanDon)
-                                       orderby vd.ThoiGianHoanThanh
+                                       orderby vd.CreatedTime
                                        select new { kh, vd };
 
                 var getListSFOfContract = from sfp in _context.SubFeePrice
@@ -131,7 +131,7 @@ namespace TBSLogistics.Service.Services.Bill
                 var getDataTransport = from kh in _context.KhachHang
                                        join vd in _context.VanDon
                                        on kh.MaKh equals vd.MaKh
-                                       orderby vd.ThoiGianHoanThanh
+                                       orderby vd.CreatedTime
                                        select new { kh, vd };
 
                 var getListSFOfContract = from sfp in _context.SubFeePrice
@@ -230,15 +230,15 @@ namespace TBSLogistics.Service.Services.Bill
                                   where
                                   (vd.MaKh == customerId || dp.DonViVanTai == customerId)
                                   && dp.TrangThai == 20
-                                  && dp.ThoiGianHoanThanh.Value.Date >= kyThanhToan.StartDate.Date
-                                  && dp.ThoiGianHoanThanh.Value.Date <= kyThanhToan.EndDate.Date
+                                  && dp.CreatedTime.Date >= kyThanhToan.StartDate.Date
+                                  && dp.CreatedTime.Date <= kyThanhToan.EndDate.Date
                                   select dp;
 
             var listData = from kh in _context.KhachHang
                            join vd in _context.VanDon
                            on kh.MaKh equals vd.MaKh
                            where getlistHandling.Select(x => x.MaVanDon).Contains(vd.MaVanDon)
-                           orderby vd.ThoiGianHoanThanh
+                           orderby vd.CreatedTime
                            select new { kh, vd };
 
             if (!string.IsNullOrEmpty(filter.Keyword))
@@ -334,10 +334,8 @@ namespace TBSLogistics.Service.Services.Bill
 
             if (!string.IsNullOrEmpty(filter.fromDate.ToString()) && !string.IsNullOrEmpty(filter.toDate.ToString()))
             {
-                getlistHandling = getlistHandling.Where(x => x.dp.CreatedTime >= filter.fromDate.Value && x.dp.CreatedTime <= filter.toDate.Value);
+                getlistHandling = getlistHandling.Where(x => x.dp.CreatedTime.Date >= filter.fromDate.Value && x.dp.CreatedTime.Date <= filter.toDate.Value);
             }
-
-
 
             var totalCount = await getlistHandling.CountAsync();
 
@@ -407,7 +405,7 @@ namespace TBSLogistics.Service.Services.Bill
 
             if (!string.IsNullOrEmpty(filter.fromDate.ToString()) && !string.IsNullOrEmpty(filter.toDate.ToString()))
             {
-                getlistHandling = getlistHandling.Where(x => x.dp.CreatedTime >= filter.fromDate.Value && x.dp.CreatedTime <= filter.toDate.Value);
+                getlistHandling = getlistHandling.Where(x => x.dp.CreatedTime.Date >= filter.fromDate.Value && x.dp.CreatedTime.Date <= filter.toDate.Value);
             }
 
             if (!string.IsNullOrEmpty(filter.customerId))

@@ -11,6 +11,7 @@ using TBSLogistics.Model.Model.FileModel;
 using TBSLogistics.Model.Model.MobileModel;
 using TBSLogistics.Model.Model.SFeeByTcommandModel;
 using TBSLogistics.Model.Model.UserModel;
+using TBSLogistics.Model.TempModel;
 using TBSLogistics.Service.Services.BillOfLadingManage;
 using TBSLogistics.Service.Services.Common;
 using TBSLogistics.Service.Services.MobileManager;

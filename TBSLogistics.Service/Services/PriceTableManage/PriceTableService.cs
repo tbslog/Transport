@@ -187,7 +187,8 @@ namespace TBSLogistics.Service.Services.PriceTableManage
                     MaHopDong = x.MaHopDong,
                     MaPtvc = x.MaPtvc,
                     MaLoaiPhuongTien = x.MaLoaiPhuongTien,
-                    DonGia = x.DonGia,
+                    DonGiaVnd = x.DonGiaVnd,
+                    DonGiaUsd = x.DonGiaUsd,
                     MaDvt = x.MaDvt,
                     MaLoaiHangHoa = x.MaLoaiHangHoa,
                     NgayApDung = _context.HopDongVaPhuLuc.Where(y => y.MaHopDong == x.MaHopDong).Select(x => x.ThoiGianBatDau).FirstOrDefault(),
@@ -348,7 +349,8 @@ namespace TBSLogistics.Service.Services.PriceTableManage
                 MaHopDong = x.bg.MaHopDong,
                 NgayApDung = x.bg.NgayApDung,
                 NgayHetHieuLuc = x.bg.NgayHetHieuLuc,
-                DonGia = x.bg.DonGia,
+                DonGiaVnd = x.bg.DonGiaVnd,
+                DonGiaUsd = x.bg.DonGiaUsd,
                 MaLoaiPhuongTien = _context.LoaiPhuongTien.Where(y => y.MaLoaiPhuongTien == x.bg.MaLoaiPhuongTien).Select(x => x.TenLoaiPhuongTien).FirstOrDefault(),
                 MaLoaiHangHoa = _context.LoaiHangHoa.Where(y => y.MaLoaiHangHoa == x.bg.MaLoaiHangHoa).Select(x => x.TenLoaiHangHoa).FirstOrDefault(),
                 MaDVT = _context.DonViTinh.Where(y => y.MaDvt == x.bg.MaDvt).Select(x => x.TenDvt).FirstOrDefault(),
@@ -407,7 +409,8 @@ namespace TBSLogistics.Service.Services.PriceTableManage
                 MaHopDong = x.bg.MaHopDong,
                 NgayApDung = x.bg.NgayApDung,
                 NgayHetHieuLuc = x.bg.NgayHetHieuLuc,
-                DonGia = x.bg.DonGia,
+                DonGiaVnd = x.bg.DonGiaVnd,
+                DonGiaUsd = x.bg.DonGiaUsd,
                 MaLoaiPhuongTien = _context.LoaiPhuongTien.Where(y => y.MaLoaiPhuongTien == x.bg.MaLoaiPhuongTien).Select(x => x.TenLoaiPhuongTien).FirstOrDefault(),
                 MaLoaiHangHoa = _context.LoaiHangHoa.Where(y => y.MaLoaiHangHoa == x.bg.MaLoaiHangHoa).Select(x => x.TenLoaiHangHoa).FirstOrDefault(),
                 MaDVT = _context.DonViTinh.Where(y => y.MaDvt == x.bg.MaDvt).Select(x => x.TenDvt).FirstOrDefault(),
@@ -460,7 +463,8 @@ namespace TBSLogistics.Service.Services.PriceTableManage
                 DiemCuoi = _context.DiaDiem.Where(y => y.MaDiaDiem == x.bg.DiemCuoi).Select(y => y.TenDiaDiem).FirstOrDefault(),
                 MaKh = x.kh.MaKh,
                 TenKh = x.kh.TenKh,
-                DonGia = x.bg.DonGia,
+                DonGiaVnd = x.bg.DonGiaVnd,
+                DonGiaUsd = x.bg.DonGiaUsd,
                 MaHopDong = x.hd.MaHopDong,
                 TenHopDong = x.hd.TenHienThi,
                 PTVC = _context.PhuongThucVanChuyen.Where(y => y.MaPtvc == x.bg.MaPtvc).Select(x => x.TenPtvc).FirstOrDefault(),
@@ -576,7 +580,8 @@ namespace TBSLogistics.Service.Services.PriceTableManage
                     MaHopDong = x.bg.MaHopDong,
                     SoHopDongCha = x.hd.MaHopDongCha,
                     MaKh = x.hd.MaKh,
-                    DonGia = x.bg.DonGia,
+                    DonGiaVnd = x.bg.DonGiaVnd,
+                    DonGiaUsd = x.bg.DonGiaUsd,
                     MaLoaiPhuongTien = x.bg.MaLoaiPhuongTien,
                     MaLoaiHangHoa = x.bg.MaLoaiHangHoa,
                     MaLoaiDoiTac = x.bg.MaLoaiDoiTac,
@@ -604,7 +609,7 @@ namespace TBSLogistics.Service.Services.PriceTableManage
                     return new BoolActionResult { isSuccess = false, Message = "Bảng giá không tồn tại" };
                 }
 
-                var checkValid = await ValidateEdit(request.DiemDau, request.DiemCuoi, request.DiemLayTraRong, request.MaHopDong, request.MaPTVC, request.MaLoaiPhuongTien, request.DonGia, request.MaDVT, request.MaLoaiHangHoa, request.NgayHetHieuLuc);
+                var checkValid = await ValidateEdit(request.DiemDau, request.DiemCuoi, request.DiemLayTraRong, request.MaHopDong, request.MaPTVC, request.MaLoaiPhuongTien, request.DonGiaVnd, request.MaDVT, request.MaLoaiHangHoa, request.NgayHetHieuLuc);
 
                 if (checkValid != "")
                 {
@@ -657,7 +662,8 @@ namespace TBSLogistics.Service.Services.PriceTableManage
                    x.DiemCuoi == request.DiemCuoi &&
                    x.DiemLayTraRong == request.DiemLayTraRong &&
                    x.MaHopDong == request.MaHopDong &&
-                   x.DonGia == request.DonGia &&
+                   x.DonGiaVnd == request.DonGiaVnd &&
+                   x.DonGiaUsd == request.DonGiaUsd &&
                    x.MaPtvc == request.MaPTVC &&
                    x.MaLoaiPhuongTien == request.MaLoaiPhuongTien &&
                    x.MaDvt == request.MaDVT &&
@@ -675,7 +681,8 @@ namespace TBSLogistics.Service.Services.PriceTableManage
                 findById.DiemDau = request.DiemDau;
                 findById.DiemLayTraRong = request.DiemLayTraRong;
                 findById.MaHopDong = request.MaHopDong;
-                findById.DonGia = request.DonGia;
+                findById.DonGiaVnd = request.DonGiaVnd;
+                findById.DonGiaUsd = request.DonGiaUsd;
                 findById.MaDvt = request.MaDVT;
                 findById.MaPtvc = request.MaPTVC;
                 findById.MaLoaiPhuongTien = request.MaLoaiPhuongTien;
@@ -818,10 +825,11 @@ namespace TBSLogistics.Service.Services.PriceTableManage
                             worksheet.Cells[1, 4].Value.ToString().Trim() != "DiemDau" ||
                             worksheet.Cells[1, 5].Value.ToString().Trim() != "DiemCuoi" ||
                             worksheet.Cells[1, 6].Value.ToString().Trim() != "DiemLayTraRong" ||
-                            worksheet.Cells[1, 7].Value.ToString().Trim() != "DonGia" ||
-                            worksheet.Cells[1, 8].Value.ToString().Trim() != "MaPtvc" ||
-                            worksheet.Cells[1, 9].Value.ToString().Trim() != "MaLoaiPhuongTien" ||
-                            worksheet.Cells[1, 10].Value.ToString().Trim() != "MaLoaiHangHoa"
+                            worksheet.Cells[1, 7].Value.ToString().Trim() != "DonGiaVnd" ||
+                            worksheet.Cells[1, 8].Value.ToString().Trim() != "DonGiaUsd" ||
+                            worksheet.Cells[1, 9].Value.ToString().Trim() != "MaPtvc" ||
+                            worksheet.Cells[1, 10].Value.ToString().Trim() != "MaLoaiPhuongTien" ||
+                            worksheet.Cells[1, 11].Value.ToString().Trim() != "MaLoaiHangHoa"
                             )
                         {
                             return new BoolActionResult { isSuccess = false, Message = "File excel không đúng định dạng chuẩn" };
@@ -837,10 +845,11 @@ namespace TBSLogistics.Service.Services.PriceTableManage
                             string FirstPlace = worksheet.Cells[row, 4].Value == null ? null : worksheet.Cells[row, 4].Value.ToString().Trim();
                             string SecondPlace = worksheet.Cells[row, 5].Value == null ? null : worksheet.Cells[row, 5].Value.ToString().Trim();
                             string getEmptyPlace = worksheet.Cells[row, 6].Value == null ? null : worksheet.Cells[row, 6].Value.ToString();
-                            string Price = worksheet.Cells[row, 7].Value == null ? null : worksheet.Cells[row, 7].Value.ToString().Trim();
-                            string Ptvc = worksheet.Cells[row, 8].Value == null ? null : worksheet.Cells[row, 8].Value.ToString().Trim().ToUpper();
-                            string VehicleType = worksheet.Cells[row, 9].Value == null ? null : worksheet.Cells[row, 9].Value.ToString().Trim().ToUpper();
-                            string GoodsType = worksheet.Cells[row, 10].Value == null ? null : worksheet.Cells[row, 10].Value.ToString().Trim();
+                            string PriceVnd = worksheet.Cells[row, 7].Value == null ? null : worksheet.Cells[row, 7].Value.ToString().Trim();
+                            string PriceUsd = worksheet.Cells[row, 8].Value == null ? null : worksheet.Cells[row, 8].Value.ToString().Trim();
+                            string Ptvc = worksheet.Cells[row, 9].Value == null ? null : worksheet.Cells[row, 9].Value.ToString().Trim().ToUpper();
+                            string VehicleType = worksheet.Cells[row, 10].Value == null ? null : worksheet.Cells[row, 10].Value.ToString().Trim().ToUpper();
+                            string GoodsType = worksheet.Cells[row, 11].Value == null ? null : worksheet.Cells[row, 11].Value.ToString().Trim();
 
                             if (MaKH == null)
                             {
@@ -887,19 +896,30 @@ namespace TBSLogistics.Service.Services.PriceTableManage
                                 }
                             }
 
-                            if (Price == null)
+                            if (PriceVnd == null)
                             {
-                                return new BoolActionResult { isSuccess = false, Message = "Dòng " + row + ":Không được để trống Đơn Giá" };
+                                return new BoolActionResult { isSuccess = false, Message = "Dòng " + row + ":Không được để trống Đơn Giá VND" };
                             }
                             else
                             {
-                                var checkIsNum = decimal.TryParse(Price, out _);
+                                var checkIsNum = decimal.TryParse(PriceVnd, out _);
 
                                 if (checkIsNum == false)
                                 {
-                                    return new BoolActionResult { isSuccess = false, Message = "Dòng " + row + ":Sai mã địa điểm" };
+                                    return new BoolActionResult { isSuccess = false, Message = "Dòng " + row + ": sai Đơn Giá VND" };
                                 }
                             }
+
+                            if (PriceUsd != null)
+                            {
+                                var checkIsNum = decimal.TryParse(PriceUsd, out _);
+
+                                if (checkIsNum == false)
+                                {
+                                    return new BoolActionResult { isSuccess = false, Message = "Dòng " + row + ": sai Đơn Giá USD" };
+                                }
+                            }
+
                             //if (Dvt == null)
                             //{
                             //    return new BoolActionResult { isSuccess = false, Message = "Dòng " + row + ":Không được để trống Đơn Vị Tính" };
@@ -927,7 +947,8 @@ namespace TBSLogistics.Service.Services.PriceTableManage
                                 MaKH = MaKH,
                                 MaPtvc = Ptvc,
                                 MaLoaiPhuongTien = VehicleType,
-                                DonGia = decimal.Parse(Price),
+                                DonGiaVnd = decimal.Parse(PriceVnd),
+                                DonGiaUsd = PriceUsd == null ? null : double.Parse(PriceUsd),
                                 MaDvt = "CHUYEN",
                                 MaLoaiHangHoa = GoodsType,
                                 MaLoaiDoiTac = "",
@@ -977,7 +998,8 @@ namespace TBSLogistics.Service.Services.PriceTableManage
                 TenKH = x.kh.TenKh,
                 MaHopDong = x.bg.MaHopDong,
                 NgayApDung = x.bg.NgayApDung,
-                DonGia = x.bg.DonGia,
+                DonGiaVnd = x.bg.DonGiaVnd,
+                DonGiaUsd = x.bg.DonGiaUsd,
                 MaLoaiPhuongTien = _context.LoaiPhuongTien.Where(y => y.MaLoaiPhuongTien == x.bg.MaLoaiPhuongTien).Select(x => x.TenLoaiPhuongTien).FirstOrDefault(),
                 MaLoaiHangHoa = _context.LoaiHangHoa.Where(y => y.MaLoaiHangHoa == x.bg.MaLoaiHangHoa).Select(x => x.TenLoaiHangHoa).FirstOrDefault(),
                 MaDVT = _context.DonViTinh.Where(y => y.MaDvt == x.bg.MaDvt).Select(x => x.TenDvt).FirstOrDefault(),

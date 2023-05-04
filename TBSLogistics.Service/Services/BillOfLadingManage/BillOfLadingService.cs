@@ -1266,9 +1266,9 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                     checkById.MaDvt = request.DonViTinh;
                     checkById.DonViVanTai = request.DonViVanTai;
                     checkById.BangGiaNcc = priceSup.ID;
-                    checkById.DonGiaNcc = priceSup.DonGia;
+                    checkById.DonGiaNcc = priceSup.DonGiaVnd;
                     checkById.BangGiaKh = priceCus.ID;
-                    checkById.DonGiaKh = priceCus.DonGia;
+                    checkById.DonGiaKh = priceCus.DonGiaVnd;
                     checkById.SoKien = request.SoKien;
                     checkById.KhoiLuong = request.KhoiLuong;
                     checkById.TheTich = request.TheTich;
@@ -1604,8 +1604,8 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                 checkHandling.DonViVanTai = request.DonViVanTai;
                                 checkHandling.BangGiaKh = priceCus.ID;
                                 checkHandling.BangGiaNcc = priceSup.ID;
-                                checkHandling.DonGiaKh = priceCus.DonGia;
-                                checkHandling.DonGiaNcc = priceSup.DonGia;
+                                checkHandling.DonGiaKh = priceCus.DonGiaVnd;
+                                checkHandling.DonGiaNcc = priceSup.DonGiaVnd;
                                 checkHandling.MaRomooc = request.Romooc;
                                 checkHandling.ContNo = itemRequest.ContNo;
                                 checkHandling.SealNp = itemRequest.SealNP;
@@ -1648,8 +1648,8 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                     DonViVanTai = request.DonViVanTai,
                                     BangGiaKh = priceCus.ID,
                                     BangGiaNcc = priceSup.ID,
-                                    DonGiaKh = priceCus.DonGia,
-                                    DonGiaNcc = priceSup.DonGia,
+                                    DonGiaKh = priceCus.DonGiaVnd,
+                                    DonGiaNcc = priceSup.DonGiaVnd,
                                     MaRomooc = request.Romooc,
                                     ContNo = itemRequest.ContNo,
                                     SealNp = itemRequest.SealNP,
@@ -2144,8 +2144,8 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                 item.dp.DonViVanTai = request.DonViVanTai;
                                 item.dp.BangGiaKh = priceCus.ID;
                                 item.dp.BangGiaNcc = priceSup.ID;
-                                item.dp.DonGiaKh = priceCus.DonGia;
-                                item.dp.DonGiaNcc = priceSup.DonGia;
+                                item.dp.DonGiaKh = priceCus.DonGiaVnd;
+                                item.dp.DonGiaNcc = priceSup.DonGiaVnd;
                                 item.dp.MaRomooc = request.Romooc;
                                 item.dp.ContNo = itemRequest.ContNo;
                                 item.dp.SealNp = itemRequest.SealNP;
@@ -2349,8 +2349,8 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                     DonViVanTai = request.DonViVanTai,
                                     BangGiaKh = priceCus.ID,
                                     BangGiaNcc = priceSup.ID,
-                                    DonGiaKh = priceCus.DonGia,
-                                    DonGiaNcc = priceSup.DonGia,
+                                    DonGiaKh = priceCus.DonGiaVnd,
+                                    DonGiaNcc = priceSup.DonGiaVnd,
                                     MaRomooc = request.Romooc,
                                     ContNo = itemRequest.ContNo,
                                     SealNp = itemRequest.SealNP,
@@ -3386,9 +3386,18 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                     data.vd.UpdatedTime = DateTime.Now;
                                     data.vd.Updater = tempData.UserName;
                                     data.dp.TrangThai = 17;
-                                    data.dp.Updater = tempData.UserName;
                                     data.dp.UpdatedTime = DateTime.Now;
                                     data.dp.ThoiGianLayRongThucTe = DateTime.Now;
+
+                                    if (tempData.AccType == "NV")
+                                    {
+                                        data.dp.Updater = tempData.UserName;
+                                    }
+                                    else if (tempData.AccType == "NCC")
+                                    {
+                                        await LogActionDriver(data.dp.Id, data.dp.TrangThai, tempData.UserName);
+                                    }
+
                                     mess = "Đã thay đổi trạng thái thành: Đang Đi Lấy Rỗng";
                                     break;
 
@@ -3397,25 +3406,52 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                     {
                                         return new BoolActionResult { isSuccess = false, Message = "Vui lòng cập nhật ContNo" };
                                     }
-                                    data.dp.Updater = tempData.UserName;
                                     data.dp.UpdatedTime = DateTime.Now;
                                     data.dp.ThoiGianLayHangThucTe = DateTime.Now;
                                     data.dp.TrangThai = 37;
+
+                                    if (tempData.AccType == "NV")
+                                    {
+                                        data.dp.Updater = tempData.UserName;
+                                    }
+                                    else if (tempData.AccType == "NCC")
+                                    {
+                                        await LogActionDriver(data.dp.Id, data.dp.TrangThai, tempData.UserName);
+                                    }
+
                                     mess = "Đã thay đổi trạng thái thành: Đang Đóng Hàng";
                                     break;
 
                                 case 37:
                                     data.dp.TrangThai = 18;
-                                    data.dp.Updater = tempData.UserName;
                                     data.dp.UpdatedTime = DateTime.Now;
+
+                                    if (tempData.AccType == "NV")
+                                    {
+                                        data.dp.Updater = tempData.UserName;
+                                    }
+                                    else if (tempData.AccType == "NCC")
+                                    {
+                                        await LogActionDriver(data.dp.Id, data.dp.TrangThai, tempData.UserName);
+                                    }
+
                                     mess = "Đã thay đổi trạng thái thành: Đang Vận Chuyển";
                                     break;
 
                                 case 18:
                                     data.dp.TrangThai = 36;
-                                    data.dp.Updater = tempData.UserName;
                                     data.dp.UpdatedTime = DateTime.Now;
                                     data.dp.ThoiGianTraHangThucTe = DateTime.Now;
+
+                                    if (tempData.AccType == "NV")
+                                    {
+                                        data.dp.Updater = tempData.UserName;
+                                    }
+                                    else if (tempData.AccType == "NCC")
+                                    {
+                                        await LogActionDriver(data.dp.Id, data.dp.TrangThai, tempData.UserName);
+                                    }
+
                                     mess = "Đã thay đổi trạng thái thành: Đã Giao Hàng";
                                     break;
 
@@ -3423,9 +3459,18 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                     data.dp.TrangThai = 20;
                                     data.vd.UpdatedTime = DateTime.Now;
                                     data.vd.Updater = tempData.UserName;
-                                    data.dp.Updater = tempData.UserName;
                                     data.dp.UpdatedTime = DateTime.Now;
                                     data.dp.ThoiGianHoanThanh = DateTime.Now;
+
+                                    if (tempData.AccType == "NV")
+                                    {
+                                        data.dp.Updater = tempData.UserName;
+                                    }
+                                    else if (tempData.AccType == "NCC")
+                                    {
+                                        await LogActionDriver(data.dp.Id, data.dp.TrangThai, tempData.UserName);
+                                    }
+
                                     mess = "Đã thay đổi trạng thái thành: Hoàn Thành Chuyến";
                                     var saveData = await _context.SaveChangesAsync();
                                     if (saveData > 0)
@@ -3478,8 +3523,16 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                     data.vd.TrangThai = 10;
                                     data.dp.TrangThai = 40;
                                     data.dp.UpdatedTime = DateTime.Now;
-                                    data.dp.Updater = tempData.UserName;
                                     data.dp.ThoiGianLayHangThucTe = DateTime.Now;
+
+                                    if (tempData.AccType == "NV")
+                                    {
+                                        data.dp.Updater = tempData.UserName;
+                                    }
+                                    else if (tempData.AccType == "NCC")
+                                    {
+                                        await LogActionDriver(data.dp.Id, data.dp.TrangThai, tempData.UserName);
+                                    }
 
                                     mess = "Đã thay đổi trạng thái thành: Đang Đi Lấy Hàng";
                                     break;
@@ -3491,7 +3544,15 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                     }
                                     data.dp.TrangThai = 18;
                                     data.dp.UpdatedTime = DateTime.Now;
-                                    data.dp.Updater = tempData.UserName;
+
+                                    if (tempData.AccType == "NV")
+                                    {
+                                        data.dp.Updater = tempData.UserName;
+                                    }
+                                    else if (tempData.AccType == "NCC")
+                                    {
+                                        await LogActionDriver(data.dp.Id, data.dp.TrangThai, tempData.UserName);
+                                    }
 
                                     mess = "Đã thay đổi trạng thái thành: Đang Vận Chuyển";
                                     break;
@@ -3506,15 +3567,33 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                 case 18:
                                     data.dp.TrangThai = 35;
                                     data.dp.UpdatedTime = DateTime.Now;
-                                    data.dp.Updater = tempData.UserName;
                                     data.dp.ThoiGianTraRongThucTe = DateTime.Now;
+
+                                    if (tempData.AccType == "NV")
+                                    {
+                                        data.dp.Updater = tempData.UserName;
+                                    }
+                                    else if (tempData.AccType == "NCC")
+                                    {
+                                        await LogActionDriver(data.dp.Id, data.dp.TrangThai, tempData.UserName);
+                                    }
+
                                     mess = "Đã thay đổi trạng thái thành: Đang Trả Rỗng";
                                     break;
 
                                 case 35:
                                     data.dp.TrangThai = 48;
                                     data.dp.UpdatedTime = DateTime.Now;
-                                    data.dp.Updater = tempData.UserName;
+
+                                    if (tempData.AccType == "NV")
+                                    {
+                                        data.dp.Updater = tempData.UserName;
+                                    }
+                                    else if (tempData.AccType == "NCC")
+                                    {
+                                        await LogActionDriver(data.dp.Id, data.dp.TrangThai, tempData.UserName);
+                                    }
+
                                     mess = "Đã thay đổi trạng thái thành: Đã Trả Rỗng";
                                     break;
 
@@ -3524,7 +3603,16 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                                     data.dp.TrangThai = 20;
                                     data.dp.UpdatedTime = DateTime.Now;
                                     data.dp.ThoiGianHoanThanh = DateTime.Now;
-                                    data.dp.Updater = tempData.UserName;
+
+                                    if (tempData.AccType == "NV")
+                                    {
+                                        data.dp.Updater = tempData.UserName;
+                                    }
+                                    else if (tempData.AccType == "NCC")
+                                    {
+                                        await LogActionDriver(data.dp.Id, data.dp.TrangThai, tempData.UserName);
+                                    }
+
                                     mess = "Đã thay đổi trạng thái thành: Hoàn Thành Chuyến";
                                     var saveData = await _context.SaveChangesAsync();
                                     if (saveData > 0)
@@ -3579,25 +3667,53 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 
                                 data.vd.UpdatedTime = DateTime.Now;
                                 data.vd.Updater = tempData.UserName;
-                                data.dp.Updater = tempData.UserName;
                                 data.dp.UpdatedTime = DateTime.Now;
                                 data.dp.ThoiGianLayHangThucTe = DateTime.Now;
+
+                                if (tempData.AccType == "NV")
+                                {
+                                    data.dp.Updater = tempData.UserName;
+                                }
+                                else if (tempData.AccType == "NCC")
+                                {
+                                    await LogActionDriver(data.dp.Id, data.dp.TrangThai, tempData.UserName);
+                                }
 
                                 mess = "Đã thay đổi trạng thái thành: Đang Đóng Hàng";
                                 break;
 
                             case 37:
                                 data.dp.TrangThai = 18;
-                                data.dp.Updater = tempData.UserName;
+                            
                                 data.dp.UpdatedTime = DateTime.Now;
+
+                                if (tempData.AccType == "NV")
+                                {
+                                    data.dp.Updater = tempData.UserName;
+                                }
+                                else if (tempData.AccType == "NCC")
+                                {
+                                    await LogActionDriver(data.dp.Id, data.dp.TrangThai, tempData.UserName);
+                                }
+
                                 mess = "Đã thay đổi trạng thái thành: Đang Vận Chuyển";
                                 break;
 
                             case 18:
                                 data.dp.TrangThai = 36;
-                                data.dp.Updater = tempData.UserName;
+                           
                                 data.dp.UpdatedTime = DateTime.Now;
                                 data.dp.ThoiGianTraHangThucTe = DateTime.Now;
+
+                                if (tempData.AccType == "NV")
+                                {
+                                    data.dp.Updater = tempData.UserName;
+                                }
+                                else if (tempData.AccType == "NCC")
+                                {
+                                    await LogActionDriver(data.dp.Id, data.dp.TrangThai, tempData.UserName);
+                                }
+
                                 mess = "Đã thay đổi trạng thái thành: Đã Giao Hàng";
                                 break;
 
@@ -4266,6 +4382,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                     }
 
                     data.dp.TrangThai = 46;
+                    data.dp.Updater = tempData.UserName;
                     if (!string.IsNullOrEmpty(note))
                     {
                         data.dp.GhiChu = data.dp.GhiChu + ",\r\n " + note;
@@ -4909,7 +5026,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                     return data.Select(x => new GetPriceListRequest()
                     {
                         ID = x.Id,
-                        DonGia = x.DonGia,
+                        DonGiaVnd = x.DonGiaVnd,
                         MaLoaiPhuongTien = x.MaLoaiPhuongTien,
                         MaLoaiHangHoa = x.MaLoaiHangHoa,
                         MaLoaiDoiTac = x.MaLoaiDoiTac,
@@ -4932,7 +5049,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                     return data.Select(x => new GetPriceListRequest()
                     {
                         ID = x.Id,
-                        DonGia = x.DonGia,
+                        DonGiaVnd = x.DonGiaVnd,
                         MaLoaiPhuongTien = x.MaLoaiPhuongTien,
                         MaLoaiHangHoa = x.MaLoaiHangHoa,
                         MaLoaiDoiTac = x.MaLoaiDoiTac,
@@ -5013,7 +5130,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                 return dataPriceTable.Select(x => new GetPriceListRequest()
                 {
                     ID = x.Id,
-                    DonGia = x.DonGia,
+                    DonGiaVnd = x.DonGiaVnd,
                     MaLoaiPhuongTien = x.MaLoaiPhuongTien,
                     MaLoaiHangHoa = x.MaLoaiHangHoa,
                     MaLoaiDoiTac = x.MaLoaiDoiTac,
@@ -5080,6 +5197,35 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
                 var result = await _context.SaveChangesAsync();
 
                 return new BoolActionResult { isSuccess = true };
+            }
+            catch (Exception ex)
+            {
+                return new BoolActionResult { isSuccess = false, Message = ex.ToString() };
+            }
+        }
+
+        private async Task<BoolActionResult> LogActionDriver(long handlingId, int statusId, string Creator)
+        {
+            try
+            {
+                var addLog = await _context.ThaoTacTaiXe.AddAsync(new ThaoTacTaiXe()
+                {
+                    MaDieuPhoi = handlingId,
+                    TrangThai = statusId,
+                    Creator = Creator,
+                    ThoiGianThaoTac = DateTime.Now
+                });
+
+                var result = await _context.SaveChangesAsync();
+
+                if (result > 0)
+                {
+                    return new BoolActionResult { isSuccess = true };
+                }
+                else
+                {
+                    return new BoolActionResult { isSuccess = false, Message = "Log Thao Tác Tài Xế Thất Bại" };
+                }
             }
             catch (Exception ex)
             {

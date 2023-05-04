@@ -12,6 +12,7 @@ namespace TBSLogistics.Data.TMS
             SubFeeByContract = new HashSet<SubFeeByContract>();
             TaiXeTheoChang = new HashSet<TaiXeTheoChang>();
             TepChungTu = new HashSet<TepChungTu>();
+            ThaoTacTaiXe = new HashSet<ThaoTacTaiXe>();
         }
 
         public long Id { get; set; }
@@ -65,5 +66,6 @@ namespace TBSLogistics.Data.TMS
         public virtual ICollection<SubFeeByContract> SubFeeByContract { get; set; }
         public virtual ICollection<TaiXeTheoChang> TaiXeTheoChang { get; set; }
         public virtual ICollection<TepChungTu> TepChungTu { get; set; }
+        public virtual ICollection<ThaoTacTaiXe> ThaoTacTaiXe { get; set; }
     }
 }

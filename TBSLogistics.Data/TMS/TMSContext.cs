@@ -65,6 +65,7 @@ namespace TBSLogistics.Data.TMS
         public virtual DbSet<TaiXeTheoChang> TaiXeTheoChang { get; set; }
         public virtual DbSet<TepChungTu> TepChungTu { get; set; }
         public virtual DbSet<TepHopDong> TepHopDong { get; set; }
+        public virtual DbSet<ThaoTacTaiXe> ThaoTacTaiXe { get; set; }
         public virtual DbSet<ThongBao> ThongBao { get; set; }
         public virtual DbSet<TinhThanh> TinhThanh { get; set; }
         public virtual DbSet<TrongTaiXe> TrongTaiXe { get; set; }
@@ -83,7 +84,7 @@ namespace TBSLogistics.Data.TMS
                  .AddJsonFile("appsettings.json")
                  .Build();
 
-                optionsBuilder.UseSqlServer(configuration.GetConnectionString("TMS_Cloud"));
+                optionsBuilder.UseSqlServer(configuration.GetConnectionString("TMS_Local"));
             }
         }
 
@@ -167,7 +168,11 @@ namespace TBSLogistics.Data.TMS
 
                 entity.Property(e => e.DiemDau).HasDefaultValueSql("((1))");
 
-                entity.Property(e => e.DonGia).HasColumnType("decimal(18, 0)");
+                entity.Property(e => e.DonGiaUsd).HasColumnName("DonGiaUSD");
+
+                entity.Property(e => e.DonGiaVnd)
+                    .HasColumnType("decimal(18, 0)")
+                    .HasColumnName("DonGiaVND");
 
                 entity.Property(e => e.MaAccount)
                     .HasMaxLength(8)
@@ -1413,6 +1418,21 @@ namespace TBSLogistics.Data.TMS
                     .HasForeignKey(d => d.MaTepHongDong)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK__TepHopDon__MaTep__6265874F");
+            });
+
+            modelBuilder.Entity<ThaoTacTaiXe>(entity =>
+            {
+                entity.Property(e => e.Id).HasColumnName("ID");
+
+                entity.Property(e => e.Creator)
+                    .IsRequired()
+                    .HasMaxLength(30);
+
+                entity.HasOne(d => d.MaDieuPhoiNavigation)
+                    .WithMany(p => p.ThaoTacTaiXe)
+                    .HasForeignKey(d => d.MaDieuPhoi)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK__ThaoTacTa__MaDie__13FCE2E3");
             });
 
             modelBuilder.Entity<ThongBao>(entity =>

@@ -287,13 +287,13 @@ namespace TBSLogistics.ApplicationAPI.Controllers
                 workSheet.Cells[1, 5].Value = "Điểm Đóng Hàng";
                 workSheet.Cells[1, 6].Value = "Điểm Hạ Hàng";
                 workSheet.Cells[1, 7].Value = "Điểm Lấy/Trả Rỗng";
-                workSheet.Cells[1, 8].Value = "Đơn Giá";
-                workSheet.Cells[1, 9].Value = "PTVC";
-                workSheet.Cells[1, 10].Value = "Loại Phương Tiện";
-                workSheet.Cells[1, 11].Value = "Loại Hàng Hóa";
-                workSheet.Cells[1, 12].Value = "Đơn Vị Tính";
-                workSheet.Cells[1, 13].Value = "Ngày Áp Dụng";
-
+                workSheet.Cells[1, 8].Value = "Đơn Giá VND";
+                workSheet.Cells[1, 9].Value = "Đơn Giá USD";
+                workSheet.Cells[1, 10].Value = "PTVC";
+                workSheet.Cells[1, 11].Value = "Loại Phương Tiện";
+                workSheet.Cells[1, 12].Value = "Loại Hàng Hóa";
+                workSheet.Cells[1, 13].Value = "Đơn Vị Tính";
+                workSheet.Cells[1, 14].Value = "Ngày Áp Dụng";
 
                 int row = 2;
                 foreach (var item in data)
@@ -305,15 +305,15 @@ namespace TBSLogistics.ApplicationAPI.Controllers
                     workSheet.Cells[row, 5].Value = item.DiemDau;
                     workSheet.Cells[row, 6].Value = item.DiemCuoi;
                     workSheet.Cells[row, 7].Value = item.DiemLayTraRong;
-                    workSheet.Cells[row, 8].Value = item.DonGia;
-                    workSheet.Cells[row, 9].Value = item.MaPTVC;
-                    workSheet.Cells[row, 10].Value = item.MaLoaiPhuongTien;
-                    workSheet.Cells[row, 11].Value = item.MaLoaiHangHoa;
-                    workSheet.Cells[row, 12].Value = item.MaDVT;
-                    workSheet.Cells[row, 13].Value = item.NgayApDung;
+                    workSheet.Cells[row, 8].Value = item.DonGiaVnd;
+                    workSheet.Cells[row, 9].Value = item.DonGiaUsd;
+                    workSheet.Cells[row, 10].Value = item.MaPTVC;
+                    workSheet.Cells[row, 11].Value = item.MaLoaiPhuongTien;
+                    workSheet.Cells[row, 12].Value = item.MaLoaiHangHoa;
+                    workSheet.Cells[row, 13].Value = item.MaDVT;
+                    workSheet.Cells[row, 14].Value = item.NgayApDung;
                     row++;
                 }
-
 
                 workSheet.Cells["M2:M" + row].Style.Numberformat.Format = "DD-MM-YYYY HH:mm";
                 workSheet.Cells["A1:M1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;

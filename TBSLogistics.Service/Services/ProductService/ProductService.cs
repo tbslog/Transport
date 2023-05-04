@@ -65,7 +65,7 @@ namespace TBSLogistics.Service.Services.ProductServiceManage
                         MaPtvc = i.MaPTVC,
                       
                         MaLoaiPhuongTien = i.MaLoaiPhuongTien,
-                        DonGia = i.DonGia,
+                        DonGiaVnd = i.DonGia,
                         MaDvt = i.MaDVT,
                         MaLoaiHangHoa = i.MaLoaiHangHoa,
                         MaLoaiDoiTac = "NCC",
@@ -137,7 +137,7 @@ namespace TBSLogistics.Service.Services.ProductServiceManage
                 checkExists.MaPtvc = request.MaPTVC;
           
                 checkExists.MaLoaiPhuongTien = request.MaLoaiPhuongTien;
-                checkExists.DonGia = request.DonGia;
+                checkExists.DonGiaVnd = request.DonGia;
                 checkExists.MaDvt = request.MaDVT;
                 checkExists.MaLoaiHangHoa = request.MaLoaiHangHoa;
                 checkExists.MaLoaiDoiTac = request.MaLoaiHopDong;
@@ -431,7 +431,7 @@ namespace TBSLogistics.Service.Services.ProductServiceManage
                     MaHopDong = getProductServiceById.MaHopDong,
                     MaPTVC = getProductServiceById.MaPtvc,
                     MaLoaiPhuongTien = getProductServiceById.MaLoaiPhuongTien,
-                    DonGia = getProductServiceById.DonGia,
+                    DonGia = getProductServiceById.DonGiaVnd,
                     MaDVT = getProductServiceById.MaDvt,
                     MaLoaiHangHoa = getProductServiceById.MaLoaiHangHoa,
                     MaLoaiDoiTac = getProductServiceById.MaLoaiDoiTac,

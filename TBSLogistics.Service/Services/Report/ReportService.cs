@@ -33,9 +33,9 @@ namespace TBSLogistics.Service.Services.Report
             var lastDateOfMonth = new DateTime(dateTime.Year, dateTime.Month, DateTime.DaysInMonth(dateTime.Year, dateTime.Month));
 
             var getTransport = await _context.VanDon.Where(x =>
-            x.ThoiGianTaoDon.Date >= firstDateOfMonth
-            && x.ThoiGianTaoDon <= lastDateOfMonth && x.TrangThai == 22)
-                .GroupBy(x => new { x.ThoiGianTaoDon.Date })
+            x.CreatedTime.Date >= firstDateOfMonth.Date
+            && x.CreatedTime.Date <= lastDateOfMonth.Date && x.TrangThai == 22)
+                .GroupBy(x => new { x.CreatedTime.Date })
                 .Select(g => new { g.Key, Count = g.Count() }).ToListAsync();
             var arrDataTransport = getTransport.Where(x => getAllDaysInMonth.Select(y => y.Date).Contains(x.Key.Date)).Select(x => new arrInt()
             {
@@ -208,7 +208,7 @@ namespace TBSLogistics.Service.Services.Report
                        join dp in _context.DieuPhoi
                        on vd.MaVanDon equals dp.MaVanDon
                        where dp.TrangThai == 20
-                       && dp.CreatedTime >= fromDate && dp.CreatedTime <= toDate
+                       && dp.CreatedTime.Date >= fromDate && dp.CreatedTime.Date <= toDate
                        select new { vd, dp };
 
             var DataCustomer = await data.GroupBy(x => x.vd.MaKh).Select(x => new CustomerReport

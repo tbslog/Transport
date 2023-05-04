@@ -277,7 +277,7 @@ namespace TBSLogistics.Service.Services.ContractManage
                            on contract.MaKh equals cus.MaKh
                            join tt in _TMSContext.StatusText
                            on contract.TrangThai equals tt.StatusId
-                           where tt.LangId == tempData.LangID && tt.StatusId == 49
+                           where tt.LangId == tempData.LangID && contract.TrangThai == 49
                            orderby contract.UpdatedTime descending
                            select new
                            {
@@ -286,7 +286,6 @@ namespace TBSLogistics.Service.Services.ContractManage
                                tt
                            };
 
-            var qd = listData.ToQueryString();
 
             if (!string.IsNullOrEmpty(filter.Keyword))
             {
