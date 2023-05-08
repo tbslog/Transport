@@ -21,6 +21,7 @@ import { ToastError } from "../Common/FuncToast";
 import LoadingPage from "../Common/Loading/LoadingPage";
 import HandlingImage from "../FileManager/HandlingImage";
 import UpdateHandling from "./UpdateHandling";
+import UpdateTransport from "./UpdateTransport";
 
 const HandlingPageNew = () => {
   const accountType = Cookies.get("AccType");
@@ -62,6 +63,22 @@ const HandlingPageNew = () => {
               <>
                 <button
                   onClick={() =>
+                    handleEditTransport(
+                      val,
+                      SetShowModal("EditTransport"),
+                      setTitle("Tách Chuyến ")
+                    )
+                  }
+                  type="button"
+                  className="btn btn-title btn-sm btn-default mx-1"
+                  gloss="Tách Chuyến"
+                >
+                  <i className="fas fa-sliders-h"></i>
+                </button>
+              </>
+              <>
+                <button
+                  onClick={() =>
                     handleEditButtonClick(
                       val,
                       SetShowModal("addSubFee"),
@@ -95,7 +112,7 @@ const HandlingPageNew = () => {
           )}
         </>
       ),
-      width: "200px",
+      width: "220px",
       ignoreRowClick: true,
       allowOverflow: true,
       button: true,
@@ -413,6 +430,15 @@ const HandlingPageNew = () => {
     setData(data.data);
     setTotalRows(data.totalRecords);
     setLoading(false);
+  };
+
+  const handleEditTransport = async (value) => {
+    let getTransportById = await getData(
+      `BillOfLading/GetTransportById?transportId=${value.maVanDon}`
+    );
+
+    setSelectIdClick(getTransportById);
+    showModalForm();
   };
 
   const refeshData = () => {
@@ -1293,7 +1319,13 @@ const HandlingPageNew = () => {
                         hideModal={hideModal}
                       />
                     )}
-
+                  {ShowModal === "EditTransport" && (
+                    <UpdateTransport
+                      getListTransport={refeshData}
+                      selectIdClick={selectIdClick}
+                      hideModal={hideModal}
+                    />
+                  )}
                   {ShowModal === "EditHandling" && (
                     <>
                       {!selectIdClick.tongVanDonGhep && (

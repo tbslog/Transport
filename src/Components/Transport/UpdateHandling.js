@@ -981,6 +981,7 @@ const UpdateHandling = (props) => {
                   <div className="form-group">
                     <label htmlFor="KhoiLuong">Khối Lượng(KG)</label>
                     <input
+                      readOnly={true}
                       autoComplete="false"
                       type="text"
                       className="form-control"
@@ -1005,6 +1006,7 @@ const UpdateHandling = (props) => {
                   <div className="form-group">
                     <label htmlFor="TheTich">Số Khối</label>
                     <input
+                      readOnly={true}
                       autoComplete="false"
                       type="text"
                       className="form-control"
@@ -1029,6 +1031,7 @@ const UpdateHandling = (props) => {
                   <div className="form-group">
                     <label htmlFor="SoKien">Số Kiện</label>
                     <input
+                      readOnly={true}
                       autoComplete="false"
                       type="text"
                       className="form-control"

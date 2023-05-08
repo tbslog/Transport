@@ -104,11 +104,7 @@ const UpdateTransport = (props) => {
   };
 
   const [IsLoading, SetIsLoading] = useState(false);
-  // const [listFirstPoint, setListFirstPoint] = useState([]);
-  // const [listSecondPoint, setListSecondPoint] = useState([]);
-  // const [listRoad, setListRoad] = useState([]);
   const [listCus, setListCus] = useState([]);
-  // const [arrRoad, setArrRoad] = useState([]);
   const [listPoint, setListPoint] = useState([]);
   const [listSupplier, setListSupplier] = useState([]);
   const [listVehicleType, setlistVehicleType] = useState([]);
@@ -117,6 +113,10 @@ const UpdateTransport = (props) => {
   const [listTransportType, setListTransportType] = useState([]);
   const [listShipping, setListShipping] = useState([]);
   const [listAccountCus, setListAccountCus] = useState([]);
+
+  const [totalCBM, setTotalCBM] = useState("");
+  const [totalWGT, setTotalWGT] = useState("");
+  const [totalPCS, setTotalPCS] = useState("");
 
   useEffect(() => {
     SetIsLoading(true);
@@ -262,17 +262,18 @@ const UpdateTransport = (props) => {
     ) {
       SetIsLoading(true);
 
+      console.log(selectIdClick);
+
+      setTotalCBM({});
+      setTotalWGT({});
+      setTotalPCS({});
+
       setValue("MaVDKH", selectIdClick.maVanDonKH);
       setValue("LoaiVanDon", selectIdClick.loaiVanDon);
       setValue("TongKhoiLuong", selectIdClick.tongKhoiLuong);
       setValue("TongTheTich", selectIdClick.tongTheTich);
       setValue("TongSoKien", selectIdClick.tongSoKien);
       setValue("LoaiHinh", selectIdClick.maPTVC.replaceAll(" ", ""));
-      // setValue(
-      //   "MaKH",
-      //   { ...listCus.filter((x) => x.value === selectIdClick.maKh) }[0]
-      // );
-
       handleOnChangeCustomer(
         { ...listCus.filter((x) => x.value === selectIdClick.maKh) }[0]
       );
@@ -400,6 +401,57 @@ const UpdateTransport = (props) => {
       setlistVehicleType(temp);
     } else {
       setlistVehicleType([]);
+    }
+  };
+
+  const handleCheckWeight = (type) => {
+    let dataArr = watch("optionHandling");
+    if (type === "PCS") {
+      let totalPCS = watch("TongSoKien");
+      let sumPCS = 0;
+
+      dataArr.forEach((val) => {
+        if (parseFloat(val.SoKien) > 0) {
+          sumPCS = sumPCS + parseFloat(val.SoKien);
+        }
+      });
+
+      if (sumPCS && totalPCS) {
+        setTotalPCS({ sumPCS, totalPCS });
+      } else {
+        setTotalPCS({});
+      }
+    }
+
+    if (type === "KG") {
+      let totalWeight = watch("TongKhoiLuong");
+      let sumWgt = 0;
+
+      dataArr.forEach((val) => {
+        if (parseFloat(val.KhoiLuong) > 0) {
+          sumWgt = sumWgt + parseFloat(val.KhoiLuong);
+        }
+      });
+      if (sumWgt && totalWeight) {
+        setTotalWGT({ sumWgt, totalWeight });
+      } else {
+        setTotalWGT({});
+      }
+    }
+
+    if (type === "CBM") {
+      let totalCBM = watch("TongTheTich");
+      let sumCBM = 0;
+      dataArr.forEach((val) => {
+        if (parseFloat(val.TheTich) > 0) {
+          sumCBM = sumCBM + parseFloat(val.TheTich);
+        }
+      });
+      if (sumCBM && totalCBM) {
+        setTotalCBM({ sumCBM, totalCBM });
+      } else {
+        setTotalCBM({});
+      }
     }
   };
 
@@ -751,6 +803,10 @@ const UpdateTransport = (props) => {
                       className="form-control"
                       id="TongKhoiLuong"
                       {...register(`TongKhoiLuong`, Validate.TongKhoiLuong)}
+                      onChange={(e) => {
+                        setValue("TongKhoiLuong", e.target.value);
+                        handleCheckWeight("KG");
+                      }}
                     />
                     {errors.TongKhoiLuong && (
                       <span className="text-danger">
@@ -771,6 +827,10 @@ const UpdateTransport = (props) => {
                       className="form-control"
                       id="TongTheTich"
                       {...register(`TongTheTich`, Validate.TongTheTich)}
+                      onChange={(e) => {
+                        setValue("TongTheTich", e.target.value);
+                        handleCheckWeight("CBM");
+                      }}
                     />
                     {errors.TongTheTich && (
                       <span className="text-danger">
@@ -791,6 +851,10 @@ const UpdateTransport = (props) => {
                       className="form-control"
                       id="TongSoKien"
                       {...register(`TongSoKien`, Validate.TongSoKien)}
+                      onChange={(e) => {
+                        setValue("TongSoKien", e.target.value);
+                        handleCheckWeight("PCS");
+                      }}
                     />
                     {errors.TongSoKien && (
                       <span className="text-danger">
@@ -799,6 +863,65 @@ const UpdateTransport = (props) => {
                     )}
                   </div>
                   <br />
+                </div>
+              </div>
+              <div className="row">
+                <div className="col col-sm">
+                  <p style={{ fontWeight: "bold" }}>
+                    Tổng Số Trọng Lượng :
+                    {totalWGT.sumWgt && totalWGT.totalWeight && (
+                      <>
+                        {totalWGT.sumWgt + "/" + totalWGT.totalWeight}
+                        {totalWGT.totalWeight < totalWGT.sumWgt ? (
+                          <>
+                            <p style={{ color: "red" }}>
+                              (Vượt quá tổng trọng lượng của đơn hàng)
+                            </p>
+                          </>
+                        ) : (
+                          <></>
+                        )}
+                      </>
+                    )}
+                  </p>
+                </div>
+                <div className="col col-sm">
+                  <p style={{ fontWeight: "bold" }}>
+                    Tổng Số Thể Tích :
+                    {totalCBM.sumCBM && totalCBM.totalCBM && (
+                      <>
+                        {totalCBM.sumCBM + "/" + totalCBM.totalCBM}
+                        {totalCBM.totalCBM < totalCBM.sumCBM ? (
+                          <>
+                            <p style={{ color: "red" }}>
+                              (Vượt quá tổng thể tích của đơn hàng)
+                            </p>
+                          </>
+                        ) : (
+                          <></>
+                        )}
+                      </>
+                    )}
+                  </p>
+                </div>
+                <div className="col col-sm">
+                  <p style={{ fontWeight: "bold" }}>
+                    Tổng Số Kiện:
+                    {totalPCS.sumPCS && totalPCS.totalPCS && (
+                      <>
+                        {totalPCS.sumPCS + "/" + totalPCS.totalPCS}
+                        {totalPCS.totalPCS < totalPCS.sumPCS ? (
+                          <>
+                            <p style={{ color: "red" }}>
+                              (Vượt quá tổng Kiện của đơn hàng)
+                            </p>
+                          </>
+                        ) : (
+                          <></>
+                        )}
+                      </>
+                    )}
+                  </p>
                 </div>
               </div>
               <div className="row">
@@ -842,7 +965,12 @@ const UpdateTransport = (props) => {
                         <button
                           className="form-control form-control-sm"
                           type="button"
-                          onClick={() => append(watch(`optionHandling`)[0])}
+                          onClick={() => {
+                            append(watch(`optionHandling`)[0]);
+                            handleCheckWeight("PCS");
+                            handleCheckWeight("KG");
+                            handleCheckWeight("CBM");
+                          }}
                         >
                           <i className="fas fa-plus"></i>
                         </button>
@@ -1094,15 +1222,20 @@ const UpdateTransport = (props) => {
                                       `optionHandling.${index}.KhoiLuong`,
                                       Validate.KhoiLuong
                                     )}
-                                    onChange={(e) =>
+                                    onChange={(e) => {
                                       handleOnChangeWeight(
                                         watch(
                                           `optionHandling.${index}.PTVanChuyen`
                                         ),
                                         e.target.value,
                                         "KhoiLuong"
-                                      )
-                                    }
+                                      );
+                                      setValue(
+                                        `optionHandling.${index}.KhoiLuong`,
+                                        e.target.value
+                                      );
+                                      handleCheckWeight("KG");
+                                    }}
                                   />
                                   {errors.optionHandling?.[index]
                                     ?.KhoiLuong && (
@@ -1126,15 +1259,20 @@ const UpdateTransport = (props) => {
                                       `optionHandling.${index}.TheTich`,
                                       Validate.TheTich
                                     )}
-                                    onChange={(e) =>
+                                    onChange={(e) => {
                                       handleOnChangeWeight(
                                         watch(
                                           `optionHandling.${index}.PTVanChuyen`
                                         ),
                                         e.target.value,
                                         "TheTich"
-                                      )
-                                    }
+                                      );
+                                      setValue(
+                                        `optionHandling.${index}.TheTich`,
+                                        e.target.value
+                                      );
+                                      handleCheckWeight("CBM");
+                                    }}
                                   />
                                   {errors.optionHandling?.[index]?.TheTich && (
                                     <span className="text-danger">
@@ -1157,6 +1295,13 @@ const UpdateTransport = (props) => {
                                       `optionHandling.${index}.SoKien`,
                                       Validate.SoKien
                                     )}
+                                    onChange={(e) => {
+                                      setValue(
+                                        `optionHandling.${index}.SoKien`,
+                                        e.target.value
+                                      );
+                                      handleCheckWeight("PCS");
+                                    }}
                                   />
                                   {errors.optionHandling?.[index]?.SoKien && (
                                     <span className="text-danger">
@@ -1176,7 +1321,12 @@ const UpdateTransport = (props) => {
                                 <button
                                   type="button"
                                   className="btn btn-sm btn-default mx-1"
-                                  onClick={() => remove(index)}
+                                  onClick={() => {
+                                    remove(index);
+                                    handleCheckWeight("PCS");
+                                    handleCheckWeight("KG");
+                                    handleCheckWeight("CBM");
+                                  }}
                                 >
                                   <i className="fas fa-minus"></i>
                                 </button>
