@@ -61,20 +61,34 @@ const HandlingPageNew = () => {
                 </button>
               </>
               <>
-                <button
-                  onClick={() =>
-                    handleEditTransport(
-                      val,
-                      SetShowModal("EditTransport"),
-                      setTitle("Tách Chuyến ")
-                    )
-                  }
-                  type="button"
-                  className="btn btn-title btn-sm btn-default mx-1"
-                  gloss="Tách Chuyến"
-                >
-                  <i className="fas fa-sliders-h"></i>
-                </button>
+                {val.maPTVC === "FCL" || val.maPTVC === "FTL" ? (
+                  <>
+                    <button
+                      onClick={() =>
+                        handleEditTransport(
+                          val,
+                          SetShowModal("EditTransport"),
+                          setTitle("Tách Chuyến ")
+                        )
+                      }
+                      type="button"
+                      className="btn btn-title btn-sm btn-default mx-1"
+                      gloss="Tách Chuyến"
+                    >
+                      <i className="fas fa-sliders-h"></i>
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      disabled={true}
+                      type="button"
+                      className="btn btn-sm btn-default mx-1"
+                    >
+                      <i className="fas fa-sliders-h"></i>
+                    </button>
+                  </>
+                )}
               </>
               <>
                 <button

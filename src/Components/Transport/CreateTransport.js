@@ -241,14 +241,33 @@ const CreateTransport = (props) => {
   };
 
   const handleOnChangeWeight = async (vehicleType, val, type) => {
-    if (val && val > 0) {
-      let getTrongTai = await getData(
-        `BillOfLading/LayTrongTaiXe?vehicleType=${vehicleType}&DonVi=${type}&giaTri=${val}`
+    if (val && vehicleType && type && val > 0) {
+      let getTonnageVehicle = await getData(
+        `BillOfLading/LayTrongTaiXe?vehicleType=${vehicleType}`
       );
 
-      if (getTrongTai) {
-        ToastWarning(getTrongTai);
-        return;
+      if (getTonnageVehicle) {
+        let vehicleCBM = getTonnageVehicle.cbm;
+        let vehicleWGT = getTonnageVehicle.wgt;
+        if (type === "KhoiLuong") {
+          if (vehicleWGT < val) {
+            return ToastWarning(
+              <>
+                <p>Vượt Quá trọng tải xe {val + "/" + vehicleWGT}</p>
+              </>
+            );
+          }
+        }
+
+        if (type === "TheTich") {
+          if (vehicleCBM < val) {
+            return ToastWarning(
+              <>
+                <p>Vượt quá khối lượng xe {val + "/" + vehicleCBM}</p>
+              </>
+            );
+          }
+        }
       }
     }
   };
@@ -523,7 +542,6 @@ const CreateTransport = (props) => {
                     )}
                   </div>
                 </div>
-
                 <div className="col col-sm">
                   <div className="form-group">
                     <label htmlFor="MaVDKH">Mã Vận Đơn KH/Booking No(*)</label>

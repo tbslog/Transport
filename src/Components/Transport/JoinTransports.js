@@ -69,6 +69,9 @@ const JoinTransports = (props) => {
 
   const [dataHandling, setDataHandling] = useState({});
 
+  const [totalCBM, setTotalCBM] = useState("");
+  const [totalWGT, setTotalWGT] = useState("");
+
   useEffect(() => {
     (async () => {
       SetIsLoading(true);
@@ -184,6 +187,7 @@ const JoinTransports = (props) => {
             { TransportIds: arrTransport }
           );
           let data = dataTransports.loadTransports;
+
           if (data && data.length > 0) {
             setValue("listTransport", data);
             for (let i = 0; i <= data.length - 1; i++) {
@@ -410,6 +414,7 @@ const JoinTransports = (props) => {
       Object.keys(dataHandling).length > 0 &&
       Object.keys(selectIdClick).length > 0
     ) {
+      handleOnChangeWeight(watch("PTVanChuyen"));
       setValue(
         "XeVanChuyen",
         {
@@ -541,28 +546,28 @@ const JoinTransports = (props) => {
 
       if (data && data.length > 0) {
         data.forEach((val) => {
-          if (val.KhoiLuong) {
-            tongkl = tongkl + val.KhoiLuong;
-          }
-          if (val.TheTich) {
-            tongth = tongth + val.TheTich;
+          if (val.maPTVC === "LCL" || val.maPTVC === "LTL") {
+            if (val.KhoiLuong) {
+              tongkl = tongkl + val.KhoiLuong;
+            }
+            if (val.TheTich) {
+              tongth = tongth + val.TheTich;
+            }
           }
         });
 
-        let checkKL = await getData(
-          `BillOfLading/LayTrongTaiXe?vehicleType=${vehicleType}&DonVi=${"KhoiLuong"}&giaTri=${tongkl}`
+        let getTonnageVehicle = await getData(
+          `BillOfLading/LayTrongTaiXe?vehicleType=${vehicleType}`
         );
 
-        let checkTH = await getData(
-          `BillOfLading/LayTrongTaiXe?vehicleType=${vehicleType}&DonVi=${"TheTich"}&giaTri=${tongth}`
-        );
-
-        if (checkTH) {
-          ToastWarning(checkTH);
-        }
-
-        if (checkKL) {
-          ToastWarning(checkKL);
+        if (getTonnageVehicle) {
+          let vehicleCBM = getTonnageVehicle.cbm;
+          let vehicleWGT = getTonnageVehicle.wgt;
+          setTotalWGT({ tongkl, vehicleWGT });
+          setTotalCBM({ tongth, vehicleCBM });
+        } else {
+          setTotalWGT({});
+          setTotalCBM({});
         }
       }
     }
@@ -741,6 +746,50 @@ const JoinTransports = (props) => {
                       ></textarea>
                     </div>
                   </div>
+                </div>
+              </div>
+              <div className="row">
+                <div className="col col-sm">
+                  <p style={{ fontWeight: "bold" }}>
+                    Tổng Số Trọng Lượng :
+                    {totalWGT &&
+                      totalWGT.tongkl > 0 &&
+                      totalWGT.vehicleWGT > 0 && (
+                        <>
+                          {totalWGT.tongkl + "/" + totalWGT.vehicleWGT}
+                          {totalWGT.vehicleWGT < totalWGT.tongkl ? (
+                            <>
+                              <p style={{ color: "red" }}>
+                                (Vượt quá tổng trọng lượng của Xe)
+                              </p>
+                            </>
+                          ) : (
+                            <></>
+                          )}
+                        </>
+                      )}
+                  </p>
+                </div>
+                <div className="col col-sm">
+                  <p style={{ fontWeight: "bold" }}>
+                    Tổng Số Thể Tích :
+                    {totalCBM &&
+                      totalCBM.vehicleCBM > 0 &&
+                      totalCBM.tongth > 0 && (
+                        <>
+                          {totalCBM.tongth + "/" + totalCBM.vehicleCBM}
+                          {totalCBM.vehicleCBM < totalCBM.tongth ? (
+                            <>
+                              <p style={{ color: "red" }}>
+                                (Vượt quá tổng thể tích của Xe)
+                              </p>
+                            </>
+                          ) : (
+                            <></>
+                          )}
+                        </>
+                      )}
+                  </p>
                 </div>
               </div>
               <div className="row">
@@ -1380,6 +1429,9 @@ const JoinTransports = (props) => {
                                       className="btn btn-sm btn-default"
                                       onClick={() => {
                                         remove(index);
+                                        handleOnChangeWeight(
+                                          watch("PTVanChuyen")
+                                        );
                                       }}
                                     >
                                       <i className="fas fa-minus"></i>

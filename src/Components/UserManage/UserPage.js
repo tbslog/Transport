@@ -10,6 +10,7 @@ import CreateUser from "./CreateUser";
 import UpdateUser from "./UpdateUser";
 import RolePage from "../RoleManage/RolePage";
 import SetCusForUser from "../RoleManage/SetCusForUser";
+import SetFieldRequired from "../RoleManage/SetFieldRequired";
 
 const UserPage = () => {
   const [data, setData] = useState([]);
@@ -357,6 +358,20 @@ const UserPage = () => {
                   >
                     <i className="fas fa-trash-alt"></i>
                   </button>
+                  <button
+                    type="button"
+                    className="btn btn-title btn-sm btn-default mx-1"
+                    gloss="Set Field Required"
+                    onClick={() => {
+                      showModalForm(
+                        SetShowModal("FieldRequired"),
+                        setSelectIdClick({}),
+                        setTitle("Set Field Required")
+                      );
+                    }}
+                  >
+                    <i className="fas fa-eye-slash"></i>
+                  </button>
                 </div>
                 <div className="col col-sm">
                   <div className="row">
@@ -494,6 +509,7 @@ const UserPage = () => {
               </div>
               <div className="modal-body">
                 <>
+                  {ShowModal === "FieldRequired" && <SetFieldRequired />}
                   {ShowModal === "Create" && (
                     <CreateUser getListUser={fetchData} />
                   )}

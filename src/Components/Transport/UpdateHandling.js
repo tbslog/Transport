@@ -132,7 +132,6 @@ const UpdateHandling = (props) => {
   const [IsLoading, SetIsLoading] = useState(false);
   const [listCustomer, setListCustomer] = useState([]);
   const [listVehicleType, setlistVehicleType] = useState([]);
-  const [listVehicleTypeTemp, setlistVehicleTypeTemp] = useState([]);
   const [listGoodsType, setListGoodsType] = useState([]);
   const [listDriver, setListDriver] = useState([]);
   const [listVehicle, setListVehicle] = useState([]);
@@ -141,6 +140,9 @@ const UpdateHandling = (props) => {
   const [data, setData] = useState({});
   const [roadDetail, setRoadDetail] = useState({});
   const [listSupplier, setListSupplier] = useState([]);
+
+  const [wgtVehicle, setWgtVehicle] = useState();
+  const [cbmVehicle, setCbmVehicle] = useState();
 
   useEffect(() => {
     (async () => {
@@ -224,7 +226,6 @@ const UpdateHandling = (props) => {
       }
 
       setlistVehicleType(getListVehicleType);
-      setlistVehicleTypeTemp(getListVehicleType);
       setListGoodsType(getListGoodsType);
       SetIsLoading(false);
     })();
@@ -409,15 +410,21 @@ const UpdateHandling = (props) => {
     setValue("Romooc", null);
   };
 
-  const handleOnChangeWeight = async (vehicleType, val, type) => {
-    if (val && val > 0) {
-      let getTrongTai = await getData(
-        `BillOfLading/LayTrongTaiXe?vehicleType=${vehicleType}&DonVi=${type}&giaTri=${val}`
+  const handleOnChangeWeight = async (vehicleType) => {
+    if (vehicleType) {
+      setValue("PTVanChuyen", vehicleType);
+      let getTonnageVehicle = await getData(
+        `BillOfLading/LayTrongTaiXe?vehicleType=${vehicleType}`
       );
 
-      if (getTrongTai) {
-        ToastWarning(getTrongTai);
-        return;
+      if (getTonnageVehicle) {
+        let vehicleCBM = getTonnageVehicle.cbm;
+        let vehicleWGT = getTonnageVehicle.wgt;
+        setWgtVehicle(vehicleWGT);
+        setCbmVehicle(vehicleCBM);
+      } else {
+        setWgtVehicle({});
+        setCbmVehicle({});
       }
     }
   };
@@ -624,6 +631,7 @@ const UpdateHandling = (props) => {
                 <div className="col col-sm">
                   <div className="form-group">
                     <label htmlFor="TongKhoiLuong">Tổng Khối Lượng</label>
+
                     <input
                       {...register(`TongKhoiLuong`)}
                       autoComplete="false"
@@ -816,6 +824,7 @@ const UpdateHandling = (props) => {
                   </div>
                 </div>
               </div>
+
               <div className="row">
                 {watch(`PTVanChuyen`) &&
                   watch(`PTVanChuyen`).includes("CONT") && (
@@ -923,6 +932,7 @@ const UpdateHandling = (props) => {
                       disabled={
                         accountType && accountType === "NV" ? false : true
                       }
+                      onChange={(e) => handleOnChangeWeight(e.target.value)}
                     >
                       <option value="">Chọn phương Tiện Vận Chuyển</option>
                       {listVehicleType &&
@@ -980,6 +990,7 @@ const UpdateHandling = (props) => {
                 <div className="col col-sm">
                   <div className="form-group">
                     <label htmlFor="KhoiLuong">Khối Lượng(KG)</label>
+
                     <input
                       readOnly={true}
                       autoComplete="false"
@@ -987,13 +998,6 @@ const UpdateHandling = (props) => {
                       className="form-control"
                       id="KhoiLuong"
                       {...register(`KhoiLuong`, Validate.KhoiLuong)}
-                      onChange={(e) =>
-                        handleOnChangeWeight(
-                          watch("PTVanChuyen"),
-                          e.target.value,
-                          "KhoiLuong"
-                        )
-                      }
                     />
                     {errors.KhoiLuong && (
                       <span className="text-danger">
@@ -1005,6 +1009,7 @@ const UpdateHandling = (props) => {
                 <div className="col col-sm">
                   <div className="form-group">
                     <label htmlFor="TheTich">Số Khối</label>
+
                     <input
                       readOnly={true}
                       autoComplete="false"
@@ -1012,13 +1017,6 @@ const UpdateHandling = (props) => {
                       className="form-control"
                       id="TheTich"
                       {...register(`TheTich`, Validate.TheTich)}
-                      onChange={(e) =>
-                        handleOnChangeWeight(
-                          watch("PTVanChuyen"),
-                          e.target.value,
-                          "TheTich"
-                        )
-                      }
                     />
                     {errors.TheTich && (
                       <span className="text-danger">
@@ -1045,6 +1043,37 @@ const UpdateHandling = (props) => {
                     )}
                   </div>
                 </div>
+              </div>
+              <div className="row">
+                <div className="col col-sm">
+                  {watch("KhoiLuong") && wgtVehicle && (
+                    <>
+                      {watch("KhoiLuong") > wgtVehicle && (
+                        <>
+                          {watch("KhoiLuong") + "/" + wgtVehicle}
+                          <p style={{ color: "red" }}>
+                            (Vượt quá tổng trọng lượng của Xe )
+                          </p>
+                        </>
+                      )}
+                    </>
+                  )}
+                </div>
+                <div className="col col-sm">
+                  {watch("TheTich") && cbmVehicle && (
+                    <>
+                      {watch("TheTich") > cbmVehicle && (
+                        <>
+                          {watch("TheTich") + "/" + cbmVehicle}
+                          <p style={{ color: "red" }}>
+                            (Vượt quá tổng thể tích của Xe)
+                          </p>
+                        </>
+                      )}
+                    </>
+                  )}
+                </div>
+                <div className="col col-sm"></div>
               </div>
               <div className="row">
                 <div className="col col-sm">

@@ -172,8 +172,6 @@ const ReportPage = () => {
                                   <th>1T</th>
                                   <th>1.5T</th>
                                   <th>1.7T</th>
-                                  <th>10T</th>
-                                  <th>15T</th>
                                   <th>2T</th>
                                   <th>2.5T</th>
                                   <th>3T</th>
@@ -182,6 +180,8 @@ const ReportPage = () => {
                                   <th>7T</th>
                                   <th>8T</th>
                                   <th>9T</th>
+                                  <th>10T</th>
+                                  <th>15T</th>
                                   <th>Doanh Thu</th>
                                   <th>Chi Phí</th>
                                   <th>Lợi Nhuận</th>
@@ -210,8 +210,6 @@ const ReportPage = () => {
                                                 <td>{val.trucK1}</td>
                                                 <td>{val.trucK15}</td>
                                                 <td>{val.trucK17}</td>
-                                                <td>{val.trucK10}</td>
-                                                <td>{val.trucK150}</td>
                                                 <td>{val.trucK2}</td>
                                                 <td>{val.trucK25}</td>
                                                 <td>{val.trucK3}</td>
@@ -220,6 +218,8 @@ const ReportPage = () => {
                                                 <td>{val.trucK7}</td>
                                                 <td>{val.trucK8}</td>
                                                 <td>{val.trucK9}</td>
+                                                <td>{val.trucK10}</td>
+                                                <td>{val.trucK150}</td>
 
                                                 <td>
                                                   {val.totalMoney.toLocaleString(
@@ -288,8 +288,6 @@ const ReportPage = () => {
                                   <th>1T</th>
                                   <th>1.5T</th>
                                   <th>1.7T</th>
-                                  <th>10T</th>
-                                  <th>15T</th>
                                   <th>2T</th>
                                   <th>2.5T</th>
                                   <th>3T</th>
@@ -298,6 +296,8 @@ const ReportPage = () => {
                                   <th>7T</th>
                                   <th>8T</th>
                                   <th>9T</th>
+                                  <th>10T</th>
+                                  <th>15T</th>
                                   <th>Doanh Thu</th>
                                   <th>Chi Phí</th>
                                   <th>Lợi Nhuận</th>
@@ -325,8 +325,6 @@ const ReportPage = () => {
                                                 <td>{val.trucK1}</td>
                                                 <td>{val.trucK15}</td>
                                                 <td>{val.trucK17}</td>
-                                                <td>{val.trucK10}</td>
-                                                <td>{val.trucK150}</td>
                                                 <td>{val.trucK2}</td>
                                                 <td>{val.trucK25}</td>
                                                 <td>{val.trucK3}</td>
@@ -335,6 +333,8 @@ const ReportPage = () => {
                                                 <td>{val.trucK7}</td>
                                                 <td>{val.trucK8}</td>
                                                 <td>{val.trucK9}</td>
+                                                <td>{val.trucK10}</td>
+                                                <td>{val.trucK150}</td>
                                                 <td>
                                                   {val.totalMoney.toLocaleString(
                                                     "vi-VI",

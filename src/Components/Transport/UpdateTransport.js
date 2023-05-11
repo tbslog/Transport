@@ -262,12 +262,6 @@ const UpdateTransport = (props) => {
     ) {
       SetIsLoading(true);
 
-      console.log(selectIdClick);
-
-      setTotalCBM({});
-      setTotalWGT({});
-      setTotalPCS({});
-
       setValue("MaVDKH", selectIdClick.maVanDonKH);
       setValue("LoaiVanDon", selectIdClick.loaiVanDon);
       setValue("TongKhoiLuong", selectIdClick.tongKhoiLuong);
@@ -337,15 +331,47 @@ const UpdateTransport = (props) => {
     }
   }, [listCus, listTransportType, props, selectIdClick, listShipping]);
 
+  useEffect(() => {
+    if (
+      watch("optionHandling") &&
+      watch("optionHandling").length > 0 &&
+      selectIdClick &&
+      Object.keys(selectIdClick).length > 0
+    ) {
+      handleCheckWeight("PCS");
+      handleCheckWeight("KG");
+      handleCheckWeight("CBM");
+    }
+  }, [watch("optionHandling"), selectIdClick]);
+
   const handleOnChangeWeight = async (vehicleType, val, type) => {
-    if (val && val > 0) {
-      let getTrongTai = await getData(
-        `BillOfLading/LayTrongTaiXe?vehicleType=${vehicleType}&DonVi=${type}&giaTri=${val}`
+    if (val && vehicleType && type && val > 0) {
+      let getTonnageVehicle = await getData(
+        `BillOfLading/LayTrongTaiXe?vehicleType=${vehicleType}`
       );
 
-      if (getTrongTai) {
-        ToastWarning(getTrongTai);
-        return;
+      if (getTonnageVehicle) {
+        let vehicleCBM = getTonnageVehicle.cbm;
+        let vehicleWGT = getTonnageVehicle.wgt;
+        if (type === "KhoiLuong") {
+          if (vehicleWGT < val) {
+            return ToastWarning(
+              <>
+                <p>Vượt Quá trọng tải xe {val + "/" + vehicleWGT}</p>
+              </>
+            );
+          }
+        }
+
+        if (type === "TheTich") {
+          if (vehicleCBM < val) {
+            return ToastWarning(
+              <>
+                <p>Vượt quá khối lượng xe {val + "/" + vehicleCBM}</p>
+              </>
+            );
+          }
+        }
       }
     }
   };
@@ -887,14 +913,14 @@ const UpdateTransport = (props) => {
                 </div>
                 <div className="col col-sm">
                   <p style={{ fontWeight: "bold" }}>
-                    Tổng Số Thể Tích :
+                    Tổng Số Khối :
                     {totalCBM.sumCBM && totalCBM.totalCBM && (
                       <>
                         {totalCBM.sumCBM + "/" + totalCBM.totalCBM}
                         {totalCBM.totalCBM < totalCBM.sumCBM ? (
                           <>
                             <p style={{ color: "red" }}>
-                              (Vượt quá tổng thể tích của đơn hàng)
+                              (Vượt quá tổng số khối của đơn hàng)
                             </p>
                           </>
                         ) : (
