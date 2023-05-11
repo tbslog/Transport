@@ -28,5 +28,7 @@ namespace TBSLogistics.Service.Services.UserManage
         Task<BoolActionResult> BlockUsers(List<int> userIds);
         Task<BoolActionResult> SetCusForUser(AddCusForUser request);
         Task<TreeCustomer> GetListTreeCustomer(int userid);
-    }
+        Task<TreePermission> GetTreeFieldRequired(string cusId, string accId);
+        Task<BoolActionResult> SetRequiredField(SetFieldRequired request);
+	}
 }

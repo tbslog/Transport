@@ -10,6 +10,7 @@ namespace TBSLogistics.Data.TMS
             BangGia = new HashSet<BangGia>();
             KhachHangAccount = new HashSet<KhachHangAccount>();
             SubFeePrice = new HashSet<SubFeePrice>();
+            ValidateDataByCustomer = new HashSet<ValidateDataByCustomer>();
         }
 
         public string MaAccount { get; set; }
@@ -23,5 +24,6 @@ namespace TBSLogistics.Data.TMS
         public virtual ICollection<BangGia> BangGia { get; set; }
         public virtual ICollection<KhachHangAccount> KhachHangAccount { get; set; }
         public virtual ICollection<SubFeePrice> SubFeePrice { get; set; }
+        public virtual ICollection<ValidateDataByCustomer> ValidateDataByCustomer { get; set; }
     }
 }

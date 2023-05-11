@@ -12,6 +12,7 @@ namespace TBSLogistics.Data.TMS
             KhachHangAccount = new HashSet<KhachHangAccount>();
             TaiXe = new HashSet<TaiXe>();
             UserHasCustomer = new HashSet<UserHasCustomer>();
+            ValidateDataByCustomer = new HashSet<ValidateDataByCustomer>();
             XeVanChuyen = new HashSet<XeVanChuyen>();
         }
 
@@ -35,6 +36,7 @@ namespace TBSLogistics.Data.TMS
         public virtual ICollection<KhachHangAccount> KhachHangAccount { get; set; }
         public virtual ICollection<TaiXe> TaiXe { get; set; }
         public virtual ICollection<UserHasCustomer> UserHasCustomer { get; set; }
+        public virtual ICollection<ValidateDataByCustomer> ValidateDataByCustomer { get; set; }
         public virtual ICollection<XeVanChuyen> XeVanChuyen { get; set; }
     }
 }

@@ -55,9 +55,9 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<IActionResult> LayTrongTaiXe(string vehicleType, string DonVi, double giaTri)
+        public async Task<IActionResult> LayTrongTaiXe(string vehicleType)
         {
-            var trongtai = await _billOfLading.LayTrongTaiXe(vehicleType, DonVi, giaTri);
+            var trongtai = await _billOfLading.LayTrongTaiXe(vehicleType);
             return Ok(trongtai);
         }
 

@@ -9,6 +9,7 @@ using TBSLogistics.Model.Model.BillOfLadingModel;
 using TBSLogistics.Model.Model.FileModel;
 using TBSLogistics.Model.Model.MailSettings;
 using TBSLogistics.Model.Model.UserModel;
+using TBSLogistics.Model.Model.VehicleModel;
 using TBSLogistics.Model.Wrappers;
 
 namespace TBSLogistics.Service.Services.BillOfLadingManage
@@ -33,7 +34,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
         Task<UpdateTransportLess> GetTransportLessById(string transportId);
         Task<PagedResponseCustom<ListHandling>> GetListHandlingByTransportId(string transportId, PaginationFilter filter);
         Task<BoolActionResult> AcceptOrRejectTransport(string transportId, int action);
-        Task<string> LayTrongTaiXe(string vehicleType, string DonVi, double giaTri);
+        Task<GetTonnageVehicle> LayTrongTaiXe(string vehicleType);
         Task<BoolActionResult> CreateTransportByExcel(IFormFile formFile, CancellationToken cancellationToken);
         Task<BoolActionResult> ChangeStatusHandling(int id, string maChuyen);
         Task<BoolActionResult> CancelHandling(int id, string note = null);

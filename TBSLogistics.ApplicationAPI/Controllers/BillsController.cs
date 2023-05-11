@@ -197,8 +197,8 @@ namespace TBSLogistics.ApplicationAPI.Controllers
                 }
 
 
-                workSheet.Cells["D3:D" + row].Style.Numberformat.Format = "DD-MM-YYYY HH:mm";
-                workSheet.Cells["E3:E" + row].Style.Numberformat.Format = "DD-MM-YYYY HH:mm";
+                workSheet.Cells["C2:D" + row].Style.Numberformat.Format = "DD-MM-YYYY HH:mm";
+                workSheet.Cells["D2:E" + row].Style.Numberformat.Format = "DD-MM-YYYY HH:mm";
                 workSheet.Cells["A1:U1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
                 workSheet.Cells["A1:U1"].Style.Font.Bold = true;
                 workSheet.Cells["A1:U1"].Style.Font.Size = 14;
