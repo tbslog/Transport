@@ -93,10 +93,13 @@ const SetFieldRequired = () => {
       let cusid = watch("MaKH");
       setValue("AccountCus", val);
       let getDataTree = await getData(
-        `User/GetTreeFieldRequired?cusId=${cusid.value}&accId=${val.value}`
+        `User/GetTreeFieldRequired?cusId=${cusid.value}&accId=${
+          !val.value ? "" : val.value
+        }`
       );
 
       setNodes(getDataTree.listTree);
+      setChecked(getDataTree.isChecked);
       SetIsLoading(false);
     }
   };

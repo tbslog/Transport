@@ -27,8 +27,8 @@ const AddPriceTable = (props) => {
           DiemCuoi: null,
           DiemLayTraRong: null,
           AccountId: null,
-          DonGiaVND: null,
-          DonGiaUSD: null,
+          DonGia: null,
+          LoaiTienTe: null,
           MaDVT: "",
           MaPTVC: "",
           MaLoaiPhuongTien: "",
@@ -105,19 +105,18 @@ const AddPriceTable = (props) => {
         message: "Không phải định dạng ngày",
       },
     },
-    DonGiaVND: {
+    DonGia: {
       pattern: {
         value: /^[0-9]*$/,
         message: "Chỉ được nhập ký tự là số",
       },
       required: "Không được để trống",
     },
-    DonGiaUSD: {
-      pattern: {
-        value: /^[0-9.]*$/,
-        message: "Chỉ được nhập ký tự là số",
-      },
+
+    LoaiTienTe: {
+      required: "Không được để trống",
     },
+
     MaLoaiPhuongTien: {
       required: "Không được để trống",
     },
@@ -151,11 +150,13 @@ const AddPriceTable = (props) => {
   const [listSPlace, setListSPlace] = useState([]);
   const [listEPlace, setListEPlace] = useState([]);
   const [listAccountCus, setListAccountCus] = useState([]);
+  const [listPriceTrade, setListPriceTrade] = useState([]);
 
   useEffect(() => {
     SetIsLoading(true);
     (async () => {
       let getListDVT = await getData("Common/GetListDVT");
+      let getListPriceTrade = await getData("Common/LoadDataPriceTrade");
       let getListVehicleType = await getData("Common/GetListVehicleType");
       let getListGoodsType = await getData("Common/GetListGoodsType");
       let getListTransportType = await getData("Common/GetListTransportType");
@@ -185,7 +186,7 @@ const AddPriceTable = (props) => {
       });
 
       setListEPlace(arrEPlace);
-
+      setListPriceTrade(getListPriceTrade);
       let getListCustommerType = await getData(`Common/GetListCustommerType`);
       setListCustomerType(getListCustommerType);
       setListVehicleType(getListVehicleType);
@@ -342,8 +343,8 @@ const AddPriceTable = (props) => {
         maPtvc: val.MaPTVC,
         maLoaiPhuongTien: val.MaLoaiPhuongTien,
         maLoaiDoiTac: data.PhanLoaiDoiTac,
-        DonGiaVnd: val.DonGiaVND,
-        DonGiaUsd: !val.DonGiaUSD ? null : val.DonGiaUSD,
+        DonGia: val.DonGia,
+        LoaiTienTe: val.LoaiTienTe,
         maDvt: val.MaDVT,
         maLoaiHangHoa: val.MaLoaiHangHoa,
         ngayHetHieuLuc: null,
@@ -514,8 +515,8 @@ const AddPriceTable = (props) => {
                         <th style={{ width: "13%" }}>Điểm Đóng Hàng</th>
                         <th style={{ width: "13%" }}>Điểm Trả Hàng</th>
                         <th style={{ width: "13%" }}>Điểm Lấy/Trả Rỗng</th>
-                        <th>Đơn Giá VND(*)</th>
-                        <th>Đơn Giá USD</th>
+                        <th>Đơn Giá (*)</th>
+                        <th>Loại Tiền Tệ</th>
                         <th>Đơn vị tính(*)</th>
                         <th style={{ width: "10%" }}>PTVC(*)</th>
                         <th style={{ width: "12%" }}>Loại phương tiện(*)</th>
@@ -610,37 +611,45 @@ const AddPriceTable = (props) => {
                               <input
                                 type="text"
                                 className="form-control"
-                                id="DonGiaVND"
+                                id="DonGia"
                                 {...register(
-                                  `optionRoad.${index}.DonGiaVND`,
-                                  Validate.DonGiaVND
+                                  `optionRoad.${index}.DonGia`,
+                                  Validate.DonGia
                                 )}
                               />
-                              {errors.optionRoad?.[index]?.DonGiaVND && (
+                              {errors.optionRoad?.[index]?.DonGia && (
                                 <span className="text-danger">
-                                  {
-                                    errors.optionRoad?.[index]?.DonGiaVND
-                                      .message
-                                  }
+                                  {errors.optionRoad?.[index]?.DonGia.message}
                                 </span>
                               )}
                             </div>
                           </td>
                           <td>
                             <div className="form-group">
-                              <input
-                                type="text"
+                              <select
                                 className="form-control"
-                                id="DonGiaUSD"
                                 {...register(
-                                  `optionRoad.${index}.DonGiaUSD`,
-                                  Validate.DonGiaUSD
+                                  `optionRoad.${index}.LoaiTienTe`,
+                                  Validate.LoaiTienTe
                                 )}
-                              />
-                              {errors.optionRoad?.[index]?.DonGiaUSD && (
+                              >
+                                <option value="">Chọn loại tiền tệ</option>
+                                {listPriceTrade &&
+                                  listPriceTrade.map((val) => {
+                                    return (
+                                      <option
+                                        value={val.maLoaiTienTe}
+                                        key={val.maLoaiTienTe}
+                                      >
+                                        {val.tenLoaiTienTe}
+                                      </option>
+                                    );
+                                  })}
+                              </select>
+                              {errors.optionRoad?.[index]?.LoaiTienTe && (
                                 <span className="text-danger">
                                   {
-                                    errors.optionRoad?.[index]?.DonGiaUSD
+                                    errors.optionRoad?.[index]?.LoaiTienTe
                                       .message
                                   }
                                 </span>

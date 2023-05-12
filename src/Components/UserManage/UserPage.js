@@ -370,7 +370,7 @@ const UserPage = () => {
                       );
                     }}
                   >
-                    <i className="fas fa-eye-slash"></i>
+                    <i className="fas fa-registered"></i>
                   </button>
                 </div>
                 <div className="col col-sm">

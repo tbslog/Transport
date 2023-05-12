@@ -14,8 +14,6 @@ const UpdateTransport = (props) => {
   const {
     register,
     setValue,
-    reset,
-    resetField,
     control,
     watch,
     formState: { errors },
@@ -118,6 +116,8 @@ const UpdateTransport = (props) => {
   const [totalWGT, setTotalWGT] = useState("");
   const [totalPCS, setTotalPCS] = useState("");
 
+  const [dataTransport, setDataTransport] = useState();
+
   useEffect(() => {
     SetIsLoading(true);
     (async () => {
@@ -178,9 +178,25 @@ const UpdateTransport = (props) => {
   }, []);
 
   useLayoutEffect(() => {
+    if (selectIdClick && Object.keys(selectIdClick).length > 0) {
+      (async () => {
+        let getTransportById = await getData(
+          `BillOfLading/GetTransportById?transportId=${selectIdClick.maVanDon}`
+        );
+
+        if (getTransportById && Object.keys(getTransportById).length > 0) {
+          setDataTransport(getTransportById);
+        } else {
+          setDataTransport({});
+        }
+      })();
+    }
+  }, [selectIdClick]);
+
+  useLayoutEffect(() => {
     if (
-      selectIdClick &&
-      Object.keys(selectIdClick).length > 0 &&
+      dataTransport &&
+      Object.keys(dataTransport).length > 0 &&
       listSupplier &&
       listPoint &&
       listSupplier.length > 0 &&
@@ -191,19 +207,20 @@ const UpdateTransport = (props) => {
       listVehicleType.length > 0
     ) {
       SetIsLoading(true);
+
       setValue("optionHandling", [{}]);
 
       setValue(
         "DiemLayHang",
-        { ...listPoint.filter((x) => x.value === selectIdClick.diemDau) }[0]
+        { ...listPoint.filter((x) => x.value === dataTransport.diemDau) }[0]
       );
       setValue(
         "DiemTraHang",
-        { ...listPoint.filter((x) => x.value === selectIdClick.diemCuoi) }[0]
+        { ...listPoint.filter((x) => x.value === dataTransport.diemCuoi) }[0]
       );
 
       let arrData = [];
-      selectIdClick.arrHandlings.map((val) => {
+      dataTransport.arrHandlings.map((val) => {
         arrData.push({
           DonViVanTai: !val.donViVanTai
             ? null
@@ -244,105 +261,100 @@ const UpdateTransport = (props) => {
     } else {
       setValue("optionHandling", []);
     }
-
     SetIsLoading(false);
-  }, [listSupplier, listPoint, listGoodsType, listVehicleType, selectIdClick]);
+  }, [listSupplier, listPoint, listGoodsType, listVehicleType, dataTransport]);
 
   useLayoutEffect(() => {
     if (
       listCus &&
       listCus.length > 0 &&
-      props &&
-      selectIdClick &&
+      dataTransport &&
       listShipping &&
       listShipping.length > 0 &&
-      Object.keys(selectIdClick).length > 0 &&
+      Object.keys(dataTransport).length > 0 &&
       listTransportType &&
       listTransportType.length > 0
     ) {
-      SetIsLoading(true);
-
-      setValue("MaVDKH", selectIdClick.maVanDonKH);
-      setValue("LoaiVanDon", selectIdClick.loaiVanDon);
-      setValue("TongKhoiLuong", selectIdClick.tongKhoiLuong);
-      setValue("TongTheTich", selectIdClick.tongTheTich);
-      setValue("TongSoKien", selectIdClick.tongSoKien);
-      setValue("LoaiHinh", selectIdClick.maPTVC.replaceAll(" ", ""));
+      setValue("MaVDKH", dataTransport.maVanDonKH);
+      setValue("LoaiVanDon", dataTransport.loaiVanDon);
+      setValue("TongKhoiLuong", dataTransport.tongKhoiLuong);
+      setValue("TongTheTich", dataTransport.tongTheTich);
+      setValue("TongSoKien", dataTransport.tongSoKien);
+      setValue("LoaiHinh", dataTransport.maPTVC.replaceAll(" ", ""));
       handleOnChangeCustomer(
-        { ...listCus.filter((x) => x.value === selectIdClick.maKh) }[0]
+        { ...listCus.filter((x) => x.value === dataTransport.maKh) }[0]
       );
 
-      if (selectIdClick.loaiVanDon === "xuat") {
+      if (dataTransport.loaiVanDon === "xuat") {
         setValue(
           "HangTau",
           {
-            ...listShipping.filter((x) => x.value === selectIdClick.hangTau),
+            ...listShipping.filter((x) => x.value === dataTransport.hangTau),
           }[0]
         );
-        setValue("TenTau", selectIdClick.tenTau);
+        setValue("TenTau", dataTransport.tenTau);
         setValue(
           "TGLayRong",
-          !selectIdClick.thoiGianLayRong
+          !dataTransport.thoiGianLayRong
             ? null
-            : new Date(selectIdClick.thoiGianLayRong)
+            : new Date(dataTransport.thoiGianLayRong)
         );
         setValue(
           "TGHaCang",
-          !selectIdClick.thoiGianHaCang
+          !dataTransport.thoiGianHaCang
             ? null
-            : new Date(selectIdClick.thoiGianHaCang)
+            : new Date(dataTransport.thoiGianHaCang)
         );
       } else {
         setValue(
           "TGTraRong",
-          !selectIdClick.thoiGianTraRong
+          !dataTransport.thoiGianTraRong
             ? null
-            : new Date(selectIdClick.thoiGianTraRong)
+            : new Date(dataTransport.thoiGianTraRong)
         );
         setValue(
           "TGCoMat",
-          !selectIdClick.thoiGianCoMat
+          !dataTransport.thoiGianCoMat
             ? null
-            : new Date(selectIdClick.thoiGianCoMat)
+            : new Date(dataTransport.thoiGianCoMat)
         );
         setValue(
           "TGHanLenh",
-          !selectIdClick.thoiGianHanLenh
+          !dataTransport.thoiGianHanLenh
             ? null
-            : new Date(selectIdClick.thoiGianHanLenh)
+            : new Date(dataTransport.thoiGianHanLenh)
         );
       }
-      setValue("GhiChu", selectIdClick.ghiChu);
+      setValue("GhiChu", dataTransport.ghiChu);
 
       setValue(
         "TGTraHang",
-        !selectIdClick.thoiGianTraHang
+        !dataTransport.thoiGianTraHang
           ? null
-          : new Date(selectIdClick.thoiGianTraHang)
+          : new Date(dataTransport.thoiGianTraHang)
       );
       setValue(
         "TGLayHang",
-        !selectIdClick.thoiGianLayHang
+        !dataTransport.thoiGianLayHang
           ? null
-          : new Date(selectIdClick.thoiGianLayHang)
+          : new Date(dataTransport.thoiGianLayHang)
       );
-
       SetIsLoading(false);
     }
-  }, [listCus, listTransportType, props, selectIdClick, listShipping]);
+  }, [listCus, listTransportType, dataTransport, listShipping]);
 
   useEffect(() => {
     if (
       watch("optionHandling") &&
       watch("optionHandling").length > 0 &&
-      selectIdClick &&
-      Object.keys(selectIdClick).length > 0
+      dataTransport &&
+      Object.keys(dataTransport).length > 0
     ) {
       handleCheckWeight("PCS");
       handleCheckWeight("KG");
       handleCheckWeight("CBM");
     }
-  }, [watch("optionHandling"), selectIdClick]);
+  }, [watch("optionHandling"), dataTransport]);
 
   const handleOnChangeWeight = async (vehicleType, val, type) => {
     if (val && vehicleType && type && val > 0) {
@@ -381,7 +393,7 @@ const UpdateTransport = (props) => {
       setValue(
         "AccountCus",
         {
-          ...listAccountCus.filter((x) => x.value === selectIdClick.accountId),
+          ...listAccountCus.filter((x) => x.value === dataTransport.accountId),
         }[0]
       );
     }
@@ -504,7 +516,7 @@ const UpdateTransport = (props) => {
     }
 
     const Update = await postData(
-      `BillOfLading/UpdateTransport?transportId=${selectIdClick.maVanDon}`,
+      `BillOfLading/UpdateTransport?transportId=${dataTransport.maVanDon}`,
       {
         AccountId: !data.AccountCus ? null : data.AccountCus.value,
         MaPTVC: data.LoaiHinh,

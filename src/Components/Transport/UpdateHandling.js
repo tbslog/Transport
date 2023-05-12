@@ -61,6 +61,7 @@ const UpdateHandling = (props) => {
       //   }
       // },
     },
+    XeVanChuyenTxt: {},
     diemLayRong: {
       required: "Không được để trống",
       validate: (val) => {
@@ -144,6 +145,8 @@ const UpdateHandling = (props) => {
   const [wgtVehicle, setWgtVehicle] = useState();
   const [cbmVehicle, setCbmVehicle] = useState();
 
+  const [isCheckVehicle, setIsCheckVehicle] = useState(false);
+
   useEffect(() => {
     (async () => {
       SetIsLoading(true);
@@ -213,23 +216,27 @@ const UpdateHandling = (props) => {
         setListRomooc(obj);
       }
 
-      let listVehicle = await getData("Vehicle/GetListVehicleSelect");
-      if (listVehicle && listVehicle.length > 0) {
-        let arr = [];
-        listVehicle.map((val) => {
-          arr.push({
-            label: val.text,
-            value: val.vehicleId,
-          });
-        });
-        setListVehicle(arr);
-      }
+      loadDataVehicle();
 
       setlistVehicleType(getListVehicleType);
       setListGoodsType(getListGoodsType);
       SetIsLoading(false);
     })();
   }, []);
+
+  const loadDataVehicle = async () => {
+    let listVehicle = await getData("Vehicle/GetListVehicleSelect");
+    if (listVehicle && listVehicle.length > 0) {
+      let arr = [];
+      listVehicle.map((val) => {
+        arr.push({
+          label: val.text,
+          value: val.vehicleId,
+        });
+      });
+      setListVehicle(arr);
+    }
+  };
 
   useEffect(() => {
     if (
@@ -242,10 +249,12 @@ const UpdateHandling = (props) => {
       listGoodsType.length > 0
     ) {
       handleResetClick();
+      setIsCheckVehicle(false);
       (async () => {
         let data = await getData(
           `BillOfLading/GetHandlingById?id=${selectIdClick.maDieuPhoi}`
         );
+        setIsCheckVehicle(false);
 
         if (data && Object.keys(data).length > 0) {
           setData(data);
@@ -429,8 +438,29 @@ const UpdateHandling = (props) => {
     }
   };
 
+  const handleOnCheckVehicle = (val) => {
+    if (val && val === true) {
+      setIsCheckVehicle(true);
+      setValue("XeVanChuyenTxt", "");
+    } else {
+      setIsCheckVehicle(false);
+    }
+  };
+
   const onSubmit = async (data) => {
     SetIsLoading(true);
+
+    let vehicleID;
+    if (isCheckVehicle === true) {
+      vehicleID = !data.XeVanChuyenTxt ? null : data.XeVanChuyenTxt;
+    } else {
+      vehicleID = !data.XeVanChuyen
+        ? null
+        : !data.XeVanChuyen.value
+        ? null
+        : data.XeVanChuyen.value;
+    }
+
     let dataUpdate = {
       DonViVanTai: data.NhaCungCap.value,
       PTVanChuyen: data.PTVanChuyen,
@@ -438,11 +468,7 @@ const UpdateHandling = (props) => {
       DonViTinh: "CHUYEN",
       DiemLayRong: !data.DiemLayRong ? null : data.DiemLayRong.value,
       DiemTraRong: !data.DiemTraRong ? null : data.DiemTraRong.value,
-      MaSoXe: !data.XeVanChuyen
-        ? null
-        : !data.XeVanChuyen.value
-        ? null
-        : data.XeVanChuyen.value,
+      MaSoXe: vehicleID,
       MaTaiXe: !data.TaiXe ? null : !data.TaiXe.value ? null : data.TaiXe.value,
       MaRomooc: !data.Romooc
         ? null
@@ -489,6 +515,8 @@ const UpdateHandling = (props) => {
     );
 
     if (update === 1) {
+      setIsCheckVehicle(false);
+      loadDataVehicle();
       getlistData();
       hideModal();
     }
@@ -1078,24 +1106,51 @@ const UpdateHandling = (props) => {
               <div className="row">
                 <div className="col col-sm">
                   <div className="form-group">
-                    <label htmlFor="XeVanChuyen">Xe Vận Chuyển</label>
-                    <Controller
-                      name={`XeVanChuyen`}
-                      control={control}
-                      render={({ field }) => (
-                        <Select
-                          {...field}
-                          classNamePrefix={"form-control"}
-                          value={field.value}
-                          options={listVehicle}
+                    <label htmlFor="XeVanChuyen">
+                      Xe Vận Chuyển (
+                      <input
+                        type="checkbox"
+                        onChange={(e) => handleOnCheckVehicle(e.target.checked)}
+                      />
+                      Nhập thủ công)
+                    </label>
+
+                    {!isCheckVehicle || isCheckVehicle === false ? (
+                      <>
+                        <Controller
+                          name={`XeVanChuyen`}
+                          control={control}
+                          render={({ field }) => (
+                            <Select
+                              {...field}
+                              classNamePrefix={"form-control"}
+                              value={field.value}
+                              options={listVehicle}
+                            />
+                          )}
+                          rules={Validate.maSoXe}
                         />
-                      )}
-                      rules={Validate.maSoXe}
-                    />
-                    {errors.XeVanChuyen && (
-                      <span className="text-danger">
-                        {errors.XeVanChuyen.message}
-                      </span>
+                        {errors.XeVanChuyen && (
+                          <span className="text-danger">
+                            {errors.XeVanChuyen.message}
+                          </span>
+                        )}
+                      </>
+                    ) : (
+                      <>
+                        <input
+                          autoComplete="false"
+                          type="text"
+                          className="form-control"
+                          id="XeVanChuyenTxt"
+                          {...register(`XeVanChuyenTxt`, Validate.maSoXe)}
+                        />
+                        {errors.XeVanChuyenTxt && (
+                          <span className="text-danger">
+                            {errors.XeVanChuyenTxt.message}
+                          </span>
+                        )}
+                      </>
                     )}
                   </div>
                 </div>

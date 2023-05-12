@@ -75,20 +75,14 @@ const ApprovePriceTable = (props) => {
     {
       name: "Đơn Giá VND",
       selector: (row) =>
-        row.donGiaVnd.toLocaleString("vi-VI", {
+        row.donGia.toLocaleString("vi-VI", {
           style: "currency",
           currency: "VND",
         }),
     },
     {
-      name: "Đơn Giá USD",
-      selector: (row) =>
-        !row.donGiaUsd
-          ? ""
-          : row.donGiaUsd.toLocaleString("en-EN", {
-              style: "currency",
-              currency: "USD",
-            }),
+      name: <div>Loại Tiền Tệ</div>,
+      selector: (row) => <div className="text-wrap">{row.loaiTienTe}</div>,
     },
     {
       name: <div>Điểm Đóng Hàng</div>,

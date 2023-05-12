@@ -92,22 +92,16 @@ const PriceListContract = (props) => {
       sortable: true,
     },
     {
-      name: "Đơn Giá VND",
+      name: "Đơn Giá",
       selector: (row) =>
-        row.donGiaVnd.toLocaleString("vi-VI", {
+        row.donGia.toLocaleString("vi-VI", {
           style: "currency",
           currency: "VND",
         }),
     },
     {
-      name: "Đơn Giá USD",
-      selector: (row) =>
-        !row.donGiaUsd
-          ? ""
-          : row.donGiaUsd.toLocaleString("en-EN", {
-              style: "currency",
-              currency: "USD",
-            }),
+      name: <div>Loại Tiền Tệ</div>,
+      selector: (row) => <div className="text-wrap">{row.loaiTienTe}</div>,
     },
     {
       name: <div>PTVC</div>,
@@ -216,7 +210,6 @@ const PriceListContract = (props) => {
     ) {
       setSelectedId(selectIdClick);
       (async () => {
-        console.log(selectIdClick);
         const getListAcc = await getData(
           `AccountCustomer/GetListAccountSelectByCus?cusId=${selectIdClick.maKH}`
         );

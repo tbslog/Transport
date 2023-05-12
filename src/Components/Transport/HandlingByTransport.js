@@ -76,6 +76,7 @@ const HandlingByTransport = (props) => {
           </div>
         </>
       ),
+      width: "150px",
       ignoreRowClick: true,
       allowOverflow: true,
       button: true,

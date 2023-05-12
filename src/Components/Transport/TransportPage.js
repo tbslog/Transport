@@ -98,22 +98,34 @@ const TransportPage = () => {
           )}
           {((accountType && accountType === "KH" && val.maTrangThai === 28) ||
             (accountType && accountType === "NV")) && (
-            <button
-              onClick={() =>
-                handleEditButtonClick(
-                  val,
-                  val.maPTVC === "LCL" || val.maPTVC === "LTL"
-                    ? SetShowModal("EditLess")
-                    : SetShowModal("Edit"),
-                  setTitle("Cập Nhật Thông Tin Vận Đơn")
-                )
-              }
-              type="button"
-              className="btn btn-title btn-sm btn-default mx-1"
-              gloss="Chỉnh Sửa"
-            >
-              <i className="far fa-edit"></i>
-            </button>
+            <>
+              <button
+                onClick={() =>
+                  handleEditButtonClick(
+                    val,
+                    val.maPTVC === "LCL" || val.maPTVC === "LTL"
+                      ? SetShowModal("EditLess")
+                      : SetShowModal("Edit"),
+                    setTitle("Cập Nhật Thông Tin Vận Đơn")
+                  )
+                }
+                type="button"
+                className="btn btn-title btn-sm btn-default mx-1"
+                gloss="Chỉnh Sửa"
+              >
+                <i className="far fa-edit"></i>
+              </button>
+              <button
+                onClick={() =>
+                  showConfirmDialog(val, setFuncName("CancelTransport"))
+                }
+                type="button"
+                className="btn btn-title btn-sm btn-default mx-1"
+                gloss="Huỷ Vận Đơn"
+              >
+                <i className="fas fa-window-close"></i>
+              </button>
+            </>
           )}
           <button
             onClick={() =>
@@ -398,11 +410,7 @@ const TransportPage = () => {
   };
 
   const handleEditButtonClick = async (value) => {
-    let getTransportById = await getData(
-      `BillOfLading/GetTransportById?transportId=${value.maVanDon}`
-    );
-
-    setSelectIdClick(getTransportById);
+    setSelectIdClick(value);
     showModalForm();
   };
 
@@ -413,6 +421,8 @@ const TransportPage = () => {
           return AcceptOrRejectTransport(1);
         case "AcceptTransport":
           return AcceptOrRejectTransport(0);
+        case "CancelTransport":
+          return CancelTransport();
       }
     }
   };
@@ -420,6 +430,35 @@ const TransportPage = () => {
   const showConfirmDialog = (val) => {
     setSelectIdClick(val);
     setShowConfirm(true);
+  };
+
+  const CancelTransport = async () => {
+    if (
+      ShowConfirm === true &&
+      selectIdClick &&
+      Object.keys(selectIdClick).length > 0
+    ) {
+      var update = await postData(
+        `BillOfLading/CancelTransport?transportId=${selectIdClick.maVanDon}`
+      );
+
+      if (update === 1) {
+        fetchData(
+          page,
+          keySearch,
+          fromDate,
+          toDate,
+          status,
+          maPTVC,
+          listCusSelected,
+          listUsersSelected,
+          listAccountSelected
+        );
+        setShowConfirm(false);
+      } else {
+        setShowConfirm(false);
+      }
+    }
   };
 
   const AcceptOrRejectTransport = async (val) => {

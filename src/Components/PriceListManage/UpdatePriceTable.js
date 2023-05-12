@@ -64,18 +64,15 @@ const UpdatePriceTable = (props) => {
         message: "Không phải định dạng ngày",
       },
     },
-    DonGiaVND: {
+    DonGia: {
       pattern: {
         value: /^[0-9]*$/,
         message: "Chỉ được nhập ký tự là số",
       },
       required: "Không được để trống",
     },
-    DonGiaUSD: {
-      pattern: {
-        value: /^[0-9.]*$/,
-        message: "Chỉ được nhập ký tự là số",
-      },
+    LoaiTienTe: {
+      required: "Không được để trống",
     },
     MaLoaiPhuongTien: {
       required: "Không được để trống",
@@ -110,11 +107,13 @@ const UpdatePriceTable = (props) => {
   const [listSPlace, setListSPlace] = useState([]);
   const [listEPlace, setListEPlace] = useState([]);
   const [listAccountCus, setListAccountCus] = useState([]);
+  const [listPriceTrade, setListPriceTrade] = useState([]);
 
   useEffect(() => {
     SetIsLoading(true);
 
     (async () => {
+      let getListPriceTrade = await getData("Common/LoadDataPriceTrade");
       let getListDVT = await getData("Common/GetListDVT");
       let getListVehicleType = await getData("Common/GetListVehicleType");
       let getListGoodsType = await getData("Common/GetListGoodsType");
@@ -145,7 +144,7 @@ const UpdatePriceTable = (props) => {
         });
       });
       setListEPlace(arrEPlace);
-
+      setListPriceTrade(getListPriceTrade);
       setListCustomerType(getListCustommerType);
       setListVehicleType(getListVehicleType);
       setListGoodsType(getListGoodsType);
@@ -224,8 +223,8 @@ const UpdatePriceTable = (props) => {
         "DiemLayTraRong",
         listEPlace.find((x) => x.value === selectIdClick.diemLayTraRong)
       );
-      setValue("DonGiaVND", selectIdClick.donGiaVnd);
-      setValue("DonGiaUSD", selectIdClick.donGiaUsd);
+      setValue("DonGia", selectIdClick.donGia);
+      setValue("LoaiTienTe", selectIdClick.loaiTienTe);
       setValue("MaDVT", selectIdClick.maDVT);
       setValue("MaPTVC", selectIdClick.maPTVC);
       setValue("MaLoaiPhuongTien", selectIdClick.maLoaiPhuongTien);
@@ -344,8 +343,8 @@ const UpdatePriceTable = (props) => {
           : data.DiemLayTraRong.value,
         MaPTVC: data.MaPTVC,
         MaLoaiPhuongTien: data.MaLoaiPhuongTien,
-        DonGiaVnd: data.DonGiaVND,
-        DonGiaUsd: !data.DonGiaUSD ? null : data.DonGiaUSD,
+        DonGia: data.DonGia,
+        LoaiTienTe: data.LoaiTienTe,
         MaDVT: data.MaDVT,
         MaLoaiHangHoa: data.MaLoaiHangHoa,
         NgayHetHieuLuc: !data.NgayHetHieuLuc
@@ -492,8 +491,8 @@ const UpdatePriceTable = (props) => {
                     <th>Điểm Đóng Hàng(*)</th>
                     <th>Điểm Trả Hàng(*)</th>
                     <th> Điểm Lấy/Trả Rỗng</th>
-                    <th>Đơn Giá VND(*)</th>
-                    <th>Đơn Giá USD</th>
+                    <th>Đơn Giá (*)</th>
+                    <th>Loại Tiền Tệ(*)</th>
                     <th>Đơn vị tính(*)</th>
                     <th>Phương Thức Vận Chuyển(*)</th>
                     <th>Loại phương tiện(*)</th>
@@ -593,27 +592,38 @@ const UpdatePriceTable = (props) => {
                         <input
                           type="text"
                           className="form-control"
-                          id="DonGiaVND"
-                          {...register(`DonGiaVND`, Validate.DonGiaVND)}
+                          id="DonGia"
+                          {...register(`DonGia`, Validate.DonGia)}
                         />
-                        {errors.DonGiaVND && (
+                        {errors.DonGia && (
                           <span className="text-danger">
-                            {errors.DonGiaVND.message}
+                            {errors.DonGia.message}
                           </span>
                         )}
                       </div>
                     </td>
                     <td>
                       <div className="form-group">
-                        <input
-                          type="text"
+                        <select
                           className="form-control"
-                          id="DonGiaUSD"
-                          {...register(`DonGiaUSD`, Validate.DonGiaUSD)}
-                        />
-                        {errors.DonGiaUSD && (
+                          {...register(`LoaiTienTe`, Validate.LoaiTienTe)}
+                        >
+                          <option value="">Chọn loại tiền tệ</option>
+                          {listPriceTrade &&
+                            listPriceTrade.map((val) => {
+                              return (
+                                <option
+                                  value={val.maLoaiTienTe}
+                                  key={val.maLoaiTienTe}
+                                >
+                                  {val.tenLoaiTienTe}
+                                </option>
+                              );
+                            })}
+                        </select>
+                        {errors.LoaiTienTe && (
                           <span className="text-danger">
-                            {errors.DonGiaUSD.message}
+                            {errors.LoaiTienTe.message}
                           </span>
                         )}
                       </div>

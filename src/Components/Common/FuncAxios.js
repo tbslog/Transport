@@ -4,7 +4,7 @@ import Cookies from "js-cookie";
 import jwt_decode from "jwt-decode";
 import { Buffer } from "buffer";
 
-//const Host = "https://apitest.tbslogistics.com.vn/api/";
+//const Host = "https://api.tbslogistics.com.vn/api/";
 const Host = "https://localhost:5001/api/";
 //const Host = "http://192.168.0.254:8088/api/";
 
