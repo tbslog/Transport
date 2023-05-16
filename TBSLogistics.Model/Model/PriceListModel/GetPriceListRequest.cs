@@ -17,8 +17,8 @@ namespace TBSLogistics.Model.Model.PriceListModel
         public string SoHopDongCha { get; set; }
         public string MaKh { get; set; }
         public string TenKH { get; set; }
-        public decimal DonGiaVnd { get; set; }
-        public double? DonGiaUsd { get; set; }
+        public decimal DonGia { get; set; }
+        public string LoaiTienTe { get; set; }
         public string MaLoaiPhuongTien { get; set; }
         public string MaLoaiHangHoa { get; set; }
         public string MaLoaiDoiTac { get; set; }
@@ -40,8 +40,8 @@ namespace TBSLogistics.Model.Model.PriceListModel
         public string SoHopDongCha { get; set; }
         public string MaKh { get; set; }
         public string TenKH { get; set; }
-        public decimal DonGiaVnd { get; set; }
-        public double? DonGiaUsd { get; set; }
+        public decimal DonGia { get; set; }
+        public string LoaiTienTe { get; set; }
         public string MaLoaiPhuongTien { get; set; }
         public string MaLoaiHangHoa { get; set; }
         public string MaLoaiDoiTac { get; set; }

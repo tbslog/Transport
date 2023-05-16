@@ -15,7 +15,7 @@ namespace TBSLogistics.Data.TMS
         public string MaHopDong { get; set; }
         public string MaPtvc { get; set; }
         public string MaLoaiPhuongTien { get; set; }
-        public decimal DonGiaVnd { get; set; }
+        public decimal DonGia { get; set; }
         public string MaDvt { get; set; }
         public string MaLoaiHangHoa { get; set; }
         public string MaLoaiDoiTac { get; set; }
@@ -32,7 +32,7 @@ namespace TBSLogistics.Data.TMS
         public int DiemDau { get; set; }
         public int DiemCuoi { get; set; }
         public string MaAccount { get; set; }
-        public double? DonGiaUsd { get; set; }
+        public string LoaiTienTe { get; set; }
 
         public virtual AccountOfCustomer MaAccountNavigation { get; set; }
         public virtual HopDongVaPhuLuc MaHopDongNavigation { get; set; }

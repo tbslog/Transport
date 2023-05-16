@@ -14,6 +14,7 @@ namespace TBSLogistics.Model.Model.BillModel
         public string ContNo { get; set; }
         public DateTime? CutOffDate { get; set; }
         public DateTime createdTime { get; set; }
+        public DateTime? ThoiGianHoanThanh { get; set; }
         public string DiemDau { get; set; }
         public string DiemCuoi { get; set; }
         public string DiemLayRong { get; set; }
@@ -32,6 +33,8 @@ namespace TBSLogistics.Model.Model.BillModel
         public string TenNCC { get; set; }
         public decimal? DonGiaKH { get; set; }
         public decimal? DonGiaNCC { get; set; }
+        public string LoaiTienTeKH { get; set; }
+        public string LoaiTienTeNCC { get; set; }
         public decimal DoanhThu { get; set; }
         public decimal LoiNhuan { get; set; }
         public decimal ChiPhiHopDong { get; set; }

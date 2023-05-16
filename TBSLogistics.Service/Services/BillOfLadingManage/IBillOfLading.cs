@@ -44,5 +44,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
         Task<BoolActionResult> CreateDoc(CreateDoc request);
         Task<BoolActionResult> SendMailToSuppliers(GetIdHandling handlingIds);
         Task<BoolActionResult> RestartHandling(long handlingId);
-    }
+        Task<BoolActionResult> CancelTransport(string transportId);
+
+	}
 }

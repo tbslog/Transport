@@ -53,6 +53,8 @@ namespace TBSLogistics.Data.TMS
         public int? DiemLayRong { get; set; }
         public int? TongVanDonGhep { get; set; }
         public int? ThuTuGiaoHang { get; set; }
+        public string LoaiTienTeKh { get; set; }
+        public string LoaiTienTeNcc { get; set; }
 
         public virtual BangGia BangGiaKhNavigation { get; set; }
         public virtual BangGia BangGiaNccNavigation { get; set; }

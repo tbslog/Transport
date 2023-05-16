@@ -25,197 +25,207 @@ using TBSLogistics.Service.Services.PricelistManage;
 
 namespace TBSLogistics.ApplicationAPI.Controllers
 {
-    [Authorize]
-    [Route("api/[controller]")]
-    [ApiController]
-    public class BillsController : ControllerBase
-    {
+	[Authorize]
+	[Route("api/[controller]")]
+	[ApiController]
+	public class BillsController : ControllerBase
+	{
 
-        private readonly IBill _bill;
-        private readonly IPaginationService _uriService;
-        private readonly ICommon _common;
+		private readonly IBill _bill;
+		private readonly IPriceTable _priceTable;
+		private readonly IPaginationService _uriService;
+		private readonly ICommon _common;
 
-        public BillsController(IBill bill, IPaginationService uriService, ICommon common)
-        {
-            _common = common;
-            _uriService = uriService;
-            _bill = bill;
-        }
+		public BillsController(IBill bill, IPaginationService uriService, ICommon common, IPriceTable priceTable)
+		{
+			_priceTable = priceTable;
+			_common = common;
+			_uriService = uriService;
+			_bill = bill;
+		}
 
-        [HttpGet]
-        [Route("[action]")]
-        public async Task<IActionResult> GetListTransportByCustomerId(string customerId, int ky, [FromQuery] PaginationFilter filter)
-        {
-            var checkPermission = await _common.CheckPermission("G0001");
-            if (checkPermission.isSuccess == false)
-            {
-                return BadRequest(checkPermission.Message);
-            }
+		[HttpGet]
+		[Route("[action]")]
+		public async Task<IActionResult> GetListTransportByCustomerId(string customerId, int ky, [FromQuery] PaginationFilter filter)
+		{
+			var checkPermission = await _common.CheckPermission("G0001");
+			if (checkPermission.isSuccess == false)
+			{
+				return BadRequest(checkPermission.Message);
+			}
 
-            var route = Request.Path.Value;
-            var pagedData = await _bill.GetListTransportByCustomerId(customerId, ky, filter);
+			var route = Request.Path.Value;
+			var pagedData = await _bill.GetListTransportByCustomerId(customerId, ky, filter);
 
-            var pagedReponse = PaginationHelper.CreatePagedReponse<ListVanDon>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _uriService, route);
-            return Ok(pagedReponse);
-        }
+			var pagedReponse = PaginationHelper.CreatePagedReponse<ListVanDon>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _uriService, route);
+			return Ok(pagedReponse);
+		}
 
-        [HttpGet]
-        [Route("[action]")]
-        public async Task<IActionResult> GetBillByCustomerId(string customerId, DateTime fromDate, DateTime toDate)
-        {
-            var checkPermission = await _common.CheckPermission("G0001");
-            if (checkPermission.isSuccess == false)
-            {
-                return BadRequest(checkPermission.Message);
-            }
-            var billResult = await _bill.GetBillByCustomerId(customerId, fromDate, toDate);
+		[HttpGet]
+		[Route("[action]")]
+		public async Task<IActionResult> GetBillByCustomerId(string customerId, DateTime fromDate, DateTime toDate)
+		{
+			var checkPermission = await _common.CheckPermission("G0001");
+			if (checkPermission.isSuccess == false)
+			{
+				return BadRequest(checkPermission.Message);
+			}
+			var billResult = await _bill.GetBillByCustomerId(customerId, fromDate, toDate);
 
-            return Ok(billResult);
-        }
+			return Ok(billResult);
+		}
 
-        [HttpGet]
-        [Route("[action]")]
-        public async Task<IActionResult> GetBillByTransportId(string transportId, long? handlingId = null)
-        {
-            var checkPermission = await _common.CheckPermission("G0001");
-            if (checkPermission.isSuccess == false)
-            {
-                return BadRequest(checkPermission.Message);
-            }
+		[HttpGet]
+		[Route("[action]")]
+		public async Task<IActionResult> GetBillByTransportId(string transportId, long? handlingId = null)
+		{
+			var checkPermission = await _common.CheckPermission("G0001");
+			if (checkPermission.isSuccess == false)
+			{
+				return BadRequest(checkPermission.Message);
+			}
 
-            var data = await _bill.GetBillByTransportId(transportId, handlingId);
-            return Ok(data);
-        }
+			var data = await _bill.GetBillByTransportId(transportId, handlingId);
+			return Ok(data);
+		}
 
-        [HttpGet]
-        [Route("[action]")]
-        public async Task<IActionResult> GetListBillHandling([FromQuery] PaginationFilter filter)
-        {
-            var checkPermission = await _common.CheckPermission("G0001");
-            if (checkPermission.isSuccess == false)
-            {
-                return BadRequest(checkPermission.Message);
-            }
+		[HttpGet]
+		[Route("[action]")]
+		public async Task<IActionResult> GetListBillHandling([FromQuery] PaginationFilter filter)
+		{
+			var checkPermission = await _common.CheckPermission("G0001");
+			if (checkPermission.isSuccess == false)
+			{
+				return BadRequest(checkPermission.Message);
+			}
 
-            var route = Request.Path.Value;
-            var pagedData = await _bill.GetListBillHandling(filter);
+			var route = Request.Path.Value;
+			var pagedData = await _bill.GetListBillHandling(filter);
 
-            var pagedReponse = PaginationHelper.CreatePagedReponse<ListBillHandling>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _uriService, route);
-            return Ok(pagedReponse);
-        }
+			var pagedReponse = PaginationHelper.CreatePagedReponse<ListBillHandling>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _uriService, route);
+			return Ok(pagedReponse);
+		}
 
-        [HttpGet]
-        [Route("[action]")]
-        public async Task<IActionResult> ListBillByTransport([FromQuery] PaginationFilter filter)
-        {
-            var checkPermission = await _common.CheckPermission("G0001");
-            if (checkPermission.isSuccess == false)
-            {
-                return BadRequest(checkPermission.Message);
-            }
+		[HttpGet]
+		[Route("[action]")]
+		public async Task<IActionResult> ListBillByTransport([FromQuery] PaginationFilter filter)
+		{
+			var checkPermission = await _common.CheckPermission("G0001");
+			if (checkPermission.isSuccess == false)
+			{
+				return BadRequest(checkPermission.Message);
+			}
 
-            var route = Request.Path.Value;
-            var pagedData = await _bill.GetListBillWeb(filter);
-            var pagedReponse = PaginationHelper.CreatePagedReponse<ListBillTransportWeb>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _uriService, route); ;
-            return Ok(pagedReponse);
-        }
+			var route = Request.Path.Value;
+			var pagedData = await _bill.GetListBillWeb(filter);
+			var pagedReponse = PaginationHelper.CreatePagedReponse<ListBillTransportWeb>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _uriService, route); ;
+			return Ok(pagedReponse);
+		}
 
-        [HttpGet]
-        [Route("[action]")]
-        public async Task<IActionResult> GetListKy(string customerId)
-        {
-            var checkPermission = await _common.CheckPermission("G0001");
-            if (checkPermission.isSuccess == false)
-            {
-                return BadRequest(checkPermission.Message);
-            }
-            var data = await _bill.GetListKyThanhToan(customerId);
+		[HttpGet]
+		[Route("[action]")]
+		public async Task<IActionResult> GetListKy(string customerId)
+		{
+			var checkPermission = await _common.CheckPermission("G0001");
+			if (checkPermission.isSuccess == false)
+			{
+				return BadRequest(checkPermission.Message);
+			}
+			var data = await _bill.GetListKyThanhToan(customerId);
 
-            return Ok(data);
-        }
+			return Ok(data);
+		}
 
-        [HttpGet]
-        [Route("[action]")]
-        public async Task<IActionResult> ExportExcelBill([FromQuery] PaginationFilter filter)
-        {
-            await Task.Yield();
-            var stream = new MemoryStream();
-            filter.PageNumber = 1;
-            filter.PageSize = 500000;
-            var data = await _bill.GetListBillHandling(filter);
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-            using (var package = new ExcelPackage(stream))
-            {
-                var workSheet = package.Workbook.Worksheets.Add("DieuPhoi");
-                workSheet.Cells[1, 1].Value = "Booking No";
-                workSheet.Cells[1, 2].Value = "CONT NO";
-                workSheet.Cells[1, 3].Value = "Thời Gian Tạo";
-                workSheet.Cells[1, 4].Value = "Ngày CUT OFF ";
-                workSheet.Cells[1, 5].Value = "Loại Vận Đơn";
-                workSheet.Cells[1, 6].Value = "Loại Hàng Hóa";
-                workSheet.Cells[1, 7].Value = "Loại Phương Tiện";
-                workSheet.Cells[1, 8].Value = "Phương Thức Vận Chuyển";
-                workSheet.Cells[1, 9].Value = "Khách Hàng";
-                workSheet.Cells[1, 10].Value = "Account";
-                workSheet.Cells[1, 11].Value = "Đơn Vị Vận Tải";
-                workSheet.Cells[1, 12].Value = "Điểm Đóng Hàng";
-                workSheet.Cells[1, 13].Value = "Điểm Hạ Hàng";
-                workSheet.Cells[1, 14].Value = "Điểm Lấy Rỗng";
-                workSheet.Cells[1, 15].Value = "Điểm Trả Rỗng";
-                workSheet.Cells[1, 16].Value = "Đơn Giá Khách Hàng";
-                workSheet.Cells[1, 17].Value = "Đơn Giá Nhà Cung Cấp";
-                workSheet.Cells[1, 18].Value = "Doanh Thu";
-                workSheet.Cells[1, 19].Value = "Lợi Nhuận";
-                workSheet.Cells[1, 20].Value = "Phụ Phí Hợp Đồng";
-                workSheet.Cells[1, 21].Value = "Phụ Phí Phát Sinh";
+		[HttpGet]
+		[Route("[action]")]
+		public async Task<IActionResult> ExportExcelBill([FromQuery] PaginationFilter filter)
+		{
+			await Task.Yield();
+			var stream = new MemoryStream();
+			filter.PageNumber = 1;
+			filter.PageSize = 500000;
+			var data = await _bill.GetListBillHandling(filter);
+			ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+			using (var package = new ExcelPackage(stream))
+			{
+				var workSheet = package.Workbook.Worksheets.Add("DieuPhoi");
+				workSheet.Cells[1, 1].Value = "Booking No";
+				workSheet.Cells[1, 2].Value = "CONT NO";
+				workSheet.Cells[1, 3].Value = "Thời Gian Tạo";
+				workSheet.Cells[1, 4].Value = "Ngày CUT OFF";
+				workSheet.Cells[1, 5].Value = "Thời Gian Hoàn Thành";
+				workSheet.Cells[1, 6].Value = "Loại Vận Đơn";
+				workSheet.Cells[1, 7].Value = "Loại Hàng Hóa";
+				workSheet.Cells[1, 8].Value = "Loại Phương Tiện";
+				workSheet.Cells[1, 9].Value = "Phương Thức Vận Chuyển";
+				workSheet.Cells[1, 10].Value = "Khách Hàng";
+				workSheet.Cells[1, 11].Value = "Account";
+				workSheet.Cells[1, 12].Value = "Đơn Vị Vận Tải";
+				workSheet.Cells[1, 13].Value = "Điểm Đóng Hàng";
+				workSheet.Cells[1, 14].Value = "Điểm Hạ Hàng";
+				workSheet.Cells[1, 15].Value = "Điểm Lấy Rỗng";
+				workSheet.Cells[1, 16].Value = "Điểm Trả Rỗng";
+				workSheet.Cells[1, 17].Value = "Đơn Giá Khách Hàng";
+				workSheet.Cells[1, 18].Value = "Đơn Vị Tiền Tệ";
+				workSheet.Cells[1, 19].Value = "Đơn Giá Quy Đổi";
+				workSheet.Cells[1, 20].Value = "Đơn Giá Nhà Cung Cấp";
+				workSheet.Cells[1, 21].Value = "Đơn Vị Tiền Tệ";
+				workSheet.Cells[1, 22].Value = "Đơn Giá Quy Đổi";
+				workSheet.Cells[1, 23].Value = "Doanh Thu";
+				workSheet.Cells[1, 24].Value = "Lợi Nhuận";
+				workSheet.Cells[1, 25].Value = "Phụ Phí Hợp Đồng";
+				workSheet.Cells[1, 26].Value = "Phụ Phí Phát Sinh";
+				int row = 2;
+				foreach (var item in data.dataResponse)
+				{
+					workSheet.Cells[row, 1].Value = item.MaVanDonKH;
+					workSheet.Cells[row, 2].Value = item.ContNo;
+					workSheet.Cells[row, 3].Value = item.createdTime;
+					workSheet.Cells[row, 4].Value = item.CutOffDate;
+					workSheet.Cells[row, 5].Value = item.ThoiGianHoanThanh;
+					workSheet.Cells[row, 6].Value = item.LoaiVanDon == "nhap" ? "Nhập" : "Xuất";
+					workSheet.Cells[row, 7].Value = item.LoaiHangHoa;
+					workSheet.Cells[row, 8].Value = item.LoaiPhuongTien;
+					workSheet.Cells[row, 9].Value = item.MaPTVC;
+					workSheet.Cells[row, 10].Value = item.TenKH;
+					workSheet.Cells[row, 11].Value = item.AccountName;
+					workSheet.Cells[row, 12].Value = item.TenNCC;
+					workSheet.Cells[row, 13].Value = item.DiemDau;
+					workSheet.Cells[row, 14].Value = item.DiemCuoi;
+					workSheet.Cells[row, 15].Value = item.DiemLayRong;
+					workSheet.Cells[row, 16].Value = item.DiemTraRong;
+					workSheet.Cells[row, 17].Value = item.DonGiaKH;
+					workSheet.Cells[row, 18].Value = item.LoaiTienTeKH;
+					workSheet.Cells[row, 19].Value = item.DonGiaKH * (decimal)await _priceTable.GetPriceTradeNow(item.LoaiTienTeKH);
+					workSheet.Cells[row, 20].Value = item.DonGiaNCC;
+					workSheet.Cells[row, 21].Value = item.LoaiTienTeNCC;
+					workSheet.Cells[row, 22].Value = item.DonGiaNCC * (decimal)await _priceTable.GetPriceTradeNow(item.LoaiTienTeNCC); ;
+					workSheet.Cells[row, 23].Value = item.DoanhThu;
+					workSheet.Cells[row, 24].Value = item.LoiNhuan;
+					workSheet.Cells[row, 25].Value = item.ChiPhiHopDong;
+					workSheet.Cells[row, 26].Value = item.ChiPhiPhatSinh;
+					row++;
+				}
 
-                int row = 2;
-                foreach (var item in data.dataResponse)
-                {
-                    workSheet.Cells[row, 1].Value = item.MaVanDonKH;
-                    workSheet.Cells[row, 2].Value = item.ContNo;
-                    workSheet.Cells[row, 3].Value = item.createdTime;
-                    workSheet.Cells[row, 4].Value = item.CutOffDate;
-                    workSheet.Cells[row, 5].Value = item.LoaiVanDon == "nhap" ? "Nhập" : "Xuất";
-                    workSheet.Cells[row, 6].Value = item.LoaiHangHoa;
-                    workSheet.Cells[row, 7].Value = item.LoaiPhuongTien;
-                    workSheet.Cells[row, 8].Value = item.MaPTVC;
-                    workSheet.Cells[row, 9].Value = item.TenKH;
-                    workSheet.Cells[row, 10].Value = item.AccountName;
-                    workSheet.Cells[row, 11].Value = item.TenNCC;
-                    workSheet.Cells[row, 12].Value = item.DiemDau;
-                    workSheet.Cells[row, 13].Value = item.DiemCuoi;
-                    workSheet.Cells[row, 14].Value = item.DiemLayRong;
-                    workSheet.Cells[row, 15].Value = item.DiemTraRong;
-                    workSheet.Cells[row, 16].Value = item.DonGiaKH;
-                    workSheet.Cells[row, 17].Value = item.DonGiaNCC;
-                    workSheet.Cells[row, 18].Value = item.DoanhThu;
-                    workSheet.Cells[row, 19].Value = item.LoiNhuan;
-                    workSheet.Cells[row, 20].Value = item.ChiPhiHopDong;
-                    workSheet.Cells[row, 21].Value = item.ChiPhiPhatSinh;
-                    row++;
-                }
 
+				workSheet.Cells["C2:E" + row].Style.Numberformat.Format = "DD-MM-YYYY HH:mm";
+				workSheet.Cells["A1:Z1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+				workSheet.Cells["A1:Z1"].Style.Font.Bold = true;
+				workSheet.Cells["A1:Z1"].Style.Font.Size = 14;
 
-                workSheet.Cells["C2:D" + row].Style.Numberformat.Format = "DD-MM-YYYY HH:mm";
-                workSheet.Cells["D2:E" + row].Style.Numberformat.Format = "DD-MM-YYYY HH:mm";
-                workSheet.Cells["A1:U1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                workSheet.Cells["A1:U1"].Style.Font.Bold = true;
-                workSheet.Cells["A1:U1"].Style.Font.Size = 14;
+				workSheet.Cells[workSheet.Dimension.Address].AutoFitColumns();
+				workSheet.Cells[workSheet.Dimension.Address].Style.Border.Top.Style = ExcelBorderStyle.Thin;
+				workSheet.Cells[workSheet.Dimension.Address].Style.Border.Left.Style = ExcelBorderStyle.Thin;
+				workSheet.Cells[workSheet.Dimension.Address].Style.Border.Right.Style = ExcelBorderStyle.Thin;
+				workSheet.Cells[workSheet.Dimension.Address].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
 
-                workSheet.Cells[workSheet.Dimension.Address].AutoFitColumns();
-                workSheet.Cells[workSheet.Dimension.Address].Style.Border.Top.Style = ExcelBorderStyle.Thin;
-                workSheet.Cells[workSheet.Dimension.Address].Style.Border.Left.Style = ExcelBorderStyle.Thin;
-                workSheet.Cells[workSheet.Dimension.Address].Style.Border.Right.Style = ExcelBorderStyle.Thin;
-                workSheet.Cells[workSheet.Dimension.Address].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+				package.Save();
+			}
+			stream.Position = 0;
+			string excelName = $"HoaDon " + DateTime.Now.ToString("dd-MM-yyyy") + ".xlsx";
 
-                package.Save();
-            }
-            stream.Position = 0;
-            string excelName = $"HoaDon " + DateTime.Now.ToString("dd-MM-yyyy") + ".xlsx";
-
-            //return File(stream, "application/octet-stream", excelName);  
-            return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", excelName);
-        }
-    }
+			//return File(stream, "application/octet-stream", excelName);  
+			return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", excelName);
+		}
+	}
 }

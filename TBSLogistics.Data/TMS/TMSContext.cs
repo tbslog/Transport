@@ -30,6 +30,7 @@ namespace TBSLogistics.Data.TMS
 		public virtual DbSet<DiaDiem> DiaDiem { get; set; }
 		public virtual DbSet<DieuPhoi> DieuPhoi { get; set; }
 		public virtual DbSet<DonViTinh> DonViTinh { get; set; }
+		public virtual DbSet<ExchangeRate> ExchangeRate { get; set; }
 		public virtual DbSet<FieldOfFunction> FieldOfFunction { get; set; }
 		public virtual DbSet<FunctionsOfSystems> FunctionsOfSystems { get; set; }
 		public virtual DbSet<HopDongVaPhuLuc> HopDongVaPhuLuc { get; set; }
@@ -45,6 +46,7 @@ namespace TBSLogistics.Data.TMS
 		public virtual DbSet<LoaiPhuongTien> LoaiPhuongTien { get; set; }
 		public virtual DbSet<LoaiRomooc> LoaiRomooc { get; set; }
 		public virtual DbSet<LoaiSpdv> LoaiSpdv { get; set; }
+		public virtual DbSet<LoaiTienTe> LoaiTienTe { get; set; }
 		public virtual DbSet<Log> Log { get; set; }
 		public virtual DbSet<LogGps> LogGps { get; set; }
 		public virtual DbSet<NguoiDung> NguoiDung { get; set; }
@@ -88,7 +90,7 @@ namespace TBSLogistics.Data.TMS
                  .AddJsonFile("appsettings.json")
                  .Build();
 
-                optionsBuilder.UseSqlServer(configuration.GetConnectionString("TMS_Local"));
+                optionsBuilder.UseSqlServer(configuration.GetConnectionString("TMS_Cloud"));
             }
         }
 
@@ -172,11 +174,13 @@ namespace TBSLogistics.Data.TMS
 
 				entity.Property(e => e.DiemDau).HasDefaultValueSql("((1))");
 
-				entity.Property(e => e.DonGiaUsd).HasColumnName("DonGiaUSD");
+				entity.Property(e => e.DonGia).HasColumnType("decimal(18, 0)");
 
-				entity.Property(e => e.DonGiaVnd)
-					.HasColumnType("decimal(18, 0)")
-					.HasColumnName("DonGiaVND");
+				entity.Property(e => e.LoaiTienTe)
+					.IsRequired()
+					.HasMaxLength(5)
+					.IsUnicode(false)
+					.HasDefaultValueSql("('VND')");
 
 				entity.Property(e => e.MaAccount)
 					.HasMaxLength(8)
@@ -417,6 +421,20 @@ namespace TBSLogistics.Data.TMS
 					.HasMaxLength(8)
 					.IsUnicode(false);
 
+				entity.Property(e => e.LoaiTienTeKh)
+					.IsRequired()
+					.HasMaxLength(5)
+					.IsUnicode(false)
+					.HasColumnName("LoaiTienTeKH")
+					.HasDefaultValueSql("('VND')");
+
+				entity.Property(e => e.LoaiTienTeNcc)
+					.IsRequired()
+					.HasMaxLength(5)
+					.IsUnicode(false)
+					.HasColumnName("LoaiTienTeNCC")
+					.HasDefaultValueSql("('VND')");
+
 				entity.Property(e => e.MaChuyen)
 					.IsRequired()
 					.HasMaxLength(21)
@@ -522,6 +540,20 @@ namespace TBSLogistics.Data.TMS
 					.IsRequired()
 					.HasMaxLength(50)
 					.HasColumnName("TenDVT");
+			});
+
+			modelBuilder.Entity<ExchangeRate>(entity =>
+			{
+				entity.Property(e => e.Id).HasColumnName("ID");
+
+				entity.Property(e => e.CurrencyCode)
+					.IsRequired()
+					.HasMaxLength(5)
+					.IsUnicode(false);
+
+				entity.Property(e => e.CurrencyName)
+					.IsRequired()
+					.HasMaxLength(30);
 			});
 
 			modelBuilder.Entity<FieldOfFunction>(entity =>
@@ -859,6 +891,20 @@ namespace TBSLogistics.Data.TMS
 					.IsRequired()
 					.HasMaxLength(50)
 					.HasColumnName("TenLoaiSPDV");
+			});
+
+			modelBuilder.Entity<LoaiTienTe>(entity =>
+			{
+				entity.HasNoKey();
+
+				entity.Property(e => e.MaLoaiTienTe)
+					.IsRequired()
+					.HasMaxLength(5)
+					.IsUnicode(false);
+
+				entity.Property(e => e.TenLoaiTienTe)
+					.IsRequired()
+					.HasMaxLength(30);
 			});
 
 			modelBuilder.Entity<Log>(entity =>
@@ -1644,7 +1690,6 @@ namespace TBSLogistics.Data.TMS
 				entity.HasOne(d => d.MaAccountNavigation)
 					.WithMany(p => p.ValidateDataByCustomer)
 					.HasForeignKey(d => d.MaAccount)
-					.OnDelete(DeleteBehavior.ClientSetNull)
 					.HasConstraintName("FK__ValidateD__MaAcc__2CC890AD");
 
 				entity.HasOne(d => d.MaKhNavigation)

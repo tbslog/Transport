@@ -286,6 +286,7 @@ namespace TBSLogistics.Service.Services.ContractManage
                                tt
                            };
 
+            var quyr = listData.ToQueryString();
 
             if (!string.IsNullOrEmpty(filter.Keyword))
             {

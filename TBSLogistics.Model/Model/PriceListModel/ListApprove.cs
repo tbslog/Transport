@@ -20,8 +20,8 @@ namespace TBSLogistics.Model.Model.PriceListModel
         public string MaHopDong { get; set; }
         public string TenHopDong { get; set; }
         public string PTVC { get; set; }
-        public decimal DonGiaVnd { get; set; }
-        public double? DonGiaUsd { get; set; }
+        public decimal DonGia { get; set; }
+        public string LoaiTienTe { get; set; }
         public string MaLoaiPhuongTien { get; set; }
         public string DVT { get; set; }
         public string MaLoaiHangHoa { get; set; }

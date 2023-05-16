@@ -894,30 +894,6 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 							return new BoolActionResult { isSuccess = false, Message = "Không được để trống Tổng Số Kiện" };
 						}
 					}
-
-					//if (checkFieldRequired.Contains("F0000004"))
-					//{
-					//	if (request.arrHandlings.Where(x => x.KhoiLuong == null).Count() > 0)
-					//	{
-					//		return new BoolActionResult { isSuccess = false, Message = "Không được để trống Khối Lượng" };
-					//	}
-					//}
-
-					//if (checkFieldRequired.Contains("F0000005"))
-					//{
-					//	if (request.arrHandlings.Where(x => x.TheTich == null).Count() > 0)
-					//	{
-					//		return new BoolActionResult { isSuccess = false, Message = "Không được để trống Số Khối" };
-					//	}
-					//}
-
-					//if (checkFieldRequired.Contains("F0000006"))
-					//{
-					//	if (request.arrHandlings.Where(x => x.SoKien == null).Count() > 0)
-					//	{
-					//		return new BoolActionResult { isSuccess = false, Message = "Không được để trống Số Kiện" };
-					//	}
-					//}
 				}
 
 				var checkPlace = await _context.DiaDiem.Where(x => (x.MaDiaDiem == request.DiemDau || x.MaDiaDiem == request.DiemCuoi) && x.DiaDiemCha != null).ToListAsync();
@@ -1187,7 +1163,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 						return new BoolActionResult { isSuccess = false, Message = " Tài xế không tồn tại \r\n" };
 					}
 
-					var checkVehicle = await CloneVehicle(request.MaSoXe, request.PTVanChuyen);
+					var checkVehicle = await CloneVehicle(request.MaSoXe, request.PTVanChuyen, request.DonViVanTai);
 					if (!checkVehicle.isSuccess)
 					{
 						return new BoolActionResult { isSuccess = false, Message = checkVehicle.Message };
@@ -1218,7 +1194,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 					if (!string.IsNullOrEmpty(request.MaSoXe))
 					{
 
-						var checkVehicle = await CloneVehicle(request.MaSoXe, request.PTVanChuyen);
+						var checkVehicle = await CloneVehicle(request.MaSoXe, request.PTVanChuyen, request.DonViVanTai);
 
 						if (!checkVehicle.isSuccess)
 						{
@@ -1383,9 +1359,11 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 					checkById.MaDvt = request.DonViTinh;
 					checkById.DonViVanTai = request.DonViVanTai;
 					checkById.BangGiaNcc = priceSup.ID;
-					checkById.DonGiaNcc = priceSup.DonGiaVnd;
+					checkById.DonGiaNcc = priceSup.DonGia;
+					checkById.LoaiTienTeNcc = priceSup.LoaiTienTe;
+					checkById.LoaiTienTeKh = priceCus.LoaiTienTe;
 					checkById.BangGiaKh = priceCus.ID;
-					checkById.DonGiaKh = priceCus.DonGiaVnd;
+					checkById.DonGiaKh = priceCus.DonGia;
 					checkById.SoKien = request.SoKien;
 					checkById.KhoiLuong = request.KhoiLuong;
 					checkById.TheTich = request.TheTich;
@@ -1462,7 +1440,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 			{
 				if (!string.IsNullOrEmpty(request.XeVanChuyen))
 				{
-					var checkVehicle = await CloneVehicle(request.XeVanChuyen, request.PTVanChuyen);
+					var checkVehicle = await CloneVehicle(request.XeVanChuyen, request.PTVanChuyen, request.DonViVanTai);
 
 					if (!checkVehicle.isSuccess)
 					{
@@ -1726,9 +1704,11 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 								checkHandling.MaLoaiPhuongTien = request.PTVanChuyen;
 								checkHandling.DonViVanTai = request.DonViVanTai;
 								checkHandling.BangGiaKh = priceCus.ID;
+								checkHandling.LoaiTienTeKh = priceCus.LoaiTienTe;
+								checkHandling.LoaiTienTeNcc = priceSup.LoaiTienTe;
 								checkHandling.BangGiaNcc = priceSup.ID;
-								checkHandling.DonGiaKh = priceCus.DonGiaVnd;
-								checkHandling.DonGiaNcc = priceSup.DonGiaVnd;
+								checkHandling.DonGiaKh = priceCus.DonGia;
+								checkHandling.DonGiaNcc = priceSup.DonGia;
 								checkHandling.MaRomooc = request.Romooc;
 								checkHandling.ContNo = itemRequest.ContNo;
 								checkHandling.SealNp = itemRequest.SealNP;
@@ -1771,8 +1751,10 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 									DonViVanTai = request.DonViVanTai,
 									BangGiaKh = priceCus.ID,
 									BangGiaNcc = priceSup.ID,
-									DonGiaKh = priceCus.DonGiaVnd,
-									DonGiaNcc = priceSup.DonGiaVnd,
+									DonGiaKh = priceCus.DonGia,
+									LoaiTienTeKh = priceCus.LoaiTienTe,
+									LoaiTienTeNcc = priceSup.LoaiTienTe,
+									DonGiaNcc = priceSup.DonGia,
 									MaRomooc = request.Romooc,
 									ContNo = itemRequest.ContNo,
 									SealNp = itemRequest.SealNP,
@@ -1873,7 +1855,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 						return new BoolActionResult { isSuccess = false, Message = " Tài xế không tồn tại \r\n" };
 					}
 
-					var cloneVehicle = await CloneVehicle(request.XeVanChuyen, request.PTVanChuyen);
+					var cloneVehicle = await CloneVehicle(request.XeVanChuyen, request.PTVanChuyen, request.DonViVanTai);
 					if (!cloneVehicle.isSuccess)
 					{
 						return new BoolActionResult { isSuccess = false, Message = cloneVehicle.Message };
@@ -1898,8 +1880,6 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 							   select new { vd, dp };
 
 					var dataHandling = await data.ToListAsync();
-
-
 
 					foreach (var item in data.Where(x => request.arrTransports.Select(y => y.MaVanDon).Contains(x.dp.MaVanDon)).ToList())
 					{
@@ -2074,7 +2054,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 
 					if (!string.IsNullOrEmpty(request.XeVanChuyen))
 					{
-						var cloneVehicle = await CloneVehicle(request.XeVanChuyen, request.PTVanChuyen);
+						var cloneVehicle = await CloneVehicle(request.XeVanChuyen, request.PTVanChuyen, request.DonViVanTai);
 						if (!cloneVehicle.isSuccess)
 						{
 							return new BoolActionResult { isSuccess = false, Message = cloneVehicle.Message };
@@ -2287,8 +2267,10 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 								item.dp.DonViVanTai = request.DonViVanTai;
 								item.dp.BangGiaKh = priceCus.ID;
 								item.dp.BangGiaNcc = priceSup.ID;
-								item.dp.DonGiaKh = priceCus.DonGiaVnd;
-								item.dp.DonGiaNcc = priceSup.DonGiaVnd;
+								item.dp.LoaiTienTeKh = priceCus.LoaiTienTe;
+								item.dp.LoaiTienTeNcc = priceSup.LoaiTienTe;
+								item.dp.DonGiaKh = priceCus.DonGia;
+								item.dp.DonGiaNcc = priceSup.DonGia;
 								item.dp.MaRomooc = request.Romooc;
 								item.dp.ContNo = itemRequest.ContNo;
 								item.dp.SealNp = itemRequest.SealNP;
@@ -2492,8 +2474,10 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 									DonViVanTai = request.DonViVanTai,
 									BangGiaKh = priceCus.ID,
 									BangGiaNcc = priceSup.ID,
-									DonGiaKh = priceCus.DonGiaVnd,
-									DonGiaNcc = priceSup.DonGiaVnd,
+									DonGiaKh = priceCus.DonGia,
+									DonGiaNcc = priceSup.DonGia,
+									LoaiTienTeKh = priceCus.LoaiTienTe,
+									LoaiTienTeNcc = priceSup.LoaiTienTe,
 									MaRomooc = request.Romooc,
 									ContNo = itemRequest.ContNo,
 									SealNp = itemRequest.SealNP,
@@ -3737,17 +3721,15 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 										}
 
 										//Trường hợp chuyến đã hoàn thành nhưng các chuyến còn lại bị hủy thì đóng vận đơn
-										var listStatus = new List<int>(new int[] { 20, 21, 31, 38 });
+										var listStatus = new List<int>(new int[] { 21, 31, 38 });
 										if (getListHandling.Where(x => listStatus.Contains(x.TrangThai)).Count() > 0)
 										{
-											foreach (var item in getListHandling.Where(x => listStatus.Contains(x.TrangThai)))
+											if (getListHandling.Count() == (getListHandling.Where(x => x.TrangThai == 20).Count() + getListHandling.Where(x => listStatus.Contains(x.TrangThai)).Count()))
 											{
-												if (getListHandling.Where(x => x.MaVanDon == item.MaVanDon).Count() > 1 && getListHandling.Where(x => x.MaVanDon == item.MaVanDon).Count() == getListHandling.Where(x => x.MaVanDon == item.MaVanDon && listStatus.Contains(x.TrangThai)).Count())
-												{
-													data.vd.TrangThai = 44;
-													data.vd.UpdatedTime = DateTime.Now;
-													data.vd.Updater = tempData.UserName;
-												}
+												data.vd.TrangThai = 44;
+												data.vd.UpdatedTime = DateTime.Now;
+												data.vd.Updater = tempData.UserName;
+
 											}
 										}
 
@@ -3882,17 +3864,14 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 										}
 
 										//Trường hợp chuyến đã hoàn thành nhưng các chuyến còn lại bị hủy thì đóng vận đơn
-										var listStatus = new List<int>(new int[] { 20, 21, 31, 38 });
+										var listStatus = new List<int>(new int[] { 21, 31, 38 });
 										if (getListHandling.Where(x => listStatus.Contains(x.TrangThai)).Count() > 0)
 										{
-											foreach (var item in getListHandling.Where(x => listStatus.Contains(x.TrangThai)))
+											if (getListHandling.Count() == (getListHandling.Where(x => x.TrangThai == 20).Count() + getListHandling.Where(x => listStatus.Contains(x.TrangThai)).Count()))
 											{
-												if (getListHandling.Where(x => x.MaVanDon == item.MaVanDon).Count() > 1 && getListHandling.Where(x => x.MaVanDon == item.MaVanDon).Count() == getListHandling.Where(x => x.MaVanDon == item.MaVanDon && listStatus.Contains(x.TrangThai)).Count())
-												{
-													data.vd.TrangThai = 44;
-													data.vd.UpdatedTime = DateTime.Now;
-													data.vd.Updater = tempData.UserName;
-												}
+												data.vd.TrangThai = 44;
+												data.vd.UpdatedTime = DateTime.Now;
+												data.vd.Updater = tempData.UserName;
 											}
 										}
 
@@ -4007,17 +3986,14 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 									}
 
 									//Trường hợp chuyến đã hoàn thành nhưng các chuyến còn lại bị hủy thì đóng vận đơn
-									var listStatus = new List<int>(new int[] { 20, 21, 31, 38 });
+									var listStatus = new List<int>(new int[] { 21, 31, 38 });
 									if (getListHandling.Where(x => listStatus.Contains(x.TrangThai)).Count() > 0)
 									{
-										foreach (var item in getListHandling.Where(x => listStatus.Contains(x.TrangThai)))
+										if (getListHandling.Count() == (getListHandling.Where(x => x.TrangThai == 20).Count() + getListHandling.Where(x => listStatus.Contains(x.TrangThai)).Count()))
 										{
-											if (getListHandling.Where(x => x.MaVanDon == item.MaVanDon).Count() > 1 && getListHandling.Where(x => x.MaVanDon == item.MaVanDon).Count() == getListHandling.Where(x => x.MaVanDon == item.MaVanDon && listStatus.Contains(x.TrangThai)).Count())
-											{
-												data.vd.TrangThai = 44;
-												data.vd.UpdatedTime = DateTime.Now;
-												data.vd.Updater = tempData.UserName;
-											}
+											data.vd.TrangThai = 44;
+											data.vd.UpdatedTime = DateTime.Now;
+											data.vd.Updater = tempData.UserName;
 										}
 									}
 
@@ -4841,6 +4817,69 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 			}
 		}
 
+		public async Task<BoolActionResult> CancelTransport(string transportId)
+		{
+			var transaction = await _context.Database.BeginTransactionAsync();
+			try
+			{
+				var checkTransport = await _context.VanDon.Where(x => x.MaVanDon == transportId).FirstOrDefaultAsync();
+
+				if (checkTransport.TrangThai != 9 && checkTransport.TrangThai != 8)
+				{
+					return new BoolActionResult { isSuccess = false, Message = "Vận đơn này không thể hủy" };
+				}
+
+				var getHandlingOfTransport = await _context.DieuPhoi.Where(x => x.MaVanDon == checkTransport.MaVanDon).ToListAsync();
+
+				if (getHandlingOfTransport.Count() == 0)
+				{
+					checkTransport.TrangThai = 11;
+					checkTransport.Updater = tempData.UserName;
+					checkTransport.UpdatedTime = DateTime.Now;
+					_context.Update(checkTransport);
+				}
+				else
+				{
+					if (getHandlingOfTransport.Where(x => x.TrangThai != 19 && x.TrangThai != 27).Count() > 0)
+					{
+						return new BoolActionResult { isSuccess = false, Message = "Không thể hủy cả vận đơn này, vui lòng chọn chuyến để hủy" };
+					}
+					else
+					{
+						checkTransport.TrangThai = 11;
+						checkTransport.Updater = tempData.UserName;
+						checkTransport.UpdatedTime = DateTime.Now;
+						_context.Update(checkTransport);
+
+						getHandlingOfTransport.ForEach(async x =>
+						{
+							x.TrangThai = 21;
+							x.Updater = tempData.UserName;
+							x.UpdatedTime = DateTime.Now;
+							await HandleVehicleStatus(x.TrangThai, x.MaSoXe);
+						});
+					}
+				}
+
+				var result = await _context.SaveChangesAsync();
+
+				if (result > 0)
+				{
+					await transaction.CommitAsync();
+					return new BoolActionResult { isSuccess = true, Message = "Huỷ vận đơn thành công!" };
+				}
+				else
+				{
+					return new BoolActionResult { isSuccess = true, Message = "Huỷ vận đơn thất bại!" };
+				}
+			}
+			catch (Exception ex)
+			{
+
+				throw;
+			}
+		}
+
 		public async Task<BoolActionResult> CancelHandling(int id, string note = null)
 		{
 			var transaction = await _context.Database.BeginTransactionAsync();
@@ -4877,8 +4916,6 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 					{
 						data.dp.GhiChu = data.dp.GhiChu + ",\r\n " + note;
 					}
-
-					await HandleVehicleStatus(data.dp.TrangThai, data.dp.MaSoXe);
 				}
 
 				//var listStatusComplete = new List<int>(new int[] { 18 });
@@ -4900,6 +4937,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 				var result = await _context.SaveChangesAsync();
 				if (result > 0)
 				{
+					await HandleVehicleStatus(data.dp.TrangThai, data.dp.MaSoXe);
 					await _common.Log("BillOfLading", " UserId: " + tempData.UserName + " set Cancel handling " + id);
 					await transaction.CommitAsync();
 					return new BoolActionResult { isSuccess = true, Message = "Đã hủy lệnh điều phối thành công" };
@@ -4969,7 +5007,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 					var listStatus = new List<int>(new int[] { 21, 31, 38 });
 					if (getListHandling.Where(x => listStatus.Contains(x.TrangThai)).Count() > 0)
 					{
-						if (getListHandling.Where(X => X.TrangThai != 20).Count() == getListHandling.Where(x => listStatus.Contains(x.TrangThai)).Count())
+						if (getListHandling.Where(x => x.TrangThai != 20).Count() == getListHandling.Where(x => listStatus.Contains(x.TrangThai)).Count())
 						{
 							data.vd.TrangThai = 44;
 							data.vd.UpdatedTime = DateTime.Now;
@@ -5521,12 +5559,13 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 					return data.Select(x => new GetPriceListRequest()
 					{
 						ID = x.Id,
-						DonGiaVnd = x.DonGiaVnd,
+						DonGia = x.DonGia,
 						MaLoaiPhuongTien = x.MaLoaiPhuongTien,
 						MaLoaiHangHoa = x.MaLoaiHangHoa,
 						MaLoaiDoiTac = x.MaLoaiDoiTac,
 						MaDVT = x.MaDvt,
-						MaPTVC = x.MaPtvc
+						MaPTVC = x.MaPtvc,
+						LoaiTienTe = x.LoaiTienTe,
 					}).FirstOrDefault();
 				}
 				else
@@ -5544,12 +5583,13 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 					return data.Select(x => new GetPriceListRequest()
 					{
 						ID = x.Id,
-						DonGiaVnd = x.DonGiaVnd,
+						DonGia = x.DonGia,
 						MaLoaiPhuongTien = x.MaLoaiPhuongTien,
 						MaLoaiHangHoa = x.MaLoaiHangHoa,
 						MaLoaiDoiTac = x.MaLoaiDoiTac,
 						MaDVT = x.MaDvt,
-						MaPTVC = x.MaPtvc
+						MaPTVC = x.MaPtvc,
+						LoaiTienTe = x.LoaiTienTe,
 					}).FirstOrDefault();
 				}
 			}
@@ -5563,12 +5603,13 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 					return data.Select(x => new GetPriceListRequest()
 					{
 						ID = x.Id,
-						DonGiaVnd = x.DonGiaVnd,
+						DonGia = x.DonGia,
 						MaLoaiPhuongTien = x.MaLoaiPhuongTien,
 						MaLoaiHangHoa = x.MaLoaiHangHoa,
 						MaLoaiDoiTac = x.MaLoaiDoiTac,
 						MaDVT = x.MaDvt,
-						MaPTVC = x.MaPtvc
+						MaPTVC = x.MaPtvc,
+						LoaiTienTe = x.LoaiTienTe,
 					}).FirstOrDefault();
 				}
 				else
@@ -5586,12 +5627,13 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 					return data.Select(x => new GetPriceListRequest()
 					{
 						ID = x.Id,
-						DonGiaVnd = x.DonGiaVnd,
+						DonGia = x.DonGia,
 						MaLoaiPhuongTien = x.MaLoaiPhuongTien,
 						MaLoaiHangHoa = x.MaLoaiHangHoa,
 						MaLoaiDoiTac = x.MaLoaiDoiTac,
 						MaDVT = x.MaDvt,
-						MaPTVC = x.MaPtvc
+						MaPTVC = x.MaPtvc,
+						LoaiTienTe = x.LoaiTienTe,
 					}).FirstOrDefault();
 				}
 			}
@@ -5735,12 +5777,13 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 				return dataPriceTable.Select(x => new GetPriceListRequest()
 				{
 					ID = x.Id,
-					DonGiaVnd = x.DonGiaVnd,
+					DonGia = x.DonGia,
 					MaLoaiPhuongTien = x.MaLoaiPhuongTien,
 					MaLoaiHangHoa = x.MaLoaiHangHoa,
 					MaLoaiDoiTac = x.MaLoaiDoiTac,
 					MaDVT = x.MaDvt,
-					MaPTVC = x.MaPtvc
+					MaPTVC = x.MaPtvc,
+					LoaiTienTe = x.LoaiTienTe,
 				}).FirstOrDefault();
 			}
 			else
@@ -5828,7 +5871,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 			}
 		}
 
-		private async Task<BoolActionResult> CloneVehicle(string vehicleId, string vehicleType)
+		private async Task<BoolActionResult> CloneVehicle(string vehicleId, string vehicleType, string supplierId)
 		{
 			try
 			{
@@ -5836,6 +5879,19 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 
 				if (checkVehicle == null)
 				{
+					if (vehicleId.Length > 10 || vehicleId.Length < 6)
+					{
+						return new BoolActionResult { isSuccess = false, Message = "Biển số xe phải từ 6-10 kí tự" };
+					}
+					if (!Regex.IsMatch(vehicleId, "^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9 aAàÀảẢãÃáÁạẠăĂằẰẳẲẵẴắẮặẶâÂầẦẩẨẫẪấẤậẬbBcCdDđĐeEèÈẻẺẽẼéÉẹẸêÊềỀểỂễỄếẾệỆ fFgGhHiIìÌỉỈĩĨíÍịỊjJkKlLmMnNoOòÒỏỎõÕóÓọỌôÔồỒổỔỗỖốỐộỘơƠờỜởỞỡỠớỚợỢpPqQrRsStTu UùÙủỦũŨúÚụỤưƯừỪửỬữỮứỨựỰvVwWxXyYỳỲỷỶỹỸýÝỵỴzZ]+(?<![_.])$", RegexOptions.IgnoreCase))
+					{
+						return new BoolActionResult { isSuccess = false, Message = "Mã số xe không được chứa ký tự đặc biệt" };
+					}
+					if (!Regex.IsMatch(vehicleId, "^(?![_.])(?![_.])(?!.*[_.]{2})[A-Z0-9]+(?<![_.])$"))
+					{
+						return new BoolActionResult { isSuccess = false, Message = "Mã số xe phải viết hoa" };
+					}
+
 					var newVehicle = new XeVanChuyen()
 					{
 						MaSoXe = vehicleId,
@@ -5845,12 +5901,13 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 						TrangThai = 32,
 						UpdatedTime = DateTime.Now,
 						CreatedTime = DateTime.Now,
+						MaNhaCungCap = supplierId,
 						Creator = tempData.UserName,
 					};
 
 					if (vehicleType.Contains("CONT"))
 					{
-						newVehicle.MaLoaiPhuongTien = vehicleType;
+						newVehicle.MaLoaiPhuongTien = "CONT";
 					}
 
 					await _context.XeVanChuyen.AddAsync(newVehicle);

@@ -31,6 +31,7 @@ namespace TBSLogistics.Model.Model.BillModel
         public string MaSoXe { get; set; }
         public string TaiXe { get; set; }
         public decimal DonGiaKH { get; set; }
+        public string LoaiTienTeKH { get; set; }
         public double PhuPhiHD { get; set; }
         public double PhuPhiPhatSinh { get; set; }
         public string ContNo { get; set; }

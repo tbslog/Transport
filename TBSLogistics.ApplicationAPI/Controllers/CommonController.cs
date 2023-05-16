@@ -11,124 +11,132 @@ using TBSLogistics.Model.Model.UserModel;
 
 namespace TBSLogistics.ApplicationAPI.Controllers
 {
-    [Authorize]
-    [Route("api/[controller]")]
-    [ApiController]
-    public class CommonController : ControllerBase
-    {
-        private readonly TMSContext _tMSContext;
+	[Authorize]
+	[Route("api/[controller]")]
+	[ApiController]
+	public class CommonController : ControllerBase
+	{
+		private readonly TMSContext _tMSContext;
 
-        public CommonController(TMSContext tMSContext)
-        {
-            _tMSContext = tMSContext;
-        }
+		public CommonController(TMSContext tMSContext)
+		{
+			_tMSContext = tMSContext;
+		}
 
-        [HttpGet]
-        [Route("[action]")]
-        public async Task<IActionResult> GetListVehicleType()
-        {
-            var list = await _tMSContext.LoaiPhuongTien.ToListAsync();
-            return Ok(list);
-        }
+		[HttpGet]
+		[Route("[action]")]
+		public async Task<IActionResult> GetListVehicleType()
+		{
+			var list = await _tMSContext.LoaiPhuongTien.ToListAsync();
+			return Ok(list);
+		}
 
-        [HttpGet]
-        [Route("[action]")]
-        public async Task<IActionResult> GetListDocType()
-        {
-            var list = await _tMSContext.LoaiChungTu.ToListAsync();
-            return Ok(list);
-        }
+		[HttpGet]
+		[Route("[action]")]
+		public async Task<IActionResult> GetListDocType()
+		{
+			var list = await _tMSContext.LoaiChungTu.ToListAsync();
+			return Ok(list);
+		}
 
-        [HttpGet]
-        [Route("[action]")]
-        public async Task<IActionResult> GetListDVT()
-        {
-            var list = await _tMSContext.DonViTinh.ToListAsync();
-            return Ok(list);
-        }
+		[HttpGet]
+		[Route("[action]")]
+		public async Task<IActionResult> GetListDVT()
+		{
+			var list = await _tMSContext.DonViTinh.ToListAsync();
+			return Ok(list);
+		}
 
-        [HttpGet]
-        [Route("[action]")]
-        public async Task<IActionResult> GetListGoodsType()
-        {
-            var list = await _tMSContext.LoaiHangHoa.ToListAsync();
-            return Ok(list);
-        }
+		[HttpGet]
+		[Route("[action]")]
+		public async Task<IActionResult> GetListGoodsType()
+		{
+			var list = await _tMSContext.LoaiHangHoa.ToListAsync();
+			return Ok(list);
+		}
 
-        [HttpGet]
-        [Route("[action]")]
-        public async Task<IActionResult> GetListContractType()
-        {
-            var list = await _tMSContext.LoaiHopDong.ToListAsync();
-            return Ok(list);
-        }
+		[HttpGet]
+		[Route("[action]")]
+		public async Task<IActionResult> GetListContractType()
+		{
+			var list = await _tMSContext.LoaiHopDong.ToListAsync();
+			return Ok(list);
+		}
 
-        [HttpGet]
-        [Route("[action]")]
-        public async Task<IActionResult> GetListTransportType()
-        {
-            var list = await _tMSContext.PhuongThucVanChuyen.ToListAsync();
-            return Ok(list);
-        }
+		[HttpGet]
+		[Route("[action]")]
+		public async Task<IActionResult> GetListTransportType()
+		{
+			var list = await _tMSContext.PhuongThucVanChuyen.ToListAsync();
+			return Ok(list);
+		}
 
-        [HttpGet]
-        [Route("[action]")]
-        public async Task<IActionResult> GetListCustommerGroup()
-        {
-            var list = await _tMSContext.NhomKhachHang.ToListAsync();
-            return Ok(list);
-        }
+		[HttpGet]
+		[Route("[action]")]
+		public async Task<IActionResult> GetListCustommerGroup()
+		{
+			var list = await _tMSContext.NhomKhachHang.ToListAsync();
+			return Ok(list);
+		}
 
-        [HttpGet]
-        [Route("[action]")]
-        public async Task<IActionResult> GetListCustommerType()
-        {
-            var list = await _tMSContext.LoaiKhachHang.ToListAsync();
-            return Ok(list);
-        }
+		[HttpGet]
+		[Route("[action]")]
+		public async Task<IActionResult> GetListCustommerType()
+		{
+			var list = await _tMSContext.LoaiKhachHang.ToListAsync();
+			return Ok(list);
+		}
 
-        [HttpGet]
-        [Route("[action]")]
-        public async Task<IActionResult> GetListShipping()
-        {
-            var list = await _tMSContext.ShippingInfomation.ToListAsync();
+		[HttpGet]
+		[Route("[action]")]
+		public async Task<IActionResult> GetListShipping()
+		{
+			var list = await _tMSContext.ShippingInfomation.ToListAsync();
 
-            return Ok(list);
-        }
+			return Ok(list);
+		}
 
-        [HttpPost]
-        [Route("[action]")]
-        public async Task<IActionResult> GetListStatus(List<string> funcId)
-        {
-            var list = await _tMSContext.StatusText.Where(x => x.LangId == "VI" && funcId.Contains(x.FunctionId)).Select(x => new { x.StatusId, x.StatusContent }).ToListAsync();
-            return Ok(list);
-        }
+		[HttpPost]
+		[Route("[action]")]
+		public async Task<IActionResult> GetListStatus(List<string> funcId)
+		{
+			var list = await _tMSContext.StatusText.Where(x => x.LangId == "VI" && funcId.Contains(x.FunctionId)).Select(x => new { x.StatusId, x.StatusContent }).ToListAsync();
+			return Ok(list);
+		}
 
-        [HttpGet]
-        [Route("[action]")]
-        public async Task<IActionResult> GetListUser()
-        {
-            var listUser = from user in _tMSContext.NguoiDung
-                           join acc in _tMSContext.Account
-                           on user.Id equals acc.Id
-                           where user.MaBoPhan == "BP0004"
-                           select new { acc, user };
+		[HttpGet]
+		[Route("[action]")]
+		public async Task<IActionResult> LoadDataPriceTrade()
+		{
+			var getdata = await _tMSContext.LoaiTienTe.ToListAsync();
+			return Ok(getdata);
+		}
 
-            var list = await listUser.Select(x => new ListUser()
-            {
-                userName = x.acc.UserName,
-                name = x.user.HoVaTen
-            }).ToListAsync();
+		[HttpGet]
+		[Route("[action]")]
+		public async Task<IActionResult> GetListUser()
+		{
+			var listUser = from user in _tMSContext.NguoiDung
+						   join acc in _tMSContext.Account
+						   on user.Id equals acc.Id
+						   where user.MaBoPhan == "BP0004"
+						   select new { acc, user };
 
-            return Ok(list);
-        }
+			var list = await listUser.Select(x => new ListUser()
+			{
+				userName = x.acc.UserName,
+				name = x.user.HoVaTen
+			}).ToListAsync();
 
-        [HttpPost]
-        [Route("[action]")]
-        public async Task<IActionResult> GetListMessage(List<string> funcId)
-        {
-            var list = await _tMSContext.ThongBao.Where(x => x.LangId == "VI" && funcId.Contains(x.FunctionId)).Select(x => new { x.TextId, x.TextContent }).ToListAsync();
-            return Ok(list);
-        }
-    }
+			return Ok(list);
+		}
+
+		[HttpPost]
+		[Route("[action]")]
+		public async Task<IActionResult> GetListMessage(List<string> funcId)
+		{
+			var list = await _tMSContext.ThongBao.Where(x => x.LangId == "VI" && funcId.Contains(x.FunctionId)).Select(x => new { x.TextId, x.TextContent }).ToListAsync();
+			return Ok(list);
+		}
+	}
 }

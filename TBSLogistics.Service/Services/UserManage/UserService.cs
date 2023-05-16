@@ -2,20 +2,24 @@
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Xml;
 using TBSLogistics.Data.TMS;
 using TBSLogistics.Model.CommonModel;
 using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.BillOfLadingModel;
+using TBSLogistics.Model.Model.PriceListModel;
 using TBSLogistics.Model.Model.UserModel;
 using TBSLogistics.Model.TempModel;
 using TBSLogistics.Model.Wrappers;
 using TBSLogistics.Service.Services.Common;
+using TBSLogistics.Service.Services.PricelistManage;
 
 namespace TBSLogistics.Service.Services.UserManage
 {
@@ -566,7 +570,7 @@ namespace TBSLogistics.Service.Services.UserManage
 					return null;
 				}
 
-
+				await GetPriceTrade();
 
 				return new GetUserRequest
 				{
@@ -739,6 +743,8 @@ namespace TBSLogistics.Service.Services.UserManage
 				}).ToList()
 			}).ToList();
 
+
+
 			var checkData = await _context.ValidateDataByCustomer.Where(x => x.MaKh == cusId && x.MaAccount == accId).ToListAsync();
 
 			if (checkData == null)
@@ -801,7 +807,7 @@ namespace TBSLogistics.Service.Services.UserManage
 					_context.RemoveRange(checkFieldRequired);
 				}
 
-				var getListFunc = await _context.FieldOfFunction.Where(x => request.Fields.Contains(x.FunctionId) || request.Fields.Contains(x.FieldId)).ToListAsync();
+				var getListFunc = await _context.FieldOfFunction.Where(x => request.Fields.Contains(x.FunctionId) && request.Fields.Contains(x.FieldId)).ToListAsync();
 
 				if (getListFunc.Count == 0)
 				{
@@ -836,6 +842,69 @@ namespace TBSLogistics.Service.Services.UserManage
 				throw;
 			}
 
+		}
+
+		private async Task<BoolActionResult> GetPriceTrade()
+		{
+			var checkPriceTrade = await _context.ExchangeRate.Where(x => x.CreatedTime.Date == DateTime.Now.Date).ToListAsync();
+
+			if (checkPriceTrade.Count() > 0)
+			{
+				return new BoolActionResult { isSuccess = true };
+			}
+
+			try
+			{
+				XmlDocument xmlDcoument = new XmlDocument();
+				xmlDcoument.Load("https://portal.vietcombank.com.vn/Usercontrols/TVPortal.TyGia/pXML.aspx");
+
+				XmlNodeList xmlNodeList = xmlDcoument.DocumentElement.SelectNodes("/ExrateList");
+
+				var dataFTrade = new List<ForeignTrade>();
+
+				foreach (XmlNode xmlNode in xmlNodeList)
+				{
+					foreach (XmlNode item in xmlNode.ChildNodes)
+					{
+						if (item.Name == "Exrate")
+						{
+							dataFTrade.Add(new ForeignTrade
+							{
+								CurrencyCode = item.Attributes.GetNamedItem("CurrencyCode").Value.ToString().Trim(),
+								CurrencyName = item.Attributes.GetNamedItem("CurrencyName").Value.ToString().Trim(),
+								Buy = item.Attributes.GetNamedItem("Buy").Value.ToString().Trim() == "-" ? null : item.Attributes.GetNamedItem("Buy").Value.ToString().Trim(),
+								Transfer = item.Attributes.GetNamedItem("Transfer").Value.ToString().Trim() == "-" ? null : item.Attributes.GetNamedItem("Transfer").Value.ToString().Trim(),
+								Sell = item.Attributes.GetNamedItem("Sell").Value.ToString().Trim() == "-" ? null : item.Attributes.GetNamedItem("Sell").Value.ToString().Trim(),
+							});
+						}
+					}
+				}
+
+				await _context.ExchangeRate.AddRangeAsync(dataFTrade.Select(x => new ExchangeRate()
+				{
+					CurrencyCode = x.CurrencyCode,
+					CurrencyName = x.CurrencyName,
+					PriceBuy = x.Buy == null ? null : double.Parse(x.Buy.Trim(), CultureInfo.InvariantCulture),
+					PriceSell = x.Sell == null ? null : double.Parse(x.Sell.Trim(), CultureInfo.InvariantCulture),
+					PriceTransfer = x.Transfer == null ? null : double.Parse(x.Transfer.Trim(), CultureInfo.InvariantCulture),
+					CreatedTime = DateTime.Now,
+				}));
+
+				var result = await _context.SaveChangesAsync();
+
+				if (result > 0)
+				{
+					return new BoolActionResult { isSuccess = true };
+				}
+				else
+				{
+					return new BoolActionResult { isSuccess = false };
+				}
+			}
+			catch (Exception ex)
+			{
+				return new BoolActionResult { isSuccess = false, Message = ex.ToString() };
+			}
 		}
 	}
 }

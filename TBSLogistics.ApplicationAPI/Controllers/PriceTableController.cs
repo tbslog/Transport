@@ -288,7 +288,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
                 workSheet.Cells[1, 6].Value = "Điểm Hạ Hàng";
                 workSheet.Cells[1, 7].Value = "Điểm Lấy/Trả Rỗng";
                 workSheet.Cells[1, 8].Value = "Đơn Giá VND";
-                workSheet.Cells[1, 9].Value = "Đơn Giá USD";
+                workSheet.Cells[1, 9].Value = "Loại Tiền Tệ";
                 workSheet.Cells[1, 10].Value = "PTVC";
                 workSheet.Cells[1, 11].Value = "Loại Phương Tiện";
                 workSheet.Cells[1, 12].Value = "Loại Hàng Hóa";
@@ -305,8 +305,8 @@ namespace TBSLogistics.ApplicationAPI.Controllers
                     workSheet.Cells[row, 5].Value = item.DiemDau;
                     workSheet.Cells[row, 6].Value = item.DiemCuoi;
                     workSheet.Cells[row, 7].Value = item.DiemLayTraRong;
-                    workSheet.Cells[row, 8].Value = item.DonGiaVnd;
-                    workSheet.Cells[row, 9].Value = item.DonGiaUsd;
+                    workSheet.Cells[row, 8].Value = item.DonGia;
+                    workSheet.Cells[row, 9].Value = item.LoaiTienTe;
                     workSheet.Cells[row, 10].Value = item.MaPTVC;
                     workSheet.Cells[row, 11].Value = item.MaLoaiPhuongTien;
                     workSheet.Cells[row, 12].Value = item.MaLoaiHangHoa;
@@ -315,10 +315,10 @@ namespace TBSLogistics.ApplicationAPI.Controllers
                     row++;
                 }
 
-                workSheet.Cells["M2:M" + row].Style.Numberformat.Format = "DD-MM-YYYY HH:mm";
-                workSheet.Cells["A1:M1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                workSheet.Cells["A1:M1"].Style.Font.Bold = true;
-                workSheet.Cells["A1:M1"].Style.Font.Size = 14;
+                workSheet.Cells["N2:N" + row].Style.Numberformat.Format = "DD-MM-YYYY HH:mm";
+                workSheet.Cells["A1:N1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                workSheet.Cells["A1:N1"].Style.Font.Bold = true;
+                workSheet.Cells["A1:N1"].Style.Font.Size = 14;
 
                 workSheet.Cells[workSheet.Dimension.Address].AutoFitColumns();
                 workSheet.Cells[workSheet.Dimension.Address].Style.Border.Top.Style = ExcelBorderStyle.Thin;

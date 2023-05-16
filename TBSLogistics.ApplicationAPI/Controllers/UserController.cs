@@ -10,7 +10,6 @@ using System.Text;
 using System.Threading.Tasks;
 using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.UserModel;
-using TBSLogistics.Model.TempModel;
 using TBSLogistics.Service.Helpers;
 using TBSLogistics.Service.Panigation;
 using TBSLogistics.Service.Services.Common;
@@ -309,7 +308,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 		[Authorize]
 		[HttpGet]
 		[Route("[action]")]
-		public async Task<IActionResult> GetTreeFieldRequired(string cusId, string accId)
+		public async Task<IActionResult> GetTreeFieldRequired(string cusId, string accId )
 		{
 			var getdata = await _user.GetTreeFieldRequired(cusId, accId);
 			return Ok(getdata);
