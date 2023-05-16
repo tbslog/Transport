@@ -48,7 +48,7 @@ const DetailBillCustomer = (props) => {
       billReuslt.forEach((br) => {
         if (br.listHandling && br.listHandling.length > 0) {
           br.listHandling.forEach((hl) => {
-            total = total + hl.donGia;
+            total = total + hl.giaQuyDoi;
 
             hl.listSubFeeByContract.forEach((val) => {
               totalsf = totalsf + val.unitPrice;
@@ -195,6 +195,8 @@ const DetailBillCustomer = (props) => {
                                                       <th>Loại Hàng Hóa</th>
                                                       <th>Loại Phương Tiện</th>
                                                       <th>Đơn Giá Tuyến</th>
+                                                      <th>Loại Tiền Tệ</th>
+                                                      <th>Giá Trị Quy Đổi</th>
                                                     </tr>
                                                   </thead>
                                                   <tbody>
@@ -214,8 +216,10 @@ const DetailBillCustomer = (props) => {
                                                       <td>
                                                         {val1.loaiPhuongTien}
                                                       </td>
+                                                      <td>{val1.donGia}</td>
+                                                      <td>{val1.loaiTienTe}</td>
                                                       <td>
-                                                        {val1.donGia.toLocaleString(
+                                                        {val1.giaQuyDoi.toLocaleString(
                                                           "vi-VI",
                                                           {
                                                             style: "currency",

@@ -409,7 +409,7 @@ const CustommerPage = () => {
           <div className="card-body">
             <div className="container-datatable" style={{ height: "50vm" }}>
               <DataTable
-                title="Danh sách khách hàng"
+                title="Danh sách đối tác"
                 columns={columns}
                 data={data}
                 progressPending={loading}

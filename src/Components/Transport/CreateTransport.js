@@ -760,14 +760,14 @@ const CreateTransport = (props) => {
               <div className="row">
                 <div className="col col-sm">
                   <p style={{ fontWeight: "bold" }}>
-                    Tổng Số Trọng Lượng :
+                    Tổng Khối Lượng Phân Bổ :
                     {totalWGT.sumWgt && totalWGT.totalWeight && (
                       <>
                         {totalWGT.sumWgt + "/" + totalWGT.totalWeight}
                         {totalWGT.totalWeight < totalWGT.sumWgt ? (
                           <>
                             <p style={{ color: "red" }}>
-                              (Vượt quá tổng trọng lượng của đơn hàng)
+                              (Vượt quá tổng khối lượng của đơn hàng)
                             </p>
                           </>
                         ) : (
@@ -779,7 +779,7 @@ const CreateTransport = (props) => {
                 </div>
                 <div className="col col-sm">
                   <p style={{ fontWeight: "bold" }}>
-                    Tổng Số Thể Tích :
+                    Tổng Thể Tích Phân Bổ :
                     {totalCBM.sumCBM && totalCBM.totalCBM && (
                       <>
                         {totalCBM.sumCBM + "/" + totalCBM.totalCBM}
@@ -798,7 +798,7 @@ const CreateTransport = (props) => {
                 </div>
                 <div className="col col-sm">
                   <p style={{ fontWeight: "bold" }}>
-                    Tổng Số Kiện:
+                    Tổng Số Kiện Phân Bổ:
                     {totalPCS.sumPCS && totalPCS.totalPCS && (
                       <>
                         {totalPCS.sumPCS + "/" + totalPCS.totalPCS}

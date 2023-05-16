@@ -54,7 +54,7 @@ const DetailBillByTransport = (props) => {
   };
 
   const getTotalRoute = (dataRoute) => {
-    let total = dataRoute.reduce((acc, o) => acc + parseFloat(o.donGia), 0);
+    let total = dataRoute.reduce((acc, o) => acc + parseFloat(o.giaQuyDoi), 0);
     return total;
   };
 
@@ -194,6 +194,8 @@ const DetailBillByTransport = (props) => {
                                         <th>Loại Hàng Hóa</th>
                                         <th>Loại Phương Tiện</th>
                                         <th>Đơn Giá Tuyến</th>
+                                        <th>Loại Tiền Tệ</th>
+                                        <th>Giá Trị Quy Đổi</th>
                                       </tr>
                                     </thead>
                                     <tbody>
@@ -210,8 +212,10 @@ const DetailBillByTransport = (props) => {
                                                 {/* <td>{val1.donViVanTai}</td> */}
                                                 <td>{val1.loaiHangHoa}</td>
                                                 <td>{val1.loaiPhuongTien}</td>
+                                                <td>{val1.donGia}</td>
+                                                <td>{val1.loaiTienTe}</td>
                                                 <td>
-                                                  {val1.donGia.toLocaleString(
+                                                  {val1.giaQuyDoi.toLocaleString(
                                                     "vi-VI",
                                                     {
                                                       style: "currency",
