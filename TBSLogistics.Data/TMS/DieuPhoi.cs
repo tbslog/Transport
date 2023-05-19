@@ -55,6 +55,7 @@ namespace TBSLogistics.Data.TMS
         public int? ThuTuGiaoHang { get; set; }
         public string LoaiTienTeKh { get; set; }
         public string LoaiTienTeNcc { get; set; }
+        public bool ReuseCont { get; set; }
 
         public virtual BangGia BangGiaKhNavigation { get; set; }
         public virtual BangGia BangGiaNccNavigation { get; set; }

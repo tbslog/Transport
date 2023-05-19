@@ -13,6 +13,7 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
         public double? TongKhoiLuong { get; set; }
         public double? TongTheTich { get; set; }
         public double? TongSoKien { get; set; }
+        public bool ReuseCont { get; set; }
         public string PhanLoaiVanDon { get; set; }
         public string MaLoaiHangHoa { get; set; }
         public string MaPTVC { get; set; }

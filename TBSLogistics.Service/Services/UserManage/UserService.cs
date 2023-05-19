@@ -162,8 +162,6 @@ namespace TBSLogistics.Service.Services.UserManage
 
 			try
 			{
-
-
 				if (request.AccountType.Trim() == "NV")
 				{
 					if (string.IsNullOrEmpty(request.MaNhanVien.Trim()))

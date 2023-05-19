@@ -16,6 +16,7 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
         public string MaRomooc { get; set; }
         public string ContNo { get; set; }
         public string SealNp { get; set; }
+        public bool ReuseCont { get; set; }
         public string SealHq { get; set; }
         public double? KhoiLuong { get; set; }
         public double? TheTich { get; set; }

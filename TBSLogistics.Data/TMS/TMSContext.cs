@@ -90,7 +90,7 @@ namespace TBSLogistics.Data.TMS
                  .AddJsonFile("appsettings.json")
                  .Build();
 
-                optionsBuilder.UseSqlServer(configuration.GetConnectionString("TMS_Cloud"));
+                optionsBuilder.UseSqlServer(configuration.GetConnectionString("TMS_Local"));
             }
         }
 
@@ -170,17 +170,12 @@ namespace TBSLogistics.Data.TMS
 
 				entity.Property(e => e.Creator).HasMaxLength(30);
 
-				entity.Property(e => e.DiemCuoi).HasDefaultValueSql("((1))");
-
-				entity.Property(e => e.DiemDau).HasDefaultValueSql("((1))");
-
 				entity.Property(e => e.DonGia).HasColumnType("decimal(18, 0)");
 
 				entity.Property(e => e.LoaiTienTe)
 					.IsRequired()
 					.HasMaxLength(5)
-					.IsUnicode(false)
-					.HasDefaultValueSql("('VND')");
+					.IsUnicode(false);
 
 				entity.Property(e => e.MaAccount)
 					.HasMaxLength(8)
@@ -422,18 +417,14 @@ namespace TBSLogistics.Data.TMS
 					.IsUnicode(false);
 
 				entity.Property(e => e.LoaiTienTeKh)
-					.IsRequired()
 					.HasMaxLength(5)
 					.IsUnicode(false)
-					.HasColumnName("LoaiTienTeKH")
-					.HasDefaultValueSql("('VND')");
+					.HasColumnName("LoaiTienTeKH");
 
 				entity.Property(e => e.LoaiTienTeNcc)
-					.IsRequired()
 					.HasMaxLength(5)
 					.IsUnicode(false)
-					.HasColumnName("LoaiTienTeNCC")
-					.HasDefaultValueSql("('VND')");
+					.HasColumnName("LoaiTienTeNCC");
 
 				entity.Property(e => e.MaChuyen)
 					.IsRequired()
@@ -1710,10 +1701,6 @@ namespace TBSLogistics.Data.TMS
 
 				entity.Property(e => e.Creator).HasMaxLength(30);
 
-				entity.Property(e => e.DiemCuoi).HasDefaultValueSql("((1))");
-
-				entity.Property(e => e.DiemDau).HasDefaultValueSql("((1))");
-
 				entity.Property(e => e.HangTau).HasMaxLength(50);
 
 				entity.Property(e => e.LoaiVanDon)
@@ -1820,7 +1807,6 @@ namespace TBSLogistics.Data.TMS
 
 			OnModelCreatingPartial(modelBuilder);
 		}
-
 
 		partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
     }

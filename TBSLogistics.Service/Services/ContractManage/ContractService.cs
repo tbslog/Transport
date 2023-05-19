@@ -285,9 +285,6 @@ namespace TBSLogistics.Service.Services.ContractManage
                                cus,
                                tt
                            };
-
-            var quyr = listData.ToQueryString();
-
             if (!string.IsNullOrEmpty(filter.Keyword))
             {
                 listData = listData.Where(x => x.cus.TenKh.Contains(filter.Keyword));

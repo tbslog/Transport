@@ -27,7 +27,7 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
 
     public class LoadTransports
     {
-        public long? handlingId { get; set; }
+        public long? MaDieuPhoi { get; set; }
         public int? ThuTuGiaoHang { get; set; }
         public string AccountId { get; set; }
         public string LoaiHangHoa { get; set; }

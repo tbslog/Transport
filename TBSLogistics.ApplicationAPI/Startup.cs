@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -59,7 +60,7 @@ namespace TBSLogistics.ApplicationAPI
                  });
             });
 
-            services.AddDbContext<TMSContext>(options => options.UseSqlServer(Configuration["TMS_Cloud"]));
+            services.AddDbContext<TMSContext>(options => options.UseSqlServer(Configuration["TMS_Local"]));
             services.AddHttpContextAccessor();
             services.AddSingleton<IPaginationService>(o =>
             {
@@ -75,13 +76,19 @@ namespace TBSLogistics.ApplicationAPI
 
 
             services.AddControllersWithViews();
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
+            services.AddAuthentication(x =>
             {
-                options.RequireHttpsMetadata = false;
-                options.SaveToken = true;
-                options.TokenValidationParameters = new TokenValidationParameters()
+				x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+				x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+			}).AddJwtBearer(x =>
+            {
+                x.RequireHttpsMetadata = false;
+                x.SaveToken = true;
+                x.TokenValidationParameters = new TokenValidationParameters()
                 {
-                    ValidateIssuer = true,
+					ValidateIssuerSigningKey = true,
+					ValidateLifetime = true,
+					ValidateIssuer = true,
                     ValidateAudience = true,
                     ValidAudience = Configuration["Jwt:Audience"],
                     ValidIssuer = Configuration["Jwt:Issuer"],

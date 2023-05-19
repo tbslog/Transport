@@ -12,6 +12,7 @@ using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.BillOfLadingModel;
 using TBSLogistics.Model.Model.FileModel;
 using TBSLogistics.Model.Model.MailSettings;
+using TBSLogistics.Model.Model.MobileModel;
 using TBSLogistics.Model.Model.UserModel;
 using TBSLogistics.Service.Helpers;
 using TBSLogistics.Service.Panigation;
@@ -307,7 +308,31 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 			{
 				return BadRequest(checkPermission.Message);
 			}
+
 			var list = await _billOfLading.GetListImageByHandlingId(handlingId);
+
+			foreach (var item in list)
+			{
+				var image = await _billOfLading.GetImageById(item.MaHinhAnh);
+				var filePath = Path.Combine(Directory.GetCurrentDirectory(), image.FilePath);
+				if (!System.IO.File.Exists(filePath))
+					return NotFound();
+				var memory = new MemoryStream();
+				await using (var stream = new FileStream(filePath, FileMode.Open))
+				{
+					await stream.CopyToAsync(memory);
+				}
+				memory.Position = 0;
+
+				var file = File(memory, "application/octet-stream", image.FileName);
+				byte[] array = new byte[file.FileStream.Length];
+				// reading the data
+				file.FileStream.Read(array, 0, array.Length);
+				// decod bytes in a row
+				string textFromFile = System.Text.Encoding.Default.GetString(array);
+				var base64 = Convert.ToBase64String(array);
+				item.codeBase64 = base64;
+			}
 			return Ok(list);
 		}
 
@@ -561,6 +586,22 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 				return Ok(sendmail.Message);
 			}
 			return BadRequest(sendmail.Message);
+		}
+
+		[HttpPost]
+		[Route("[action]")]
+		public async Task<IActionResult> ChangeSecondPlaceHandling(ChangeSecondPlaceOfHandling request)
+		{
+			var update = await _billOfLading.ChangeSecondPlace(request);
+
+			if (update.isSuccess)
+			{
+				return Ok(update.Message);
+			}
+			else
+			{
+				return BadRequest(update.Message);
+			}
 		}
 
 		//[HttpPost]

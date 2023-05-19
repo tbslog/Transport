@@ -112,7 +112,6 @@ namespace TBSLogistics.Service.Services.Report
 
 			var listData = await getData.Where(x => getAllDaysInMonth.Select(y => y.Date).Contains(x.dp.CreatedTime.Date)).ToListAsync();
 
-
 			var listSubfee = new List<arrDouble>();
 			foreach (var date in getAllDaysInMonth)
 			{
@@ -125,7 +124,7 @@ namespace TBSLogistics.Service.Services.Report
 							date = item.dp.CreatedTime.Date,
 							value =
 							await _context.SfeeByTcommand.Where(y => y.IdTcommand == item.dp.Id && y.ApproveStatus == 14).SumAsync(y => y.Price) +
-							await _context.SubFeePrice.Where(c => _context.SubFeeByContract.Where(y => y.MaDieuPhoi == item.dp.Id).Select(y => y.PriceId).ToList().Contains(c.PriceId)).SumAsync(c => c.Price) +
+							await _context.SubFeePrice.Where(c => _context.SubFeeByContract.Where(y => y.MaDieuPhoi == item.dp.Id).Select(y => y.PriceId).Contains(c.PriceId)).SumAsync(c => c.Price) +
 							((double)item.dp.DonGiaNcc * await _priceTable.GetPriceTradeNow(item.dp.LoaiTienTeNcc))
 						});
 					}
@@ -155,7 +154,7 @@ namespace TBSLogistics.Service.Services.Report
 							date = item.dp.CreatedTime.Date,
 							value =
 							await _context.SfeeByTcommand.Where(y => y.IdTcommand == item.dp.Id && y.ApproveStatus == 14).SumAsync(y => y.Price) +
-							await _context.SubFeePrice.Where(c => _context.SubFeeByContract.Where(y => y.MaDieuPhoi == item.dp.Id).Select(y => y.PriceId).ToList().Contains(c.PriceId)).SumAsync(c => c.Price) +
+							await _context.SubFeePrice.Where(c => _context.SubFeeByContract.Where(y => y.MaDieuPhoi == item.dp.Id).Select(y => y.PriceId).Contains(c.PriceId)).SumAsync(c => c.Price) +
 								((double)item.dp.DonGiaKh * await _priceTable.GetPriceTradeNow(item.dp.LoaiTienTeKh)),
 						});
 					}
