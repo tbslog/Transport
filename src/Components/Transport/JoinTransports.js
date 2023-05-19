@@ -1,4 +1,4 @@
-import { useState, useEffect, useLayoutEffect } from "react";
+import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { getData, getDataCustom, postData } from "../Common/FuncAxios";
 import { useForm, Controller, useFieldArray } from "react-hook-form";
 import DatePicker from "react-datepicker";
@@ -7,6 +7,9 @@ import moment from "moment";
 import { ToastError, ToastWarning } from "../Common/FuncToast";
 import LoadingPage from "../Common/Loading/LoadingPage";
 import Cookies from "js-cookie";
+import { Modal } from "bootstrap";
+import HandlingImage from "../FileManager/HandlingImage";
+import AddSubFeeByHandling from "./AddSubFeeByHandling";
 
 const JoinTransports = (props) => {
   const { items, clearItems, hideModal, getListTransport, selectIdClick } =
@@ -71,6 +74,12 @@ const JoinTransports = (props) => {
 
   const [totalCBM, setTotalCBM] = useState("");
   const [totalWGT, setTotalWGT] = useState("");
+
+  const [ShowModal, SetShowModal] = useState("");
+  const [modal, setModal] = useState(null);
+  const parseExceptionModal = useRef();
+  const [title, setTitle] = useState("");
+  const [dataSelected, setDataSelected] = useState();
 
   useEffect(() => {
     (async () => {
@@ -195,7 +204,7 @@ const JoinTransports = (props) => {
                 `listTransport.${i}.ThuTuGiaoHang`,
                 data[i].thuTuGiaoHang
               );
-              setValue(`listTransport.${i}.HandlingId`, data[i].handlingId);
+              setValue(`listTransport.${i}.MaDieuPhoi`, data[i].maDieuPhoi);
               setValue(`listTransport.${i}.LoaiVanDon`, data[i].loaiVanDon);
               setValue(`listTransport.${i}.MaPTVC`, data[i].maPTVC);
               setValue(
@@ -333,7 +342,7 @@ const JoinTransports = (props) => {
           setValue("listTransport", data);
           for (let i = 0; i <= data.length - 1; i++) {
             setValue(`listTransport.${i}.ThuTuGiaoHang`, data[i].thuTuGiaoHang);
-            setValue(`listTransport.${i}.HandlingId`, data[i].handlingId);
+            setValue(`listTransport.${i}.MaDieuPhoi`, data[i].maDieuPhoi);
             setValue(`listTransport.${i}.LoaiVanDon`, data[i].loaiVanDon);
             setValue(`listTransport.${i}.MaPTVC`, data[i].maPTVC);
             setValue(
@@ -452,7 +461,7 @@ const JoinTransports = (props) => {
     let arrTransports = [];
     data.listTransport.map((val) => {
       arrTransports.push({
-        HandlingId: val.HandlingId,
+        MaDieuPhoi: val.MaDieuPhoi,
         ThuTuGiaoHang: !val.ThuTuGiaoHang ? null : val.ThuTuGiaoHang,
         MaVanDon: val.maVanDon,
         MaLoaiHangHoa: val.LoaiHangHoa,
@@ -579,6 +588,19 @@ const JoinTransports = (props) => {
     setValue("DiemLayTraRong", null);
     setValue("XeVanChuyen", null);
     setValue("TaiXe", null);
+  };
+
+  const showModalForm = () => {
+    const modal = new Modal(parseExceptionModal.current, {
+      keyboard: false,
+      backdrop: "static",
+    });
+    setModal(modal);
+    modal.show();
+  };
+  const handleShowModal = (val) => {
+    setDataSelected(val);
+    showModalForm();
   };
 
   return (
@@ -804,6 +826,7 @@ const JoinTransports = (props) => {
                   >
                     <thead>
                       <tr>
+                        <th></th>
                         <th>Thứ Tự Giao Hàng</th>
                         <th>
                           <div>Loại Vận Đơn</div>
@@ -879,6 +902,40 @@ const JoinTransports = (props) => {
                     <tbody>
                       {fields.map((value, index) => (
                         <tr key={index}>
+                          <td>
+                            <>
+                              <button
+                                onClick={() =>
+                                  handleShowModal(
+                                    value,
+                                    SetShowModal("Image"),
+                                    setTitle("Quản Lý Chứng Từ Chuyến")
+                                  )
+                                }
+                                type="button"
+                                className="btn btn-title btn-sm btn-default mx-1"
+                                gloss="Xem Hình Ảnh"
+                              >
+                                <i className="fas fa-image"></i>
+                              </button>
+                            </>
+                            <>
+                              <button
+                                onClick={() =>
+                                  handleShowModal(
+                                    value,
+                                    SetShowModal("addSubFee"),
+                                    setTitle("Thêm Mới Phụ Phí Phát Sinh")
+                                  )
+                                }
+                                type="button"
+                                className="btn btn-title btn-sm btn-default mx-1"
+                                gloss="Phụ Phí Phát Sinh"
+                              >
+                                <i className="fas fa-file-invoice-dollar"></i>
+                              </button>
+                            </>
+                          </td>
                           <td>
                             <input
                               autoComplete="false"
@@ -1449,18 +1506,63 @@ const JoinTransports = (props) => {
               </div>
             </div>
             <div className="card-footer">
-              <div>
-                <button
-                  type="submit"
-                  className="btn btn-primary"
-                  style={{ float: "right" }}
-                >
-                  Xác Nhận
-                </button>
+              <div className="row">
+                <div className="col col-6"></div>
+                <div className="col col-6">
+                  <button
+                    type="submit"
+                    className="btn btn-primary"
+                    style={{ float: "right" }}
+                  >
+                    Xác Nhận
+                  </button>
+                </div>
               </div>
             </div>
           </form>
         )}
+      </div>
+      <div
+        className="modal fade"
+        id="modal-xl"
+        data-backdrop="static"
+        ref={parseExceptionModal}
+        aria-labelledby="parseExceptionModal"
+        backdrop="static"
+      >
+        <div
+          className="modal-dialog modal-dialog-scrollable"
+          style={{ maxWidth: "90%" }}
+        >
+          <div className="modal-content">
+            <div className="modal-header">
+              <h5>{title}</h5>
+              <button
+                type="button"
+                className="close"
+                data-dismiss="modal"
+                onClick={() => modal.hide()}
+                aria-label="Close"
+              >
+                <span aria-hidden="true">×</span>
+              </button>
+            </div>
+            <div className="modal-body">
+              <>
+                {ShowModal === "Image" && (
+                  <HandlingImage
+                    dataClick={dataSelected}
+                    hideModal={modal.hide()}
+                    checkModal={modal}
+                  />
+                )}
+                {ShowModal === "addSubFee" && (
+                  <AddSubFeeByHandling dataClick={dataSelected} />
+                )}
+              </>
+            </div>
+          </div>
+        </div>
       </div>
     </>
   );

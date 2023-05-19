@@ -9,7 +9,6 @@ import {
   getDataCustom,
   getFilePost,
   postData,
-  postFile,
 } from "../Common/FuncAxios";
 import Cookies from "js-cookie";
 import DataTable from "react-data-table-component";
@@ -95,6 +94,22 @@ const HandlingPageNew = () => {
                   onClick={() =>
                     handleEditButtonClick(
                       val,
+                      SetShowModal("ChangeSecondPlace"),
+                      setTitle("Đổi Điểm Hạ Hàng")
+                    )
+                  }
+                  type="button"
+                  className="btn btn-title btn-sm btn-default mx-1"
+                  gloss="Đổi Điểm Hạ Hàng"
+                >
+                  <i className="fas fa-exchange-alt"></i>
+                </button>
+              </>
+              <>
+                <button
+                  onClick={() =>
+                    handleEditButtonClick(
+                      val,
                       SetShowModal("addSubFee"),
                       setTitle("Thêm Mới Phụ Phí Phát Sinh")
                     )
@@ -126,7 +141,7 @@ const HandlingPageNew = () => {
           )}
         </>
       ),
-      width: "220px",
+      width: "260px",
       ignoreRowClick: true,
       allowOverflow: true,
       button: true,
@@ -169,28 +184,29 @@ const HandlingPageNew = () => {
       selector: (row) => <div className="text-wrap">{row.phanLoaiVanDon}</div>,
       sortable: true,
     },
-    accountType &&
-      accountType === "NV" &&
-      ({
-        name: <div>Khách Hàng</div>,
-        selector: (row) => <div className="text-wrap">{row.maKH}</div>,
-        sortable: true,
-      },
-      {
-        name: <div>Account</div>,
-        selector: (row) => <div className="text-wrap">{row.accountName}</div>,
-      },
-      {
-        name: <div>Đơn Vị Vận Tải</div>,
-        selector: (row) => <div className="text-wrap">{row.donViVanTai}</div>,
-        sortable: true,
-      }),
+    {
+      name: <div>Khách Hàng</div>,
+      selector: (row) => <div className="text-wrap">{row.maKH}</div>,
+      sortable: true,
+      omit: accountType && accountType === "NV" ? false : true,
+    },
+    {
+      name: <div>Account</div>,
+      selector: (row) => <div className="text-wrap">{row.accountName}</div>,
+      sortable: true,
+      omit: accountType && accountType === "NV" ? false : true,
+    },
+    {
+      name: <div>Đơn Vị Vận Tải</div>,
+      selector: (row) => <div className="text-wrap">{row.donViVanTai}</div>,
+      sortable: true,
+      omit: accountType && accountType === "NV" ? false : true,
+    },
     {
       name: "PTVC",
       selector: (row) => <div className="text-wrap">{row.maPTVC}</div>,
       sortable: true,
     },
-
     {
       name: <div>Điểm Lấy Hàng</div>,
       selector: (row) => <div className="text-wrap">{row.diemDau}</div>,
@@ -263,8 +279,9 @@ const HandlingPageNew = () => {
   ]);
 
   const {
-    control,
     setValue,
+    control,
+    watch,
     formState: { errors },
   } = useForm({
     mode: "onChange",
@@ -296,6 +313,7 @@ const HandlingPageNew = () => {
   const [listAccountSelected, setListAccountSelected] = useState([]);
   const [listSupplier, setListSupplier] = useState([]);
   const [listSupplierSelected, setListSupplierSelected] = useState([]);
+  const [listPlace, setListPlace] = useState([]);
 
   const [selectedRows, setSelectedRows] = useState([]);
   const [toggledClearRows, setToggleClearRows] = useState(false);
@@ -381,6 +399,17 @@ const HandlingPageNew = () => {
         });
         setListUsers(arrUser);
       }
+
+      const getListPlace = await getData(
+        "Address/GetListAddressSelect?pointType=&type=Diem"
+      );
+
+      let arrPlace = [];
+      arrPlace.push({ label: "-- Rỗng --", value: null });
+      getListPlace.forEach((val) => {
+        arrPlace.push({ label: val.tenDiaDiem, value: val.maDiaDiem });
+      });
+      setListPlace(arrPlace);
 
       let getListCustomer = await getData(`Customer/GetListCustomerFilter`);
       if (getListCustomer && getListCustomer.length > 0) {
@@ -970,6 +999,35 @@ const HandlingPageNew = () => {
     }
   };
 
+  const handleOnClickChangeSplace = async () => {
+    if (selectIdClick && Object.keys(selectIdClick).length > 0) {
+      let place = watch("listPlace");
+
+      if (place && Object.keys(place).length > 0 && place.value) {
+        setLoading(true);
+        let changePlace = await postData(
+          "BillOfLading/ChangeSecondPlaceHandling",
+          {
+            transportId: selectIdClick.maVanDon,
+            handlingId: selectIdClick.maDieuPhoi,
+            newSecondPlace: place.value,
+          }
+        );
+
+        setValue(
+          "listPlace",
+          listPlace.find((x) => x.value === null)
+        );
+
+        if (changePlace === 1) {
+          hideModal();
+          refeshData();
+        }
+        setLoading(false);
+      }
+    }
+  };
+
   const customStyles = {
     control: (provided, state) => ({
       ...provided,
@@ -1285,17 +1343,6 @@ const HandlingPageNew = () => {
       )}
 
       <div>
-        {ShowConfirm === true && (
-          <ConfirmDialog
-            setShowConfirm={setShowConfirm}
-            title={"Bạn có chắc chắn với quyết định này?"}
-            content={
-              "Khi thực hiện hành động này sẽ không thể hoàn tác lại được nữa."
-            }
-            // funcAgree={funcAgree}
-          />
-        )}
-
         <div
           className="modal fade"
           id="modal-xl"
@@ -1351,6 +1398,7 @@ const HandlingPageNew = () => {
                           />
                         </>
                       )}
+
                       {selectIdClick.tongVanDonGhep && (
                         <>
                           <JoinTransports
@@ -1364,7 +1412,49 @@ const HandlingPageNew = () => {
                       )}
                     </>
                   )}
-
+                  {ShowModal === "ChangeSecondPlace" && (
+                    <>
+                      {loading && loading === true ? (
+                        <div>
+                          <LoadingPage></LoadingPage>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="row">
+                            <div className="col col-3">
+                              <div className="form-group">
+                                <Controller
+                                  name="listPlace"
+                                  control={control}
+                                  render={({ field }) => (
+                                    <Select
+                                      {...field}
+                                      className="basic-multi-select"
+                                      classNamePrefix={"form-control"}
+                                      value={field.value}
+                                      options={listPlace}
+                                      placeholder="Địa Điểm"
+                                    />
+                                  )}
+                                />
+                              </div>
+                            </div>
+                            <div className="col col-3">
+                              <button
+                                onClick={() => handleOnClickChangeSplace()}
+                                type="submit"
+                                className="btn btn-primary"
+                                style={{ float: "left" }}
+                              >
+                                Xác Nhận
+                              </button>
+                            </div>
+                          </div>
+                          <div style={{ height: "25vh" }}></div>
+                        </>
+                      )}
+                    </>
+                  )}
                   {ShowModal === "Image" && (
                     <HandlingImage
                       dataClick={selectIdClick}

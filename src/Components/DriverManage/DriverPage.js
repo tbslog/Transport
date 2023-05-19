@@ -1,11 +1,17 @@
 import { useMemo, useState, useEffect, useCallback, useRef } from "react";
-import { getData, postFile, getDataCustom } from "../Common/FuncAxios";
+import {
+  getData,
+  postFile,
+  getDataCustom,
+  postData,
+} from "../Common/FuncAxios";
 import DataTable from "react-data-table-component";
 import moment from "moment";
 import { Modal } from "bootstrap";
 import { ToastWarning } from "../Common/FuncToast";
 import CreateDriver from "./CreateDriver";
 import UpdateDriver from "./UpdateDriver";
+import ConfirmDialog from "../Common/Dialog/ConfirmDialog";
 
 const DriverPage = () => {
   const [data, setData] = useState([]);
@@ -22,25 +28,44 @@ const DriverPage = () => {
   const [selectIdClick, setSelectIdClick] = useState({});
   const [listStatus, setListStatus] = useState([]);
 
+  const [isAccept, setIsAccept] = useState();
+  const [ShowConfirm, setShowConfirm] = useState(false);
+
   const [title, setTitle] = useState("");
 
   const columns = useMemo(() => [
     {
       cell: (val) => (
-        <button
-          onClick={() =>
-            handleEditButtonClick(
-              val,
-              SetShowModal("Edit"),
-              setTitle("Cập Nhật Thông Tin Tài Xế")
-            )
-          }
-          type="button"
-          className="btn btn-title btn-sm btn-default mx-1"
-          gloss="Cập Nhật Thông Tin"
-        >
-          <i className="far fa-edit"></i>
-        </button>
+        <>
+          <button
+            onClick={() =>
+              handleEditButtonClick(
+                val,
+                SetShowModal("Edit"),
+                setTitle("Cập Nhật Thông Tin Tài Xế")
+              )
+            }
+            type="button"
+            className="btn btn-title btn-sm btn-default mx-1"
+            gloss="Cập Nhật Thông Tin"
+          >
+            <i className="far fa-edit"></i>
+          </button>
+          <button
+            onClick={() =>
+              ShowConfirmDialog(
+                val,
+                SetShowModal("CreateAccount"),
+                setTitle("Tạo Tài Khoản Tài Xế")
+              )
+            }
+            type="button"
+            className="btn btn-title btn-sm btn-default mx-1"
+            gloss="Tạo Tài Khoản Tài Xế"
+          >
+            <i className="fas fa-user-plus"></i>
+          </button>
+        </>
       ),
       ignoreRowClick: true,
       allowOverflow: true,
@@ -182,6 +207,28 @@ const DriverPage = () => {
     await fetchData(1);
   };
 
+  const ShowConfirmDialog = (val) => {
+    setSelectIdClick(val);
+    setShowConfirm(true);
+  };
+
+  const funcAgree = async () => {
+    switch (ShowModal) {
+      case "CreateAccount":
+        const createAcc = await postData(
+          `Driver/CreateAccountDriver?driverId=${selectIdClick.maTaiXe}`
+        );
+
+        if (createAcc === 1) {
+          fetchData(1);
+        }
+        setShowConfirm(false);
+        break;
+      default:
+        return;
+    }
+  };
+
   return (
     <>
       <section className="content-header">
@@ -277,25 +324,7 @@ const DriverPage = () => {
           </div>
           <div className="card-footer">
             <div className="row">
-              <div className="col-sm-3">
-                {/* <a
-                  href={ExcelAddNewRoad}
-                  download="Template Thêm mới cung đường.xlsx"
-                  className="btn btn-sm btn-default mx-1"
-                >
-                  <i className="fas fa-download"></i>
-                </a>
-                <div className="upload-btn-wrapper">
-                  <button className="btn btn-sm btn-default mx-1">
-                    <i className="fas fa-upload"></i>
-                  </button>
-                  <input
-                    type="file"
-                    name="myfile"
-                    onChange={(e) => handleExcelImportClick(e)}
-                  />
-                </div> */}
-              </div>
+              <div className="col-sm-3"></div>
             </div>
           </div>
         </div>
@@ -345,6 +374,16 @@ const DriverPage = () => {
             </div>
           </div>
         </div>
+        {ShowConfirm === true && (
+          <ConfirmDialog
+            setShowConfirm={setShowConfirm}
+            title={"Bạn có chắc chắn với quyết định này?"}
+            content={
+              "Khi thực hiện hành động này sẽ không thể hoàn tác lại được nữa."
+            }
+            funcAgree={funcAgree}
+          />
+        )}
       </section>
     </>
   );

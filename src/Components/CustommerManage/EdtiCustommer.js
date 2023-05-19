@@ -1,9 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { Modal } from "bootstrap";
 import { postData } from "../Common/FuncAxios";
 import { useForm } from "react-hook-form";
 import LoadingPage from "../Common/Loading/LoadingPage";
+import ContractPage from "../ContractManage/ContractPage";
 
 const EditCustommer = (props) => {
+  const { selectIdClick } = props;
   const [IsLoading, SetIsLoading] = useState(true);
   const {
     register,
@@ -107,6 +110,10 @@ const EditCustommer = (props) => {
   const [listCustomerType, setListCustomerType] = useState([]);
   const [listChuoi, setListChuoi] = useState([]);
 
+  const [ShowModal, SetShowModal] = useState("");
+  const [modal, setModal] = useState(null);
+  const parseExceptionModal = useRef();
+
   const onSubmit = async (data) => {
     SetIsLoading(true);
 
@@ -132,36 +139,47 @@ const EditCustommer = (props) => {
 
   useEffect(() => {
     SetIsLoading(true);
-
     setListCustomerGroup(props.listCusGroup);
     setListCustomerType(props.listCusType);
     setListStatus(props.listStatus);
     setListChuoi(props.listChuoi);
-
     SetIsLoading(false);
   }, []);
 
   useEffect(() => {
     if (
-      props.selectIdClick &&
+      selectIdClick &&
       listCustomerGroup &&
       listCustomerType &&
-      Object.keys(props.selectIdClick).length > 0
+      Object.keys(selectIdClick).length > 0
     ) {
       SetIsLoading(true);
-      setValue("MaKH", props.selectIdClick.maKh);
-      setValue("MST", props.selectIdClick.maSoThue);
-      setValue("SDT", props.selectIdClick.sdt);
-      setValue("TenKH", props.selectIdClick.tenKh);
-      setValue("Email", props.selectIdClick.email);
-      setValue("LoaiKH", props.selectIdClick.loaiKH);
-      setValue("NhomKH", props.selectIdClick.nhomKH);
-      setValue("TrangThai", props.selectIdClick.trangThai);
-      setValue("Chuoi", props.selectIdClick.chuoi);
+      setValue("MaKH", selectIdClick.maKh);
+      setValue("MST", selectIdClick.maSoThue);
+      setValue("SDT", selectIdClick.sdt);
+      setValue("TenKH", selectIdClick.tenKh);
+      setValue("Email", selectIdClick.email);
+      setValue("LoaiKH", selectIdClick.loaiKH);
+      setValue("NhomKH", selectIdClick.nhomKH);
+      setValue("TrangThai", selectIdClick.trangThai);
+      setValue("Chuoi", selectIdClick.chuoi);
 
       SetIsLoading(false);
     }
-  }, [props.selectIdClick, listCustomerGroup, listCustomerType]);
+  }, [selectIdClick, listCustomerGroup, listCustomerType]);
+
+  const showModalForm = () => {
+    const modal = new Modal(parseExceptionModal.current, {
+      keyboard: false,
+      backdrop: "static",
+    });
+    setModal(modal);
+    modal.show();
+  };
+
+  const handleShowModal = () => {
+    showModalForm();
+  };
 
   return (
     <>
@@ -378,18 +396,68 @@ const EditCustommer = (props) => {
               </div>
             </div>
             <div className="card-footer">
-              <div>
-                <button
-                  type="submit"
-                  className="btn btn-primary"
-                  style={{ float: "right" }}
-                >
-                  Cập Nhật
-                </button>
+              <div className="row">
+                <div className="col col-6">
+                  <>
+                    <button
+                      onClick={() =>
+                        handleShowModal(SetShowModal("listContract"))
+                      }
+                      type="button"
+                      className="btn btn-title btn-sm btn-default mx-1"
+                      gloss="Xem Danh Sách Hợp Đồng"
+                    >
+                      <i className="fas fa-file-signature"></i>
+                    </button>
+                  </>
+                </div>
+                <div className="col col-6">
+                  <button
+                    type="submit"
+                    className="btn btn-primary"
+                    style={{ float: "right" }}
+                  >
+                    Cập Nhật
+                  </button>
+                </div>
               </div>
             </div>
           </form>
         )}
+      </div>
+      <div
+        className="modal fade"
+        id="modal-xl"
+        data-backdrop="static"
+        ref={parseExceptionModal}
+        aria-labelledby="parseExceptionModal"
+        backdrop="static"
+      >
+        <div
+          className="modal-dialog modal-dialog-scrollable"
+          style={{ maxWidth: "90%" }}
+        >
+          <div className="modal-content">
+            <div className="modal-header">
+              <button
+                type="button"
+                className="close"
+                data-dismiss="modal"
+                onClick={() => modal.hide()}
+                aria-label="Close"
+              >
+                <span aria-hidden="true">×</span>
+              </button>
+            </div>
+            <div className="modal-body">
+              <>
+                {ShowModal === "listContract" && (
+                  <ContractPage dataSelected={selectIdClick}></ContractPage>
+                )}
+              </>
+            </div>
+          </div>
+        </div>
       </div>
     </>
   );

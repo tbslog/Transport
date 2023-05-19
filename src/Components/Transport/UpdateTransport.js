@@ -233,6 +233,7 @@ const UpdateTransport = (props) => {
           TheTich: val.theTich,
           SoKien: val.soKien,
           ContNo: val.contNo,
+          ReuseCont: val.reuseCont,
           DiemTraRong: !val.diemTraRong
             ? null
             : {
@@ -256,6 +257,7 @@ const UpdateTransport = (props) => {
         setValue(`optionHandling.${i}.DiemLayRong`, arrData[i].DiemLayRong);
         setValue(`optionHandling.${i}.DiemTraRong`, arrData[i].DiemTraRong);
         setValue(`optionHandling.${i}.ContNo`, arrData[i].ContNo);
+        setValue(`optionHandling.${i}.ReuseCont`, arrData[i].ReuseCont);
       }
       setValue("optionHandling", arrData);
     } else {
@@ -503,6 +505,7 @@ const UpdateTransport = (props) => {
         DiemLayRong: !val.DiemLayRong ? null : val.DiemLayRong.value,
         LoaiHangHoa: val.LoaiHangHoa,
         PTVanChuyen: val.PTVanChuyen,
+        ReuseCont: !val.ReuseCont ? false : val.ReuseCont,
         KhoiLuong: !val.KhoiLuong ? null : val.KhoiLuong,
         TheTich: !val.TheTich ? null : val.TheTich,
         SoKien: !val.SoKien ? null : val.SoKien,
@@ -984,9 +987,12 @@ const UpdateTransport = (props) => {
                               <>
                                 {watch("LoaiVanDon") &&
                                 watch("LoaiVanDon") === "xuat" ? (
-                                  <div className="col-sm-2">
-                                    Điểm Lấy Rỗng(*)
-                                  </div>
+                                  <>
+                                    <div className="col-sm-2">
+                                      Điểm Lấy Rỗng(*)
+                                    </div>
+                                    <div className="col-sm-1">Reuse CONT</div>
+                                  </>
                                 ) : (
                                   <div className="col-sm-2">
                                     Điểm trả Rỗng(*)
@@ -994,9 +1000,9 @@ const UpdateTransport = (props) => {
                                 )}
                               </>
                             )}
-                          <div className="col-sm-2">Khối Lượng(KG)</div>
-                          <div className="col-sm-2">Số Khối</div>
-                          <div className="col-sm-2">Số Kiện</div>
+                          <div className="col-sm-1">Khối Lượng(KG)</div>
+                          <div className="col-sm-1">Số Khối</div>
+                          <div className="col-sm-1">Số Kiện</div>
                         </div>
                       </th>
                       <th style={{ width: "40px" }}>
@@ -1172,9 +1178,10 @@ const UpdateTransport = (props) => {
                                         )}
                                       </div>
                                     </div> */}
-                                    <div className="col-sm-2">
-                                      {watch("LoaiVanDon") === "xuat" ? (
-                                        <>
+
+                                    {watch("LoaiVanDon") === "xuat" ? (
+                                      <>
+                                        <div className="col-sm-2">
                                           <div className="form-group">
                                             <Controller
                                               name={`optionHandling.${index}.DiemLayRong`}
@@ -1208,9 +1215,30 @@ const UpdateTransport = (props) => {
                                               </span>
                                             )}
                                           </div>
-                                        </>
-                                      ) : (
-                                        <>
+                                        </div>
+                                        <div className="col-sm-1">
+                                          <div class="form-check">
+                                            <input
+                                              {...register(
+                                                `optionHandling.${index}.ReuseCont`
+                                              )}
+                                              class="form-check-input"
+                                              type="checkbox"
+                                              value=""
+                                              id={("ReuseCont", index)}
+                                            />
+                                            <label
+                                              class="form-check-label"
+                                              for={("ReuseCont", index)}
+                                            >
+                                              Reuse CONT
+                                            </label>
+                                          </div>
+                                        </div>
+                                      </>
+                                    ) : (
+                                      <>
+                                        <div className="col-sm-2">
                                           <div className="form-group">
                                             <Controller
                                               name={`optionHandling.${index}.DiemTraRong`}
@@ -1244,12 +1272,12 @@ const UpdateTransport = (props) => {
                                               </span>
                                             )}
                                           </div>
-                                        </>
-                                      )}
-                                    </div>
+                                        </div>
+                                      </>
+                                    )}
                                   </>
                                 )}
-                              <div className="col-sm-2">
+                              <div className="col-sm-1">
                                 <div className="form-group">
                                   <input
                                     type="text"
@@ -1286,7 +1314,7 @@ const UpdateTransport = (props) => {
                                   )}
                                 </div>
                               </div>
-                              <div className="col-sm-2">
+                              <div className="col-sm-1">
                                 <div className="form-group">
                                   <input
                                     type="text"
@@ -1322,7 +1350,7 @@ const UpdateTransport = (props) => {
                                   )}
                                 </div>
                               </div>
-                              <div className="col-sm-2">
+                              <div className="col-sm-1">
                                 <div className="form-group">
                                   <input
                                     type="text"

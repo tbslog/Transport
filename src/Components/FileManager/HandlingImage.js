@@ -69,6 +69,16 @@ const HandlingImage = (props) => {
       omit: true,
     },
     {
+      name: "Hình Ảnh",
+      selector: (row) => (
+        <img
+          src={`data:image/jpeg;base64,${row.codeBase64}`}
+          alt={row.tenLoaiChungTu}
+          width={300}
+        />
+      ),
+    },
+    {
       name: "Trạng Thái",
       selector: (row) => row.trangThai,
       sortable: true,
@@ -211,7 +221,7 @@ const HandlingImage = (props) => {
                     >
                       <i className="fas fa-plus-circle"></i>
                     </button>
-                    <button
+                    {/* <button
                       className="btn btn-title btn-sm btn-default mx-1"
                       gloss="Xác Nhận Đã Đủ Chứng Từ"
                       type="button"
@@ -228,7 +238,7 @@ const HandlingImage = (props) => {
                       onClick={() => showConfirmDialog(setFuncName("LockDoc"))}
                     >
                       <i className="fas fa-lock"></i>
-                    </button>
+                    </button> */}
                   </div>
                 </>
               )}
@@ -237,10 +247,12 @@ const HandlingImage = (props) => {
           <div className="card-body">
             <div className="container-datatable" style={{ height: "50vm" }}>
               <DataTable
+                direction="auto"
                 columns={columns}
                 data={data}
                 progressPending={loading}
                 highlightOnHover
+                striped
                 fixedHeader
                 fixedHeaderScrollHeight="60vh"
               />

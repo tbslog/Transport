@@ -1,12 +1,15 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { getData, postData } from "../Common/FuncAxios";
 import { useForm, Controller } from "react-hook-form";
+import { Modal } from "bootstrap";
 import DatePicker from "react-datepicker";
 import Select from "react-select";
 import moment from "moment";
 import LoadingPage from "../Common/Loading/LoadingPage";
 import { ToastWarning } from "../Common/FuncToast";
 import Cookies from "js-cookie";
+import HandlingImage from "../FileManager/HandlingImage";
+import AddSubFeeByHandling from "./AddSubFeeByHandling";
 
 const UpdateHandling = (props) => {
   const { getlistData, selectIdClick, hideModal } = props;
@@ -145,6 +148,11 @@ const UpdateHandling = (props) => {
   const [wgtVehicle, setWgtVehicle] = useState();
   const [cbmVehicle, setCbmVehicle] = useState();
 
+  const [ShowModal, SetShowModal] = useState("");
+  const [modal, setModal] = useState(null);
+  const parseExceptionModal = useRef();
+  const [title, setTitle] = useState("");
+
   const [isCheckVehicle, setIsCheckVehicle] = useState(false);
 
   useEffect(() => {
@@ -236,6 +244,18 @@ const UpdateHandling = (props) => {
       });
       setListVehicle(arr);
     }
+  };
+
+  const showModalForm = () => {
+    const modal = new Modal(parseExceptionModal.current, {
+      keyboard: false,
+      backdrop: "static",
+    });
+    setModal(modal);
+    modal.show();
+  };
+  const handleShowModal = () => {
+    showModalForm();
   };
 
   useEffect(() => {
@@ -345,7 +365,7 @@ const UpdateHandling = (props) => {
     setValue("KhoiLuong", data.khoiLuong);
     setValue("TheTich", data.theTich);
     setValue("SoKien", data.soKien);
-
+    setValue("ReuseCont", data.reuseCont);
     setValue("HangTau", data.hangTau);
     setValue("TenTau", data.tenTau);
     setValue(
@@ -469,6 +489,11 @@ const UpdateHandling = (props) => {
       DiemLayRong: !data.DiemLayRong ? null : data.DiemLayRong.value,
       DiemTraRong: !data.DiemTraRong ? null : data.DiemTraRong.value,
       MaSoXe: vehicleID,
+      ReuseCont: !data.ReuseCont
+        ? false
+        : data.ReuseCont === "true"
+        ? true
+        : false,
       MaTaiXe: !data.TaiXe ? null : !data.TaiXe.value ? null : data.TaiXe.value,
       MaRomooc: !data.Romooc
         ? null
@@ -856,70 +881,72 @@ const UpdateHandling = (props) => {
               <div className="row">
                 {watch(`PTVanChuyen`) &&
                   watch(`PTVanChuyen`).includes("CONT") && (
-                    <div className="col col-sm">
-                      <div className="form-group">
-                        {transportType && transportType === "xuat" && (
-                          <>
-                            <label htmlFor="DiemLayRong">
-                              Điểm Lấy Rỗng(*)
-                            </label>
-                            <Controller
-                              name={`DiemLayRong`}
-                              control={control}
-                              render={({ field }) => (
-                                <Select
-                                  {...field}
-                                  isDisabled={
-                                    accountType && accountType === "NV"
-                                      ? false
-                                      : true
-                                  }
-                                  classNamePrefix={"form-control"}
-                                  value={field.value}
-                                  options={listPoint}
-                                />
+                    <>
+                      <div className="col col-sm">
+                        <div className="form-group">
+                          {transportType && transportType === "xuat" && (
+                            <>
+                              <label htmlFor="DiemLayRong">
+                                Điểm Lấy Rỗng(*)
+                              </label>
+                              <Controller
+                                name={`DiemLayRong`}
+                                control={control}
+                                render={({ field }) => (
+                                  <Select
+                                    {...field}
+                                    isDisabled={
+                                      accountType && accountType === "NV"
+                                        ? false
+                                        : true
+                                    }
+                                    classNamePrefix={"form-control"}
+                                    value={field.value}
+                                    options={listPoint}
+                                  />
+                                )}
+                                rules={Validate.diemLayRong}
+                              />
+                              {errors.DiemLayRong && (
+                                <span className="text-danger">
+                                  {errors.DiemLayRong.message}
+                                </span>
                               )}
-                              rules={Validate.diemLayRong}
-                            />
-                            {errors.DiemLayRong && (
-                              <span className="text-danger">
-                                {errors.DiemLayRong.message}
-                              </span>
-                            )}
-                          </>
-                        )}
-                        {transportType && transportType === "nhap" && (
-                          <>
-                            <label htmlFor="DiemTraRong">
-                              Điểm Trả Rỗng(*)
-                            </label>
-                            <Controller
-                              name={`DiemTraRong`}
-                              control={control}
-                              render={({ field }) => (
-                                <Select
-                                  {...field}
-                                  isDisabled={
-                                    accountType && accountType === "NV"
-                                      ? false
-                                      : true
-                                  }
-                                  classNamePrefix={"form-control"}
-                                  value={field.value}
-                                  options={listPoint}
-                                />
+                            </>
+                          )}
+                          {transportType && transportType === "nhap" && (
+                            <>
+                              <label htmlFor="DiemTraRong">
+                                Điểm Trả Rỗng(*)
+                              </label>
+                              <Controller
+                                name={`DiemTraRong`}
+                                control={control}
+                                render={({ field }) => (
+                                  <Select
+                                    {...field}
+                                    isDisabled={
+                                      accountType && accountType === "NV"
+                                        ? false
+                                        : true
+                                    }
+                                    classNamePrefix={"form-control"}
+                                    value={field.value}
+                                    options={listPoint}
+                                  />
+                                )}
+                                rules={Validate.diemLayRong}
+                              />
+                              {errors.DiemTraRong && (
+                                <span className="text-danger">
+                                  {errors.DiemTraRong.message}
+                                </span>
                               )}
-                              rules={Validate.diemLayRong}
-                            />
-                            {errors.DiemTraRong && (
-                              <span className="text-danger">
-                                {errors.DiemTraRong.message}
-                              </span>
-                            )}
-                          </>
-                        )}
+                            </>
+                          )}
+                        </div>
                       </div>
-                    </div>
+                    </>
                   )}
                 {accountType && accountType === "NV" && (
                   <>
@@ -1226,6 +1253,25 @@ const UpdateHandling = (props) => {
                         )}
                       </div>
                     </div>
+
+                    {accountType &&
+                      accountType === "NV" &&
+                      transportType &&
+                      transportType === "xuat" && (
+                        <div className="col col-sm">
+                          <div className="form-group">
+                            <label htmlFor="ReuseCont">Reuse CONT</label>
+                            <select
+                              className="form-control"
+                              {...register(`ReuseCont`)}
+                            >
+                              <option value={true}>Có</option>
+                              <option value={false}>Không</option>
+                            </select>
+                          </div>
+                        </div>
+                      )}
+
                     <div className="col col-sm">
                       <div className="form-group">
                         <label htmlFor="SEALNP">SEAL NP/Hãng Tàu</label>
@@ -1483,18 +1529,94 @@ const UpdateHandling = (props) => {
               </div>
             </div>
             <div className="card-footer">
-              <div>
-                <button
-                  type="submit"
-                  className="btn btn-primary"
-                  style={{ float: "right" }}
-                >
-                  Xác Nhận
-                </button>
+              <div className="row">
+                <div className="col col-6">
+                  <>
+                    <button
+                      onClick={() =>
+                        handleShowModal(
+                          SetShowModal("addSubFee"),
+                          setTitle("Thêm Mới Phụ Phí Phát Sinh")
+                        )
+                      }
+                      type="button"
+                      className="btn btn-title btn-sm btn-default mx-1"
+                      gloss="Phụ Phí Phát Sinh"
+                    >
+                      <i className="fas fa-file-invoice-dollar"></i>
+                    </button>
+                  </>
+                  <>
+                    <button
+                      onClick={() =>
+                        handleShowModal(
+                          SetShowModal("Image"),
+                          setTitle("Quản Lý Chứng Từ Chuyến")
+                        )
+                      }
+                      type="button"
+                      className="btn btn-title btn-sm btn-default mx-1"
+                      gloss="Xem Hình Ảnh"
+                    >
+                      <i className="fas fa-image"></i>
+                    </button>
+                  </>
+                </div>
+                <div className="col col-6">
+                  <button
+                    type="submit"
+                    className="btn btn-primary"
+                    style={{ float: "right" }}
+                  >
+                    Xác Nhận
+                  </button>
+                </div>
               </div>
             </div>
           </form>
         )}
+      </div>
+      <div
+        className="modal fade"
+        id="modal-xl"
+        data-backdrop="static"
+        ref={parseExceptionModal}
+        aria-labelledby="parseExceptionModal"
+        backdrop="static"
+      >
+        <div
+          className="modal-dialog modal-dialog-scrollable"
+          style={{ maxWidth: "90%" }}
+        >
+          <div className="modal-content">
+            <div className="modal-header">
+              <h5>{title}</h5>
+              <button
+                type="button"
+                className="close"
+                data-dismiss="modal"
+                onClick={() => modal.hide()}
+                aria-label="Close"
+              >
+                <span aria-hidden="true">×</span>
+              </button>
+            </div>
+            <div className="modal-body">
+              <>
+                {ShowModal === "Image" && (
+                  <HandlingImage
+                    dataClick={selectIdClick}
+                    hideModal={modal.hide()}
+                    checkModal={modal}
+                  />
+                )}
+                {ShowModal === "addSubFee" && (
+                  <AddSubFeeByHandling dataClick={selectIdClick} />
+                )}
+              </>
+            </div>
+          </div>
+        </div>
       </div>
     </>
   );

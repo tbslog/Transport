@@ -10,7 +10,8 @@ import DatePicker from "react-datepicker";
 import AddPriceTable from "../PriceListManage/AddPriceTable";
 import ApproveContract from "./ApproveContract";
 
-const ContractPage = () => {
+const ContractPage = (props) => {
+  const { dataSelected } = props;
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [totalRows, setTotalRows] = useState(0);
@@ -21,7 +22,6 @@ const ContractPage = () => {
   const [modal, setModal] = useState(null);
   const parseExceptionModal = useRef();
 
-  const [selectedRows, setSelectedRows] = useState([]);
   const [selectIdClick, setSelectIdClick] = useState({});
 
   const [tabIndex, setTabIndex] = useState(0);
@@ -32,7 +32,6 @@ const ContractPage = () => {
   const [listStatus, setListStatus] = useState([]);
   const [listContractType, setListContractType] = useState([]);
   const [contractType, setContractType] = useState("");
-  const [custommerType, setCustommerType] = useState("");
   const [title, setTitle] = useState("");
 
   const columns = useMemo(() => [
@@ -150,6 +149,30 @@ const ContractPage = () => {
     },
   ]);
 
+  useEffect(() => {
+    setLoading(true);
+    (async () => {
+      fetchData(1, "", "", "", "", "KH");
+      const getListContractType = await getData(`Common/GetListContractType`);
+      setListContractType(getListContractType);
+
+      let getStatusList = await getDataCustom(`Common/GetListStatus`, [
+        "Contract",
+      ]);
+      setListStatus(getStatusList);
+    })();
+
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    if (dataSelected && Object.keys(dataSelected).length > 0) {
+      let tabIndex = dataSelected.loaiKH === "KH" ? 0 : 1;
+      setTabIndex(tabIndex);
+      fetchData(1, dataSelected.tenKh, "", "", "", dataSelected.loaiKH);
+    }
+  }, [dataSelected]);
+
   const showModalForm = () => {
     const modal = new Modal(parseExceptionModal.current, {
       keyboard: false,
@@ -158,10 +181,6 @@ const ContractPage = () => {
     setModal(modal);
     modal.show();
   };
-
-  const handleChange = useCallback((state) => {
-    setSelectedRows(state.selectedRows);
-  }, []);
 
   const handleDownloadContact = async (val, type) => {
     if (val && type) {
@@ -205,6 +224,11 @@ const ContractPage = () => {
       KeyWord = keySearch;
     }
 
+    if (dataSelected && Object.keys(dataSelected).length > 0) {
+      KeyWord = dataSelected.tenKh;
+      customerType = dataSelected.loaiKH;
+    }
+
     const dataCus = await getData(
       `Contract/GetListContract?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}&fromDate=${fromDate}&toDate=${toDate}&contractType=${contractType}&customerType=${customerType}`
     );
@@ -228,12 +252,17 @@ const ContractPage = () => {
   const handlePerRowsChange = async (newPerPage, page) => {
     setLoading(true);
 
-    const dataCus = await getData(
-      `Contract/GetListContract?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}&fromDate=${fromDate}&toDate=${toDate}&contractType=${contractType}&customerType=${
-        tabIndex === 0 ? "KH" : "NCC"
-      }`
-    );
+    let customerType = tabIndex === 0 ? "KH" : "NCC";
+    let KeyWord = keySearch;
 
+    if (dataSelected && Object.keys(dataSelected).length > 0) {
+      KeyWord = dataSelected.tenKh;
+      customerType = dataSelected.loaiKH;
+    }
+
+    const dataCus = await getData(
+      `Contract/GetListContract?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${KeyWord}&fromDate=${fromDate}&toDate=${toDate}&contractType=${contractType}&customerType=${customerType}`
+    );
     setData(dataCus.data);
     setPerPage(newPerPage);
     setLoading(false);
@@ -242,24 +271,6 @@ const ContractPage = () => {
   const hideModal = () => {
     modal.hide();
   };
-
-  useEffect(() => {
-    setLoading(true);
-
-    (async () => {
-      fetchData(1, "", "", "", "", "KH");
-
-      const getListContractType = await getData(`Common/GetListContractType`);
-      setListContractType(getListContractType);
-
-      let getStatusList = await getDataCustom(`Common/GetListStatus`, [
-        "Contract",
-      ]);
-      setListStatus(getStatusList);
-    })();
-
-    setLoading(false);
-  }, []);
 
   const handleSearchClick = () => {
     fetchData(
@@ -270,17 +281,6 @@ const ContractPage = () => {
       "",
       tabIndex === 0 ? "KH" : "NCC"
     );
-  };
-
-  const handleExcelImportClick = (e) => {
-    setLoading(true);
-    var file = e.target.files[0];
-    e.target.value = null;
-
-    const importExcelCus = postFile("Contract/ReadFileExcel", {
-      formFile: file,
-    });
-    setLoading(false);
   };
 
   const handleRefeshDataClick = () => {
@@ -296,7 +296,6 @@ const ContractPage = () => {
     setTabIndex(tabIndex);
     let customerType = tabIndex === 0 ? "KH" : "NCC";
     fetchData(1, "", "", "", "", customerType);
-    setCustommerType(customerType);
   };
 
   const customStyles = {
@@ -563,8 +562,12 @@ const ContractPage = () => {
               onSelect={(index) => HandleOnChangeTabs(index)}
             >
               <TabList>
-                <Tab>Hợp Đồng Khách Hàng</Tab>
-                <Tab>Hợp Đồng Nhà Cung Cấp</Tab>
+                {!dataSelected && (
+                  <>
+                    <Tab>Hợp Đồng Khách Hàng</Tab>
+                    <Tab>Hợp Đồng Nhà Cung Cấp</Tab>
+                  </>
+                )}
               </TabList>
 
               <TabPanel>
@@ -577,7 +580,6 @@ const ContractPage = () => {
                     pagination
                     paginationServer
                     paginationTotalRows={totalRows}
-                    onSelectedRowsChange={handleChange}
                     onChangeRowsPerPage={handlePerRowsChange}
                     onChangePage={handlePageChange}
                     expandableRows
@@ -601,7 +603,6 @@ const ContractPage = () => {
                     pagination
                     paginationServer
                     paginationTotalRows={totalRows}
-                    onSelectedRowsChange={handleChange}
                     onChangeRowsPerPage={handlePerRowsChange}
                     onChangePage={handlePageChange}
                     expandableRows
@@ -617,29 +618,7 @@ const ContractPage = () => {
               </TabPanel>
             </Tabs>
           </div>
-          <div className="card-footer">
-            {/* <div className="row">
-              <div className="col-sm-3">
-                <a
-                  href=""
-                  download="Template Thêm mới cung đường.xlsx"
-                  className="btn btn-sm btn-default mx-1"
-                >
-                  <i className="fas fa-download"></i>
-                </a>
-                <div className="upload-btn-wrapper">
-                  <button className="btn btn-sm btn-default mx-1">
-                    <i className="fas fa-upload"></i>
-                  </button>
-                  <input
-                    type="file"
-                    name="myfile"
-                    onChange={(e) => handleExcelImportClick(e)}
-                  />
-                </div>
-              </div>
-            </div> */}
-          </div>
+          <div className="card-footer"></div>
         </div>
         <div
           className="modal fade"
