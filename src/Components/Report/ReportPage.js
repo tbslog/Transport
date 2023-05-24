@@ -158,9 +158,12 @@ const ReportPage = () => {
                               Thống kê số chuyến của khách hàng
                             </h3>
                           </div>
-                          <div className="card-body table-responsive p-0">
+                          <div
+                            className="card-body table-responsive p-0 overflow-auto "
+                            style={{ maxHeight: "50vh" }}
+                          >
                             <table className="table table-hover text-nowrap table-bordered">
-                              <thead>
+                              <thead className="bg-light sticky-top top-0">
                                 <tr>
                                   <th>Khách Hàng</th>
                                   <th>Tổng Số Booking</th>
@@ -220,7 +223,6 @@ const ReportPage = () => {
                                                 <td>{val.trucK9}</td>
                                                 <td>{val.trucK10}</td>
                                                 <td>{val.trucK150}</td>
-
                                                 <td>
                                                   {val.totalMoney.toLocaleString(
                                                     "vi-VI",
@@ -259,6 +261,204 @@ const ReportPage = () => {
                                             );
                                           }
                                         )}
+                                      <tr style={{ border: "3px solid" }}>
+                                        <td
+                                          style={{
+                                            textAlign: "center",
+                                            fontWeight: "bold",
+                                          }}
+                                        >
+                                          Tổng Tính:
+                                        </td>
+                                        <td>
+                                          {dataTransportReport.customerReports.reduce(
+                                            (acc, val) =>
+                                              acc +
+                                              parseFloat(val.totalBooking),
+                                            0
+                                          )}
+                                        </td>
+                                        <td>
+                                          {dataTransportReport.customerReports.reduce(
+                                            (acc, val) =>
+                                              acc + parseFloat(val.total),
+                                            0
+                                          )}
+                                        </td>
+                                        <td>
+                                          {dataTransportReport.customerReports.reduce(
+                                            (acc, val) =>
+                                              acc + parseFloat(val.conT20),
+                                            0
+                                          )}
+                                        </td>
+                                        <td>
+                                          {dataTransportReport.customerReports.reduce(
+                                            (acc, val) =>
+                                              acc + parseFloat(val.conT40),
+                                            0
+                                          )}
+                                        </td>
+                                        <td>
+                                          {dataTransportReport.customerReports.reduce(
+                                            (acc, val) =>
+                                              acc + parseFloat(val.conT40RF),
+                                            0
+                                          )}
+                                        </td>
+                                        <td>
+                                          {dataTransportReport.customerReports.reduce(
+                                            (acc, val) =>
+                                              acc + parseFloat(val.conT45),
+                                            0
+                                          )}
+                                        </td>
+                                        <td>
+                                          {dataTransportReport.customerReports.reduce(
+                                            (acc, val) =>
+                                              acc + parseFloat(val.trucK1),
+                                            0
+                                          )}
+                                        </td>
+                                        <td>
+                                          {dataTransportReport.customerReports.reduce(
+                                            (acc, val) =>
+                                              acc + parseFloat(val.trucK15),
+                                            0
+                                          )}
+                                        </td>
+                                        <td>
+                                          {dataTransportReport.customerReports.reduce(
+                                            (acc, val) =>
+                                              acc + parseFloat(val.trucK17),
+                                            0
+                                          )}
+                                        </td>
+                                        <td>
+                                          {dataTransportReport.customerReports.reduce(
+                                            (acc, val) =>
+                                              acc + parseFloat(val.trucK2),
+                                            0
+                                          )}
+                                        </td>
+                                        <td>
+                                          {dataTransportReport.customerReports.reduce(
+                                            (acc, val) =>
+                                              acc + parseFloat(val.trucK25),
+                                            0
+                                          )}
+                                        </td>
+                                        <td>
+                                          {dataTransportReport.customerReports.reduce(
+                                            (acc, val) =>
+                                              acc + parseFloat(val.trucK3),
+                                            0
+                                          )}
+                                        </td>
+                                        <td>
+                                          {dataTransportReport.customerReports.reduce(
+                                            (acc, val) =>
+                                              acc + parseFloat(val.trucK35),
+                                            0
+                                          )}
+                                        </td>
+                                        <td>
+                                          {dataTransportReport.customerReports.reduce(
+                                            (acc, val) =>
+                                              acc + parseFloat(val.trucK5),
+                                            0
+                                          )}
+                                        </td>
+                                        <td>
+                                          {dataTransportReport.customerReports.reduce(
+                                            (acc, val) =>
+                                              acc + parseFloat(val.trucK7),
+                                            0
+                                          )}
+                                        </td>
+                                        <td>
+                                          {dataTransportReport.customerReports.reduce(
+                                            (acc, val) =>
+                                              acc + parseFloat(val.trucK8),
+                                            0
+                                          )}
+                                        </td>
+                                        <td>
+                                          {dataTransportReport.customerReports.reduce(
+                                            (acc, val) =>
+                                              acc + parseFloat(val.trucK9),
+                                            0
+                                          )}
+                                        </td>
+                                        <td>
+                                          {dataTransportReport.customerReports.reduce(
+                                            (acc, val) =>
+                                              acc + parseFloat(val.trucK10),
+                                            0
+                                          )}
+                                        </td>
+                                        <td>
+                                          {dataTransportReport.customerReports.reduce(
+                                            (acc, val) =>
+                                              acc + parseFloat(val.trucK150),
+                                            0
+                                          )}
+                                        </td>
+
+                                        <td>
+                                          {dataTransportReport.customerReports
+                                            .reduce(
+                                              (acc, val) =>
+                                                acc +
+                                                parseFloat(val.totalMoney),
+                                              0
+                                            )
+                                            .toLocaleString("vi-VI", {
+                                              style: "currency",
+                                              currency: "VND",
+                                            })}
+                                        </td>
+                                        <td>
+                                          {dataTransportReport.customerReports
+                                            .reduce(
+                                              (acc, val) =>
+                                                acc + parseFloat(val.totalSf),
+                                              0
+                                            )
+                                            .toLocaleString("vi-VI", {
+                                              style: "currency",
+                                              currency: "VND",
+                                            })}
+                                        </td>
+                                        <td>
+                                          {dataTransportReport.customerReports
+                                            .reduce(
+                                              (acc, val) =>
+                                                acc + parseFloat(val.profit),
+                                              0
+                                            )
+                                            .toLocaleString("vi-VI", {
+                                              style: "currency",
+                                              currency: "VND",
+                                            })}
+                                        </td>
+                                        <td>
+                                          {Math.round(
+                                            (dataTransportReport.customerReports.reduce(
+                                              (acc, val) =>
+                                                acc + parseFloat(val.profit),
+                                              0
+                                            ) /
+                                              dataTransportReport.customerReports.reduce(
+                                                (acc, val) =>
+                                                  acc + parseFloat(val.totalSf),
+                                                0
+                                              )) *
+                                              100
+                                          )}
+                                          %
+                                        </td>
+                                      </tr>
                                     </>
                                   )}
                               </tbody>
@@ -275,9 +475,12 @@ const ReportPage = () => {
                               Thống kê số chuyến của nhà cung cấp
                             </h3>
                           </div>
-                          <div className="card-body table-responsive p-0">
+                          <div
+                            className="card-body table-responsive p-0 overflow-auto "
+                            style={{ maxHeight: "50vh" }}
+                          >
                             <table className="table table-hover text-nowrap table-bordered">
-                              <thead>
+                              <thead className="bg-light sticky-top top-0">
                                 <tr>
                                   <th>Tên Nhà Cung Cấp</th>
                                   <th>Tổng Số Chuyến</th>
@@ -373,6 +576,196 @@ const ReportPage = () => {
                                             );
                                           }
                                         )}
+                                      <tr style={{ border: "3px solid" }}>
+                                        <td
+                                          style={{
+                                            textAlign: "center",
+                                            fontWeight: "bold",
+                                          }}
+                                        >
+                                          Tổng Tính:
+                                        </td>
+                                        <td>
+                                          {dataTransportReport.supllierReports.reduce(
+                                            (acc, val) =>
+                                              acc + parseFloat(val.total),
+                                            0
+                                          )}
+                                        </td>
+                                        <td>
+                                          {dataTransportReport.supllierReports.reduce(
+                                            (acc, val) =>
+                                              acc + parseFloat(val.conT20),
+                                            0
+                                          )}
+                                        </td>
+                                        <td>
+                                          {dataTransportReport.supllierReports.reduce(
+                                            (acc, val) =>
+                                              acc + parseFloat(val.conT40),
+                                            0
+                                          )}
+                                        </td>
+                                        <td>
+                                          {dataTransportReport.supllierReports.reduce(
+                                            (acc, val) =>
+                                              acc + parseFloat(val.conT40RF),
+                                            0
+                                          )}
+                                        </td>
+                                        <td>
+                                          {dataTransportReport.supllierReports.reduce(
+                                            (acc, val) =>
+                                              acc + parseFloat(val.conT45),
+                                            0
+                                          )}
+                                        </td>
+                                        <td>
+                                          {dataTransportReport.supllierReports.reduce(
+                                            (acc, val) =>
+                                              acc + parseFloat(val.trucK1),
+                                            0
+                                          )}
+                                        </td>
+                                        <td>
+                                          {dataTransportReport.supllierReports.reduce(
+                                            (acc, val) =>
+                                              acc + parseFloat(val.trucK15),
+                                            0
+                                          )}
+                                        </td>
+                                        <td>
+                                          {dataTransportReport.supllierReports.reduce(
+                                            (acc, val) =>
+                                              acc + parseFloat(val.trucK17),
+                                            0
+                                          )}
+                                        </td>
+                                        <td>
+                                          {dataTransportReport.supllierReports.reduce(
+                                            (acc, val) =>
+                                              acc + parseFloat(val.trucK2),
+                                            0
+                                          )}
+                                        </td>
+                                        <td>
+                                          {dataTransportReport.supllierReports.reduce(
+                                            (acc, val) =>
+                                              acc + parseFloat(val.trucK25),
+                                            0
+                                          )}
+                                        </td>
+                                        <td>
+                                          {dataTransportReport.supllierReports.reduce(
+                                            (acc, val) =>
+                                              acc + parseFloat(val.trucK3),
+                                            0
+                                          )}
+                                        </td>
+                                        <td>
+                                          {dataTransportReport.supllierReports.reduce(
+                                            (acc, val) =>
+                                              acc + parseFloat(val.trucK35),
+                                            0
+                                          )}
+                                        </td>
+                                        <td>
+                                          {dataTransportReport.supllierReports.reduce(
+                                            (acc, val) =>
+                                              acc + parseFloat(val.trucK5),
+                                            0
+                                          )}
+                                        </td>
+                                        <td>
+                                          {dataTransportReport.supllierReports.reduce(
+                                            (acc, val) =>
+                                              acc + parseFloat(val.trucK7),
+                                            0
+                                          )}
+                                        </td>
+                                        <td>
+                                          {dataTransportReport.supllierReports.reduce(
+                                            (acc, val) =>
+                                              acc + parseFloat(val.trucK8),
+                                            0
+                                          )}
+                                        </td>
+                                        <td>
+                                          {dataTransportReport.supllierReports.reduce(
+                                            (acc, val) =>
+                                              acc + parseFloat(val.trucK9),
+                                            0
+                                          )}
+                                        </td>
+                                        <td>
+                                          {dataTransportReport.supllierReports.reduce(
+                                            (acc, val) =>
+                                              acc + parseFloat(val.trucK10),
+                                            0
+                                          )}
+                                        </td>
+                                        <td>
+                                          {dataTransportReport.supllierReports.reduce(
+                                            (acc, val) =>
+                                              acc + parseFloat(val.trucK150),
+                                            0
+                                          )}
+                                        </td>
+
+                                        <td>
+                                          {dataTransportReport.supllierReports
+                                            .reduce(
+                                              (acc, val) =>
+                                                acc +
+                                                parseFloat(val.totalMoney),
+                                              0
+                                            )
+                                            .toLocaleString("vi-VI", {
+                                              style: "currency",
+                                              currency: "VND",
+                                            })}
+                                        </td>
+                                        <td>
+                                          {dataTransportReport.supllierReports
+                                            .reduce(
+                                              (acc, val) =>
+                                                acc + parseFloat(val.totalSf),
+                                              0
+                                            )
+                                            .toLocaleString("vi-VI", {
+                                              style: "currency",
+                                              currency: "VND",
+                                            })}
+                                        </td>
+                                        <td>
+                                          {dataTransportReport.supllierReports
+                                            .reduce(
+                                              (acc, val) =>
+                                                acc + parseFloat(val.profit),
+                                              0
+                                            )
+                                            .toLocaleString("vi-VI", {
+                                              style: "currency",
+                                              currency: "VND",
+                                            })}
+                                        </td>
+                                        <td>
+                                          {Math.round(
+                                            (dataTransportReport.supllierReports.reduce(
+                                              (acc, val) =>
+                                                acc + parseFloat(val.profit),
+                                              0
+                                            ) /
+                                              dataTransportReport.supllierReports.reduce(
+                                                (acc, val) =>
+                                                  acc + parseFloat(val.totalSf),
+                                                0
+                                              )) *
+                                              100
+                                          )}
+                                          %
+                                        </td>
+                                      </tr>
                                     </>
                                   )}
                               </tbody>

@@ -61,6 +61,11 @@ const ApproveSubFeeByHandling = (props) => {
       sortable: true,
     },
     {
+      name: "Đơn Vị Chi Trả",
+      selector: (row) => row.payfor,
+      sortable: true,
+    },
+    {
       name: "Mã Số Xe",
       selector: (row) => row.maSoXe,
       sortable: true,

@@ -21,7 +21,14 @@ const AddSubFeeByHandling = (props) => {
     mode: "onChange",
   });
 
-  const Validate = {};
+  const Validate = {
+    Payfor: {
+      required: "Không được để trống",
+    },
+    DonGia: {
+      required: "Không được để trống",
+    },
+  };
 
   const { fields, append, remove } = useFieldArray({
     control, // control props comes from useForm (optional: if you are using FormContext)
@@ -37,6 +44,7 @@ const AddSubFeeByHandling = (props) => {
   const [IsLoading, SetIsLoading] = useState(true);
   const [tabIndex, setTabIndex] = useState(0);
   const [listSubFeeSelect, setListSubFeeSelect] = useState([]);
+  const [listsfPayfor, setListsfPayfor] = useState([]);
 
   useEffect(() => {
     (async () => {
@@ -60,6 +68,10 @@ const AddSubFeeByHandling = (props) => {
           },
         ]);
       }
+
+      let getlistSfPayfor = await getData(`Common/GetListsftPayfor`);
+      setListsfPayfor(getlistSfPayfor);
+
       SetIsLoading(false);
     })();
   }, []);
@@ -97,6 +109,16 @@ const AddSubFeeByHandling = (props) => {
           style: "currency",
           currency: "VND",
         }),
+      sortable: true,
+    },
+    {
+      name: "Loại Tiền Tệ",
+      selector: (row) => row.priceType,
+      sortable: true,
+    },
+    {
+      name: "Đơn Vị Chi Trả",
+      selector: (row) => row.payfor,
       sortable: true,
     },
     {
@@ -162,6 +184,7 @@ const AddSubFeeByHandling = (props) => {
       arr.push({
         IdTcommand: dataClick.maDieuPhoi,
         SfId: val.MaPhuPhi.value,
+        sftPayfor: parseInt(val.Payfor),
         FinalPrice: val.DonGia,
         Note: val.GhiChu,
       });
@@ -174,11 +197,11 @@ const AddSubFeeByHandling = (props) => {
       );
 
       if (createPriceTable === 1) {
-        reset();
         setValue("optionSubFee", [
           {
             MaPhuPhi: null,
             DonGia: null,
+            Payfor: null,
             GhiChu: null,
           },
         ]);
@@ -256,6 +279,7 @@ const AddSubFeeByHandling = (props) => {
                             <div className="row">
                               <div className="col-sm-3">
                                 <div className="form-group">
+                                  <label>Loại Phụ Phí</label>
                                   <Controller
                                     name={`optionSubFee.${index}.MaPhuPhi`}
                                     control={control}
@@ -281,6 +305,39 @@ const AddSubFeeByHandling = (props) => {
                               </div>
                               <div className="col-sm-2">
                                 <div className="form-group">
+                                  <label>Đơn Vị Chi Trả</label>
+                                  <select
+                                    className="form-control"
+                                    {...register(
+                                      `optionSubFee.${index}.Payfor`,
+                                      Validate.Payfor
+                                    )}
+                                  >
+                                    {listsfPayfor &&
+                                      listsfPayfor.map((val) => {
+                                        return (
+                                          <option
+                                            value={val.payForId}
+                                            key={val.payForId}
+                                          >
+                                            {val.pfName}
+                                          </option>
+                                        );
+                                      })}
+                                  </select>
+                                  {errors.optionSubFee?.[index]?.Payfor && (
+                                    <span className="text-danger">
+                                      {
+                                        errors.optionSubFee?.[index]?.Payfor
+                                          .message
+                                      }
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                              <div className="col-sm-2">
+                                <div className="form-group">
+                                  <label>Đơn Giá</label>
                                   <input
                                     type="text"
                                     className="form-control"
@@ -301,8 +358,9 @@ const AddSubFeeByHandling = (props) => {
                                   )}
                                 </div>
                               </div>
-                              <div className="col-sm-7">
+                              <div className="col-sm-5">
                                 <div className="form-group">
+                                  <label>Ghi Chú</label>
                                   <input
                                     type="text"
                                     className="form-control"

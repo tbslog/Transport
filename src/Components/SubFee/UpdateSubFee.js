@@ -26,6 +26,9 @@ const UpdateSubFee = (props) => {
     LoaiPhuPhi: {
       required: "Không được để trống",
     },
+    LoaiTienTe: {
+      required: "Không được để trống",
+    },
     DonGia: {
       required: "Không được để trống",
       maxLength: {
@@ -56,6 +59,7 @@ const UpdateSubFee = (props) => {
   const [listSPlace, setListSPlace] = useState([]);
   const [listEPlace, setListEPlace] = useState([]);
   const [listAccountCus, setListAccountCus] = useState([]);
+  const [listPriceTrade, setListPriceTrade] = useState([]);
 
   useEffect(() => {
     (async () => {
@@ -66,6 +70,9 @@ const UpdateSubFee = (props) => {
       setListCustomerType(getListCustommerType);
       let getListGoodsType = await getData("Common/GetListGoodsType");
       setListGoodsTypes(getListGoodsType);
+
+      let getListPriceTrade = await getData("Common/LoadDataPriceTrade");
+      setListPriceTrade(getListPriceTrade);
 
       const getListPlace = await getData(
         "Address/GetListAddressSelect?pointType=&type="
@@ -169,6 +176,7 @@ const UpdateSubFee = (props) => {
       setValue("MaLoaiHangHoa", selectIdClick.goodsType);
       setValue("DonGia", selectIdClick.price);
       setValue("Description", selectIdClick.description);
+      setValue("LoaiTienTe", selectIdClick.priceType);
 
       setValue(
         "MaHopDong",
@@ -324,6 +332,7 @@ const UpdateSubFee = (props) => {
         CusType: data.PhanLoaiDoiTac,
         ContractId: data.MaHopDong.value,
         SfId: data.LoaiPhuPhi.value,
+        priceType: data.LoaiTienTe,
         GoodsType: !data.MaLoaiHangHoa ? null : data.MaLoaiHangHoa,
         VehicleType: !data.LoaiPhuongTien ? null : data.LoaiPhuongTien,
         firstPlace: !data.DiemDau
@@ -645,6 +654,33 @@ const UpdateSubFee = (props) => {
                   />
                   {errors.DonGia && (
                     <span className="text-danger">{errors.DonGia.message}</span>
+                  )}
+                </div>
+              </div>
+              <div className="col col-sm">
+                <div className="form-group">
+                  <label htmlFor="LoaiTienTe">Loại Tiền Tệ(*)</label>
+                  <select
+                    className="form-control"
+                    {...register(`LoaiTienTe`, Validate.LoaiTienTe)}
+                  >
+                    <option value="">Chọn loại tiền tệ</option>
+                    {listPriceTrade &&
+                      listPriceTrade.map((val) => {
+                        return (
+                          <option
+                            value={val.maLoaiTienTe}
+                            key={val.maLoaiTienTe}
+                          >
+                            {val.tenLoaiTienTe}
+                          </option>
+                        );
+                      })}
+                  </select>
+                  {errors.LoaiTienTe && (
+                    <span className="text-danger">
+                      {errors.LoaiTienTe.message}
+                    </span>
                   )}
                 </div>
               </div>

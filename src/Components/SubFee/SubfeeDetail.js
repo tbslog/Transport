@@ -101,6 +101,10 @@ const SubfeeDetail = (props) => {
         }),
     },
     {
+      name: <div>Loại Tiền Tệ</div>,
+      selector: (row) => row.priceType,
+    },
+    {
       name: <div>Thời gian Áp Dụng</div>,
       selector: (row) => row.approvedDate,
       sortable: true,
@@ -144,7 +148,6 @@ const SubfeeDetail = (props) => {
   const [totalRows, setTotalRows] = useState(0);
   const [perPage, setPerPage] = useState(10);
   const [keySearch, setKeySearch] = useState("");
-  const [loading, setLoading] = useState(false);
 
   const [contractId, setContractId] = useState("");
 
@@ -292,7 +295,7 @@ const SubfeeDetail = (props) => {
     );
   };
   const handleOnChangeVehicleType = (value) => {
-    setLoading(true);
+    SetIsLoading(true);
     setVehicleType(value);
     fetchData(
       selectIdClick.maKH,
@@ -306,11 +309,11 @@ const SubfeeDetail = (props) => {
       listEPlaceSelected,
       listAccountSelected
     );
-    setLoading(false);
+    SetIsLoading(false);
   };
 
   const handleOnChangeGoodsType = (value) => {
-    setLoading(true);
+    SetIsLoading(true);
     setGoodsType(value);
     fetchData(
       selectIdClick.maKH,
@@ -324,7 +327,7 @@ const SubfeeDetail = (props) => {
       listEPlaceSelected,
       listAccountSelected
     );
-    setLoading(false);
+    SetIsLoading(false);
   };
 
   const ShowConfirmDialog = () => {
@@ -415,7 +418,7 @@ const SubfeeDetail = (props) => {
 
   const handleOnChangeFilterSelect = async (values, type) => {
     if (values) {
-      setLoading(true);
+      SetIsLoading(true);
 
       let arrFPlace = [];
       let arrSPlace = [];
@@ -487,7 +490,7 @@ const SubfeeDetail = (props) => {
         arrEplace,
         arrAcc
       );
-      setLoading(false);
+      SetIsLoading(false);
     }
   };
 

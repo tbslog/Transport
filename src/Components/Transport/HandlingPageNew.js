@@ -28,7 +28,7 @@ const HandlingPageNew = () => {
     {
       cell: (val) => (
         <>
-          {val.statusId && (
+          {val.statusId ? (
             <>
               <>
                 <button
@@ -138,6 +138,79 @@ const HandlingPageNew = () => {
                 </button>
               </>
             </>
+          ) : (
+            <>
+              <>
+                <button
+                  type="button"
+                  className="btn btn-sm btn-default mx-1"
+                  disabled={true}
+                >
+                  <i className="fas fa-window-close"></i>
+                </button>
+              </>
+
+              <>
+                <button
+                  onClick={() => handleOnClickMarge(val)}
+                  type="button"
+                  className="btn btn-title btn-sm btn-default mx-1"
+                  gloss="Chỉnh Sửa"
+                >
+                  <i className="far fa-edit"></i>
+                </button>
+              </>
+              <>
+                {val.maPTVC === "FCL" || val.maPTVC === "FTL" ? (
+                  <>
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-default mx-1"
+                      disabled={true}
+                    >
+                      <i className="fas fa-sliders-h"></i>
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      disabled={true}
+                      type="button"
+                      className="btn btn-sm btn-default mx-1"
+                    >
+                      <i className="fas fa-sliders-h"></i>
+                    </button>
+                  </>
+                )}
+              </>
+              <>
+                <button
+                  type="button"
+                  className="btn btn-sm btn-default mx-1"
+                  disabled={true}
+                >
+                  <i className="fas fa-exchange-alt"></i>
+                </button>
+              </>
+              <>
+                <button
+                  type="button"
+                  className="btn btn-sm btn-default mx-1"
+                  disabled={true}
+                >
+                  <i className="fas fa-file-invoice-dollar"></i>
+                </button>
+              </>
+              <>
+                <button
+                  type="button"
+                  className="btn btn-sm btn-default mx-1"
+                  disabled={true}
+                >
+                  <i className="fas fa-image"></i>
+                </button>
+              </>
+            </>
           )}
         </>
       ),
@@ -235,6 +308,11 @@ const HandlingPageNew = () => {
     {
       name: <div>Mã CONT</div>,
       selector: (row) => <div className="text-wrap">{row.contNo}</div>,
+      sortable: true,
+    },
+    {
+      name: <div>Reuse</div>,
+      selector: (row) => <div className="text-wrap">{row.reuse}</div>,
       sortable: true,
     },
     {
@@ -536,7 +614,7 @@ const HandlingPageNew = () => {
 
   const renderButtonByStatus = (val) => {
     if (val.ptVanChuyen.includes("CONT")) {
-      if (val.phanLoaiVanDon === "xuat") {
+      if (val.phanLoaiVanDon === "Xuất") {
         switch (val.statusId) {
           case 27:
             return (
@@ -607,7 +685,7 @@ const HandlingPageNew = () => {
             return null;
         }
       }
-      if (val.phanLoaiVanDon === "nhap") {
+      if (val.phanLoaiVanDon === "Nhập") {
         switch (val.statusId) {
           case 27:
             return (
@@ -941,14 +1019,22 @@ const HandlingPageNew = () => {
     setSelectedRows(state.selectedRows);
   };
 
-  const handleOnClickMarge = () => {
-    if (selectedRows && selectedRows.length > 0) {
-      setItemSelected(selectedRows);
-      showModalForm(SetShowModal("MargeTransport"), setTitle("Gộp Chuyến"));
+  const handleOnClickMarge = (val) => {
+    if (val) {
+      setItemSelected([val]);
+      showModalForm(
+        SetShowModal("MargeTransport"),
+        setTitle("Cập nhật thông tin điều phối")
+      );
     } else {
-      setItemSelected([]);
-      ToastError("Vui lòng chọn vận đơn để gộp");
-      return;
+      if (selectedRows && selectedRows.length > 0) {
+        setItemSelected(selectedRows);
+        showModalForm(SetShowModal("MargeTransport"), setTitle("Gộp Chuyến"));
+      } else {
+        setItemSelected([]);
+        ToastError("Vui lòng chọn vận đơn để gộp");
+        return;
+      }
     }
   };
 
@@ -1099,7 +1185,7 @@ const HandlingPageNew = () => {
                         type="button"
                         className="btn btn-title btn-sm btn-default mx-1"
                         gloss="Gộp Chuyến "
-                        onClick={() => handleOnClickMarge()}
+                        onClick={() => handleOnClickMarge({})}
                       >
                         <i className="fas fa-layer-group"></i>
                       </button>

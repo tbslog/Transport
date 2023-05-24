@@ -51,7 +51,7 @@ const DetailBillCustomer = (props) => {
             total = total + hl.giaQuyDoi;
 
             hl.listSubFeeByContract.forEach((val) => {
-              totalsf = totalsf + val.unitPrice;
+              totalsf = totalsf + val.priceTransfer;
             });
             hl.listSubFeeIncurreds.forEach((val) => {
               totalsf = totalsf + val.price;
@@ -235,9 +235,9 @@ const DetailBillCustomer = (props) => {
                                                         <>
                                                           <tr>
                                                             <td
-                                                              colSpan={1}
+                                                              colSpan={2}
                                                             ></td>
-                                                            <td colSpan={6}>
+                                                            <td colSpan={7}>
                                                               <table className="table table-bordered table-sm table-responsive-sm">
                                                                 <thead>
                                                                   <tr>
@@ -252,6 +252,14 @@ const DetailBillCustomer = (props) => {
                                                                     </th>
                                                                     <th>
                                                                       Đơn Giá
+                                                                    </th>
+                                                                    <th>
+                                                                      Loại Tiền
+                                                                      Tệ
+                                                                    </th>
+                                                                    <th>
+                                                                      Giá Trị
+                                                                      Quy Đổi
                                                                     </th>
                                                                   </tr>
                                                                 </thead>
@@ -274,7 +282,17 @@ const DetailBillCustomer = (props) => {
                                                                               }
                                                                             </td>
                                                                             <td>
-                                                                              {val2.unitPrice.toLocaleString(
+                                                                              {
+                                                                                val2.unitPrice
+                                                                              }
+                                                                            </td>
+                                                                            <td>
+                                                                              {
+                                                                                val2.priceType
+                                                                              }
+                                                                            </td>
+                                                                            <td>
+                                                                              {val2.priceTransfer.toLocaleString(
                                                                                 "vi-VI",
                                                                                 {
                                                                                   style:
@@ -302,9 +320,9 @@ const DetailBillCustomer = (props) => {
                                                         <>
                                                           <tr>
                                                             <td
-                                                              colSpan={1}
+                                                              colSpan={2}
                                                             ></td>
-                                                            <td colSpan={6}>
+                                                            <td colSpan={7}>
                                                               <table className="table table-bordered table-sm table-responsive-sm">
                                                                 <thead>
                                                                   <tr>

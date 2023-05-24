@@ -104,6 +104,10 @@ const ApproveSubFee = (props) => {
         }),
     },
     {
+      name: <div>Loại Tiền Tệ</div>,
+      selector: (row) => row.priceType,
+    },
+    {
       name: "Trạng Thái",
       selector: (row) => row.status,
       sortable: true,

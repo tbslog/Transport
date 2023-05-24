@@ -40,7 +40,7 @@ const DetailBillByTransport = (props) => {
       dataHandling.map((sc) => {
         if (sc.listSubFeeByContract && sc.listSubFeeByContract.length > 0) {
           sc.listSubFeeByContract.map((sfc) => {
-            total += parseFloat(sfc.unitPrice);
+            total += parseFloat(sfc.priceTransfer);
           });
         }
         if (sc.listSubFeeIncurreds && sc.listSubFeeIncurreds.length > 0) {
@@ -231,7 +231,7 @@ const DetailBillByTransport = (props) => {
                                                   <>
                                                     <tr>
                                                       <th
-                                                        colSpan={7}
+                                                        colSpan={9}
                                                         style={{
                                                           textAlign: "center",
                                                         }}
@@ -241,8 +241,8 @@ const DetailBillByTransport = (props) => {
                                                       </th>
                                                     </tr>
                                                     <tr>
-                                                      <td colSpan={1}></td>
-                                                      <td colSpan={6}>
+                                                      <td colSpan={2}></td>
+                                                      <td colSpan={7}>
                                                         <table className="table table-striped table-bordered table-hover table-sm table-responsive-sm">
                                                           <thead>
                                                             <tr>
@@ -259,6 +259,12 @@ const DetailBillByTransport = (props) => {
                                                                 Tên Phụ Phí
                                                               </th>
                                                               <th>Đơn Giá</th>
+                                                              <th>
+                                                                Loại Tiền Tệ
+                                                              </th>
+                                                              <th>
+                                                                Giá Trị Quy Đổi
+                                                              </th>
                                                             </tr>
                                                           </thead>
                                                           <tbody>
@@ -290,7 +296,17 @@ const DetailBillByTransport = (props) => {
                                                                         }
                                                                       </td>
                                                                       <td>
-                                                                        {val2.unitPrice.toLocaleString(
+                                                                        {
+                                                                          val2.unitPrice
+                                                                        }
+                                                                      </td>
+                                                                      <td>
+                                                                        {
+                                                                          val2.priceType
+                                                                        }
+                                                                      </td>
+                                                                      <td>
+                                                                        {val2.priceTransfer.toLocaleString(
                                                                           "vi-VI",
                                                                           {
                                                                             style:
@@ -317,7 +333,7 @@ const DetailBillByTransport = (props) => {
                                                   <>
                                                     <tr>
                                                       <th
-                                                        colSpan={7}
+                                                        colSpan={9}
                                                         style={{
                                                           textAlign: "center",
                                                         }}
@@ -326,8 +342,8 @@ const DetailBillByTransport = (props) => {
                                                       </th>
                                                     </tr>
                                                     <tr>
-                                                      <td colSpan={1}></td>
-                                                      <td colSpan={6}>
+                                                      <td colSpan={2}></td>
+                                                      <td colSpan={7}>
                                                         <table className="table table-striped table-bordered table-hover table-sm table-responsive-sm">
                                                           <thead>
                                                             <tr>
