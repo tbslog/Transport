@@ -77,7 +77,8 @@ namespace TBSLogistics.Service.Services.VehicleManage
 
                 if (result > 0)
                 {
-                    await _common.Log("VehicleManage", "UserId: " + tempData.UserID + " Create vehicle with data: " + JsonSerializer.Serialize(request));
+					await _common.LogTimeUsedOfUser(tempData.Token);
+					await _common.Log("VehicleManage", "UserId: " + tempData.UserID + " Create vehicle with data: " + JsonSerializer.Serialize(request));
                     return new BoolActionResult { isSuccess = true, Message = "Tạo mới xe thành công" };
                 }
                 else
@@ -129,7 +130,8 @@ namespace TBSLogistics.Service.Services.VehicleManage
 
                 if (result > 0)
                 {
-                    await _common.Log("VehicleManage", "UserId: " + tempData.UserID + " Update vehicle with data: " + JsonSerializer.Serialize(request));
+					await _common.LogTimeUsedOfUser(tempData.Token);
+					await _common.Log("VehicleManage", "UserId: " + tempData.UserID + " Update vehicle with data: " + JsonSerializer.Serialize(request));
                     return new BoolActionResult { isSuccess = true, Message = "Cập nhật xe thành công" };
                 }
                 else

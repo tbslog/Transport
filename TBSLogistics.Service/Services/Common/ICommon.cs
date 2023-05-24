@@ -24,5 +24,6 @@ namespace TBSLogistics.Service.Services.Common
         TempData DecodeToken(string token);
         Task SendMail(MailContent mailContent);
         Task SendEmailAsync(string email, string subject, string htmlMessage);
-    }
+        Task LogTimeUsedOfUser(string token);
+	}
 }

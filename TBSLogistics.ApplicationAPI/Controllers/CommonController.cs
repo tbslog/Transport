@@ -96,6 +96,14 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 			return Ok(list);
 		}
 
+		[HttpGet]
+		[Route("[action]")]
+		public async Task<IActionResult> GetListsftPayfor()
+		{
+			var list = await _tMSContext.SftPayFor.ToListAsync();
+			return Ok(list);
+		}
+
 		[HttpPost]
 		[Route("[action]")]
 		public async Task<IActionResult> GetListStatus(List<string> funcId)

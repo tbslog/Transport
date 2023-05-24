@@ -128,7 +128,8 @@ namespace TBSLogistics.Service.Services.ContractManage
                         }
                     }
 
-                    await _common.Log("ContractManage", "UserId: " + tempData.UserName + " create new contract with Data: " + JsonSerializer.Serialize(request));
+					await _common.LogTimeUsedOfUser(tempData.Token);
+					await _common.Log("ContractManage", "UserId: " + tempData.UserName + " create new contract with Data: " + JsonSerializer.Serialize(request));
                     await transaction.CommitAsync();
                     return new BoolActionResult { isSuccess = true, Message = "Tạo mới hợp đồng thành công!" };
                 }
@@ -218,8 +219,8 @@ namespace TBSLogistics.Service.Services.ContractManage
                             return rs_Costing;
                         }
                     }
-
-                    await _common.Log("ContractManage", "UserId: " + tempData.UserName + " Update contract with Data: " + JsonSerializer.Serialize(request));
+					await _common.LogTimeUsedOfUser(tempData.Token);
+					await _common.Log("ContractManage", "UserId: " + tempData.UserName + " Update contract with Data: " + JsonSerializer.Serialize(request));
                     await transaction.CommitAsync();
                     return new BoolActionResult { isSuccess = true, Message = "Cập nhật hợp đồng thành công!" };
                 }
@@ -391,7 +392,8 @@ namespace TBSLogistics.Service.Services.ContractManage
 
                 if (result > 0)
                 {
-                    await _common.Log("SubFeePriceManage", "UserId: " + tempData.UserID + " Approve SubFeePrice with data: " + JsonSerializer.Serialize(request));
+					await _common.LogTimeUsedOfUser(tempData.Token);
+					await _common.Log("SubFeePriceManage", "UserId: " + tempData.UserID + " Approve SubFeePrice with data: " + JsonSerializer.Serialize(request));
                     return new BoolActionResult { isSuccess = true, Message = "Duyệt Hợp đồng/Phụ Lục thành công!" };
                 }
                 else
@@ -588,8 +590,8 @@ namespace TBSLogistics.Service.Services.ContractManage
                 return new BoolActionResult { isSuccess = false, Message = add.Message };
             }
             await _common.SaveFileAsync(file.OpenReadStream(), fileName, PathFolder);
-
-            return new BoolActionResult { isSuccess = true }; ;
+			await _common.LogTimeUsedOfUser(tempData.Token);
+			return new BoolActionResult { isSuccess = true }; ;
         }
     }
 }

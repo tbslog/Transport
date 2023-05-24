@@ -103,7 +103,8 @@ namespace TBSLogistics.Service.Services.AddressManage
                 if (result > 0)
                 {
                     await _common.Log("AddressManage", "UserId: " + tempData.UserName + " create new Address with Data: " + JsonSerializer.Serialize(request));
-                    return new BoolActionResult { isSuccess = true, Message = "Tạo mới địa điểm thành công" };
+					await _common.LogTimeUsedOfUser(tempData.Token);
+					return new BoolActionResult { isSuccess = true, Message = "Tạo mới địa điểm thành công" };
                 }
                 else
                 {
@@ -170,7 +171,8 @@ namespace TBSLogistics.Service.Services.AddressManage
                 if (result > 0)
                 {
                     await _common.Log("AddressManage", "UserId: " + tempData.UserName + " edit Address with data: " + JsonSerializer.Serialize(request));
-                    return new BoolActionResult { isSuccess = true, Message = "Cập nhật địa điểm thành công" };
+					await _common.LogTimeUsedOfUser(tempData.Token);
+					return new BoolActionResult { isSuccess = true, Message = "Cập nhật địa điểm thành công" };
                 }
                 else
                 {

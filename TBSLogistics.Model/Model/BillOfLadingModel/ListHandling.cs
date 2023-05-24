@@ -11,6 +11,7 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
     {
         public int? TongVanDonGhep { get; set; }
         public string AccountName { get; set; }
+        public string Reuse { get; set; }
         public int ContNum { get; set; }
         public string MaChuyen { get; set; }
         public string DiemDau { get; set; }

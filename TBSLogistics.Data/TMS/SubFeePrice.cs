@@ -34,6 +34,7 @@ namespace TBSLogistics.Data.TMS
         public int? FirstPlace { get; set; }
         public int? SecondPlace { get; set; }
         public string AccountId { get; set; }
+        public string PriceType { get; set; }
 
         public virtual AccountOfCustomer Account { get; set; }
         public virtual HopDongVaPhuLuc Contract { get; set; }

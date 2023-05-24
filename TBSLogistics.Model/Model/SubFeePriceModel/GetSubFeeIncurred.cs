@@ -11,6 +11,7 @@ namespace TBSLogistics.Model.Model.SubFeePriceModel
         public int? PlaceId { get; set; }
         public string MaVanDon { get; set; }
         public string TaiXe { get; set; }
+        public int sftPayfor { get; set; }
         public string MaSoXe { get; set; }
         public string Romooc { get; set; }
         public string LoaiPhuongTien { get; set; }

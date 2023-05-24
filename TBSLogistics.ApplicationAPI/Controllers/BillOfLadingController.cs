@@ -719,17 +719,18 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 				workSheet.Cells[1, 6].Value = "Account";
 				workSheet.Cells[1, 7].Value = "Đơn Vị Vận Tải";
 				workSheet.Cells[1, 8].Value = "Mã CONT";
-				workSheet.Cells[1, 9].Value = "Loại Phương Tiện";
-				workSheet.Cells[1, 10].Value = "Hãng Tàu";
-				workSheet.Cells[1, 11].Value = "Điểm Lấy Rỗng";
-				workSheet.Cells[1, 12].Value = "Điểm Trả Rỗng";
-				workSheet.Cells[1, 13].Value = "Điểm Đóng Hàng";
-				workSheet.Cells[1, 14].Value = "Điểm Hạ Hàng";
-				workSheet.Cells[1, 15].Value = "Khối Lượng";
-				workSheet.Cells[1, 16].Value = "Thể Tích";
-				workSheet.Cells[1, 17].Value = "Số Kiện";
-				workSheet.Cells[1, 18].Value = "Trạng Thái";
-				workSheet.Cells[1, 19].Value = "Thời Gian Tạo";
+				workSheet.Cells[1, 9].Value = "Reuse Cont";
+				workSheet.Cells[1, 10].Value = "Loại Phương Tiện";
+				workSheet.Cells[1, 11].Value = "Hãng Tàu";
+				workSheet.Cells[1, 12].Value = "Điểm Lấy Rỗng";
+				workSheet.Cells[1, 13].Value = "Điểm Trả Rỗng";
+				workSheet.Cells[1, 14].Value = "Điểm Đóng Hàng";
+				workSheet.Cells[1, 15].Value = "Điểm Hạ Hàng";
+				workSheet.Cells[1, 16].Value = "Khối Lượng";
+				workSheet.Cells[1, 17].Value = "Thể Tích";
+				workSheet.Cells[1, 18].Value = "Số Kiện";
+				workSheet.Cells[1, 19].Value = "Trạng Thái";
+				workSheet.Cells[1, 20].Value = "Thời Gian Tạo";
 				int row = 2;
 				foreach (var item in data.dataResponse)
 				{
@@ -741,23 +742,24 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 					workSheet.Cells[row, 6].Value = item.AccountName;
 					workSheet.Cells[row, 7].Value = item.DonViVanTai;
 					workSheet.Cells[row, 8].Value = item.ContNo;
-					workSheet.Cells[row, 9].Value = item.PTVanChuyen;
-					workSheet.Cells[row, 10].Value = item.HangTau;
-					workSheet.Cells[row, 11].Value = item.DiemLayRong;
-					workSheet.Cells[row, 12].Value = item.DiemTraRong;
-					workSheet.Cells[row, 13].Value = item.DiemDau;
-					workSheet.Cells[row, 14].Value = item.DiemCuoi;
-					workSheet.Cells[row, 15].Value = item.KhoiLuong;
-					workSheet.Cells[row, 16].Value = item.TheTich;
-					workSheet.Cells[row, 17].Value = item.SoKien;
-					workSheet.Cells[row, 18].Value = item.TrangThai;
-					workSheet.Cells[row, 19].Value = item.ThoiGianTaoDon.ToString();
+					workSheet.Cells[row, 9].Value = item.Reuse;
+					workSheet.Cells[row, 10].Value = item.PTVanChuyen;
+					workSheet.Cells[row, 11].Value = item.HangTau;
+					workSheet.Cells[row, 12].Value = item.DiemLayRong;
+					workSheet.Cells[row, 13].Value = item.DiemTraRong;
+					workSheet.Cells[row, 14].Value = item.DiemDau;
+					workSheet.Cells[row, 15].Value = item.DiemCuoi;
+					workSheet.Cells[row, 16].Value = item.KhoiLuong;
+					workSheet.Cells[row, 17].Value = item.TheTich;
+					workSheet.Cells[row, 18].Value = item.SoKien;
+					workSheet.Cells[row, 19].Value = item.TrangThai;
+					workSheet.Cells[row, 20].Value = item.ThoiGianTaoDon.ToString();
 					row++;
 				}
 
-				workSheet.Cells["A1:Q1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-				workSheet.Cells["A1:Q1"].Style.Font.Bold = true;
-				workSheet.Cells["A1:Q1"].Style.Font.Size = 14;
+				workSheet.Cells["A1:R1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+				workSheet.Cells["A1:R1"].Style.Font.Bold = true;
+				workSheet.Cells["A1:R1"].Style.Font.Size = 14;
 
 				workSheet.Cells[workSheet.Dimension.Address].AutoFitColumns();
 				workSheet.Cells[workSheet.Dimension.Address].Style.Border.Top.Style = ExcelBorderStyle.Thin;

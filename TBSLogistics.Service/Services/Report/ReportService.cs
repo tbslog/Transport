@@ -1,11 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using TBSLogistics.Data.TMS;
 using TBSLogistics.Model.Model.ReportModel;
@@ -119,12 +116,18 @@ namespace TBSLogistics.Service.Services.Report
 				{
 					if (date.Date == item.dp.CreatedTime.Date)
 					{
+						double priceSf = 0;
+						_context.SubFeePrice.Where(c => _context.SubFeeByContract.Where(y => y.MaDieuPhoi == item.dp.Id).Select(y => y.PriceId).Contains(c.PriceId)).ToList().ForEach(async c =>
+						   {
+							   priceSf += c.Price * await _priceTable.GetPriceTradeNow(c.PriceType);
+						   });
+
 						listSubfee.Add(new arrDouble
 						{
 							date = item.dp.CreatedTime.Date,
 							value =
 							await _context.SfeeByTcommand.Where(y => y.IdTcommand == item.dp.Id && y.ApproveStatus == 14).SumAsync(y => y.Price) +
-							await _context.SubFeePrice.Where(c => _context.SubFeeByContract.Where(y => y.MaDieuPhoi == item.dp.Id).Select(y => y.PriceId).Contains(c.PriceId)).SumAsync(c => c.Price) +
+							priceSf +
 							((double)item.dp.DonGiaNcc * await _priceTable.GetPriceTradeNow(item.dp.LoaiTienTeNcc))
 						});
 					}
@@ -141,7 +144,6 @@ namespace TBSLogistics.Service.Services.Report
 				value = 0,
 			})).ToList();
 
-
 			var listRevenue = new List<arrDouble>();
 			foreach (var date in getAllDaysInMonth)
 			{
@@ -149,13 +151,19 @@ namespace TBSLogistics.Service.Services.Report
 				{
 					if (date.Date == item.dp.CreatedTime.Date)
 					{
+						double priceSf = 0;
+						_context.SubFeePrice.Where(c => _context.SubFeeByContract.Where(y => y.MaDieuPhoi == item.dp.Id).Select(y => y.PriceId).Contains(c.PriceId)).ToList().ForEach(async c =>
+					   {
+						   priceSf += c.Price * await _priceTable.GetPriceTradeNow(c.PriceType);
+					   });
+
 						listRevenue.Add(new arrDouble
 						{
 							date = item.dp.CreatedTime.Date,
 							value =
 							await _context.SfeeByTcommand.Where(y => y.IdTcommand == item.dp.Id && y.ApproveStatus == 14).SumAsync(y => y.Price) +
-							await _context.SubFeePrice.Where(c => _context.SubFeeByContract.Where(y => y.MaDieuPhoi == item.dp.Id).Select(y => y.PriceId).Contains(c.PriceId)).SumAsync(c => c.Price) +
-								((double)item.dp.DonGiaKh * await _priceTable.GetPriceTradeNow(item.dp.LoaiTienTeKh)),
+							 priceSf +
+							((double)item.dp.DonGiaKh * await _priceTable.GetPriceTradeNow(item.dp.LoaiTienTeKh)),
 						});
 					}
 				}
@@ -170,7 +178,6 @@ namespace TBSLogistics.Service.Services.Report
 				date = x.Date,
 				value = 0,
 			})).ToList();
-
 
 			var listProfit = new List<arrDouble>();
 			foreach (var date in getAllDaysInMonth)
@@ -244,19 +251,46 @@ namespace TBSLogistics.Service.Services.Report
 
 			var listData = await data.ToListAsync();
 			var listDataCustomer = new List<DataReportOfCustomer>();
+			var listDataSuplier = new List<DataReportOfCustomer>();
 
 			foreach (var item in listData)
 			{
+				double priceSf = 0;
+				_context.SubFeePrice.Where(y => _context.SubFeeByContract.Where(z => z.MaDieuPhoi == item.dp.Id).Select(z => z.PriceId).Contains(y.PriceId) && y.CusType == "KH").ToList().ForEach(async x =>
+			   {
+				   priceSf = x.Price * await _priceTable.GetPriceTradeNow(x.PriceType);
+			   });
+
 				listDataCustomer.Add(new DataReportOfCustomer()
 				{
 					customer = item.vd.MaKh,
-					supplier = item.dp.DonViVanTai,
 					totalSf = ((double)item.dp.DonGiaNcc * await _priceTable.GetPriceTradeNow(item.dp.LoaiTienTeNcc)) +
 					await _context.SfeeByTcommand.Where(y => y.IdTcommand == item.dp.Id && y.ApproveStatus == 14).SumAsync(y => y.Price) +
-					await _context.SubFeePrice.Where(y => _context.SubFeeByContract.Where(z => z.MaDieuPhoi == item.dp.Id).Select(z => z.PriceId).Contains(y.PriceId)).SumAsync(y => y.Price),
+					priceSf,
 					totalMoney = await _context.SfeeByTcommand.Where(y => y.IdTcommand == item.dp.Id && y.ApproveStatus == 14).SumAsync(y => y.Price) +
 					((double)item.dp.DonGiaKh * await _priceTable.GetPriceTradeNow(item.dp.LoaiTienTeKh)) +
-					await _context.SubFeePrice.Where(y => _context.SubFeeByContract.Where(z => z.MaDieuPhoi == item.dp.Id).Select(z => z.PriceId).Contains(y.PriceId)).SumAsync(y => y.Price),
+					priceSf,
+					profit = ((double)item.dp.DonGiaKh.Value * await _priceTable.GetPriceTradeNow(item.dp.LoaiTienTeKh)) - ((double)item.dp.DonGiaNcc.Value * await _priceTable.GetPriceTradeNow(item.dp.LoaiTienTeNcc))
+				});
+			}
+
+			foreach (var item in listData)
+			{
+				double priceSf = 0;
+				_context.SubFeePrice.Where(y => _context.SubFeeByContract.Where(z => z.MaDieuPhoi == item.dp.Id).Select(z => z.PriceId).Contains(y.PriceId) && y.CusType == "NCC").ToList().ForEach(async x =>
+				{
+					priceSf = x.Price * await _priceTable.GetPriceTradeNow(x.PriceType);
+				});
+
+				listDataSuplier.Add(new DataReportOfCustomer()
+				{
+					customer = item.dp.DonViVanTai,
+					totalSf = ((double)item.dp.DonGiaNcc * await _priceTable.GetPriceTradeNow(item.dp.LoaiTienTeNcc)) +
+					await _context.SfeeByTcommand.Where(y => y.IdTcommand == item.dp.Id && y.ApproveStatus == 14).SumAsync(y => y.Price) +
+					priceSf,
+					totalMoney = await _context.SfeeByTcommand.Where(y => y.IdTcommand == item.dp.Id && y.ApproveStatus == 14).SumAsync(y => y.Price) +
+					((double)item.dp.DonGiaKh * await _priceTable.GetPriceTradeNow(item.dp.LoaiTienTeKh)) +
+					priceSf,
 					profit = ((double)item.dp.DonGiaKh.Value * await _priceTable.GetPriceTradeNow(item.dp.LoaiTienTeKh)) - ((double)item.dp.DonGiaNcc.Value * await _priceTable.GetPriceTradeNow(item.dp.LoaiTienTeNcc))
 				});
 			}
@@ -309,9 +343,9 @@ namespace TBSLogistics.Service.Services.Report
 				TRUCK7 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK7"),
 				TRUCK8 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK8"),
 				TRUCK9 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK9"),
-				totalSf = listDataCustomer.Where(y => y.supplier == x.Select(z => z.dp.DonViVanTai).FirstOrDefault()).Sum(y => y.totalSf),
-				totalMoney = listDataCustomer.Where(y => y.supplier == x.Select(z => z.dp.DonViVanTai).FirstOrDefault()).Sum(y => y.totalMoney),
-				profit = listDataCustomer.Where(y => y.supplier == x.Select(z => z.dp.DonViVanTai).FirstOrDefault()).Sum(y => y.profit),
+				totalSf = listDataSuplier.Where(y => y.customer == x.Select(z => z.dp.DonViVanTai).FirstOrDefault()).Sum(y => y.totalSf),
+				totalMoney = listDataSuplier.Where(y => y.customer == x.Select(z => z.dp.DonViVanTai).FirstOrDefault()).Sum(y => y.totalMoney),
+				profit = listDataSuplier.Where(y => y.customer == x.Select(z => z.dp.DonViVanTai).FirstOrDefault()).Sum(y => y.profit),
 			}).OrderBy(x => x.CustomerName).ToList();
 
 			var listPartner = await _context.KhachHang.ToListAsync();

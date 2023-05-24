@@ -42,7 +42,6 @@ namespace TBSLogistics.Model.Model.ReportModel
 	public class DataReportOfCustomer
 	{
 		public string customer { get; set; }
-		public string supplier { get; set; }
 		public double totalSf { get; set; }
 		public double totalMoney { get; set; }
 		public double profit { get; set; }

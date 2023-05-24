@@ -19,5 +19,6 @@ namespace TBSLogistics.Model.Model.SubFeePriceModel
         public double Price { get; set; }
         public string Description { get; set; }
         public string accountId { get; set; }
-    }
+		public string priceType { get; set; }
+	}
 }

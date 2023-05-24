@@ -64,6 +64,7 @@ namespace TBSLogistics.Service.Services.DriverManage
 
 				if (CreateUser.isSuccess)
 				{
+					await _common.LogTimeUsedOfUser(tempData.Token);
 					await _common.Log("DriverManage", "UserId: " + tempData.UserName + " create Account Driver with Data: " + JsonSerializer.Serialize(model));
 					return new BoolActionResult { isSuccess = true, Message = "Tạo tài khoản Tài Xế thành công! Tài Khoản: " + getDriver.MaTaiXe.ToLower() + ", Mật Khẩu:123456, Vui lòng đổi mật khẩu sau đăng nhập APP Mobile!" };
 				}
@@ -123,6 +124,7 @@ namespace TBSLogistics.Service.Services.DriverManage
 
 				if (result > 0)
 				{
+					await _common.LogTimeUsedOfUser(tempData.Token);
 					await _common.Log("DriverManage", "UserId: " + tempData.UserName + " create Driver with Data: " + JsonSerializer.Serialize(request));
 					return new BoolActionResult { isSuccess = true, Message = "Tạo mới tài xế thành công" };
 				}
@@ -183,6 +185,7 @@ namespace TBSLogistics.Service.Services.DriverManage
 
 				if (result > 0)
 				{
+					await _common.LogTimeUsedOfUser(tempData.Token);
 					await _common.Log("DriverManage", "UserId: " + tempData.UserName + " Update Driver with Data: " + JsonSerializer.Serialize(request));
 					return new BoolActionResult { isSuccess = true, Message = "Cập nhật tài xế thành công" };
 				}

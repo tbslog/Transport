@@ -236,13 +236,17 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 					var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
 					var signIn = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 					var token = new JwtSecurityToken(
-						_config["Jwt:Issuer"],
-						_config["Jwt:Audience"],
-						claims,
+						issuer: _config["Jwt:Issuer"],
+						audience: _config["Jwt:Audience"],
+						claims: claims,
+						notBefore: null,
 						expires: DateTime.UtcNow.AddMinutes(180),
-						signingCredentials: signIn);
+						signingCredentials: signIn
+						);
 
-					return Ok(new JwtSecurityTokenHandler().WriteToken(token));
+					var tokenReturn = new JwtSecurityTokenHandler().WriteToken(token);
+					await _common.LogTimeUsedOfUser(tokenReturn);
+					return Ok(tokenReturn);
 				}
 				else
 				{
@@ -308,7 +312,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 		[Authorize]
 		[HttpGet]
 		[Route("[action]")]
-		public async Task<IActionResult> GetTreeFieldRequired(string cusId, string accId )
+		public async Task<IActionResult> GetTreeFieldRequired(string cusId, string accId)
 		{
 			var getdata = await _user.GetTreeFieldRequired(cusId, accId);
 			return Ok(getdata);

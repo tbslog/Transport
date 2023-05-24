@@ -117,6 +117,7 @@ namespace TBSLogistics.Service.Services.UserManage
 
 				if (result > 0)
 				{
+					await _common.LogTimeUsedOfUser(tempData.Token);
 					await _common.Log("AddPermissionForRole", "UserId: " + tempData.UserID + " Set Permission For Role with data: " + JsonSerializer.Serialize(request));
 					return new BoolActionResult { isSuccess = true, Message = "Add permissions for role success" };
 				}
@@ -147,6 +148,7 @@ namespace TBSLogistics.Service.Services.UserManage
 			var result = await _context.SaveChangesAsync();
 			if (result > 0)
 			{
+				await _common.LogTimeUsedOfUser(tempData.Token);
 				await _common.Log("User", "UserId: " + tempData.UserID + " Block Users: " + JsonSerializer.Serialize(userIds));
 				return new BoolActionResult { isSuccess = true, Message = "Ok" };
 			}
@@ -230,8 +232,9 @@ namespace TBSLogistics.Service.Services.UserManage
 
 				if (result > 0)
 				{
-					await transaction.CommitAsync();
+					await _common.LogTimeUsedOfUser(tempData.Token);
 					await _common.Log("User", "UserId: " + tempData.UserID + " Create User with data: " + JsonSerializer.Serialize(request));
+					await transaction.CommitAsync();
 					return new BoolActionResult { isSuccess = true, Message = "Thêm mới người dùng thành công" };
 				}
 				else
@@ -435,6 +438,7 @@ namespace TBSLogistics.Service.Services.UserManage
 
 				if (result > 0)
 				{
+					await _common.LogTimeUsedOfUser(tempData.Token);
 					await _common.Log("User", "UserId: " + tempData.UserID + " Update User with data: " + JsonSerializer.Serialize(request));
 					return new BoolActionResult { isSuccess = true, Message = "Cập nhật thông tin thành công" };
 				}
@@ -634,6 +638,7 @@ namespace TBSLogistics.Service.Services.UserManage
 
 				if (result > 0)
 				{
+					await _common.LogTimeUsedOfUser(tempData.Token);
 					await transaction.CommitAsync();
 					return new BoolActionResult { isSuccess = true, Message = "Gán Khách hành cho Tài Khoản thành công!" };
 				}
@@ -828,6 +833,7 @@ namespace TBSLogistics.Service.Services.UserManage
 
 				if (result > 0)
 				{
+					await _common.LogTimeUsedOfUser(tempData.Token);
 					return new BoolActionResult { isSuccess = true, Message = "Thiết lập trường bắt buộc thành công!" };
 				}
 				else

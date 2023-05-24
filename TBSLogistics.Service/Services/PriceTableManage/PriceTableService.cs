@@ -212,6 +212,7 @@ namespace TBSLogistics.Service.Services.PriceTableManage
 
 				if (result > 0)
 				{
+					await _common.LogTimeUsedOfUser(tempData.Token);
 					await _common.Log("PriceTableManage", "UserId: " + tempData.UserName + " Create PriceTable with Data: " + JsonSerializer.Serialize(request));
 					return new BoolActionResult { isSuccess = true, Message = "Tạo mới bảng giá thành công" };
 				}
@@ -552,7 +553,7 @@ namespace TBSLogistics.Service.Services.PriceTableManage
 						await _context.SaveChangesAsync();
 					}
 				}
-
+				await _common.LogTimeUsedOfUser(tempData.Token);
 				await _common.Log("PriceTableManage", "UserId: " + tempData.UserName + " Approve PriceTable with Data: " + JsonSerializer.Serialize(request));
 				return new BoolActionResult { isSuccess = true, Message = "Duyệt bảng giá thành công" };
 			}
@@ -711,6 +712,7 @@ namespace TBSLogistics.Service.Services.PriceTableManage
 
 				if (result > 0)
 				{
+					await _common.LogTimeUsedOfUser(tempData.Token);
 					await _common.Log("PriceTableManage", "UserId: " + tempData.UserName + " Update PriceTable with Data: " + JsonSerializer.Serialize(request));
 					return new BoolActionResult { isSuccess = true, Message = "Cập nhật bảng giá thành công" };
 				}
@@ -991,7 +993,7 @@ namespace TBSLogistics.Service.Services.PriceTableManage
 				return 1;
 			}
 
-			var getPriceTrade = await _context.ExchangeRate.Where(x => x.CurrencyCode == priceCode && x.PriceTransfer != null).OrderByDescending(x => x.CreatedTime).FirstOrDefaultAsync();
+			var getPriceTrade =  _context.ExchangeRate.Where(x => x.CurrencyCode == priceCode && x.PriceTransfer != null).OrderByDescending(x => x.CreatedTime).FirstOrDefault();
 			return getPriceTrade.PriceSell.Value;
 		}
 

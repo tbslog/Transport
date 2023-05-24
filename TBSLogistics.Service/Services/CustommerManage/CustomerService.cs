@@ -110,8 +110,8 @@ namespace TBSLogistics.Service.Services.CustommerManage
                     });
 
                     await _TMSContext.SaveChangesAsync();
-
-                    await _common.Log("CustomerManage", "UserId: " + tempData.UserName + " create new customer with Data: " + JsonSerializer.Serialize(request));
+					await _common.LogTimeUsedOfUser(tempData.Token);
+					await _common.Log("CustomerManage", "UserId: " + tempData.UserName + " create new customer with Data: " + JsonSerializer.Serialize(request));
                     return new BoolActionResult { isSuccess = true, Message = "Tạo mới khách hàng thành công!" };
                 }
                 else
@@ -160,7 +160,8 @@ namespace TBSLogistics.Service.Services.CustommerManage
 
                 if (result > 0)
                 {
-                    await _common.Log("CustomerManage", "UserId: " + tempData.UserName + " create Update customer with Data: " + JsonSerializer.Serialize(request));
+					await _common.LogTimeUsedOfUser(tempData.Token);
+					await _common.Log("CustomerManage", "UserId: " + tempData.UserName + " create Update customer with Data: " + JsonSerializer.Serialize(request));
                     return new BoolActionResult { isSuccess = true, Message = "Cập nhật khách hàng thành công!" };
                 }
                 else

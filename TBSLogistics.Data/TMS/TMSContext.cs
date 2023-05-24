@@ -49,6 +49,7 @@ namespace TBSLogistics.Data.TMS
 		public virtual DbSet<LoaiTienTe> LoaiTienTe { get; set; }
 		public virtual DbSet<Log> Log { get; set; }
 		public virtual DbSet<LogGps> LogGps { get; set; }
+		public virtual DbSet<LogTimeUsedOfUsers> LogTimeUsedOfUsers { get; set; }
 		public virtual DbSet<NguoiDung> NguoiDung { get; set; }
 		public virtual DbSet<NhomKhachHang> NhomKhachHang { get; set; }
 		public virtual DbSet<Permission> Permission { get; set; }
@@ -59,6 +60,7 @@ namespace TBSLogistics.Data.TMS
 		public virtual DbSet<RoleHasPermission> RoleHasPermission { get; set; }
 		public virtual DbSet<Romooc> Romooc { get; set; }
 		public virtual DbSet<SfeeByTcommand> SfeeByTcommand { get; set; }
+		public virtual DbSet<SftPayFor> SftPayFor { get; set; }
 		public virtual DbSet<ShippingInfomation> ShippingInfomation { get; set; }
 		public virtual DbSet<StatusText> StatusText { get; set; }
 		public virtual DbSet<SubFee> SubFee { get; set; }
@@ -90,10 +92,9 @@ namespace TBSLogistics.Data.TMS
                  .AddJsonFile("appsettings.json")
                  .Build();
 
-                optionsBuilder.UseSqlServer(configuration.GetConnectionString("TMS_Local"));
+                optionsBuilder.UseSqlServer(configuration.GetConnectionString("TMS_Cloud"));
             }
         }
-
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
 			modelBuilder.Entity<Account>(entity =>
@@ -951,6 +952,17 @@ namespace TBSLogistics.Data.TMS
 					.HasConstraintName("FK__LogGPS__MaDieuPh__7F01C5FD");
 			});
 
+			modelBuilder.Entity<LogTimeUsedOfUsers>(entity =>
+			{
+				entity.Property(e => e.Id).HasColumnName("ID");
+
+				entity.Property(e => e.Token).IsRequired();
+
+				entity.Property(e => e.UserName)
+					.IsRequired()
+					.HasMaxLength(30);
+			});
+
 			modelBuilder.Entity<NguoiDung>(entity =>
 			{
 				entity.Property(e => e.Id)
@@ -1165,6 +1177,8 @@ namespace TBSLogistics.Data.TMS
 
 				entity.Property(e => e.IdTcommand).HasColumnName("IdTCommand");
 
+				entity.Property(e => e.PayForId).HasColumnName("payForId");
+
 				entity.Property(e => e.SfId).HasColumnName("sfID");
 
 				entity.Property(e => e.Updater).HasMaxLength(30);
@@ -1175,11 +1189,34 @@ namespace TBSLogistics.Data.TMS
 					.OnDelete(DeleteBehavior.ClientSetNull)
 					.HasConstraintName("FK_SFeeByTcommand_DieuPhoi");
 
+				entity.HasOne(d => d.PayFor)
+					.WithMany(p => p.SfeeByTcommand)
+					.HasForeignKey(d => d.PayForId)
+					.OnDelete(DeleteBehavior.ClientSetNull)
+					.HasConstraintName("FK__SFeeByTco__payFo__66010E09");
+
 				entity.HasOne(d => d.Sf)
 					.WithMany(p => p.SfeeByTcommand)
 					.HasForeignKey(d => d.SfId)
 					.OnDelete(DeleteBehavior.ClientSetNull)
 					.HasConstraintName("FK_SFeeByTcommand_SubFee");
+			});
+
+			modelBuilder.Entity<SftPayFor>(entity =>
+			{
+				entity.HasKey(e => e.PayForId)
+					.HasName("PK__SftPayFo__8CBC50A18EC89AE2");
+
+				entity.Property(e => e.PayForId).HasColumnName("payForId");
+
+				entity.Property(e => e.PfDescription)
+					.HasMaxLength(300)
+					.HasColumnName("pfDescription");
+
+				entity.Property(e => e.PfName)
+					.IsRequired()
+					.HasMaxLength(30)
+					.HasColumnName("pfName");
 			});
 
 			modelBuilder.Entity<ShippingInfomation>(entity =>
@@ -1311,6 +1348,12 @@ namespace TBSLogistics.Data.TMS
 					.HasColumnName("goodsType");
 
 				entity.Property(e => e.Price).HasColumnName("price");
+
+				entity.Property(e => e.PriceType)
+					.IsRequired()
+					.HasMaxLength(5)
+					.IsUnicode(false)
+					.HasColumnName("priceType");
 
 				entity.Property(e => e.SecondPlace).HasColumnName("secondPlace");
 

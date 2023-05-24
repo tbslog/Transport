@@ -2,14 +2,16 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Org.BouncyCastle.Asn1.Ocsp;
+using System;
 using System.Text;
 using TBSLogistics.Data.TMS;
 using TBSLogistics.Model.Model.MailSettings;
@@ -60,7 +62,7 @@ namespace TBSLogistics.ApplicationAPI
                  });
             });
 
-            services.AddDbContext<TMSContext>(options => options.UseSqlServer(Configuration["TMS_Local"]));
+			services.AddDbContext<TMSContext>(options => options.UseSqlServer(Configuration["TMS_Cloud"]));
             services.AddHttpContextAccessor();
             services.AddSingleton<IPaginationService>(o =>
             {
@@ -74,7 +76,6 @@ namespace TBSLogistics.ApplicationAPI
             var mailsettings = Configuration.GetSection("MailSettings");
             services.Configure<MailSettings>(mailsettings);
 
-
             services.AddControllersWithViews();
             services.AddAuthentication(x =>
             {
@@ -86,6 +87,7 @@ namespace TBSLogistics.ApplicationAPI
                 x.SaveToken = true;
                 x.TokenValidationParameters = new TokenValidationParameters()
                 {
+                    ClockSkew = TimeSpan.Zero,
 					ValidateIssuerSigningKey = true,
 					ValidateLifetime = true,
 					ValidateIssuer = true,
@@ -118,7 +120,7 @@ namespace TBSLogistics.ApplicationAPI
             services.AddTransient<IMobile, MobileServices>();
             services.AddTransient<IAccount, AccountService>();
 
-            services.AddSwaggerGen(option =>
+			services.AddSwaggerGen(option =>
             {
                 option.SwaggerDoc("v1", new OpenApiInfo { Title = "TBSLogistics.ApplicationAPI", Version = "v1" });
                 option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -157,6 +159,7 @@ namespace TBSLogistics.ApplicationAPI
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "TBSLogistics.ApplicationAPI v1"));
             }
+           
             app.UseHttpsRedirection();
             app.UseRouting();
             app.UseCors(apiCorsPolicy);

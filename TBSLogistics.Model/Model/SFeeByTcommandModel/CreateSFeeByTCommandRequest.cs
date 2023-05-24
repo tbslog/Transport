@@ -9,6 +9,7 @@ namespace TBSLogistics.Model.Model.SFeeByTcommandModel
     public class CreateSFeeByTCommandRequest
     {
         public long IdTcommand { get; set; }
+        public int sftPayfor { get; set; }
         public string TransportId { get; set; }
         public int? PlaceId { get; set; }
         public long SfId { get; set; }

@@ -154,8 +154,8 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 							string MaVanDonKH = worksheet.Cells[row, 5].Value == null ? null : worksheet.Cells[row, 5].Value.ToString().Trim().ToUpper();
 							string HangTau = worksheet.Cells[row, 6].Value == null ? null : worksheet.Cells[row, 6].Value.ToString().Trim();
 							string Tau = worksheet.Cells[row, 7].Value == null ? null : worksheet.Cells[row, 7].Value.ToString().Trim();
-							string DiemDau = worksheet.Cells[row, 8].Value == null ? null : worksheet.Cells[row, 8].Value.ToString().Trim();
-							string DiemCuoi = worksheet.Cells[row, 9].Value == null ? null : worksheet.Cells[row, 9].Value.ToString().Trim();
+							string DiemDau = worksheet.Cells[row, 8].Value == null ? "0" : worksheet.Cells[row, 8].Value.ToString().Trim();
+							string DiemCuoi = worksheet.Cells[row, 9].Value == null ? "0" : worksheet.Cells[row, 9].Value.ToString().Trim();
 							string TongKhoiLuong = worksheet.Cells[row, 10].Value == null ? null : worksheet.Cells[row, 10].Value.ToString().Trim();
 							string TongTheTich = worksheet.Cells[row, 11].Value == null ? null : worksheet.Cells[row, 11].Value.ToString().Trim();
 							string TongSoKien = worksheet.Cells[row, 12].Value == null ? null : worksheet.Cells[row, 12].Value.ToString().Trim();
@@ -265,6 +265,26 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 							{
 								ErrorValidate += "Booking " + item.MaVanDonKH + ": không được bỏ trống Loại Hình";
 							}
+							if (item.DiemDau == 0)
+							{
+								ErrorValidate += "Booking " + item.MaVanDonKH + ": không được bỏ trống Điểm đóng hàng";
+							}
+							if (item.DiemCuoi == 0)
+							{
+								ErrorValidate += "Booking " + item.MaVanDonKH + ": không được bỏ trống Điểm hạ hàng";
+							}
+
+							foreach (var itemH in item.arrHandlings)
+							{
+								if (string.IsNullOrEmpty(itemH.PTVanChuyen))
+								{
+									ErrorValidate += "Booking " + item.MaVanDonKH + ": không được bỏ trống phương tiện vận chuyển";
+								}
+								if (string.IsNullOrEmpty(itemH.LoaiHangHoa))
+								{
+									ErrorValidate += "Booking " + item.MaVanDonKH + ": không được bỏ trống Loại Hàng Hóa";
+								}
+							}
 
 							if (item.LoaiVanDon == "nhap")
 							{
@@ -368,6 +388,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 
 							if (string.IsNullOrEmpty(listError))
 							{
+								await _common.LogTimeUsedOfUser(tempData.Token);
 								await transaction.CommitAsync();
 								return new BoolActionResult { isSuccess = true, Message = "Tạo Đơn Hàng Từ Excel Thành Công!" };
 							}
@@ -843,6 +864,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 					if (resultDP > 0)
 					{
 						await _common.Log("BillOfLading ", "UserId: " + tempData.UserName + " create new Transport with Data: " + JsonSerializer.Serialize(request));
+						await _common.LogTimeUsedOfUser(tempData.Token);
 						return new BoolActionResult { isSuccess = true, Message = "Tạo vận đơn Thành Công!" };
 					}
 					else
@@ -985,6 +1007,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 
 				if (result > 0)
 				{
+					await _common.LogTimeUsedOfUser(tempData.Token);
 					await transaction.CommitAsync();
 					return new BoolActionResult { isSuccess = true, Message = "Tạo vận đơn thành công" };
 				}
@@ -1423,9 +1446,10 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 						await _context.SaveChangesAsync();
 					}
 					var logDriverAndVehicle = await LogDriverChange(checkById.MaChuyen, request.MaTaiXe, request.MaSoXe);
+					await _common.LogTimeUsedOfUser(tempData.Token);
+					await _common.Log("BillOfLading ", "UserId: " + tempData.UserName + " update handling with Data: " + JsonSerializer.Serialize(request));
 
 					await transaction.CommitAsync();
-					await _common.Log("BillOfLading ", "UserId: " + tempData.UserName + " update handling with Data: " + JsonSerializer.Serialize(request));
 					return new BoolActionResult { isSuccess = true, Message = "Điều Phối Chuyến Thành Công!" };
 				}
 				else
@@ -1799,6 +1823,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 
 				var logDriverAndVehicle = await LogDriverChange(MaVanDonChung, request.TaiXe, request.XeVanChuyen);
 				var result = await _context.SaveChangesAsync();
+				await _common.LogTimeUsedOfUser(tempData.Token);
 				await transaction.CommitAsync();
 				return new BoolActionResult { isSuccess = true, Message = "Ghép vận đơn với xe thành công!" };
 			}
@@ -2572,6 +2597,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 
 				var logDriverAndVehicle = await LogDriverChange(maChuyen, request.TaiXe, request.XeVanChuyen);
 				var result = await _context.SaveChangesAsync();
+				await _common.LogTimeUsedOfUser(tempData.Token);
 				await transaction.CommitAsync();
 				return new BoolActionResult() { isSuccess = true, Message = "Cập nhật điều phối thành công!" };
 			}
@@ -3056,8 +3082,9 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 
 					if (resultDP > 0)
 					{
-						await transaction.CommitAsync();
+						await _common.LogTimeUsedOfUser(tempData.Token);
 						await _common.Log("BillOfLading ", "UserId: " + tempData.UserName + " Update Transport with Data: " + JsonSerializer.Serialize(request));
+						await transaction.CommitAsync();
 						return new BoolActionResult { isSuccess = true, Message = "Cập nhật vận đơn thành công" };
 					}
 					else
@@ -3212,6 +3239,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 
 				if (result > 0)
 				{
+					await _common.LogTimeUsedOfUser(tempData.Token);
 					return new BoolActionResult { isSuccess = true, Message = "Cập nhật thành công" };
 				}
 				else
@@ -3487,11 +3515,12 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 					DiemTraRong = _context.DiaDiem.Where(y => y.MaDiaDiem == x.vddp.DiemTraRong).Select(x => x.TenDiaDiem).FirstOrDefault(),
 					MaPTVC = x.vd.MaPtvc,
 					MaVanDon = x.vd.MaVanDon,
-					PhanLoaiVanDon = x.vd.LoaiVanDon,
+					PhanLoaiVanDon = x.vd.LoaiVanDon == "nhap" ? "Nhập" : "Xuất",
 					MaDieuPhoi = x.vddp.Id,
 					MaSoXe = x.vddp.MaSoXe,
 					PTVanChuyen = x.vddp.MaLoaiPhuongTien,
 					MaRomooc = x.vddp.MaRomooc,
+					Reuse = x.vddp.ReuseCont == true ? "REUSE" : "",
 					ContNo = x.vddp.ContNo,
 					KhoiLuong = x.vddp.KhoiLuong,
 					SoKien = x.vddp.SoKien,
@@ -4758,6 +4787,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 
 				if (result > 0)
 				{
+					await _common.LogTimeUsedOfUser(tempData.Token);
 					await _common.Log("ChangeStatus", "UserId: " + tempData.UserName + " changes status handlingID= " + id + ", MaChuyen=" + maChuyen + ", status:" + mess);
 					await transaction.CommitAsync();
 					return new BoolActionResult { isSuccess = true, Message = mess };
@@ -4973,8 +5003,9 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 						}
 					}
 
-					await transaction.CommitAsync();
+					await _common.LogTimeUsedOfUser(tempData.Token);
 					await _common.Log("BillOfLading ", "UserId: " + tempData.UserName + " change second place with transportId=" + request.transportId + ": " + JsonSerializer.Serialize(request));
+					await transaction.CommitAsync();
 					return new BoolActionResult { isSuccess = true, Message = "Đổi địa điểm hạ hàng thành công!" };
 				}
 				else
@@ -5028,6 +5059,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 
 				if (result > 0)
 				{
+					await _common.LogTimeUsedOfUser(tempData.Token);
 					return new BoolActionResult { isSuccess = true, Message = "Điều phối chuyến thành công" };
 				}
 				else
@@ -5089,6 +5121,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 
 				if (result > 0)
 				{
+					await _common.LogTimeUsedOfUser(tempData.Token);
 					await transaction.CommitAsync();
 					return new BoolActionResult { isSuccess = true, Message = "Huỷ vận đơn thành công!" };
 				}
@@ -5162,6 +5195,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 				{
 					await HandleVehicleStatus(data.dp.TrangThai, data.dp.MaSoXe);
 					await _common.Log("BillOfLading", " UserId: " + tempData.UserName + " set Cancel handling " + id);
+					await _common.LogTimeUsedOfUser(tempData.Token);
 					await transaction.CommitAsync();
 					return new BoolActionResult { isSuccess = true, Message = "Đã hủy lệnh điều phối thành công" };
 				}
@@ -5237,6 +5271,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 					}
 
 					await HandleVehicleStatus(data.dp.TrangThai, data.dp.MaSoXe);
+					await _common.LogTimeUsedOfUser(tempData.Token);
 					await transaction.CommitAsync();
 					return new BoolActionResult { isSuccess = true, Message = "Đã hủy chuyến thành công" };
 				}
@@ -5291,6 +5326,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 				var result = await _context.SaveChangesAsync();
 				if (result > 0)
 				{
+					await _common.LogTimeUsedOfUser(tempData.Token);
 					await transaction.CommitAsync();
 					return new BoolActionResult { isSuccess = true, Message = action == 0 ? "Đã nhận đơn hàng thành công!" : "Đã từ chối đơn hàng thành công!" };
 				}
@@ -5448,6 +5484,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 
 				if (result > 0)
 				{
+					await _common.LogTimeUsedOfUser(tempData.Token);
 					await transaction.CommitAsync();
 					return new BoolActionResult { isSuccess = true, Message = "Cập nhật thông tin chứng từ thành công" };
 				}
@@ -5538,6 +5575,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 					var getSup = await _context.KhachHang.Where(x => x.MaKh == itemSup).FirstOrDefaultAsync();
 					await _common.SendEmailAsync(getSup.Email, "Danh Sách Chuyến Chờ Vận Chuyển", stringhtml);
 				}
+				await _common.LogTimeUsedOfUser(tempData.Token);
 				return new BoolActionResult { isSuccess = true, Message = "Đã gửi mail cho đơn vị vận tải" };
 			}
 			catch (Exception ex)
@@ -5597,6 +5635,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 
 				if (result > 0)
 				{
+					await _common.LogTimeUsedOfUser(tempData.Token);
 					await transaction.CommitAsync();
 					return new BoolActionResult { isSuccess = true, Message = "Thêm mới chứng từ thành công" };
 				}
@@ -5647,6 +5686,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 			if (result > 0)
 			{
 				await _common.SaveFileAsync(request.file.OpenReadStream(), fileName, PathFolder);
+				await _common.LogTimeUsedOfUser(tempData.Token);
 				await _common.Log("BillOfLading ", "UserId: " + tempData.UserName + " upload file with data: " + JsonSerializer.Serialize(request));
 				return new BoolActionResult { isSuccess = true, DataReturn = add.Entity.Id.ToString() };
 			}

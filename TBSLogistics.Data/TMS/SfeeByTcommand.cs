@@ -17,8 +17,10 @@ namespace TBSLogistics.Data.TMS
         public string Updater { get; set; }
         public string Creator { get; set; }
         public int? PlaceId { get; set; }
+        public int PayForId { get; set; }
 
         public virtual DieuPhoi IdTcommandNavigation { get; set; }
+        public virtual SftPayFor PayFor { get; set; }
         public virtual SubFee Sf { get; set; }
     }
 }

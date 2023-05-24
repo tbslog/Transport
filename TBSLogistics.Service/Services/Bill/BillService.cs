@@ -3,13 +3,10 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection.Metadata.Ecma335;
 using System.Threading.Tasks;
 using TBSLogistics.Data.TMS;
 using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.BillModel;
-using TBSLogistics.Model.Model.BillOfLadingModel;
-using TBSLogistics.Model.Model.UserModel;
 using TBSLogistics.Model.TempModel;
 using TBSLogistics.Model.Wrappers;
 using TBSLogistics.Service.Services.Common;
@@ -38,12 +35,6 @@ namespace TBSLogistics.Service.Services.Bill
 		{
 			try
 			{
-				//var checkexists = await GetListKyThanhToan(customerId);
-				//if (checkexists == null)
-				//{
-				//    return null;
-				//}
-
 				var getlistHandling = from dp in _context.DieuPhoi
 									  join vd in _context.VanDon
 									  on dp.MaVanDon equals vd.MaVanDon
@@ -80,7 +71,7 @@ namespace TBSLogistics.Service.Services.Bill
 					TongTheTich = z.vd.TongTheTich,
 					TongKhoiLuong = z.vd.TongKhoiLuong,
 					TongSoKien = z.vd.TongSoKien,
-					listHandling = getlistHandling.Where(y => y.MaVanDon == z.vd.MaVanDon).OrderBy(x => x.Id).Select(x => new Model.Model.BillModel.ListHandling()
+					listHandling = getlistHandling.Where(y => y.MaVanDon == z.vd.MaVanDon).OrderBy(x => x.Id).Select(x => new ListHandling()
 					{
 						MaSoXe = x.MaSoXe,
 						DiemLayRong = _context.DiaDiem.Where(y => y.MaDiaDiem == x.DiemLayRong).Select(x => x.TenDiaDiem).FirstOrDefault(),
@@ -96,13 +87,14 @@ namespace TBSLogistics.Service.Services.Bill
 						KhoiLuong = x.KhoiLuong,
 						TheTich = x.TheTich,
 						SoKien = x.SoKien,
-						listSubFeeByContract = getListSFOfContract.Where(y => y.sfc.MaDieuPhoi == x.Id).Select(x => new ListSubFeeByContract()
+						listSubFeeByContract = getListSFOfContract.Where(y => y.sfc.MaDieuPhoi == x.Id && y.sfp.CusType == (customerId.Substring(0, 3) == "CUS" ? "KH" : "NCC")).Select(x => new ListSubFeeByContract()
 						{
 							ContractId = x.sfp.ContractId,
 							ContractName = _context.HopDongVaPhuLuc.Where(c => c.MaHopDong == x.sfp.ContractId).Select(c => c.TenHienThi).FirstOrDefault(),
 							sfName = x.sf.SfName,
 							goodsType = x.sfp.GoodsType,
-							unitPrice = x.sfp.Price
+							unitPrice = x.sfp.Price,
+							priceType = x.sfp.PriceType
 						}).ToList(),
 						listSubFeeIncurreds = _context.SfeeByTcommand.Where(y => y.IdTcommand == x.Id && y.ApproveStatus == 14).OrderBy(x => x.Id).Select(x => new ListSubFeeIncurred()
 						{
@@ -118,6 +110,10 @@ namespace TBSLogistics.Service.Services.Bill
 					foreach (var iHandling in item.listHandling)
 					{
 						iHandling.GiaQuyDoi = iHandling.DonGia * (decimal)await _priceTable.GetPriceTradeNow(iHandling.LoaiTienTe);
+						iHandling.listSubFeeByContract.ForEach(async x =>
+						{
+							x.priceTransfer = x.unitPrice * (double)await _priceTable.GetPriceTradeNow(x.priceType);
+						});
 					}
 				}
 
@@ -198,13 +194,14 @@ namespace TBSLogistics.Service.Services.Bill
 						KhoiLuong = x.KhoiLuong,
 						TheTich = x.TheTich,
 						SoKien = x.SoKien,
-						listSubFeeByContract = getListSFOfContract.Where(y => y.sfc.MaDieuPhoi == x.Id).Select(x => new ListSubFeeByContract()
+						listSubFeeByContract = getListSFOfContract.Where(y => y.sfc.MaDieuPhoi == x.Id && y.sfp.CusType == z.kh.MaLoaiKh).Select(x => new ListSubFeeByContract()
 						{
 							ContractId = x.sfp.ContractId,
 							ContractName = _context.HopDongVaPhuLuc.Where(c => c.MaHopDong == x.sfp.ContractId).Select(c => c.TenHienThi).FirstOrDefault(),
 							sfName = x.sf.SfName,
 							goodsType = x.sfp.GoodsType,
-							unitPrice = x.sfp.Price
+							unitPrice = x.sfp.Price,
+							priceType = x.sfp.PriceType
 						}).ToList(),
 						listSubFeeIncurreds = _context.SfeeByTcommand.Where(y => y.IdTcommand == x.Id && y.ApproveStatus == 14).OrderBy(x => x.Id).Select(x => new ListSubFeeIncurred()
 						{
@@ -220,6 +217,10 @@ namespace TBSLogistics.Service.Services.Bill
 					foreach (var iHandling in item.listHandling)
 					{
 						iHandling.GiaQuyDoi = iHandling.DonGia * (decimal)await _priceTable.GetPriceTradeNow(iHandling.LoaiTienTe);
+						iHandling.listSubFeeByContract.ForEach(async x =>
+						{
+							x.priceTransfer = x.unitPrice * (double)await _priceTable.GetPriceTradeNow(x.priceType);
+						});
 					}
 				}
 
@@ -385,7 +386,7 @@ namespace TBSLogistics.Service.Services.Bill
 					TaiXe = z.dp.MaTaiXe,
 					DonGiaKH = z.dp.DonGiaKh.Value,
 					LoaiTienTeKH = z.dp.LoaiTienTeKh,
-					PhuPhiHD = _context.SubFeeByContract.Where(y => y.MaDieuPhoi == z.dp.Id).Select(y => y.Price).Sum(y => y.Price),
+					PhuPhiHD = 0,
 					PhuPhiPhatSinh = _context.SfeeByTcommand.Where(y => y.IdTcommand == z.dp.Id && y.ApproveStatus == 14).Sum(y => y.Price),
 					ContNo = z.dp.ContNo,
 					SealNP = z.dp.SealNp,
@@ -398,14 +399,23 @@ namespace TBSLogistics.Service.Services.Bill
 			foreach (var item in getlistTransport)
 			{
 				decimal totalMoney = 0;
+				double totalSf = 0;
 				foreach (var handling in item.listBillHandlingWebs)
 				{
+					double sfByHandling = 0;
+					getListSFOfContract.Where(y => y.sfc.MaDieuPhoi == handling.handlingId).ToList().ForEach(async x =>
+				   {
+					   sfByHandling += x.sfp.Price * await _priceTable.GetPriceTradeNow(x.sfp.PriceType);
+				   });
+
 					handling.DonGiaKH = handling.DonGiaKH * (decimal)await _priceTable.GetPriceTradeNow(handling.LoaiTienTeKH);
 					totalMoney += handling.DonGiaKH;
+					handling.PhuPhiHD = sfByHandling;
+					totalSf += (double)sfByHandling;
 				}
 
 				item.TongTien = totalMoney;
-				item.TongPhuPhi = await getListSFOfContract.Where(y => pagedData.Where(c => c.vd.MaVanDon == item.MaVanDon).Select(c => c.dp.Id).Contains(y.sfc.MaDieuPhoi)).SumAsync(y => y.sfp.Price) +
+				item.TongPhuPhi = totalSf +
 				await _context.SfeeByTcommand.Where(y => pagedData.Where(c => c.vd.MaVanDon == item.MaVanDon).Select(c => c.dp.Id).Contains(y.IdTcommand) && y.ApproveStatus == 14).SumAsync(y => y.Price);
 			}
 
@@ -431,7 +441,6 @@ namespace TBSLogistics.Service.Services.Bill
 								  join sfp in _context.SubFeePrice
 								  on sfc.PriceId equals sfp.PriceId
 								  select new { sfc, sfp };
-
 
 			if (!string.IsNullOrEmpty(filter.Keyword))
 			{
@@ -476,23 +485,22 @@ namespace TBSLogistics.Service.Services.Bill
 				DonGiaKH = x.dp.DonGiaKh,
 				DonGiaNCC = x.dp.DonGiaNcc,
 				LoaiTienTeKH = x.dp.LoaiTienTeKh,
+				Reuse = x.dp.ReuseCont == true ? "REUSE" : "",
 				LoaiTienTeNCC = x.dp.LoaiTienTeNcc,
 				createdTime = x.dp.CreatedTime,
-				ChiPhiHopDong = (decimal)getSFbyContract.Where(y => y.sfc.MaDieuPhoi == x.dp.Id).Sum(y => y.sfp.Price),
+				ChiPhiHopDong = 0,
 				ChiPhiPhatSinh = (decimal)_context.SfeeByTcommand.Where(y => y.IdTcommand == x.dp.Id && y.ApproveStatus == 14).Sum(y => y.Price),
 			}).Select(x => new ListBillHandling()
 			{
+				DiemCuoi = x.DiemCuoi,
+				DiemDau = x.DiemDau,
+				DiemLayRong = x.DiemLayRong,
 				createdTime = x.createdTime,
 				HangTau = x.HangTau,
 				MaVanDon = "",
 				handlingId = x.handlingId,
 				ContNo = x.ContNo,
 				AccountName = x.AccountName == null ? x.TenKH : x.AccountName,
-				CutOffDate = x.CutOffDate,
-				ThoiGianHoanThanh = x.ThoiGianHoanThanh,
-				DiemDau = x.DiemDau,
-				DiemCuoi = x.DiemCuoi,
-				DiemLayRong = x.DiemLayRong,
 				DiemTraRong = x.DiemTraRong,
 				MaPTVC = x.MaPTVC,
 				LoaiVanDon = x.LoaiVanDon,
@@ -502,18 +510,26 @@ namespace TBSLogistics.Service.Services.Bill
 				LoaiPhuongTien = x.LoaiPhuongTien,
 				MaNCC = x.MaNCC,
 				MaKH = x.MaKH,
+				Reuse = x.Reuse,
 				LoaiTienTeKH = x.LoaiTienTeKH,
 				LoaiTienTeNCC = x.LoaiTienTeNCC,
 				TenKH = x.TenKH,
 				TenNCC = x.TenNCC,
 				DonGiaKH = x.DonGiaKH,
 				DonGiaNCC = x.DonGiaNCC,
-				ChiPhiHopDong = x.ChiPhiHopDong,
 				ChiPhiPhatSinh = x.ChiPhiPhatSinh,
 			}).OrderByDescending(x => x.MaVanDon).ThenBy(x => x.MaChuyen).ToListAsync();
 
 			foreach (var item in pagedData)
 			{
+				double totalSf = 0;
+
+				getSFbyContract.Where(x => x.sfc.MaDieuPhoi == item.handlingId && x.sfp.CusType == "NCC").ToList().ForEach(async x =>
+			   {
+				   totalSf += x.sfp.Price * await _priceTable.GetPriceTradeNow(x.sfp.PriceType);
+			   });
+
+				item.ChiPhiHopDong = (decimal)totalSf;
 				item.DoanhThu = (item.DonGiaKH.Value * (decimal)await _priceTable.GetPriceTradeNow(item.LoaiTienTeKH)) + item.ChiPhiPhatSinh + item.ChiPhiHopDong;
 				item.LoiNhuan = (item.DonGiaKH.Value * (decimal)await _priceTable.GetPriceTradeNow(item.LoaiTienTeKH)) - (item.DonGiaNCC.Value * (decimal)await _priceTable.GetPriceTradeNow(item.LoaiTienTeNCC));
 			}
