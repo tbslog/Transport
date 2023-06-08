@@ -1,15 +1,13 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using ClosedXML.Excel;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Xml;
 using TBSLogistics.Data.TMS;
 using TBSLogistics.Model.CommonModel;
 using TBSLogistics.Model.Filter;
@@ -819,154 +817,147 @@ namespace TBSLogistics.Service.Services.PriceTableManage
 
 				var list = new List<CreatePriceListRequest>();
 
-				using (var stream = new MemoryStream())
+				using var stream = new MemoryStream();
+				await formFile.CopyToAsync(stream, cancellationToken);
+				using var wbook = new XLWorkbook(stream);
+				var ws1 = wbook.Worksheet(1);
+				var rowWs1 = ws1.RowsUsed().Count();
+
+				if (rowWs1 == 0)
 				{
-					await formFile.CopyToAsync(stream, cancellationToken);
+					return new BoolActionResult { isSuccess = false, Message = "This file is empty" };
+				}
 
-					using (var package = new ExcelPackage(stream))
+				if (
+					ws1.Cell(1, 1).Value.ToString().Trim() != "MaKH" ||
+					ws1.Cell(1, 2).Value.ToString().Trim() != "Account" ||
+					ws1.Cell(1, 3).Value.ToString().Trim() != "MaHopDong" ||
+					ws1.Cell(1, 4).Value.ToString().Trim() != "DiemDau" ||
+					ws1.Cell(1, 5).Value.ToString().Trim() != "DiemCuoi" ||
+					ws1.Cell(1, 6).Value.ToString().Trim() != "DiemLayTraRong" ||
+					ws1.Cell(1, 7).Value.ToString().Trim() != "DonGiaVnd" ||
+					ws1.Cell(1, 8).Value.ToString().Trim() != "LoaiTienTe" ||
+					ws1.Cell(1, 9).Value.ToString().Trim() != "MaPtvc" ||
+					ws1.Cell(1, 10).Value.ToString().Trim() != "MaLoaiPhuongTien" ||
+					ws1.Cell(1, 11).Value.ToString().Trim() != "MaLoaiHangHoa")
+				{
+					return new BoolActionResult { isSuccess = false, Message = "File excel không đúng định dạng chuẩn" };
+				}
+
+				for (int row = 3; row <= rowWs1; row++)
+				{
+					ErrorRow = row;
+
+					string MaKH = ws1.Cell(row, 1).GetValue<string>().Trim() == "" ? null : ws1.Cell(row, 1).Value.ToString().Trim().ToUpper();
+					string AccountId = ws1.Cell(row, 2).GetValue<string>().Trim() == "" ? null : ws1.Cell(row, 2).Value.ToString().Trim().ToUpper();
+					string ContractId = ws1.Cell(row, 3).GetValue<string>().Trim() == "" ? null : ws1.Cell(row, 3).Value.ToString().Trim().ToUpper();
+					string FirstPlace = ws1.Cell(row, 4).GetValue<string>().Trim() == "" ? null : ws1.Cell(row, 4).Value.ToString().Trim();
+					string SecondPlace = ws1.Cell(row, 5).GetValue<string>().Trim() == "" ? null : ws1.Cell(row, 5).Value.ToString().Trim();
+					string getEmptyPlace = ws1.Cell(row, 6).GetValue<string>().Trim() == "" ? null : ws1.Cell(row, 6).Value.ToString();
+					string Price = ws1.Cell(row, 7).GetValue<string>().Trim() == "" ? null : ws1.Cell(row, 7).Value.ToString().Trim();
+					string priceType = ws1.Cell(row, 8).GetValue<string>().Trim() == "" ? null : ws1.Cell(row, 8).Value.ToString().Trim().ToUpper();
+					string Ptvc = ws1.Cell(row, 9).GetValue<string>().Trim() == "" ? null : ws1.Cell(row, 9).Value.ToString().Trim().ToUpper();
+					string VehicleType = ws1.Cell(row, 10).GetValue<string>().Trim() == "" ? null : ws1.Cell(row, 10).Value.ToString().Trim().ToUpper();
+					string GoodsType = ws1.Cell(row, 11).GetValue<string>().Trim() == "" ? null : ws1.Cell(row, 11).Value.ToString().Trim();
+
+					if (MaKH == null)
 					{
-						ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-						ExcelWorksheet worksheet = package.Workbook.Worksheets[0];
-						var rowCount = worksheet.Dimension.Rows;
+						return new BoolActionResult { isSuccess = false, Message = "Dòng " + row + ": Không được để trống Mã Khách Hàng" };
+					}
+					if (ContractId == null)
+					{
+						return new BoolActionResult { isSuccess = false, Message = "Dòng " + row + ":Không được để trống Mã Hợp Đồng" };
+					}
+					if (FirstPlace == null)
+					{
+						return new BoolActionResult { isSuccess = false, Message = "Dòng " + row + ":Không được để trống Điểm Đóng Hàng" };
+					}
+					else
+					{
+						var checkIsNum = int.TryParse(FirstPlace, out _);
 
-						if (rowCount == 0)
+						if (checkIsNum == false)
 						{
-							return new BoolActionResult { isSuccess = false, Message = "This file is empty" };
-						}
-
-						if (
-							worksheet.Cells[1, 1].Value.ToString().Trim() != "MaKH" ||
-							worksheet.Cells[1, 2].Value.ToString().Trim() != "Account" ||
-							worksheet.Cells[1, 3].Value.ToString().Trim() != "MaHopDong" ||
-							worksheet.Cells[1, 4].Value.ToString().Trim() != "DiemDau" ||
-							worksheet.Cells[1, 5].Value.ToString().Trim() != "DiemCuoi" ||
-							worksheet.Cells[1, 6].Value.ToString().Trim() != "DiemLayTraRong" ||
-							worksheet.Cells[1, 7].Value.ToString().Trim() != "DonGiaVnd" ||
-							worksheet.Cells[1, 8].Value.ToString().Trim() != "LoaiTienTe" ||
-							worksheet.Cells[1, 9].Value.ToString().Trim() != "MaPtvc" ||
-							worksheet.Cells[1, 10].Value.ToString().Trim() != "MaLoaiPhuongTien" ||
-							worksheet.Cells[1, 11].Value.ToString().Trim() != "MaLoaiHangHoa"
-							)
-						{
-							return new BoolActionResult { isSuccess = false, Message = "File excel không đúng định dạng chuẩn" };
-						}
-
-						for (int row = 3; row <= rowCount; row++)
-						{
-							ErrorRow = row;
-
-							string MaKH = worksheet.Cells[row, 1].Value == null ? null : worksheet.Cells[row, 1].Value.ToString().Trim().ToUpper();
-							string AccountId = worksheet.Cells[row, 2].Value == null ? null : worksheet.Cells[row, 2].Value.ToString().Trim().ToUpper();
-							string ContractId = worksheet.Cells[row, 3].Value == null ? null : worksheet.Cells[row, 3].Value.ToString().Trim().ToUpper();
-							string FirstPlace = worksheet.Cells[row, 4].Value == null ? null : worksheet.Cells[row, 4].Value.ToString().Trim();
-							string SecondPlace = worksheet.Cells[row, 5].Value == null ? null : worksheet.Cells[row, 5].Value.ToString().Trim();
-							string getEmptyPlace = worksheet.Cells[row, 6].Value == null ? null : worksheet.Cells[row, 6].Value.ToString();
-							string Price = worksheet.Cells[row, 7].Value == null ? null : worksheet.Cells[row, 7].Value.ToString().Trim();
-							string priceType = worksheet.Cells[row, 8].Value == null ? null : worksheet.Cells[row, 8].Value.ToString().Trim().ToUpper();
-							string Ptvc = worksheet.Cells[row, 9].Value == null ? null : worksheet.Cells[row, 9].Value.ToString().Trim().ToUpper();
-							string VehicleType = worksheet.Cells[row, 10].Value == null ? null : worksheet.Cells[row, 10].Value.ToString().Trim().ToUpper();
-							string GoodsType = worksheet.Cells[row, 11].Value == null ? null : worksheet.Cells[row, 11].Value.ToString().Trim();
-
-							if (MaKH == null)
-							{
-								return new BoolActionResult { isSuccess = false, Message = "Dòng " + row + ": Không được để trống Mã Khách Hàng" };
-							}
-							if (ContractId == null)
-							{
-								return new BoolActionResult { isSuccess = false, Message = "Dòng " + row + ":Không được để trống Mã Hợp Đồng" };
-							}
-							if (FirstPlace == null)
-							{
-								return new BoolActionResult { isSuccess = false, Message = "Dòng " + row + ":Không được để trống Điểm Đóng Hàng" };
-							}
-							else
-							{
-								var checkIsNum = int.TryParse(FirstPlace, out _);
-
-								if (checkIsNum == false)
-								{
-									return new BoolActionResult { isSuccess = false, Message = "Dòng " + row + ":Sai mã địa điểm" };
-								}
-							}
-							if (SecondPlace == null)
-							{
-								return new BoolActionResult { isSuccess = false, Message = "Dòng " + row + ":Không được để trống Điểm Trả Hàng" };
-							}
-							else
-							{
-								var checkIsNum = int.TryParse(SecondPlace, out _);
-
-								if (checkIsNum == false)
-								{
-									return new BoolActionResult { isSuccess = false, Message = "Dòng " + row + ":Sai mã địa điểm" };
-								}
-							}
-
-							if (getEmptyPlace != null)
-							{
-								var checkIsNum = int.TryParse(getEmptyPlace, out _);
-
-								if (checkIsNum == false)
-								{
-									return new BoolActionResult { isSuccess = false, Message = "Dòng " + row + ":Sai mã địa điểm" };
-								}
-							}
-
-							if (Price == null)
-							{
-								return new BoolActionResult { isSuccess = false, Message = "Dòng " + row + ":Không được để trống Đơn Giá VND" };
-							}
-							else
-							{
-								var checkIsNum = decimal.TryParse(Price, out _);
-
-								if (checkIsNum == false)
-								{
-									return new BoolActionResult { isSuccess = false, Message = "Dòng " + row + ": sai Đơn Giá VND" };
-								}
-							}
-
-							if (priceType == null)
-							{
-								return new BoolActionResult { isSuccess = false, Message = "Dòng " + row + ":Không được để trống Loại Tiền Tệ" };
-							}
-
-							//if (Dvt == null)
-							//{
-							//    return new BoolActionResult { isSuccess = false, Message = "Dòng " + row + ":Không được để trống Đơn Vị Tính" };
-							//}
-							if (Ptvc == null)
-							{
-								return new BoolActionResult { isSuccess = false, Message = "Dòng " + row + ":Không được để trống Phương Thức Vận Chuyển" };
-							}
-							if (VehicleType == null)
-							{
-								return new BoolActionResult { isSuccess = false, Message = "Dòng " + row + ":Không được để trống Loại Phương Tiện" };
-							}
-							if (GoodsType == null)
-							{
-								return new BoolActionResult { isSuccess = false, Message = "Dòng " + row + ":Không được để trống Loại Hàng Hóa" };
-							}
-
-							list.Add(new CreatePriceListRequest()
-							{
-								DiemLayTraRong = getEmptyPlace == null ? null : int.Parse(getEmptyPlace),
-								AccountId = AccountId,
-								DiemDau = int.Parse(FirstPlace),
-								DiemCuoi = int.Parse(SecondPlace),
-								MaHopDong = ContractId,
-								MaKH = MaKH,
-								MaPtvc = Ptvc,
-								MaLoaiPhuongTien = VehicleType,
-								DonGia = decimal.Parse(Price),
-								LoaiTienTe = priceType,
-								MaDvt = "CHUYEN",
-								MaLoaiHangHoa = GoodsType,
-								MaLoaiDoiTac = "",
-								NgayHetHieuLuc = null,
-							});
+							return new BoolActionResult { isSuccess = false, Message = "Dòng " + row + ":Sai mã địa điểm" };
 						}
 					}
+					if (SecondPlace == null)
+					{
+						return new BoolActionResult { isSuccess = false, Message = "Dòng " + row + ":Không được để trống Điểm Trả Hàng" };
+					}
+					else
+					{
+						var checkIsNum = int.TryParse(SecondPlace, out _);
+
+						if (checkIsNum == false)
+						{
+							return new BoolActionResult { isSuccess = false, Message = "Dòng " + row + ":Sai mã địa điểm" };
+						}
+					}
+
+					if (getEmptyPlace != null)
+					{
+						var checkIsNum = int.TryParse(getEmptyPlace, out _);
+
+						if (checkIsNum == false)
+						{
+							return new BoolActionResult { isSuccess = false, Message = "Dòng " + row + ":Sai mã địa điểm" };
+						}
+					}
+
+					if (Price == null)
+					{
+						return new BoolActionResult { isSuccess = false, Message = "Dòng " + row + ":Không được để trống Đơn Giá VND" };
+					}
+					else
+					{
+						var checkIsNum = decimal.TryParse(Price, out _);
+
+						if (checkIsNum == false)
+						{
+							return new BoolActionResult { isSuccess = false, Message = "Dòng " + row + ": sai Đơn Giá VND" };
+						}
+					}
+
+					if (priceType == null)
+					{
+						return new BoolActionResult { isSuccess = false, Message = "Dòng " + row + ":Không được để trống Loại Tiền Tệ" };
+					}
+
+					//if (Dvt == null)
+					//{
+					//    return new BoolActionResult { isSuccess = false, Message = "Dòng " + row + ":Không được để trống Đơn Vị Tính" };
+					//}
+					if (Ptvc == null)
+					{
+						return new BoolActionResult { isSuccess = false, Message = "Dòng " + row + ":Không được để trống Phương Thức Vận Chuyển" };
+					}
+					if (VehicleType == null)
+					{
+						return new BoolActionResult { isSuccess = false, Message = "Dòng " + row + ":Không được để trống Loại Phương Tiện" };
+					}
+					if (GoodsType == null)
+					{
+						return new BoolActionResult { isSuccess = false, Message = "Dòng " + row + ":Không được để trống Loại Hàng Hóa" };
+					}
+
+					list.Add(new CreatePriceListRequest()
+					{
+						DiemLayTraRong = getEmptyPlace == null ? null : int.Parse(getEmptyPlace),
+						AccountId = AccountId,
+						DiemDau = int.Parse(FirstPlace),
+						DiemCuoi = int.Parse(SecondPlace),
+						MaHopDong = ContractId,
+						MaKH = MaKH,
+						MaPtvc = Ptvc,
+						MaLoaiPhuongTien = VehicleType,
+						DonGia = decimal.Parse(Price),
+						LoaiTienTe = priceType,
+						MaDvt = "CHUYEN",
+						MaLoaiHangHoa = GoodsType,
+						MaLoaiDoiTac = "",
+						NgayHetHieuLuc = null,
+					});
 				}
 
 				var addPriceTable = await CreatePriceTable(list);
@@ -993,7 +984,7 @@ namespace TBSLogistics.Service.Services.PriceTableManage
 				return 1;
 			}
 
-			var getPriceTrade =  _context.ExchangeRate.Where(x => x.CurrencyCode == priceCode && x.PriceTransfer != null).OrderByDescending(x => x.CreatedTime).FirstOrDefault();
+			var getPriceTrade = _context.ExchangeRate.Where(x => x.CurrencyCode == priceCode && x.PriceTransfer != null).OrderByDescending(x => x.CreatedTime).FirstOrDefault();
 			return getPriceTrade.PriceSell.Value;
 		}
 
@@ -1011,7 +1002,7 @@ namespace TBSLogistics.Service.Services.PriceTableManage
 						  orderby kh.TenKh
 						  select new { bg, hd, kh };
 
-			var data = await getList.Select(x => new GetPriceListRequest()
+			var data = await getList.OrderBy(x => x.kh.TenKh).OrderBy(x => x.bg.MaAccount).Select(x => new GetPriceListRequest()
 			{
 				AccountName = x.bg.MaAccount == null ? x.kh.TenKh : _context.AccountOfCustomer.Where(y => y.MaAccount == x.bg.MaAccount).Select(y => y.TenAccount).FirstOrDefault(),
 				DiemLayTraRong = x.bg.DiemLayTraRong == null ? null : _context.DiaDiem.Where(y => y.MaDiaDiem == x.bg.DiemLayTraRong).Select(y => y.TenDiaDiem).FirstOrDefault(),

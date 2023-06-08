@@ -11,6 +11,6 @@ namespace TBSLogistics.Service.Services.Report
     {
         Task<GetDataReport> GetReportTransportByMonth(DateTime dateTime);
         Task<GetDataReport> GetRevenue(DateTime dateTime);
-        Task<TransportReport> GetCustomerReport(DateTime fromDate, DateTime toDate);
+        Task<TransportReport> GetCustomerReport(DateTime dateTime);
     }
 }

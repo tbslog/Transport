@@ -23,6 +23,7 @@ namespace TBSLogistics.Model.Model.BillModel
     public class ListBillHandlingWeb
     {
         public long handlingId { get; set; }
+        public string MaVanDon { get; set; }
         public string DonViVanTai { get; set; }
         public string DiemDau { get; set; }
         public string DiemCuoi { get; set; }

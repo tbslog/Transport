@@ -1,10 +1,8 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using ClosedXML.Excel;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using OfficeOpenXml;
-using OfficeOpenXml.Style;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,13 +10,11 @@ using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.BillOfLadingModel;
 using TBSLogistics.Model.Model.FileModel;
 using TBSLogistics.Model.Model.MailSettings;
-using TBSLogistics.Model.Model.MobileModel;
 using TBSLogistics.Model.Model.UserModel;
 using TBSLogistics.Service.Helpers;
 using TBSLogistics.Service.Panigation;
 using TBSLogistics.Service.Services.BillOfLadingManage;
 using TBSLogistics.Service.Services.Common;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -528,6 +524,27 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 			}
 		}
 
+		[HttpPost]
+		[Route("[action]")]
+		public async Task<IActionResult> SetSupplierForHandling(SetSupplierForHandling request)
+		{
+			var checkPermission = await _common.CheckPermission("F0001");
+			if (checkPermission.isSuccess == false)
+			{
+				return BadRequest(checkPermission.Message);
+			}
+
+			var update = await _billOfLading.SetSupplierForHandling(request);
+			if (update.isSuccess)
+			{
+				return Ok(update.Message);
+			}
+			else
+			{
+				return BadRequest(update.Message);
+			}
+		}
+
 		[HttpGet]
 		[Route("[action]")]
 		public async Task<IActionResult> GetTransportLessById(string transportId)
@@ -702,78 +719,75 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 				return BadRequest("Vui lòng chọn mốc thời gian để xuất Excel");
 			}
 
-			await Task.Yield();
-			var stream = new MemoryStream();
 			filter.PageNumber = 1;
 			filter.PageSize = 100000;
 			var data = await _billOfLading.GetListHandlingLess(listFilter, filter);
-			ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-			using (var package = new ExcelPackage(stream))
+
+			var workbook = new XLWorkbook();
+			var worksheet = workbook.Worksheets.Add("HoaDon");
+
+			var currRow = 1;
+			worksheet.Range("A1:R1").Style.Border.TopBorder = XLBorderStyleValues.Thin;
+			worksheet.Range("A1:R1").Style.Font.FontSize = 15;
+			worksheet.Range("A1:R1").Style.Font.Bold = true;
+			worksheet.Range("A1:R1").Style.Fill.BackgroundColor = XLColor.LightGray;
+			worksheet.Range("A1:R1").Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+
+			worksheet.Cell(1, 1).Value = "Mã Chuyến";
+			worksheet.Cell(1, 2).Value = "Booking No";
+			worksheet.Cell(1, 3).Value = "Loại Vận Đơn";
+			worksheet.Cell(1, 4).Value = "Phương Thức Vận Chuyển";
+			worksheet.Cell(1, 5).Value = "Khách Hàng";
+			worksheet.Cell(1, 6).Value = "Account";
+			worksheet.Cell(1, 7).Value = "Đơn Vị Vận Tải";
+			worksheet.Cell(1, 8).Value = "Mã CONT";
+			worksheet.Cell(1, 9).Value = "Reuse Cont";
+			worksheet.Cell(1, 10).Value = "Loại Phương Tiện";
+			worksheet.Cell(1, 11).Value = "Hãng Tàu";
+			worksheet.Cell(1, 12).Value = "Điểm Lấy Rỗng";
+			worksheet.Cell(1, 13).Value = "Điểm Trả Rỗng";
+			worksheet.Cell(1, 14).Value = "Điểm Đóng Hàng";
+			worksheet.Cell(1, 15).Value = "Điểm Hạ Hàng";
+			worksheet.Cell(1, 16).Value = "Khối Lượng";
+			worksheet.Cell(1, 17).Value = "Thể Tích";
+			worksheet.Cell(1, 18).Value = "Số Kiện";
+			worksheet.Cell(1, 19).Value = "Trạng Thái";
+			worksheet.Cell(1, 20).Value = "Thời Gian Tạo";
+
+			foreach (var item in data.dataResponse)
 			{
-				var workSheet = package.Workbook.Worksheets.Add("DieuPhoi");
-				workSheet.Cells[1, 1].Value = "Mã Chuyến";
-				workSheet.Cells[1, 2].Value = "Booking No";
-				workSheet.Cells[1, 3].Value = "Loại Vận Đơn";
-				workSheet.Cells[1, 4].Value = "Phương Thức Vận Chuyển";
-				workSheet.Cells[1, 5].Value = "Khách Hàng";
-				workSheet.Cells[1, 6].Value = "Account";
-				workSheet.Cells[1, 7].Value = "Đơn Vị Vận Tải";
-				workSheet.Cells[1, 8].Value = "Mã CONT";
-				workSheet.Cells[1, 9].Value = "Reuse Cont";
-				workSheet.Cells[1, 10].Value = "Loại Phương Tiện";
-				workSheet.Cells[1, 11].Value = "Hãng Tàu";
-				workSheet.Cells[1, 12].Value = "Điểm Lấy Rỗng";
-				workSheet.Cells[1, 13].Value = "Điểm Trả Rỗng";
-				workSheet.Cells[1, 14].Value = "Điểm Đóng Hàng";
-				workSheet.Cells[1, 15].Value = "Điểm Hạ Hàng";
-				workSheet.Cells[1, 16].Value = "Khối Lượng";
-				workSheet.Cells[1, 17].Value = "Thể Tích";
-				workSheet.Cells[1, 18].Value = "Số Kiện";
-				workSheet.Cells[1, 19].Value = "Trạng Thái";
-				workSheet.Cells[1, 20].Value = "Thời Gian Tạo";
-				int row = 2;
-				foreach (var item in data.dataResponse)
-				{
-					workSheet.Cells[row, 1].Value = item.MaChuyen;
-					workSheet.Cells[row, 2].Value = item.MaVanDonKH;
-					workSheet.Cells[row, 3].Value = item.PhanLoaiVanDon == "nhap" ? "Nhập" : "Xuất";
-					workSheet.Cells[row, 4].Value = item.MaPTVC;
-					workSheet.Cells[row, 5].Value = item.MaKH;
-					workSheet.Cells[row, 6].Value = item.AccountName;
-					workSheet.Cells[row, 7].Value = item.DonViVanTai;
-					workSheet.Cells[row, 8].Value = item.ContNo;
-					workSheet.Cells[row, 9].Value = item.Reuse;
-					workSheet.Cells[row, 10].Value = item.PTVanChuyen;
-					workSheet.Cells[row, 11].Value = item.HangTau;
-					workSheet.Cells[row, 12].Value = item.DiemLayRong;
-					workSheet.Cells[row, 13].Value = item.DiemTraRong;
-					workSheet.Cells[row, 14].Value = item.DiemDau;
-					workSheet.Cells[row, 15].Value = item.DiemCuoi;
-					workSheet.Cells[row, 16].Value = item.KhoiLuong;
-					workSheet.Cells[row, 17].Value = item.TheTich;
-					workSheet.Cells[row, 18].Value = item.SoKien;
-					workSheet.Cells[row, 19].Value = item.TrangThai;
-					workSheet.Cells[row, 20].Value = item.ThoiGianTaoDon.ToString();
-					row++;
-				}
-
-				workSheet.Cells["A1:R1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-				workSheet.Cells["A1:R1"].Style.Font.Bold = true;
-				workSheet.Cells["A1:R1"].Style.Font.Size = 14;
-
-				workSheet.Cells[workSheet.Dimension.Address].AutoFitColumns();
-				workSheet.Cells[workSheet.Dimension.Address].Style.Border.Top.Style = ExcelBorderStyle.Thin;
-				workSheet.Cells[workSheet.Dimension.Address].Style.Border.Left.Style = ExcelBorderStyle.Thin;
-				workSheet.Cells[workSheet.Dimension.Address].Style.Border.Right.Style = ExcelBorderStyle.Thin;
-				workSheet.Cells[workSheet.Dimension.Address].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
-
-				package.Save();
+				currRow++;
+				worksheet.Cell(currRow, 1).Value = item.MaChuyen;
+				worksheet.Cell(currRow, 2).Value = item.MaVanDonKH;
+				worksheet.Cell(currRow, 3).Value = item.PhanLoaiVanDon == "nhap" ? "Nhập" : "Xuất";
+				worksheet.Cell(currRow, 4).Value = item.MaPTVC;
+				worksheet.Cell(currRow, 5).Value = item.MaKH;
+				worksheet.Cell(currRow, 6).Value = item.AccountName;
+				worksheet.Cell(currRow, 7).Value = item.DonViVanTai;
+				worksheet.Cell(currRow, 8).Value = item.ContNo;
+				worksheet.Cell(currRow, 9).Value = item.Reuse;
+				worksheet.Cell(currRow, 10).Value = item.PTVanChuyen;
+				worksheet.Cell(currRow, 11).Value = item.HangTau;
+				worksheet.Cell(currRow, 12).Value = item.DiemLayRong;
+				worksheet.Cell(currRow, 13).Value = item.DiemTraRong;
+				worksheet.Cell(currRow, 14).Value = item.DiemDau;
+				worksheet.Cell(currRow, 15).Value = item.DiemCuoi;
+				worksheet.Cell(currRow, 16).Value = item.KhoiLuong;
+				worksheet.Cell(currRow, 17).Value = item.TheTich;
+				worksheet.Cell(currRow, 18).Value = item.SoKien;
+				worksheet.Cell(currRow, 19).Value = item.TrangThai;
+				worksheet.Cell(currRow, 20).Value = item.ThoiGianTaoDon.ToString();
 			}
-			stream.Position = 0;
+			worksheet.Range("A1:R" + currRow).Style.Border.TopBorder = XLBorderStyleValues.Dashed;
+			worksheet.Columns().AdjustToContents();
+
+			using var stream = new MemoryStream();
+			workbook.SaveAs(stream);
+			var content = stream.ToArray();
 			string excelName = $"DieuPhoi " + DateTime.Now.ToString("dd-MM-yyyy") + ".xlsx";
 
 			//return File(stream, "application/octet-stream", excelName);
-			return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", excelName);
+			return File(content, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", excelName);
 		}
 	}
 }

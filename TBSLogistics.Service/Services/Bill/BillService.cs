@@ -31,23 +31,19 @@ namespace TBSLogistics.Service.Services.Bill
 			tempData = _common.DecodeToken(_httpContextAccessor.HttpContext.Request.Headers["Authorization"][0].ToString().Replace("Bearer ", ""));
 		}
 
-		public async Task<GetBill> GetBillByCustomerId(string customerId, DateTime fromDate, DateTime toDate)
+		public async Task<GetBill> GetBillByCustomerId(string customerId, DateTime datePay)
 		{
 			try
 			{
 				var getlistHandling = from dp in _context.DieuPhoi
 									  join vd in _context.VanDon
 									  on dp.MaVanDon equals vd.MaVanDon
-									  where (vd.MaKh == customerId || dp.DonViVanTai == customerId)
-									  && dp.TrangThai == 20
-									  && dp.CreatedTime.Date >= fromDate.Date
-									  && dp.CreatedTime.Date <= toDate.Date
-									  select dp;
+									  where dp.TrangThai == 20
+									  select new { vd, dp };
 
 				var getDataTransport = from kh in _context.KhachHang
 									   join vd in _context.VanDon
 									   on kh.MaKh equals vd.MaKh
-									   where getlistHandling.Select(x => x.MaVanDon).Contains(vd.MaVanDon)
 									   orderby vd.CreatedTime
 									   select new { kh, vd };
 
@@ -58,7 +54,20 @@ namespace TBSLogistics.Service.Services.Bill
 										  on sfp.SfId equals sf.SubFeeId
 										  select new { sfp, sfc, sf };
 
-				var getListTransport = await getDataTransport.Where(x => getlistHandling.Select(s => s.MaVanDon).Contains(x.vd.MaVanDon)).OrderBy(x => x.vd.MaVanDonKh).Select(z => new ListVanDon()
+				if (customerId.Trim().Substring(0, 3) == "CUS")
+				{
+					getlistHandling = getlistHandling.Where(x => x.vd.MaKh == customerId);
+				}
+				if (customerId.Trim().Substring(0, 3) == "SUP")
+				{
+					getlistHandling = getlistHandling.Where(x => x.dp.DonViVanTai == customerId);
+				}
+
+				var getListContractOfCus = await _context.HopDongVaPhuLuc.Where(x => x.MaKh == customerId && x.MaHopDongCha == null).FirstOrDefaultAsync();
+				getlistHandling = getlistHandling.Where(x => x.dp.CreatedTime >= new DateTime(datePay.Year, datePay.Month, getListContractOfCus.NgayThanhToan.Value).AddMonths(-1).AddDays(1)
+				&& x.dp.CreatedTime <= new DateTime(datePay.Year, datePay.Month, getListContractOfCus.NgayThanhToan.Value));
+
+				var getListTransport = await getDataTransport.Where(x => getlistHandling.Select(s => s.vd.MaVanDon).Contains(x.vd.MaVanDon)).OrderBy(x => x.vd.MaVanDonKh).Select(z => new ListVanDon()
 				{
 					MaVanDonKH = z.vd.MaVanDonKh,
 					DiemLayHang = _context.DiaDiem.Where(y => y.MaDiaDiem == z.vd.DiemDau).Select(x => x.TenDiaDiem).FirstOrDefault(),
@@ -71,23 +80,23 @@ namespace TBSLogistics.Service.Services.Bill
 					TongTheTich = z.vd.TongTheTich,
 					TongKhoiLuong = z.vd.TongKhoiLuong,
 					TongSoKien = z.vd.TongSoKien,
-					listHandling = getlistHandling.Where(y => y.MaVanDon == z.vd.MaVanDon).OrderBy(x => x.Id).Select(x => new ListHandling()
+					listHandling = getlistHandling.Where(y => y.vd.MaVanDon == z.vd.MaVanDon).OrderBy(x => x.dp.Id).Select(x => new ListHandling()
 					{
-						MaSoXe = x.MaSoXe,
-						DiemLayRong = _context.DiaDiem.Where(y => y.MaDiaDiem == x.DiemLayRong).Select(x => x.TenDiaDiem).FirstOrDefault(),
-						DiemTraRong = _context.DiaDiem.Where(y => y.MaDiaDiem == x.DiemTraRong).Select(x => x.TenDiaDiem).FirstOrDefault(),
-						MaRomooc = x.MaRomooc,
-						TaiXe = _context.TaiXe.Where(y => y.MaTaiXe == x.MaTaiXe).Select(x => x.HoVaTen).FirstOrDefault(),
-						LoaiHangHoa = _context.LoaiHangHoa.Where(y => y.MaLoaiHangHoa == x.MaLoaiHangHoa).Select(x => x.TenLoaiHangHoa).FirstOrDefault(),
-						LoaiPhuongTien = _context.LoaiPhuongTien.Where(y => y.MaLoaiPhuongTien == x.MaLoaiPhuongTien).Select(x => x.TenLoaiPhuongTien).FirstOrDefault(),
-						DonViTinh = _context.DonViTinh.Where(y => y.MaDvt == x.MaDvt).Select(x => x.TenDvt).FirstOrDefault(),
-						DonViVanTai = _context.KhachHang.Where(y => y.MaKh == x.DonViVanTai).Select(x => x.TenKh).FirstOrDefault(),
-						DonGia = x.DonGiaKh.Value,
-						LoaiTienTe = x.LoaiTienTeKh,
-						KhoiLuong = x.KhoiLuong,
-						TheTich = x.TheTich,
-						SoKien = x.SoKien,
-						listSubFeeByContract = getListSFOfContract.Where(y => y.sfc.MaDieuPhoi == x.Id && y.sfp.CusType == (customerId.Substring(0, 3) == "CUS" ? "KH" : "NCC")).Select(x => new ListSubFeeByContract()
+						MaSoXe = x.dp.MaSoXe,
+						DiemLayRong = _context.DiaDiem.Where(y => y.MaDiaDiem == x.dp.DiemLayRong).Select(x => x.TenDiaDiem).FirstOrDefault(),
+						DiemTraRong = _context.DiaDiem.Where(y => y.MaDiaDiem == x.dp.DiemTraRong).Select(x => x.TenDiaDiem).FirstOrDefault(),
+						MaRomooc = x.dp.MaRomooc,
+						TaiXe = _context.TaiXe.Where(y => y.MaTaiXe == x.dp.MaTaiXe).Select(x => x.HoVaTen).FirstOrDefault(),
+						LoaiHangHoa = _context.LoaiHangHoa.Where(y => y.MaLoaiHangHoa == x.dp.MaLoaiHangHoa).Select(x => x.TenLoaiHangHoa).FirstOrDefault(),
+						LoaiPhuongTien = _context.LoaiPhuongTien.Where(y => y.MaLoaiPhuongTien == x.dp.MaLoaiPhuongTien).Select(x => x.TenLoaiPhuongTien).FirstOrDefault(),
+						DonViTinh = _context.DonViTinh.Where(y => y.MaDvt == x.dp.MaDvt).Select(x => x.TenDvt).FirstOrDefault(),
+						DonViVanTai = _context.KhachHang.Where(y => y.MaKh == x.dp.DonViVanTai).Select(x => x.TenKh).FirstOrDefault(),
+						DonGia = x.dp.DonGiaKh.Value,
+						LoaiTienTe = x.dp.LoaiTienTeKh,
+						KhoiLuong = x.dp.KhoiLuong,
+						TheTich = x.dp.TheTich,
+						SoKien = x.dp.SoKien,
+						listSubFeeByContract = getListSFOfContract.Where(y => y.sfc.MaDieuPhoi == x.dp.Id && y.sfp.CusType == (customerId.Substring(0, 3) == "CUS" ? "KH" : "NCC")).Select(x => new ListSubFeeByContract()
 						{
 							ContractId = x.sfp.ContractId,
 							ContractName = _context.HopDongVaPhuLuc.Where(c => c.MaHopDong == x.sfp.ContractId).Select(c => c.TenHienThi).FirstOrDefault(),
@@ -96,7 +105,7 @@ namespace TBSLogistics.Service.Services.Bill
 							unitPrice = x.sfp.Price,
 							priceType = x.sfp.PriceType
 						}).ToList(),
-						listSubFeeIncurreds = _context.SfeeByTcommand.Where(y => y.IdTcommand == x.Id && y.ApproveStatus == 14).OrderBy(x => x.Id).Select(x => new ListSubFeeIncurred()
+						listSubFeeIncurreds = _context.SfeeByTcommand.Where(y => y.IdTcommand == x.dp.Id && y.ApproveStatus == 14).OrderBy(x => x.Id).Select(x => new ListSubFeeIncurred()
 						{
 							Note = x.Note,
 							Price = x.Price,
@@ -346,14 +355,11 @@ namespace TBSLogistics.Service.Services.Bill
 									  on sfp.PriceId equals sfc.PriceId
 									  select new { sfp, sfc };
 
+			var listData = new List<ListBillHandlingWeb>();
+
 			if (!string.IsNullOrEmpty(filter.Keyword))
 			{
-				getlistHandling = getlistHandling.Where(x => x.vd.MaVanDonKh.Contains(filter.Keyword) || x.vd.MaKh.Contains(filter.Keyword));
-			}
-
-			if (!string.IsNullOrEmpty(filter.customerId))
-			{
-				getlistHandling = getlistHandling.Where(x => x.vd.MaKh == filter.customerId);
+				getlistHandling = getlistHandling.Where(x => x.vd.MaVanDonKh.Contains(filter.Keyword));
 			}
 
 			if (!string.IsNullOrEmpty(filter.fromDate.ToString()) && !string.IsNullOrEmpty(filter.toDate.ToString()))
@@ -361,11 +367,54 @@ namespace TBSLogistics.Service.Services.Bill
 				getlistHandling = getlistHandling.Where(x => x.dp.CreatedTime.Date >= filter.fromDate.Value && x.dp.CreatedTime.Date <= filter.toDate.Value);
 			}
 
-			var totalCount = await getlistHandling.CountAsync();
+			if (!string.IsNullOrEmpty(filter.customerId))
+			{
+				var getListContractOfCus = await _context.HopDongVaPhuLuc.Where(x => x.MaKh == filter.customerId && x.MaHopDongCha == null).FirstOrDefaultAsync();
+				getlistHandling = getlistHandling.Where(x => x.vd.MaKh == filter.customerId
+				&& x.dp.CreatedTime >= new DateTime(filter.date.Year, filter.date.Month, getListContractOfCus.NgayThanhToan.Value).AddMonths(-1).AddDays(1)
+				&& x.dp.CreatedTime <= new DateTime(filter.date.Year, filter.date.Month, getListContractOfCus.NgayThanhToan.Value));
+			}
+			else
+			{
+				var getListContractOfCus = await _context.HopDongVaPhuLuc.Where(x => x.MaHopDongCha == null && x.MaLoaiHopDong == "SELL").ToListAsync();
 
-			var pagedData = getlistHandling.OrderBy(x => x.vd.MaVanDon).Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize);
+				foreach (var item in getListContractOfCus)
+				{
+					var getDataFilter = await getlistHandling.Where(x =>
+					x.vd.MaKh == item.MaKh
+					&& x.dp.CreatedTime >= new DateTime(filter.date.Year, filter.date.Month, item.NgayThanhToan.Value).AddMonths(-1).AddDays(1)
+					&& x.dp.CreatedTime <= new DateTime(filter.date.Year, filter.date.Month, item.NgayThanhToan.Value)).ToListAsync();
 
-			var getlistTransport = await _context.VanDon.Where(x => pagedData.Select(y => y.vd.MaVanDon).Contains(x.MaVanDon)).OrderByDescending(x => x.MaVanDon).Select(x => new ListBillTransportWeb()
+					if (getDataFilter.Count > 0)
+					{
+						listData.AddRange(getDataFilter.Select(z => new ListBillHandlingWeb()
+						{
+							MaVanDon = z.dp.MaVanDon,
+							handlingId = z.dp.Id,
+							DonViVanTai = _context.KhachHang.Where(y => y.MaKh == z.dp.DonViVanTai).Select(y => y.TenKh).FirstOrDefault(),
+							LoaiHangHoa = _context.LoaiHangHoa.Where(y => y.MaLoaiHangHoa == z.dp.MaLoaiHangHoa).Select(y => y.TenLoaiHangHoa).FirstOrDefault(),
+							LoaiPhuongTien = _context.LoaiPhuongTien.Where(y => y.MaLoaiPhuongTien == z.dp.MaLoaiPhuongTien).Select(y => y.TenLoaiPhuongTien).FirstOrDefault(),
+							MaSoXe = z.dp.MaSoXe,
+							TaiXe = z.dp.MaTaiXe,
+							DonGiaKH = z.dp.DonGiaKh.Value,
+							LoaiTienTeKH = z.dp.LoaiTienTeKh,
+							PhuPhiHD = 0,
+							PhuPhiPhatSinh = _context.SfeeByTcommand.Where(y => y.IdTcommand == z.dp.Id && y.ApproveStatus == 14).Sum(y => y.Price),
+							ContNo = z.dp.ContNo,
+							SealNP = z.dp.SealNp,
+							SealHQ = z.dp.SealHq,
+							DiemLayRong = z.dp.DiemLayRong == null ? null : _context.DiaDiem.Where(y => y.MaDiaDiem == z.dp.DiemLayRong).Select(y => y.TenDiaDiem).FirstOrDefault(),
+							DiemTraRong = z.dp.DiemTraRong == null ? null : _context.DiaDiem.Where(y => y.MaDiaDiem == z.dp.DiemTraRong).Select(y => y.TenDiaDiem).FirstOrDefault(),
+						}));
+					}
+				}
+			}
+
+			var totalCount = listData.Count();
+			var pagedData = listData.OrderBy(x => x.MaVanDon).Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize);
+			var getlistTransport = await _context.VanDon.Where(x => pagedData.Select(y => y.MaVanDon).Contains(x.MaVanDon)).OrderByDescending(x => x.MaVanDon).ToListAsync();
+
+			var data = getlistTransport.Select(x => new ListBillTransportWeb()
 			{
 				MaVanDon = x.MaVanDon,
 				BookingNo = x.MaVanDonKh,
@@ -374,29 +423,30 @@ namespace TBSLogistics.Service.Services.Bill
 				Account = x.MaAccount == null ? "" : _context.AccountOfCustomer.Where(y => y.MaAccount == x.MaAccount).Select(y => y.TenAccount).FirstOrDefault(),
 				LoaiVanDon = x.LoaiVanDon.Trim() == "xuat" ? "Xuất" : "Nhập",
 				MaPTVC = x.MaPtvc,
-				listBillHandlingWebs = getlistHandling.Where(y => y.dp.MaVanDon == x.MaVanDon).Select(z => new ListBillHandlingWeb()
+				listBillHandlingWebs = pagedData.Where(y => y.MaVanDon == x.MaVanDon).Select(z => new ListBillHandlingWeb()
 				{
-					handlingId = z.dp.Id,
-					DonViVanTai = _context.KhachHang.Where(y => y.MaKh == z.dp.DonViVanTai).Select(y => y.TenKh).FirstOrDefault(),
 					DiemDau = _context.DiaDiem.Where(y => y.MaDiaDiem == x.DiemDau).Select(y => y.TenDiaDiem).FirstOrDefault(),
 					DiemCuoi = _context.DiaDiem.Where(y => y.MaDiaDiem == x.DiemCuoi).Select(y => y.TenDiaDiem).FirstOrDefault(),
-					LoaiHangHoa = _context.LoaiHangHoa.Where(y => y.MaLoaiHangHoa == z.dp.MaLoaiHangHoa).Select(y => y.TenLoaiHangHoa).FirstOrDefault(),
-					LoaiPhuongTien = _context.LoaiPhuongTien.Where(y => y.MaLoaiPhuongTien == z.dp.MaLoaiPhuongTien).Select(y => y.TenLoaiPhuongTien).FirstOrDefault(),
-					MaSoXe = z.dp.MaSoXe,
-					TaiXe = z.dp.MaTaiXe,
-					DonGiaKH = z.dp.DonGiaKh.Value,
-					LoaiTienTeKH = z.dp.LoaiTienTeKh,
+					MaVanDon = z.MaVanDon,
+					handlingId = z.handlingId,
+					DonViVanTai = z.DonViVanTai,
+					LoaiHangHoa = z.DonViVanTai,
+					LoaiPhuongTien = z.LoaiPhuongTien,
+					MaSoXe = z.MaSoXe,
+					TaiXe = z.TaiXe,
+					DonGiaKH = z.DonGiaKH,
+					LoaiTienTeKH = z.LoaiTienTeKH,
 					PhuPhiHD = 0,
-					PhuPhiPhatSinh = _context.SfeeByTcommand.Where(y => y.IdTcommand == z.dp.Id && y.ApproveStatus == 14).Sum(y => y.Price),
-					ContNo = z.dp.ContNo,
-					SealNP = z.dp.SealNp,
-					SealHQ = z.dp.SealHq,
-					DiemLayRong = z.dp.DiemLayRong == null ? null : _context.DiaDiem.Where(y => y.MaDiaDiem == z.dp.DiemLayRong).Select(y => y.TenDiaDiem).FirstOrDefault(),
-					DiemTraRong = z.dp.DiemTraRong == null ? null : _context.DiaDiem.Where(y => y.MaDiaDiem == z.dp.DiemTraRong).Select(y => y.TenDiaDiem).FirstOrDefault(),
+					PhuPhiPhatSinh = z.PhuPhiPhatSinh,
+					ContNo = z.ContNo,
+					SealNP = z.SealNP,
+					SealHQ = z.SealHQ,
+					DiemLayRong = z.DiemLayRong,
+					DiemTraRong = z.DiemTraRong,
 				}).ToList(),
-			}).ToListAsync();
+			}).ToList();
 
-			foreach (var item in getlistTransport)
+			foreach (var item in data)
 			{
 				decimal totalMoney = 0;
 				double totalSf = 0;
@@ -404,9 +454,9 @@ namespace TBSLogistics.Service.Services.Bill
 				{
 					double sfByHandling = 0;
 					getListSFOfContract.Where(y => y.sfc.MaDieuPhoi == handling.handlingId).ToList().ForEach(async x =>
-				   {
-					   sfByHandling += x.sfp.Price * await _priceTable.GetPriceTradeNow(x.sfp.PriceType);
-				   });
+					{
+						sfByHandling += x.sfp.Price * await _priceTable.GetPriceTradeNow(x.sfp.PriceType);
+					});
 
 					handling.DonGiaKH = handling.DonGiaKH * (decimal)await _priceTable.GetPriceTradeNow(handling.LoaiTienTeKH);
 					totalMoney += handling.DonGiaKH;
@@ -414,14 +464,16 @@ namespace TBSLogistics.Service.Services.Bill
 					totalSf += (double)sfByHandling;
 				}
 
+				var getListIdHandling = pagedData.Where(c => c.MaVanDon == item.MaVanDon).Select(c => c.handlingId).ToList();
+
 				item.TongTien = totalMoney;
 				item.TongPhuPhi = totalSf +
-				await _context.SfeeByTcommand.Where(y => pagedData.Where(c => c.vd.MaVanDon == item.MaVanDon).Select(c => c.dp.Id).Contains(y.IdTcommand) && y.ApproveStatus == 14).SumAsync(y => y.Price);
+				await _context.SfeeByTcommand.Where(y => getListIdHandling.Contains(y.IdTcommand) && y.ApproveStatus == 14).SumAsync(y => y.Price);
 			}
 
 			return new PagedResponseCustom<ListBillTransportWeb>()
 			{
-				dataResponse = getlistTransport,
+				dataResponse = data,
 				totalCount = totalCount,
 				paginationFilter = validFilter
 			};
@@ -452,45 +504,81 @@ namespace TBSLogistics.Service.Services.Bill
 				getlistHandling = getlistHandling.Where(x => x.dp.CreatedTime.Date >= filter.fromDate.Value && x.dp.CreatedTime.Date <= filter.toDate.Value);
 			}
 
-			if (!string.IsNullOrEmpty(filter.customerId))
+			if (!string.IsNullOrEmpty(filter.supplierId))
 			{
-				getlistHandling = getlistHandling.Where(x => x.dp.DonViVanTai == filter.customerId || x.vd.MaKh == filter.customerId);
+				var getListContractOfCus = await _context.HopDongVaPhuLuc.Where(x => x.MaKh == filter.supplierId && x.MaHopDongCha == null).FirstOrDefaultAsync();
+				getlistHandling = getlistHandling.Where(x => x.dp.DonViVanTai == filter.supplierId
+				&& x.dp.CreatedTime >= new DateTime(filter.date.Year, filter.date.Month, getListContractOfCus.NgayThanhToan.Value).AddMonths(-1).AddDays(1)
+				&& x.dp.CreatedTime <= new DateTime(filter.date.Year, filter.date.Month, getListContractOfCus.NgayThanhToan.Value));
 			}
 
-			var totalCount = await getlistHandling.CountAsync();
-
-			var pagedData = await getlistHandling.OrderByDescending(x => x.dp.Id).Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new ListBillHandling()
+			if (!string.IsNullOrEmpty(filter.customerId))
 			{
-				HangTau = x.vd.HangTau,
-				handlingId = x.dp.Id,
-				ContNo = x.dp.ContNo,
-				ThoiGianHoanThanh = x.dp.ThoiGianHoanThanh,
-				MaChuyen = x.dp.MaChuyen,
-				AccountName = x.vd.MaAccount == null ? null : _context.AccountOfCustomer.Where(y => y.MaAccount == x.vd.MaAccount).Select(y => y.TenAccount).FirstOrDefault(),
-				CutOffDate = x.vd.ThoiGianHaCang,
-				DiemDau = _context.DiaDiem.Where(y => y.MaDiaDiem == x.vd.DiemDau).Select(x => x.TenDiaDiem).FirstOrDefault(),
-				DiemCuoi = _context.DiaDiem.Where(y => y.MaDiaDiem == x.vd.DiemCuoi).Select(x => x.TenDiaDiem).FirstOrDefault(),
-				DiemLayRong = x.dp.DiemLayRong == null ? null : _context.DiaDiem.Where(y => y.MaDiaDiem == x.dp.DiemLayRong).Select(x => x.TenDiaDiem).FirstOrDefault(),
-				DiemTraRong = x.dp.DiemTraRong == null ? null : _context.DiaDiem.Where(y => y.MaDiaDiem == x.dp.DiemTraRong).Select(x => x.TenDiaDiem).FirstOrDefault(),
-				MaPTVC = x.vd.MaPtvc,
-				MaVanDonKH = x.vd.MaVanDonKh,
-				MaVanDon = x.dp.MaVanDon,
-				LoaiVanDon = x.vd.LoaiVanDon,
-				LoaiHangHoa = _context.LoaiHangHoa.Where(y => y.MaLoaiHangHoa == x.dp.MaLoaiHangHoa).Select(y => y.TenLoaiHangHoa).FirstOrDefault(),
-				LoaiPhuongTien = x.dp.MaLoaiPhuongTien,
-				MaNCC = x.dp.DonViVanTai,
-				MaKH = x.vd.MaKh,
-				TenKH = _context.KhachHang.Where(y => y.MaKh == x.vd.MaKh).Select(y => y.TenKh).FirstOrDefault(),
-				TenNCC = _context.KhachHang.Where(y => y.MaKh == x.dp.DonViVanTai).Select(y => y.TenKh).FirstOrDefault(),
-				DonGiaKH = x.dp.DonGiaKh,
-				DonGiaNCC = x.dp.DonGiaNcc,
-				LoaiTienTeKH = x.dp.LoaiTienTeKh,
-				Reuse = x.dp.ReuseCont == true ? "REUSE" : "",
-				LoaiTienTeNCC = x.dp.LoaiTienTeNcc,
-				createdTime = x.dp.CreatedTime,
-				ChiPhiHopDong = 0,
-				ChiPhiPhatSinh = (decimal)_context.SfeeByTcommand.Where(y => y.IdTcommand == x.dp.Id && y.ApproveStatus == 14).Sum(y => y.Price),
-			}).Select(x => new ListBillHandling()
+				var getListContractOfCus = await _context.HopDongVaPhuLuc.Where(x => x.MaKh == filter.customerId && x.MaHopDongCha == null).FirstOrDefaultAsync();
+				getlistHandling = getlistHandling.Where(x => x.vd.MaKh == filter.customerId
+				&& x.dp.CreatedTime >= new DateTime(filter.date.Year, filter.date.Month, getListContractOfCus.NgayThanhToan.Value).AddMonths(-1).AddDays(1)
+				&& x.dp.CreatedTime <= new DateTime(filter.date.Year, filter.date.Month, getListContractOfCus.NgayThanhToan.Value));
+			}
+
+			var listHadling = new List<ListBillHandling>();
+			if (!string.IsNullOrEmpty(filter.customerType))
+			{
+				if (filter.customerType != "KH" && filter.customerType != "NCC")
+				{
+					return null;
+				}
+
+				var getListContractOfCus = await _context.HopDongVaPhuLuc.Where(x =>
+				x.MaHopDongCha == null
+				&& x.MaLoaiHopDong == (filter.customerType == "KH" ? "SELL" : "BUY")).ToListAsync();
+
+				foreach (var item in getListContractOfCus)
+				{
+					var getDataFilter = await getlistHandling.Where(x =>
+					(filter.customerType == "KH" ? x.vd.MaKh : x.dp.DonViVanTai) == item.MaKh
+					&& x.dp.CreatedTime >= new DateTime(filter.date.Year, filter.date.Month, item.NgayThanhToan.Value).AddMonths(-1).AddDays(1)
+					&& x.dp.CreatedTime <= new DateTime(filter.date.Year, filter.date.Month, item.NgayThanhToan.Value)).ToListAsync();
+
+					if (getDataFilter.Count() > 0)
+					{
+						listHadling.AddRange(getDataFilter.Select(x => new ListBillHandling()
+						{
+							HangTau = x.vd.HangTau,
+							handlingId = x.dp.Id,
+							ContNo = x.dp.ContNo,
+							ThoiGianHoanThanh = x.dp.ThoiGianHoanThanh,
+							MaChuyen = x.dp.MaChuyen,
+							AccountName = x.vd.MaAccount == null ? null : _context.AccountOfCustomer.Where(y => y.MaAccount == x.vd.MaAccount).Select(y => y.TenAccount).FirstOrDefault(),
+							CutOffDate = x.vd.ThoiGianHaCang,
+							DiemDau = _context.DiaDiem.Where(y => y.MaDiaDiem == x.vd.DiemDau).Select(x => x.TenDiaDiem).FirstOrDefault(),
+							DiemCuoi = _context.DiaDiem.Where(y => y.MaDiaDiem == x.vd.DiemCuoi).Select(x => x.TenDiaDiem).FirstOrDefault(),
+							DiemLayRong = x.dp.DiemLayRong == null ? null : _context.DiaDiem.Where(y => y.MaDiaDiem == x.dp.DiemLayRong).Select(x => x.TenDiaDiem).FirstOrDefault(),
+							DiemTraRong = x.dp.DiemTraRong == null ? null : _context.DiaDiem.Where(y => y.MaDiaDiem == x.dp.DiemTraRong).Select(x => x.TenDiaDiem).FirstOrDefault(),
+							MaPTVC = x.vd.MaPtvc,
+							MaVanDonKH = x.vd.MaVanDonKh,
+							MaVanDon = x.dp.MaVanDon,
+							LoaiVanDon = x.vd.LoaiVanDon,
+							LoaiHangHoa = _context.LoaiHangHoa.Where(y => y.MaLoaiHangHoa == x.dp.MaLoaiHangHoa).Select(y => y.TenLoaiHangHoa).FirstOrDefault(),
+							LoaiPhuongTien = x.dp.MaLoaiPhuongTien,
+							MaNCC = x.dp.DonViVanTai,
+							MaKH = x.vd.MaKh,
+							TenKH = _context.KhachHang.Where(y => y.MaKh == x.vd.MaKh).Select(y => y.TenKh).FirstOrDefault(),
+							TenNCC = _context.KhachHang.Where(y => y.MaKh == x.dp.DonViVanTai).Select(y => y.TenKh).FirstOrDefault(),
+							DonGiaKH = x.dp.DonGiaKh,
+							DonGiaNCC = x.dp.DonGiaNcc,
+							LoaiTienTeKH = x.dp.LoaiTienTeKh,
+							Reuse = x.dp.ReuseCont == true ? "REUSE" : "",
+							LoaiTienTeNCC = x.dp.LoaiTienTeNcc,
+							createdTime = x.dp.CreatedTime,
+							ChiPhiHopDong = 0,
+							ChiPhiPhatSinh = (decimal)_context.SfeeByTcommand.Where(y => y.IdTcommand == x.dp.Id && y.ApproveStatus == 14).Sum(y => y.Price),
+						}));
+					}
+				}
+			}
+
+			var totalCount = listHadling.Count();
+			var pagedData = listHadling.OrderByDescending(x => x.handlingId).Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new ListBillHandling()
 			{
 				DiemCuoi = x.DiemCuoi,
 				DiemDau = x.DiemDau,
@@ -518,16 +606,16 @@ namespace TBSLogistics.Service.Services.Bill
 				DonGiaKH = x.DonGiaKH,
 				DonGiaNCC = x.DonGiaNCC,
 				ChiPhiPhatSinh = x.ChiPhiPhatSinh,
-			}).OrderByDescending(x => x.MaVanDon).ThenBy(x => x.MaChuyen).ToListAsync();
+			}).ToList();
 
 			foreach (var item in pagedData)
 			{
 				double totalSf = 0;
 
 				getSFbyContract.Where(x => x.sfc.MaDieuPhoi == item.handlingId && x.sfp.CusType == "NCC").ToList().ForEach(async x =>
-			   {
-				   totalSf += x.sfp.Price * await _priceTable.GetPriceTradeNow(x.sfp.PriceType);
-			   });
+				{
+					totalSf += x.sfp.Price * await _priceTable.GetPriceTradeNow(x.sfp.PriceType);
+				});
 
 				item.ChiPhiHopDong = (decimal)totalSf;
 				item.DoanhThu = (item.DonGiaKH.Value * (decimal)await _priceTable.GetPriceTradeNow(item.LoaiTienTeKH)) + item.ChiPhiPhatSinh + item.ChiPhiHopDong;

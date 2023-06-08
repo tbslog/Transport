@@ -55,8 +55,8 @@ namespace TBSLogistics.Service.Services.DriverManage
 					HoVaTen = getDriver.HoVaTen,
 					MaNhanVien = "",
 					MaBoPhan = null,
-					AccountType = "NCC",
-					RoleId = 5,
+					AccountType = "TaiXe",
+					RoleId = 14,
 					TrangThai = 1,
 				};
 

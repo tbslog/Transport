@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,9 +9,9 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Org.BouncyCastle.Asn1.Ocsp;
 using System;
 using System.Text;
+using System.Threading;
 using TBSLogistics.Data.TMS;
 using TBSLogistics.Model.Model.MailSettings;
 using TBSLogistics.Service.Panigation;
@@ -39,137 +38,143 @@ using TBSLogistics.Service.Services.VehicleManage;
 
 namespace TBSLogistics.ApplicationAPI
 {
-    public class Startup
-    {
-        private readonly string apiCorsPolicy = "ApiCorsPolicy";
+	public class Startup
+	{
+		private readonly string apiCorsPolicy = "ApiCorsPolicy";
 
-        public Startup(IConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
+		public Startup(IConfiguration configuration)
+		{
+			Configuration = configuration;
+		}
 
-        public IConfiguration Configuration { get; }
+		public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
-        {
-            services.AddCors(option =>
-            {
-                option.AddPolicy(name: apiCorsPolicy, policy =>
-                 {
-                     policy.WithOrigins("http://localhost:3000", "http://192.168.0.189:9999", "https://tms.tbslogistics.com.vn").AllowAnyMethod().AllowAnyHeader();
-                     //policy.WithOrigins("*").AllowAnyMethod().AllowAnyHeader();
-                 });
-            });
+		// This method gets called by the runtime. Use this method to add services to the container.
+		public void ConfigureServices(IServiceCollection services)
+		{
+			services.AddCors(option =>
+			{
+				option.AddPolicy(name: apiCorsPolicy, policy =>
+				 {
+					 policy.WithOrigins("http://localhost:3000", "http://192.168.0.189:9999", "https://tms.tbslogistics.com.vn").AllowAnyMethod().AllowAnyHeader();
+					 //policy.WithOrigins("*").AllowAnyMethod().AllowAnyHeader();
+				 });
+			});
 
-			services.AddDbContext<TMSContext>(options => options.UseSqlServer(Configuration["TMS_Cloud"]));
-            services.AddHttpContextAccessor();
-            services.AddSingleton<IPaginationService>(o =>
-            {
-                var accessor = o.GetRequiredService<IHttpContextAccessor>();
-                var request = accessor.HttpContext.Request;
-                var uri = string.Concat(request.Scheme, "://", request.Host.ToUriComponent());
-                return new PaginationService(uri);
-            });
+			services.AddDbContext<TMSContext>(options =>
+			options.UseSqlServer(Configuration["TMS_Local"],
+			 providerOptions =>
+			 {
+				 providerOptions.CommandTimeout(180);
+			 }));
+			
+			services.AddHttpContextAccessor();
+			services.AddSingleton<IPaginationService>(o =>
+			{
+				var accessor = o.GetRequiredService<IHttpContextAccessor>();
+				var request = accessor.HttpContext.Request;
+				var uri = string.Concat(request.Scheme, "://", request.Host.ToUriComponent());
+				return new PaginationService(uri);
+			});
 
-            services.AddOptions();
-            var mailsettings = Configuration.GetSection("MailSettings");
-            services.Configure<MailSettings>(mailsettings);
+			services.AddOptions();
+			var mailsettings = Configuration.GetSection("MailSettings");
+			services.Configure<MailSettings>(mailsettings);
 
-            services.AddControllersWithViews();
-            services.AddAuthentication(x =>
-            {
+			services.AddControllersWithViews();
+			services.AddAuthentication(x =>
+			{
 				x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
 				x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 			}).AddJwtBearer(x =>
-            {
-                x.RequireHttpsMetadata = false;
-                x.SaveToken = true;
-                x.TokenValidationParameters = new TokenValidationParameters()
-                {
-                    ClockSkew = TimeSpan.Zero,
+			{
+				x.RequireHttpsMetadata = false;
+				x.SaveToken = true;
+				x.TokenValidationParameters = new TokenValidationParameters()
+				{
+					ClockSkew = TimeSpan.Zero,
 					ValidateIssuerSigningKey = true,
 					ValidateLifetime = true,
 					ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidAudience = Configuration["Jwt:Audience"],
-                    ValidIssuer = Configuration["Jwt:Issuer"],
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:Key"]))
-                };
-            });
+					ValidateAudience = true,
+					ValidAudience = Configuration["Jwt:Audience"],
+					ValidIssuer = Configuration["Jwt:Issuer"],
+					IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:Key"]))
+				};
+			});
 
-            services.AddSingleton(sp => sp.GetRequiredService<ILoggerFactory>().CreateLogger("DefaultLogger"));
-            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-            services.AddTransient<ICommon, CommonService>();
-            services.AddTransient<IAddress, AddressService>();
-            services.AddTransient<ICustomer, CustomerService>();
-            services.AddTransient<IPriceTable, PriceTableService>();
-            services.AddTransient<IDriver, DriverService>();
-            services.AddTransient<IVehicle, VehicleService>();
-            services.AddTransient<IRoad, RoadService>();
-            services.AddTransient<IContract, ContractService>();
-            services.AddTransient<IProduct, ProductService>();
-            services.AddTransient<IRomooc, RomoocService>();
-            services.AddTransient<IBillOfLading, BillOfLadingService>();
-            services.AddTransient<ISubFeePrice, SubFeePriceService>();
-            services.AddTransient<INotification, NotificationService>();
-            services.AddTransient<IUser, UserService>();
-            services.AddTransient<ISFeeByTcommand, SFeeByTcommandService>();
-            services.AddTransient<IBill, BillService>();
-            services.AddTransient<IReport, ReportService>();
-            services.AddTransient<IMobile, MobileServices>();
-            services.AddTransient<IAccount, AccountService>();
+			services.AddSingleton(sp => sp.GetRequiredService<ILoggerFactory>().CreateLogger("DefaultLogger"));
+			services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+			services.AddTransient<ICommon, CommonService>();
+			services.AddTransient<IAddress, AddressService>();
+			services.AddTransient<ICustomer, CustomerService>();
+			services.AddTransient<IPriceTable, PriceTableService>();
+			services.AddTransient<IDriver, DriverService>();
+			services.AddTransient<IVehicle, VehicleService>();
+			services.AddTransient<IRoad, RoadService>();
+			services.AddTransient<IContract, ContractService>();
+			services.AddTransient<IProduct, ProductService>();
+			services.AddTransient<IRomooc, RomoocService>();
+			services.AddTransient<IBillOfLading, BillOfLadingService>();
+			services.AddTransient<ISubFeePrice, SubFeePriceService>();
+			services.AddTransient<INotification, NotificationService>();
+			services.AddTransient<IUser, UserService>();
+			services.AddTransient<ISFeeByTcommand, SFeeByTcommandService>();
+			services.AddTransient<IBill, BillService>();
+			services.AddTransient<IReport, ReportService>();
+			services.AddTransient<IMobile, MobileServices>();
+			services.AddTransient<IAccount, AccountService>();
 
 			services.AddSwaggerGen(option =>
-            {
-                option.SwaggerDoc("v1", new OpenApiInfo { Title = "TBSLogistics.ApplicationAPI", Version = "v1" });
-                option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-                {
-                    In = ParameterLocation.Header,
-                    Description = "Please enter a valid token",
-                    Name = "Authorization",
-                    Type = SecuritySchemeType.Http,
-                    BearerFormat = "JWT",
-                    Scheme = "Bearer"
-                });
+			{
+				option.SwaggerDoc("v1", new OpenApiInfo { Title = "TBSLogistics.ApplicationAPI", Version = "v1" });
+				option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+				{
+					In = ParameterLocation.Header,
+					Description = "Please enter a valid token",
+					Name = "Authorization",
+					Type = SecuritySchemeType.Http,
+					BearerFormat = "JWT",
+					Scheme = "Bearer"
+				});
 
-                option.AddSecurityRequirement(new OpenApiSecurityRequirement
-                {
-                    {
-                       new OpenApiSecurityScheme
-                        {
-                            Reference = new OpenApiReference
-                            {
-                                Type=ReferenceType.SecurityScheme,
-                                Id="Bearer"
-                            }
-                        },
-                        new string[]{}
-                    }
-                });
-            });
-        }
+				option.AddSecurityRequirement(new OpenApiSecurityRequirement
+				{
+					{
+					   new OpenApiSecurityScheme
+						{
+							Reference = new OpenApiReference
+							{
+								Type=ReferenceType.SecurityScheme,
+								Id="Bearer"
+							}
+						},
+						new string[]{}
+					}
+				});
+			});
+		}
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-        {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-                app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "TBSLogistics.ApplicationAPI v1"));
-            }
-           
-            app.UseHttpsRedirection();
-            app.UseRouting();
-            app.UseCors(apiCorsPolicy);
-            app.UseAuthentication();
-            app.UseAuthorization();
+		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+		{
+			if (env.IsDevelopment())
+			{
+				app.UseDeveloperExceptionPage();
+				app.UseSwagger();
+				app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "TBSLogistics.ApplicationAPI v1"));
+			}
 
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
-        }
-    }
+			app.UseHttpsRedirection();
+			app.UseRouting();
+			app.UseCors(apiCorsPolicy);
+			app.UseAuthentication();
+			app.UseAuthorization();
+
+			app.UseEndpoints(endpoints =>
+			{
+				endpoints.MapControllers();
+			});
+		}
+	}
 }

@@ -16,7 +16,7 @@ namespace TBSLogistics.Data.TMS
         public TMSContext(DbContextOptions<TMSContext> options)
             : base(options)
         {
-        }
+		}
 
 		public virtual DbSet<Account> Account { get; set; }
 		public virtual DbSet<AccountOfCustomer> AccountOfCustomer { get; set; }
@@ -92,7 +92,7 @@ namespace TBSLogistics.Data.TMS
                  .AddJsonFile("appsettings.json")
                  .Build();
 
-                optionsBuilder.UseSqlServer(configuration.GetConnectionString("TMS_Cloud"));
+                optionsBuilder.UseSqlServer(configuration.GetConnectionString("TMS_Local"));
             }
         }
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -1850,7 +1850,6 @@ namespace TBSLogistics.Data.TMS
 
 			OnModelCreatingPartial(modelBuilder);
 		}
-
 		partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
     }
 }

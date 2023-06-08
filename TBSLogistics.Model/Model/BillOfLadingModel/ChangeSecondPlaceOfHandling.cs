@@ -12,4 +12,10 @@ namespace TBSLogistics.Model.Model.BillOfLadingModel
 		public long handlingId { get; set; }
 		public int newSecondPlace { get; set; }
 	}
+
+	public class SetSupplierForHandling
+	{
+		public string supplierId { get; set; }
+		public List<long> handlingIds { get; set; }
+	}
 }

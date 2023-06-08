@@ -38,7 +38,6 @@ namespace TBSLogistics.Service.Services.MobileManager
 			tempData = _common.DecodeToken(_httpContextAccessor.HttpContext.Request.Headers["Authorization"][0].ToString().Replace("Bearer ", ""));
 		}
 
-
 		public async Task<BoolActionResult> ResetStatus(string maChuyen)
 		{
 			var getListHandling = await _context.DieuPhoi.Where(x => x.MaChuyen == maChuyen).ToListAsync();

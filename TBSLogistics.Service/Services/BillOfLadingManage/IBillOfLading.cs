@@ -21,7 +21,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
         Task<GetTransport> GetTransportById(string transportId);
         Task<PagedResponseCustom<ListTransport>> GetListTransport(ListFilter listFilter, PaginationFilter filter);
         Task<GetHandling> GetHandlingById(int id);
-        Task<BoolActionResult> UpdateHandling(int id, UpdateHandling request);
+        Task<BoolActionResult> UpdateHandling(long id, UpdateHandling request);
         Task<List<DocumentType>> GetListImageByHandlingId(long handlingId);
         Task<BoolActionResult> DeleteImageById(int docId);
         Task<Attachment> GetImageById(long imageId);
@@ -46,5 +46,6 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
         Task<BoolActionResult> RestartHandling(long handlingId);
         Task<BoolActionResult> CancelTransport(string transportId);
         Task<BoolActionResult> ChangeSecondPlace(ChangeSecondPlaceOfHandling request);
+        Task<BoolActionResult> SetSupplierForHandling(SetSupplierForHandling request);
 	}
 }

@@ -177,12 +177,27 @@ namespace TBSLogistics.Service.Services.Common
 				var handler = new JwtSecurityTokenHandler();
 				var jwtSecurityToken = handler.ReadJwtToken(token);
 
+				int userId = int.Parse(jwtSecurityToken.Claims.First(x => x.Type == "UserId").Value);
+
+				var checkUser = _context.NguoiDung.Where(x => x.Id == userId).FirstOrDefault();
+
+				if (checkUser == null)
+				{
+					return new TempData()
+					{
+						Token = "",
+						UserID = 0,
+						UserName = "",
+						AccType = "",
+					};
+				}
+
 				return new TempData()
 				{
 					Token = token,
-					UserID = int.Parse(jwtSecurityToken.Claims.First(x => x.Type == "UserId").Value),
+					UserID = checkUser.Id,
 					UserName = jwtSecurityToken.Claims.First(x => x.Type == "UserName").Value,
-					AccType = jwtSecurityToken.Claims.First(x => x.Type == "AccType").Value,
+					AccType = checkUser.AccountType,
 				};
 			}
 			return new TempData();
