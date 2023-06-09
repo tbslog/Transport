@@ -1,5 +1,11 @@
 .rdt_TableHead {
     font-weight:bold !important;
-    position:absolute !important;
-    display: contents !important;
+}
+
+.react-datepicker-popper {
+    z-index: 9999 !important;
+}
+
+.form-control__menu{
+    z-index: 9999 !important;
 }

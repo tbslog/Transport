@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect, useCallback, useRef } from "react";
-import { getData, postData, postFile } from "../Common/FuncAxios";
+import { getData, getFile, postData, postFile } from "../Common/FuncAxios";
 import DataTable from "react-data-table-component";
 import moment from "moment";
 import { Modal } from "bootstrap";
@@ -171,6 +171,13 @@ const AddressPage = () => {
     await fetchData(page, keySearch);
   };
 
+  const handleExportExcel = async () => {
+    const getFileExcel = await getFile(
+      "Address/ExportExcelAddress",
+      "DuLieuDiaDiem"
+    );
+  };
+
   const handleRefeshDataClick = async () => {
     setKeySearch("");
     await fetchData(1);
@@ -270,27 +277,19 @@ const AddressPage = () => {
             </div>
           </div>
           <div className="card-footer">
-            {/* <div className="row">
+            <div className="row">
               <div className="col-sm-3">
-                <a
-                  href={FileExcelImport}
-                  download="Template Thêm mới địa điểm.xlsx"
-                  className="btn btn-sm btn-default mx-1"
+                <button
+                  // href={FileExcelImport}
+                  onClick={() => handleExportExcel()}
+                  className="btn btn-title btn-sm btn-default mx-1"
+                  gloss="Tải File Excel"
+                  type="button"
                 >
-                  <i className="fas fa-download"></i>
-                </a>
-                <div className="upload-btn-wrapper">
-                  <button className="btn btn-sm btn-default mx-1">
-                    <i className="fas fa-upload"></i>
-                  </button>
-                  <input
-                    type="file"
-                    name="myfile"
-                    onChange={(e) => handleExcelImportClick(e)}
-                  />
-                </div>
+                  <i className="fas fa-file-excel"></i>
+                </button>
               </div>
-            </div> */}
+            </div>
           </div>
         </div>
         <div

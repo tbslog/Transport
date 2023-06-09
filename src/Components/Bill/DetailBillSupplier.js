@@ -1,37 +1,33 @@
 import { useState, useEffect } from "react";
 import { getData } from "../Common/FuncAxios";
-import { Modal } from "bootstrap";
-import Logo from "../../Image/Logo/logo2x.png";
 import "./bill.css";
 import { ToastError } from "../Common/FuncToast";
 import moment from "moment";
 
 const DetailBillSupplier = (props) => {
-  const { supplier, fromDate, toDate } = props;
+  const { supplier, datePay } = props;
   const [isLoading, setIsLoading] = useState(true);
   const [dataBill, setDataBill] = useState([]);
 
   const [totalSum, setTotalSum] = useState({});
 
   useEffect(() => {
-    console.log(supplier);
-    if (supplier && fromDate && toDate) {
+    if (supplier && datePay) {
       setIsLoading(true);
 
-      getDataBill(supplier.value, fromDate, toDate);
+      getDataBill(supplier.value, datePay);
     } else {
       ToastError("Vui lòng chọn Khách Hàng, và thời xem để xem");
       return;
     }
-  }, [props, fromDate, toDate, supplier]);
+  }, [props, datePay, supplier]);
 
-  const getDataBill = async (supplierId, fromDate, toDate) => {
-    if (supplierId && fromDate && toDate) {
-      fromDate = moment(fromDate).format("YYYY-MM-DD");
-      toDate = moment(toDate).format("YYYY-MM-DD");
+  const getDataBill = async (supplierId, datePay) => {
+    if (supplierId && datePay) {
+      datePay = moment(datePay).format("YYYY-MM-DD");
 
       var dataBill = await getData(
-        `Bills/GetBillByCustomerId?customerId=${supplierId}&fromDate=${fromDate}&&toDate=${toDate}`
+        `Bills/GetBillByCustomerId?customerId=${supplierId}&datePay=${datePay}`
       );
 
       if (dataBill.billReuslt && dataBill.billReuslt.length > 0) {

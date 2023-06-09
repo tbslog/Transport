@@ -9,41 +9,47 @@ import LoadingPage from "../Common/Loading/LoadingPage";
 const ReportPage = () => {
   const [dataMonthTransport, setDataMonthTransport] = useState([]);
   const [dataMonthRevenue, setDataMonthRevenue] = useState([]);
-  const [month, setMonth] = useState();
+
+  const [monthRevenue, setMonthRevenue] = useState();
+  const [monthTransport, setMonthTransport] = useState();
+  const [monthKy, setMonthKy] = useState();
+
   const [isLoading, SetIsLoading] = useState(false);
   const [totalT, setTotalT] = useState([]);
   const [totalRevenue, setTotalRevenue] = useState([]);
 
-  const [dateRange, setDateRange] = useState([
-    new Date(moment().startOf("month")),
-    new Date(moment().endOf("month")),
-  ]);
-  const [startDate, endDate] = dateRange;
   const [dataTransportReport, setDataTransportReport] = useState({});
+
+  // const [dateRange, setDateRange] = useState([
+  //   new Date(moment().startOf("month")),
+  //   new Date(moment().endOf("month")),
+  // ]);
+  // const [startDate, endDate] = dateRange;
 
   useEffect(() => {
     GetDataTransportByMonth(new Date());
     GetDataRevenueByMonth(new Date());
-    loadTransportReport(dateRange);
+    loadTransportReport(new Date());
   }, []);
 
   const loadTransportReport = async (value) => {
-    setDateRange(value);
+    SetIsLoading(true);
+    setMonthKy(new Date(value));
 
-    let fromDate = moment(new Date(value[0])).format("YYYY-MM-DD");
-    let toDate = moment(new Date(value[1])).format("YYYY-MM-DD");
-
-    if (fromDate && toDate) {
-      const getdata = await getData(
-        `Report/GetCustomerReport?fromDate=${fromDate}&toDate=${toDate}`
-      );
-      setDataTransportReport(getdata);
-    }
+    // let fromDate = moment(new Date(value[0])).format("YYYY-MM-DD");
+    // let toDate = moment(new Date(value[1])).format("YYYY-MM-DD");
+    const getdata = await getData(
+      `Report/GetCustomerReport?dateTime=${moment(new Date(value)).format(
+        "YYYY-MM-DD"
+      )}`
+    );
+    setDataTransportReport(getdata);
+    SetIsLoading(false);
   };
 
   const GetDataTransportByMonth = async (val) => {
     SetIsLoading(true);
-    setMonth(new Date(val));
+    setMonthTransport(new Date(val));
     const GetReportTransportByMonth = await getData(
       `Report/GetReportTransportByMonth?dateTime=${moment(new Date(val)).format(
         "YYYY-MM-DD"
@@ -65,7 +71,7 @@ const ReportPage = () => {
 
   const GetDataRevenueByMonth = async (val) => {
     SetIsLoading(true);
-    setMonth(new Date(val));
+    setMonthRevenue(new Date(val));
     const GetReportRevenueByMonth = await getData(
       `Report/GetReportRevenue?dateTime=${moment(new Date(val)).format(
         "YYYY-MM-DD"
@@ -119,16 +125,38 @@ const ReportPage = () => {
                         <div className="row">
                           <div className="col col-8">
                             <h3 className="card-title text-bold text-lg">
-                              Thống kê chuyến theo mốc thời gian
+                              Thống kê chuyến theo kỳ
                             </h3>
                           </div>
                           <div className="col-sm-3">
                             <div className="form-group">
                               <div className="row">
-                                <div className="col col-sm">
-                                  <label>Chọn Mốc Thời Gian:</label>
+                                <div className="form-group">
+                                  <div className="row">
+                                    <div className="col col-sm">
+                                      <label htmlFor="month">Chọn kỳ:</label>
+                                    </div>
+                                    <div className="col col-sm">
+                                      <DatePicker
+                                        selected={monthKy}
+                                        onChange={(date) =>
+                                          loadTransportReport(date)
+                                        }
+                                        dateFormat="MM/yyyy"
+                                        className="form-control form-control-sm"
+                                        placeholderText="Chọn Tháng"
+                                        value={monthKy}
+                                        showMonthYearPicker
+                                        showFullMonthYearPicker
+                                      />
+                                    </div>
+                                  </div>
                                 </div>
-                                <div className="col col-sm">
+                                {/* <div className="col col-sm">
+                                  <label>Chọn Tháng:</label>
+                                </div> */}
+
+                                {/* <div className="col col-sm">
                                   <DatePicker
                                     className="form-control form-control-sm"
                                     dateFormat="dd/MM/yyyy"
@@ -141,7 +169,7 @@ const ReportPage = () => {
                                     value={dateRange}
                                     withPortal
                                   />
-                                </div>
+                                </div> */}
                               </div>
                             </div>
                           </div>
@@ -155,7 +183,7 @@ const ReportPage = () => {
                         <div className="card">
                           <div className="card-header">
                             <h3 className="card-title">
-                              Thống kê số chuyến của khách hàng
+                              Thống kê dữ liệu của khách hàng
                             </h3>
                           </div>
                           <div
@@ -472,7 +500,7 @@ const ReportPage = () => {
                         <div className="card">
                           <div className="card-header">
                             <h3 className="card-title">
-                              Thống kê số chuyến của nhà cung cấp
+                              Thống kê dữ liệu của nhà cung cấp
                             </h3>
                           </div>
                           <div
@@ -799,14 +827,14 @@ const ReportPage = () => {
                               </div>
                               <div className="col col-sm">
                                 <DatePicker
-                                  selected={month}
-                                  onChange={(date) =>
-                                    GetDataTransportByMonth(date)
-                                  }
+                                  selected={monthTransport}
+                                  onChange={(date) => {
+                                    GetDataTransportByMonth(date);
+                                  }}
                                   dateFormat="MM/yyyy"
                                   className="form-control form-control-sm"
                                   placeholderText="Chọn Tháng"
-                                  value={month}
+                                  value={monthTransport}
                                   showMonthYearPicker
                                   showFullMonthYearPicker
                                 />
@@ -871,14 +899,14 @@ const ReportPage = () => {
                               </div>
                               <div className="col col-sm">
                                 <DatePicker
-                                  selected={month}
-                                  onChange={(date) =>
-                                    GetDataRevenueByMonth(date)
-                                  }
+                                  selected={monthRevenue}
+                                  onChange={(date) => {
+                                    GetDataRevenueByMonth(date);
+                                  }}
                                   dateFormat="MM/yyyy"
                                   className="form-control form-control-sm"
                                   placeholderText="Chọn Tháng"
-                                  value={month}
+                                  value={monthRevenue}
                                   showMonthYearPicker
                                   showFullMonthYearPicker
                                 />

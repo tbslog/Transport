@@ -9,6 +9,7 @@ import AddPriceTable from "./AddPriceTable";
 import ApprovePriceTable from "./ApprovePriceTable";
 import { ToastError } from "../Common/FuncToast";
 import FileExcelImport from "../../ExcelFile/PriceTableTemplate/TemplateImportPriceTable.xlsx";
+import LoadingPage from "../Common/Loading/LoadingPage";
 
 const customStyles = {
   rows: {
@@ -269,11 +270,12 @@ const PriceTablePage = () => {
   };
 
   const handleExportExcel = async () => {
+    setLoading(true);
     if (!custommerType) {
       ToastError("Vui lòng loại đối tác");
       return;
     }
-    setLoading(true);
+
     const getFileDownLoad = await getFile(
       `PriceTable/ExportExcelPriceTable?cusType=${custommerType}`,
       "BangGia" + moment(new Date()).format("DD/MM/YYYY HHmmss")
@@ -300,241 +302,253 @@ const PriceTablePage = () => {
         </div>
       </section>
 
-      <section className="content">
-        <div className="card">
-          <div className="card-header">
-            <div className="container-fruid">
+      {loading && loading === true ? (
+        <>
+          <LoadingPage></LoadingPage>
+        </>
+      ) : (
+        <section className="content">
+          <div className="card">
+            <div className="card-header">
+              <div className="container-fruid">
+                <div className="row">
+                  <div className="col col-sm">
+                    <button
+                      type="button"
+                      className="btn btn-title btn-sm btn-default mx-1"
+                      gloss="Thêm Mới Bảng Giá"
+                      onClick={() =>
+                        showModalForm(
+                          SetShowModal("Create"),
+                          setSelectIdClick({}),
+                          setTitle("Tạo Mới Bảng Giá")
+                        )
+                      }
+                    >
+                      <i className="fas fa-plus-circle"></i>
+                    </button>
+                    {/* <button
+                  type="button"
+                  className="btn btn-title btn-sm btn-default mx-1"
+                  gloss="Duyệt Bảng Giá"
+                  onClick={() =>
+                    showModalForm(
+                      SetShowModal("ApprovePriceTable"),
+                      setSelectIdClick({}),
+                      setTitle("Duyệt Bảng Giá")
+                    )
+                  }
+                >
+                  <i className="fas fa-check-double"></i>
+                </button> */}
+                  </div>
+
+                  <div className="col col-sm">
+                    <div className="row">
+                      <div className="col col-sm">
+                        <div className="input-group input-group-sm">
+                          <DatePicker
+                            selected={fromDate}
+                            onChange={(date) => setFromDate(date)}
+                            dateFormat="dd/MM/yyyy"
+                            className="form-control form-control-sm"
+                            placeholderText="Từ ngày"
+                            value={fromDate}
+                          />
+                        </div>
+                      </div>
+                      <div className="col col-sm">
+                        <div className="input-group input-group-sm">
+                          <DatePicker
+                            selected={toDate}
+                            onChange={(date) => setToDate(date)}
+                            dateFormat="dd/MM/yyyy"
+                            className="form-control form-control-sm"
+                            placeholderText="Đến Ngày"
+                            value={toDate}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="col col-sm ">
+                    <div className="input-group input-group-sm">
+                      <input
+                        type="text"
+                        className="form-control"
+                        value={keySearch}
+                        onChange={(e) => setKeySearch(e.target.value)}
+                      />
+                      <span className="input-group-append">
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-default"
+                          onClick={() => handleSearchClick()}
+                        >
+                          <i className="fas fa-search"></i>
+                        </button>
+                      </span>
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-default mx-2"
+                        onClick={() => handleRefeshDataClick()}
+                      >
+                        <i className="fas fa-sync-alt"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div className="row">
+                  <div className="col col-6"></div>
+                </div>
+              </div>
+            </div>
+            <div className="card-body">
+              <Tabs
+                selectedIndex={tabIndex}
+                onSelect={(index) => HandleOnChangeTabs(index)}
+              >
+                <TabList>
+                  <Tab>Bảng Giá Khách Hàng</Tab>
+                  <Tab>Bảng Giá Nhà Cung Cấp</Tab>
+                </TabList>
+
+                <TabPanel>
+                  <div
+                    className="container-datatable"
+                    style={{ height: "50vm" }}
+                  >
+                    <DataTable
+                      columns={columns}
+                      data={data}
+                      progressPending={loading}
+                      pagination
+                      paginationServer
+                      paginationTotalRows={totalRows}
+                      paginationRowsPerPageOptions={[10, 30, 50, 100]}
+                      onChangeRowsPerPage={handlePerRowsChange}
+                      onChangePage={handlePageChange}
+                      expandableRows
+                      expandableRowsComponent={ExpandedComponent}
+                      highlightOnHover
+                      striped
+                      direction="auto"
+                      responsive
+                      fixedHeader
+                      fixedHeaderScrollHeight="60vh"
+                    />
+                  </div>
+                </TabPanel>
+                <TabPanel>
+                  <div
+                    className="container-datatable"
+                    style={{ height: "50vm" }}
+                  >
+                    <DataTable
+                      columns={columns}
+                      data={data}
+                      progressPending={loading}
+                      pagination
+                      paginationServer
+                      paginationTotalRows={totalRows}
+                      paginationRowsPerPageOptions={[10, 30, 50, 100]}
+                      onChangeRowsPerPage={handlePerRowsChange}
+                      onChangePage={handlePageChange}
+                      expandableRows
+                      expandableRowsComponent={ExpandedComponent}
+                      highlightOnHover
+                      striped
+                      direction="auto"
+                      responsive
+                      fixedHeader
+                      fixedHeaderScrollHeight="60vh"
+                    />
+                  </div>
+                </TabPanel>
+              </Tabs>
+            </div>
+            <div className="card-footer">
               <div className="row">
-                <div className="col col-sm">
+                <div className="col-sm-3">
                   <button
                     type="button"
                     className="btn btn-title btn-sm btn-default mx-1"
-                    gloss="Thêm Mới Bảng Giá"
-                    onClick={() =>
-                      showModalForm(
-                        SetShowModal("Create"),
-                        setSelectIdClick({}),
-                        setTitle("Tạo Mới Bảng Giá")
-                      )
-                    }
+                    gloss="Tải Bảng Giá"
+                    onClick={() => handleExportExcel()}
                   >
-                    <i className="fas fa-plus-circle"></i>
+                    <i className="fas fa-file-excel"></i>
                   </button>
-                  {/* <button
-                    type="button"
-                    className="btn btn-title btn-sm btn-default mx-1"
-                    gloss="Duyệt Bảng Giá"
-                    onClick={() =>
-                      showModalForm(
-                        SetShowModal("ApprovePriceTable"),
-                        setSelectIdClick({}),
-                        setTitle("Duyệt Bảng Giá")
-                      )
-                    }
-                  >
-                    <i className="fas fa-check-double"></i>
-                  </button> */}
-                </div>
-
-                <div className="col col-sm">
-                  <div className="row">
-                    <div className="col col-sm">
-                      <div className="input-group input-group-sm">
-                        <DatePicker
-                          selected={fromDate}
-                          onChange={(date) => setFromDate(date)}
-                          dateFormat="dd/MM/yyyy"
-                          className="form-control form-control-sm"
-                          placeholderText="Từ ngày"
-                          value={fromDate}
-                        />
-                      </div>
-                    </div>
-                    <div className="col col-sm">
-                      <div className="input-group input-group-sm">
-                        <DatePicker
-                          selected={toDate}
-                          onChange={(date) => setToDate(date)}
-                          dateFormat="dd/MM/yyyy"
-                          className="form-control form-control-sm"
-                          placeholderText="Đến Ngày"
-                          value={toDate}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="col col-sm ">
-                  <div className="input-group input-group-sm">
-                    <input
-                      type="text"
-                      className="form-control"
-                      value={keySearch}
-                      onChange={(e) => setKeySearch(e.target.value)}
-                    />
-                    <span className="input-group-append">
-                      <button
-                        type="button"
-                        className="btn btn-sm btn-default"
-                        onClick={() => handleSearchClick()}
-                      >
-                        <i className="fas fa-search"></i>
-                      </button>
-                    </span>
-                    <button
-                      type="button"
-                      className="btn btn-sm btn-default mx-2"
-                      onClick={() => handleRefeshDataClick()}
-                    >
-                      <i className="fas fa-sync-alt"></i>
+                  <div className="upload-btn-wrapper">
+                    <button className="btn btn-sm btn-default mx-1">
+                      <i className="fas fa-upload"></i>
                     </button>
+                    <input
+                      type="file"
+                      name="myfile"
+                      onChange={(e) => handleExcelImportClick(e)}
+                    />
                   </div>
+                  <a
+                    href={FileExcelImport}
+                    download="TemplateImportPriceTable.xlsx"
+                    className="btn btn-sm btn-default mx-1"
+                  >
+                    <i className="fas fa-file-download"></i>
+                  </a>
                 </div>
-              </div>
-              <div className="row">
-                <div className="col col-6"></div>
               </div>
             </div>
           </div>
-          <div className="card-body">
-            <Tabs
-              selectedIndex={tabIndex}
-              onSelect={(index) => HandleOnChangeTabs(index)}
-            >
-              <TabList>
-                <Tab>Bảng Giá Khách Hàng</Tab>
-                <Tab>Bảng Giá Nhà Cung Cấp</Tab>
-              </TabList>
-
-              <TabPanel>
-                <div className="container-datatable" style={{ height: "50vm" }}>
-                  <DataTable
-                    columns={columns}
-                    data={data}
-                    progressPending={loading}
-                    pagination
-                    paginationServer
-                    paginationTotalRows={totalRows}
-                    paginationRowsPerPageOptions={[10, 30, 50, 100]}
-                    onChangeRowsPerPage={handlePerRowsChange}
-                    onChangePage={handlePageChange}
-                    expandableRows
-                    expandableRowsComponent={ExpandedComponent}
-                    highlightOnHover
-                    striped
-                    direction="auto"
-                    responsive
-                    fixedHeader
-                    fixedHeaderScrollHeight="60vh"
-                  />
-                </div>
-              </TabPanel>
-              <TabPanel>
-                <div className="container-datatable" style={{ height: "50vm" }}>
-                  <DataTable
-                    columns={columns}
-                    data={data}
-                    progressPending={loading}
-                    pagination
-                    paginationServer
-                    paginationTotalRows={totalRows}
-                    paginationRowsPerPageOptions={[10, 30, 50, 100]}
-                    onChangeRowsPerPage={handlePerRowsChange}
-                    onChangePage={handlePageChange}
-                    expandableRows
-                    expandableRowsComponent={ExpandedComponent}
-                    highlightOnHover
-                    striped
-                    direction="auto"
-                    responsive
-                    fixedHeader
-                    fixedHeaderScrollHeight="60vh"
-                  />
-                </div>
-              </TabPanel>
-            </Tabs>
-          </div>
-          <div className="card-footer">
-            <div className="row">
-              <div className="col-sm-3">
-                <button
-                  type="button"
-                  className="btn btn-title btn-sm btn-default mx-1"
-                  gloss="Tải Bảng Giá"
-                  onClick={() => handleExportExcel()}
-                >
-                  <i className="fas fa-file-excel"></i>
-                </button>
-                <div className="upload-btn-wrapper">
-                  <button className="btn btn-sm btn-default mx-1">
-                    <i className="fas fa-upload"></i>
-                  </button>
-                  <input
-                    type="file"
-                    name="myfile"
-                    onChange={(e) => handleExcelImportClick(e)}
-                  />
-                </div>
-                <a
-                  href={FileExcelImport}
-                  download="TemplateImportPriceTable.xlsx"
-                  className="btn btn-sm btn-default mx-1"
-                >
-                  <i className="fas fa-file-download"></i>
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div
-          className="modal fade"
-          id="modal-xl"
-          data-backdrop="static"
-          ref={parseExceptionModal}
-          aria-labelledby="parseExceptionModal"
-          backdrop="static"
-        >
           <div
-            className="modal-dialog modal-dialog-scrollable"
-            style={{ maxWidth: "95%" }}
+            className="modal fade"
+            id="modal-xl"
+            data-backdrop="static"
+            ref={parseExceptionModal}
+            aria-labelledby="parseExceptionModal"
+            backdrop="static"
           >
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5>{title}</h5>
-                <button
-                  type="button"
-                  className="close"
-                  data-dismiss="modal"
-                  onClick={() => hideModal()}
-                  aria-label="Close"
-                >
-                  <span aria-hidden="true">×</span>
-                </button>
-              </div>
-              <div className="modal-body">
-                <>
-                  {ShowModal === "Create" && (
-                    <AddPriceTable selectIdClick={selectIdClick} />
-                  )}
-                  {ShowModal === "PriceTable" && (
-                    <AddPriceTable
-                      getListPriceTable={fetchData}
-                      selectIdClick={selectIdClick}
-                    />
-                  )}
-                  {ShowModal === "ApprovePriceTable" && (
-                    <ApprovePriceTable
-                      reLoadData={ReloadData}
-                      getDataApprove={getDataApprove}
-                      checkShowModal={modal}
-                    />
-                  )}
-                </>
+            <div
+              className="modal-dialog modal-dialog-scrollable"
+              style={{ maxWidth: "95%" }}
+            >
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h5>{title}</h5>
+                  <button
+                    type="button"
+                    className="close"
+                    data-dismiss="modal"
+                    onClick={() => hideModal()}
+                    aria-label="Close"
+                  >
+                    <span aria-hidden="true">×</span>
+                  </button>
+                </div>
+                <div className="modal-body">
+                  <>
+                    {ShowModal === "Create" && (
+                      <AddPriceTable selectIdClick={selectIdClick} />
+                    )}
+                    {ShowModal === "PriceTable" && (
+                      <AddPriceTable
+                        getListPriceTable={fetchData}
+                        selectIdClick={selectIdClick}
+                      />
+                    )}
+                    {ShowModal === "ApprovePriceTable" && (
+                      <ApprovePriceTable
+                        reLoadData={ReloadData}
+                        getDataApprove={getDataApprove}
+                        checkShowModal={modal}
+                      />
+                    )}
+                  </>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
     </>
   );
 };

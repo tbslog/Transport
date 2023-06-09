@@ -61,24 +61,24 @@ const CreateTransport = (props) => {
     LoaiVanDon: {
       required: "Không được để trống",
     },
-    MaCungDuong: {
-      required: "Không được để trống",
-      maxLength: {
-        value: 10,
-        message: "Không được vượt quá 10 ký tự",
-      },
-      minLength: {
-        value: 10,
-        message: "Không được ít hơn 10 ký tự",
-      },
-      pattern: {
-        value: /^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9]+(?<![_.])$/,
-        message: "Không được chứa ký tự đặc biệt",
-      },
-    },
-    LoaiHangHoa: {
-      required: "Không được để trống",
-    },
+    // MaCungDuong: {
+    //   required: "Không được để trống",
+    //   maxLength: {
+    //     value: 10,
+    //     message: "Không được vượt quá 10 ký tự",
+    //   },
+    //   minLength: {
+    //     value: 10,
+    //     message: "Không được ít hơn 10 ký tự",
+    //   },
+    //   pattern: {
+    //     value: /^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9]+(?<![_.])$/,
+    //     message: "Không được chứa ký tự đặc biệt",
+    //   },
+    // },
+    // LoaiHangHoa: {
+    //   required: "Không được để trống",
+    // },
     TongKhoiLuong: {
       pattern: {
         value:
@@ -121,15 +121,15 @@ const CreateTransport = (props) => {
         message: "Phải là số",
       },
     },
-    PTVanChuyen: {
-      required: "Không được để trống",
-    },
-    CONTNO: {
-      pattern: {
-        value: /([A-Z]{3})([UJZ])(\d{6})(\d)/,
-        message: "Mã không không đúng, vui lòng viết hoa",
-      },
-    },
+    // PTVanChuyen: {
+    //   required: "Không được để trống",
+    // },
+    // CONTNO: {
+    //   pattern: {
+    //     value: /([A-Z]{3})([UJZ])(\d{6})(\d)/,
+    //     message: "Mã không không đúng, vui lòng viết hoa",
+    //   },
+    // },
   };
 
   const [listCus, setListCus] = useState([]);

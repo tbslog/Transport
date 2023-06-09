@@ -1,15 +1,28 @@
 import { useMemo, useState, useEffect, useRef } from "react";
 import { getData, getDataCustom, postData } from "../Common/FuncAxios";
 import DataTable from "react-data-table-component";
+import { useForm, Controller } from "react-hook-form";
+import Select from "react-select";
 import moment from "moment";
 import { Modal } from "bootstrap";
 import ConfirmDialog from "../Common/Dialog/ConfirmDialog";
 import Cookies from "js-cookie";
 import HandlingImage from "../FileManager/HandlingImage";
+import { ToastError } from "../Common/FuncToast";
+import LoadingPage from "../Common/Loading/LoadingPage";
 
 const HandlingByTransport = (props) => {
   const { dataClick, refeshData } = props;
   const accountType = Cookies.get("AccType");
+
+  const {
+    setValue,
+    control,
+    watch,
+    formState: { errors },
+  } = useForm({
+    mode: "onChange",
+  });
 
   const [data, setData] = useState([]);
   const parseExceptionModal = useRef();
@@ -17,6 +30,9 @@ const HandlingByTransport = (props) => {
   const [totalRows, setTotalRows] = useState(0);
   const [perPage, setPerPage] = useState(10);
   const [page, setPage] = useState(1);
+
+  const [selectedRows, setSelectedRows] = useState([]);
+  const [toggledClearRows, setToggleClearRows] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [ShowConfirm, setShowConfirm] = useState(false);
@@ -29,6 +45,7 @@ const HandlingByTransport = (props) => {
   const [status, setStatus] = useState("");
 
   const [transportId, setTransportId] = useState("");
+  const [listSupplier, setListSupplier] = useState([]);
 
   const columns = useMemo(() => [
     {
@@ -104,17 +121,11 @@ const HandlingByTransport = (props) => {
       selector: (row) => <div className="text-wrap">{row.phanLoaiVanDon}</div>,
       sortable: true,
     },
-
     {
       name: "PTVC",
       selector: (row) => <div className="text-wrap">{row.maPTVC}</div>,
       sortable: true,
     },
-    // {
-    //   name: <div>Cung Đường</div>,
-    //   selector: (row) => <div className="text-wrap">{row.cungDuong}</div>,
-    //   sortable: true,
-    // },
     {
       name: <div>Điểm Lấy Hàng</div>,
       selector: (row) => <div className="text-wrap">{row.diemDau}</div>,
@@ -170,12 +181,11 @@ const HandlingByTransport = (props) => {
       selector: (row) => row.theTich,
       sortable: true,
     },
-    // {
-    //   name: <div>Số Kiện</div>,
-    //   selector: (row) => row.soKien,
-    //   sortable: true,
-    // },
-
+    {
+      name: <div>Số Kiện</div>,
+      selector: (row) => row.soKien,
+      sortable: true,
+    },
     {
       name: "statusId",
       selector: (row) => row.statusId,
@@ -200,6 +210,20 @@ const HandlingByTransport = (props) => {
         "Handling",
       ]);
       setListStatus(getStatusList);
+
+      let getListCustomer = await getData(
+        `Customer/GetListCustomerFilter?type=NCC`
+      );
+      if (getListCustomer && getListCustomer.length > 0) {
+        let arrSup = [];
+        getListCustomer.map((val) => {
+          arrSup.push({
+            label: val.tenKh,
+            value: val.maKh,
+          });
+        });
+        setListSupplier(arrSup);
+      }
     })();
     setLoading(false);
   }, []);
@@ -211,6 +235,7 @@ const HandlingByTransport = (props) => {
 
   useEffect(() => {
     if (dataClick && Object.keys(dataClick).length > 0) {
+      handleClearRows();
       setTransportId(dataClick.maVanDon);
       fetchData(dataClick.maVanDon, 1);
     }
@@ -333,6 +358,51 @@ const HandlingByTransport = (props) => {
     fetchData(transportId, 1);
   };
 
+  const handleChange = (state) => {
+    setSelectedRows(state.selectedRows);
+  };
+
+  const handleClearRows = () => {
+    setToggleClearRows(!toggledClearRows);
+  };
+
+  const handleSetSupplier = async () => {
+    let supplierId = watch("listSupplier");
+    if (supplierId && selectedRows.length > 0) {
+      setLoading(true);
+      let arrIds = [];
+
+      selectedRows.forEach((val) => {
+        arrIds.push(val.maDieuPhoi);
+      });
+
+      let update = await postData(`BillOfLading/SetSupplierForHandling`, {
+        supplierId: supplierId.value,
+        handlingIds: arrIds,
+      });
+
+      if (update === 1) {
+        handleClearRows();
+        modal.hide();
+        handleRefeshDataClick();
+      }
+
+      setLoading(false);
+    } else {
+      ToastError("Vui Lòng chọn chuyến để gắn đơn vị vận tải");
+      return;
+    }
+  };
+
+  const handleOnClickSetSupplier = () => {
+    if (selectedRows && selectedRows.length > 0) {
+      handleEditButtonClick({}, SetShowModal("setSupplier"));
+    } else {
+      ToastError("Vui Lòng chọn chuyến để gắn đơn vị vận tải");
+      return;
+    }
+  };
+
   return (
     <>
       <section className="content">
@@ -340,6 +410,22 @@ const HandlingByTransport = (props) => {
           <div className="card-header">
             <div className="container-fruid">
               <div className="row">
+                <div className="col col-sm">
+                  <div className="row">
+                    <div className="col col-sm">
+                      {accountType && accountType === "NV" && (
+                        <button
+                          onClick={() => handleOnClickSetSupplier()}
+                          type="button"
+                          className="btn btn-title btn-sm btn-default mx-2"
+                          gloss="Gắn Đơn Vị Vận Tải"
+                        >
+                          <i className="fas fa-hands-helping"></i>
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
                 <div className="col col-sm">
                   <div className="row">
                     <div className="col col-sm">
@@ -400,6 +486,9 @@ const HandlingByTransport = (props) => {
                 progressPending={loading}
                 pagination
                 paginationServer
+                selectableRows
+                clearSelectedRows={toggledClearRows}
+                onSelectedRowsChange={handleChange}
                 paginationRowsPerPageOptions={[10, 30, 50, 100]}
                 paginationTotalRows={totalRows}
                 onChangeRowsPerPage={handlePerRowsChange}
@@ -482,6 +571,49 @@ const HandlingByTransport = (props) => {
                       hideModal={hideModal}
                       checkModal={modal}
                     />
+                  )}
+                  {ShowModal === "setSupplier" && (
+                    <>
+                      {loading === true ? (
+                        <>
+                          <LoadingPage></LoadingPage>
+                        </>
+                      ) : (
+                        <>
+                          <div className="row">
+                            <div className="col col-3">
+                              <div className="form-group">
+                                <Controller
+                                  name="listSupplier"
+                                  control={control}
+                                  render={({ field }) => (
+                                    <Select
+                                      {...field}
+                                      className="basic-multi-select"
+                                      classNamePrefix={"form-control"}
+                                      value={field.value}
+                                      options={listSupplier}
+                                      placeholder="Đơn Vị Vận Tải"
+                                    />
+                                  )}
+                                />
+                              </div>
+                            </div>
+                            <div className="col col-3">
+                              <button
+                                onClick={() => handleSetSupplier()}
+                                type="submit"
+                                className="btn btn-primary"
+                                style={{ float: "left" }}
+                              >
+                                Xác Nhận
+                              </button>
+                            </div>
+                          </div>
+                          <div style={{ height: "25vh" }}></div>
+                        </>
+                      )}
+                    </>
                   )}
                 </div>
               </div>

@@ -9,6 +9,7 @@ import DatePicker from "react-datepicker";
 import { ToastError } from "../Common/FuncToast";
 import DetailBillByTransport from "./DetailBillByContract";
 import DetailBillSupplier from "./DetailBillSupplier";
+import LoadingPage from "../Common/Loading/LoadingPage";
 
 const BillPageSupplier = () => {
   const {
@@ -34,6 +35,7 @@ const BillPageSupplier = () => {
 
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
+  const [datePay, setDatePay] = useState(new Date());
 
   const [listSupplier, setListSupplier] = useState([]);
   const [supSelected, setSupSelected] = useState("");
@@ -194,7 +196,7 @@ const BillPageSupplier = () => {
           });
         setListSupplier(arrKh);
       }
-      fetchData(1);
+      fetchData(1, "", "", "", "", datePay);
     })();
   }, []);
 
@@ -216,9 +218,9 @@ const BillPageSupplier = () => {
     KeyWord = "",
     fromDate,
     toDate,
-    supSelected = ""
+    supSelected = "",
+    datePay
   ) => {
-    setLoading(true);
     if (KeyWord !== "") {
       KeyWord = keySearch;
     }
@@ -226,28 +228,32 @@ const BillPageSupplier = () => {
     toDate = !toDate ? "" : moment(toDate).format("YYYY-MM-DD");
 
     const dataBills = await getData(
-      `Bills/GetListBillHandling?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}&fromDate=${fromDate}&toDate=${toDate}&supplierId=${supSelected}`
+      `Bills/GetListBillHandling?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}&date=${moment(
+        new Date(datePay)
+      ).format(
+        "YYYY-MM-DD"
+      )}&fromDate=${fromDate}&toDate=${toDate}&supplierId=${supSelected}&customerType=NCC`
     );
 
     setData(dataBills.data);
     setTotalRows(dataBills.totalRecords);
-    setLoading(false);
   };
 
   const handlePageChange = (page) => {
     setPage(page);
-    fetchData(page, keySearch, fromDate, toDate, supSelected);
+    fetchData(page, keySearch, fromDate, toDate, supSelected, datePay);
   };
 
   const handlePerRowsChange = async (newPerPage, page) => {
-    setLoading(true);
-
     const dataBills = await getData(
-      `Bills/GetListBillHandling?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}&fromDate=${fromDate}&toDate=${toDate}&supplierId=${supSelected}`
+      `Bills/GetListBillHandling?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}&date=${moment(
+        new Date(datePay)
+      ).format(
+        "YYYY-MM-DD"
+      )}&fromDate=${fromDate}&toDate=${toDate}&supplierId=${supSelected}&customerType=NCC`
     );
     setData(dataBills.data);
     setPerPage(newPerPage);
-    setLoading(false);
   };
 
   const handleChange = useCallback((state) => {
@@ -256,10 +262,8 @@ const BillPageSupplier = () => {
 
   const handleOnChangeFilterSelect = async (val) => {
     if (val) {
-      setLoading(true);
       setSupSelected(val.value);
-      await fetchData(page, keySearch, fromDate, toDate, val.value);
-      setLoading(false);
+      await fetchData(page, keySearch, fromDate, toDate, val.value, datePay);
     }
   };
 
@@ -268,8 +272,13 @@ const BillPageSupplier = () => {
     showModalForm();
   };
 
+  const LoadBillOfCus = async (val) => {
+    setDatePay(new Date(val));
+    fetchData(page, keySearch, fromDate, toDate, supSelected, new Date(val));
+  };
+
   const handleSearchClick = () => {
-    fetchData(page, keySearch, fromDate, toDate, supSelected);
+    fetchData(page, keySearch, fromDate, toDate, supSelected, datePay);
   };
 
   const handleRefeshDataClick = () => {
@@ -277,24 +286,24 @@ const BillPageSupplier = () => {
     setFromDate("");
     setToDate("");
     setData([]);
-    fetchData(1);
+    fetchData(1, "", "", "", "", datePay);
   };
 
   const handleExportExcel = async () => {
-    if (!fromDate || !toDate) {
+    if (!datePay) {
       ToastError("Vui lòng chọn mốc thời gian");
       return;
     }
     setLoading(true);
 
-    let startDate = moment(fromDate).format("YYYY-MM-DD");
-    let endDate = moment(toDate).format("YYYY-MM-DD");
+    let dateGet = moment(datePay).format("YYYY-MM-DD");
     const getFileDownLoad = await getFile(
-      `Bills/ExportExcelBill?KeyWord=${keySearch}&fromDate=${startDate}&toDate=${endDate}`,
+      `Bills/ExportExcelBill?supplierId=${supSelected}&date=${dateGet}&customerType=NCC`,
       "HoaDon" + moment(new Date()).format("DD/MM/YYYY HHmmss")
     );
     setLoading(false);
   };
+
   return (
     <>
       <section className="content-header">
@@ -307,46 +316,70 @@ const BillPageSupplier = () => {
         </div>
       </section>
 
-      <section className="content">
-        <div className="card">
-          <div className="card-header">
-            <div className="container-fruid">
-              <div className="row">
-                <div className="col col-3">
-                  <div className="col col-6">
-                    <div className="form-group">
-                      <Controller
-                        name="listCustomers"
-                        control={control}
-                        render={({ field }) => (
-                          <Select
-                            {...field}
-                            className="basic-multi-select"
-                            classNamePrefix={"form-control"}
-                            value={field.value}
-                            options={listSupplier}
-                            onChange={(field) =>
-                              handleOnChangeFilterSelect(field)
-                            }
-                            placeholder="Chọn Khách Hàng"
-                          />
-                        )}
-                      />
+      {loading && loading === true ? (
+        <>
+          <LoadingPage></LoadingPage>
+        </>
+      ) : (
+        <section className="content">
+          <div className="card">
+            <div className="card-header">
+              <div className="container-fruid">
+                <div className="row">
+                  <div className="col col-3">
+                    <div className="col col-6">
+                      <div className="form-group">
+                        <Controller
+                          name="listCustomers"
+                          control={control}
+                          render={({ field }) => (
+                            <Select
+                              {...field}
+                              className="basic-multi-select"
+                              classNamePrefix={"form-control"}
+                              value={field.value}
+                              options={listSupplier}
+                              onChange={(field) =>
+                                handleOnChangeFilterSelect(field)
+                              }
+                              placeholder="Chọn Khách Hàng"
+                            />
+                          )}
+                        />
+                      </div>
+                    </div>
+                    <div className="col col-2">
+                      <button
+                        type="button"
+                        className="btn btn-title btn-sm btn-default mx-1"
+                        gloss="Xem Hóa Đơn Kỳ"
+                        onClick={() =>
+                          showModalForm(SetShowModal("DetailBill"))
+                        }
+                      >
+                        <i className="fas fa-money-bill-alt"></i>
+                      </button>
                     </div>
                   </div>
-                  <div className="col col-2">
-                    <button
-                      type="button"
-                      className="btn btn-title btn-sm btn-default mx-1"
-                      gloss="Xem Hóa Đơn Kỳ"
-                      onClick={() => showModalForm(SetShowModal("DetailBill"))}
-                    >
-                      <i className="fas fa-money-bill-alt"></i>
-                    </button>
+                  <div className="col-sm-3"></div>
+                  <div className="col-sm-3">
+                    <div className="col col-sm"></div>
+                    <div className="col col-sm">
+                      <div className="input-group input-group-sm">
+                        <DatePicker
+                          selected={datePay}
+                          onChange={(date) => LoadBillOfCus(date)}
+                          dateFormat="MM/yyyy"
+                          className="form-control form-control-sm"
+                          placeholderText="Chọn Tháng"
+                          value={datePay}
+                          showMonthYearPicker
+                          showFullMonthYearPicker
+                        />
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <div className="col-sm-3"></div>
-                <div className="col-sm-3">
+                  {/* <div className="col-sm-3">
                   <div className="row">
                     <div className="col col-sm">
                       <div className="input-group input-group-sm">
@@ -375,73 +408,73 @@ const BillPageSupplier = () => {
                       </div>
                     </div>
                   </div>
-                </div>
+                </div> */}
 
-                <div className="col-sm-3 ">
-                  <div className="input-group input-group-sm">
-                    <input
-                      placeholder="Tìm Kiếm"
-                      type="text"
-                      className="form-control"
-                      value={keySearch}
-                      onChange={(e) => setKeySearch(e.target.value)}
-                    />
-                    <span className="input-group-append">
+                  <div className="col-sm-3 ">
+                    <div className="input-group input-group-sm">
+                      <input
+                        placeholder="Tìm Kiếm"
+                        type="text"
+                        className="form-control"
+                        value={keySearch}
+                        onChange={(e) => setKeySearch(e.target.value)}
+                      />
+                      <span className="input-group-append">
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-default"
+                          onClick={() => handleSearchClick()}
+                        >
+                          <i className="fas fa-search"></i>
+                        </button>
+                      </span>
                       <button
                         type="button"
-                        className="btn btn-sm btn-default"
-                        onClick={() => handleSearchClick()}
+                        className="btn btn-sm btn-default mx-2"
+                        onClick={() => handleRefeshDataClick()}
                       >
-                        <i className="fas fa-search"></i>
+                        <i className="fas fa-sync-alt"></i>
                       </button>
-                    </span>
-                    <button
-                      type="button"
-                      className="btn btn-sm btn-default mx-2"
-                      onClick={() => handleRefeshDataClick()}
-                    >
-                      <i className="fas fa-sync-alt"></i>
-                    </button>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <div className="card-body">
-            <div className="container-datatable" style={{ height: "50vm" }}>
-              <DataTable
-                columns={columns}
-                data={data}
-                progressPending={loading}
-                pagination
-                paginationServer
-                paginationTotalRows={totalRows}
-                onSelectedRowsChange={handleChange}
-                onChangeRowsPerPage={handlePerRowsChange}
-                onChangePage={handlePageChange}
-                highlightOnHover
-                striped
-                direction="auto"
-                responsive
-                fixedHeader
-                fixedHeaderScrollHeight="60vh"
-              />
+            <div className="card-body">
+              <div className="container-datatable" style={{ height: "50vm" }}>
+                <DataTable
+                  columns={columns}
+                  data={data}
+                  progressPending={loading}
+                  pagination
+                  paginationServer
+                  paginationTotalRows={totalRows}
+                  onSelectedRowsChange={handleChange}
+                  onChangeRowsPerPage={handlePerRowsChange}
+                  onChangePage={handlePageChange}
+                  highlightOnHover
+                  striped
+                  direction="auto"
+                  responsive
+                  fixedHeader
+                  fixedHeaderScrollHeight="60vh"
+                />
+              </div>
             </div>
-          </div>
-          <div className="card-footer">
-            <div className="row">
-              <div className="col-sm-3">
-                <button
-                  // href={FileExcelImport}
-                  onClick={() => handleExportExcel()}
-                  className="btn btn-title btn-sm btn-default mx-1"
-                  gloss="Tải File Excel"
-                  type="button"
-                >
-                  <i className="fas fa-file-excel"></i>
-                </button>
-                {/* <div className="upload-btn-wrapper">
+            <div className="card-footer">
+              <div className="row">
+                <div className="col-sm-3">
+                  <button
+                    // href={FileExcelImport}
+                    onClick={() => handleExportExcel()}
+                    className="btn btn-title btn-sm btn-default mx-1"
+                    gloss="Tải File Excel"
+                    type="button"
+                  >
+                    <i className="fas fa-file-excel"></i>
+                  </button>
+                  {/* <div className="upload-btn-wrapper">
                   <button className="btn btn-sm btn-default mx-1">
                     <i className="fas fa-upload"></i>
                   </button>
@@ -451,54 +484,54 @@ const BillPageSupplier = () => {
                     // onChange={(e) => handleExcelImportClick(e)}
                   />
                 </div> */}
+                </div>
               </div>
             </div>
           </div>
-        </div>
-        <div
-          className="modal fade"
-          id="modal-xl"
-          data-backdrop="static"
-          ref={parseExceptionModal}
-          aria-labelledby="parseExceptionModal"
-          backdrop="static"
-        >
           <div
-            className="modal-dialog modal-dialog-scrollable"
-            style={{ maxWidth: "95%" }}
+            className="modal fade"
+            id="modal-xl"
+            data-backdrop="static"
+            ref={parseExceptionModal}
+            aria-labelledby="parseExceptionModal"
+            backdrop="static"
           >
-            <div className="modal-content">
-              <div className="modal-header">
-                <button
-                  type="button"
-                  className="close"
-                  data-dismiss="modal"
-                  onClick={() => hideModal()}
-                  aria-label="Close"
-                >
-                  <span aria-hidden="true">×</span>
-                </button>
-              </div>
-              <div className="modal-body">
-                <>
-                  {ShowModal === "DetailBill" && (
-                    <DetailBillSupplier
-                      supplier={listSupplier.find(
-                        (x) => x.value === supSelected
-                      )}
-                      fromDate={fromDate}
-                      toDate={toDate}
-                    />
-                  )}
-                  {ShowModal === "DetailBillByTransport" && (
-                    <DetailBillByTransport dataClick={selectIdClick} />
-                  )}
-                </>
+            <div
+              className="modal-dialog modal-dialog-scrollable"
+              style={{ maxWidth: "95%" }}
+            >
+              <div className="modal-content">
+                <div className="modal-header">
+                  <button
+                    type="button"
+                    className="close"
+                    data-dismiss="modal"
+                    onClick={() => hideModal()}
+                    aria-label="Close"
+                  >
+                    <span aria-hidden="true">×</span>
+                  </button>
+                </div>
+                <div className="modal-body">
+                  <>
+                    {ShowModal === "DetailBill" && (
+                      <DetailBillSupplier
+                        supplier={listSupplier.find(
+                          (x) => x.value === supSelected
+                        )}
+                        datePay={datePay}
+                      />
+                    )}
+                    {ShowModal === "DetailBillByTransport" && (
+                      <DetailBillByTransport dataClick={selectIdClick} />
+                    )}
+                  </>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
     </>
   );
 };

@@ -1,11 +1,5 @@
-import { useMemo, useState, useEffect, useCallback, useRef } from "react";
+import { useState } from "react";
 import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
-import { getData, postFile, getDataCustom, getFile } from "../Common/FuncAxios";
-import DataTable from "react-data-table-component";
-import moment from "moment";
-import { Modal } from "bootstrap";
-import DatePicker from "react-datepicker";
-import LoadingPage from "../Common/Loading/LoadingPage";
 import BillPageCustomer from "./BillPageCustomer";
 import BillPageSupplier from "./BillPageSupplier";
 

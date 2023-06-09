@@ -86,18 +86,17 @@ const ApprovePriceTable = (props) => {
     },
     {
       name: <div>Điểm Đóng Hàng</div>,
-      selector: (row) => <div className="text-warp">{row.diemDau}</div>,
+      selector: (row) => <div className="text-wrap">{row.diemDau}</div>,
       sortable: true,
     },
     {
       name: <div>Điểm Trả Hàng</div>,
-      selector: (row) => <div className="text-warp">{row.diemCuoi}</div>,
+      selector: (row) => <div className="text-wrap">{row.diemCuoi}</div>,
       sortable: true,
     },
-
     {
       name: <div>Điểm Lấy/Trả Rỗng</div>,
-      selector: (row) => <div className="text-warp">{row.diemLayTraRong}</div>,
+      selector: (row) => <div className="text-wrap">{row.diemLayTraRong}</div>,
       sortable: true,
     },
     {
@@ -391,9 +390,7 @@ const ApprovePriceTable = (props) => {
                 pagination
                 paginationServer
                 paginationRowsPerPageOptions={[10, 30, 50, 100]}
-                // selectableRows
                 onSelectedRowsChange={handleChange}
-                // clearSelectedRows={toggledClearRows}
                 paginationTotalRows={totalRows}
                 onChangeRowsPerPage={handlePerRowsChange}
                 onChangePage={handlePageChange}

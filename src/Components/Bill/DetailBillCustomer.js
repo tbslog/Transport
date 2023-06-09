@@ -7,29 +7,28 @@ import { ToastError } from "../Common/FuncToast";
 import moment from "moment";
 
 const DetailBillCustomer = (props) => {
-  const { customer, fromDate, toDate } = props;
+  const { customer, datePay } = props;
   const [isLoading, setIsLoading] = useState(true);
   const [dataBill, setDataBill] = useState([]);
 
   const [totalSum, setTotalSum] = useState({});
 
   useEffect(() => {
-    if (customer && fromDate && toDate) {
+    if (customer && datePay) {
       setIsLoading(true);
-      getDataBill(customer.value, fromDate, toDate);
+      getDataBill(customer.value, datePay);
     } else {
-      ToastError("Vui lòng chọn Khách Hàng, và thời xem để xem");
+      ToastError("Vui lòng chọn Khách Hàng, và kỳ thanh toán để xem");
       return;
     }
-  }, [props, fromDate, toDate, customer]);
+  }, [props, datePay, customer]);
 
-  const getDataBill = async (customerId, fromDate, toDate) => {
-    if (customerId && fromDate && toDate) {
-      fromDate = moment(fromDate).format("YYYY-MM-DD");
-      toDate = moment(toDate).format("YYYY-MM-DD");
+  const getDataBill = async (customerId, datePay) => {
+    if (customerId && datePay) {
+      datePay = moment(datePay).format("YYYY-MM-DD");
 
       var dataBill = await getData(
-        `Bills/GetBillByCustomerId?customerId=${customerId}&fromDate=${fromDate}&&toDate=${toDate}`
+        `Bills/GetBillByCustomerId?customerId=${customerId}&datePay=${datePay}`
       );
 
       if (dataBill.billReuslt && dataBill.billReuslt.length > 0) {

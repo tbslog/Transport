@@ -85,7 +85,6 @@ const PriceListContract = (props) => {
       selector: (row) => <div className="text-wrap">{row.diemCuoi}</div>,
       sortable: true,
     },
-
     {
       name: <div>Điểm Lấy/Trả Rỗng</div>,
       selector: (row) => <div className="text-wrap">{row.diemLayTraRong}</div>,
@@ -255,6 +254,7 @@ const PriceListContract = (props) => {
       SetIsLoading(false);
     }
   };
+
   const fetchData = async (
     page,
     KeyWord = "",

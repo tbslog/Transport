@@ -256,8 +256,9 @@ const CreateUser = (props) => {
                     {...register(`AccountType`, Validate.AccountType)}
                   >
                     <option value={"NV"}>Nhân Viên</option>
-                    <option value={"NCC"}>Nhà Cung Cấp</option>
                     <option value={"KH"}>Khách Hàng</option>
+                    <option value={"NCC"}>Nhà Cung Cấp</option>
+                    <option value={"TaiXe"}>Tài Xế</option>
                   </select>
                   {errors.TrangThai && (
                     <span className="text-danger">
