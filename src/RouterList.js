@@ -33,6 +33,13 @@ let routerList = [
         exact: true,
         child: [],
       },
+      {
+        name: "Thông tin tỉ giá",
+        pathName: "/currencyexchange",
+        path: "currencyexchange",
+        exact: true,
+        child: [],
+      },
     ],
   },
   {

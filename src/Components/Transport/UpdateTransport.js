@@ -222,6 +222,7 @@ const UpdateTransport = (props) => {
       let arrData = [];
       dataTransport.arrHandlings.map((val) => {
         arrData.push({
+          MaDieuPhoi: val.maDieuPhoi,
           DonViVanTai: !val.donViVanTai
             ? null
             : {
@@ -248,6 +249,7 @@ const UpdateTransport = (props) => {
       });
 
       for (let i = 0; i <= arrData.length - 1; i++) {
+        setValue(`optionHandling.${i}.MaDieuPhoi`, arrData[i].MaDieuPhoi);
         setValue(`optionHandling.${i}.DonViVanTai`, arrData[i].DonViVanTai);
         setValue(`optionHandling.${i}.LoaiHangHoa`, arrData[i].LoaiHangHoa);
         setValue(`optionHandling.${i}.PTVanChuyen`, arrData[i].PTVanChuyen);
@@ -288,12 +290,7 @@ const UpdateTransport = (props) => {
       );
 
       if (dataTransport.loaiVanDon === "xuat") {
-        setValue(
-          "HangTau",
-          {
-            ...listShipping.filter((x) => x.value === dataTransport.hangTau),
-          }[0]
-        );
+        setValue("HangTau", dataTransport.hangTau);
         setValue("TenTau", dataTransport.tenTau);
         setValue(
           "TGLayRong",
@@ -501,6 +498,7 @@ const UpdateTransport = (props) => {
     let arr = [];
     data.optionHandling.map((val) => {
       arr.push({
+        MaDieuPhoi: !val.MaDieuPhoi ? null : val.MaDieuPhoi,
         DiemTraRong: !val.DiemTraRong ? null : val.DiemTraRong.value,
         DiemLayRong: !val.DiemLayRong ? null : val.DiemLayRong.value,
         LoaiHangHoa: val.LoaiHangHoa,
@@ -1010,7 +1008,10 @@ const UpdateTransport = (props) => {
                           className="form-control form-control-sm"
                           type="button"
                           onClick={() => {
-                            append(watch(`optionHandling`)[0]);
+                            append({
+                              ...watch(`optionHandling`)[0],
+                              MaDieuPhoi: undefined,
+                            });
                             handleCheckWeight("PCS");
                             handleCheckWeight("KG");
                             handleCheckWeight("CBM");

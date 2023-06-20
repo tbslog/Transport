@@ -125,7 +125,7 @@ const ReportPage = () => {
                         <div className="row">
                           <div className="col col-8">
                             <h3 className="card-title text-bold text-lg">
-                              Thống kê chuyến theo kỳ
+                              Thống kê chuyến theo tháng
                             </h3>
                           </div>
                           <div className="col-sm-3">
@@ -134,7 +134,7 @@ const ReportPage = () => {
                                 <div className="form-group">
                                   <div className="row">
                                     <div className="col col-sm">
-                                      <label htmlFor="month">Chọn kỳ:</label>
+                                      <label htmlFor="month">Chọn tháng:</label>
                                     </div>
                                     <div className="col col-sm">
                                       <DatePicker

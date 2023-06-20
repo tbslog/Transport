@@ -20,7 +20,6 @@ import { ToastError } from "../Common/FuncToast";
 import LoadingPage from "../Common/Loading/LoadingPage";
 import HandlingImage from "../FileManager/HandlingImage";
 import UpdateHandling from "./UpdateHandling";
-import UpdateTransport from "./UpdateTransport";
 
 const HandlingPageNew = () => {
   const accountType = Cookies.get("AccType");
@@ -30,18 +29,6 @@ const HandlingPageNew = () => {
         <>
           {val.statusId ? (
             <>
-              <>
-                <button
-                  onClick={() =>
-                    showConfirmDialog(val, setFuncName("CancelHandling"))
-                  }
-                  type="button"
-                  className="btn btn-title btn-sm btn-default mx-1"
-                  gloss="Hủy Chuyến"
-                >
-                  <i className="fas fa-window-close"></i>
-                </button>
-              </>
               <>{renderButtonByStatus(val)}</>
               <>
                 <button
@@ -57,52 +44,6 @@ const HandlingPageNew = () => {
                   gloss="Chỉnh Sửa"
                 >
                   <i className="far fa-edit"></i>
-                </button>
-              </>
-              <>
-                {val.maPTVC === "FCL" || val.maPTVC === "FTL" ? (
-                  <>
-                    <button
-                      onClick={() =>
-                        handleEditTransport(
-                          val,
-                          SetShowModal("EditTransport"),
-                          setTitle("Tách Chuyến ")
-                        )
-                      }
-                      type="button"
-                      className="btn btn-title btn-sm btn-default mx-1"
-                      gloss="Tách Chuyến"
-                    >
-                      <i className="fas fa-sliders-h"></i>
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <button
-                      disabled={true}
-                      type="button"
-                      className="btn btn-sm btn-default mx-1"
-                    >
-                      <i className="fas fa-sliders-h"></i>
-                    </button>
-                  </>
-                )}
-              </>
-              <>
-                <button
-                  onClick={() =>
-                    handleEditButtonClick(
-                      val,
-                      SetShowModal("ChangeSecondPlace"),
-                      setTitle("Đổi Điểm Hạ Hàng")
-                    )
-                  }
-                  type="button"
-                  className="btn btn-title btn-sm btn-default mx-1"
-                  gloss="Đổi Điểm Hạ Hàng"
-                >
-                  <i className="fas fa-exchange-alt"></i>
                 </button>
               </>
               <>
@@ -135,6 +76,27 @@ const HandlingPageNew = () => {
                   gloss="Xem Hình Ảnh"
                 >
                   <i className="fas fa-image"></i>
+                </button>
+              </>
+              <>
+                <button
+                  onClick={() =>
+                    showConfirmDialog(
+                      val,
+                      setFuncName("CancelHandling"),
+                      setTitleConfirmDialog(
+                        "Bạn Có Thật Sự Muốn Hủy Chuyến Này?"
+                      )
+                    )
+                  }
+                  type="button"
+                  className="btn btn-title btn-sm btn-default mx-1"
+                  gloss="Hủy Chuyến"
+                >
+                  <i
+                    className="fas fa-window-close"
+                    style={{ color: "red" }}
+                  ></i>
                 </button>
               </>
             </>
@@ -214,17 +176,15 @@ const HandlingPageNew = () => {
           )}
         </>
       ),
-      width: "260px",
+      width: "220px",
       ignoreRowClick: true,
       allowOverflow: true,
       button: true,
     },
     {
       name: <div>Trạng Thái</div>,
-      selector: (row) => (
-        <div className="text-wrap">{colorStatusText(row.trangThai)}</div>
-      ),
-      sortable: true,
+      selector: (row) => colorStatusText(row.trangThai),
+      allowOverflow: true, // show full text
     },
     {
       name: <div>CONT NUM</div>,
@@ -244,80 +204,80 @@ const HandlingPageNew = () => {
     },
     {
       name: <div>Mã Chuyến</div>,
-      selector: (row) => <div className="text-wrap">{row.maChuyen}</div>,
+      selector: (row) => row.maChuyen,
       sortable: true,
     },
     {
       name: <div>Mã Vận Đơn</div>,
-      selector: (row) => <div className="text-wrap">{row.maVanDonKH}</div>,
+      selector: (row) => row.maVanDonKH,
       sortable: true,
     },
     {
       name: <div>Loại Vận Đơn</div>,
-      selector: (row) => <div className="text-wrap">{row.phanLoaiVanDon}</div>,
+      selector: (row) => row.phanLoaiVanDon,
       sortable: true,
     },
     {
       name: <div>Khách Hàng</div>,
-      selector: (row) => <div className="text-wrap">{row.maKH}</div>,
+      selector: (row) => row.maKH,
       sortable: true,
       omit: accountType && accountType === "NV" ? false : true,
     },
     {
       name: <div>Account</div>,
-      selector: (row) => <div className="text-wrap">{row.accountName}</div>,
+      selector: (row) => row.accountName,
       sortable: true,
       omit: accountType && accountType === "NV" ? false : true,
     },
     {
       name: <div>Đơn Vị Vận Tải</div>,
-      selector: (row) => <div className="text-wrap">{row.donViVanTai}</div>,
+      selector: (row) => row.donViVanTai,
       sortable: true,
       omit: accountType && accountType === "NV" ? false : true,
     },
     {
       name: "PTVC",
-      selector: (row) => <div className="text-wrap">{row.maPTVC}</div>,
+      selector: (row) => row.maPTVC,
       sortable: true,
     },
     {
       name: <div>Điểm Lấy Hàng</div>,
-      selector: (row) => <div className="text-wrap">{row.diemDau}</div>,
+      selector: (row) => row.diemDau,
       sortable: true,
     },
     {
       name: <div>Điểm Trả Hàng</div>,
-      selector: (row) => <div className="text-wrap">{row.diemCuoi}</div>,
+      selector: (row) => row.diemCuoi,
       sortable: true,
     },
     {
       name: <div>Điểm Lấy Rỗng</div>,
-      selector: (row) => <div className="text-wrap">{row.diemLayRong}</div>,
+      selector: (row) => row.diemLayRong,
       sortable: true,
     },
     {
       name: <div>Điểm Trả Rỗng</div>,
-      selector: (row) => <div className="text-wrap">{row.diemTraRong}</div>,
+      selector: (row) => row.diemTraRong,
       sortable: true,
     },
     {
       name: <div>Mã Số Xe</div>,
-      selector: (row) => <div className="text-wrap">{row.maSoXe}</div>,
+      selector: (row) => row.maSoXe,
       sortable: true,
     },
     {
       name: <div>Mã CONT</div>,
-      selector: (row) => <div className="text-wrap">{row.contNo}</div>,
+      selector: (row) => row.contNo,
       sortable: true,
     },
     {
       name: <div>Reuse</div>,
-      selector: (row) => <div className="text-wrap">{row.reuse}</div>,
+      selector: (row) => row.reuse,
       sortable: true,
     },
     {
       name: <div>Hãng Tàu</div>,
-      selector: (row) => <div className="text-wrap">{row.hangTau}</div>,
+      selector: (row) => row.hangTau,
       sortable: true,
     },
     // {
@@ -346,13 +306,8 @@ const HandlingPageNew = () => {
     },
     {
       name: <div>Thời Gian Tạo</div>,
-      selector: (row) => (
-        <div className="text-wrap">
-          {moment(row.thoiGianTaoDon).format("DD/MM/YYYY HH:mm:ss")}
-        </div>
-      ),
+      selector: (row) => moment(row.thoiGianTaoDon).format("DD/MM/YYYY HH:mm"),
       sortable: true,
-      grow: 2,
     },
   ]);
 
@@ -391,7 +346,8 @@ const HandlingPageNew = () => {
   const [listAccountSelected, setListAccountSelected] = useState([]);
   const [listSupplier, setListSupplier] = useState([]);
   const [listSupplierSelected, setListSupplierSelected] = useState([]);
-  const [listPlace, setListPlace] = useState([]);
+
+  const [titleConfirmDialog, setTitleConfirmDialog] = useState();
 
   const [selectedRows, setSelectedRows] = useState([]);
   const [toggledClearRows, setToggleClearRows] = useState(false);
@@ -477,17 +433,6 @@ const HandlingPageNew = () => {
         });
         setListUsers(arrUser);
       }
-
-      const getListPlace = await getData(
-        "Address/GetListAddressSelect?pointType=&type=Diem"
-      );
-
-      let arrPlace = [];
-      arrPlace.push({ label: "-- Rỗng --", value: null });
-      getListPlace.forEach((val) => {
-        arrPlace.push({ label: val.tenDiaDiem, value: val.maDiaDiem });
-      });
-      setListPlace(arrPlace);
 
       let getListCustomer = await getData(`Customer/GetListCustomerFilter`);
       if (getListCustomer && getListCustomer.length > 0) {
@@ -620,7 +565,13 @@ const HandlingPageNew = () => {
             return (
               <button
                 onClick={() =>
-                  showConfirmDialog(val, setFuncName("StartRuning"))
+                  showConfirmDialog(
+                    val,
+                    setFuncName("StartRuning"),
+                    setTitleConfirmDialog(
+                      "Bạn Có Thật Sự Muốn Thay Đổi Trạng Thái Chuyến?"
+                    )
+                  )
                 }
                 type="button"
                 className="btn btn-title btn-sm btn-default mx-1"
@@ -633,7 +584,13 @@ const HandlingPageNew = () => {
             return (
               <button
                 onClick={() =>
-                  showConfirmDialog(val, setFuncName("StartRuning"))
+                  showConfirmDialog(
+                    val,
+                    setFuncName("StartRuning"),
+                    setTitleConfirmDialog(
+                      "Bạn Có Thật Sự Muốn Thay Đổi Trạng Thái Chuyến?"
+                    )
+                  )
                 }
                 type="button"
                 className="btn btn-title btn-sm btn-default mx-1"
@@ -646,7 +603,13 @@ const HandlingPageNew = () => {
             return (
               <button
                 onClick={() =>
-                  showConfirmDialog(val, setFuncName("StartRuning"))
+                  showConfirmDialog(
+                    val,
+                    setFuncName("StartRuning"),
+                    setTitleConfirmDialog(
+                      "Bạn Có Thật Sự Muốn Thay Đổi Trạng Thái Chuyến?"
+                    )
+                  )
                 }
                 type="button"
                 className="btn btn-title btn-sm btn-default mx-1"
@@ -659,7 +622,13 @@ const HandlingPageNew = () => {
             return (
               <button
                 onClick={() =>
-                  showConfirmDialog(val, setFuncName("StartRuning"))
+                  showConfirmDialog(
+                    val,
+                    setFuncName("StartRuning"),
+                    setTitleConfirmDialog(
+                      "Bạn Có Thật Sự Muốn Thay Đổi Trạng Thái Chuyến?"
+                    )
+                  )
                 }
                 type="button"
                 className="btn btn-title btn-sm btn-default mx-1"
@@ -672,7 +641,13 @@ const HandlingPageNew = () => {
             return (
               <button
                 onClick={() =>
-                  showConfirmDialog(val, setFuncName("StartRuning"))
+                  showConfirmDialog(
+                    val,
+                    setFuncName("StartRuning"),
+                    setTitleConfirmDialog(
+                      "Bạn Có Thật Sự Muốn Thay Đổi Trạng Thái Chuyến?"
+                    )
+                  )
                 }
                 type="button"
                 className="btn btn-title btn-sm btn-default mx-1"
@@ -682,7 +657,15 @@ const HandlingPageNew = () => {
               </button>
             );
           default:
-            return null;
+            return (
+              <button
+                className="btn btn-sm btn-default mx-1"
+                type="button"
+                disabled={true}
+              >
+                <i className="fab fa-cuttlefish"></i>
+              </button>
+            );
         }
       }
       if (val.phanLoaiVanDon === "Nhập") {
@@ -691,7 +674,13 @@ const HandlingPageNew = () => {
             return (
               <button
                 onClick={() =>
-                  showConfirmDialog(val, setFuncName("StartRuning"))
+                  showConfirmDialog(
+                    val,
+                    setFuncName("StartRuning"),
+                    setTitleConfirmDialog(
+                      "Bạn Có Thật Sự Muốn Thay Đổi Trạng Thái Chuyến?"
+                    )
+                  )
                 }
                 type="button"
                 className="btn btn-title btn-sm btn-default mx-1"
@@ -704,7 +693,13 @@ const HandlingPageNew = () => {
             return (
               <button
                 onClick={() =>
-                  showConfirmDialog(val, setFuncName("StartRuning"))
+                  showConfirmDialog(
+                    val,
+                    setFuncName("StartRuning"),
+                    setTitleConfirmDialog(
+                      "Bạn Có Thật Sự Muốn Thay Đổi Trạng Thái Chuyến?"
+                    )
+                  )
                 }
                 type="button"
                 className="btn btn-title btn-sm btn-default mx-1"
@@ -717,7 +712,13 @@ const HandlingPageNew = () => {
             return (
               <button
                 onClick={() =>
-                  showConfirmDialog(val, setFuncName("StartRuning"))
+                  showConfirmDialog(
+                    val,
+                    setFuncName("StartRuning"),
+                    setTitleConfirmDialog(
+                      "Bạn Có Thật Sự Muốn Thay Đổi Trạng Thái Chuyến?"
+                    )
+                  )
                 }
                 type="button"
                 className="btn btn-title btn-sm btn-default mx-1"
@@ -730,7 +731,13 @@ const HandlingPageNew = () => {
             return (
               <button
                 onClick={() =>
-                  showConfirmDialog(val, setFuncName("StartRuning"))
+                  showConfirmDialog(
+                    val,
+                    setFuncName("StartRuning"),
+                    setTitleConfirmDialog(
+                      "Bạn Có Thật Sự Muốn Thay Đổi Trạng Thái Chuyến?"
+                    )
+                  )
                 }
                 type="button"
                 className="btn btn-title btn-sm btn-default mx-1"
@@ -743,7 +750,13 @@ const HandlingPageNew = () => {
             return (
               <button
                 onClick={() =>
-                  showConfirmDialog(val, setFuncName("StartRuning"))
+                  showConfirmDialog(
+                    val,
+                    setFuncName("StartRuning"),
+                    setTitleConfirmDialog(
+                      "Bạn Có Thật Sự Muốn Thay Đổi Trạng Thái Chuyến?"
+                    )
+                  )
                 }
                 type="button"
                 className="btn btn-title btn-sm btn-default mx-1"
@@ -756,7 +769,13 @@ const HandlingPageNew = () => {
             return (
               <button
                 onClick={() =>
-                  showConfirmDialog(val, setFuncName("StartRuning"))
+                  showConfirmDialog(
+                    val,
+                    setFuncName("StartRuning"),
+                    setTitleConfirmDialog(
+                      "Bạn Có Thật Sự Muốn Thay Đổi Trạng Thái Chuyến?"
+                    )
+                  )
                 }
                 type="button"
                 className="btn btn-title btn-sm btn-default mx-1"
@@ -769,7 +788,13 @@ const HandlingPageNew = () => {
             return (
               <button
                 onClick={() =>
-                  showConfirmDialog(val, setFuncName("StartRuning"))
+                  showConfirmDialog(
+                    val,
+                    setFuncName("StartRuning"),
+                    setTitleConfirmDialog(
+                      "Bạn Có Thật Sự Muốn Thay Đổi Trạng Thái Chuyến?"
+                    )
+                  )
                 }
                 type="button"
                 className="btn btn-title btn-sm btn-default mx-1"
@@ -779,7 +804,15 @@ const HandlingPageNew = () => {
               </button>
             );
           default:
-            return null;
+            return (
+              <button
+                className="btn btn-sm btn-default mx-1"
+                type="button"
+                disabled={true}
+              >
+                <i className="fab fa-cuttlefish"></i>
+              </button>
+            );
         }
       }
     }
@@ -788,7 +821,15 @@ const HandlingPageNew = () => {
         case 27:
           return (
             <button
-              onClick={() => showConfirmDialog(val, setFuncName("StartRuning"))}
+              onClick={() =>
+                showConfirmDialog(
+                  val,
+                  setFuncName("StartRuning"),
+                  setTitleConfirmDialog(
+                    "Bạn Có Thật Sự Muốn Thay Đổi Trạng Thái Chuyến?"
+                  )
+                )
+              }
               type="button"
               className="btn btn-title btn-sm btn-default mx-1"
               gloss="Đóng Hàng Lên Xe"
@@ -799,7 +840,15 @@ const HandlingPageNew = () => {
         case 37:
           return (
             <button
-              onClick={() => showConfirmDialog(val, setFuncName("StartRuning"))}
+              onClick={() =>
+                showConfirmDialog(
+                  val,
+                  setFuncName("StartRuning"),
+                  setTitleConfirmDialog(
+                    "Bạn Có Thật Sự Muốn Thay Đổi Trạng Thái Chuyến?"
+                  )
+                )
+              }
               type="button"
               className="btn btn-title btn-sm btn-default mx-1"
               gloss="Đi Vận Chuyển Hàng"
@@ -810,7 +859,15 @@ const HandlingPageNew = () => {
         case 18:
           return (
             <button
-              onClick={() => showConfirmDialog(val, setFuncName("StartRuning"))}
+              onClick={() =>
+                showConfirmDialog(
+                  val,
+                  setFuncName("StartRuning"),
+                  setTitleConfirmDialog(
+                    "Bạn Có Thật Sự Muốn Thay Đổi Trạng Thái Chuyến?"
+                  )
+                )
+              }
               type="button"
               className="btn btn-title btn-sm btn-default mx-1"
               gloss="Đã Giao Hàng"
@@ -821,7 +878,15 @@ const HandlingPageNew = () => {
         case 36:
           return (
             <button
-              onClick={() => showConfirmDialog(val, setFuncName("StartRuning"))}
+              onClick={() =>
+                showConfirmDialog(
+                  val,
+                  setFuncName("StartRuning"),
+                  setTitleConfirmDialog(
+                    "Bạn Có Thật Sự Muốn Thay Đổi Trạng Thái Chuyến?"
+                  )
+                )
+              }
               type="button"
               className="btn btn-title btn-sm btn-default mx-1"
               gloss="Đã Giao Hàng"
@@ -830,7 +895,15 @@ const HandlingPageNew = () => {
             </button>
           );
         default:
-          return null;
+          return (
+            <button
+              className="btn btn-sm btn-default mx-1"
+              type="button"
+              disabled={true}
+            >
+              <i className="fab fa-cuttlefish"></i>
+            </button>
+          );
       }
     }
   };
@@ -1085,35 +1158,6 @@ const HandlingPageNew = () => {
     }
   };
 
-  const handleOnClickChangeSplace = async () => {
-    if (selectIdClick && Object.keys(selectIdClick).length > 0) {
-      let place = watch("listPlace");
-
-      if (place && Object.keys(place).length > 0 && place.value) {
-        setLoading(true);
-        let changePlace = await postData(
-          "BillOfLading/ChangeSecondPlaceHandling",
-          {
-            transportId: selectIdClick.maVanDon,
-            handlingId: selectIdClick.maDieuPhoi,
-            newSecondPlace: place.value,
-          }
-        );
-
-        setValue(
-          "listPlace",
-          listPlace.find((x) => x.value === null)
-        );
-
-        if (changePlace === 1) {
-          hideModal();
-          refeshData();
-        }
-        setLoading(false);
-      }
-    }
-  };
-
   const customStyles = {
     control: (provided, state) => ({
       ...provided,
@@ -1149,7 +1193,7 @@ const HandlingPageNew = () => {
         <div className="container-fluid">
           <div className="row mb-2">
             <div className="col-sm-6">
-              <h1>Quản Lý Chyến</h1>
+              <h1>Quản Lý Chuyến</h1>
             </div>
           </div>
         </div>
@@ -1378,7 +1422,6 @@ const HandlingPageNew = () => {
           <div className="card-body">
             <div className="container-datatable" style={{ height: "50vm" }}>
               <DataTable
-                title="Danh sách vận đơn"
                 direction="auto"
                 responsive
                 columns={Columns}
@@ -1395,6 +1438,7 @@ const HandlingPageNew = () => {
                 selectableRows
                 highlightOnHover
                 striped
+                dense
                 fixedHeader
                 fixedHeaderScrollHeight="60vh"
               />
@@ -1466,13 +1510,7 @@ const HandlingPageNew = () => {
                         hideModal={hideModal}
                       />
                     )}
-                  {ShowModal === "EditTransport" && (
-                    <UpdateTransport
-                      getListTransport={refeshData}
-                      selectIdClick={selectIdClick}
-                      hideModal={hideModal}
-                    />
-                  )}
+
                   {ShowModal === "EditHandling" && (
                     <>
                       {!selectIdClick.tongVanDonGhep && (
@@ -1498,49 +1536,7 @@ const HandlingPageNew = () => {
                       )}
                     </>
                   )}
-                  {ShowModal === "ChangeSecondPlace" && (
-                    <>
-                      {loading && loading === true ? (
-                        <div>
-                          <LoadingPage></LoadingPage>
-                        </div>
-                      ) : (
-                        <>
-                          <div className="row">
-                            <div className="col col-3">
-                              <div className="form-group">
-                                <Controller
-                                  name="listPlace"
-                                  control={control}
-                                  render={({ field }) => (
-                                    <Select
-                                      {...field}
-                                      className="basic-multi-select"
-                                      classNamePrefix={"form-control"}
-                                      value={field.value}
-                                      options={listPlace}
-                                      placeholder="Địa Điểm"
-                                    />
-                                  )}
-                                />
-                              </div>
-                            </div>
-                            <div className="col col-3">
-                              <button
-                                onClick={() => handleOnClickChangeSplace()}
-                                type="submit"
-                                className="btn btn-primary"
-                                style={{ float: "left" }}
-                              >
-                                Xác Nhận
-                              </button>
-                            </div>
-                          </div>
-                          <div style={{ height: "25vh" }}></div>
-                        </>
-                      )}
-                    </>
-                  )}
+
                   {ShowModal === "Image" && (
                     <HandlingImage
                       dataClick={selectIdClick}
@@ -1564,7 +1560,7 @@ const HandlingPageNew = () => {
       {ShowConfirm === true && (
         <ConfirmDialog
           setShowConfirm={setShowConfirm}
-          title={"Bạn có chắc chắn với quyết định này?"}
+          title={titleConfirmDialog}
           content={
             "Khi thực hiện hành động này sẽ không thể hoàn tác lại được nữa."
           }

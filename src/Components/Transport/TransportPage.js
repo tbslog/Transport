@@ -143,62 +143,64 @@ const TransportPage = () => {
           </button>
         </>
       ),
-      width: "200px",
+      width: "160px",
       ignoreRowClick: true,
       allowOverflow: true,
       button: true,
     },
     {
       name: <div>Trạng Thái</div>,
-      selector: (row) => (
-        <div className="text-wrap">{colorStatusText(row.trangThai)}</div>
-      ),
-      sortable: true,
+      selector: (row) => colorStatusText(row.trangThai),
+      sortable: true, //enable sort
+      allowOverflow: true, // show full text
     },
     {
-      selector: (row) => <div className="text-wrap">{row.maVanDon}</div>,
+      selector: (row) => row.maVanDon,
       omit: true,
     },
-
     {
       name: <div>Mã Vận Đơn</div>,
-      selector: (row) => <div className="text-wrap">{row.maVanDonKH}</div>,
+      selector: (row) => row.maVanDonKH,
+      allowOverflow: true,
+      sortable: true,
+      wrap: true,
     },
     {
       name: <div>Loại Vận Đơn</div>,
-      selector: (row) => (
-        <div className="text-wrap">
-          {row.loaiVanDon === "xuat" ? "XUẤT" : "NHẬP"}
-        </div>
-      ),
+      selector: (row) => (row.loaiVanDon === "xuat" ? "XUẤT" : "NHẬP"),
+      sortable: true,
     },
     {
       name: <div>PTVC</div>,
-      selector: (row) => <div className="text-wrap">{row.maPTVC}</div>,
+      selector: (row) => row.maPTVC,
+      sortable: true,
     },
     {
       name: <div>Khách Hàng</div>,
-      selector: (row) => <div className="text-wrap">{row.tenKH}</div>,
+      selector: (row) => row.tenKH,
+      allowOverflow: true,
+      sortable: true,
     },
     {
       name: <div>Account</div>,
-      selector: (row) => <div className="text-wrap">{row.accountName}</div>,
+      selector: (row) => row.accountName,
+      allowOverflow: true,
+      sortable: true,
     },
     {
       name: <div>Điểm Đóng Hàng</div>,
-      selector: (row) => row.diemLayHang,
+      selector: (row) => <div title={row.diemLayHang}>{row.diemLayHang}</div>,
       sortable: true,
     },
     {
       name: <div>Điểm Hạ Hàng</div>,
-      selector: (row) => row.diemTraHang,
+      selector: (row) => <div title={row.diemTraHang}>{row.diemTraHang}</div>,
       sortable: true,
     },
     {
       name: <div>Tổng Trọng Lượng</div>,
       selector: (row) => row.tongKhoiLuong,
       sortable: true,
-      Cell: ({ row }) => <div className="text-wrap">{row.tongKhoiLuong}</div>,
     },
     {
       name: <div>Tổng Thể Tích</div>,
@@ -209,53 +211,43 @@ const TransportPage = () => {
       name: <div>Tổng Số Kiện</div>,
       selector: (row) => row.tongSoKien,
       sortable: true,
-      Cell: ({ row }) => <div className="text-wrap">{row.tongSoKhoi}</div>,
     },
     {
       name: <div>Thời Gian Lấy/Trả Rỗng</div>,
       selector: (row) =>
-        !row.thoiGianLayTraRong ? null : (
-          <div className="text-wrap">
-            {moment(row.thoiGianLayTraRong).format("DD/MM/YYYY HH:mm")}
-          </div>
-        ),
+        !row.thoiGianLayTraRong
+          ? null
+          : moment(row.thoiGianLayTraRong).format("DD/MM/YYYY HH:mm"),
+      allowOverflow: true,
       sortable: true,
     },
     {
       name: <div>Thời Gian Hạn Lệnh</div>,
       selector: (row) =>
-        !row.thoiGianHanLenh ? null : (
-          <div className="text-wrap">
-            {moment(row.thoiGianHanLenh).format("DD/MM/YYYY HH:mm")}
-          </div>
-        ),
+        !row.thoiGianHanLenh
+          ? null
+          : moment(row.thoiGianHanLenh).format("DD/MM/YYYY HH:mm"),
+      allowOverflow: true,
       sortable: true,
     },
     {
       name: <div>Thời Gian Hạ Cảng</div>,
       selector: (row) =>
-        !row.thoiGianHaCang ? null : (
-          <div className="text-wrap">
-            {moment(row.thoiGianHaCang).format("DD/MM/YYYY HH:mm")}
-          </div>
-        ),
+        !row.thoiGianHaCang
+          ? null
+          : moment(row.thoiGianHaCang).format("DD/MM/YYYY HH:mm"),
       sortable: true,
+      allowOverflow: true,
     },
     {
       selector: (row) => row.maTrangThai,
-      sortable: true,
       omit: true,
     },
-
     {
       name: <div>Thời Gian Lập Đơn</div>,
-
-      selector: (row) => (
-        <div className="text-wrap">
-          {moment(row.thoiGianTaoDon).format("DD/MM/YYYY HH:mm")}
-        </div>
-      ),
+      selector: (row) => moment(row.thoiGianTaoDon).format("DD/MM/YYYY HH:mm"),
       sortable: true,
+      allowOverflow: true,
     },
   ]);
 
@@ -683,7 +675,7 @@ const TransportPage = () => {
         <div className="container-fluid">
           <div className="row mb-2">
             <div className="col-sm-6">
-              <h1>Quản lý vận đơn</h1>
+              <h1>Quản Lý Vận Đơn</h1>
             </div>
             {/* <div className="col-sm-6">
               <ol className="breadcrumb float-sm-right">
@@ -914,7 +906,6 @@ const TransportPage = () => {
             <div className="card-body">
               <div className="container-datatable" style={{ height: "50vm" }}>
                 <DataTable
-                  title="Danh sách vận đơn"
                   direction="auto"
                   responsive
                   columns={columns}
@@ -929,6 +920,7 @@ const TransportPage = () => {
                   onChangePage={handlePageChange}
                   highlightOnHover
                   striped
+                  dense
                   fixedHeader
                   fixedHeaderScrollHeight="60vh"
                 />

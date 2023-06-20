@@ -132,10 +132,8 @@ const ApprovePriceTable = (props) => {
   };
 
   useEffect(() => {
-    setLoading(true);
     if (checkShowModal && Object.keys(checkShowModal).length > 0) {
       fetchData(1);
-      setLoading(false);
     }
   }, [props, checkShowModal]);
 
@@ -155,6 +153,7 @@ const ApprovePriceTable = (props) => {
       selectedRows.length > 0 &&
       Object.keys(selectedRows).length > 0
     ) {
+      setLoading(true);
       let arr = [];
       selectedRows.map((val) => {
         arr.push({
@@ -171,9 +170,9 @@ const ApprovePriceTable = (props) => {
       handleClearRows();
 
       if (SetApprove === 1) {
-        reLoadData();
         fetchData(1);
       }
+      setLoading(false);
     }
   };
 
@@ -197,19 +196,18 @@ const ApprovePriceTable = (props) => {
   };
 
   const fetchData = async (page, KeyWord = "", fromDate = "", toDate = "") => {
-    setLoading(true);
-
     if (KeyWord !== "") {
       KeyWord = keySearch;
     }
     fromDate = fromDate === "" ? "" : moment(fromDate).format("YYYY-MM-DD");
     toDate = toDate === "" ? "" : moment(toDate).format("YYYY-MM-DD");
     const dataCus = await getData(
-      `PriceTable/GetListPriceTableApprove?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}&fromDate=${fromDate}&toDate=${toDate}&contractId=${contractId}`
+      `PriceTable/GetListPriceTableApprove?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}&fromDate=${fromDate}&toDate=${toDate}&contractId=${
+        !contractId ? "" : contractId
+      }`
     );
     setData(dataCus.data);
     setTotalRows(dataCus.totalRecords);
-    setLoading(false);
   };
 
   const handlePageChange = async (page) => {
@@ -220,7 +218,9 @@ const ApprovePriceTable = (props) => {
     setLoading(true);
 
     const dataCus = await getData(
-      `PriceTable/GetListPriceTableApprove?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}&fromDate=${fromDate}&toDate=${toDate}&contractId=${contractId}`
+      `PriceTable/GetListPriceTableApprove?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}&fromDate=${fromDate}&toDate=${toDate}&contractId=${
+        !contractId ? "" : contractId
+      }`
     );
     setData(dataCus.data);
     setPerPage(newPerPage);
@@ -247,7 +247,7 @@ const ApprovePriceTable = (props) => {
           <div className="card-header">
             <div className="container-fruid">
               <div className="row">
-                {/* <div className="col col-sm">
+                <div className="col col-sm">
                   <button
                     type="button"
                     className="btn btn-title btn-sm btn-default mx-1"
@@ -271,7 +271,7 @@ const ApprovePriceTable = (props) => {
                   >
                     <i className="fas fa-thumbs-down"></i>
                   </button>
-                </div> */}
+                </div>
                 <div className="col col-sm">
                   <div className="row">
                     <div className="col col-sm">
@@ -395,6 +395,8 @@ const ApprovePriceTable = (props) => {
                 onChangeRowsPerPage={handlePerRowsChange}
                 onChangePage={handlePageChange}
                 highlightOnHover
+                selectableRows
+                clearSelectedRows={toggledClearRows}
                 striped
                 direction="auto"
                 responsive

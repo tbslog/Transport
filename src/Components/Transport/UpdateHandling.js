@@ -10,6 +10,7 @@ import { ToastWarning } from "../Common/FuncToast";
 import Cookies from "js-cookie";
 import HandlingImage from "../FileManager/HandlingImage";
 import AddSubFeeByHandling from "./AddSubFeeByHandling";
+import UpdateTransport from "./UpdateTransport";
 
 const UpdateHandling = (props) => {
   const { getlistData, selectIdClick, hideModal } = props;
@@ -144,6 +145,7 @@ const UpdateHandling = (props) => {
   const [data, setData] = useState({});
   const [roadDetail, setRoadDetail] = useState({});
   const [listSupplier, setListSupplier] = useState([]);
+  const [listPlace, setListPlace] = useState([]);
 
   const [wgtVehicle, setWgtVehicle] = useState();
   const [cbmVehicle, setCbmVehicle] = useState();
@@ -174,6 +176,16 @@ const UpdateHandling = (props) => {
         });
         setListPoint(obj);
       }
+
+      const getListPlace = await getData(
+        "Address/GetListAddressSelect?pointType=&type=Diem"
+      );
+      let arrPlace = [];
+      arrPlace.push({ label: "-- Rỗng --", value: null });
+      getListPlace.forEach((val) => {
+        arrPlace.push({ label: val.tenDiaDiem, value: val.maDiaDiem });
+      });
+      setListPlace(arrPlace);
 
       let getListNCC = await getData(`Customer/GetListCustomerOptionSelect`);
       if (getListNCC && getListNCC.length > 0) {
@@ -547,6 +559,35 @@ const UpdateHandling = (props) => {
     }
 
     SetIsLoading(false);
+  };
+
+  const handleOnClickChangeSplace = async () => {
+    if (selectIdClick && Object.keys(selectIdClick).length > 0) {
+      let place = watch("listPlace");
+
+      if (place && Object.keys(place).length > 0 && place.value) {
+        SetIsLoading(true);
+        let changePlace = await postData(
+          "BillOfLading/ChangeSecondPlaceHandling",
+          {
+            transportId: selectIdClick.maVanDon,
+            handlingId: selectIdClick.maDieuPhoi,
+            newSecondPlace: place.value,
+          }
+        );
+
+        setValue(
+          "listPlace",
+          listPlace.find((x) => x.value === null)
+        );
+
+        if (changePlace === 1) {
+          hideModal();
+          getlistData();
+        }
+        SetIsLoading(false);
+      }
+    }
   };
 
   return (
@@ -1560,6 +1601,50 @@ const UpdateHandling = (props) => {
                     >
                       <i className="fas fa-image"></i>
                     </button>
+                    <>
+                      {data.maPTVC === "FCL" || data.maPTVC === "FTL" ? (
+                        <>
+                          <button
+                            onClick={() =>
+                              handleShowModal(
+                                SetShowModal("EditTransport"),
+                                setTitle("Tách Chuyến ")
+                              )
+                            }
+                            type="button"
+                            className="btn btn-title btn-sm btn-default mx-1"
+                            gloss="Tách Chuyến"
+                          >
+                            <i className="fas fa-sliders-h"></i>
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button
+                            disabled={true}
+                            type="button"
+                            className="btn btn-sm btn-default mx-1"
+                          >
+                            <i className="fas fa-sliders-h"></i>
+                          </button>
+                        </>
+                      )}
+                    </>
+                    <>
+                      <button
+                        onClick={() =>
+                          handleShowModal(
+                            SetShowModal("ChangeSecondPlace"),
+                            setTitle("Đổi Điểm Hạ Hàng")
+                          )
+                        }
+                        type="button"
+                        className="btn btn-title btn-sm btn-default mx-1"
+                        gloss="Đổi Điểm Hạ Hàng"
+                      >
+                        <i className="fas fa-exchange-alt"></i>
+                      </button>
+                    </>
                   </>
                 </div>
                 <div className="col col-6">
@@ -1612,6 +1697,56 @@ const UpdateHandling = (props) => {
                 )}
                 {ShowModal === "addSubFee" && (
                   <AddSubFeeByHandling dataClick={selectIdClick} />
+                )}
+                {ShowModal === "EditTransport" && (
+                  <UpdateTransport
+                    getListTransport={getlistData}
+                    selectIdClick={selectIdClick}
+                    hideModal={modal.hide()}
+                  />
+                )}
+                {ShowModal === "ChangeSecondPlace" && (
+                  <>
+                    {IsLoading && IsLoading === true ? (
+                      <div>
+                        <LoadingPage></LoadingPage>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="row">
+                          <div className="col col-3">
+                            <div className="form-group">
+                              <Controller
+                                name="listPlace"
+                                control={control}
+                                render={({ field }) => (
+                                  <Select
+                                    {...field}
+                                    className="basic-multi-select"
+                                    classNamePrefix={"form-control"}
+                                    value={field.value}
+                                    options={listPlace}
+                                    placeholder="Địa Điểm"
+                                  />
+                                )}
+                              />
+                            </div>
+                          </div>
+                          <div className="col col-3">
+                            <button
+                              onClick={() => handleOnClickChangeSplace()}
+                              type="submit"
+                              className="btn btn-primary"
+                              style={{ float: "left" }}
+                            >
+                              Xác Nhận
+                            </button>
+                          </div>
+                        </div>
+                        <div style={{ height: "25vh" }}></div>
+                      </>
+                    )}
+                  </>
                 )}
               </>
             </div>

@@ -290,6 +290,13 @@ const PriceTablePage = () => {
     setCustommerType(customerType);
   };
 
+  const handleExportTemplateExcel = async () => {
+    let download = await getFile(
+      `PriceTable/ExportExcelTemplatePriceTable`,
+      "TemplatePricetable" + moment(new Date()).format("DD/MM/YYYY")
+    );
+  };
+
   return (
     <>
       <section className="content-header">
@@ -327,20 +334,20 @@ const PriceTablePage = () => {
                     >
                       <i className="fas fa-plus-circle"></i>
                     </button>
-                    {/* <button
-                  type="button"
-                  className="btn btn-title btn-sm btn-default mx-1"
-                  gloss="Duyệt Bảng Giá"
-                  onClick={() =>
-                    showModalForm(
-                      SetShowModal("ApprovePriceTable"),
-                      setSelectIdClick({}),
-                      setTitle("Duyệt Bảng Giá")
-                    )
-                  }
-                >
-                  <i className="fas fa-check-double"></i>
-                </button> */}
+                    <button
+                      type="button"
+                      className="btn btn-title btn-sm btn-default mx-1"
+                      gloss="Duyệt Bảng Giá"
+                      onClick={() =>
+                        showModalForm(
+                          SetShowModal("ApprovePriceTable"),
+                          setSelectIdClick({}),
+                          setTitle("Duyệt Bảng Giá")
+                        )
+                      }
+                    >
+                      <i className="fas fa-check-double"></i>
+                    </button>
                   </div>
 
                   <div className="col col-sm">
@@ -488,13 +495,21 @@ const PriceTablePage = () => {
                       onChange={(e) => handleExcelImportClick(e)}
                     />
                   </div>
-                  <a
+                  <button
+                    type="button"
+                    className="btn btn-title btn-sm btn-default mx-1"
+                    gloss="Tải Template Bảng Giá"
+                    onClick={() => handleExportTemplateExcel()}
+                  >
+                    <i className="fas fa-file-download"></i>
+                  </button>
+                  {/* <a
                     href={FileExcelImport}
                     download="TemplateImportPriceTable.xlsx"
                     className="btn btn-sm btn-default mx-1"
                   >
                     <i className="fas fa-file-download"></i>
-                  </a>
+                  </a> */}
                 </div>
               </div>
             </div>

@@ -26,6 +26,7 @@ import CustommerPage from "./Components/CustommerManage/CustommerPage";
 import ReportPage from "./Components/Report/ReportPage";
 import HandlingPageNew from "./Components/Transport/HandlingPageNew";
 import BillPage from "./Components/Bill/BillPage";
+import CurrencyExchangePage from "./Components/CurrencyExchangeManage/CurrencyExchangePage";
 
 function App() {
   const accountType = Cookies.get("AccType");
@@ -56,6 +57,10 @@ function App() {
                 <Route path="/report" element={<ReportPage />} />
                 <Route path="/handling" element={<HandlingPageNew />} />
                 <Route path="/transport" element={<TransportPage />} />
+                <Route
+                  path="/currencyexchange"
+                  element={<CurrencyExchangePage />}
+                />
               </>
             )}
             {accountType && accountType === "NCC" && (
