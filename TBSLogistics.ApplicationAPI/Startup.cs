@@ -11,7 +11,6 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System;
 using System.Text;
-using System.Threading;
 using TBSLogistics.Data.TMS;
 using TBSLogistics.Model.Model.MailSettings;
 using TBSLogistics.Service.Panigation;
@@ -21,6 +20,7 @@ using TBSLogistics.Service.Services.Bill;
 using TBSLogistics.Service.Services.BillOfLadingManage;
 using TBSLogistics.Service.Services.Common;
 using TBSLogistics.Service.Services.ContractManage;
+using TBSLogistics.Service.Services.CurrencyExchange;
 using TBSLogistics.Service.Services.CustommerManage;
 using TBSLogistics.Service.Services.DriverManage;
 using TBSLogistics.Service.Services.MobileManager;
@@ -56,18 +56,18 @@ namespace TBSLogistics.ApplicationAPI
 			{
 				option.AddPolicy(name: apiCorsPolicy, policy =>
 				 {
-					 policy.WithOrigins("http://localhost:3000", "http://192.168.0.189:9999", "https://tms.tbslogistics.com.vn").AllowAnyMethod().AllowAnyHeader();
+					 policy.WithOrigins("http://localhost:3000", "https://tms.tbslogistics.com.vn").AllowAnyMethod().AllowAnyHeader();
 					 //policy.WithOrigins("*").AllowAnyMethod().AllowAnyHeader();
 				 });
 			});
 
 			services.AddDbContext<TMSContext>(options =>
-			options.UseSqlServer(Configuration["TMS_Local"],
+			options.UseSqlServer(Configuration["TMS_Cloud"],
 			 providerOptions =>
 			 {
 				 providerOptions.CommandTimeout(180);
 			 }));
-			
+
 			services.AddHttpContextAccessor();
 			services.AddSingleton<IPaginationService>(o =>
 			{
@@ -124,6 +124,7 @@ namespace TBSLogistics.ApplicationAPI
 			services.AddTransient<IReport, ReportService>();
 			services.AddTransient<IMobile, MobileServices>();
 			services.AddTransient<IAccount, AccountService>();
+			services.AddTransient<ICurrencyExchange, CurrencyExchangeService>();
 
 			services.AddSwaggerGen(option =>
 			{

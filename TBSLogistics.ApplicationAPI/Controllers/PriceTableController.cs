@@ -15,6 +15,7 @@ using TBSLogistics.Model.Model.PriceListModel;
 using TBSLogistics.Model.Model.UserModel;
 using TBSLogistics.Service.Helpers;
 using TBSLogistics.Service.Panigation;
+using TBSLogistics.Service.Services.AddressManage;
 using TBSLogistics.Service.Services.Common;
 using TBSLogistics.Service.Services.PricelistManage;
 
@@ -29,11 +30,13 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 	{
 		private readonly IPriceTable _priceTable;
 		private readonly IPaginationService _paninationService;
+		private readonly IAddress _address;
 		private readonly ICommon _common;
 		private readonly TMSContext _context;
 
-		public PriceTableController(IPriceTable priceTable, IPaginationService paninationService, ICommon common, TMSContext context)
+		public PriceTableController(IPriceTable priceTable, IPaginationService paninationService, ICommon common, TMSContext context, IAddress address)
 		{
+			_address = address;
 			_priceTable = priceTable;
 			_paninationService = paninationService;
 			_common = common;
@@ -44,13 +47,28 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 		[Route("[action]")]
 		public async Task<IActionResult> CreatePriceTable(List<CreatePriceListRequest> request)
 		{
+			var checkPermissiCreate = await _common.CheckPermission("C0002");
 			var checkPermission = await _common.CheckPermission("C0003");
+			if (checkPermissiCreate.isSuccess == true && checkPermission.isSuccess == true)
+			{
+				var createPricetable = await _priceTable.CreatePriceTable(request, true);
+
+				if (createPricetable.isSuccess == true)
+				{
+					return Ok(createPricetable.Message);
+				}
+				else
+				{
+					return BadRequest(createPricetable.Message);
+				}
+			}
+
 			if (checkPermission.isSuccess == false)
 			{
 				return BadRequest(checkPermission.Message);
 			}
 
-			var create = await _priceTable.CreatePriceTable(request);
+			var create = await _priceTable.CreatePriceTable(request, false);
 
 			if (create.isSuccess == true)
 			{
@@ -60,6 +78,8 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 			{
 				return BadRequest(create.Message);
 			}
+
+
 		}
 
 		[HttpPost]
@@ -311,7 +331,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 				worksheet.Cell(currRow, 11).Value = row.MaLoaiPhuongTien;
 				worksheet.Cell(currRow, 12).Value = row.MaLoaiHangHoa;
 				worksheet.Cell(currRow, 13).Value = row.MaDVT;
-				worksheet.Cell(currRow, 14).Value = row.NgayApDung.ToString("dd-MM-yyyy HH:ss");
+				worksheet.Cell(currRow, 14).Value = row.NgayApDung.ToString("dd-MM-yyyy HH:mm:ss");
 			}
 
 			worksheet.Range("A1:N" + currRow).Style.Border.TopBorder = XLBorderStyleValues.Dashed;
@@ -324,6 +344,83 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 			string excelName = $"BangGia " + DateTime.Now.ToString("dd-MM-yyyy");
 
 			//return File(stream, "application/octet-stream", excelName);
+			return File(content, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", excelName);
+		}
+
+		[HttpGet]
+		[Route("[action]")]
+		public async Task<IActionResult> ExportExcelTemplatePriceTable()
+		{
+			var workbook = new XLWorkbook();
+			var worksheet = workbook.Worksheets.Add("TemplatePriceTable");
+			var worksheet1 = workbook.Worksheets.Add("DataAddress");
+
+			worksheet.Range("A1:K1").Style.Border.TopBorder = XLBorderStyleValues.Thin;
+			worksheet.Range("A1:K1").Style.Fill.BackgroundColor = XLColor.Red;
+			worksheet.Range("A1:K1").Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+
+			worksheet.Cell(1, 1).Value = "MaKH";
+			worksheet.Cell(1, 2).Value = "Account";
+			worksheet.Cell(1, 2).Style.Fill.BackgroundColor = XLColor.White;
+			worksheet.Cell(1, 3).Value = "MaHopDong";
+			worksheet.Cell(1, 4).Value = "DiemDau";
+			worksheet.Cell(1, 5).Value = "DiemCuoi";
+			worksheet.Cell(1, 6).Value = "DiemLayTraRong";
+			worksheet.Cell(1, 6).Style.Fill.BackgroundColor = XLColor.White;
+			worksheet.Cell(1, 7).Value = "DonGiaVnd";
+			worksheet.Cell(1, 8).Value = "LoaiTienTe";
+			worksheet.Cell(1, 9).Value = "MaPtvc";
+			worksheet.Cell(1, 10).Value = "MaLoaiPhuongTien";
+			worksheet.Cell(1, 11).Value = "MaLoaiHangHoa";
+
+			//name
+			worksheet.Cell(2, 1).Value = "Mã Khách Hàng";
+			worksheet.Cell(2, 2).Value = "Mã Account";
+			worksheet.Cell(2, 3).Value = "Mã Hợp Đồng";
+			worksheet.Cell(2, 4).Value = "Điểm Đóng Hàng";
+			worksheet.Cell(2, 5).Value = "Điểm Hạ Hàng";
+			worksheet.Cell(2, 6).Value = "Điểm Lấy/Trả Rỗng";
+			worksheet.Cell(2, 7).Value = "Đơn Giá";
+			worksheet.Cell(2, 8).Value = "Loại Tiền Tệ";
+			worksheet.Cell(2, 9).Value = "Mã Phương Thức Vận Chuyển";
+			worksheet.Cell(2, 10).Value = "Mã Loại Phương Tiện";
+			worksheet.Cell(2, 11).Value = "Mã Loại Hàng Hóa";
+
+			worksheet.Range("A1:K2").Style.Border.TopBorder = XLBorderStyleValues.Dotted;
+			worksheet.Columns().AdjustToContents();
+
+			var panigation = new PaginationFilter();
+			panigation.PageNumber = 1;
+			panigation.PageSize = 10000;
+
+			var getData = await _address.GetListAddress(panigation);
+			var currRow = 1;
+
+			worksheet1.Range("A1:C1").Style.Border.TopBorder = XLBorderStyleValues.Thin;
+			worksheet1.Range("A1:C1").Style.Font.FontSize = 15;
+			worksheet1.Range("A1:C1").Style.Font.Bold = true;
+			worksheet1.Range("A1:C1").Style.Fill.BackgroundColor = XLColor.LightGray;
+			worksheet1.Range("A1:C1").Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+
+			worksheet1.Cell(currRow, 1).Value = "Mã Địa Điểm";
+			worksheet1.Cell(currRow, 2).Value = "Tên Địa Điểm";
+			worksheet1.Cell(currRow, 3).Value = "Thuộc Khu Vực";
+
+			foreach (var row in getData.dataResponse)
+			{
+				currRow++;
+				worksheet1.Cell(currRow, 1).Value = row.MaDiaDiem;
+				worksheet1.Cell(currRow, 2).Value = row.TenDiaDiem;
+				worksheet1.Cell(currRow, 3).Value = row.KhuVuc;
+			}
+			worksheet1.Range("A1:C" + currRow).Style.Border.TopBorder = XLBorderStyleValues.Thin;
+			worksheet1.Columns().AdjustToContents();
+
+			using var stream = new MemoryStream();
+			workbook.SaveAs(stream);
+			var content = stream.ToArray();
+			string excelName = $"TemplatePricetable " + DateTime.Now.ToString("dd-MM-yyyy") + ".xlsx";
+
 			return File(content, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", excelName);
 		}
 	}

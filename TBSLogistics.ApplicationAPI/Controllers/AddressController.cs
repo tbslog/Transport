@@ -198,7 +198,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 				worksheet.Cell(currRow, 3).Value = row.KhuVuc;
 			}
 
-			worksheet.Range("A1:D" + currRow).Style.Border.TopBorder = XLBorderStyleValues.Thin;
+			worksheet.Range("A1:C" + currRow).Style.Border.TopBorder = XLBorderStyleValues.Thin;
 			worksheet.Columns().AdjustToContents();
 
 			using var stream = new MemoryStream();

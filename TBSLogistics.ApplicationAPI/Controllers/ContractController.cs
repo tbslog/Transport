@@ -163,7 +163,14 @@ namespace TBSLogistics.ApplicationAPI.Controllers
         [Route("[action]")]
         public async Task<IActionResult> GetListContractSelect(string MaKH = null, bool getChild = true, bool getProductService = false, bool getListApprove = false)
         {
-            var list = await _contract.GetListContractSelect(MaKH, getChild, getProductService, getListApprove);
+			var checkPermissiCreate = await _common.CheckPermission("C0002");
+            if(checkPermissiCreate.isSuccess == true)
+            {
+				var listCt = await _contract.GetListContractSelect(MaKH, getChild, getProductService, false);
+				return Ok(listCt);
+			}
+
+			var list = await _contract.GetListContractSelect(MaKH, getChild, getProductService, getListApprove);
             return Ok(list);
         }
 

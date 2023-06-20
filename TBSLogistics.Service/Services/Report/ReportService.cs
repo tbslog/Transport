@@ -244,152 +244,274 @@ namespace TBSLogistics.Service.Services.Report
 
 		public async Task<TransportReport> GetCustomerReport(DateTime dateTime)
 		{
+			var getAllDaysInMonth = Enumerable.Range(1, DateTime.DaysInMonth(dateTime.Year, dateTime.Month))
+			.Select(day => new DateTime(dateTime.Year, dateTime.Month, day)).ToList();
+
+			var firstDateOfMonth = new DateTime(dateTime.Year, dateTime.Month, 1);
+			var lastDateOfMonth = new DateTime(dateTime.Year, dateTime.Month, DateTime.DaysInMonth(dateTime.Year, dateTime.Month));
+
 			var data = from vd in _context.VanDon
 					   join dp in _context.DieuPhoi
 					   on vd.MaVanDon equals dp.MaVanDon
 					   where dp.TrangThai == 20
+					   && dp.CreatedTime.Date >= firstDateOfMonth && dp.CreatedTime.Date <= lastDateOfMonth
 					   select new { vd, dp };
 
+			var listData = await data.ToListAsync();
 			var listDataCustomer = new List<DataReportOfCustomer>();
 			var listDataSuplier = new List<DataReportOfCustomer>();
 
-			var getListContract = await _context.HopDongVaPhuLuc.Where(x => x.MaHopDongCha == null).ToListAsync();
-
-			foreach (var ct in getListContract.Where(x => x.MaKh.Substring(0, 3) == "CUS"))
+			foreach (var item in listData)
 			{
-				var getList = await data.Where(x => x.vd.MaKh == ct.MaKh
-				&& x.dp.CreatedTime >= new DateTime(dateTime.Year, dateTime.Month, ct.NgayThanhToan.Value).AddMonths(-1).AddDays(1)
-				&& x.dp.CreatedTime <= new DateTime(dateTime.Year, dateTime.Month, ct.NgayThanhToan.Value)).ToListAsync();
-
-				foreach (var item in getList)
+				double priceSf = 0;
+				_context.SubFeePrice.Where(y => _context.SubFeeByContract.Where(z => z.MaDieuPhoi == item.dp.Id).Select(z => z.PriceId).Contains(y.PriceId) && y.CusType == "KH").ToList().ForEach(async x =>
 				{
-					double priceSf = 0;
-					_context.SubFeePrice.Where(y => _context.SubFeeByContract.Where(z => z.MaDieuPhoi == item.dp.Id).Select(z => z.PriceId).Contains(y.PriceId) && y.CusType == "KH").ToList().ForEach(async x =>
-					{
-						priceSf = x.Price * await _priceTable.GetPriceTradeNow(x.PriceType);
-					});
-					double sfI = await _context.SfeeByTcommand.Where(y => y.IdTcommand == item.dp.Id && y.ApproveStatus == 14).SumAsync(y => y.Price);
-					double priceCus = await _priceTable.GetPriceTradeNow(item.dp.LoaiTienTeKh);
-					double priceSup = await _priceTable.GetPriceTradeNow(item.dp.LoaiTienTeNcc);
+					priceSf = x.Price * await _priceTable.GetPriceTradeNow(x.PriceType);
+				});
 
-					listDataCustomer.Add(new DataReportOfCustomer()
-					{
-						customer = item.vd.MaKh,
-						totalSf = ((double)item.dp.DonGiaNcc * priceSup) + sfI + priceSf,
-						totalMoney = sfI + ((double)item.dp.DonGiaKh * priceCus) + priceSf,
-						profit = ((double)item.dp.DonGiaKh.Value * priceCus) - ((double)item.dp.DonGiaNcc.Value * priceSup)
-					});
-				}
+				listDataCustomer.Add(new DataReportOfCustomer()
+				{
+					customer = item.vd.MaKh,
+					totalSf = ((double)item.dp.DonGiaNcc * await _priceTable.GetPriceTradeNow(item.dp.LoaiTienTeNcc)) +
+					await _context.SfeeByTcommand.Where(y => y.IdTcommand == item.dp.Id && y.ApproveStatus == 14).SumAsync(y => y.Price) +
+					priceSf,
+					totalMoney = await _context.SfeeByTcommand.Where(y => y.IdTcommand == item.dp.Id && y.ApproveStatus == 14).SumAsync(y => y.Price) +
+					((double)item.dp.DonGiaKh * await _priceTable.GetPriceTradeNow(item.dp.LoaiTienTeKh)) +
+					priceSf,
+					profit = ((double)item.dp.DonGiaKh.Value * await _priceTable.GetPriceTradeNow(item.dp.LoaiTienTeKh)) - ((double)item.dp.DonGiaNcc.Value * await _priceTable.GetPriceTradeNow(item.dp.LoaiTienTeNcc))
+				});
 			}
 
-			foreach (var ct in getListContract.Where(x => x.MaKh.Substring(0, 3) == "SUP"))
+			foreach (var item in listData)
 			{
-				var getList = await data.Where(x => x.dp.DonViVanTai == ct.MaKh
-				&& x.dp.CreatedTime >= new DateTime(dateTime.Year, dateTime.Month, ct.NgayThanhToan.Value).AddMonths(-1).AddDays(1)
-				&& x.dp.CreatedTime <= new DateTime(dateTime.Year, dateTime.Month, ct.NgayThanhToan.Value)).ToListAsync();
-
-				foreach (var item in getList)
+				double priceSf = 0;
+				_context.SubFeePrice.Where(y => _context.SubFeeByContract.Where(z => z.MaDieuPhoi == item.dp.Id).Select(z => z.PriceId).Contains(y.PriceId) && y.CusType == "NCC").ToList().ForEach(async x =>
 				{
-					double priceSf = 0;
-					_context.SubFeePrice.Where(y => _context.SubFeeByContract.Where(z => z.MaDieuPhoi == item.dp.Id).Select(z => z.PriceId).Contains(y.PriceId) && y.CusType == "NCC").ToList().ForEach(async x =>
-					{
-						priceSf = x.Price * await _priceTable.GetPriceTradeNow(x.PriceType);
-					});
-					double sfI = await _context.SfeeByTcommand.Where(y => y.IdTcommand == item.dp.Id && y.ApproveStatus == 14).SumAsync(y => y.Price);
-					double priceCus = await _priceTable.GetPriceTradeNow(item.dp.LoaiTienTeKh);
-					double priceSup = await _priceTable.GetPriceTradeNow(item.dp.LoaiTienTeNcc);
+					priceSf = x.Price * await _priceTable.GetPriceTradeNow(x.PriceType);
+				});
 
-					listDataSuplier.Add(new DataReportOfCustomer()
-					{
-						customer = item.dp.DonViVanTai,
-						totalSf = ((double)item.dp.DonGiaNcc * priceSup) + sfI + priceSf,
-						totalMoney = sfI + ((double)item.dp.DonGiaKh * priceCus) + priceSf,
-						profit = ((double)item.dp.DonGiaKh.Value * priceCus) - ((double)item.dp.DonGiaNcc.Value * priceSup)
-					});
-				}
+				listDataSuplier.Add(new DataReportOfCustomer()
+				{
+					customer = item.dp.DonViVanTai,
+					totalSf = ((double)item.dp.DonGiaNcc * await _priceTable.GetPriceTradeNow(item.dp.LoaiTienTeNcc)) +
+					await _context.SfeeByTcommand.Where(y => y.IdTcommand == item.dp.Id && y.ApproveStatus == 14).SumAsync(y => y.Price) +
+					priceSf,
+					totalMoney = await _context.SfeeByTcommand.Where(y => y.IdTcommand == item.dp.Id && y.ApproveStatus == 14).SumAsync(y => y.Price) +
+					((double)item.dp.DonGiaKh * await _priceTable.GetPriceTradeNow(item.dp.LoaiTienTeKh)) +
+					priceSf,
+					profit = ((double)item.dp.DonGiaKh.Value * await _priceTable.GetPriceTradeNow(item.dp.LoaiTienTeKh)) - ((double)item.dp.DonGiaNcc.Value * await _priceTable.GetPriceTradeNow(item.dp.LoaiTienTeNcc))
+				});
 			}
 
-			var DataCustomer = new List<CustomerReport>();
-			var DataSupplier = new List<CustomerReport>();
-
-			foreach (var ct in getListContract.Where(x => x.MaKh.Substring(0, 3) == "CUS"))
+			var DataCustomer = listData.GroupBy(x => x.vd.MaKh).Select(x => new CustomerReport
 			{
-				var getDataCus = await data.Where(x => x.vd.MaKh == ct.MaKh
-				   && x.dp.CreatedTime >= new DateTime(dateTime.Year, dateTime.Month, ct.NgayThanhToan.Value).AddMonths(-1).AddDays(1)
-				   && x.dp.CreatedTime <= new DateTime(dateTime.Year, dateTime.Month, ct.NgayThanhToan.Value)).ToListAsync();
+				CustomerName = _context.KhachHang.Where(v => v.MaKh == x.First().vd.MaKh).Select(v => v.TenKh).FirstOrDefault(),
+				totalBooking = _context.VanDon.Where(c => x.Select(z => z.vd.MaVanDon).Contains(c.MaVanDon)).Count(),
+				Total = x.Count(),
+				CONT20 = x.Count(c => c.dp.MaLoaiPhuongTien == "CONT20"),
+				CONT40 = x.Count(c => c.dp.MaLoaiPhuongTien == "CONT40"),
+				CONT40RF = x.Count(c => c.dp.MaLoaiPhuongTien == "CONT40RF"),
+				CONT45 = x.Count(c => c.dp.MaLoaiPhuongTien == "CONT45"),
+				TRUCK1 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK1"),
+				TRUCK15 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK1.5"),
+				TRUCK17 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK1.7"),
+				TRUCK10 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK10"),
+				TRUCK150 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK15"),
+				TRUCK2 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK2"),
+				TRUCK25 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK2.5"),
+				TRUCK3 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK3"),
+				TRUCK35 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK3.5"),
+				TRUCK5 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK5"),
+				TRUCK7 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK7"),
+				TRUCK8 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK8"),
+				TRUCK9 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK9"),
+				totalSf = listDataCustomer.Where(y => y.customer == x.Select(z => z.vd.MaKh).FirstOrDefault()).Sum(y => y.totalSf),
+				totalMoney = listDataCustomer.Where(y => y.customer == x.Select(z => z.vd.MaKh).FirstOrDefault()).Sum(y => y.totalMoney),
+				profit = listDataCustomer.Where(y => y.customer == x.Select(z => z.vd.MaKh).FirstOrDefault()).Sum(y => y.profit),
+			}).OrderBy(x => x.CustomerName).ToList();
 
-				if (getDataCus.Count > 0)
-				{
-					DataCustomer.Add(getDataCus.GroupBy(x => x.vd.MaKh).Select(x => new CustomerReport
-					{
-						CustomerName = _context.KhachHang.Where(v => v.MaKh == ct.MaKh).Select(v => v.TenKh).FirstOrDefault(),
-						totalBooking = _context.VanDon.Where(c => x.Select(z => z.vd.MaVanDon).Contains(c.MaVanDon)).Count(),
-						Total = x.Count(),
-						CONT20 = x.Count(c => c.dp.MaLoaiPhuongTien == "CONT20"),
-						CONT40 = x.Count(c => c.dp.MaLoaiPhuongTien == "CONT40"),
-						CONT40RF = x.Count(c => c.dp.MaLoaiPhuongTien == "CONT40RF"),
-						CONT45 = x.Count(c => c.dp.MaLoaiPhuongTien == "CONT45"),
-						TRUCK1 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK1"),
-						TRUCK15 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK1.5"),
-						TRUCK17 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK1.7"),
-						TRUCK10 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK10"),
-						TRUCK150 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK15"),
-						TRUCK2 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK2"),
-						TRUCK25 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK2.5"),
-						TRUCK3 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK3"),
-						TRUCK35 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK3.5"),
-						TRUCK5 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK5"),
-						TRUCK7 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK7"),
-						TRUCK8 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK8"),
-						TRUCK9 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK9"),
-						totalSf = listDataCustomer.Where(y => y.customer == x.Select(z => z.vd.MaKh).FirstOrDefault()).Sum(y => y.totalSf),
-						totalMoney = listDataCustomer.Where(y => y.customer == x.Select(z => z.vd.MaKh).FirstOrDefault()).Sum(y => y.totalMoney),
-						profit = listDataCustomer.Where(y => y.customer == x.Select(z => z.vd.MaKh).FirstOrDefault()).Sum(y => y.profit),
-					}).FirstOrDefault());
-				}
-			}
-
-			foreach (var ct in getListContract.Where(x => x.MaKh.Substring(0, 3) == "SUP"))
+			var DataSupplier = listData.GroupBy(x => x.dp.DonViVanTai).Select(x => new CustomerReport
 			{
-				var getDataSup = await data.Where(x => x.dp.DonViVanTai == ct.MaKh
-				   && x.dp.CreatedTime >= new DateTime(dateTime.Year, dateTime.Month, ct.NgayThanhToan.Value).AddMonths(-1).AddDays(1)
-				   && x.dp.CreatedTime <= new DateTime(dateTime.Year, dateTime.Month, ct.NgayThanhToan.Value)).ToListAsync();
+				CustomerName = _context.KhachHang.Where(v => v.MaKh == x.First().dp.DonViVanTai).Select(v => v.TenKh).FirstOrDefault(),
+				Total = x.Count(),
+				CONT20 = x.Count(c => c.dp.MaLoaiPhuongTien == "CONT20"),
+				CONT40 = x.Count(c => c.dp.MaLoaiPhuongTien == "CONT40"),
+				CONT40RF = x.Count(c => c.dp.MaLoaiPhuongTien == "CONT40RF"),
+				CONT45 = x.Count(c => c.dp.MaLoaiPhuongTien == "CONT45"),
+				TRUCK1 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK1"),
+				TRUCK15 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK1.5"),
+				TRUCK17 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK1.7"),
+				TRUCK10 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK10"),
+				TRUCK150 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK15"),
+				TRUCK2 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK2"),
+				TRUCK25 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK2.5"),
+				TRUCK3 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK3"),
+				TRUCK35 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK3.5"),
+				TRUCK5 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK5"),
+				TRUCK7 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK7"),
+				TRUCK8 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK8"),
+				TRUCK9 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK9"),
+				totalSf = listDataSuplier.Where(y => y.customer == x.Select(z => z.dp.DonViVanTai).FirstOrDefault()).Sum(y => y.totalSf),
+				totalMoney = listDataSuplier.Where(y => y.customer == x.Select(z => z.dp.DonViVanTai).FirstOrDefault()).Sum(y => y.totalMoney),
+				profit = listDataSuplier.Where(y => y.customer == x.Select(z => z.dp.DonViVanTai).FirstOrDefault()).Sum(y => y.profit),
+			}).OrderBy(x => x.CustomerName).ToList();
 
-				if (getDataSup.Count > 0)
-				{
-					DataSupplier.Add(getDataSup.GroupBy(x => x.dp.DonViVanTai).Select(x => new CustomerReport
-					{
-						CustomerName = _context.KhachHang.Where(v => v.MaKh == ct.MaKh).Select(v => v.TenKh).FirstOrDefault(),
-						Total = x.Count(),
-						CONT20 = x.Count(c => c.dp.MaLoaiPhuongTien == "CONT20"),
-						CONT40 = x.Count(c => c.dp.MaLoaiPhuongTien == "CONT40"),
-						CONT40RF = x.Count(c => c.dp.MaLoaiPhuongTien == "CONT40RF"),
-						CONT45 = x.Count(c => c.dp.MaLoaiPhuongTien == "CONT45"),
-						TRUCK1 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK1"),
-						TRUCK15 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK1.5"),
-						TRUCK17 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK1.7"),
-						TRUCK10 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK10"),
-						TRUCK150 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK15"),
-						TRUCK2 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK2"),
-						TRUCK25 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK2.5"),
-						TRUCK3 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK3"),
-						TRUCK35 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK3.5"),
-						TRUCK5 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK5"),
-						TRUCK7 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK7"),
-						TRUCK8 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK8"),
-						TRUCK9 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK9"),
-						totalSf = listDataSuplier.Where(y => y.customer == x.Select(z => z.dp.DonViVanTai).FirstOrDefault()).Sum(y => y.totalSf),
-						totalMoney = listDataSuplier.Where(y => y.customer == x.Select(z => z.dp.DonViVanTai).FirstOrDefault()).Sum(y => y.totalMoney),
-						profit = listDataSuplier.Where(y => y.customer == x.Select(z => z.dp.DonViVanTai).FirstOrDefault()).Sum(y => y.profit),
-					}).FirstOrDefault());
-				}
-			}
-
+			var listPartner = await _context.KhachHang.ToListAsync();
 			return new TransportReport()
 			{
-				customerReports = DataCustomer.OrderBy(x => x.CustomerName).ToList(),
-				supllierReports = DataSupplier.OrderBy(x => x.CustomerName).ToList(),
+				customerReports = DataCustomer,
+				supllierReports = DataSupplier,
 			};
+
+
+			#region fix lấy thống kê theo kỳ
+			//var data = from vd in _context.VanDon
+			//		   join dp in _context.DieuPhoi
+			//		   on vd.MaVanDon equals dp.MaVanDon
+			//		   where dp.TrangThai == 20
+			//		   select new { vd, dp };
+
+			//var listDataCustomer = new List<DataReportOfCustomer>();
+			//var listDataSuplier = new List<DataReportOfCustomer>();
+
+			//var getListContract = await _context.HopDongVaPhuLuc.Where(x => x.MaHopDongCha == null).ToListAsync();
+
+			//foreach (var ct in getListContract.Where(x => x.MaKh.Substring(0, 3) == "CUS"))
+			//{
+			//	var getList = await data.Where(x => x.vd.MaKh == ct.MaKh
+			//	&& x.dp.CreatedTime >= new DateTime(dateTime.Year, dateTime.Month, ct.NgayThanhToan.Value).AddMonths(-1).AddDays(1)
+			//	&& x.dp.CreatedTime <= new DateTime(dateTime.Year, dateTime.Month, ct.NgayThanhToan.Value)).ToListAsync();
+
+			//	foreach (var item in getList)
+			//	{
+			//		double priceSf = 0;
+			//		_context.SubFeePrice.Where(y => _context.SubFeeByContract.Where(z => z.MaDieuPhoi == item.dp.Id).Select(z => z.PriceId).Contains(y.PriceId) && y.CusType == "KH").ToList().ForEach(async x =>
+			//		{
+			//			priceSf = x.Price * await _priceTable.GetPriceTradeNow(x.PriceType);
+			//		});
+			//		double sfI = await _context.SfeeByTcommand.Where(y => y.IdTcommand == item.dp.Id && y.ApproveStatus == 14).SumAsync(y => y.Price);
+			//		double priceCus = await _priceTable.GetPriceTradeNow(item.dp.LoaiTienTeKh);
+			//		double priceSup = await _priceTable.GetPriceTradeNow(item.dp.LoaiTienTeNcc);
+
+			//		listDataCustomer.Add(new DataReportOfCustomer()
+			//		{
+			//			customer = item.vd.MaKh,
+			//			totalSf = ((double)item.dp.DonGiaNcc * priceSup) + sfI + priceSf,
+			//			totalMoney = sfI + ((double)item.dp.DonGiaKh * priceCus) + priceSf,
+			//			profit = ((double)item.dp.DonGiaKh.Value * priceCus) - ((double)item.dp.DonGiaNcc.Value * priceSup)
+			//		});
+			//	}
+			//}
+
+			//foreach (var ct in getListContract.Where(x => x.MaKh.Substring(0, 3) == "SUP"))
+			//{
+			//	var getList = await data.Where(x => x.dp.DonViVanTai == ct.MaKh
+			//	&& x.dp.CreatedTime >= new DateTime(dateTime.Year, dateTime.Month, ct.NgayThanhToan.Value).AddMonths(-1).AddDays(1)
+			//	&& x.dp.CreatedTime <= new DateTime(dateTime.Year, dateTime.Month, ct.NgayThanhToan.Value)).ToListAsync();
+
+			//	foreach (var item in getList)
+			//	{
+			//		double priceSf = 0;
+			//		_context.SubFeePrice.Where(y => _context.SubFeeByContract.Where(z => z.MaDieuPhoi == item.dp.Id).Select(z => z.PriceId).Contains(y.PriceId) && y.CusType == "NCC").ToList().ForEach(async x =>
+			//		{
+			//			priceSf = x.Price * await _priceTable.GetPriceTradeNow(x.PriceType);
+			//		});
+			//		double sfI = await _context.SfeeByTcommand.Where(y => y.IdTcommand == item.dp.Id && y.ApproveStatus == 14).SumAsync(y => y.Price);
+			//		double priceCus = await _priceTable.GetPriceTradeNow(item.dp.LoaiTienTeKh);
+			//		double priceSup = await _priceTable.GetPriceTradeNow(item.dp.LoaiTienTeNcc);
+
+			//		listDataSuplier.Add(new DataReportOfCustomer()
+			//		{
+			//			customer = item.dp.DonViVanTai,
+			//			totalSf = ((double)item.dp.DonGiaNcc * priceSup) + sfI + priceSf,
+			//			totalMoney = sfI + ((double)item.dp.DonGiaKh * priceCus) + priceSf,
+			//			profit = ((double)item.dp.DonGiaKh.Value * priceCus) - ((double)item.dp.DonGiaNcc.Value * priceSup)
+			//		});
+			//	}
+			//}
+
+			//var DataCustomer = new List<CustomerReport>();
+			//var DataSupplier = new List<CustomerReport>();
+
+			//foreach (var ct in getListContract.Where(x => x.MaKh.Substring(0, 3) == "CUS"))
+			//{
+			//	var getDataCus = await data.Where(x => x.vd.MaKh == ct.MaKh
+			//	   && x.dp.CreatedTime >= new DateTime(dateTime.Year, dateTime.Month, ct.NgayThanhToan.Value).AddMonths(-1).AddDays(1)
+			//	   && x.dp.CreatedTime <= new DateTime(dateTime.Year, dateTime.Month, ct.NgayThanhToan.Value)).ToListAsync();
+
+			//	if (getDataCus.Count > 0)
+			//	{
+			//		DataCustomer.Add(getDataCus.GroupBy(x => x.vd.MaKh).Select(x => new CustomerReport
+			//		{
+			//			CustomerName = _context.KhachHang.Where(v => v.MaKh == ct.MaKh).Select(v => v.TenKh).FirstOrDefault(),
+			//			totalBooking = _context.VanDon.Where(c => x.Select(z => z.vd.MaVanDon).Contains(c.MaVanDon)).Count(),
+			//			Total = x.Count(),
+			//			CONT20 = x.Count(c => c.dp.MaLoaiPhuongTien == "CONT20"),
+			//			CONT40 = x.Count(c => c.dp.MaLoaiPhuongTien == "CONT40"),
+			//			CONT40RF = x.Count(c => c.dp.MaLoaiPhuongTien == "CONT40RF"),
+			//			CONT45 = x.Count(c => c.dp.MaLoaiPhuongTien == "CONT45"),
+			//			TRUCK1 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK1"),
+			//			TRUCK15 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK1.5"),
+			//			TRUCK17 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK1.7"),
+			//			TRUCK10 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK10"),
+			//			TRUCK150 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK15"),
+			//			TRUCK2 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK2"),
+			//			TRUCK25 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK2.5"),
+			//			TRUCK3 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK3"),
+			//			TRUCK35 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK3.5"),
+			//			TRUCK5 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK5"),
+			//			TRUCK7 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK7"),
+			//			TRUCK8 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK8"),
+			//			TRUCK9 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK9"),
+			//			totalSf = listDataCustomer.Where(y => y.customer == x.Select(z => z.vd.MaKh).FirstOrDefault()).Sum(y => y.totalSf),
+			//			totalMoney = listDataCustomer.Where(y => y.customer == x.Select(z => z.vd.MaKh).FirstOrDefault()).Sum(y => y.totalMoney),
+			//			profit = listDataCustomer.Where(y => y.customer == x.Select(z => z.vd.MaKh).FirstOrDefault()).Sum(y => y.profit),
+			//		}).FirstOrDefault());
+			//	}
+			//}
+
+			//foreach (var ct in getListContract.Where(x => x.MaKh.Substring(0, 3) == "SUP"))
+			//{
+			//	var getDataSup = await data.Where(x => x.dp.DonViVanTai == ct.MaKh
+			//	   && x.dp.CreatedTime >= new DateTime(dateTime.Year, dateTime.Month, ct.NgayThanhToan.Value).AddMonths(-1).AddDays(1)
+			//	   && x.dp.CreatedTime <= new DateTime(dateTime.Year, dateTime.Month, ct.NgayThanhToan.Value)).ToListAsync();
+
+			//	if (getDataSup.Count > 0)
+			//	{
+			//		DataSupplier.Add(getDataSup.GroupBy(x => x.dp.DonViVanTai).Select(x => new CustomerReport
+			//		{
+			//			CustomerName = _context.KhachHang.Where(v => v.MaKh == ct.MaKh).Select(v => v.TenKh).FirstOrDefault(),
+			//			Total = x.Count(),
+			//			CONT20 = x.Count(c => c.dp.MaLoaiPhuongTien == "CONT20"),
+			//			CONT40 = x.Count(c => c.dp.MaLoaiPhuongTien == "CONT40"),
+			//			CONT40RF = x.Count(c => c.dp.MaLoaiPhuongTien == "CONT40RF"),
+			//			CONT45 = x.Count(c => c.dp.MaLoaiPhuongTien == "CONT45"),
+			//			TRUCK1 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK1"),
+			//			TRUCK15 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK1.5"),
+			//			TRUCK17 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK1.7"),
+			//			TRUCK10 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK10"),
+			//			TRUCK150 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK15"),
+			//			TRUCK2 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK2"),
+			//			TRUCK25 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK2.5"),
+			//			TRUCK3 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK3"),
+			//			TRUCK35 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK3.5"),
+			//			TRUCK5 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK5"),
+			//			TRUCK7 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK7"),
+			//			TRUCK8 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK8"),
+			//			TRUCK9 = x.Count(c => c.dp.MaLoaiPhuongTien == "TRUCK9"),
+			//			totalSf = listDataSuplier.Where(y => y.customer == x.Select(z => z.dp.DonViVanTai).FirstOrDefault()).Sum(y => y.totalSf),
+			//			totalMoney = listDataSuplier.Where(y => y.customer == x.Select(z => z.dp.DonViVanTai).FirstOrDefault()).Sum(y => y.totalMoney),
+			//			profit = listDataSuplier.Where(y => y.customer == x.Select(z => z.dp.DonViVanTai).FirstOrDefault()).Sum(y => y.profit),
+			//		}).FirstOrDefault());
+			//	}
+			//}
+
+			//return new TransportReport()
+			//{
+			//	customerReports = DataCustomer.OrderBy(x => x.CustomerName).ToList(),
+			//	supllierReports = DataSupplier.OrderBy(x => x.CustomerName).ToList(),
+			//};
+			#endregion
 		}
 	}
 }

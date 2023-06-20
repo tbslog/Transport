@@ -114,6 +114,22 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
 		[HttpGet]
 		[Route("[action]")]
+		public async Task<IActionResult> LoadCurrencyExchange()
+		{
+			var list = await _tMSContext.LoaiTienTe.ToListAsync();
+			return Ok(list);
+		}
+
+		[HttpGet]
+		[Route("[action]")]
+		public async Task<IActionResult> GetListBanks()
+		{
+			var list = await _tMSContext.NganHang.ToListAsync();
+			return Ok(list);
+		}
+
+		[HttpGet]
+		[Route("[action]")]
 		public async Task<IActionResult> LoadDataPriceTrade()
 		{
 			var getdata = await _tMSContext.LoaiTienTe.ToListAsync();

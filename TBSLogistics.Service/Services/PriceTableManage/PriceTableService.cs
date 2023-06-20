@@ -35,7 +35,7 @@ namespace TBSLogistics.Service.Services.PriceTableManage
 			tempData = _common.DecodeToken(_httpContextAccessor.HttpContext.Request.Headers["Authorization"][0].ToString().Replace("Bearer ", ""));
 		}
 
-		public async Task<BoolActionResult> CreatePriceTable(List<CreatePriceListRequest> request)
+		public async Task<BoolActionResult> CreatePriceTable(List<CreatePriceListRequest> request, bool noContract = false)
 		{
 			try
 			{
@@ -118,17 +118,24 @@ namespace TBSLogistics.Service.Services.PriceTableManage
 						ErrorValidate += "Loại tiền tiện không được hỗ trợ: " + string.Join(",", item.LoaiTienTe);
 					}
 
-					var checkContract = await _context.HopDongVaPhuLuc.Where(x => x.MaHopDong == item.MaHopDong && x.MaKh == item.MaKH && x.TrangThai == 49).FirstOrDefaultAsync();
-					if (checkContract == null)
+					if (noContract == false)
 					{
-						ErrorValidate += "Hợp đồng không thể thêm bảng giá: " + string.Join(",", item.MaHopDong);
+						var checkContract = await _context.HopDongVaPhuLuc.Where(x => x.MaHopDong == item.MaHopDong && x.MaKh == item.MaKH && x.TrangThai == 49).FirstOrDefaultAsync();
+						if (checkContract == null)
+						{
+							ErrorValidate += "Hợp đồng không thể thêm bảng giá: " + string.Join(",", item.MaHopDong);
+						}
 					}
+					else
+					{
+						var checkContract = await _context.HopDongVaPhuLuc.Where(x => x.MaHopDong == item.MaHopDong && x.MaKh == item.MaKH).FirstOrDefaultAsync();
 
-					//var getNewestContract = await _context.HopDongVaPhuLuc.Where(x => x.MaKh == checkContract.MaKh).OrderByDescending(x => x.ThoiGianBatDau).FirstOrDefaultAsync();
-					//if (getNewestContract.MaHopDong != checkContract.MaHopDong)
-					//{
-					//    ErrorValidate += "Vui Lòng Chọn Hợp Đồng Mới Nhất: " + string.Join(",", getNewestContract.MaHopDong);
-					//}
+						var getNewestContract = await _context.HopDongVaPhuLuc.Where(x => x.MaKh == checkContract.MaKh).OrderByDescending(x => x.ThoiGianBatDau).FirstOrDefaultAsync();
+						if (getNewestContract.MaHopDong != checkContract.MaHopDong)
+						{
+							ErrorValidate += "Vui Lòng Chọn Hợp Đồng Mới Nhất: " + string.Join(",", getNewestContract.MaHopDong);
+						}
+					}
 
 					var firstPlace = await _context.DiaDiem.Where(x => x.MaDiaDiem == item.DiemDau).FirstOrDefaultAsync();
 					if (firstPlace == null)

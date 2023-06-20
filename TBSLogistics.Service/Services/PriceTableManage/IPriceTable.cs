@@ -15,8 +15,8 @@ namespace TBSLogistics.Service.Services.PricelistManage
 {
     public interface IPriceTable
     {
-        Task<BoolActionResult> CreatePriceTable(List<CreatePriceListRequest> request);
-        Task<PagedResponseCustom<ListCustomerOfPriceTable>> GetListPriceTable(PaginationFilter filter);
+        Task<BoolActionResult> CreatePriceTable(List<CreatePriceListRequest> request, bool noContract);
+		Task<PagedResponseCustom<ListCustomerOfPriceTable>> GetListPriceTable(PaginationFilter filter);
         Task<PagedResponseCustom<GetPriceListRequest>> GetListPriceTableByContractId(string contractId, string onlyContractId, ListFilter listFilter, PaginationFilter filter);
         Task<List<GetPriceListRequest>> GetListPriceTableByCustommerId(string MaKH);
         Task<PagedResponseCustom<ListApprove>> GetListPriceTableApprove(string contractId, PaginationFilter filter);

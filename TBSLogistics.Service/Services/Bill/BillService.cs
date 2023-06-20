@@ -430,7 +430,7 @@ namespace TBSLogistics.Service.Services.Bill
 					MaVanDon = z.MaVanDon,
 					handlingId = z.handlingId,
 					DonViVanTai = z.DonViVanTai,
-					LoaiHangHoa = z.DonViVanTai,
+					LoaiHangHoa = z.LoaiHangHoa,
 					LoaiPhuongTien = z.LoaiPhuongTien,
 					MaSoXe = z.MaSoXe,
 					TaiXe = z.TaiXe,
@@ -605,6 +605,8 @@ namespace TBSLogistics.Service.Services.Bill
 				TenNCC = x.TenNCC,
 				DonGiaKH = x.DonGiaKH,
 				DonGiaNCC = x.DonGiaNCC,
+				CutOffDate = x.CutOffDate,
+				ThoiGianHoanThanh = x.ThoiGianHoanThanh,
 				ChiPhiPhatSinh = x.ChiPhiPhatSinh,
 			}).ToList();
 

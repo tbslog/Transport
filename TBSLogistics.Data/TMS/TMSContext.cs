@@ -50,6 +50,7 @@ namespace TBSLogistics.Data.TMS
 		public virtual DbSet<Log> Log { get; set; }
 		public virtual DbSet<LogGps> LogGps { get; set; }
 		public virtual DbSet<LogTimeUsedOfUsers> LogTimeUsedOfUsers { get; set; }
+		public virtual DbSet<NganHang> NganHang { get; set; }
 		public virtual DbSet<NguoiDung> NguoiDung { get; set; }
 		public virtual DbSet<NhomKhachHang> NhomKhachHang { get; set; }
 		public virtual DbSet<Permission> Permission { get; set; }
@@ -92,9 +93,10 @@ namespace TBSLogistics.Data.TMS
                  .AddJsonFile("appsettings.json")
                  .Build();
 
-                optionsBuilder.UseSqlServer(configuration.GetConnectionString("TMS_Local"));
+                optionsBuilder.UseSqlServer(configuration.GetConnectionString("TMS_Cloud"));
             }
         }
+
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
 			modelBuilder.Entity<Account>(entity =>
@@ -538,6 +540,15 @@ namespace TBSLogistics.Data.TMS
 			{
 				entity.Property(e => e.Id).HasColumnName("ID");
 
+				entity.Property(e => e.Bank)
+					.IsRequired()
+					.HasMaxLength(50)
+					.HasDefaultValueSql("('VCB')");
+
+				entity.Property(e => e.Creator)
+					.HasMaxLength(30)
+					.IsUnicode(false);
+
 				entity.Property(e => e.CurrencyCode)
 					.IsRequired()
 					.HasMaxLength(5)
@@ -546,12 +557,16 @@ namespace TBSLogistics.Data.TMS
 				entity.Property(e => e.CurrencyName)
 					.IsRequired()
 					.HasMaxLength(30);
+
+				entity.Property(e => e.Updater)
+					.HasMaxLength(30)
+					.IsUnicode(false);
 			});
 
 			modelBuilder.Entity<FieldOfFunction>(entity =>
 			{
 				entity.HasKey(e => e.FieldId)
-					.HasName("PK__FieldOfF__C8B6FF27C47BFD81");
+					.HasName("PK__FieldOfF__C8B6FF27056B9F4D");
 
 				entity.Property(e => e.FieldId)
 					.HasMaxLength(10)
@@ -571,13 +586,13 @@ namespace TBSLogistics.Data.TMS
 					.WithMany(p => p.FieldOfFunction)
 					.HasForeignKey(d => d.FunctionId)
 					.OnDelete(DeleteBehavior.ClientSetNull)
-					.HasConstraintName("FK__FieldOfFu__Funct__28F7FFC9");
+					.HasConstraintName("FK__FieldOfFu__Funct__18C19800");
 			});
 
 			modelBuilder.Entity<FunctionsOfSystems>(entity =>
 			{
 				entity.HasKey(e => e.FunctionId)
-					.HasName("PK__Function__31ABF918E9C2355D");
+					.HasName("PK__Function__31ABF918BF8FC989");
 
 				entity.Property(e => e.FunctionId)
 					.HasMaxLength(10)
@@ -928,28 +943,28 @@ namespace TBSLogistics.Data.TMS
 				entity.HasOne(d => d.DiemCuoiNavigation)
 					.WithMany(p => p.LogGpsDiemCuoiNavigation)
 					.HasForeignKey(d => d.DiemCuoi)
-					.HasConstraintName("FK__LogGPS__DiemCuoi__02D256E1");
+					.HasConstraintName("FK__LogGPS__DiemCuoi__71A7CADF");
 
 				entity.HasOne(d => d.DiemDauNavigation)
 					.WithMany(p => p.LogGpsDiemDauNavigation)
 					.HasForeignKey(d => d.DiemDau)
-					.HasConstraintName("FK__LogGPS__DiemDau__01DE32A8");
+					.HasConstraintName("FK__LogGPS__DiemDau__70B3A6A6");
 
 				entity.HasOne(d => d.DiemLayRongNavigation)
 					.WithMany(p => p.LogGpsDiemLayRongNavigation)
 					.HasForeignKey(d => d.DiemLayRong)
-					.HasConstraintName("FK__LogGPS__DiemLayR__7FF5EA36");
+					.HasConstraintName("FK__LogGPS__DiemLayR__6ECB5E34");
 
 				entity.HasOne(d => d.DiemTraRongNavigation)
 					.WithMany(p => p.LogGpsDiemTraRongNavigation)
 					.HasForeignKey(d => d.DiemTraRong)
-					.HasConstraintName("FK__LogGPS__DiemTraR__00EA0E6F");
+					.HasConstraintName("FK__LogGPS__DiemTraR__6FBF826D");
 
 				entity.HasOne(d => d.MaDieuPhoiNavigation)
 					.WithMany(p => p.LogGps)
 					.HasForeignKey(d => d.MaDieuPhoi)
 					.OnDelete(DeleteBehavior.ClientSetNull)
-					.HasConstraintName("FK__LogGPS__MaDieuPh__7F01C5FD");
+					.HasConstraintName("FK__LogGPS__MaDieuPh__6DD739FB");
 			});
 
 			modelBuilder.Entity<LogTimeUsedOfUsers>(entity =>
@@ -959,6 +974,20 @@ namespace TBSLogistics.Data.TMS
 				entity.Property(e => e.Token).IsRequired();
 
 				entity.Property(e => e.UserName)
+					.IsRequired()
+					.HasMaxLength(30);
+			});
+
+			modelBuilder.Entity<NganHang>(entity =>
+			{
+				entity.HasNoKey();
+
+				entity.Property(e => e.MaNganHang)
+					.IsRequired()
+					.HasMaxLength(10)
+					.IsUnicode(false);
+
+				entity.Property(e => e.TenNganHang)
 					.IsRequired()
 					.HasMaxLength(30);
 			});
@@ -1193,7 +1222,7 @@ namespace TBSLogistics.Data.TMS
 					.WithMany(p => p.SfeeByTcommand)
 					.HasForeignKey(d => d.PayForId)
 					.OnDelete(DeleteBehavior.ClientSetNull)
-					.HasConstraintName("FK__SFeeByTco__payFo__66010E09");
+					.HasConstraintName("FK__SFeeByTco__payFo__3EE740E8");
 
 				entity.HasOne(d => d.Sf)
 					.WithMany(p => p.SfeeByTcommand)
@@ -1205,7 +1234,7 @@ namespace TBSLogistics.Data.TMS
 			modelBuilder.Entity<SftPayFor>(entity =>
 			{
 				entity.HasKey(e => e.PayForId)
-					.HasName("PK__SftPayFo__8CBC50A18EC89AE2");
+					.HasName("PK__SftPayFo__8CBC50A16BB99458");
 
 				entity.Property(e => e.PayForId).HasColumnName("payForId");
 
@@ -1478,7 +1507,7 @@ namespace TBSLogistics.Data.TMS
 				entity.HasOne(d => d.MaSoXeNavigation)
 					.WithMany(p => p.TaiXeTheoChang)
 					.HasForeignKey(d => d.MaSoXe)
-					.HasConstraintName("FK_TaiXeTheoChang_XeVanChuyen");
+					.HasConstraintName("FK__TaiXeTheo__MaSoX__729BEF18");
 
 				entity.HasOne(d => d.MaTaiXeNavigation)
 					.WithMany(p => p.TaiXeTheoChang)
@@ -1549,9 +1578,7 @@ namespace TBSLogistics.Data.TMS
 			{
 				entity.Property(e => e.Id).HasColumnName("ID");
 
-				entity.Property(e => e.Creator)
-					.IsRequired()
-					.HasMaxLength(30);
+				entity.Property(e => e.Creator).HasMaxLength(30);
 
 				entity.HasOne(d => d.MaDieuPhoiNavigation)
 					.WithMany(p => p.ThaoTacTaiXe)
@@ -1713,24 +1740,24 @@ namespace TBSLogistics.Data.TMS
 					.WithMany(p => p.ValidateDataByCustomer)
 					.HasForeignKey(d => d.FieldId)
 					.OnDelete(DeleteBehavior.ClientSetNull)
-					.HasConstraintName("FK__ValidateD__Field__2EB0D91F");
+					.HasConstraintName("FK__ValidateD__Field__1E7A7156");
 
 				entity.HasOne(d => d.Function)
 					.WithMany(p => p.ValidateDataByCustomer)
 					.HasForeignKey(d => d.FunctionId)
 					.OnDelete(DeleteBehavior.ClientSetNull)
-					.HasConstraintName("FK__ValidateD__Funct__2DBCB4E6");
+					.HasConstraintName("FK__ValidateD__Funct__1D864D1D");
 
 				entity.HasOne(d => d.MaAccountNavigation)
 					.WithMany(p => p.ValidateDataByCustomer)
 					.HasForeignKey(d => d.MaAccount)
-					.HasConstraintName("FK__ValidateD__MaAcc__2CC890AD");
+					.HasConstraintName("FK__ValidateD__MaAcc__1C9228E4");
 
 				entity.HasOne(d => d.MaKhNavigation)
 					.WithMany(p => p.ValidateDataByCustomer)
 					.HasForeignKey(d => d.MaKh)
 					.OnDelete(DeleteBehavior.ClientSetNull)
-					.HasConstraintName("FK__ValidateDa__MaKH__2BD46C74");
+					.HasConstraintName("FK__ValidateDa__MaKH__1B9E04AB");
 			});
 
 			modelBuilder.Entity<VanDon>(entity =>

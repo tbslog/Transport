@@ -12,5 +12,12 @@ namespace TBSLogistics.Data.TMS
         public double? PriceSell { get; set; }
         public double? PriceTransfer { get; set; }
         public DateTime CreatedTime { get; set; }
+        public string Bank { get; set; }
+        public double? PriceFix { get; set; }
+        public string Note { get; set; }
+        public DateTime? UpdatedTime { get; set; }
+        public string Updater { get; set; }
+        public string Creator { get; set; }
+        public DateTime? DateTransfer { get; set; }
     }
 }

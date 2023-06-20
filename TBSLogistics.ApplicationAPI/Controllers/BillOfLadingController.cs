@@ -776,9 +776,9 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 				worksheet.Cell(currRow, 17).Value = item.TheTich;
 				worksheet.Cell(currRow, 18).Value = item.SoKien;
 				worksheet.Cell(currRow, 19).Value = item.TrangThai;
-				worksheet.Cell(currRow, 20).Value = item.ThoiGianTaoDon.ToString();
+				worksheet.Cell(currRow, 20).Value = item.ThoiGianTaoDon.Value.ToString("dd-MM-yyyy HH:mm:ss");
 			}
-			worksheet.Range("A1:R" + currRow).Style.Border.TopBorder = XLBorderStyleValues.Dashed;
+			worksheet.Range("A1:T" + currRow).Style.Border.TopBorder = XLBorderStyleValues.Dashed;
 			worksheet.Columns().AdjustToContents();
 
 			using var stream = new MemoryStream();

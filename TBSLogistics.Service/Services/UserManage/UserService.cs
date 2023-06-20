@@ -19,6 +19,7 @@ using TBSLogistics.Model.Model.UserModel;
 using TBSLogistics.Model.TempModel;
 using TBSLogistics.Model.Wrappers;
 using TBSLogistics.Service.Services.Common;
+using TBSLogistics.Service.Services.CurrencyExchange;
 using TBSLogistics.Service.Services.PricelistManage;
 
 namespace TBSLogistics.Service.Services.UserManage
@@ -27,13 +28,15 @@ namespace TBSLogistics.Service.Services.UserManage
 	{
 		private readonly TMSContext _context;
 		private readonly ICommon _common;
+		private readonly ICurrencyExchange _currencyExchange;
 		private readonly IHttpContextAccessor _httpContextAccessor;
 		private TempData tempData;
 
-		public UserService(TMSContext context, ICommon common, IHttpContextAccessor httpContextAccessor)
+		public UserService(TMSContext context, ICommon common, IHttpContextAccessor httpContextAccessor,ICurrencyExchange currencyExchange)
 		{
 			_httpContextAccessor = httpContextAccessor;
 			_common = common;
+			_currencyExchange = currencyExchange;
 			_context = context;
 			tempData = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToArray().Length > 0 ? _common.DecodeToken(_httpContextAccessor.HttpContext.Request.Headers["Authorization"][0].ToString().Replace("Bearer ", "")) : new TempData();
 		}
@@ -572,7 +575,7 @@ namespace TBSLogistics.Service.Services.UserManage
 					return null;
 				}
 
-				await GetPriceTrade();
+				await _currencyExchange.GetPriceTrade();
 
 				return new GetUserRequest
 				{
@@ -848,67 +851,6 @@ namespace TBSLogistics.Service.Services.UserManage
 
 		}
 
-		private async Task<BoolActionResult> GetPriceTrade()
-		{
-			var checkPriceTrade = await _context.ExchangeRate.Where(x => x.CreatedTime.Date == DateTime.Now.Date).ToListAsync();
-
-			if (checkPriceTrade.Count() > 0)
-			{
-				return new BoolActionResult { isSuccess = true };
-			}
-
-			try
-			{
-				XmlDocument xmlDcoument = new XmlDocument();
-				xmlDcoument.Load("https://portal.vietcombank.com.vn/Usercontrols/TVPortal.TyGia/pXML.aspx");
-
-				XmlNodeList xmlNodeList = xmlDcoument.DocumentElement.SelectNodes("/ExrateList");
-
-				var dataFTrade = new List<ForeignTrade>();
-
-				foreach (XmlNode xmlNode in xmlNodeList)
-				{
-					foreach (XmlNode item in xmlNode.ChildNodes)
-					{
-						if (item.Name == "Exrate")
-						{
-							dataFTrade.Add(new ForeignTrade
-							{
-								CurrencyCode = item.Attributes.GetNamedItem("CurrencyCode").Value.ToString().Trim(),
-								CurrencyName = item.Attributes.GetNamedItem("CurrencyName").Value.ToString().Trim(),
-								Buy = item.Attributes.GetNamedItem("Buy").Value.ToString().Trim() == "-" ? null : item.Attributes.GetNamedItem("Buy").Value.ToString().Trim(),
-								Transfer = item.Attributes.GetNamedItem("Transfer").Value.ToString().Trim() == "-" ? null : item.Attributes.GetNamedItem("Transfer").Value.ToString().Trim(),
-								Sell = item.Attributes.GetNamedItem("Sell").Value.ToString().Trim() == "-" ? null : item.Attributes.GetNamedItem("Sell").Value.ToString().Trim(),
-							});
-						}
-					}
-				}
-
-				await _context.ExchangeRate.AddRangeAsync(dataFTrade.Select(x => new ExchangeRate()
-				{
-					CurrencyCode = x.CurrencyCode,
-					CurrencyName = x.CurrencyName,
-					PriceBuy = x.Buy == null ? null : double.Parse(x.Buy.Trim(), CultureInfo.InvariantCulture),
-					PriceSell = x.Sell == null ? null : double.Parse(x.Sell.Trim(), CultureInfo.InvariantCulture),
-					PriceTransfer = x.Transfer == null ? null : double.Parse(x.Transfer.Trim(), CultureInfo.InvariantCulture),
-					CreatedTime = DateTime.Now,
-				}));
-
-				var result = await _context.SaveChangesAsync();
-
-				if (result > 0)
-				{
-					return new BoolActionResult { isSuccess = true };
-				}
-				else
-				{
-					return new BoolActionResult { isSuccess = false };
-				}
-			}
-			catch (Exception ex)
-			{
-				return new BoolActionResult { isSuccess = false, Message = ex.ToString() };
-			}
-		}
+	
 	}
 }
