@@ -7,9 +7,9 @@ import moment from "moment";
 import { Modal } from "bootstrap";
 import DatePicker from "react-datepicker";
 import { ToastError } from "../Common/FuncToast";
-import DetailBillByTransport from "./DetailBillByContract";
-import DetailBillCustomer from "./DetailBillCustomer";
 import LoadingPage from "../Common/Loading/LoadingPage";
+import ListBillDetail from "./ListBillDetail";
+import DetailBillById from "./DetailBillById";
 
 const customStyles = {
   rows: {
@@ -50,9 +50,12 @@ const customStyles = {
   }),
 };
 
-const BillPageCustomer = () => {
+const BillPageCustomer = (props) => {
+  const { listBank } = props;
   const {
     control,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm({
     mode: "onChange",
@@ -61,8 +64,8 @@ const BillPageCustomer = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [totalRows, setTotalRows] = useState(0);
-  const [perPage, setPerPage] = useState(10);
-  const [page, setPage] = useState(0);
+  const [perPage, setPerPage] = useState(30);
+  const [page, setPage] = useState(1);
   const [keySearch, setKeySearch] = useState("");
 
   const [ShowModal, SetShowModal] = useState("");
@@ -257,9 +260,9 @@ const BillPageCustomer = () => {
             });
           });
         setListCustomer(arrKh);
-      }
 
-      fetchData(1, "", "", "", "", new Date());
+        await fetchData(1, "", "", "", "", new Date());
+      }
     })();
   }, []);
 
@@ -284,6 +287,7 @@ const BillPageCustomer = () => {
     customerId = "",
     datePay
   ) => {
+    setLoading(true);
     if (KeyWord !== "") {
       KeyWord = keySearch;
     }
@@ -298,13 +302,14 @@ const BillPageCustomer = () => {
       )}&fromDate=${fromDate}&toDate=${toDate}&customerId=${customerId}&customerType=KH`
     );
 
+    setLoading(false);
     setData(dataBills.data);
     setTotalRows(dataBills.totalRecords);
   };
 
-  const handlePageChange = (page) => {
+  const handlePageChange = async (page) => {
     setPage(page);
-    fetchData(page, keySearch, fromDate, toDate, cusSelected, datePay);
+    await fetchData(page, keySearch, fromDate, toDate, cusSelected, datePay);
   };
 
   const handlePerRowsChange = async (newPerPage, page) => {
@@ -325,31 +330,41 @@ const BillPageCustomer = () => {
 
   const handleOnChangeFilterSelect = async (val) => {
     if (val) {
+      setValue("listCustomers", val);
       setCusselected(val.value);
       await fetchData(page, keySearch, fromDate, toDate, val.value, datePay);
     }
   };
 
-  const handleButtonClick = async (value) => {
+  const handleButtonClick = (value) => {
     setSelectIdClick(value);
     showModalForm();
   };
 
   const LoadBillOfCus = async (val) => {
     setDatePay(new Date(val));
-    fetchData(page, keySearch, fromDate, toDate, cusSelected, new Date(val));
+    await fetchData(
+      page,
+      keySearch,
+      fromDate,
+      toDate,
+      cusSelected,
+      new Date(val)
+    );
   };
 
   const handleSearchClick = () => {
+    setLoading(true);
     fetchData(page, keySearch, fromDate, toDate, cusSelected, datePay);
+    setLoading(false);
   };
 
-  const handleRefeshDataClick = () => {
+  const handleRefeshDataClick = async () => {
     setKeySearch("");
     setFromDate("");
     setToDate("");
     setData([]);
-    fetchData(1, "", "", "", "", new Date());
+    await fetchData(1, "", "", "", cusSelected, new Date());
   };
 
   const ExpandedComponent = ({ data }) => {
@@ -361,12 +376,10 @@ const BillPageCustomer = () => {
               {
                 cell: (val) => (
                   <button
-                    onClick={() =>
-                      handleButtonClick(
-                        val,
-                        SetShowModal("DetailBillByTransport")
-                      )
-                    }
+                    onClick={() => {
+                      handleButtonClick(val);
+                      SetShowModal("DetailBillByHandling");
+                    }}
                     type="button"
                     className="btn btn-title btn-sm btn-default mx-1"
                     gloss="Xem Hóa Đơn"
@@ -469,7 +482,6 @@ const BillPageCustomer = () => {
               },
             ]}
             data={data.listBillHandlingWebs}
-            progressPending={loading}
             highlightOnHover
             direction="auto"
             customStyles={customStyles}
@@ -486,9 +498,12 @@ const BillPageCustomer = () => {
       return;
     }
     setLoading(true);
+
     let dateGet = moment(datePay).format("YYYY-MM-DD");
     const getFileDownLoad = await getFile(
-      `Bills/ExportExcelBill?customerId=${cusSelected}&date=${dateGet}&customerType=KH`,
+      `Bills/ExportExcelBill?customerId=${cusSelected}&date=${dateGet}&customerType=${
+        !cusSelected ? "KH" : ""
+      }`,
       "HoaDon" + moment(new Date()).format("DD/MM/YYYY HHmmss")
     );
     setLoading(false);
@@ -506,7 +521,7 @@ const BillPageCustomer = () => {
         </div>
       </section>
 
-      {loading && loading === true ? (
+      {loading === true ? (
         <>
           <LoadingPage></LoadingPage>
         </>
@@ -528,9 +543,8 @@ const BillPageCustomer = () => {
                                 {...field}
                                 className="basic-multi-select"
                                 classNamePrefix={"form-control"}
-                                value={field.value}
+                                value={watch("listCustomers")}
                                 options={listCustomer}
-                                styles={customStyles}
                                 onChange={(field) =>
                                   handleOnChangeFilterSelect(field)
                                 }
@@ -641,6 +655,7 @@ const BillPageCustomer = () => {
                     pagination
                     paginationServer
                     paginationTotalRows={totalRows}
+                    paginationRowsPerPageOptions={[30, 50, 80, 100]}
                     onSelectedRowsChange={handleChange}
                     onChangeRowsPerPage={handlePerRowsChange}
                     onChangePage={handlePageChange}
@@ -708,15 +723,26 @@ const BillPageCustomer = () => {
                   <div className="modal-body">
                     <>
                       {ShowModal === "DetailBill" && (
-                        <DetailBillCustomer
-                          customer={listCustomer.find(
-                            (x) => x.value === cusSelected
-                          )}
+                        <ListBillDetail
+                          customer={watch("listCustomers")}
                           datePay={datePay}
+                          listBank={listBank}
+                          cusType={"KH"}
                         />
                       )}
                       {ShowModal === "DetailBillByTransport" && (
-                        <DetailBillByTransport dataClick={selectIdClick} />
+                        <DetailBillById
+                          dataClick={selectIdClick}
+                          listBank={listBank}
+                          cusType={"KH"}
+                        />
+                      )}
+                      {ShowModal === "DetailBillByHandling" && (
+                        <DetailBillById
+                          dataClick={selectIdClick}
+                          listBank={listBank}
+                          cusType={"KH"}
+                        />
                       )}
                     </>
                   </div>

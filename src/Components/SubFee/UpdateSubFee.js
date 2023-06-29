@@ -400,9 +400,7 @@ const UpdateSubFee = (props) => {
               </div>
               <div className="col col-sm">
                 <div className="form-group">
-                  <label htmlFor="KhachHang">
-                    Khách Hàng / Nhà Cung Cấp(*)
-                  </label>
+                  <label htmlFor="KhachHang">Đối Tác(*)</label>
                   <Controller
                     name="MaKh"
                     control={control}

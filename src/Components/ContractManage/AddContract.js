@@ -28,12 +28,8 @@ const AddContract = (props) => {
     MaHopDong: {
       required: "Không được để trống",
       maxLength: {
-        value: 20,
-        message: "Không được vượt quá 20 ký tự",
-      },
-      pattern: {
-        value: /^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9]+(?<![_.])$/,
-        message: "Không được chứa ký tự đặc biệt",
+        value: 50,
+        message: "Không được vượt quá 50 ký tự",
       },
     },
     TenHopDong: {
@@ -58,12 +54,8 @@ const AddContract = (props) => {
     SoHopDongCha: {
       required: "Không được để trống",
       maxLength: {
-        value: 10,
-        message: "Không được vượt quá 10 ký tự",
-      },
-      pattern: {
-        value: /^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9]+(?<![_.])$/,
-        message: "Không được chứa ký tự đặc biệt",
+        value: 50,
+        message: "Không được vượt quá 50 ký tự",
       },
     },
     NgayBatDau: {
@@ -285,9 +277,7 @@ const AddContract = (props) => {
                     <div className="row">
                       <div className="col col-sm">
                         <div className="form-group">
-                          <label htmlFor="KhachHang">
-                            Khách Hàng/ Nhà Cung Cấp(*)
-                          </label>
+                          <label htmlFor="KhachHang">Chọn Đối Tác(*)</label>
                           <Controller
                             name="MaKh"
                             control={control}
@@ -515,13 +505,13 @@ const AddContract = (props) => {
                       <div className="col col-sm">
                         <div className="form-group">
                           <label htmlFor="NgayThanhToan">
-                            Ngày Thanh Toán(*)
+                            Ngày Chốt Sản Lượng(*)
                           </label>
                           <input
                             type="text"
                             className="form-control"
                             id="NgayThanhToan"
-                            placeholder="Ngày Thanh Toán"
+                            placeholder="Ngày Chốt Sản Lượng"
                             {...register(
                               "NgayThanhToan",
                               Validate.NgayThanhToan
@@ -621,9 +611,7 @@ const AddContract = (props) => {
                     <div className="row">
                       <div className="col col-sm">
                         <div className="form-group">
-                          <label htmlFor="KhachHang">
-                            Khách Hàng/ Nhà Cung Cấp(*)
-                          </label>
+                          <label htmlFor="KhachHang">Chọn Đối Tác(*)</label>
                           <Controller
                             name="MaKh"
                             control={control}

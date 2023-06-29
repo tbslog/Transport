@@ -54,7 +54,7 @@ const SubfeeDetail = (props) => {
       sortable: true,
     },
     {
-      name: <div>Khách Hàng</div>,
+      name: <div>Tên Đối Tác</div>,
       selector: (row) => <div className="text-wrap">{row.customerName}</div>,
       sortable: true,
     },
@@ -772,6 +772,7 @@ const SubfeeDetail = (props) => {
                     direction="auto"
                     responsive
                     fixedHeader
+                    dense
                     fixedHeaderScrollHeight="60vh"
                   />
                 </div>
@@ -795,6 +796,7 @@ const SubfeeDetail = (props) => {
                     direction="auto"
                     responsive
                     fixedHeader
+                    dense
                     fixedHeaderScrollHeight="60vh"
                   />
                 </div>

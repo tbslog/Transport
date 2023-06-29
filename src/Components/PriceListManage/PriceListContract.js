@@ -1,9 +1,12 @@
 import { useState, useEffect, useMemo } from "react";
-import { getData, getDataCustom } from "../Common/FuncAxios";
+import { getData, getDataCustom, postData } from "../Common/FuncAxios";
 import { useForm, Controller } from "react-hook-form";
 import DataTable from "react-data-table-component";
 import moment from "moment";
 import Select from "react-select";
+import { Tooltip, OverlayTrigger } from "react-bootstrap";
+import { ToastError } from "../Common/FuncToast";
+import ConfirmDialog from "../Common/Dialog/ConfirmDialog";
 
 const customStyles = {
   control: (provided, state) => ({
@@ -52,43 +55,104 @@ const PriceListContract = (props) => {
       sortable: true,
     },
     {
-      name: <div>Mã Khách Hàng</div>,
-      selector: (row) => <div className="text-wrap">{row.maKh}</div>,
+      name: <div>Mã Đối Tác</div>,
+      selector: (row) => row.maKh,
       sortable: true,
     },
     {
-      name: <div>Tên Khách Hàng</div>,
-      selector: (row) => <div className="text-wrap">{row.tenKH}</div>,
+      name: <div>Tên Đối Tác</div>,
+      selector: (row) => row.tenKH,
       sortable: true,
     },
     {
       name: <div>Account</div>,
-      selector: (row) => <div className="text-wrap">{row.accountName}</div>,
+      selector: (row) => (
+        <OverlayTrigger
+          placement="top"
+          overlay={
+            <Tooltip id="tooltip">
+              <strong>{row.accountName}</strong>
+            </Tooltip>
+          }
+        >
+          <div bsStyle="default">{row.accountName}</div>
+        </OverlayTrigger>
+      ),
     },
     {
       name: <div>Mã Hợp Đồng</div>,
-      selector: (row) => <div className="text-wrap">{row.maHopDong}</div>,
-      sortable: true,
+      selector: (row) => (
+        <OverlayTrigger
+          placement="top"
+          overlay={
+            <Tooltip id="tooltip">
+              <strong>{row.maHopDong}</strong>
+            </Tooltip>
+          }
+        >
+          <div bsStyle="default">{row.maHopDong}</div>
+        </OverlayTrigger>
+      ),
     },
     {
       name: "",
-      selector: (row) => <div className="text-wrap">{row.soHopDongCha}</div>,
-      sortable: true,
+      selector: (row) => (
+        <OverlayTrigger
+          placement="top"
+          overlay={
+            <Tooltip id="tooltip">
+              <strong>{row.soHopDongCha}</strong>
+            </Tooltip>
+          }
+        >
+          <div bsStyle="default">{row.soHopDongCha}</div>
+        </OverlayTrigger>
+      ),
     },
     {
       name: <div>Điểm Đóng Hàng</div>,
-      selector: (row) => <div className="text-wrap">{row.diemDau}</div>,
-      sortable: true,
+      selector: (row) => (
+        <OverlayTrigger
+          placement="top"
+          overlay={
+            <Tooltip id="tooltip">
+              <strong>{row.diemDau}</strong>
+            </Tooltip>
+          }
+        >
+          <div bsStyle="default">{row.diemDau}</div>
+        </OverlayTrigger>
+      ),
     },
     {
       name: <div>Điểm Trả Hàng</div>,
-      selector: (row) => <div className="text-wrap">{row.diemCuoi}</div>,
-      sortable: true,
+      selector: (row) => (
+        <OverlayTrigger
+          placement="top"
+          overlay={
+            <Tooltip id="tooltip">
+              <strong>{row.diemCuoi}</strong>
+            </Tooltip>
+          }
+        >
+          <div bsStyle="default">{row.diemCuoi}</div>
+        </OverlayTrigger>
+      ),
     },
     {
       name: <div>Điểm Lấy/Trả Rỗng</div>,
-      selector: (row) => <div className="text-wrap">{row.diemLayTraRong}</div>,
-      sortable: true,
+      selector: (row) => (
+        <OverlayTrigger
+          placement="top"
+          overlay={
+            <Tooltip id="tooltip">
+              <strong>{row.diemLayTraRong}</strong>
+            </Tooltip>
+          }
+        >
+          <div bsStyle="default">{row.diemLayTraRong}</div>
+        </OverlayTrigger>
+      ),
     },
     {
       name: "Đơn Giá",
@@ -100,28 +164,36 @@ const PriceListContract = (props) => {
     },
     {
       name: <div>Loại Tiền Tệ</div>,
-      selector: (row) => <div className="text-wrap">{row.loaiTienTe}</div>,
+      selector: (row) => row.loaiTienTe,
     },
     {
       name: <div>PTVC</div>,
-      selector: (row) => <div className="text-wrap">{row.maPTVC}</div>,
-      sortable: true,
+      selector: (row) => row.maPTVC,
     },
     {
       name: <div>Loại Phương Tiện</div>,
-      selector: (row) => (
-        <div className="text-wrap">{row.maLoaiPhuongTien}</div>
-      ),
+      selector: (row) => row.maLoaiPhuongTien,
       sortable: true,
     },
     {
       name: <div>Loại Hàng Hóa</div>,
-      selector: (row) => <div className="text-wrap">{row.maLoaiHangHoa}</div>,
+      selector: (row) => (
+        <OverlayTrigger
+          placement="top"
+          overlay={
+            <Tooltip id="tooltip">
+              <strong>{row.maLoaiHangHoa}</strong>
+            </Tooltip>
+          }
+        >
+          <div bsStyle="default">{row.maLoaiHangHoa}</div>
+        </OverlayTrigger>
+      ),
       sortable: true,
     },
     {
       name: <div>Đơn Vị Tính</div>,
-      selector: (row) => <div className="text-wrap">{row.maDVT}</div>,
+      selector: (row) => row.maDVT,
       sortable: true,
     },
     // {
@@ -140,12 +212,7 @@ const PriceListContract = (props) => {
     },
     {
       name: <div>Ngày Hết Hiệu Lực</div>,
-      selector: (row) =>
-        !row.ngayHetHieuLuc ? (
-          ""
-        ) : (
-          <div className="text-wrap">{row.ngayHetHieuLuc}</div>
-        ),
+      selector: (row) => (!row.ngayHetHieuLuc ? "" : row.ngayHetHieuLuc),
       sortable: true,
     },
   ]);
@@ -157,7 +224,6 @@ const PriceListContract = (props) => {
   const [totalRows, setTotalRows] = useState(0);
   const [perPage, setPerPage] = useState(10);
   const [keySearch, setKeySearch] = useState("");
-  const [loading, setLoading] = useState(false);
 
   const [listVehicleType, setListVehicleType] = useState([]);
   const [vehicleType, setVehicleType] = useState("");
@@ -173,6 +239,10 @@ const PriceListContract = (props) => {
 
   const [listAccountCus, setListAccountCus] = useState([]);
   const [listAccountSelected, setListAccountSelected] = useState([]);
+
+  const [titleConfirmBox, setTitleConfirmBox] = useState("");
+  const [ShowConfirm, setShowConfirm] = useState(false);
+  const [funcName, setFuncName] = useState("");
 
   useEffect(() => {
     (async () => {
@@ -192,8 +262,8 @@ const PriceListContract = (props) => {
       setListSPlace(arrPlace);
       setListEPlace(arrPlace);
 
-      let getListCustommerGroup = await getData(`Common/GetListVehicleType`);
-      setListVehicleType(getListCustommerGroup);
+      let getlistVehicleType = await getData(`Common/GetListVehicleType`);
+      setListVehicleType(getlistVehicleType);
 
       let getListCustommerType = await getData(`Common/GetListGoodsType`);
       setListGoodsType(getListCustommerType);
@@ -210,8 +280,9 @@ const PriceListContract = (props) => {
       setSelectedId(selectIdClick);
       (async () => {
         const getListAcc = await getData(
-          `AccountCustomer/GetListAccountSelectByCus?cusId=${selectIdClick.maKH}`
+          `AccountCustomer/GetListAccountSelectByCus?cusId=${selectIdClick.maKh}`
         );
+
         if (getListAcc && getListAcc.length > 0) {
           var obj = [];
           getListAcc.map((val) => {
@@ -297,10 +368,10 @@ const PriceListContract = (props) => {
       listAccountSelected
     );
   };
-  const handleOnChangeVehicleType = (value) => {
-    setLoading(true);
+
+  const handleOnChangeVehicleType = async (value) => {
     setVehicleType(value);
-    fetchData(
+    await fetchData(
       page,
       keySearch,
       value,
@@ -310,13 +381,11 @@ const PriceListContract = (props) => {
       listEPlaceSelected,
       listAccountSelected
     );
-    setLoading(false);
   };
 
-  const handleOnChangeGoodsType = (value) => {
-    setLoading(true);
+  const handleOnChangeGoodsType = async (value) => {
     setGoodsType(value);
-    fetchData(
+    await fetchData(
       page,
       keySearch,
       vehicleType,
@@ -326,13 +395,10 @@ const PriceListContract = (props) => {
       listEPlaceSelected,
       listAccountSelected
     );
-    setLoading(false);
   };
 
   const handleOnChangeFilterSelect = async (values, type) => {
     if (values) {
-      setLoading(true);
-
       let arrFPlace = [];
       let arrSPlace = [];
       let arrEplace = [];
@@ -340,7 +406,6 @@ const PriceListContract = (props) => {
 
       if (type === "accountCus") {
         setValue("listAccountCus", values);
-
         values.forEach((val) => {
           arrAcc.push(val.value);
         });
@@ -391,7 +456,7 @@ const PriceListContract = (props) => {
         });
       }
 
-      fetchData(
+      await fetchData(
         page,
         keySearch,
         vehicleType,
@@ -401,20 +466,19 @@ const PriceListContract = (props) => {
         arrEplace,
         arrAcc
       );
-      setLoading(false);
     }
   };
 
-  const handleRefeshDataClick = () => {
-    fetchData(1);
+  const handleRefeshDataClick = async () => {
+    await fetchData(1);
     setPerPage(10);
     setKeySearch("");
     setGoodsType("");
     setVehicleType("");
   };
 
-  const handleSearchClick = () => {
-    fetchData(
+  const handleSearchClick = async () => {
+    await fetchData(
       page,
       keySearch,
       vehicleType,
@@ -426,6 +490,37 @@ const PriceListContract = (props) => {
     );
   };
 
+  const revertPriceTable = async () => {
+    if (selectIdClick.maKh && selectIdClick.maHopDong && onlyCT) {
+      let revert = await postData(
+        `PriceTable/RevertPriceTableHandling?contractId=${selectIdClick.maHopDong}&cusId=${selectIdClick.maKh}`
+      );
+
+      setShowConfirm(false);
+    } else {
+      ToastError("Vui lòng chọn phụ lục để revert giá");
+      setShowConfirm(false);
+      return;
+    }
+  };
+
+  const ShowConfirmDialog = (funcName) => {
+    setFuncName(funcName);
+    setShowConfirm(true);
+  };
+
+  const funcAgree = () => {
+    if (funcName) {
+      switch (funcName) {
+        case "revertPriceTable":
+          revertPriceTable();
+          break;
+        default:
+          break;
+      }
+    }
+  };
+
   return (
     <div>
       <div className="card card-default">
@@ -433,56 +528,70 @@ const PriceListContract = (props) => {
           {/* <h3 className="card-title">{title}</h3> */}
           <div className="container-fruid">
             <div className="row">
+              {onlyCT && (
+                <>
+                  <div className="col col-sm-1">
+                    <button
+                      onClick={() => {
+                        ShowConfirmDialog("revertPriceTable");
+                        setTitleConfirmBox(
+                          "Bạn có chắc muốn sử dụng phụ lục: '" +
+                            selectIdClick.maHopDong +
+                            "'"
+                        );
+                      }}
+                      type="button"
+                      className="btn btn-title btn-sm btn-default mx-1"
+                      gloss="Revert Giá"
+                    >
+                      <i className="fas fa-paste"></i>
+                    </button>
+                  </div>
+                </>
+              )}
+
               <div className="col col-sm">
-                <div className="row">
-                  <div className="col col-sm">
-                    <div className="input-group input-group-sm">
-                      <select
-                        className="form-control form-control-sm"
-                        onChange={(e) =>
-                          handleOnChangeVehicleType(e.target.value)
-                        }
-                        value={vehicleType}
-                      >
-                        <option value="">Phương tiện vận tải</option>
-                        {listVehicleType &&
-                          listVehicleType.map((val) => {
-                            return (
-                              <option
-                                value={val.maLoaiPhuongTien}
-                                key={val.maLoaiPhuongTien}
-                              >
-                                {val.tenLoaiPhuongTien}
-                              </option>
-                            );
-                          })}
-                      </select>
-                    </div>
-                  </div>
-                  <div className="col col-sm">
-                    <div className="input-group input-group-sm">
-                      <select
-                        className="form-control form-control-sm"
-                        onChange={(e) =>
-                          handleOnChangeGoodsType(e.target.value)
-                        }
-                        value={goodsType}
-                      >
-                        <option value="">Loại Hàng Hóa</option>
-                        {listGoodsType &&
-                          listGoodsType.map((val) => {
-                            return (
-                              <option
-                                value={val.maLoaiHangHoa}
-                                key={val.maLoaiHangHoa}
-                              >
-                                {val.tenLoaiHangHoa}
-                              </option>
-                            );
-                          })}
-                      </select>
-                    </div>
-                  </div>
+                <div className="input-group input-group-sm">
+                  <select
+                    className="form-control form-control-sm"
+                    onChange={(e) => handleOnChangeVehicleType(e.target.value)}
+                    value={vehicleType}
+                  >
+                    <option value="">Phương tiện vận tải</option>
+                    {listVehicleType &&
+                      listVehicleType.map((val) => {
+                        return (
+                          <option
+                            value={val.maLoaiPhuongTien}
+                            key={val.maLoaiPhuongTien}
+                          >
+                            {val.tenLoaiPhuongTien}
+                          </option>
+                        );
+                      })}
+                  </select>
+                </div>
+              </div>
+              <div className="col col-sm">
+                <div className="input-group input-group-sm">
+                  <select
+                    className="form-control form-control-sm"
+                    onChange={(e) => handleOnChangeGoodsType(e.target.value)}
+                    value={goodsType}
+                  >
+                    <option value="">Loại Hàng Hóa</option>
+                    {listGoodsType &&
+                      listGoodsType.map((val) => {
+                        return (
+                          <option
+                            value={val.maLoaiHangHoa}
+                            key={val.maLoaiHangHoa}
+                          >
+                            {val.tenLoaiHangHoa}
+                          </option>
+                        );
+                      })}
+                  </select>
                 </div>
               </div>
               <div className="col col-sm">
@@ -554,7 +663,7 @@ const PriceListContract = (props) => {
                   />
                 </div>
               </div>
-              <div className="col col-sm">
+              <div className="col col-sm-2">
                 <div className="form-group">
                   <Controller
                     name="ListEmptyPlace"
@@ -623,6 +732,7 @@ const PriceListContract = (props) => {
                 striped
                 direction="auto"
                 responsive
+                dense
                 fixedHeader
                 fixedHeaderScrollHeight="60vh"
               />
@@ -630,6 +740,16 @@ const PriceListContract = (props) => {
           </div>
         </div>
       </div>
+      {ShowConfirm === true && (
+        <ConfirmDialog
+          setShowConfirm={setShowConfirm}
+          title={titleConfirmBox}
+          content={
+            "Khi thực hiện hành động này sẽ không thể hoàn tác lại được nữa."
+          }
+          funcAgree={funcAgree}
+        />
+      )}
     </div>
   );
 };

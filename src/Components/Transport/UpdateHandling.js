@@ -582,7 +582,7 @@ const UpdateHandling = (props) => {
         );
 
         if (changePlace === 1) {
-          hideModal();
+          modal.hide();
           getlistData();
         }
         SetIsLoading(false);

@@ -20,6 +20,7 @@ import { ToastError } from "../Common/FuncToast";
 import LoadingPage from "../Common/Loading/LoadingPage";
 import HandlingImage from "../FileManager/HandlingImage";
 import UpdateHandling from "./UpdateHandling";
+import { Tooltip, OverlayTrigger } from "react-bootstrap";
 
 const HandlingPageNew = () => {
   const accountType = Cookies.get("AccType");
@@ -183,17 +184,20 @@ const HandlingPageNew = () => {
     },
     {
       name: <div>Trạng Thái</div>,
-      selector: (row) => colorStatusText(row.trangThai),
+      selector: (row) => row.trangThai,
+      cell: (row) => colorStatusText(row.trangThai),
       allowOverflow: true, // show full text
+      sortable: true,
+      grow: 1.5,
     },
-    {
-      name: <div>CONT NUM</div>,
-      selector: (row) => (
-        <div style={{ fontWeight: "Bold", fontSize: "16px" }}>
-          {row.contNum}
-        </div>
-      ),
-    },
+    // {
+    //   name: <div>CONT NUM</div>,
+    //   selector: (row) => (
+    //     <div style={{ fontWeight: "Bold", fontSize: "16px" }}>
+    //       {row.contNum}
+    //     </div>
+    //   ),
+    // },
     {
       selector: (row) => row.maDieuPhoi,
       omit: true,
@@ -202,15 +206,21 @@ const HandlingPageNew = () => {
       selector: (row) => row.maVanDon,
       omit: true,
     },
-    {
-      name: <div>Mã Chuyến</div>,
-      selector: (row) => row.maChuyen,
-      sortable: true,
-    },
+
     {
       name: <div>Mã Vận Đơn</div>,
-      selector: (row) => row.maVanDonKH,
-      sortable: true,
+      selector: (row) => (
+        <OverlayTrigger
+          placement="top"
+          overlay={
+            <Tooltip id="tooltip">
+              <strong>{row.maVanDonKH}</strong>
+            </Tooltip>
+          }
+        >
+          <div bsStyle="default">{row.maVanDonKH}</div>
+        </OverlayTrigger>
+      ),
     },
     {
       name: <div>Loại Vận Đơn</div>,
@@ -219,20 +229,50 @@ const HandlingPageNew = () => {
     },
     {
       name: <div>Khách Hàng</div>,
-      selector: (row) => row.maKH,
-      sortable: true,
+      selector: (row) => (
+        <OverlayTrigger
+          placement="top"
+          overlay={
+            <Tooltip id="tooltip">
+              <strong>{row.maKH}</strong>
+            </Tooltip>
+          }
+        >
+          <div bsStyle="default">{row.maKH}</div>
+        </OverlayTrigger>
+      ),
       omit: accountType && accountType === "NV" ? false : true,
     },
     {
       name: <div>Account</div>,
-      selector: (row) => row.accountName,
-      sortable: true,
+      selector: (row) => (
+        <OverlayTrigger
+          placement="top"
+          overlay={
+            <Tooltip id="tooltip">
+              <strong>{row.accountName}</strong>
+            </Tooltip>
+          }
+        >
+          <div bsStyle="default">{row.accountName}</div>
+        </OverlayTrigger>
+      ),
       omit: accountType && accountType === "NV" ? false : true,
     },
     {
       name: <div>Đơn Vị Vận Tải</div>,
-      selector: (row) => row.donViVanTai,
-      sortable: true,
+      selector: (row) => (
+        <OverlayTrigger
+          placement="top"
+          overlay={
+            <Tooltip id="tooltip">
+              <strong>{row.donViVanTai}</strong>
+            </Tooltip>
+          }
+        >
+          <div bsStyle="default">{row.donViVanTai}</div>
+        </OverlayTrigger>
+      ),
       omit: accountType && accountType === "NV" ? false : true,
     },
     {
@@ -242,33 +282,94 @@ const HandlingPageNew = () => {
     },
     {
       name: <div>Điểm Lấy Hàng</div>,
-      selector: (row) => row.diemDau,
-      sortable: true,
+      selector: (row) => (
+        <OverlayTrigger
+          placement="top"
+          overlay={
+            <Tooltip id="tooltip">
+              <strong>{row.diemDau}</strong>
+            </Tooltip>
+          }
+        >
+          <div bsStyle="default">{row.diemDau}</div>
+        </OverlayTrigger>
+      ),
     },
     {
       name: <div>Điểm Trả Hàng</div>,
-      selector: (row) => row.diemCuoi,
-      sortable: true,
+      selector: (row) => (
+        <OverlayTrigger
+          placement="top"
+          overlay={
+            <Tooltip id="tooltip">
+              <strong>{row.diemCuoi}</strong>
+            </Tooltip>
+          }
+        >
+          <div bsStyle="default">{row.diemCuoi}</div>
+        </OverlayTrigger>
+      ),
     },
     {
       name: <div>Điểm Lấy Rỗng</div>,
-      selector: (row) => row.diemLayRong,
-      sortable: true,
+      selector: (row) => (
+        <OverlayTrigger
+          placement="top"
+          overlay={
+            <Tooltip id="tooltip">
+              <strong>{row.diemLayRong}</strong>
+            </Tooltip>
+          }
+        >
+          <div bsStyle="default">{row.diemLayRong}</div>
+        </OverlayTrigger>
+      ),
     },
     {
       name: <div>Điểm Trả Rỗng</div>,
-      selector: (row) => row.diemTraRong,
-      sortable: true,
+      selector: (row) => (
+        <OverlayTrigger
+          placement="top"
+          overlay={
+            <Tooltip id="tooltip">
+              <strong>{row.diemTraRong}</strong>
+            </Tooltip>
+          }
+        >
+          <div bsStyle="default">{row.diemTraRong}</div>
+        </OverlayTrigger>
+      ),
     },
     {
       name: <div>Mã Số Xe</div>,
-      selector: (row) => row.maSoXe,
-      sortable: true,
+      selector: (row) => (
+        <OverlayTrigger
+          placement="top"
+          overlay={
+            <Tooltip id="tooltip">
+              <strong>{row.maSoXe}</strong>
+            </Tooltip>
+          }
+        >
+          <div bsStyle="default">{row.maSoXe}</div>
+        </OverlayTrigger>
+      ),
     },
     {
       name: <div>Mã CONT</div>,
-      selector: (row) => row.contNo,
-      sortable: true,
+      selector: (row) => (
+        <OverlayTrigger
+          placement="top"
+          overlay={
+            <Tooltip id="tooltip">
+              <strong>{row.contNo}</strong>
+            </Tooltip>
+          }
+        >
+          <div bsStyle="default">{row.contNo}</div>
+        </OverlayTrigger>
+      ),
+      grow: 2,
     },
     {
       name: <div>Reuse</div>,
@@ -277,8 +378,18 @@ const HandlingPageNew = () => {
     },
     {
       name: <div>Hãng Tàu</div>,
-      selector: (row) => row.hangTau,
-      sortable: true,
+      selector: (row) => (
+        <OverlayTrigger
+          placement="top"
+          overlay={
+            <Tooltip id="tooltip">
+              <strong>{row.hangTau}</strong>
+            </Tooltip>
+          }
+        >
+          <div bsStyle="default">{row.hangTau}</div>
+        </OverlayTrigger>
+      ),
     },
     // {
     //   name: "Tài Xế",
@@ -306,8 +417,39 @@ const HandlingPageNew = () => {
     },
     {
       name: <div>Thời Gian Tạo</div>,
-      selector: (row) => moment(row.thoiGianTaoDon).format("DD/MM/YYYY HH:mm"),
-      sortable: true,
+      selector: (row) => (
+        <OverlayTrigger
+          placement="top"
+          overlay={
+            <Tooltip id="tooltip">
+              <strong>
+                {moment(row.thoiGianTaoDon).format("DD/MM/YYYY HH:mm")}
+              </strong>
+            </Tooltip>
+          }
+        >
+          <div bsStyle="default">
+            {moment(row.thoiGianTaoDon).format("DD/MM/YYYY HH:mm")}
+          </div>
+        </OverlayTrigger>
+      ),
+      grow: 2,
+    },
+    {
+      name: <div>Mã Chuyến</div>,
+      selector: (row) => (
+        <OverlayTrigger
+          placement="top"
+          overlay={
+            <Tooltip id="tooltip">
+              <strong>{row.maChuyen}</strong>
+            </Tooltip>
+          }
+        >
+          <div bsStyle="default">{row.maChuyen}</div>
+        </OverlayTrigger>
+      ),
+      grow: 2.5,
     },
   ]);
 
@@ -331,7 +473,7 @@ const HandlingPageNew = () => {
   const [data, setData] = useState([]);
   const [selectIdClick, setSelectIdClick] = useState({});
   const [totalRows, setTotalRows] = useState(0);
-  const [perPage, setPerPage] = useState(10);
+  const [perPage, setPerPage] = useState(30);
   const [page, setPage] = useState(1);
   const [keySearch, setKeySearch] = useState("");
   const [listStatus, setListStatus] = useState([]);
@@ -913,6 +1055,10 @@ const HandlingPageNew = () => {
     setShowConfirm(true);
   };
 
+  const showConfirmDialogManyId = () => {
+    setShowConfirm(true);
+  };
+
   const handleEditButtonClick = async (value) => {
     setSelectIdClick(value);
     showModalForm();
@@ -1052,6 +1198,12 @@ const HandlingPageNew = () => {
           return ChangeStatusHandling();
         case "CancelHandling":
           return CancelHandling();
+        case "FastCompleteHandling":
+          return fastCompleteHandling();
+        case "SentMailToSup":
+          return sendMailToSupplier();
+        default:
+          return;
       }
     }
   };
@@ -1151,9 +1303,37 @@ const HandlingPageNew = () => {
       });
 
       handleClearRows();
+      setShowConfirm(false);
     } else {
       handleClearRows();
       ToastError("Vui lòng chọn chuyến để gửi mail");
+      return;
+    }
+  };
+
+  const fastCompleteHandling = async () => {
+    if (selectedRows && selectedRows.length > 0) {
+      setItemSelected(selectedRows);
+
+      let handlingIds = [];
+      selectedRows.forEach((element) => {
+        handlingIds.push(parseInt(element.maDieuPhoi));
+      });
+
+      let fastComplete = await postData(
+        "BillOfLading/FastConpleteHandling",
+        handlingIds
+      );
+
+      if (fastComplete === 1) {
+        refeshData();
+      }
+
+      handleClearRows();
+      setShowConfirm(false);
+    } else {
+      handleClearRows();
+      ToastError("Vui lòng chọn chuyến");
       return;
     }
   };
@@ -1237,9 +1417,31 @@ const HandlingPageNew = () => {
                         type="button"
                         className="btn btn-title btn-sm btn-default mx-1"
                         gloss="Gửi Mail NCC "
-                        onClick={() => sendMailToSupplier()}
+                        onClick={() =>
+                          showConfirmDialogManyId(
+                            setFuncName("SentMailToSup"),
+                            setTitleConfirmDialog(
+                              "Bạn Có Thật Sự Muốn Gửi Mail cho đơn vị vận tải?"
+                            )
+                          )
+                        }
                       >
                         <i className="fas fa-mail-bulk"></i>
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-title btn-sm btn-default mx-1"
+                        gloss="Hoàn Thành Nhanh"
+                        onClick={() =>
+                          showConfirmDialogManyId(
+                            setFuncName("FastCompleteHandling"),
+                            setTitleConfirmDialog(
+                              "Bạn Có Thật Sự Muốn Hoàn Thành Nhanh ?"
+                            )
+                          )
+                        }
+                      >
+                        <i className="fas fa-fast-forward"></i>
                       </button>
                     </div>
                     <div className="col col-sm">
@@ -1259,7 +1461,7 @@ const HandlingPageNew = () => {
                               onChange={(field) =>
                                 handleOnChangeFilterSelect(field, "users")
                               }
-                              placeholder="Chọn Users"
+                              placeholder="Users"
                             />
                           )}
                         />
@@ -1282,7 +1484,7 @@ const HandlingPageNew = () => {
                               onChange={(field) =>
                                 handleOnChangeFilterSelect(field, "suppliers")
                               }
-                              placeholder="Chọn NCC"
+                              placeholder="NCC"
                             />
                           )}
                         />
@@ -1305,7 +1507,7 @@ const HandlingPageNew = () => {
                               onChange={(field) =>
                                 handleOnChangeFilterSelect(field, "customers")
                               }
-                              placeholder="Chọn Khách Hàng"
+                              placeholder="Khách Hàng"
                             />
                           )}
                         />
@@ -1328,7 +1530,7 @@ const HandlingPageNew = () => {
                               onChange={(field) =>
                                 handleOnChangeFilterSelect(field, "accountCus")
                               }
-                              placeholder="Chọn Account"
+                              placeholder="Account"
                             />
                           )}
                         />
@@ -1346,7 +1548,7 @@ const HandlingPageNew = () => {
                           onChange={(e) => handleOnChangeStatus(e.target.value)}
                           value={status}
                         >
-                          <option value="">Tất Cả Trạng Thái</option>
+                          <option value="">Trạng Thái</option>
                           <option value={"null"}>Mới Tạo</option>
                           {listStatus &&
                             listStatus.map((val) => {
@@ -1410,7 +1612,7 @@ const HandlingPageNew = () => {
                     <button
                       type="button"
                       className="btn btn-sm btn-default mx-2"
-                      onClick={() => handleRefeshDataClick()}
+                      onClick={() => refeshData()}
                     >
                       <i className="fas fa-sync-alt"></i>
                     </button>
@@ -1429,7 +1631,7 @@ const HandlingPageNew = () => {
                 progressPending={loading}
                 pagination
                 paginationServer
-                paginationRowsPerPageOptions={[10, 30, 50, 100]}
+                paginationRowsPerPageOptions={[30, 50, 80, 100]}
                 paginationTotalRows={totalRows}
                 onSelectedRowsChange={handleChange}
                 onChangeRowsPerPage={handlePerRowsChange}

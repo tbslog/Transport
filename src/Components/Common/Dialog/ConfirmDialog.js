@@ -34,10 +34,10 @@ const ConfirmDialog = (props) => {
         <Modal.Body>{content}</Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleClose}>
-            Đóng
+            Không
           </Button>
           <Button variant="primary" onClick={() => handleOnClickAgree()}>
-            Đồng Ý
+            Có
           </Button>
         </Modal.Footer>
       </Modal>

@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect, useCallback, useRef } from "react";
 import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
-import { getData, postFile, getDataCustom, getFile } from "../Common/FuncAxios";
+import { getData, getDataCustom, getFile } from "../Common/FuncAxios";
 import DataTable from "react-data-table-component";
 import moment from "moment";
 import { Modal } from "bootstrap";
@@ -9,12 +9,14 @@ import EditContract from "./EditContract";
 import DatePicker from "react-datepicker";
 import AddPriceTable from "../PriceListManage/AddPriceTable";
 import ApproveContract from "./ApproveContract";
+import { Tooltip, OverlayTrigger } from "react-bootstrap";
 
 const ContractPage = (props) => {
   const { dataSelected } = props;
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [totalRows, setTotalRows] = useState(0);
+  const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
   const [keySearch, setKeySearch] = useState("");
 
@@ -66,10 +68,21 @@ const ContractPage = (props) => {
           >
             <i className="far fa-edit"></i>
           </button>
-          {val.fileContract && val.fileContract !== "0" && (
+          {val.fileContract && val.fileContract !== "0" ? (
             <>
               <button
                 onClick={() => handleDownloadContact(val, "contract")}
+                type="button"
+                className="btn btn-title btn-sm btn-default mx-1"
+                gloss="Tải File Hợp Đồng"
+              >
+                <i className="fas fa-download"></i>
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                disabled={true}
                 type="button"
                 className="btn btn-title btn-sm btn-default mx-1"
                 gloss="Tải File Hợp Đồng"
@@ -99,42 +112,78 @@ const ContractPage = (props) => {
     },
     {
       name: "Chuỗi",
-      selector: (row) => <div className="text-wrap">{row.chuoiKhachHang}</div>,
+      selector: (row) => row.chuoiKhachHang,
+      allowOverflow: true,
+      sortable: true,
     },
     {
-      name: <div>Mã Khách Hàng</div>,
+      name: <div>Mã Đối Tác</div>,
       selector: (row) => row.maKh,
+      sortable: true,
     },
     {
-      name: <div>Tên Khách Hàng</div>,
-      selector: (row) => <div className="text-wrap">{row.tenKH}</div>,
+      name: <div>Tên Đối Tác</div>,
+      selector: (row) => (
+        <OverlayTrigger
+          placement="top"
+          overlay={
+            <Tooltip id="tooltip">
+              <strong>{row.tenKH}</strong>
+            </Tooltip>
+          }
+        >
+          <div bsStyle="default">{row.tenKH}</div>
+        </OverlayTrigger>
+      ),
     },
     {
-      name: "Mã Hợp Đồng",
-      selector: (row) => <div className="text-wrap">{row.maHopDong}</div>,
+      name: <div>Mã Hợp Đồng</div>,
+      selector: (row) => (
+        <OverlayTrigger
+          placement="top"
+          overlay={
+            <Tooltip id="tooltip">
+              <strong>{row.maHopDong}</strong>
+            </Tooltip>
+          }
+        >
+          <div bsStyle="default">{row.maHopDong}</div>
+        </OverlayTrigger>
+      ),
     },
     {
       name: "Tên Hợp Đồng",
-      selector: (row) => <div className="text-wrap">{row.tenHienThi}</div>,
+      selector: (row) => (
+        <OverlayTrigger
+          placement="top"
+          overlay={
+            <Tooltip id="tooltip">
+              <strong>{row.tenHienThi}</strong>
+            </Tooltip>
+          }
+        >
+          <div bsStyle="default">{row.tenHienThi}</div>
+        </OverlayTrigger>
+      ),
     },
     {
       name: <div>Loại Hình Hợp Tác</div>,
-      selector: (row) => <div className="text-wrap">{row.loaiHinhHopTac}</div>,
+      selector: (row) => row.loaiHinhHopTac,
     },
     {
       name: <div>Sản Phẩm Dịch Vụ</div>,
-      selector: (row) => <div className="text-wrap">{row.maLoaiSPDV}</div>,
+      selector: (row) => row.maLoaiSPDV,
     },
     {
       name: <div>Loại Hình Kho</div>,
-      selector: (row) => <div className="text-wrap">{row.maLoaiHinh}</div>,
+      selector: (row) => row.maLoaiHinh,
     },
     {
       name: <div>Hình Thức Thuê</div>,
-      selector: (row) => <div className="text-wrap">{row.hinhThucThue}</div>,
+      selector: (row) => row.hinhThucThue,
     },
     {
-      name: "Trạng thái",
+      name: <div>Trạng thái</div>,
       selector: (row) => row.trangThai,
     },
     {
@@ -247,6 +296,7 @@ const ContractPage = (props) => {
       "",
       tabIndex === 0 ? "KH" : "NCC"
     );
+    setPage(page);
   };
 
   const handlePerRowsChange = async (newPerPage, page) => {
@@ -272,9 +322,9 @@ const ContractPage = (props) => {
     modal.hide();
   };
 
-  const handleSearchClick = () => {
-    fetchData(
-      1,
+  const handleSearchClick = async () => {
+    await fetchData(
+      page,
       keySearch,
       !fromDate ? "" : moment(fromDate).format("YYYY-MM-DD"),
       !toDate ? "" : moment(toDate).format("YYYY-MM-DD"),
@@ -292,10 +342,22 @@ const ContractPage = (props) => {
     setTabIndex(0);
   };
 
-  const HandleOnChangeTabs = (tabIndex) => {
+  const HandleOnChangeTabs = async (tabIndex) => {
     setTabIndex(tabIndex);
     let customerType = tabIndex === 0 ? "KH" : "NCC";
-    fetchData(1, "", "", "", "", customerType);
+    await fetchData(1, "", "", "", "", customerType);
+  };
+
+  const refeshData = async () => {
+    let customerType = tabIndex === 0 ? "KH" : "NCC";
+    await fetchData(
+      page,
+      keySearch,
+      fromDate,
+      toDate,
+      contractType,
+      customerType
+    );
   };
 
   const customStyles = {
@@ -374,7 +436,7 @@ const ContractPage = (props) => {
                     )}
                   </>
                 ),
-                width: "280px",
+                width: "268px",
                 ignoreRowClick: true,
                 allowOverflow: true,
                 button: true,
@@ -573,7 +635,6 @@ const ContractPage = (props) => {
               <TabPanel>
                 <div className="container-datatable" style={{ height: "50vm" }}>
                   <DataTable
-                    title="Danh sách hợp đồng khách hàng"
                     columns={columns}
                     data={data}
                     progressPending={loading}
@@ -588,6 +649,7 @@ const ContractPage = (props) => {
                     striped
                     direction="auto"
                     responsive
+                    dense
                     fixedHeader
                     fixedHeaderScrollHeight="55vh"
                   />
@@ -596,7 +658,6 @@ const ContractPage = (props) => {
               <TabPanel>
                 <div className="container-datatable" style={{ height: "50vm" }}>
                   <DataTable
-                    title="Danh sách hợp đồng nhà cung cấp"
                     columns={columns}
                     data={data}
                     progressPending={loading}
@@ -611,6 +672,7 @@ const ContractPage = (props) => {
                     striped
                     direction="auto"
                     responsive
+                    dense
                     fixedHeader
                     fixedHeaderScrollHeight="55vh"
                   />
@@ -650,7 +712,7 @@ const ContractPage = (props) => {
                   {ShowModal === "Edit" && (
                     <EditContract
                       selectIdClick={selectIdClick}
-                      getListContract={fetchData}
+                      getListContract={refeshData}
                       listContractType={listContractType}
                       listStatus={listStatus}
                       hideModal={hideModal}
@@ -659,7 +721,7 @@ const ContractPage = (props) => {
                   )}
                   {ShowModal === "Create" && (
                     <AddContract
-                      getListContract={fetchData}
+                      getListContract={refeshData}
                       listContractType={listContractType}
                       listStatus={listStatus}
                       hideModal={hideModal}
@@ -668,14 +730,14 @@ const ContractPage = (props) => {
                   )}
                   {ShowModal === "PriceTable" && (
                     <AddPriceTable
-                      getListPriceTable={fetchData}
+                      getListPriceTable={refeshData}
                       selectIdClick={priceTable}
                       listStatus={listStatus}
                     />
                   )}
                   {ShowModal === "ApproveContract" && (
                     <ApproveContract
-                      getListContract={fetchData}
+                      getListContract={refeshData}
                       selectIdClick={priceTable}
                       listStatus={listStatus}
                     />

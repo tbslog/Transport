@@ -52,11 +52,11 @@ const ApprovePriceTable = (props) => {
       selector: (row) => row.id,
     },
     {
-      name: <div>Phân Loại Đối Tác</div>,
+      name: <div>Loại Đối Tác</div>,
       selector: (row) => row.maLoaiDoiTac,
     },
     {
-      name: <div>Tên khách hàng</div>,
+      name: <div>Tên Dối Tác</div>,
       selector: (row) => <div className="text-wrap">{row.tenKh}</div>,
     },
     {

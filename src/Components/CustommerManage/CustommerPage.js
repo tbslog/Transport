@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect, useCallback, useRef } from "react";
-import { getData, postData, getDataCustom } from "../Common/FuncAxios";
+import { getData, postData, getDataCustom, getFile } from "../Common/FuncAxios";
 import DataTable from "react-data-table-component";
 import moment from "moment";
 import EditCustommer from "./EdtiCustommer";
@@ -73,18 +73,23 @@ const CustommerPage = () => {
       selector: (row) => row.chuoi,
     },
     {
-      name: "Mã khách hàng",
+      name: "Mã Đối Tác",
       selector: (row) => row.maKh,
       sortable: true,
     },
     {
-      name: "Tên khách hàng",
+      name: "Tên Đối Tác",
       selector: (row) => row.tenKh,
       sortable: true,
     },
     {
+      name: "Tên Rút Gọn",
+      selector: (row) => row.tenTomTat,
+      sortable: true,
+    },
+    {
       name: "Phân Loại",
-      selector: (row) => row.loaiKH,
+      selector: (row) => (row.loaiKH === "KH" ? "Khách Hàng" : "Nhà Cung Cấp"),
       sortable: true,
     },
     {
@@ -255,6 +260,13 @@ const CustommerPage = () => {
     await fetchData(1, keySearch, val);
   };
 
+  const handleExportExcel = async () => {
+    const getFileExcel = await getFile(
+      "Customer/GetExcelCustomer",
+      "ExcelParner"
+    );
+  };
+
   const ExpandedComponent = ({ data }) => {
     if (data.listAccount && data.listAccount.length > 0) {
       return (
@@ -324,7 +336,7 @@ const CustommerPage = () => {
         <div className="container-fluid">
           <div className="row mb-2">
             <div className="col-sm-6">
-              <h1>Quản lý thông tin đối tác</h1>
+              <h1>Quản Lý Thông Tin Đối Tác</h1>
             </div>
             {/* <div className="col-sm-6">
               <ol className="breadcrumb float-sm-right">
@@ -409,7 +421,6 @@ const CustommerPage = () => {
           <div className="card-body">
             <div className="container-datatable" style={{ height: "50vm" }}>
               <DataTable
-                title="Danh sách đối tác"
                 columns={columns}
                 data={data}
                 progressPending={loading}
@@ -425,6 +436,7 @@ const CustommerPage = () => {
                 striped
                 direction="auto"
                 responsive
+                dense
                 fixedHeader
                 fixedHeaderScrollHeight="60vh"
               />
@@ -432,29 +444,17 @@ const CustommerPage = () => {
           </div>
           <div className="card-footer">
             <div className="row">
-              {/* <div className="col-sm-3">
-                <a
-                  title="Tải Template Excel"
-                  href={FileExcelImport}
-                  download="Template Thêm mới Khách hàng.xlsx"
-                  className="btn btn-sm btn-default mx-1"
+              <div className="col-sm-3">
+                <button
+                  // href={FileExcelImport}
+                  onClick={() => handleExportExcel()}
+                  className="btn btn-title btn-sm btn-default mx-1"
+                  gloss="Tải File Excel"
+                  type="button"
                 >
-                  <i className="fas fa-download"></i>
-                </a>
-                <div className="upload-btn-wrapper">
-                  <button
-                    className="btn btn-sm btn-default mx-1"
-                    title="Upload file Excel"
-                  >
-                    <i className="fas fa-upload"></i>
-                  </button>
-                  <input
-                    type="file"
-                    name="myfile"
-                    onChange={(e) => handleExcelImportClick(e)}
-                  />
-                </div>
-              </div> */}
+                  <i className="fas fa-file-excel"></i>
+                </button>
+              </div>
             </div>
           </div>
         </div>

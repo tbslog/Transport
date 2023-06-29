@@ -86,11 +86,11 @@ const PriceTablePage = () => {
       sortable: true,
     },
     {
-      name: <div>Mã Khách Hàng</div>,
+      name: <div>Mã Đối Tác</div>,
       selector: (row) => <div className="text-wrap">{row.maKH}</div>,
     },
     {
-      name: <div>Tên Khách Hàng</div>,
+      name: <div>Tên Đối Tác</div>,
       selector: (row) => <div className="text-wrap">{row.tenKH}</div>,
     },
     {
@@ -334,7 +334,7 @@ const PriceTablePage = () => {
                     >
                       <i className="fas fa-plus-circle"></i>
                     </button>
-                    <button
+                    {/* <button
                       type="button"
                       className="btn btn-title btn-sm btn-default mx-1"
                       gloss="Duyệt Bảng Giá"
@@ -347,7 +347,7 @@ const PriceTablePage = () => {
                       }
                     >
                       <i className="fas fa-check-double"></i>
-                    </button>
+                    </button> */}
                   </div>
 
                   <div className="col col-sm">
@@ -441,6 +441,7 @@ const PriceTablePage = () => {
                       striped
                       direction="auto"
                       responsive
+                      dense
                       fixedHeader
                       fixedHeaderScrollHeight="60vh"
                     />
@@ -467,6 +468,7 @@ const PriceTablePage = () => {
                       striped
                       direction="auto"
                       responsive
+                      dense
                       fixedHeader
                       fixedHeaderScrollHeight="60vh"
                     />

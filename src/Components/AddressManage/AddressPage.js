@@ -7,6 +7,7 @@ import { ToastWarning } from "../Common/FuncToast";
 import CreateAddress from "./CreateAddress";
 import EditAddress from "./EditAddress";
 import FileExcelImport from "../../ExcelFile/AddressTemplate/AddNewAddress.xlsx";
+import { Tooltip, OverlayTrigger } from "react-bootstrap";
 
 const AddressPage = () => {
   const [data, setData] = useState([]);
@@ -54,7 +55,18 @@ const AddressPage = () => {
     },
     {
       name: "Tên Địa Điểm",
-      selector: (row) => row.tenDiaDiem,
+      selector: (row) => (
+        <OverlayTrigger
+          placement="top"
+          overlay={
+            <Tooltip id="tooltip">
+              <strong>{row.tenDiaDiem}</strong>
+            </Tooltip>
+          }
+        >
+          <div bsStyle="default">{row.tenDiaDiem}</div>
+        </OverlayTrigger>
+      ),
       sortable: true,
     },
     {
@@ -266,11 +278,13 @@ const AddressPage = () => {
                 paginationTotalRows={totalRows}
                 onSelectedRowsChange={handleChange}
                 onChangeRowsPerPage={handlePerRowsChange}
+                paginationRowsPerPageOptions={[10, 30, 50, 100]}
                 onChangePage={handlePageChange}
                 highlightOnHover
                 striped
                 direction="auto"
                 responsive
+                dense
                 fixedHeader
                 fixedHeaderScrollHeight="60vh"
               />

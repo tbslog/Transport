@@ -55,7 +55,6 @@ const EditAccount = (props) => {
       selectIdClick &&
       Object.keys(selectIdClick).length > 0
     ) {
-      console.log(selectIdClick);
       (async () => {
         const getById = await getData(
           `AccountCustomer/GetAccountById?accountId=${selectIdClick.accountId}`

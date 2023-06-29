@@ -49,12 +49,8 @@ const AddPriceTable = (props) => {
     MaHopDong: {
       required: "Không được để trống",
       maxLength: {
-        value: 10,
-        message: "Không được vượt quá 10 ký tự",
-      },
-      pattern: {
-        value: /^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9]+(?<![_.])$/,
-        message: "Không được chứa ký tự đặc biệt",
+        value: 50,
+        message: "Không được vượt quá 50 ký tự",
       },
     },
     MaKh: {
@@ -425,9 +421,7 @@ const AddPriceTable = (props) => {
                     </div>
                     <div className="col col-sm">
                       <div className="form-group">
-                        <label htmlFor="KhachHang">
-                          Khách Hàng / Nhà Cung Cấp(*)
-                        </label>
+                        <label htmlFor="KhachHang">Chọn Đối Tác(*)</label>
                         <Controller
                           name="MaKh"
                           control={control}

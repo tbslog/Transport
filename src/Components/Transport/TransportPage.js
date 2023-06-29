@@ -21,6 +21,7 @@ import Cookies from "js-cookie";
 import ConfirmDialog from "../Common/Dialog/ConfirmDialog";
 import LoadingPage from "../Common/Loading/LoadingPage";
 import FileExcelImport from "../../ExcelFile/TransportTemplate/TemplateImportTransport.xlsx";
+import { Tooltip, OverlayTrigger } from "react-bootstrap";
 
 const TransportPage = () => {
   const {
@@ -36,7 +37,7 @@ const TransportPage = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [totalRows, setTotalRows] = useState(0);
-  const [perPage, setPerPage] = useState(10);
+  const [perPage, setPerPage] = useState(30);
   const [page, setPage] = useState(1);
   const [keySearch, setKeySearch] = useState("");
 
@@ -150,9 +151,11 @@ const TransportPage = () => {
     },
     {
       name: <div>Trạng Thái</div>,
-      selector: (row) => colorStatusText(row.trangThai),
-      sortable: true, //enable sort
+      selector: (row) => row.trangThai,
+      cell: (row) => colorStatusText(row.trangThai),
       allowOverflow: true, // show full text
+      sortable: true, //enable sort,
+      grow: 1.3,
     },
     {
       selector: (row) => row.maVanDon,
@@ -160,10 +163,18 @@ const TransportPage = () => {
     },
     {
       name: <div>Mã Vận Đơn</div>,
-      selector: (row) => row.maVanDonKH,
-      allowOverflow: true,
-      sortable: true,
-      wrap: true,
+      selector: (row) => (
+        <OverlayTrigger
+          placement="top"
+          overlay={
+            <Tooltip id="tooltip">
+              <strong>{row.maVanDonKH}</strong>
+            </Tooltip>
+          }
+        >
+          <div bsStyle="default">{row.maVanDonKH}</div>
+        </OverlayTrigger>
+      ),
     },
     {
       name: <div>Loại Vận Đơn</div>,
@@ -177,24 +188,67 @@ const TransportPage = () => {
     },
     {
       name: <div>Khách Hàng</div>,
-      selector: (row) => row.tenKH,
+      selector: (row) => (
+        <OverlayTrigger
+          placement="top"
+          overlay={
+            <Tooltip id="tooltip">
+              <strong>{row.tenKH}</strong>
+            </Tooltip>
+          }
+        >
+          <div bsStyle="default">{row.tenKH}</div>
+        </OverlayTrigger>
+      ),
       allowOverflow: true,
       sortable: true,
     },
     {
       name: <div>Account</div>,
-      selector: (row) => row.accountName,
+      selector: (row) => (
+        <OverlayTrigger
+          placement="top"
+          overlay={
+            <Tooltip id="tooltip">
+              <strong>{row.accountName}</strong>
+            </Tooltip>
+          }
+        >
+          <div bsStyle="default">{row.accountName}</div>
+        </OverlayTrigger>
+      ),
       allowOverflow: true,
       sortable: true,
     },
     {
       name: <div>Điểm Đóng Hàng</div>,
-      selector: (row) => <div title={row.diemLayHang}>{row.diemLayHang}</div>,
-      sortable: true,
+      selector: (row) => (
+        <OverlayTrigger
+          placement="top"
+          overlay={
+            <Tooltip id="tooltip">
+              <strong>{row.diemLayHang}</strong>
+            </Tooltip>
+          }
+        >
+          <div bsStyle="default">{row.diemLayHang}</div>
+        </OverlayTrigger>
+      ),
     },
     {
       name: <div>Điểm Hạ Hàng</div>,
-      selector: (row) => <div title={row.diemTraHang}>{row.diemTraHang}</div>,
+      selector: (row) => (
+        <OverlayTrigger
+          placement="top"
+          overlay={
+            <Tooltip id="tooltip">
+              <strong>{row.diemTraHang}</strong>
+            </Tooltip>
+          }
+        >
+          <div bsStyle="default">{row.diemTraHang}</div>
+        </OverlayTrigger>
+      ),
       sortable: true,
     },
     {
@@ -747,7 +801,7 @@ const TransportPage = () => {
                                 onChange={(field) =>
                                   handleOnChangeFilterSelect(field, "users")
                                 }
-                                placeholder="Chọn Users"
+                                placeholder="User"
                               />
                             )}
                           />
@@ -770,7 +824,7 @@ const TransportPage = () => {
                                 onChange={(field) =>
                                   handleOnChangeFilterSelect(field, "customers")
                                 }
-                                placeholder="Chọn Khách Hàng"
+                                placeholder="Khách Hàng"
                               />
                             )}
                           />
@@ -796,7 +850,7 @@ const TransportPage = () => {
                                     "accountCus"
                                   )
                                 }
-                                placeholder="Chọn Account"
+                                placeholder="Account"
                               />
                             )}
                           />
@@ -811,7 +865,7 @@ const TransportPage = () => {
                             }
                             value={maPTVC}
                           >
-                            <option value="">Tất Cả Loại Hình</option>
+                            <option value="">Loại Hình</option>
                             <option value="FCL">FCL</option>
                             <option value="FTL">FTL</option>
                             <option value="LCL">LCL</option>
@@ -828,7 +882,7 @@ const TransportPage = () => {
                             }
                             value={status}
                           >
-                            <option value="">Tất Cả Trạng Thái</option>
+                            <option value="">Trạng Thái</option>
                             {listStatus &&
                               listStatus.map((val) => {
                                 return (
@@ -914,7 +968,7 @@ const TransportPage = () => {
                   pagination
                   paginationServer
                   paginationTotalRows={totalRows}
-                  paginationRowsPerPageOptions={[10, 30, 50, 100]}
+                  paginationRowsPerPageOptions={[30, 50, 80, 100]}
                   onChangeRowsPerPage={handlePerRowsChange}
                   onSelectedRowsChange={handleChange}
                   onChangePage={handlePageChange}

@@ -3,7 +3,16 @@ import "./Loading.scss";
 
 const LoadingPage = () => {
   return (
-    <div className="loader-container">
+    <div
+      className="loader-container"
+      style={{
+        position: "absolute",
+        top: "0px",
+        bottom: "0px",
+        left: "0px",
+        right: "0px",
+      }}
+    >
       <ColorRing
         visible={true}
         height="80"

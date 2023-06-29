@@ -69,24 +69,23 @@ const CurrencyExchangePage = () => {
       button: true,
     },
     {
-      name: "ID",
       selector: (row) => row.id,
       omit: true,
     },
     {
-      name: "Ngân Hàng",
+      name: <div>Ngân Hàng</div>,
       selector: (row) => row.bank,
     },
     {
-      name: "Mã Loại Tiền Tệ",
+      name: <div>Mã Loại Tiền Tệ</div>,
       selector: (row) => row.currencyCode,
     },
     {
-      name: "Tên Loại Tiền Tệ",
+      name: <div>Tên Loại Tiền Tệ</div>,
       selector: (row) => row.currencyName,
     },
     {
-      name: "Tỉ Giá Bán",
+      name: <div>Tỉ Giá Bán</div>,
       selector: (row) =>
         !row.priceSell
           ? ""
@@ -96,7 +95,7 @@ const CurrencyExchangePage = () => {
             }),
     },
     {
-      name: "Tỉ Giá Mua",
+      name: <div>Tỉ Giá Mua</div>,
       selector: (row) =>
         !row.priceBuy
           ? ""
@@ -106,7 +105,7 @@ const CurrencyExchangePage = () => {
             }),
     },
     {
-      name: "Tỉ Giá Chuyển Đổi",
+      name: <div>Tỉ Giá Chuyển Đổi</div>,
       selector: (row) =>
         !row.priceTransfer
           ? ""
@@ -116,7 +115,7 @@ const CurrencyExchangePage = () => {
             }),
     },
     {
-      name: "Tỉ Giá Tự Chỉnh",
+      name: <div>Tỉ Giá Tự Chỉnh</div>,
       selector: (row) =>
         !row.priceFix
           ? ""
@@ -126,7 +125,7 @@ const CurrencyExchangePage = () => {
             }),
     },
     {
-      name: "Thời Gian Tạo",
+      name: <div>Thời Gian Tạo</div>,
       selector: (row) => moment(row.createdTime).format("YYYY-MM-DD HH:mm:ss"),
       sortable: true,
     },
@@ -185,6 +184,8 @@ const CurrencyExchangePage = () => {
       KeyWord = keySearch;
     }
 
+    setLoading(true);
+
     fromDate = fromDate === "" ? "" : moment(fromDate).format("YYYY-MM-DD");
     toDate = toDate === "" ? "" : moment(toDate).format("YYYY-MM-DD");
 
@@ -192,6 +193,7 @@ const CurrencyExchangePage = () => {
       `CurrencyExchange/GetListExchangeRate?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}&fromDate=${fromDate}&toDate=${toDate}`
     );
 
+    setLoading(false);
     setData(dataCus.data);
     setTotalRows(dataCus.totalRecords);
   };
@@ -204,14 +206,12 @@ const CurrencyExchangePage = () => {
   };
 
   const handlePerRowsChange = async (newPerPage, page) => {
-    setLoading(true);
     const dataCus = await getData(
       `CurrencyExchange/GetListExchangeRate?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}&fromDate=${fromDate}&toDate=${toDate}`
     );
     setData(dataCus.data);
     setPerPage(newPerPage);
     setTotalRows(dataCus.totalRecords);
-    setLoading(false);
   };
 
   const hideModal = () => {
@@ -251,20 +251,19 @@ const CurrencyExchangePage = () => {
   };
 
   const funcAgree = async () => {
-    switch (ShowModal) {
-      case "CreateAccount":
-        const createAcc = await postData(
-          `Driver/CreateAccountDriver?driverId=${selectIdClick.maTaiXe}`
-        );
-
-        if (createAcc === 1) {
-          fetchData(1);
-        }
-        setShowConfirm(false);
-        break;
-      default:
-        return;
-    }
+    // switch (ShowModal) {
+    //   case "CreateAccount":
+    //     const createAcc = await postData(
+    //       `Driver/CreateAccountDriver?driverId=${selectIdClick.maTaiXe}`
+    //     );
+    //     if (createAcc === 1) {
+    //       fetchData(1);
+    //     }
+    //     setShowConfirm(false);
+    //     break;
+    //   default:
+    //     return;
+    // }
   };
 
   return (
@@ -275,14 +274,6 @@ const CurrencyExchangePage = () => {
             <div className="col-sm-6">
               <h1>Quản Lý Tỉ Giá Ngoại Tệ</h1>
             </div>
-            {/* <div className="col-sm-6">
-              <ol className="breadcrumb float-sm-right">
-                <li className="breadcrumb-item">
-                  <a href="#">Home</a>
-                </li>
-                <li className="breadcrumb-item active">Blank Page</li>
-              </ol>
-            </div> */}
           </div>
         </div>
       </section>
@@ -343,6 +334,7 @@ const CurrencyExchangePage = () => {
                       className="form-control"
                       value={keySearch}
                       onChange={(e) => setKeySearch(e.target.value)}
+                      placeholder="Nhập Mã Loại Tiền Tệ"
                     />
                     <span className="input-group-append">
                       <button

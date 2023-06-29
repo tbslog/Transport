@@ -74,11 +74,11 @@ const SubFeePage = () => {
       sortable: true,
     },
     {
-      name: <div>Mã Khách Hàng</div>,
+      name: <div>Mã Đối Tác</div>,
       selector: (row) => <div className="text-wrap">{row.maKH}</div>,
     },
     {
-      name: <div>Tên Khách Hàng</div>,
+      name: <div>Tên Đối Tác</div>,
       selector: (row) => <div className="text-wrap">{row.tenKH}</div>,
     },
     {
@@ -386,6 +386,7 @@ const SubFeePage = () => {
                     striped
                     direction="auto"
                     responsive
+                    dense
                     fixedHeader
                     fixedHeaderScrollHeight="60vh"
                   />
@@ -407,6 +408,7 @@ const SubFeePage = () => {
                     expandableRowsComponent={ExpandedComponent}
                     highlightOnHover
                     striped
+                    dense
                     direction="auto"
                     responsive
                     fixedHeader

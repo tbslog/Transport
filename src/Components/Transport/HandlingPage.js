@@ -985,6 +985,7 @@ const HandlingPage = (props) => {
                   highlightOnHover
                   striped
                   direction="auto"
+                  dense
                   responsive
                   fixedHeader
                   fixedHeaderScrollHeight="60vh"
@@ -1028,7 +1029,6 @@ const HandlingPage = (props) => {
                 funcAgree={funcAgree}
               />
             )}
-
             <div
               className="modal fade"
               id="modal-xl"

@@ -48,7 +48,7 @@ const ApproveSubFee = (props) => {
       button: true,
     },
     {
-      name: <div>Khách Hàng</div>,
+      name: <div>Tên Đối Tác</div>,
       selector: (row) => <div className="text-wrap">{row.customerName}</div>,
       sortable: true,
     },
@@ -58,21 +58,21 @@ const ApproveSubFee = (props) => {
       sortable: true,
     },
     {
-      name: "Mã Phụ Phí",
+      name: <div>Mã Phụ Phí</div>,
       selector: (row) => row.priceId,
     },
     {
-      name: "Loại Phụ Phí",
+      name: <div>Loại Phụ Phí</div>,
       selector: (row) => <div className="text-wrap">{row.sfName}</div>,
       sortable: true,
     },
     {
-      name: "Mã Hợp Đồng",
+      name: <div>Mã Hợp Đồng</div>,
       selector: (row) => row.contractId,
       sortable: true,
     },
     {
-      name: "Tên Hợp Đồng",
+      name: <div>Tên Hợp Đồng</div>,
       selector: (row) => row.contractName,
     },
     {
@@ -92,11 +92,11 @@ const ApproveSubFee = (props) => {
       selector: (row) => <div className="text-wrap">{row.getEmptyPlace}</div>,
     },
     {
-      name: "Loại Hàng Hóa",
+      name: <div>Loại Hàng Hóa</div>,
       selector: (row) => row.goodsType,
     },
     {
-      name: "Đơn Giá",
+      name: <div>Đơn Giá</div>,
       selector: (row) =>
         row.unitPrice.toLocaleString("vi-VI", {
           style: "currency",
@@ -108,12 +108,12 @@ const ApproveSubFee = (props) => {
       selector: (row) => row.priceType,
     },
     {
-      name: "Trạng Thái",
+      name: <div>Trạng Thái</div>,
       selector: (row) => row.status,
       sortable: true,
     },
     {
-      name: "Thời gian Tạo",
+      name: <div>Thời gian Tạo</div>,
       selector: (row) => moment(row.createdTime).format("DD-MM-YYYY HH:mm:ss"),
       sortable: true,
     },
@@ -363,6 +363,7 @@ const ApproveSubFee = (props) => {
                 clearSelectedRows={toggledClearRows}
                 highlightOnHover
                 striped
+                dense
                 direction="auto"
                 responsive
                 fixedHeader

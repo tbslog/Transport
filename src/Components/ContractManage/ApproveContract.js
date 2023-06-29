@@ -82,19 +82,19 @@ const ApproveContract = (props) => {
       selector: (row) => <div className="text-wrap">{row.chuoiKhachHang}</div>,
     },
     {
-      name: <div>Mã Khách Hàng</div>,
+      name: <div>Mã Đối Tác</div>,
       selector: (row) => row.maKh,
     },
     {
-      name: <div>Tên Khách Hàng</div>,
+      name: <div>Tên Đối Tác</div>,
       selector: (row) => <div className="text-wrap">{row.tenKH}</div>,
     },
     {
-      name: "Mã Hợp Đồng",
+      name: <div>Mã Hợp Đồng</div>,
       selector: (row) => <div className="text-wrap">{row.maHopDong}</div>,
     },
     {
-      name: "Tên Hợp Đồng",
+      name: <div>Tên Hợp Đồng</div>,
       selector: (row) => <div className="text-wrap">{row.tenHienThi}</div>,
     },
     {
@@ -114,7 +114,7 @@ const ApproveContract = (props) => {
       selector: (row) => <div className="text-wrap">{row.hinhThucThue}</div>,
     },
     {
-      name: "Trạng thái",
+      name: <div>Trạng thái</div>,
       selector: (row) => row.trangThai,
     },
     {
@@ -235,7 +235,7 @@ const ApproveContract = (props) => {
   };
 
   const handlePageChange = async (page) => {
-    await fetchData(page);
+    await fetchData(page, keySearch, fromDate, toDate);
   };
 
   const handlePerRowsChange = async (newPerPage, page) => {
@@ -244,19 +244,11 @@ const ApproveContract = (props) => {
     const dataCus = await getData(
       `Contract/GetListContractApprove?PageNumber=${page}&PageSize=${perPage}&KeyWord=${keySearch}&fromDate=${fromDate}&toDate=${toDate}`
     );
-    setPerPage(newPerPage);
-    formatTable(dataCus.data);
-    setTotalRows(dataCus.totalRecords);
     setLoading(false);
+    setPerPage(newPerPage);
+    setData(dataCus.data);
+    setTotalRows(dataCus.totalRecords);
   };
-
-  function formatTable(data) {
-    data.map((val) => {
-      val.ngayApDung = moment(val.ngayApDung).format("DD/MM/YYYY");
-      val.ngayHetHieuLuc = moment(val.ngayHetHieuLuc).format("DD/MM/YYYY");
-    });
-    setData(data);
-  }
 
   const handleSearchClick = () => {
     fetchData(1, keySearch, fromDate, toDate);

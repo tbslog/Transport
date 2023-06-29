@@ -22,12 +22,8 @@ const EditContract = (props) => {
     MaHopDong: {
       required: "Không được để trống",
       maxLength: {
-        value: 20,
-        message: "Không được vượt quá 20 ký tự",
-      },
-      pattern: {
-        value: /^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9]+(?<![_.])$/,
-        message: "Không được chứa ký tự đặc biệt",
+        value: 50,
+        message: "Không được vượt quá 50 ký tự",
       },
     },
     TenHopDong: {
@@ -49,12 +45,7 @@ const EditContract = (props) => {
     PhanLoaiHopDong: {
       required: "Không được để trống",
     },
-    SoHopDongCha: {
-      pattern: {
-        value: /^(?![_.])(?![_.])(?!.*[_.]{2})[a-zA-Z0-9]+(?<![_.])$/,
-        message: "Không được chứa ký tự đặc biệt",
-      },
-    },
+    SoHopDongCha: {},
     NgayBatDau: {
       required: "Không được để trống",
       maxLength: {
@@ -294,7 +285,7 @@ const EditContract = (props) => {
                         <div className="row">
                           <div className="col col-sm">
                             <div className="form-group">
-                              <label htmlFor="MaKh">Mã Khách Hàng(*)</label>
+                              <label htmlFor="MaKh">Mã Đối Tác(*)</label>
                               <input
                                 type="text "
                                 className="form-control"
@@ -313,13 +304,13 @@ const EditContract = (props) => {
                           <div className="col col-sm">
                             <div className="form-group">
                               <label htmlFor="NgayThanhToan">
-                                Ngày Thanh Toán(*)
+                                Ngày Chốt Sản Lượng(*)
                               </label>
                               <input
                                 type="text"
                                 className="form-control"
                                 id="NgayThanhToan"
-                                placeholder="Ngày Thanh Toán"
+                                placeholder="Ngày Chốt Sản Lượng"
                                 {...register(
                                   "NgayThanhToan",
                                   Validate.NgayThanhToan
@@ -713,7 +704,7 @@ const EditContract = (props) => {
                         <div className="row">
                           <div className="col col-sm">
                             <div className="form-group">
-                              <label htmlFor="MaKh">Mã Khách Hàng(*)</label>
+                              <label htmlFor="MaKh">Mã Đối Tác(*)</label>
                               <input
                                 readOnly
                                 autoComplete="false"

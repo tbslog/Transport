@@ -66,6 +66,16 @@ const CreateCustommer = (props) => {
       //   message: "Tên khách hàng không được chứa ký tự đặc biệt",
       // },
     },
+    TenTomTat: {
+      maxLength: {
+        value: 20,
+        message: "Không được vượt quá 20 ký tự",
+      },
+      minLength: {
+        value: 1,
+        message: "Không được ít hơn 1 ký tự",
+      },
+    },
     ListCustomers: {
       required: "Không được để trống",
     },
@@ -96,6 +106,7 @@ const CreateCustommer = (props) => {
         value: /^(?![_.])(?![_.])(?!.*[_.]{2})[0-9]+(?<![_.])$/,
         message: "Mã số thuế chỉ được chứa ký tự là số",
       },
+      required: "Không được để trống",
     },
     SDT: {
       maxLength: {
@@ -162,6 +173,7 @@ const CreateCustommer = (props) => {
     if (tabIndex === 0) {
       const post = await postData("Customer/CreateCustomer", {
         tenKh: data.TenKH,
+        TenTomTat: data.TenTomTat,
         maSoThue: data.MST,
         sdt: data.SDT,
         email: data.Email,
@@ -227,14 +239,14 @@ const CreateCustommer = (props) => {
                     <div className="row">
                       <div className="col-sm">
                         <div className="form-group">
-                          <label htmlFor="LoaiKH">Phân Loại Đối Tác(*)</label>
+                          <label htmlFor="LoaiKH">Loại Đối Tác(*)</label>
                           <select
                             className="form-control"
                             {...register("LoaiKH", {
                               required: "Không được để trống",
                             })}
                           >
-                            <option value="">Chọn Phân Loại Đối Tác</option>
+                            <option value="">Chọn Loại Đối Tác</option>
                             {listCustomerType &&
                               listCustomerType.map((val) => {
                                 return (
@@ -290,14 +302,14 @@ const CreateCustommer = (props) => {
                       )}
                       <div className="col-sm">
                         <div className="form-group">
-                          <label htmlFor="NhomKH">Nhóm khách hàng(*)</label>
+                          <label htmlFor="NhomKH">Nhóm Đối Tác(*)</label>
                           <select
                             className="form-control"
                             {...register("NhomKH", {
                               required: "Không được để trống",
                             })}
                           >
-                            <option value="">Chọn Nhóm khách hàng</option>
+                            <option value="">Chọn Nhóm Đối Tác</option>
                             {listCustomerGroup &&
                               listCustomerGroup.map((val) => {
                                 return (
@@ -321,17 +333,34 @@ const CreateCustommer = (props) => {
                     <div className="row">
                       <div className="col-sm">
                         <div className="form-group">
-                          <label htmlFor="TenKH">Tên đối tác(*)</label>
+                          <label htmlFor="TenKH">Tên Đối Tác(*)</label>
                           <input
                             type="text"
                             className="form-control"
                             id="TenKH"
-                            placeholder="Nhập tên đối tác"
+                            placeholder="Nhập Tên Đối Tác"
                             {...register("TenKH", Validate.TenKH)}
                           />
                           {errors.TenKH && (
                             <span className="text-danger">
                               {errors.TenKH.message}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="col-sm">
+                        <div className="form-group">
+                          <label htmlFor="TenTomTat">Tên rút gọn</label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            id="TenTomTat"
+                            placeholder="Nhập Tên Rút Gọn"
+                            {...register("TenTomTat", Validate.TenTomTat)}
+                          />
+                          {errors.TenTomTat && (
+                            <span className="text-danger">
+                              {errors.TenTomTat.message}
                             </span>
                           )}
                         </div>
@@ -357,7 +386,7 @@ const CreateCustommer = (props) => {
                       </div>
                       <div className="col-sm">
                         <div className="form-group">
-                          <label htmlFor="MST">Mã số thuế</label>
+                          <label htmlFor="MST">Mã số thuế(*)</label>
                           <input
                             type="text "
                             className="form-control"
