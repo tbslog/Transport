@@ -230,7 +230,6 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 						new Claim("FullName", user.HoVaTen),
 						new Claim("Department", string.IsNullOrEmpty(user.MaBoPhan)?"KH":user.MaBoPhan),
 						new Claim("AccType",user.AccountType),
-						new Claim("Role", user.RoleId.ToString())
 					};
 
 					var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));

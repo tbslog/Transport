@@ -25,6 +25,7 @@ namespace TBSLogistics.Data.TMS
 		public virtual DbSet<BangGiaDacBiet> BangGiaDacBiet { get; set; }
 		public virtual DbSet<BangQuyDoi> BangQuyDoi { get; set; }
 		public virtual DbSet<BoPhan> BoPhan { get; set; }
+		public virtual DbSet<ChotSanLuongTheoKy> ChotSanLuongTheoKy { get; set; }
 		public virtual DbSet<ChuoiKhachHang> ChuoiKhachHang { get; set; }
 		public virtual DbSet<CungDuong> CungDuong { get; set; }
 		public virtual DbSet<DiaDiem> DiaDiem { get; set; }
@@ -54,6 +55,7 @@ namespace TBSLogistics.Data.TMS
 		public virtual DbSet<NguoiDung> NguoiDung { get; set; }
 		public virtual DbSet<NhomKhachHang> NhomKhachHang { get; set; }
 		public virtual DbSet<Permission> Permission { get; set; }
+		public virtual DbSet<PhuPhiTheoKy> PhuPhiTheoKy { get; set; }
 		public virtual DbSet<PhuongThucVanChuyen> PhuongThucVanChuyen { get; set; }
 		public virtual DbSet<QuanHuyen> QuanHuyen { get; set; }
 		public virtual DbSet<QuocGia> QuocGia { get; set; }
@@ -83,6 +85,7 @@ namespace TBSLogistics.Data.TMS
 		public virtual DbSet<VanDon> VanDon { get; set; }
 		public virtual DbSet<XaPhuong> XaPhuong { get; set; }
 		public virtual DbSet<XeVanChuyen> XeVanChuyen { get; set; }
+
 
 		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -159,7 +162,7 @@ namespace TBSLogistics.Data.TMS
 					.IsUnicode(false);
 
 				entity.Property(e => e.MaHopDong)
-					.HasMaxLength(30)
+					.HasMaxLength(50)
 					.IsUnicode(false);
 
 				entity.Property(e => e.Updater).HasMaxLength(30);
@@ -192,7 +195,7 @@ namespace TBSLogistics.Data.TMS
 
 				entity.Property(e => e.MaHopDong)
 					.IsRequired()
-					.HasMaxLength(20)
+					.HasMaxLength(50)
 					.IsUnicode(false);
 
 				entity.Property(e => e.MaLoaiDoiTac)
@@ -289,6 +292,59 @@ namespace TBSLogistics.Data.TMS
 				entity.Property(e => e.TenBoPhan)
 					.IsRequired()
 					.HasMaxLength(50);
+			});
+
+			modelBuilder.Entity<ChotSanLuongTheoKy>(entity =>
+			{
+				entity.Property(e => e.Id).HasColumnName("ID");
+
+				entity.Property(e => e.Blocker).HasMaxLength(30);
+
+				entity.Property(e => e.Creator)
+					.IsRequired()
+					.HasMaxLength(30);
+
+				entity.Property(e => e.DonGia).HasColumnType("decimal(18, 0)");
+
+				entity.Property(e => e.DonGiaQuyDoi).HasColumnType("decimal(18, 0)");
+
+				entity.Property(e => e.MaAccount)
+					.HasMaxLength(8)
+					.IsUnicode(false);
+
+				entity.Property(e => e.MaKh)
+					.IsRequired()
+					.HasMaxLength(8)
+					.IsUnicode(false)
+					.HasColumnName("MaKH");
+
+				entity.Property(e => e.MaLoaiKh)
+					.IsRequired()
+					.HasMaxLength(10)
+					.IsUnicode(false)
+					.HasColumnName("MaLoaiKH");
+
+				entity.Property(e => e.MaLoaiTienTe)
+					.IsRequired()
+					.HasMaxLength(5)
+					.IsUnicode(false);
+
+				entity.HasOne(d => d.MaAccountNavigation)
+					.WithMany(p => p.ChotSanLuongTheoKy)
+					.HasForeignKey(d => d.MaAccount)
+					.HasConstraintName("FK__ChotSanLu__MaAcc__7A0806B6");
+
+				entity.HasOne(d => d.MaDieuPhoiNavigation)
+					.WithMany(p => p.ChotSanLuongTheoKy)
+					.HasForeignKey(d => d.MaDieuPhoi)
+					.OnDelete(DeleteBehavior.ClientSetNull)
+					.HasConstraintName("FK__ChotSanLu__MaDie__7AFC2AEF");
+
+				entity.HasOne(d => d.MaKhNavigation)
+					.WithMany(p => p.ChotSanLuongTheoKy)
+					.HasForeignKey(d => d.MaKh)
+					.OnDelete(DeleteBehavior.ClientSetNull)
+					.HasConstraintName("FK__ChotSanLuo__MaKH__7913E27D");
 			});
 
 			modelBuilder.Entity<ChuoiKhachHang>(entity =>
@@ -610,7 +666,7 @@ namespace TBSLogistics.Data.TMS
 					.HasName("PK_ThongTin_HopDongVaPhuLuc");
 
 				entity.Property(e => e.MaHopDong)
-					.HasMaxLength(20)
+					.HasMaxLength(50)
 					.IsUnicode(false);
 
 				entity.Property(e => e.Account).HasMaxLength(50);
@@ -628,7 +684,7 @@ namespace TBSLogistics.Data.TMS
 					.IsUnicode(false);
 
 				entity.Property(e => e.MaHopDongCha)
-					.HasMaxLength(20)
+					.HasMaxLength(50)
 					.IsUnicode(false);
 
 				entity.Property(e => e.MaKh)
@@ -719,6 +775,11 @@ namespace TBSLogistics.Data.TMS
 					.IsRequired()
 					.HasMaxLength(50)
 					.HasColumnName("TenKH");
+
+				entity.Property(e => e.TenRutGon)
+					.IsRequired()
+					.HasMaxLength(20)
+					.HasDefaultValueSql("('')");
 
 				entity.Property(e => e.Updater).HasMaxLength(30);
 			});
@@ -1080,6 +1141,36 @@ namespace TBSLogistics.Data.TMS
 					.IsUnicode(false);
 			});
 
+			modelBuilder.Entity<PhuPhiTheoKy>(entity =>
+			{
+				entity.Property(e => e.Id).HasColumnName("ID");
+
+				entity.Property(e => e.Creator)
+					.IsRequired()
+					.HasMaxLength(30);
+
+				entity.Property(e => e.DonGia).HasColumnType("decimal(18, 0)");
+
+				entity.Property(e => e.DonGiaQuyDoi).HasColumnType("decimal(18, 0)");
+
+				entity.Property(e => e.IdphuPhiHopDong).HasColumnName("IDPhuPhiHopDong");
+
+				entity.Property(e => e.IdphuPhiPhatSinh).HasColumnName("IDPhuPhiPhatSinh");
+
+				entity.Property(e => e.IdsanLuongKy).HasColumnName("IDSanLuongKy");
+
+				entity.Property(e => e.MaLoaiTienTe)
+					.IsRequired()
+					.HasMaxLength(5)
+					.IsUnicode(false);
+
+				entity.HasOne(d => d.IdsanLuongKyNavigation)
+					.WithMany(p => p.PhuPhiTheoKy)
+					.HasForeignKey(d => d.IdsanLuongKy)
+					.OnDelete(DeleteBehavior.ClientSetNull)
+					.HasConstraintName("FK__PhuPhiThe__IDSan__7DD8979A");
+			});
+
 			modelBuilder.Entity<PhuongThucVanChuyen>(entity =>
 			{
 				entity.HasKey(e => e.MaPtvc)
@@ -1351,7 +1442,7 @@ namespace TBSLogistics.Data.TMS
 
 				entity.Property(e => e.ContractId)
 					.IsRequired()
-					.HasMaxLength(20)
+					.HasMaxLength(50)
 					.IsUnicode(false)
 					.HasColumnName("contractID");
 
@@ -1556,7 +1647,7 @@ namespace TBSLogistics.Data.TMS
 
 				entity.Property(e => e.MaHopDong)
 					.IsRequired()
-					.HasMaxLength(20)
+					.HasMaxLength(50)
 					.IsUnicode(false);
 
 				entity.Property(e => e.Updater).HasMaxLength(30);

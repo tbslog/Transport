@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -528,13 +529,34 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 		[Route("[action]")]
 		public async Task<IActionResult> SetSupplierForHandling(SetSupplierForHandling request)
 		{
-			var checkPermission = await _common.CheckPermission("F0001");
+			var checkPermission = await _common.CheckPermission("E0002");
 			if (checkPermission.isSuccess == false)
 			{
 				return BadRequest(checkPermission.Message);
 			}
 
 			var update = await _billOfLading.SetSupplierForHandling(request);
+			if (update.isSuccess)
+			{
+				return Ok(update.Message);
+			}
+			else
+			{
+				return BadRequest(update.Message);
+			}
+		}
+
+		[HttpPost]
+		[Route("[action]")]
+		public async Task<IActionResult> FastConpleteHandling(List<long> ids)
+		{
+			var checkPermission = await _common.CheckPermission("F0015");
+			if (checkPermission.isSuccess == false)
+			{
+				return BadRequest(checkPermission.Message);
+			}
+
+			var update = await _billOfLading.FastCompleteTransport(ids);
 			if (update.isSuccess)
 			{
 				return Ok(update.Message);
@@ -609,6 +631,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 		[Route("[action]")]
 		public async Task<IActionResult> ChangeSecondPlaceHandling(ChangeSecondPlaceOfHandling request)
 		{
+			var checkPermission = await _common.CheckPermission("F0001");
+			if (checkPermission.isSuccess == false)
+			{
+				return BadRequest(checkPermission.Message);
+			}
+
 			var update = await _billOfLading.ChangeSecondPlace(request);
 
 			if (update.isSuccess)

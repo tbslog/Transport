@@ -25,6 +25,8 @@ namespace TBSLogistics.Service.Services.PricelistManage
         Task<GetPriceListById> GetPriceTableById(int id);
         Task<List<GetPriceListRequest>> GetListPriceTableExportExcel(string cusType);
         Task<BoolActionResult> CreatePriceByExcel(IFormFile formFile, CancellationToken cancellationToken);
-        Task<double> GetPriceTradeNow(string priceCode);
+      
+        Task<BoolActionResult> RevertPriceTableOfHandling(string contractId, string cusId);
+		Task<GetPriceListRequest> GetPriceTable(string MaKH, string accountId, int firstPlace, int secondPlace, int? emptyPlace, string MaDVT, string LoaiHangHoa, string LoaiPhuongTien, string MaPTVC);
 	}
 }

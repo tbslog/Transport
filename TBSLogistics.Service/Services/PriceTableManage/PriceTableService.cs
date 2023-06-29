@@ -191,7 +191,7 @@ namespace TBSLogistics.Service.Services.PriceTableManage
 					return new BoolActionResult { isSuccess = false, Message = ErrorValidate };
 				}
 
-				await _context.BangGia.AddRangeAsync(request.Select(x => new BangGia
+				var listPriceTable = request.Select(x => new BangGia
 				{
 					DiemLayTraRong = x.DiemLayTraRong,
 					DiemCuoi = x.DiemCuoi,
@@ -211,12 +211,28 @@ namespace TBSLogistics.Service.Services.PriceTableManage
 					CreatedTime = DateTime.Now,
 					UpdatedTime = DateTime.Now,
 					Creator = tempData.UserName,
-				}).ToList());
+				}).ToList();
+
+				await _context.BangGia.AddRangeAsync(listPriceTable);
 
 				var result = await _context.SaveChangesAsync();
 
 				if (result > 0)
 				{
+					if (noContract == true)
+					{
+						var listApprove = new ApprovePriceTable()
+						{
+							Result = listPriceTable.Select(x => new Result()
+							{
+								Id = x.Id,
+								IsAgree = 0
+							}).ToList()
+						};
+
+						await ApprovePriceTable(listApprove);
+					}
+
 					await _common.LogTimeUsedOfUser(tempData.Token);
 					await _common.Log("PriceTableManage", "UserId: " + tempData.UserName + " Create PriceTable with Data: " + JsonSerializer.Serialize(request));
 					return new BoolActionResult { isSuccess = true, Message = "Tạo mới bảng giá thành công" };
@@ -984,15 +1000,108 @@ namespace TBSLogistics.Service.Services.PriceTableManage
 			}
 		}
 
-		public async Task<double> GetPriceTradeNow(string priceCode)
+		public async Task<BoolActionResult> RevertPriceTableOfHandling(string contractId, string cusId)
 		{
-			if (priceCode == "VND")
+			var transaction = await _context.Database.BeginTransactionAsync();
+			try
 			{
-				return 1;
-			}
+				var checkContract = await _context.HopDongVaPhuLuc.Where(x => x.MaKh == cusId && x.MaHopDong == contractId && x.TrangThai == 24).FirstOrDefaultAsync();
+				if (checkContract == null)
+				{
+					return new BoolActionResult { isSuccess = false, Message = "Hợp đồng chưa được duyệt sẽ không thể revert giá" };
+				}
 
-			var getPriceTrade = _context.ExchangeRate.Where(x => x.CurrencyCode == priceCode && x.PriceTransfer != null).OrderByDescending(x => x.CreatedTime).FirstOrDefault();
-			return getPriceTrade.PriceSell.Value;
+				var getNewestContract = await _context.HopDongVaPhuLuc.Where(x => x.MaKh == cusId).OrderByDescending(x => x.ThoiGianBatDau).FirstOrDefaultAsync();
+				if (getNewestContract.MaHopDong != checkContract.MaHopDong)
+				{
+					return new BoolActionResult { isSuccess = false, Message = "Chỉ hợp đồng mới nhất mới được revert giá" };
+				}
+
+				var getListPricetable = await _context.BangGia.Where(x => x.MaHopDong == checkContract.MaHopDong && x.TrangThai == 4).ToListAsync();
+
+				if (getListPricetable.Count() == 0)
+				{
+					return new BoolActionResult { isSuccess = false, Message = "Hợp đồng này không điều chỉnh giá, không thể revert" };
+				}
+
+				var listFPlace = getListPricetable.GroupBy(x => x.DiemDau).Select(x => x.Key).ToList();
+				var listSPlace = getListPricetable.GroupBy(x => x.DiemCuoi).Select(x => x.Key).ToList();
+				var listVehiclePlace = getListPricetable.GroupBy(x => x.MaLoaiPhuongTien).Select(x => x.Key).ToList();
+
+				var getListHandling = from dp in _context.DieuPhoi
+									  join vd in _context.VanDon
+									  on dp.MaVanDon equals vd.MaVanDon
+									  where
+									  dp.DonGiaKh != null && dp.DonGiaNcc != null &&
+									  (cusId.Contains("CUS") ? vd.MaKh == cusId.Trim() : dp.DonViVanTai == cusId.Trim()) &&
+									  ((listFPlace.Contains(vd.DiemDau) && listSPlace.Contains(vd.DiemCuoi)) ||
+									  (listFPlace.Contains(vd.DiemCuoi) && listSPlace.Contains(vd.DiemDau))) &&
+									  listVehiclePlace.Contains(dp.MaLoaiPhuongTien) &&
+									  dp.CreatedTime.Date >= checkContract.ThoiGianBatDau
+									  select new { vd, dp };
+
+				var listData = await getListHandling.ToListAsync();
+
+				if (listData.Count() == 0)
+				{
+					return new BoolActionResult { isSuccess = false, Message = "Không có chuyến nào để revert" };
+				}
+
+				foreach (var item in listData)
+				{
+					int? getEmptyPlace = null;
+					if (item.dp.MaLoaiPhuongTien.Contains("CONT"))
+					{
+						if (item.vd.LoaiVanDon == "nhap")
+						{
+							getEmptyPlace = item.dp.DiemTraRong;
+						}
+						else if (item.vd.LoaiVanDon == "xuat")
+						{
+							getEmptyPlace = item.dp.DiemLayRong;
+						}
+					}
+					else
+					{
+						getEmptyPlace = null;
+					}
+
+					var getPriceNew = await GetPriceTable(item.vd.MaKh, item.vd.MaAccount, item.vd.DiemDau, item.vd.DiemCuoi, getEmptyPlace, item.dp.MaDvt, item.dp.MaLoaiHangHoa, item.dp.MaLoaiPhuongTien, item.vd.MaPtvc);
+
+					if (cusId.Contains("CUS"))
+					{
+						item.dp.BangGiaKh = getPriceNew.ID;
+						item.dp.DonGiaKh = getPriceNew.DonGia;
+						item.dp.LoaiTienTeKh = getPriceNew.LoaiTienTe;
+					}
+					else if (cusId.Contains("SUP"))
+					{
+						item.dp.BangGiaNcc = getPriceNew.ID;
+						item.dp.DonGiaNcc = getPriceNew.DonGia;
+						item.dp.LoaiTienTeNcc = getPriceNew.LoaiTienTe;
+					}
+					_context.Update(item.dp);
+				}
+
+				var result = await _context.SaveChangesAsync();
+
+				if (result > 0)
+				{
+					await transaction.CommitAsync();
+					await _common.LogTimeUsedOfUser(tempData.Token);
+					await _common.Log("PriceTableManage", "UserId: " + tempData.UserName + " has revert price use contractId: " + contractId + " of Customer " + cusId + " at time:" + DateTime.Now);
+					return new BoolActionResult { isSuccess = true, Message = "Đã revert giá thành công" };
+				}
+				else
+				{
+					return new BoolActionResult { isSuccess = false, Message = "Không có gì được thực thi" };
+				}
+			}
+			catch (Exception ex)
+			{
+				await _common.Log("PriceTableManage", "UserId: " + tempData.UserName + " has revert price of handling with Error " + ex.ToString());
+				return new BoolActionResult { isSuccess = false, Message = ex.ToString() };
+			}
 		}
 
 		public async Task<List<GetPriceListRequest>> GetListPriceTableExportExcel(string cusType)
@@ -1029,6 +1138,276 @@ namespace TBSLogistics.Service.Services.PriceTableManage
 			}).ToListAsync();
 
 			return data;
+		}
+
+		public async Task<GetPriceListRequest> GetPriceTable(string MaKH, string accountId, int firstPlace, int secondPlace, int? emptyPlace, string MaDVT, string LoaiHangHoa, string LoaiPhuongTien, string MaPTVC)
+		{
+			var checkPriceTable = from bg in _context.BangGia
+								  join hd in _context.HopDongVaPhuLuc
+								  on bg.MaHopDong equals hd.MaHopDong
+								  where hd.MaKh == MaKH
+								  && bg.TrangThai == 4
+								  && bg.MaAccount == accountId
+								  && bg.NgayApDung.Date <= DateTime.Now.Date
+								  && (bg.NgayHetHieuLuc.Value.Date > DateTime.Now.Date || bg.NgayHetHieuLuc == null)
+								  && bg.MaDvt == MaDVT
+								  && bg.MaLoaiHangHoa == LoaiHangHoa
+								  && bg.MaLoaiPhuongTien == LoaiPhuongTien
+								  && bg.MaPtvc == MaPTVC
+								  select bg;
+			var getFirstPlace = await _context.DiaDiem.Where(x => x.MaDiaDiem == firstPlace && x.DiaDiemCha != null).FirstOrDefaultAsync();
+			var getSecondPlace = await _context.DiaDiem.Where(x => x.MaDiaDiem == secondPlace && x.DiaDiemCha != null).FirstOrDefaultAsync();
+			var getEmptyPlace = await _context.DiaDiem.Where(x => x.MaDiaDiem == emptyPlace && x.DiaDiemCha != null).FirstOrDefaultAsync();
+
+			checkPriceTable = checkPriceTable.Where(x =>
+			(((x.DiemDau == getFirstPlace.MaDiaDiem || x.DiemDau == getFirstPlace.DiaDiemCha)
+			&& (x.DiemCuoi == getSecondPlace.MaDiaDiem || x.DiemCuoi == getSecondPlace.DiaDiemCha))
+			||
+			((x.DiemDau == getSecondPlace.MaDiaDiem || x.DiemDau == getSecondPlace.DiaDiemCha)
+			&& (x.DiemCuoi == getFirstPlace.MaDiaDiem || x.DiemCuoi == getFirstPlace.DiaDiemCha)))
+			&& (x.DiemLayTraRong == (getEmptyPlace == null ? null : getEmptyPlace.MaDiaDiem) || x.DiemLayTraRong == (getEmptyPlace == null ? null : getEmptyPlace.DiaDiemCha)));
+
+			var dataPriceTable = await checkPriceTable.ToListAsync();
+
+			if (dataPriceTable.Where(x => x.DiemDau == getFirstPlace.MaDiaDiem && x.DiemCuoi == getSecondPlace.MaDiaDiem && x.DiemLayTraRong == (getEmptyPlace == null ? null : getEmptyPlace.MaDiaDiem)).Count() > 0)
+			{
+				var data = dataPriceTable.Where(x => x.DiemDau == getFirstPlace.MaDiaDiem && x.DiemCuoi == getSecondPlace.MaDiaDiem && x.DiemLayTraRong == (getEmptyPlace == null ? null : getEmptyPlace.MaDiaDiem));
+
+				if (data.Count() == 1)
+				{
+					return data.Select(x => new GetPriceListRequest()
+					{
+						ID = x.Id,
+						DonGia = x.DonGia,
+						MaLoaiPhuongTien = x.MaLoaiPhuongTien,
+						MaLoaiHangHoa = x.MaLoaiHangHoa,
+						MaLoaiDoiTac = x.MaLoaiDoiTac,
+						MaDVT = x.MaDvt,
+						MaPTVC = x.MaPtvc,
+						LoaiTienTe = x.LoaiTienTe,
+					}).FirstOrDefault();
+				}
+				else
+				{
+					return null;
+				}
+			}
+
+			if (dataPriceTable.Where(x => x.DiemDau == getFirstPlace.MaDiaDiem && x.DiemCuoi == getSecondPlace.MaDiaDiem && x.DiemLayTraRong == (getEmptyPlace == null ? null : getEmptyPlace.DiaDiemCha)).Count() > 0)
+			{
+				var data = dataPriceTable.Where(x => x.DiemDau == getFirstPlace.MaDiaDiem && x.DiemCuoi == getSecondPlace.MaDiaDiem && x.DiemLayTraRong == (getEmptyPlace == null ? null : getEmptyPlace.DiaDiemCha));
+
+				if (data.Count() == 1)
+				{
+					return data.Select(x => new GetPriceListRequest()
+					{
+						ID = x.Id,
+						DonGia = x.DonGia,
+						MaLoaiPhuongTien = x.MaLoaiPhuongTien,
+						MaLoaiHangHoa = x.MaLoaiHangHoa,
+						MaLoaiDoiTac = x.MaLoaiDoiTac,
+						MaDVT = x.MaDvt,
+						MaPTVC = x.MaPtvc,
+						LoaiTienTe = x.LoaiTienTe,
+					}).FirstOrDefault();
+				}
+			}
+
+			if (dataPriceTable.Where(x => x.DiemCuoi == getFirstPlace.MaDiaDiem && x.DiemDau == getSecondPlace.MaDiaDiem && x.DiemLayTraRong == (getEmptyPlace == null ? null : getEmptyPlace.MaDiaDiem)).Count() > 0)
+			{
+				var data = dataPriceTable.Where(x => x.DiemCuoi == getFirstPlace.MaDiaDiem && x.DiemDau == getSecondPlace.MaDiaDiem && x.DiemLayTraRong == (getEmptyPlace == null ? null : getEmptyPlace.MaDiaDiem));
+
+				if (data.Count() == 1)
+				{
+					return data.Select(x => new GetPriceListRequest()
+					{
+						ID = x.Id,
+						DonGia = x.DonGia,
+						MaLoaiPhuongTien = x.MaLoaiPhuongTien,
+						MaLoaiHangHoa = x.MaLoaiHangHoa,
+						MaLoaiDoiTac = x.MaLoaiDoiTac,
+						MaDVT = x.MaDvt,
+						MaPTVC = x.MaPtvc,
+						LoaiTienTe = x.LoaiTienTe,
+					}).FirstOrDefault();
+				}
+				else
+				{
+					return null;
+				}
+			}
+
+			if (dataPriceTable.Where(x => x.DiemCuoi == getFirstPlace.MaDiaDiem && x.DiemDau == getSecondPlace.MaDiaDiem && x.DiemLayTraRong == (getEmptyPlace == null ? null : getEmptyPlace.DiaDiemCha)).Count() > 0)
+			{
+				var data = dataPriceTable.Where(x => x.DiemCuoi == getFirstPlace.MaDiaDiem && x.DiemDau == getSecondPlace.MaDiaDiem && x.DiemLayTraRong == (getEmptyPlace == null ? null : getEmptyPlace.DiaDiemCha));
+
+				if (data.Count() == 1)
+				{
+					return data.Select(x => new GetPriceListRequest()
+					{
+						ID = x.Id,
+						DonGia = x.DonGia,
+						MaLoaiPhuongTien = x.MaLoaiPhuongTien,
+						MaLoaiHangHoa = x.MaLoaiHangHoa,
+						MaLoaiDoiTac = x.MaLoaiDoiTac,
+						MaDVT = x.MaDvt,
+						MaPTVC = x.MaPtvc,
+						LoaiTienTe = x.LoaiTienTe,
+					}).FirstOrDefault();
+				}
+			}
+
+			if (dataPriceTable.Where(x =>
+			x.DiemDau == getFirstPlace.DiaDiemCha
+			&& x.DiemCuoi == getSecondPlace.MaDiaDiem
+			&& x.DiemLayTraRong == (getEmptyPlace == null ? null : getEmptyPlace.MaDiaDiem)).Count() > 0)
+			{
+				dataPriceTable = dataPriceTable.Where(x =>
+				x.DiemDau == getFirstPlace.DiaDiemCha
+				&& x.DiemCuoi == getSecondPlace.MaDiaDiem
+				&& x.DiemLayTraRong == (getEmptyPlace == null ? null : getEmptyPlace.MaDiaDiem)).ToList();
+			}
+
+			if (dataPriceTable.Where(x =>
+			x.DiemDau == getFirstPlace.MaDiaDiem
+			&& x.DiemCuoi == getSecondPlace.DiaDiemCha
+			&& x.DiemLayTraRong == (getEmptyPlace == null ? null : getEmptyPlace.MaDiaDiem)).Count() > 0)
+			{
+				dataPriceTable = dataPriceTable.Where(x =>
+				x.DiemDau == getFirstPlace.MaDiaDiem
+				&& x.DiemCuoi == getSecondPlace.DiaDiemCha
+				&& x.DiemLayTraRong == (getEmptyPlace == null ? null : getEmptyPlace.MaDiaDiem)).ToList();
+			}
+
+			if (dataPriceTable.Where(x =>
+			x.DiemDau == getFirstPlace.DiaDiemCha
+			&& x.DiemCuoi == getSecondPlace.DiaDiemCha
+			&& x.DiemLayTraRong == (getEmptyPlace == null ? null : getEmptyPlace.MaDiaDiem)).Count() > 0)
+			{
+				dataPriceTable = dataPriceTable.Where(x =>
+				x.DiemDau == getFirstPlace.DiaDiemCha
+				&& x.DiemCuoi == getSecondPlace.DiaDiemCha
+				&& x.DiemLayTraRong == (getEmptyPlace == null ? null : getEmptyPlace.MaDiaDiem)).ToList();
+			}
+
+			if (dataPriceTable.Where(x =>
+			x.DiemDau == getFirstPlace.DiaDiemCha
+			&& x.DiemCuoi == getSecondPlace.MaDiaDiem
+			&& x.DiemLayTraRong == (getEmptyPlace == null ? null : getEmptyPlace.DiaDiemCha)).Count() > 0)
+			{
+				dataPriceTable = dataPriceTable.Where(x =>
+				x.DiemDau == getFirstPlace.DiaDiemCha
+				&& x.DiemCuoi == getSecondPlace.MaDiaDiem
+				&& x.DiemLayTraRong == (getEmptyPlace == null ? null : getEmptyPlace.DiaDiemCha)).ToList();
+			}
+
+			if (dataPriceTable.Where(x =>
+			x.DiemDau == getFirstPlace.MaDiaDiem
+			&& x.DiemCuoi == getSecondPlace.DiaDiemCha
+			&& x.DiemLayTraRong == (getEmptyPlace == null ? null : getEmptyPlace.DiaDiemCha)).Count() > 0)
+			{
+				dataPriceTable = dataPriceTable.Where(x =>
+				x.DiemDau == getFirstPlace.MaDiaDiem
+				&& x.DiemCuoi == getSecondPlace.DiaDiemCha
+				&& x.DiemLayTraRong == (getEmptyPlace == null ? null : getEmptyPlace.DiaDiemCha)).ToList();
+			}
+
+			if (dataPriceTable.Where(x =>
+			x.DiemDau == getFirstPlace.DiaDiemCha
+			&& x.DiemCuoi == getSecondPlace.DiaDiemCha
+			&& x.DiemLayTraRong == (getEmptyPlace == null ? null : getEmptyPlace.DiaDiemCha)).Count() > 0)
+			{
+				dataPriceTable = dataPriceTable.Where(x =>
+				x.DiemDau == getFirstPlace.DiaDiemCha
+				&& x.DiemCuoi == getSecondPlace.DiaDiemCha
+				&& x.DiemLayTraRong == (getEmptyPlace == null ? null : getEmptyPlace.DiaDiemCha)).ToList();
+			}
+
+			//check trai tuyen
+			if (dataPriceTable.Where(x =>
+			x.DiemCuoi == getFirstPlace.DiaDiemCha
+			&& x.DiemDau == getSecondPlace.MaDiaDiem
+			&& x.DiemLayTraRong == (getEmptyPlace == null ? null : getEmptyPlace.MaDiaDiem)).Count() > 0)
+			{
+				dataPriceTable = dataPriceTable.Where(x =>
+				x.DiemCuoi == getFirstPlace.DiaDiemCha
+				&& x.DiemDau == getSecondPlace.MaDiaDiem
+				&& x.DiemLayTraRong == (getEmptyPlace == null ? null : getEmptyPlace.MaDiaDiem)).ToList();
+			}
+
+			if (dataPriceTable.Where(x =>
+			x.DiemCuoi == getFirstPlace.MaDiaDiem
+			&& x.DiemDau == getSecondPlace.DiaDiemCha
+			&& x.DiemLayTraRong == (getEmptyPlace == null ? null : getEmptyPlace.MaDiaDiem)).Count() > 0)
+			{
+				dataPriceTable = dataPriceTable.Where(x =>
+				x.DiemCuoi == getFirstPlace.MaDiaDiem
+				&& x.DiemDau == getSecondPlace.DiaDiemCha
+				&& x.DiemLayTraRong == (getEmptyPlace == null ? null : getEmptyPlace.MaDiaDiem)).ToList();
+			}
+
+			if (dataPriceTable.Where(x =>
+			x.DiemCuoi == getFirstPlace.DiaDiemCha
+			&& x.DiemDau == getSecondPlace.DiaDiemCha
+			&& x.DiemLayTraRong == (getEmptyPlace == null ? null : getEmptyPlace.MaDiaDiem)).Count() > 0)
+			{
+				dataPriceTable = dataPriceTable.Where(x =>
+				x.DiemCuoi == getFirstPlace.DiaDiemCha
+				&& x.DiemDau == getSecondPlace.DiaDiemCha
+				&& x.DiemLayTraRong == (getEmptyPlace == null ? null : getEmptyPlace.MaDiaDiem)).ToList();
+			}
+
+			if (dataPriceTable.Where(x =>
+			x.DiemCuoi == getFirstPlace.DiaDiemCha
+			&& x.DiemDau == getSecondPlace.MaDiaDiem
+			&& x.DiemLayTraRong == (getEmptyPlace == null ? null : getEmptyPlace.DiaDiemCha)).Count() > 0)
+			{
+				dataPriceTable = dataPriceTable.Where(x =>
+				x.DiemCuoi == getFirstPlace.DiaDiemCha
+				&& x.DiemDau == getSecondPlace.MaDiaDiem
+				&& x.DiemLayTraRong == (getEmptyPlace == null ? null : getEmptyPlace.DiaDiemCha)).ToList();
+			}
+
+			if (dataPriceTable.Where(x =>
+			x.DiemCuoi == getFirstPlace.MaDiaDiem
+			&& x.DiemDau == getSecondPlace.DiaDiemCha
+			&& x.DiemLayTraRong == (getEmptyPlace == null ? null : getEmptyPlace.DiaDiemCha)).Count() > 0)
+			{
+				dataPriceTable = dataPriceTable.Where(x =>
+				x.DiemCuoi == getFirstPlace.MaDiaDiem
+				&& x.DiemDau == getSecondPlace.DiaDiemCha
+				&& x.DiemLayTraRong == (getEmptyPlace == null ? null : getEmptyPlace.DiaDiemCha)).ToList();
+			}
+
+			if (dataPriceTable.Where(x =>
+			x.DiemCuoi == getFirstPlace.DiaDiemCha
+			&& x.DiemDau == getSecondPlace.DiaDiemCha
+			&& x.DiemLayTraRong == (getEmptyPlace == null ? null : getEmptyPlace.DiaDiemCha)).Count() > 0)
+			{
+				dataPriceTable = dataPriceTable.Where(x =>
+				x.DiemCuoi == getFirstPlace.DiaDiemCha
+				&& x.DiemDau == getSecondPlace.DiaDiemCha
+				&& x.DiemLayTraRong == (getEmptyPlace == null ? null : getEmptyPlace.DiaDiemCha)).ToList();
+			}
+
+			if (dataPriceTable.Count() == 1)
+			{
+				return dataPriceTable.Select(x => new GetPriceListRequest()
+				{
+					ID = x.Id,
+					DonGia = x.DonGia,
+					MaLoaiPhuongTien = x.MaLoaiPhuongTien,
+					MaLoaiHangHoa = x.MaLoaiHangHoa,
+					MaLoaiDoiTac = x.MaLoaiDoiTac,
+					MaDVT = x.MaDvt,
+					MaPTVC = x.MaPtvc,
+					LoaiTienTe = x.LoaiTienTe,
+				}).FirstOrDefault();
+			}
+			else
+			{
+				return null;
+			}
 		}
 	}
 }

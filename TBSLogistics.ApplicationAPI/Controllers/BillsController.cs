@@ -10,7 +10,7 @@ using TBSLogistics.Service.Helpers;
 using TBSLogistics.Service.Panigation;
 using TBSLogistics.Service.Services.Bill;
 using TBSLogistics.Service.Services.Common;
-using TBSLogistics.Service.Services.PricelistManage;
+using TBSLogistics.Service.Services.CurrencyExchange;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -22,13 +22,13 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 	public class BillsController : ControllerBase
 	{
 		private readonly IBill _bill;
-		private readonly IPriceTable _priceTable;
+		private readonly ICurrencyExchange _currencyExchange;
 		private readonly IPaginationService _uriService;
 		private readonly ICommon _common;
 
-		public BillsController(IBill bill, IPaginationService uriService, ICommon common, IPriceTable priceTable)
+		public BillsController(IBill bill, IPaginationService uriService, ICommon common, ICurrencyExchange currencyExchange)
 		{
-			_priceTable = priceTable;
+			_currencyExchange = currencyExchange;
 			_common = common;
 			_uriService = uriService;
 			_bill = bill;
@@ -36,38 +36,21 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 
 		[HttpGet]
 		[Route("[action]")]
-		public async Task<IActionResult> GetListTransportByCustomerId(string customerId, int ky, [FromQuery] PaginationFilter filter)
+		public async Task<IActionResult> GetBillByCustomerId(string customerId, DateTime datePay, DateTime dateTime, string bank)
 		{
 			var checkPermission = await _common.CheckPermission("G0001");
 			if (checkPermission.isSuccess == false)
 			{
 				return BadRequest(checkPermission.Message);
 			}
-
-			var route = Request.Path.Value;
-			var pagedData = await _bill.GetListTransportByCustomerId(customerId, ky, filter);
-
-			var pagedReponse = PaginationHelper.CreatePagedReponse<ListVanDon>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _uriService, route);
-			return Ok(pagedReponse);
-		}
-
-		[HttpGet]
-		[Route("[action]")]
-		public async Task<IActionResult> GetBillByCustomerId(string customerId, DateTime datePay)
-		{
-			var checkPermission = await _common.CheckPermission("G0001");
-			if (checkPermission.isSuccess == false)
-			{
-				return BadRequest(checkPermission.Message);
-			}
-			var billResult = await _bill.GetBillByCustomerId(customerId, datePay);
+			var billResult = await _bill.GetBillByCustomerId(customerId, datePay, dateTime, bank);
 
 			return Ok(billResult);
 		}
 
 		[HttpGet]
 		[Route("[action]")]
-		public async Task<IActionResult> GetBillByTransportId(string transportId, long? handlingId = null)
+		public async Task<IActionResult> GetBillByTransportId(string transportId, DateTime dateTime, string bank, long? handlingId = null)
 		{
 			var checkPermission = await _common.CheckPermission("G0001");
 			if (checkPermission.isSuccess == false)
@@ -75,7 +58,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 				return BadRequest(checkPermission.Message);
 			}
 
-			var data = await _bill.GetBillByTransportId(transportId, handlingId);
+			var data = await _bill.GetBillByTransportId(transportId, handlingId, dateTime, bank);
 			return Ok(data);
 		}
 
@@ -107,23 +90,35 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 			}
 
 			var route = Request.Path.Value;
-			var pagedData = await _bill.GetListBillWeb(filter);
+			var pagedData = await _bill.GetListBillCustomer(filter);
 			var pagedReponse = PaginationHelper.CreatePagedReponse<ListBillTransportWeb>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _uriService, route); ;
 			return Ok(pagedReponse);
 		}
 
+		[HttpPost]
+		[Route("[action]")]
+		public async Task<IActionResult> StoreDataHandlingToBill(StoreDataHandling request)
+		{
+			var add = await _bill.StoreDataHandlingToBill(request);
+
+			if (add.isSuccess)
+			{
+				return Ok(add.Message);
+			}
+			else
+			{
+				return BadRequest(add.Message);
+			}
+		}
+
 		[HttpGet]
 		[Route("[action]")]
-		public async Task<IActionResult> GetListKy(string customerId)
+		public async Task<IActionResult> GetListHandlingToPick([FromQuery] PaginationFilter filter)
 		{
-			var checkPermission = await _common.CheckPermission("G0001");
-			if (checkPermission.isSuccess == false)
-			{
-				return BadRequest(checkPermission.Message);
-			}
-			var data = await _bill.GetListKyThanhToan(customerId);
-
-			return Ok(data);
+			var route = Request.Path.Value;
+			var pagedData = await _bill.GetListHandlingToPick(filter);
+			var pagedReponse = PaginationHelper.CreatePagedReponse<ListBillHandling>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _uriService, route); ;
+			return Ok(pagedReponse);
 		}
 
 		[HttpGet]
@@ -132,17 +127,18 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 		{
 			filter.PageNumber = 1;
 			filter.PageSize = 500000;
+			filter.maptvc = "GetAllSubfeeExportExcel";
 			var data = await _bill.GetListBillHandling(filter);
 
 			var workbook = new XLWorkbook();
 			var worksheet = workbook.Worksheets.Add("HoaDon");
 
 			var currRow = 1;
-			worksheet.Range("A1:AA1").Style.Border.TopBorder = XLBorderStyleValues.Thin;
-			worksheet.Range("A1:AA1").Style.Font.FontSize = 15;
-			worksheet.Range("A1:AA1").Style.Font.Bold = true;
-			worksheet.Range("A1:AA1").Style.Fill.BackgroundColor = XLColor.LightGray;
-			worksheet.Range("A1:AA1").Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+			worksheet.Range("A1:AC1").Style.Border.TopBorder = XLBorderStyleValues.Thin;
+			worksheet.Range("A1:AC1").Style.Font.FontSize = 15;
+			worksheet.Range("A1:AC1").Style.Font.Bold = true;
+			worksheet.Range("A1:AC1").Style.Fill.BackgroundColor = XLColor.LightGray;
+			worksheet.Range("A1:AC1").Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
 
 			worksheet.Cell(1, 1).Value = "Booking No";
 			worksheet.Cell(1, 2).Value = "CONT NO";
@@ -168,9 +164,11 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 			worksheet.Cell(1, 22).Value = "Đơn Vị Tiền Tệ";
 			worksheet.Cell(1, 23).Value = "Đơn Giá Quy Đổi";
 			worksheet.Cell(1, 24).Value = "Doanh Thu";
-			worksheet.Cell(1, 25).Value = "Phụ Phí Hợp Đồng";
-			worksheet.Cell(1, 26).Value = "Phụ Phí Phát Sinh";
-			worksheet.Cell(1, 27).Value = "Lợi Nhuận";
+			worksheet.Cell(1, 25).Value = "Danh Sách Phụ Phí Hợp Đồng";
+			worksheet.Cell(1, 26).Value = "Tổng Phụ Phí Hợp Đồng";
+			worksheet.Cell(1, 27).Value = "Danh Sách Phụ Phí Phát Sinh";
+			worksheet.Cell(1, 28).Value = "Tổng Phụ Phí Phát Sinh";
+			worksheet.Cell(1, 29).Value = "Lợi Nhuận";
 
 			int row = 2;
 			foreach (var item in data.dataResponse)
@@ -194,18 +192,20 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 				worksheet.Cell(row, 17).Value = item.DiemTraRong;
 				worksheet.Cell(row, 18).Value = item.DonGiaKH;
 				worksheet.Cell(row, 19).Value = item.LoaiTienTeKH;
-				worksheet.Cell(row, 20).Value = item.DonGiaKH * (decimal)await _priceTable.GetPriceTradeNow(item.LoaiTienTeKH);
+				worksheet.Cell(row, 20).Value = item.DonGiaKH * (decimal)await _currencyExchange.GetPriceTradeNow(item.LoaiTienTeKH);
 				worksheet.Cell(row, 21).Value = item.DonGiaNCC;
 				worksheet.Cell(row, 22).Value = item.LoaiTienTeNCC;
-				worksheet.Cell(row, 23).Value = item.DonGiaNCC * (decimal)await _priceTable.GetPriceTradeNow(item.LoaiTienTeNCC); ;
+				worksheet.Cell(row, 23).Value = item.DonGiaNCC * (decimal)await _currencyExchange.GetPriceTradeNow(item.LoaiTienTeNCC); ;
 				worksheet.Cell(row, 24).Value = item.DoanhThu;
-				worksheet.Cell(row, 25).Value = item.ChiPhiHopDong;
-				worksheet.Cell(row, 26).Value = item.ChiPhiPhatSinh;
-				worksheet.Cell(row, 27).Value = item.LoiNhuan;
+				worksheet.Cell(row, 25).Value = item.ListSubfeeContract;
+				worksheet.Cell(row, 26).Value = item.ChiPhiHopDong;
+				worksheet.Cell(row, 27).Value = item.ListSubfeeIncurred;
+				worksheet.Cell(row, 28).Value = item.ChiPhiPhatSinh;
+				worksheet.Cell(row, 29).Value = item.LoiNhuan;
 				row++;
 			}
 
-			worksheet.Range("A1:AA" + currRow).Style.Border.TopBorder = XLBorderStyleValues.Dashed;
+			worksheet.Range("A1:AC" + currRow).Style.Border.TopBorder = XLBorderStyleValues.Dashed;
 			worksheet.Range("D2:F" + row).Style.DateFormat.Format = "DD-MM-YYYY HH:mm";
 			worksheet.Columns().AdjustToContents();
 
@@ -216,6 +216,21 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 			string excelName = $"HoaDon " + DateTime.Now.ToString("dd-MM-yyyy") + ".xlsx";
 
 			return File(content, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", excelName);
+		}
+
+		[HttpPost]
+		[Route("[action]")]
+		public async Task<IActionResult> BlockDataBillBy(string customerId, DateTime datePay, DateTime dateTime, string bank)
+		{
+			var block = await _bill.BlockDataBillByKy(customerId, datePay, dateTime, bank);
+			if (block.isSuccess)
+			{
+				return Ok(block.Message);
+			}
+			else
+			{
+				return BadRequest(block.Message);
+			}
 		}
 	}
 }

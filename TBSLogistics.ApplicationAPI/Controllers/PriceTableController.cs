@@ -260,6 +260,22 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 			}
 		}
 
+		[HttpPost]
+		[Route("[action]")]
+		public async Task<IActionResult> RevertPriceTableHandling(string contractId, string cusId)
+		{
+			var revert = await _priceTable.RevertPriceTableOfHandling(contractId, cusId);
+
+			if (revert.isSuccess)
+			{
+				return Ok(revert.Message);
+			}
+			else
+			{
+				return BadRequest(revert.Message);
+			}
+		}
+
 		[HttpGet]
 		[Route("[action]")]
 		public async Task<IActionResult> ExportExcelPriceTable(string cusType)

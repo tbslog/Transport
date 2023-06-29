@@ -7,6 +7,7 @@ namespace TBSLogistics.Data.TMS
     {
         public KhachHang()
         {
+            ChotSanLuongTheoKy = new HashSet<ChotSanLuongTheoKy>();
             DieuPhoi = new HashSet<DieuPhoi>();
             HopDongVaPhuLuc = new HashSet<HopDongVaPhuLuc>();
             KhachHangAccount = new HashSet<KhachHangAccount>();
@@ -30,7 +31,9 @@ namespace TBSLogistics.Data.TMS
         public DateTime UpdatedTime { get; set; }
         public string Updater { get; set; }
         public string Creator { get; set; }
+        public string TenRutGon { get; set; }
 
+        public virtual ICollection<ChotSanLuongTheoKy> ChotSanLuongTheoKy { get; set; }
         public virtual ICollection<DieuPhoi> DieuPhoi { get; set; }
         public virtual ICollection<HopDongVaPhuLuc> HopDongVaPhuLuc { get; set; }
         public virtual ICollection<KhachHangAccount> KhachHangAccount { get; set; }

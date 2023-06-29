@@ -12,6 +12,7 @@ namespace TBSLogistics.Model.Model.CustomerModel
         public string Chuoi { get; set; }
         public string MaKh { get; set; }
         public string TenKh { get; set; }
+        public string TenTomTat { get; set; }
         public string NhomKH { get; set; }
         public string LoaiKH { get; set; }
         public string MaSoThue { get; set; }

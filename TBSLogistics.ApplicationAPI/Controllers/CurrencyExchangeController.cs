@@ -37,6 +37,11 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 		[Route("[action]")]
 		public async Task<IActionResult> GetListExchangeRate([FromQuery] PaginationFilter filter)
 		{
+			var checkPermission = await _common.CheckPermission("P0003");
+			if (checkPermission.isSuccess == false)
+			{
+				return BadRequest(checkPermission.Message);
+			}
 			var route = Request.Path.Value;
 			var pagedData = await _iCurrencyExchange.GetListExchangeRate(filter);
 
@@ -48,6 +53,11 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 		[Route("[action]")]
 		public async Task<IActionResult> CreateExchangeRate(List<CreateExchangeRateModel> request)
 		{
+			var checkPermission = await _common.CheckPermission("P0001");
+			if (checkPermission.isSuccess == false)
+			{
+				return BadRequest(checkPermission.Message);
+			}
 			var create = await _iCurrencyExchange.CreateExchangeRate(request);
 
 			if (create.isSuccess)
@@ -64,6 +74,11 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 		[Route("[action]")]
 		public async Task<IActionResult> UpdateExchangeRate(int id, float priceFix, string note)
 		{
+			var checkPermission = await _common.CheckPermission("P0002");
+			if (checkPermission.isSuccess == false)
+			{
+				return BadRequest(checkPermission.Message);
+			}
 			var update = await _iCurrencyExchange.UpdateExchangeRate(id, priceFix, note);
 
 			if (update.isSuccess)

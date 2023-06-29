@@ -2,25 +2,20 @@
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Xml;
 using TBSLogistics.Data.TMS;
 using TBSLogistics.Model.CommonModel;
 using TBSLogistics.Model.Filter;
-using TBSLogistics.Model.Model.BillOfLadingModel;
-using TBSLogistics.Model.Model.PriceListModel;
 using TBSLogistics.Model.Model.UserModel;
 using TBSLogistics.Model.TempModel;
 using TBSLogistics.Model.Wrappers;
 using TBSLogistics.Service.Services.Common;
 using TBSLogistics.Service.Services.CurrencyExchange;
-using TBSLogistics.Service.Services.PricelistManage;
 
 namespace TBSLogistics.Service.Services.UserManage
 {
@@ -32,7 +27,7 @@ namespace TBSLogistics.Service.Services.UserManage
 		private readonly IHttpContextAccessor _httpContextAccessor;
 		private TempData tempData;
 
-		public UserService(TMSContext context, ICommon common, IHttpContextAccessor httpContextAccessor,ICurrencyExchange currencyExchange)
+		public UserService(TMSContext context, ICommon common, IHttpContextAccessor httpContextAccessor, ICurrencyExchange currencyExchange)
 		{
 			_httpContextAccessor = httpContextAccessor;
 			_common = common;
@@ -667,7 +662,6 @@ namespace TBSLogistics.Service.Services.UserManage
 			//                   from data in acckh.DefaultIfEmpty()
 			//                   select new { data };
 
-
 			//var to = listCustomer.ToQueryString();
 
 			var listTree = new List<ListTree>()
@@ -749,8 +743,6 @@ namespace TBSLogistics.Service.Services.UserManage
 				}).ToList()
 			}).ToList();
 
-
-
 			var checkData = await _context.ValidateDataByCustomer.Where(x => x.MaKh == cusId && x.MaAccount == accId).ToListAsync();
 
 			if (checkData == null)
@@ -831,7 +823,6 @@ namespace TBSLogistics.Service.Services.UserManage
 				});
 				await _context.ValidateDataByCustomer.AddRangeAsync(data);
 
-
 				var result = await _context.SaveChangesAsync();
 
 				if (result > 0)
@@ -848,9 +839,6 @@ namespace TBSLogistics.Service.Services.UserManage
 			{
 				throw;
 			}
-
 		}
-
-	
 	}
 }

@@ -7,19 +7,19 @@ using System.Threading.Tasks;
 using TBSLogistics.Data.TMS;
 using TBSLogistics.Model.Model.ReportModel;
 using TBSLogistics.Service.Services.Common;
-using TBSLogistics.Service.Services.PricelistManage;
+using TBSLogistics.Service.Services.CurrencyExchange;
 
 namespace TBSLogistics.Service.Services.Report
 {
 	public class ReportService : IReport
 	{
 		private readonly TMSContext _context;
-		private readonly IPriceTable _priceTable;
+		private readonly ICurrencyExchange _currencyExchange;
 		private readonly ICommon _common;
 
-		public ReportService(TMSContext context, ICommon common, IPriceTable priceTable)
+		public ReportService(TMSContext context, ICommon common, ICurrencyExchange currencyExchange)
 		{
-			_priceTable = priceTable;
+			_currencyExchange = currencyExchange;
 			_context = context;
 			_common = common;
 		}
@@ -99,8 +99,6 @@ namespace TBSLogistics.Service.Services.Report
 			var firstDateOfMonth = new DateTime(dateTime.Year, dateTime.Month, 1);
 			var lastDateOfMonth = new DateTime(dateTime.Year, dateTime.Month, DateTime.DaysInMonth(dateTime.Year, dateTime.Month));
 
-
-
 			var getData = from dp in _context.DieuPhoi
 						  join vd in _context.VanDon
 						  on dp.MaVanDon equals vd.MaVanDon
@@ -121,7 +119,7 @@ namespace TBSLogistics.Service.Services.Report
 						double priceSf = 0;
 						_context.SubFeePrice.Where(c => _context.SubFeeByContract.Where(y => y.MaDieuPhoi == item.dp.Id).Select(y => y.PriceId).Contains(c.PriceId)).ToList().ForEach(async c =>
 						   {
-							   priceSf += c.Price * await _priceTable.GetPriceTradeNow(c.PriceType);
+							   priceSf += c.Price * await _currencyExchange.GetPriceTradeNow(c.PriceType);
 						   });
 
 						listSubfee.Add(new arrDouble
@@ -130,7 +128,7 @@ namespace TBSLogistics.Service.Services.Report
 							value =
 							await _context.SfeeByTcommand.Where(y => y.IdTcommand == item.dp.Id && y.ApproveStatus == 14).SumAsync(y => y.Price) +
 							priceSf +
-							((double)item.dp.DonGiaNcc * await _priceTable.GetPriceTradeNow(item.dp.LoaiTienTeNcc))
+							((double)item.dp.DonGiaNcc * await _currencyExchange.GetPriceTradeNow(item.dp.LoaiTienTeNcc))
 						});
 					}
 				}
@@ -156,7 +154,7 @@ namespace TBSLogistics.Service.Services.Report
 						double priceSf = 0;
 						_context.SubFeePrice.Where(c => _context.SubFeeByContract.Where(y => y.MaDieuPhoi == item.dp.Id).Select(y => y.PriceId).Contains(c.PriceId)).ToList().ForEach(async c =>
 					   {
-						   priceSf += c.Price * await _priceTable.GetPriceTradeNow(c.PriceType);
+						   priceSf += c.Price * await _currencyExchange.GetPriceTradeNow(c.PriceType);
 					   });
 
 						listRevenue.Add(new arrDouble
@@ -165,7 +163,7 @@ namespace TBSLogistics.Service.Services.Report
 							value =
 							await _context.SfeeByTcommand.Where(y => y.IdTcommand == item.dp.Id && y.ApproveStatus == 14).SumAsync(y => y.Price) +
 							 priceSf +
-							((double)item.dp.DonGiaKh * await _priceTable.GetPriceTradeNow(item.dp.LoaiTienTeKh)),
+							((double)item.dp.DonGiaKh * await _currencyExchange.GetPriceTradeNow(item.dp.LoaiTienTeKh)),
 						});
 					}
 				}
@@ -191,7 +189,7 @@ namespace TBSLogistics.Service.Services.Report
 						listProfit.Add(new arrDouble
 						{
 							date = item.dp.CreatedTime.Date,
-							value = ((double)item.dp.DonGiaKh * await _priceTable.GetPriceTradeNow(item.dp.LoaiTienTeKh)) - ((double)item.dp.DonGiaNcc * await _priceTable.GetPriceTradeNow(item.dp.LoaiTienTeNcc))
+							value = ((double)item.dp.DonGiaKh * await _currencyExchange.GetPriceTradeNow(item.dp.LoaiTienTeKh)) - ((double)item.dp.DonGiaNcc * await _currencyExchange.GetPriceTradeNow(item.dp.LoaiTienTeNcc))
 						});
 					}
 				}
@@ -266,19 +264,19 @@ namespace TBSLogistics.Service.Services.Report
 				double priceSf = 0;
 				_context.SubFeePrice.Where(y => _context.SubFeeByContract.Where(z => z.MaDieuPhoi == item.dp.Id).Select(z => z.PriceId).Contains(y.PriceId) && y.CusType == "KH").ToList().ForEach(async x =>
 				{
-					priceSf = x.Price * await _priceTable.GetPriceTradeNow(x.PriceType);
+					priceSf = x.Price * await _currencyExchange.GetPriceTradeNow(x.PriceType);
 				});
 
 				listDataCustomer.Add(new DataReportOfCustomer()
 				{
 					customer = item.vd.MaKh,
-					totalSf = ((double)item.dp.DonGiaNcc * await _priceTable.GetPriceTradeNow(item.dp.LoaiTienTeNcc)) +
+					totalSf = ((double)item.dp.DonGiaNcc * await _currencyExchange.GetPriceTradeNow(item.dp.LoaiTienTeNcc)) +
 					await _context.SfeeByTcommand.Where(y => y.IdTcommand == item.dp.Id && y.ApproveStatus == 14).SumAsync(y => y.Price) +
 					priceSf,
 					totalMoney = await _context.SfeeByTcommand.Where(y => y.IdTcommand == item.dp.Id && y.ApproveStatus == 14).SumAsync(y => y.Price) +
-					((double)item.dp.DonGiaKh * await _priceTable.GetPriceTradeNow(item.dp.LoaiTienTeKh)) +
+					((double)item.dp.DonGiaKh * await _currencyExchange.GetPriceTradeNow(item.dp.LoaiTienTeKh)) +
 					priceSf,
-					profit = ((double)item.dp.DonGiaKh.Value * await _priceTable.GetPriceTradeNow(item.dp.LoaiTienTeKh)) - ((double)item.dp.DonGiaNcc.Value * await _priceTable.GetPriceTradeNow(item.dp.LoaiTienTeNcc))
+					profit = ((double)item.dp.DonGiaKh.Value * await _currencyExchange.GetPriceTradeNow(item.dp.LoaiTienTeKh)) - ((double)item.dp.DonGiaNcc.Value * await _currencyExchange.GetPriceTradeNow(item.dp.LoaiTienTeNcc))
 				});
 			}
 
@@ -287,19 +285,19 @@ namespace TBSLogistics.Service.Services.Report
 				double priceSf = 0;
 				_context.SubFeePrice.Where(y => _context.SubFeeByContract.Where(z => z.MaDieuPhoi == item.dp.Id).Select(z => z.PriceId).Contains(y.PriceId) && y.CusType == "NCC").ToList().ForEach(async x =>
 				{
-					priceSf = x.Price * await _priceTable.GetPriceTradeNow(x.PriceType);
+					priceSf = x.Price * await _currencyExchange.GetPriceTradeNow(x.PriceType);
 				});
 
 				listDataSuplier.Add(new DataReportOfCustomer()
 				{
 					customer = item.dp.DonViVanTai,
-					totalSf = ((double)item.dp.DonGiaNcc * await _priceTable.GetPriceTradeNow(item.dp.LoaiTienTeNcc)) +
+					totalSf = ((double)item.dp.DonGiaNcc * await _currencyExchange.GetPriceTradeNow(item.dp.LoaiTienTeNcc)) +
 					await _context.SfeeByTcommand.Where(y => y.IdTcommand == item.dp.Id && y.ApproveStatus == 14).SumAsync(y => y.Price) +
 					priceSf,
 					totalMoney = await _context.SfeeByTcommand.Where(y => y.IdTcommand == item.dp.Id && y.ApproveStatus == 14).SumAsync(y => y.Price) +
-					((double)item.dp.DonGiaKh * await _priceTable.GetPriceTradeNow(item.dp.LoaiTienTeKh)) +
+					((double)item.dp.DonGiaKh * await _currencyExchange.GetPriceTradeNow(item.dp.LoaiTienTeKh)) +
 					priceSf,
-					profit = ((double)item.dp.DonGiaKh.Value * await _priceTable.GetPriceTradeNow(item.dp.LoaiTienTeKh)) - ((double)item.dp.DonGiaNcc.Value * await _priceTable.GetPriceTradeNow(item.dp.LoaiTienTeNcc))
+					profit = ((double)item.dp.DonGiaKh.Value * await _currencyExchange.GetPriceTradeNow(item.dp.LoaiTienTeKh)) - ((double)item.dp.DonGiaNcc.Value * await _currencyExchange.GetPriceTradeNow(item.dp.LoaiTienTeNcc))
 				});
 			}
 
@@ -363,8 +361,8 @@ namespace TBSLogistics.Service.Services.Report
 				supllierReports = DataSupplier,
 			};
 
-
 			#region fix lấy thống kê theo kỳ
+
 			//var data = from vd in _context.VanDon
 			//		   join dp in _context.DieuPhoi
 			//		   on vd.MaVanDon equals dp.MaVanDon
@@ -511,7 +509,8 @@ namespace TBSLogistics.Service.Services.Report
 			//	customerReports = DataCustomer.OrderBy(x => x.CustomerName).ToList(),
 			//	supllierReports = DataSupplier.OrderBy(x => x.CustomerName).ToList(),
 			//};
-			#endregion
+
+			#endregion fix lấy thống kê theo kỳ
 		}
 	}
 }

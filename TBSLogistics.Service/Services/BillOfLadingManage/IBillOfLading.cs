@@ -47,5 +47,6 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
         Task<BoolActionResult> CancelTransport(string transportId);
         Task<BoolActionResult> ChangeSecondPlace(ChangeSecondPlaceOfHandling request);
         Task<BoolActionResult> SetSupplierForHandling(SetSupplierForHandling request);
+        Task<BoolActionResult> FastCompleteTransport(List<long> ids);
 	}
 }
