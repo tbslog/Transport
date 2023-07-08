@@ -893,6 +893,21 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 											});
 										}
 									}
+
+									var getSubFeeNCC = await _subFeePrice.GetListSubFeePriceActive(item.DonViVanTai, request.AccountId, item.LoaiHangHoa, request.DiemDau, request.DiemCuoi, getEmptyPlace, insertHandling.Entity.Id, item.PTVanChuyen);
+									foreach (var sfp in getSubFeeNCC)
+									{
+										if (sfp != null)
+										{
+											await _context.SubFeeByContract.AddAsync(new SubFeeByContract()
+											{
+												PriceId = sfp.PriceId,
+												MaDieuPhoi = insertHandling.Entity.Id,
+												CreatedDate = DateTime.Now,
+												Creator = tempData.UserName,
+											});
+										}
+									}
 								}
 							}
 						}
@@ -1479,6 +1494,21 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 					{
 						var getSubFee = await _subFeePrice.GetListSubFeePriceActive(getTransport.MaKh, getTransport.MaAccount, checkById.MaLoaiHangHoa, getTransport.DiemDau, getTransport.DiemCuoi, getEmptyPlace, checkById.Id, checkById.MaLoaiPhuongTien);
 						foreach (var sfp in getSubFee)
+						{
+							if (sfp != null)
+							{
+								await _context.SubFeeByContract.AddAsync(new SubFeeByContract()
+								{
+									PriceId = sfp.PriceId,
+									MaDieuPhoi = checkById.Id,
+									CreatedDate = DateTime.Now,
+									Creator = tempData.UserName,
+								});
+							}
+						}
+
+						var getSubFeeNCC = await _subFeePrice.GetListSubFeePriceActive(request.DonViVanTai, getTransport.MaAccount, checkById.MaLoaiHangHoa, getTransport.DiemDau, getTransport.DiemCuoi, getEmptyPlace, checkById.Id, checkById.MaLoaiPhuongTien);
+						foreach (var sfp in getSubFeeNCC)
 						{
 							if (sfp != null)
 							{
@@ -5062,6 +5092,21 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 						}
 					}
 
+					var getSubFeeNCC = await _subFeePrice.GetListSubFeePriceActive(getHandling.DonViVanTai, getTransport.MaAccount, getHandling.MaLoaiHangHoa, getTransport.DiemDau, checkSplace.MaDiaDiem, getEmptyPlace, getHandling.Id, getHandling.MaLoaiPhuongTien);
+					foreach (var sfp in getSubFeeNCC)
+					{
+						if (sfp != null)
+						{
+							await _context.SubFeeByContract.AddAsync(new SubFeeByContract()
+							{
+								PriceId = sfp.PriceId,
+								MaDieuPhoi = getHandling.Id,
+								CreatedDate = DateTime.Now,
+								Creator = tempData.UserName,
+							});
+						}
+					}
+
 					await _common.LogTimeUsedOfUser(tempData.Token);
 					await _common.Log("BillOfLading ", "UserId: " + tempData.UserName + " change second place with transportId=" + request.transportId + ": " + JsonSerializer.Serialize(request));
 					await transaction.CommitAsync();
@@ -5731,7 +5776,7 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 								return new BoolActionResult { isSuccess = false, Message = "Mã chuyến: " + hl.MaChuyen + " chưa có đơn vị vận tải" };
 							}
 
-							if(hl.ThoiGianTraHangThucTe == null)
+							if (hl.ThoiGianTraHangThucTe == null)
 							{
 								return new BoolActionResult { isSuccess = false, Message = "Mã chuyến: " + hl.MaChuyen + " chưa có thời gian trả hàng thực tế" };
 							}

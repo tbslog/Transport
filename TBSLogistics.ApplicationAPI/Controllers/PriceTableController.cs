@@ -1,4 +1,5 @@
 ﻿using ClosedXML.Excel;
+using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -172,7 +173,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 		[Route("[action]")]
 		public async Task<IActionResult> GetListPriceTableApprove([FromQuery] PaginationFilter filter, string contractId = null)
 		{
-			var checkPermission = await _common.CheckPermission("C0002");
+			var checkPermission = await _common.CheckPermission("C0001");
 			if (checkPermission.isSuccess == false)
 			{
 				return BadRequest(checkPermission.Message);
@@ -369,7 +370,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 		{
 			var workbook = new XLWorkbook();
 			var worksheet = workbook.Worksheets.Add("TemplatePriceTable");
-			var worksheet1 = workbook.Worksheets.Add("DataAddress");
+			var worksheet1 = workbook.Worksheets.Add("MasterData");
 
 			worksheet.Range("A1:K1").Style.Border.TopBorder = XLBorderStyleValues.Thin;
 			worksheet.Range("A1:K1").Style.Fill.BackgroundColor = XLColor.Red;
@@ -417,19 +418,96 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 			worksheet1.Range("A1:C1").Style.Font.Bold = true;
 			worksheet1.Range("A1:C1").Style.Fill.BackgroundColor = XLColor.LightGray;
 			worksheet1.Range("A1:C1").Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
-
-			worksheet1.Cell(currRow, 1).Value = "Mã Địa Điểm";
+			worksheet1.Cell(currRow, 3).Value = "Mã Địa Điểm";
 			worksheet1.Cell(currRow, 2).Value = "Tên Địa Điểm";
-			worksheet1.Cell(currRow, 3).Value = "Thuộc Khu Vực";
+			worksheet1.Cell(currRow, 1).Value = "Thuộc Khu Vực";
+	
 
 			foreach (var row in getData.dataResponse)
 			{
 				currRow++;
-				worksheet1.Cell(currRow, 1).Value = row.MaDiaDiem;
 				worksheet1.Cell(currRow, 2).Value = row.TenDiaDiem;
-				worksheet1.Cell(currRow, 3).Value = row.KhuVuc;
+				worksheet1.Cell(currRow, 1).Value = row.KhuVuc;
+				worksheet1.Cell(currRow, 3).Value = row.MaDiaDiem;
 			}
 			worksheet1.Range("A1:C" + currRow).Style.Border.TopBorder = XLBorderStyleValues.Thin;
+
+			worksheet1.Range("E1:F1").Style.Border.TopBorder = XLBorderStyleValues.Thin;
+			worksheet1.Range("E1:F1").Style.Font.FontSize = 15;
+			worksheet1.Range("E1:F1").Style.Font.Bold = true;
+			worksheet1.Range("E1:F1").Style.Fill.BackgroundColor = XLColor.LightGray;
+			worksheet1.Range("E1:F1").Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+			worksheet1.Cell(1, 5).Value = "Tên Tiền Tệ";
+			worksheet1.Cell(1, 6).Value = "Mã Tiền Tệ";
+
+			var getPriceType = await _context.LoaiTienTe.ToListAsync();
+
+			int currRowPrice = 1;
+
+			foreach (var item in getPriceType)
+			{
+				currRowPrice++;
+				worksheet1.Cell(currRowPrice, 5).Value = item.TenLoaiTienTe;
+				worksheet1.Cell(currRowPrice, 6).Value = item.MaLoaiTienTe;
+			}
+			worksheet1.Range("E1:F" + currRowPrice).Style.Border.TopBorder = XLBorderStyleValues.Thin;
+
+			worksheet1.Range("H1:I1").Style.Border.TopBorder = XLBorderStyleValues.Thin;
+			worksheet1.Range("H1:I1").Style.Font.FontSize = 15;
+			worksheet1.Range("H1:I1").Style.Font.Bold = true;
+			worksheet1.Range("H1:I1").Style.Fill.BackgroundColor = XLColor.LightGray;
+			worksheet1.Range("H1:I1").Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+			worksheet1.Cell(1, 8).Value = "Tên PTVC";
+			worksheet1.Cell(1, 9).Value = "Mã PTVC";
+			var getTransportType = await _context.PhuongThucVanChuyen.ToListAsync();
+
+			int currRowTransportType = 1;
+			foreach (var item in getTransportType)
+			{
+				currRowTransportType++;
+				worksheet1.Cell(currRowTransportType, 8).Value = item.TenPtvc;
+				worksheet1.Cell(currRowTransportType, 9).Value = item.MaPtvc;
+			}
+			worksheet1.Range("H1:I" + currRowTransportType).Style.Border.TopBorder = XLBorderStyleValues.Thin;
+
+			worksheet1.Range("K1:M1").Style.Border.TopBorder = XLBorderStyleValues.Thin;
+			worksheet1.Range("K1:M1").Style.Font.FontSize = 15;
+			worksheet1.Range("K1:M1").Style.Font.Bold = true;
+			worksheet1.Range("K1:M1").Style.Fill.BackgroundColor = XLColor.LightGray;
+			worksheet1.Range("K1:M1").Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+			worksheet1.Cell(1, 11).Value = "Loại PT";
+			worksheet1.Cell(1, 12).Value = "Tên PT";
+			worksheet1.Cell(1, 13).Value = "Mã PT";
+			var getVehicleType = await _context.LoaiPhuongTien.ToListAsync();
+
+			int currRowVehicleType = 1;
+			foreach (var item in getVehicleType)
+			{
+				currRowVehicleType++;
+				worksheet1.Cell(currRowVehicleType, 11).Value = item.PhanLoai;
+				worksheet1.Cell(currRowVehicleType, 12).Value = item.TenLoaiPhuongTien;
+				worksheet1.Cell(currRowVehicleType, 13).Value = item.MaLoaiPhuongTien;
+			}
+			worksheet1.Range("K1:M" + currRowVehicleType).Style.Border.TopBorder = XLBorderStyleValues.Thin;
+
+			worksheet1.Range("O1:P1").Style.Border.TopBorder = XLBorderStyleValues.Thin;
+			worksheet1.Range("O1:P1").Style.Font.FontSize = 15;
+			worksheet1.Range("O1:P1").Style.Font.Bold = true;
+			worksheet1.Range("O1:P1").Style.Fill.BackgroundColor = XLColor.LightGray;
+			worksheet1.Range("O1:P1").Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+			worksheet1.Cell(1, 15).Value = "Tên Hàng Hóa";
+			worksheet1.Cell(1, 16).Value = "Mã Hàng Hóa";
+			var getGoodsType = await _context.LoaiHangHoa.ToListAsync();
+
+			int currRowGoodsType = 1;
+			foreach (var item in getGoodsType)
+			{
+				currRowGoodsType++;
+				worksheet1.Cell(currRowGoodsType, 15).Value = item.TenLoaiHangHoa;
+				worksheet1.Cell(currRowGoodsType, 16).Value = item.MaLoaiHangHoa;
+			}
+			worksheet1.Range("O1:P" + currRowGoodsType).Style.Border.TopBorder = XLBorderStyleValues.Thin;
+
 			worksheet1.Columns().AdjustToContents();
 
 			using var stream = new MemoryStream();

@@ -369,6 +369,12 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
 					{
 						var getContract = await _context.HopDongVaPhuLuc.Where(x => x.MaHopDong == getById.ContractId).FirstOrDefaultAsync();
 
+						if(getContract.TrangThai != 24)
+						{
+							Errors += "Mã phụ phí: " + item.SubFeePriceId + ", không sử dụng Hợp Đồng/Phụ Lục đã duyệt, Vui lòng chọn lại Hợp Đồng/Phụ Lục đã duyệt \r\n";
+							continue;
+						}
+
 						if (getContract != null)
 						{
 							var getNewestContract = await _context.HopDongVaPhuLuc.Where(x => x.MaKh == getContract.MaKh).OrderByDescending(x => x.ThoiGianBatDau).FirstOrDefaultAsync();

@@ -307,7 +307,6 @@ namespace TBSLogistics.Service.Services.PriceTableManage
 						  on hd.MaKh equals kh.MaKh
 						  where (bg.NgayHetHieuLuc.Value.Date > DateTime.Now.Date || bg.NgayHetHieuLuc == null)
 						  && bg.NgayApDung.Date <= DateTime.Now.Date
-						  && bg.TrangThai == 4
 						  orderby bg.NgayApDung descending
 						  select new { bg, hd, kh };
 

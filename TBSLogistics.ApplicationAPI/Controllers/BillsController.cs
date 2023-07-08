@@ -99,6 +99,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 		[Route("[action]")]
 		public async Task<IActionResult> StoreDataHandlingToBill(StoreDataHandling request)
 		{
+			var checkPermission = await _common.CheckPermission("G0003");
+			if (checkPermission.isSuccess == false)
+			{
+				return BadRequest(checkPermission.Message);
+			}
+
 			var add = await _bill.StoreDataHandlingToBill(request);
 
 			if (add.isSuccess)
@@ -115,6 +121,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 		[Route("[action]")]
 		public async Task<IActionResult> GetListHandlingToPick([FromQuery] PaginationFilter filter)
 		{
+			var checkPermission = await _common.CheckPermission("G0003");
+			if (checkPermission.isSuccess == false)
+			{
+				return BadRequest(checkPermission.Message);
+			}
+
 			var route = Request.Path.Value;
 			var pagedData = await _bill.GetListHandlingToPick(filter);
 			var pagedReponse = PaginationHelper.CreatePagedReponse<ListBillHandling>(pagedData.dataResponse, pagedData.paginationFilter, pagedData.totalCount, _uriService, route); ;
@@ -125,6 +137,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 		[Route("[action]")]
 		public async Task<IActionResult> ExportExcelBill([FromQuery] PaginationFilter filter)
 		{
+			var checkPermission = await _common.CheckPermission("G0002");
+			if (checkPermission.isSuccess == false)
+			{
+				return BadRequest(checkPermission.Message);
+			}
+
 			filter.PageNumber = 1;
 			filter.PageSize = 500000;
 			filter.maptvc = "GetAllSubfeeExportExcel";
@@ -222,6 +240,12 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 		[Route("[action]")]
 		public async Task<IActionResult> BlockDataBillBy(string customerId, DateTime datePay, DateTime dateTime, string bank)
 		{
+			var checkPermission = await _common.CheckPermission("G0003");
+			if (checkPermission.isSuccess == false)
+			{
+				return BadRequest(checkPermission.Message);
+			}
+
 			var block = await _bill.BlockDataBillByKy(customerId, datePay, dateTime, bank);
 			if (block.isSuccess)
 			{

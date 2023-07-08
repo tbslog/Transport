@@ -62,7 +62,7 @@ namespace TBSLogistics.ApplicationAPI
 			});
 
 			services.AddDbContext<TMSContext>(options =>
-			options.UseSqlServer(Configuration["TMS_Cloud"],
+			options.UseSqlServer(Configuration["TMS_Local"],
 			 providerOptions =>
 			 {
 				 providerOptions.CommandTimeout(180);
