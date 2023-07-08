@@ -1,9 +1,13 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { getData, postData, getFile } from "../Common/FuncAxios";
 import { useForm, Controller } from "react-hook-form";
 import moment from "moment";
 import DatePicker from "react-datepicker";
 import LoadingPage from "../Common/Loading/LoadingPage";
+import { useRef } from "react";
+import AddPriceTable from "../PriceListManage/AddPriceTable";
+import { Modal } from "bootstrap";
+import ConfirmDialog from "../Common/Dialog/ConfirmDialog";
 
 const EditContract = (props) => {
   const [IsLoading, SetIsLoading] = useState(true);
@@ -78,6 +82,22 @@ const EditContract = (props) => {
         message: "Không phải định dạng ngày",
       },
     },
+    NgayCongNo: {
+      required: "Không được để trống",
+      maxLength: {
+        value: 2,
+        message: "Không được vượt quá 2 ký tự",
+      },
+      pattern: {
+        value: /^[0-9]*$/,
+        message: "Chỉ được nhập ký tự là số",
+      },
+      validate: (value) => {
+        if (parseInt(value) < 30) {
+          return "Không được nhỏ hơn 30";
+        }
+      },
+    },
     PTVC: {
       required: "Không được để trống",
     },
@@ -105,6 +125,22 @@ const EditContract = (props) => {
 
   const [downloadFile, setDownloadFile] = useState(null);
 
+  const [ShowModal, SetShowModal] = useState("");
+  const [modal, setModal] = useState(null);
+  const parseExceptionModal = useRef();
+
+  const [isAccept, setIsAccept] = useState();
+  const [ShowConfirm, setShowConfirm] = useState(false);
+
+  const showModalForm = () => {
+    const modal = new Modal(parseExceptionModal.current, {
+      keyboard: false,
+      backdrop: "static",
+    });
+    setModal(modal);
+    modal.show();
+  };
+
   useEffect(() => {
     if (
       props &&
@@ -123,9 +159,11 @@ const EditContract = (props) => {
       }
 
       setValue("NgayThanhToan", props.selectIdClick.ngayThanhToan);
+      setValue("NgayCongNo", props.selectIdClick.ngayCongNo);
       setValue("MaHopDong", props.selectIdClick.maHopDong);
       setValue("TenHopDong", props.selectIdClick.tenHienThi);
       setValue("MaKh", props.selectIdClick.maKh);
+      setValue("TenKh", props.selectIdClick.tenKh);
       setValue("GhiChu", props.selectIdClick.ghiChu);
       setDownloadFile(props.selectIdClick.file);
       setValue("TrangThai", props.selectIdClick.trangThai);
@@ -183,6 +221,30 @@ const EditContract = (props) => {
     }
   };
 
+  const funcAgree = async () => {
+    if (props.selectIdClick && Object.keys(props.selectIdClick).length > 0) {
+      let arr = [];
+      arr.push({
+        contractId: props.selectIdClick.maHopDong,
+        Selection: 0,
+      });
+      const SetApprove = await postData(`Contract/ApproveContract`, arr);
+      if (SetApprove === 1) {
+        props.getListContract(
+          1,
+          "",
+          "",
+          "",
+          "",
+          props.tabIndex === 0 ? "KH" : "NCC"
+        );
+
+        props.hideModal();
+      }
+      setShowConfirm(false);
+    }
+  };
+
   const onSubmit = async (data) => {
     SetIsLoading(true);
 
@@ -191,6 +253,7 @@ const EditContract = (props) => {
       {
         LoaiHinhHopTac: data.LoaiHinhHopTac,
         MaLoaiSPDV: data.LoaiSPDV,
+        NgayCongNo: !data.NgayCongNo ? null : data.NgayCongNo,
         MaLoaiHinh: data.LoaiHinhKho,
         HinhThucThue: data.HinhThucThueKho,
         NgayThanhToan: !data.NgayThanhToan ? null : data.NgayThanhToan,
@@ -303,6 +366,23 @@ const EditContract = (props) => {
                           </div>
                           <div className="col col-sm">
                             <div className="form-group">
+                              <label htmlFor="TenKh">Tên Đối Tác(*)</label>
+                              <input
+                                type="text "
+                                className="form-control"
+                                id="TenKh"
+                                readOnly
+                                {...register("TenKh", Validate.TenKh)}
+                              />
+                              {errors.TenKh && (
+                                <span className="text-danger">
+                                  {errors.TenKh.message}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <div className="col col-sm">
+                            <div className="form-group">
                               <label htmlFor="NgayThanhToan">
                                 Ngày Chốt Sản Lượng(*)
                               </label>
@@ -319,6 +399,25 @@ const EditContract = (props) => {
                               {errors.NgayThanhToan && (
                                 <span className="text-danger">
                                   {errors.NgayThanhToan.message}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <div className="col col-sm">
+                            <div className="form-group">
+                              <label htmlFor="NgayCongNo">
+                                Số Ngày Công Nợ(*)
+                              </label>
+                              <input
+                                type="text"
+                                className="form-control"
+                                id="NgayCongNo"
+                                placeholder="Số Ngày Công Nợ"
+                                {...register("NgayCongNo", Validate.NgayCongNo)}
+                              />
+                              {errors.NgayCongNo && (
+                                <span className="text-danger">
+                                  {errors.NgayCongNo.message}
                                 </span>
                               )}
                             </div>
@@ -520,7 +619,7 @@ const EditContract = (props) => {
                         </div>
 
                         <div className="row">
-                          <div className="col col-sm">
+                          <div className="col col-2">
                             <div className="form-group">
                               <label htmlFor="FileContact">
                                 Tải lên tệp Phục Lục
@@ -540,7 +639,7 @@ const EditContract = (props) => {
                               )}
                             </div>
                           </div>
-                          <div className="col col-sm">
+                          <div className="col col-2">
                             {props.selectIdClick.fileContract &&
                               props.selectIdClick.fileContract !== "0" && (
                                 <div>
@@ -566,7 +665,7 @@ const EditContract = (props) => {
                           </div>
                         </div>
                         <div className="row">
-                          <div className="col col-sm">
+                          <div className="col col-2">
                             <div className="form-group">
                               <label htmlFor="FileCosting">
                                 Tải lên tệp Costing(*)
@@ -586,7 +685,7 @@ const EditContract = (props) => {
                               )}
                             </div>
                           </div>
-                          <div className="col col-sm">
+                          <div className="col col-2">
                             {props.selectIdClick.fileCosing &&
                               props.selectIdClick.fileCosing !== "0" && (
                                 <div>
@@ -640,14 +739,42 @@ const EditContract = (props) => {
                         </div>
                       </div>
                       <div className="card-footer">
-                        <div>
-                          <button
-                            type="submit"
-                            className="btn btn-primary"
-                            style={{ float: "right" }}
-                          >
-                            Cập nhật
-                          </button>
+                        <div className="row">
+                          <div className="col col-sm">
+                            <button
+                              onClick={() => {
+                                SetShowModal("PriceTable");
+                                showModalForm();
+                              }}
+                              type="button"
+                              className="btn btn-title btn-sm btn-default mx-1"
+                              gloss="Xem Bảng Giá"
+                            >
+                              <i className="fas fa-money-check-alt"></i>
+                            </button>
+                            {props.selectIdClick.trangThai === 49 && (
+                              <button
+                                type="button"
+                                className="btn btn-title btn-sm btn-default "
+                                gloss="Duyệt Hợp Đồng/Phụ Lục"
+                                onClick={() => {
+                                  setShowConfirm(true);
+                                  setIsAccept(0);
+                                }}
+                              >
+                                <i className="fas fa-thumbs-up"></i>
+                              </button>
+                            )}
+                          </div>
+                          <div className="col col-sm">
+                            <button
+                              type="submit"
+                              className="btn btn-primary"
+                              style={{ float: "right" }}
+                            >
+                              Cập nhật
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </form>
@@ -717,6 +844,23 @@ const EditContract = (props) => {
                               {errors.MaKh && (
                                 <span className="text-danger">
                                   {errors.MaKh.message}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <div className="col col-sm">
+                            <div className="form-group">
+                              <label htmlFor="TenKh">Tên Đối Tác(*)</label>
+                              <input
+                                type="text "
+                                className="form-control"
+                                id="TenKh"
+                                readOnly
+                                {...register("TenKh", Validate.TenKh)}
+                              />
+                              {errors.TenKh && (
+                                <span className="text-danger">
+                                  {errors.TenKh.message}
                                 </span>
                               )}
                             </div>
@@ -955,10 +1099,10 @@ const EditContract = (props) => {
                         </div>
 
                         <div className="row">
-                          <div className="col col-sm">
+                          <div className="col col-2">
                             <div className="form-group">
                               <label htmlFor="FileContact">
-                                Tải lên tệp Phục Lục
+                                Cập nhật tệp Phục Lục
                               </label>
                               <input
                                 type="file"
@@ -975,7 +1119,7 @@ const EditContract = (props) => {
                               )}
                             </div>
                           </div>
-                          <div className="col col-sm">
+                          <div className="col col-2">
                             {props.selectIdClick.fileContract &&
                               props.selectIdClick.fileContract !== "0" && (
                                 <div>
@@ -1004,7 +1148,7 @@ const EditContract = (props) => {
                           <div className="col col-sm">
                             <div className="form-group">
                               <label htmlFor="FileCosting">
-                                Tải lên tệp Costing(*)
+                                Cập nhật tệp Costing(*)
                               </label>
                               <input
                                 type="file"
@@ -1046,7 +1190,6 @@ const EditContract = (props) => {
                               )}
                           </div>
                         </div>
-
                         <div className="form-group">
                           <label htmlFor="TrangThai">Trạng thái(*)</label>
                           <select
@@ -1074,14 +1217,39 @@ const EditContract = (props) => {
                         </div>
                       </div>
                       <div className="card-footer">
-                        <div>
-                          <button
-                            type="submit"
-                            className="btn btn-primary"
-                            style={{ float: "right" }}
-                          >
-                            Cập nhật
-                          </button>
+                        <div className="row">
+                          <div className="col col-sm">
+                            <button
+                              onClick={() => SetShowModal("PriceTable")}
+                              type="button"
+                              className="btn btn-title btn-sm btn-default mx-1"
+                              gloss="Xem Bảng Giá"
+                            >
+                              <i className="fas fa-money-check-alt"></i>
+                            </button>
+                            {props.selectIdClick.trangThai === 49 && (
+                              <button
+                                type="button"
+                                className="btn btn-title btn-sm btn-default "
+                                gloss="Duyệt Hợp Đồng/Phụ Lục"
+                                onClick={() => {
+                                  setShowConfirm(true);
+                                  setIsAccept(0);
+                                }}
+                              >
+                                <i className="fas fa-thumbs-up"></i>
+                              </button>
+                            )}
+                          </div>
+                          <div className="col col-sm">
+                            <button
+                              type="submit"
+                              className="btn btn-primary"
+                              style={{ float: "right" }}
+                            >
+                              Cập nhật
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </form>
@@ -1091,6 +1259,50 @@ const EditContract = (props) => {
             )}
           </>
         )}
+      </div>
+      {ShowConfirm === true && (
+        <ConfirmDialog
+          setShowConfirm={setShowConfirm}
+          title={"Bạn có chắc chắn với quyết định này?"}
+          content={
+            "Khi thực hiện hành động này sẽ không thể hoàn tác lại được nữa."
+          }
+          funcAgree={funcAgree}
+        />
+      )}
+      <div
+        className="modal fade"
+        id="modal-xl"
+        data-backdrop="static"
+        ref={parseExceptionModal}
+        aria-labelledby="parseExceptionModal"
+        backdrop="static"
+      >
+        <div
+          className="modal-dialog modal-dialog-scrollable"
+          style={{ maxWidth: "90%" }}
+        >
+          <div className="modal-content">
+            <div className="modal-header">
+              <button
+                type="button"
+                className="close"
+                data-dismiss="modal"
+                onClick={() => modal.hide()}
+                aria-label="Close"
+              >
+                <span aria-hidden="true">×</span>
+              </button>
+            </div>
+            <div className="modal-body">
+              <>
+                {ShowModal === "PriceTable" && (
+                  <AddPriceTable selectIdClick={props.selectIdClick} />
+                )}
+              </>
+            </div>
+          </div>
+        </div>
       </div>
     </>
   );

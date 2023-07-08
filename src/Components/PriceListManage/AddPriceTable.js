@@ -200,6 +200,7 @@ const AddPriceTable = (props) => {
   }, [listCustomerType]);
 
   useEffect(() => {
+    console.log(selectIdClick);
     if (selectIdClick && Object.keys(selectIdClick).length > 0) {
       setTabIndex(2);
     } else {

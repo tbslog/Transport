@@ -247,7 +247,7 @@ const ApprovePriceTable = (props) => {
           <div className="card-header">
             <div className="container-fruid">
               <div className="row">
-                <div className="col col-sm">
+                {/* <div className="col col-sm">
                   <button
                     type="button"
                     className="btn btn-title btn-sm btn-default mx-1"
@@ -271,7 +271,7 @@ const ApprovePriceTable = (props) => {
                   >
                     <i className="fas fa-thumbs-down"></i>
                   </button>
-                </div>
+                </div> */}
                 <div className="col col-sm">
                   <div className="row">
                     <div className="col col-sm">
@@ -398,6 +398,7 @@ const ApprovePriceTable = (props) => {
                 selectableRows
                 clearSelectedRows={toggledClearRows}
                 striped
+                dense
                 direction="auto"
                 responsive
                 fixedHeader

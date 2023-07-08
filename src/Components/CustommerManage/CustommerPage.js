@@ -7,6 +7,7 @@ import CreateCustommer from "./CreateCustommer";
 import { Modal } from "bootstrap";
 import { ToastWarning } from "../Common/FuncToast";
 import EditAccount from "../ContractManage/EditAccount";
+import { Tooltip, OverlayTrigger } from "react-bootstrap";
 
 const customStyles = {
   rows: {
@@ -79,13 +80,33 @@ const CustommerPage = () => {
     },
     {
       name: "Tên Đối Tác",
-      selector: (row) => row.tenKh,
-      sortable: true,
+      selector: (row) => (
+        <OverlayTrigger
+          placement="top"
+          overlay={
+            <Tooltip id="tooltip">
+              <strong>{row.tenKh}</strong>
+            </Tooltip>
+          }
+        >
+          <div bsStyle="default">{row.tenKh}</div>
+        </OverlayTrigger>
+      ),
     },
     {
       name: "Tên Rút Gọn",
-      selector: (row) => row.tenTomTat,
-      sortable: true,
+      selector: (row) => (
+        <OverlayTrigger
+          placement="top"
+          overlay={
+            <Tooltip id="tooltip">
+              <strong>{row.tenTomTat}</strong>
+            </Tooltip>
+          }
+        >
+          <div bsStyle="default">{row.tenTomTat}</div>
+        </OverlayTrigger>
+      ),
     },
     {
       name: "Phân Loại",

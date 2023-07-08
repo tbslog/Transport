@@ -17,7 +17,7 @@ const ContractPage = (props) => {
   const [loading, setLoading] = useState(false);
   const [totalRows, setTotalRows] = useState(0);
   const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(10);
+  const [perPage, setPerPage] = useState(30);
   const [keySearch, setKeySearch] = useState("");
 
   const [ShowModal, SetShowModal] = useState("");
@@ -111,6 +111,16 @@ const ContractPage = (props) => {
       button: true,
     },
     {
+      name: <div>Trạng thái</div>,
+      selector: (row) => row.trangThai,
+      cell: (row) =>
+        row.trangThai === "Chờ Duyệt" ? (
+          <b style={{ color: "orange" }}>{row.trangThai}</b>
+        ) : (
+          row.trangThai
+        ),
+    },
+    {
       name: "Chuỗi",
       selector: (row) => row.chuoiKhachHang,
       allowOverflow: true,
@@ -182,10 +192,7 @@ const ContractPage = (props) => {
       name: <div>Hình Thức Thuê</div>,
       selector: (row) => row.hinhThucThue,
     },
-    {
-      name: <div>Trạng thái</div>,
-      selector: (row) => row.trangThai,
-    },
+
     {
       name: <div>Thời Gian Bắt Đầu</div>,
       selector: (row) => moment(row.thoiGianBatDau).format(" DD/MM/YYYY"),
@@ -313,8 +320,9 @@ const ContractPage = (props) => {
     const dataCus = await getData(
       `Contract/GetListContract?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${KeyWord}&fromDate=${fromDate}&toDate=${toDate}&contractType=${contractType}&customerType=${customerType}`
     );
-    setData(dataCus.data);
+
     setPerPage(newPerPage);
+    setData(dataCus.data);
     setLoading(false);
   };
 
@@ -442,17 +450,58 @@ const ContractPage = (props) => {
                 button: true,
               },
               {
+                name: <div>Trạng thái</div>,
+                selector: (row) => row.trangThai,
+                cell: (row) =>
+                  row.trangThai === "Chờ Duyệt" ? (
+                    <b style={{ color: "orange" }}>{row.trangThai}</b>
+                  ) : (
+                    row.trangThai
+                  ),
+              },
+              {
                 name: "Account",
-                selector: (row) => row.account,
+                selector: (row) => (
+                  <OverlayTrigger
+                    placement="top"
+                    overlay={
+                      <Tooltip id="tooltip">
+                        <strong>{row.account}</strong>
+                      </Tooltip>
+                    }
+                  >
+                    <div bsStyle="default">{row.account}</div>
+                  </OverlayTrigger>
+                ),
               },
               {
                 name: "Mã Hợp Đồng",
-                selector: (row) => row.maHopDong,
+                selector: (row) => (
+                  <OverlayTrigger
+                    placement="top"
+                    overlay={
+                      <Tooltip id="tooltip">
+                        <strong>{row.maHopDong}</strong>
+                      </Tooltip>
+                    }
+                  >
+                    <div bsStyle="default">{row.maHopDong}</div>
+                  </OverlayTrigger>
+                ),
               },
               {
                 name: "Tên Hợp Đồng",
                 selector: (row) => (
-                  <div className="text-wrap">{row.tenHienThi}</div>
+                  <OverlayTrigger
+                    placement="top"
+                    overlay={
+                      <Tooltip id="tooltip">
+                        <strong>{row.tenHienThi}</strong>
+                      </Tooltip>
+                    }
+                  >
+                    <div bsStyle="default">{row.tenHienThi}</div>
+                  </OverlayTrigger>
                 ),
               },
               {
@@ -479,10 +528,7 @@ const ContractPage = (props) => {
                   <div className="text-wrap">{row.hinhThucThue}</div>
                 ),
               },
-              {
-                name: "Trạng thái",
-                selector: (row) => row.trangThai,
-              },
+
               {
                 name: <div>Thời Gian Bắt Đầu</div>,
                 selector: (row) =>
@@ -591,7 +637,7 @@ const ContractPage = (props) => {
                 <div className="col-sm-3 ">
                   <div className="input-group input-group-sm">
                     <input
-                      placeholder="Tìm kiếm"
+                      placeholder="Nhập mã hợp đồng, tên khách hàng"
                       type="text"
                       className="form-control"
                       value={keySearch}
@@ -641,6 +687,7 @@ const ContractPage = (props) => {
                     pagination
                     paginationServer
                     paginationTotalRows={totalRows}
+                    paginationRowsPerPageOptions={[30, 50, 100]}
                     onChangeRowsPerPage={handlePerRowsChange}
                     onChangePage={handlePageChange}
                     expandableRows
@@ -664,6 +711,7 @@ const ContractPage = (props) => {
                     pagination
                     paginationServer
                     paginationTotalRows={totalRows}
+                    paginationRowsPerPageOptions={[30, 50, 100]}
                     onChangeRowsPerPage={handlePerRowsChange}
                     onChangePage={handlePageChange}
                     expandableRows

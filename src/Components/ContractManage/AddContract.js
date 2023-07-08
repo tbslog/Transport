@@ -112,6 +112,22 @@ const AddContract = (props) => {
         }
       },
     },
+    NgayCongNo: {
+      required: "Không được để trống",
+      maxLength: {
+        value: 2,
+        message: "Không được vượt quá 2 ký tự",
+      },
+      pattern: {
+        value: /^[0-9]*$/,
+        message: "Chỉ được nhập ký tự là số",
+      },
+      validate: (value) => {
+        if (parseInt(value) < 30) {
+          return "Không được nhỏ hơn 30";
+        }
+      },
+    },
     LoaiHinhHopTac: {
       required: "Không được để trống",
     },
@@ -211,6 +227,7 @@ const AddContract = (props) => {
         tenHienThi: data.TenHopDong,
         maKh: data.MaKh.value,
         NgayThanhToan: tabIndex === 1 ? 0 : data.NgayThanhToan,
+        NgayCongNo: tabIndex === 1 ? null : data.NgayCongNo,
         thoiGianBatDau: moment(new Date(data.NgayBatDau).toISOString()).format(
           "YYYY-MM-DD"
         ),
@@ -520,6 +537,23 @@ const AddContract = (props) => {
                           {errors.NgayThanhToan && (
                             <span className="text-danger">
                               {errors.NgayThanhToan.message}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="col col-sm">
+                        <div className="form-group">
+                          <label htmlFor="NgayCongNo">Số Ngày Công Nợ(*)</label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            id="NgayCongNo"
+                            placeholder="Số Ngày Công Nợ"
+                            {...register("NgayCongNo", Validate.NgayCongNo)}
+                          />
+                          {errors.NgayCongNo && (
+                            <span className="text-danger">
+                              {errors.NgayCongNo.message}
                             </span>
                           )}
                         </div>

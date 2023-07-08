@@ -226,7 +226,7 @@ const ApproveContract = (props) => {
     }
 
     const dataCus = await getData(
-      `Contract/GetListContractApprove?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}&fromDate=${fromDate}&toDate=${toDate}`
+      `Contract/GetListContractApprove?PageNumber=${page}&PageSize=${perPage}&Keyword=${KeyWord}&fromDate=${fromDate}&toDate=${toDate}`
     );
 
     setData(dataCus.data);
@@ -242,24 +242,25 @@ const ApproveContract = (props) => {
     setLoading(true);
 
     const dataCus = await getData(
-      `Contract/GetListContractApprove?PageNumber=${page}&PageSize=${perPage}&KeyWord=${keySearch}&fromDate=${fromDate}&toDate=${toDate}`
+      `Contract/GetListContractApprove?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${keySearch}&fromDate=${fromDate}&toDate=${toDate}`
     );
+
     setLoading(false);
     setPerPage(newPerPage);
     setData(dataCus.data);
     setTotalRows(dataCus.totalRecords);
   };
 
-  const handleSearchClick = () => {
-    fetchData(1, keySearch, fromDate, toDate);
+  const handleSearchClick = async () => {
+    await fetchData(1, keySearch, fromDate, toDate);
   };
 
-  const handleRefeshDataClick = () => {
+  const handleRefeshDataClick = async () => {
     setKeySearch("");
     setFromDate("");
     setToDate("");
     setPerPage(10);
-    fetchData(1);
+    await fetchData(1);
   };
 
   return (
@@ -331,6 +332,7 @@ const ApproveContract = (props) => {
                 <div className="col col-sm ">
                   <div className="input-group input-group-sm">
                     <input
+                      placeholder="Nhập mã hợp đồng, tên khách hàng"
                       type="text"
                       className="form-control"
                       value={keySearch}
@@ -374,6 +376,7 @@ const ApproveContract = (props) => {
                 clearSelectedRows={toggledClearRows}
                 highlightOnHover
                 striped
+                dense
                 direction="auto"
                 responsive
                 fixedHeader
