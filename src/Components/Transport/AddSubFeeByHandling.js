@@ -45,6 +45,7 @@ const AddSubFeeByHandling = (props) => {
   const [tabIndex, setTabIndex] = useState(0);
   const [listSubFeeSelect, setListSubFeeSelect] = useState([]);
   const [listsfPayfor, setListsfPayfor] = useState([]);
+  const [listPlace, setListPlace] = useState([]);
 
   useEffect(() => {
     (async () => {
@@ -63,6 +64,7 @@ const AddSubFeeByHandling = (props) => {
         setValue("optionSubFee", [
           {
             MaPhuPhi: {},
+            MaDiaDiem: {},
             DonGia: null,
             GhiChu: null,
           },
@@ -71,6 +73,20 @@ const AddSubFeeByHandling = (props) => {
 
       let getlistSfPayfor = await getData(`Common/GetListsftPayfor`);
       setListsfPayfor(getlistSfPayfor);
+
+      const getListPlace = await getData(
+        "Address/GetListAddressSelect?pointType=&type="
+      );
+
+      let arrPlace = [];
+      arrPlace.push({ value: null, label: "Bỏ Trống" });
+      getListPlace.forEach((val) => {
+        arrPlace.push({
+          label: val.tenDiaDiem + " - " + val.loaiDiaDiem,
+          value: val.maDiaDiem,
+        });
+      });
+      setListPlace(arrPlace);
 
       SetIsLoading(false);
     })();
@@ -184,6 +200,7 @@ const AddSubFeeByHandling = (props) => {
       arr.push({
         IdTcommand: dataClick.maDieuPhoi,
         SfId: val.MaPhuPhi.value,
+        PlaceId: !val.MaDiaDiem ? null : val.MaDiaDiem.value,
         sftPayfor: parseInt(val.Payfor),
         FinalPrice: val.DonGia,
         Note: val.GhiChu,
@@ -199,9 +216,10 @@ const AddSubFeeByHandling = (props) => {
       if (createPriceTable === 1) {
         setValue("optionSubFee", [
           {
-            MaPhuPhi: null,
-            DonGia: null,
+            MaPhuPhi: {},
+            MaDiaDiem: {},
             Payfor: null,
+            DonGia: null,
             GhiChu: null,
           },
         ]);
@@ -262,6 +280,7 @@ const AddSubFeeByHandling = (props) => {
                               append({
                                 MaPhuPhi: null,
                                 DonGia: null,
+                                MaDiaDiem: null,
                                 GhiChu: null,
                               })
                             }
@@ -297,6 +316,32 @@ const AddSubFeeByHandling = (props) => {
                                     <span className="text-danger">
                                       {
                                         errors.optionSubFee?.[index]?.MaPhuPhi
+                                          .message
+                                      }
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                              <div className="col-sm-2">
+                                <div className="form-group">
+                                  <label>Địa Điểm</label>
+                                  <Controller
+                                    name={`optionSubFee.${index}.MaDiaDiem`}
+                                    control={control}
+                                    render={({ field }) => (
+                                      <Select
+                                        {...field}
+                                        classNamePrefix={"form-control"}
+                                        value={field.value}
+                                        options={listPlace}
+                                      />
+                                    )}
+                                    rules={{ required: "không được để trống" }}
+                                  />
+                                  {errors.optionSubFee?.[index]?.MaDiaDiem && (
+                                    <span className="text-danger">
+                                      {
+                                        errors.optionSubFee?.[index]?.MaDiaDiem
                                           .message
                                       }
                                     </span>
@@ -358,7 +403,7 @@ const AddSubFeeByHandling = (props) => {
                                   )}
                                 </div>
                               </div>
-                              <div className="col-sm-5">
+                              <div className="col-sm-3">
                                 <div className="form-group">
                                   <label>Ghi Chú</label>
                                   <input

@@ -415,6 +415,7 @@ const CustommerPage = () => {
                     <input
                       type="text"
                       className="form-control"
+                      placeholder="Nhập mã KH hoặc tên KH"
                       value={keySearch}
                       onChange={(e) => setKeySearch(e.target.value)}
                     />

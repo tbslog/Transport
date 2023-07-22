@@ -383,6 +383,7 @@ const PriceTablePage = () => {
                       <input
                         type="text"
                         className="form-control"
+                        placeholder="Nhập mã KH, tên KH"
                         value={keySearch}
                         onChange={(e) => setKeySearch(e.target.value)}
                       />

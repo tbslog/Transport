@@ -711,30 +711,37 @@ const EditContract = (props) => {
                           </div>
                         </div>
                         <div className="row">
-                          <div className="form-group">
-                            <label htmlFor="TrangThai">Trạng thái(*)</label>
-                            <select
-                              className="form-control"
-                              {...register("TrangThai", Validate.TrangThai)}
-                            >
-                              <option value="">Chọn trạng thái</option>
-                              {listStatusType &&
-                                listStatusType.map((val) => {
-                                  return (
-                                    <option
-                                      value={val.statusId}
-                                      key={val.statusId}
-                                    >
-                                      {val.statusContent}
-                                    </option>
-                                  );
-                                })}
-                            </select>
-                            {errors.TrangThai && (
-                              <span className="text-danger">
-                                {errors.TrangThai.message}
-                              </span>
-                            )}
+                          <div className="col col-2">
+                            <div className="form-group">
+                              <label htmlFor="TrangThai">Trạng thái(*)</label>
+                              <select
+                                className="form-control"
+                                disabled={
+                                  props.selectIdClick.trangThai === 49
+                                    ? true
+                                    : false
+                                }
+                                {...register("TrangThai", Validate.TrangThai)}
+                              >
+                                <option value="">Chọn trạng thái</option>
+                                {listStatusType &&
+                                  listStatusType.map((val) => {
+                                    return (
+                                      <option
+                                        value={val.statusId}
+                                        key={val.statusId}
+                                      >
+                                        {val.statusContent}
+                                      </option>
+                                    );
+                                  })}
+                              </select>
+                              {errors.TrangThai && (
+                                <span className="text-danger">
+                                  {errors.TrangThai.message}
+                                </span>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -750,7 +757,9 @@ const EditContract = (props) => {
                               className="btn btn-title btn-sm btn-default mx-1"
                               gloss="Xem Bảng Giá"
                             >
-                              <i className="fas fa-money-check-alt"></i>
+                              <i className="fas fa-money-check-alt">
+                                Xem Bảng Giá
+                              </i>
                             </button>
                             {props.selectIdClick.trangThai === 49 && (
                               <button
@@ -762,7 +771,9 @@ const EditContract = (props) => {
                                   setIsAccept(0);
                                 }}
                               >
-                                <i className="fas fa-thumbs-up"></i>
+                                <i className="fas fa-thumbs-up">
+                                  Duyệt Hợp Đồng/Phụ Lục
+                                </i>
                               </button>
                             )}
                           </div>
@@ -1225,7 +1236,9 @@ const EditContract = (props) => {
                               className="btn btn-title btn-sm btn-default mx-1"
                               gloss="Xem Bảng Giá"
                             >
-                              <i className="fas fa-money-check-alt"></i>
+                              <i className="fas fa-money-check-alt">
+                                Xem Bảng Giá
+                              </i>
                             </button>
                             {props.selectIdClick.trangThai === 49 && (
                               <button
@@ -1237,7 +1250,9 @@ const EditContract = (props) => {
                                   setIsAccept(0);
                                 }}
                               >
-                                <i className="fas fa-thumbs-up"></i>
+                                <i className="fas fa-thumbs-up">
+                                  Duyệt Hợp Đồng/Phụ Lục
+                                </i>
                               </button>
                             )}
                           </div>

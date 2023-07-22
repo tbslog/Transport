@@ -781,7 +781,6 @@ const TransportPage = () => {
                       <i className="fas fa-plus-circle">LCL/LTL</i>
                     </button>
                   </div>
-
                   <div className="col-sm-5">
                     <div className="row">
                       <div className="col col-sm">
@@ -930,7 +929,7 @@ const TransportPage = () => {
                   <div className="col-sm-2 ">
                     <div className="input-group input-group-sm">
                       <input
-                        placeholder="Tìm kiếm"
+                        placeholder="Nhập Booking No"
                         type="text"
                         className="form-control"
                         value={keySearch}

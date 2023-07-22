@@ -27,6 +27,7 @@ import ReportPage from "./Components/Report/ReportPage";
 import HandlingPageNew from "./Components/Transport/HandlingPageNew";
 import BillPage from "./Components/Bill/BillPage";
 import CurrencyExchangePage from "./Components/CurrencyExchangeManage/CurrencyExchangePage";
+import SubfeeLoloPage from "./Components/SubfeeLolo/SubfeeLoloPage";
 
 function App() {
   const accountType = Cookies.get("AccType");
@@ -47,6 +48,7 @@ function App() {
                 <Route path="/vehicle" element={<VehiclePage />} />
                 <Route path="/romooc" element={<RomoocPage />} />
                 <Route path="/subfee" element={<SubFeePage />} />
+                <Route path="/subfeelolo" element={<SubfeeLoloPage />} />
                 <Route path="/user" element={<UserPage />} />
                 <Route path="/role" element={<RolePage />} />
                 <Route

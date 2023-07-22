@@ -280,7 +280,9 @@ const PriceListContract = (props) => {
       setSelectedId(selectIdClick);
       (async () => {
         const getListAcc = await getData(
-          `AccountCustomer/GetListAccountSelectByCus?cusId=${selectIdClick.maKh}`
+          `AccountCustomer/GetListAccountSelectByCus?cusId=${
+            !selectIdClick.maKH ? selectIdClick.maKh : selectIdClick.maKH
+          }`
         );
 
         if (getListAcc && getListAcc.length > 0) {
@@ -491,9 +493,10 @@ const PriceListContract = (props) => {
   };
 
   const revertPriceTable = async () => {
-    if (selectIdClick.maKh && selectIdClick.maHopDong && onlyCT) {
+    let cusId = !selectIdClick.maKH ? selectIdClick.maKh : selectIdClick.maKH;
+    if (cusId && selectIdClick.maHopDong && onlyCT) {
       let revert = await postData(
-        `PriceTable/RevertPriceTableHandling?contractId=${selectIdClick.maHopDong}&cusId=${selectIdClick.maKh}`
+        `PriceTable/RevertPriceTableHandling?contractId=${selectIdClick.maHopDong}&cusId=${cusId}`
       );
 
       setShowConfirm(false);

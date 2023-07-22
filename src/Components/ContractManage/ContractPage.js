@@ -1,4 +1,5 @@
-import { useMemo, useState, useEffect, useCallback, useRef } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
+import Select from "react-select";
 import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
 import { getData, getDataCustom, getFile } from "../Common/FuncAxios";
 import DataTable from "react-data-table-component";
@@ -10,8 +11,18 @@ import DatePicker from "react-datepicker";
 import AddPriceTable from "../PriceListManage/AddPriceTable";
 import ApproveContract from "./ApproveContract";
 import { Tooltip, OverlayTrigger } from "react-bootstrap";
+import { useForm, Controller } from "react-hook-form";
 
 const ContractPage = (props) => {
+  const {
+    setValue,
+    control,
+    watch,
+    formState: { errors },
+  } = useForm({
+    mode: "onChange",
+  });
+
   const { dataSelected } = props;
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -32,9 +43,11 @@ const ContractPage = (props) => {
 
   const [priceTable, setPriceTable] = useState([]);
   const [listStatus, setListStatus] = useState([]);
+  const [statusFilter, setStatusFilter] = useState();
   const [listContractType, setListContractType] = useState([]);
   const [contractType, setContractType] = useState("");
   const [title, setTitle] = useState("");
+  const [listCustomer, setListCustomer] = useState([]);
 
   const columns = useMemo(() => [
     {
@@ -208,13 +221,28 @@ const ContractPage = (props) => {
   useEffect(() => {
     setLoading(true);
     (async () => {
-      fetchData(1, "", "", "", "", "KH");
+      await fetchData(1, "", "", "", "", "KH", "", "");
       const getListContractType = await getData(`Common/GetListContractType`);
       setListContractType(getListContractType);
 
       let getStatusList = await getDataCustom(`Common/GetListStatus`, [
         "Contract",
       ]);
+
+      let getListCustomer = await getData(`Customer/GetListCustomerFilter`);
+      if (getListCustomer && getListCustomer.length > 0) {
+        let arrKh = [];
+
+        arrKh.push({ label: "Tất Cả", value: "" });
+
+        getListCustomer.map((val) => {
+          arrKh.push({
+            label: val.tenKh,
+            value: val.maKh,
+          });
+        });
+        setListCustomer(arrKh);
+      }
       setListStatus(getStatusList);
     })();
 
@@ -272,7 +300,9 @@ const ContractPage = (props) => {
     fromDate = "",
     toDate = "",
     contractType = "",
-    customerType = ""
+    customerType = "",
+    status = "",
+    customerSelected = ""
   ) => {
     setLoading(true);
 
@@ -285,8 +315,10 @@ const ContractPage = (props) => {
       customerType = dataSelected.loaiKH;
     }
 
+    let cusSelected = !customerSelected ? "" : customerSelected.value;
+
     const dataCus = await getData(
-      `Contract/GetListContract?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}&fromDate=${fromDate}&toDate=${toDate}&contractType=${contractType}&customerType=${customerType}`
+      `Contract/GetListContract?PageNumber=${page}&PageSize=${perPage}&KeyWord=${KeyWord}&fromDate=${fromDate}&toDate=${toDate}&statusId=${status}&customerId=${cusSelected}&contractType=${contractType}&customerType=${customerType}`
     );
 
     setData(dataCus.data);
@@ -301,7 +333,9 @@ const ContractPage = (props) => {
       !fromDate ? "" : moment(fromDate).format("YYYY-MM-DD"),
       !toDate ? "" : moment(toDate).format("YYYY-MM-DD"),
       "",
-      tabIndex === 0 ? "KH" : "NCC"
+      tabIndex === 0 ? "KH" : "NCC",
+      statusFilter,
+      watch("CustomerSelected")
     );
     setPage(page);
   };
@@ -317,12 +351,19 @@ const ContractPage = (props) => {
       customerType = dataSelected.loaiKH;
     }
 
+    let cusSelected = !watch("CustomerSelected")
+      ? ""
+      : watch("CustomerSelected").value;
+
+    let status = !statusFilter ? "" : statusFilter;
+
     const dataCus = await getData(
-      `Contract/GetListContract?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${KeyWord}&fromDate=${fromDate}&toDate=${toDate}&contractType=${contractType}&customerType=${customerType}`
+      `Contract/GetListContract?PageNumber=${page}&PageSize=${newPerPage}&KeyWord=${KeyWord}&fromDate=${fromDate}&toDate=${toDate}&contractType=${contractType}&customerType=${customerType}&statusId=${status}&customerId=${cusSelected}`
     );
 
     setPerPage(newPerPage);
     setData(dataCus.data);
+    setTotalRows(dataCus.totalRecords);
     setLoading(false);
   };
 
@@ -337,13 +378,17 @@ const ContractPage = (props) => {
       !fromDate ? "" : moment(fromDate).format("YYYY-MM-DD"),
       !toDate ? "" : moment(toDate).format("YYYY-MM-DD"),
       "",
-      tabIndex === 0 ? "KH" : "NCC"
+      tabIndex === 0 ? "KH" : "NCC",
+      statusFilter,
+      watch("CustomerSelected")
     );
   };
 
-  const handleRefeshDataClick = () => {
-    fetchData(1, "", "", "", "", "KH");
+  const handleRefeshDataClick = async () => {
+    await fetchData(1, "", "", "", "", "KH", "");
+    setValue("CustomerSelected", "");
     setContractType("");
+    setStatusFilter("");
     setKeySearch("");
     setFromDate("");
     setToDate("");
@@ -352,8 +397,16 @@ const ContractPage = (props) => {
 
   const HandleOnChangeTabs = async (tabIndex) => {
     setTabIndex(tabIndex);
+
     let customerType = tabIndex === 0 ? "KH" : "NCC";
-    await fetchData(1, "", "", "", "", customerType);
+
+    setContractType("");
+    setStatusFilter("");
+    setKeySearch("");
+    setFromDate("");
+    setToDate("");
+    setValue("CustomerSelected", "");
+    await fetchData(1, "", "", "", "", customerType, "", "");
   };
 
   const refeshData = async () => {
@@ -364,7 +417,9 @@ const ContractPage = (props) => {
       fromDate,
       toDate,
       contractType,
-      customerType
+      customerType,
+      statusFilter,
+      watch("CustomerSelected")
     );
   };
 
@@ -379,6 +434,33 @@ const ContractPage = (props) => {
         backgroundColor: "#EFE5D0",
       },
     },
+
+    control: (provided, state) => ({
+      ...provided,
+      background: "#fff",
+      borderColor: "#9e9e9e",
+      minHeight: "30px",
+      height: "30px",
+      boxShadow: state.isFocused ? null : null,
+    }),
+
+    valueContainer: (provided, state) => ({
+      ...provided,
+      height: "30px",
+      padding: "0 6px",
+    }),
+
+    input: (provided, state) => ({
+      ...provided,
+      margin: "0px",
+    }),
+    indicatorSeparator: (state) => ({
+      display: "none",
+    }),
+    indicatorsContainer: (provided, state) => ({
+      ...provided,
+      height: "30px",
+    }),
   };
 
   const ExpandedComponent = ({ data }) => {
@@ -554,6 +636,36 @@ const ContractPage = (props) => {
     }
   };
 
+  const handleOnChangeStatus = async (val) => {
+    setStatusFilter(val);
+    let customerType = tabIndex === 0 ? "KH" : "NCC";
+    await fetchData(
+      page,
+      keySearch,
+      fromDate,
+      toDate,
+      contractType,
+      customerType,
+      val,
+      watch("CustomerSelected")
+    );
+  };
+
+  const handleOnChangeSelectCus = async (val) => {
+    setValue("CustomerSelected", val);
+    let customerType = tabIndex === 0 ? "KH" : "NCC";
+    await fetchData(
+      page,
+      keySearch,
+      fromDate,
+      toDate,
+      contractType,
+      customerType,
+      statusFilter,
+      val
+    );
+  };
+
   return (
     <>
       <section className="content-header">
@@ -602,8 +714,46 @@ const ContractPage = (props) => {
                 </div>
                 <div className="col-sm-3">
                   <div className="row">
-                    <div className="col col-sm"></div>
-                    <div className="col col-sm"></div>
+                    <div className="col col-sm">
+                      <div className="form-group">
+                        <Controller
+                          name="CustomerSelected"
+                          control={control}
+                          render={({ field }) => (
+                            <Select
+                              {...field}
+                              className="basic-multi-select"
+                              classNamePrefix={"form-control"}
+                              value={field.value}
+                              options={listCustomer}
+                              styles={customStyles}
+                              onChange={(field) =>
+                                handleOnChangeSelectCus(field)
+                              }
+                              placeholder="Lọc theo KH/NCC"
+                            />
+                          )}
+                        />
+                      </div>
+                    </div>
+                    <div className="col col-sm">
+                      <select
+                        className="form-control form-control-sm"
+                        onChange={(e) => handleOnChangeStatus(e.target.value)}
+                        value={statusFilter}
+                      >
+                        <option value={""}>Tất Cả</option>
+                        {listStatus &&
+                          listStatus.length > 0 &&
+                          listStatus.map((val) => {
+                            return (
+                              <option key={val.statusId} value={val.statusId}>
+                                {val.statusContent}
+                              </option>
+                            );
+                          })}
+                      </select>
+                    </div>
                   </div>
                 </div>
                 <div className="col-sm-3">

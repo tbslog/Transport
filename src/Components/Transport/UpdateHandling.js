@@ -480,6 +480,7 @@ const UpdateHandling = (props) => {
   };
 
   const onSubmit = async (data) => {
+    console.log(data);
     SetIsLoading(true);
 
     let vehicleID;
@@ -501,17 +502,13 @@ const UpdateHandling = (props) => {
       DiemLayRong: !data.DiemLayRong ? null : data.DiemLayRong.value,
       DiemTraRong: !data.DiemTraRong ? null : data.DiemTraRong.value,
       MaSoXe: vehicleID,
-      ReuseCont: !data.ReuseCont
-        ? false
-        : data.ReuseCont === "true"
-        ? true
-        : false,
+      ReuseCont: !data.ReuseCont ? false : data.ReuseCont,
       MaTaiXe: !data.TaiXe ? null : !data.TaiXe.value ? null : data.TaiXe.value,
       MaRomooc: !data.Romooc
         ? null
         : !data.Romooc.value
         ? null
-        : data.TaiXe.value,
+        : data.Romooc.value,
       ContNo: data.CONTNO,
       SealNp: data.SEALNP,
       SealHq: data.SEALHQ,
@@ -1464,7 +1461,7 @@ const UpdateHandling = (props) => {
                           {transportType && transportType === "nhap" && (
                             <>
                               <label htmlFor="TGTraRongThucTe">
-                                Thời Gian Lấy Trả Thực Tế
+                                Thời Gian Trả Rỗng Thực Tế
                               </label>
                               <Controller
                                 control={control}

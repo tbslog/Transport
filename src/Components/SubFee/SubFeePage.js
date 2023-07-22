@@ -164,16 +164,16 @@ const SubFeePage = () => {
     setData(data);
   }
 
-  const handleSearchClick = () => {
-    fetchData(1, keySearch, fromDate, toDate, custommerType);
+  const handleSearchClick = async () => {
+    await fetchData(1, keySearch, fromDate, toDate, custommerType);
   };
 
-  const handleRefeshDataClick = () => {
+  const handleRefeshDataClick = async () => {
     setKeySearch("");
     setFromDate("");
     setToDate("");
     setPerPage(10);
-    fetchData(1, "", "", "", custommerType);
+    await fetchData(1, "", "", "", custommerType);
   };
 
   const ExpandedComponent = ({ data }) => {
@@ -242,10 +242,10 @@ const SubFeePage = () => {
     }
   };
 
-  const HandleOnChangeTabs = (tabIndex) => {
+  const HandleOnChangeTabs = async (tabIndex) => {
     setTabIndex(tabIndex);
     let customerType = tabIndex === 0 ? "KH" : "NCC";
-    fetchData(1, "", "", "", customerType);
+    await fetchData(1, "", "", "", customerType);
     setCustommerType(customerType);
   };
 
@@ -334,6 +334,7 @@ const SubFeePage = () => {
                     <input
                       type="text"
                       className="form-control"
+                      placeholder="Nhập mã HĐ, mã KH, tên KH"
                       value={keySearch}
                       onChange={(e) => setKeySearch(e.target.value)}
                     />

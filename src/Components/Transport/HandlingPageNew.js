@@ -112,7 +112,6 @@ const HandlingPageNew = () => {
                   <i className="fas fa-window-close"></i>
                 </button>
               </>
-
               <>
                 <button
                   onClick={() => handleOnClickMarge(val)}
@@ -1064,7 +1063,7 @@ const HandlingPageNew = () => {
     showModalForm();
   };
 
-  const handleSearchClick = () => {
+  const handleSearchClick = (event) => {
     fetchData(
       1,
       keySearch,
@@ -1245,13 +1244,14 @@ const HandlingPageNew = () => {
   };
 
   const handleOnClickMarge = (val) => {
-    if (val) {
+    if (val && Object.keys(val).length > 0) {
       setItemSelected([val]);
       showModalForm(
         SetShowModal("MargeTransport"),
         setTitle("Cập nhật thông tin điều phối")
       );
     } else {
+      console.log(selectedRows);
       if (selectedRows && selectedRows.length > 0) {
         setItemSelected(selectedRows);
         showModalForm(SetShowModal("MargeTransport"), setTitle("Gộp Chuyến"));
@@ -1596,7 +1596,7 @@ const HandlingPageNew = () => {
                     <input
                       type="text"
                       className="form-control"
-                      placeholder="Tìm kiếm"
+                      placeholder="Nhập Booking No"
                       value={keySearch}
                       onChange={(e) => setKeySearch(e.target.value)}
                     />
@@ -1612,7 +1612,7 @@ const HandlingPageNew = () => {
                     <button
                       type="button"
                       className="btn btn-sm btn-default mx-2"
-                      onClick={() => refeshData()}
+                      onClick={() => handleRefeshDataClick()}
                     >
                       <i className="fas fa-sync-alt"></i>
                     </button>
