@@ -15,6 +15,7 @@ using TBSLogistics.Model.Model.UserModel;
 using TBSLogistics.Model.TempModel;
 using TBSLogistics.Model.Wrappers;
 using TBSLogistics.Service.Services.Common;
+using TBSLogistics.Service.Services.LoloSubfeeManager;
 
 namespace TBSLogistics.Service.Services.SubFeePriceManage
 {
@@ -1290,6 +1291,8 @@ namespace TBSLogistics.Service.Services.SubFeePriceManage
 					ApprovedDate = x.sfp.ApprovedDate,
 					DeactiveDate = x.sfp.DeactiveDate
 				}).ToListAsync();
+
+			
 
 				return new PagedResponseCustom<ListSubFeePriceRequest>()
 				{

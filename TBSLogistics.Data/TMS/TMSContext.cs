@@ -55,6 +55,8 @@ namespace TBSLogistics.Data.TMS
 		public virtual DbSet<NguoiDung> NguoiDung { get; set; }
 		public virtual DbSet<NhomKhachHang> NhomKhachHang { get; set; }
 		public virtual DbSet<Permission> Permission { get; set; }
+		public virtual DbSet<PhuPhiNangHa> PhuPhiNangHa { get; set; }
+		public virtual DbSet<PhuPhiNangHaTheoChuyen> PhuPhiNangHaTheoChuyen { get; set; }
 		public virtual DbSet<PhuPhiTheoKy> PhuPhiTheoKy { get; set; }
 		public virtual DbSet<PhuongThucVanChuyen> PhuongThucVanChuyen { get; set; }
 		public virtual DbSet<QuanHuyen> QuanHuyen { get; set; }
@@ -1139,6 +1141,72 @@ namespace TBSLogistics.Data.TMS
 					.IsRequired()
 					.HasMaxLength(50)
 					.IsUnicode(false);
+			});
+
+			modelBuilder.Entity<PhuPhiNangHa>(entity =>
+			{
+				entity.Property(e => e.Id).HasColumnName("ID");
+
+				entity.Property(e => e.Approver).HasMaxLength(30);
+
+				entity.Property(e => e.Creator)
+					.IsRequired()
+					.HasMaxLength(30);
+
+				entity.Property(e => e.DonGia).HasColumnType("decimal(18, 0)");
+
+				entity.Property(e => e.HangTau)
+					.HasMaxLength(20)
+					.IsUnicode(false);
+
+				entity.Property(e => e.LoaiCont)
+					.IsRequired()
+					.HasMaxLength(10)
+					.IsUnicode(false);
+
+				entity.Property(e => e.MaKh)
+					.HasMaxLength(8)
+					.IsUnicode(false)
+					.HasColumnName("MaKH");
+
+				entity.Property(e => e.UpdateTime).HasPrecision(2);
+
+				entity.HasOne(d => d.HangTauNavigation)
+					.WithMany(p => p.PhuPhiNangHa)
+					.HasForeignKey(d => d.HangTau)
+					.HasConstraintName("FK__PhuPhiNan__HangT__371114F6");
+
+				entity.HasOne(d => d.MaDiaDiemNavigation)
+					.WithMany(p => p.PhuPhiNangHa)
+					.HasForeignKey(d => d.MaDiaDiem)
+					.OnDelete(DeleteBehavior.ClientSetNull)
+					.HasConstraintName("FK__PhuPhiNan__MaDia__3528CC84");
+
+				entity.HasOne(d => d.MaKhNavigation)
+					.WithMany(p => p.PhuPhiNangHa)
+					.HasForeignKey(d => d.MaKh)
+					.HasConstraintName("FK__PhuPhiNang__MaKH__361CF0BD");
+			});
+
+			modelBuilder.Entity<PhuPhiNangHaTheoChuyen>(entity =>
+			{
+				entity.Property(e => e.Id).HasColumnName("ID");
+
+				entity.Property(e => e.Creator)
+					.IsRequired()
+					.HasMaxLength(30);
+
+				entity.HasOne(d => d.MaDieuPhoiNavigation)
+					.WithMany(p => p.PhuPhiNangHaTheoChuyen)
+					.HasForeignKey(d => d.MaDieuPhoi)
+					.OnDelete(DeleteBehavior.ClientSetNull)
+					.HasConstraintName("FK__PhuPhiNan__MaDie__3AE1A5DA");
+
+				entity.HasOne(d => d.MaPhuPhiNangHaNavigation)
+					.WithMany(p => p.PhuPhiNangHaTheoChuyen)
+					.HasForeignKey(d => d.MaPhuPhiNangHa)
+					.OnDelete(DeleteBehavior.ClientSetNull)
+					.HasConstraintName("FK__PhuPhiNan__MaPhu__39ED81A1");
 			});
 
 			modelBuilder.Entity<PhuPhiTheoKy>(entity =>

@@ -8,6 +8,7 @@ namespace TBSLogistics.Model.Filter
 {
     public class PaginationFilter
     {
+        public string placeId { get; set; }
         public string contractType { get; set; }
         public string contractId { get; set; }
         public string customerId { get; set; }

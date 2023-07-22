@@ -9,6 +9,7 @@ namespace TBSLogistics.Data.TMS
         {
             ChotSanLuongTheoKy = new HashSet<ChotSanLuongTheoKy>();
             LogGps = new HashSet<LogGps>();
+            PhuPhiNangHaTheoChuyen = new HashSet<PhuPhiNangHaTheoChuyen>();
             SfeeByTcommand = new HashSet<SfeeByTcommand>();
             SubFeeByContract = new HashSet<SubFeeByContract>();
             TaiXeTheoChang = new HashSet<TaiXeTheoChang>();
@@ -67,6 +68,7 @@ namespace TBSLogistics.Data.TMS
         public virtual VanDon MaVanDonNavigation { get; set; }
         public virtual ICollection<ChotSanLuongTheoKy> ChotSanLuongTheoKy { get; set; }
         public virtual ICollection<LogGps> LogGps { get; set; }
+        public virtual ICollection<PhuPhiNangHaTheoChuyen> PhuPhiNangHaTheoChuyen { get; set; }
         public virtual ICollection<SfeeByTcommand> SfeeByTcommand { get; set; }
         public virtual ICollection<SubFeeByContract> SubFeeByContract { get; set; }
         public virtual ICollection<TaiXeTheoChang> TaiXeTheoChang { get; set; }

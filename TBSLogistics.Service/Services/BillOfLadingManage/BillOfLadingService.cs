@@ -23,6 +23,7 @@ using TBSLogistics.Model.Model.VehicleModel;
 using TBSLogistics.Model.TempModel;
 using TBSLogistics.Model.Wrappers;
 using TBSLogistics.Service.Services.Common;
+using TBSLogistics.Service.Services.LoloSubfeeManager;
 using TBSLogistics.Service.Services.PricelistManage;
 using TBSLogistics.Service.Services.SubFeePriceManage;
 
@@ -34,11 +35,13 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 		private readonly TMSContext _context;
 		private readonly ISubFeePrice _subFeePrice;
 		private readonly IPriceTable _priceTable;
+		private readonly ILoloSubfee _loloSubfee;
 		private readonly IHttpContextAccessor _httpContextAccessor;
 		private TempData tempData;
 
-		public BillOfLadingService(ICommon common, TMSContext context, ISubFeePrice subFeePrice, IPriceTable priceTable, IHttpContextAccessor httpContextAccessor)
+		public BillOfLadingService(ICommon common, TMSContext context, ILoloSubfee loloSubfee, ISubFeePrice subFeePrice, IPriceTable priceTable, IHttpContextAccessor httpContextAccessor)
 		{
+			_loloSubfee = loloSubfee;
 			_common = common;
 			_priceTable = priceTable;
 			_subFeePrice = subFeePrice;
@@ -879,6 +882,8 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 									getTransport.UpdatedTime = DateTime.Now;
 									getTransport.Updater = tempData.UserName;
 
+									var getSubfeeLolo = await _loloSubfee.AutoAddSubfeeLolo(itemHandling.Id);
+
 									var getSubFee = await _subFeePrice.GetListSubFeePriceActive(request.MaKH, request.AccountId, item.LoaiHangHoa, request.DiemDau, request.DiemCuoi, getEmptyPlace, insertHandling.Entity.Id, item.PTVanChuyen);
 									foreach (var sfp in getSubFee)
 									{
@@ -1492,6 +1497,8 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 				{
 					if (tempData.AccType == "NV")
 					{
+						var getSubfeeLolo = await _loloSubfee.AutoAddSubfeeLolo(checkById.Id);
+
 						var getSubFee = await _subFeePrice.GetListSubFeePriceActive(getTransport.MaKh, getTransport.MaAccount, checkById.MaLoaiHangHoa, getTransport.DiemDau, getTransport.DiemCuoi, getEmptyPlace, checkById.Id, checkById.MaLoaiPhuongTien);
 						foreach (var sfp in getSubFee)
 						{
@@ -1834,8 +1841,22 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 								checkHandling.Creator = tempData.UserName;
 								checkHandling.TongVanDonGhep = countTransport;
 
+								var getSubfeeLolo = await _loloSubfee.AutoAddSubfeeLolo(checkHandling.Id);
+
 								var getSubFee = await _subFeePrice.GetListSubFeePriceActive(item.MaKh, item.MaAccount, itemRequest.MaLoaiHangHoa, item.DiemDau, item.DiemCuoi, getEmptyPlace, null, request.PTVanChuyen);
 								foreach (var sfp in getSubFee)
+								{
+									await _context.SubFeeByContract.AddAsync(new SubFeeByContract()
+									{
+										PriceId = sfp.PriceId,
+										MaDieuPhoi = checkHandling.Id,
+										CreatedDate = DateTime.Now,
+										Creator = tempData.UserName,
+									});
+								}
+
+								var getSubFeeNCC = await _subFeePrice.GetListSubFeePriceActive(request.DonViVanTai, null, itemRequest.MaLoaiHangHoa, item.DiemDau, item.DiemCuoi, getEmptyPlace, null, request.PTVanChuyen);
+								foreach (var sfp in getSubFeeNCC)
 								{
 									await _context.SubFeeByContract.AddAsync(new SubFeeByContract()
 									{
@@ -1883,6 +1904,8 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 
 								await _context.SaveChangesAsync();
 
+								var getSubfeeLolo = await _loloSubfee.AutoAddSubfeeLolo(insertHandling.Entity.Id);
+
 								var getSubFee = await _subFeePrice.GetListSubFeePriceActive(item.MaKh, item.MaAccount, itemRequest.MaLoaiHangHoa, item.DiemDau, item.DiemCuoi, getEmptyPlace, null, request.PTVanChuyen);
 								foreach (var sfp in getSubFee)
 								{
@@ -1890,6 +1913,18 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 									{
 										PriceId = sfp.PriceId,
 										MaDieuPhoi = insertHandling.Entity.Id,
+										CreatedDate = DateTime.Now,
+										Creator = tempData.UserName,
+									});
+								}
+
+								var getSubFeeNCC = await _subFeePrice.GetListSubFeePriceActive(request.DonViVanTai, null, itemRequest.MaLoaiHangHoa, item.DiemDau, item.DiemCuoi, getEmptyPlace, null, request.PTVanChuyen);
+								foreach (var sfp in getSubFeeNCC)
+								{
+									await _context.SubFeeByContract.AddAsync(new SubFeeByContract()
+									{
+										PriceId = sfp.PriceId,
+										MaDieuPhoi = checkHandling.Id,
 										CreatedDate = DateTime.Now,
 										Creator = tempData.UserName,
 									});
@@ -2391,8 +2426,22 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 								item.dp.Updater = tempData.UserName;
 								item.dp.TongVanDonGhep = countTransport;
 
+								var getSubfeeLolo = await _loloSubfee.AutoAddSubfeeLolo(item.dp.Id);
+
 								var getSubFee = await _subFeePrice.GetListSubFeePriceActive(item.vd.MaKh, item.vd.MaAccount, itemRequest.MaLoaiHangHoa, item.vd.DiemDau, item.vd.DiemCuoi, getEmptyPlace, item.dp.Id, item.dp.MaLoaiPhuongTien);
 								foreach (var sfp in getSubFee)
+								{
+									await _context.SubFeeByContract.AddAsync(new SubFeeByContract()
+									{
+										PriceId = sfp.PriceId,
+										MaDieuPhoi = item.dp.Id,
+										CreatedDate = DateTime.Now,
+										Creator = tempData.UserName,
+									});
+								}
+
+								var getSubFeeNCC = await _subFeePrice.GetListSubFeePriceActive(request.DonViVanTai, null, itemRequest.MaLoaiHangHoa, item.vd.DiemDau, item.vd.DiemCuoi, getEmptyPlace, null, item.dp.MaLoaiPhuongTien);
+								foreach (var sfp in getSubFeeNCC)
 								{
 									await _context.SubFeeByContract.AddAsync(new SubFeeByContract()
 									{
@@ -2608,8 +2657,22 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 
 								await _context.SaveChangesAsync();
 
+								var getSubfeeLolo = await _loloSubfee.AutoAddSubfeeLolo(insertHandling.Entity.Id);
+
 								var getSubFee = await _subFeePrice.GetListSubFeePriceActive(item.MaKh, item.MaAccount, itemRequest.MaLoaiHangHoa, item.DiemDau, item.DiemCuoi, getEmptyPlace, null, request.PTVanChuyen);
 								foreach (var sfp in getSubFee)
+								{
+									await _context.SubFeeByContract.AddAsync(new SubFeeByContract()
+									{
+										PriceId = sfp.PriceId,
+										MaDieuPhoi = insertHandling.Entity.Id,
+										CreatedDate = DateTime.Now,
+										Creator = tempData.UserName,
+									});
+								}
+
+								var getSubFeeNCC = await _subFeePrice.GetListSubFeePriceActive(request.DonViVanTai, null, itemRequest.MaLoaiHangHoa, item.DiemDau, item.DiemCuoi, getEmptyPlace, null, request.PTVanChuyen);
+								foreach (var sfp in getSubFeeNCC)
 								{
 									await _context.SubFeeByContract.AddAsync(new SubFeeByContract()
 									{
@@ -5077,6 +5140,8 @@ namespace TBSLogistics.Service.Services.BillOfLadingManage
 
 				if (result > 0)
 				{
+					var getSubfeeLolo = await _loloSubfee.AutoAddSubfeeLolo(getHandling.Id);
+
 					var getSubFee = await _subFeePrice.GetListSubFeePriceActive(getTransport.MaKh, getTransport.MaAccount, getHandling.MaLoaiHangHoa, getTransport.DiemDau, checkSplace.MaDiaDiem, getEmptyPlace, getHandling.Id, getHandling.MaLoaiPhuongTien);
 					foreach (var sfp in getSubFee)
 					{

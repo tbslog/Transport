@@ -5,14 +5,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http.Headers;
-using System.Reflection.Metadata;
 using System.Text.Json;
 using System.Threading.Tasks;
 using TBSLogistics.Data.TMS;
 using TBSLogistics.Model.CommonModel;
 using TBSLogistics.Model.Filter;
 using TBSLogistics.Model.Model.ContractModel;
-using TBSLogistics.Model.Model.SubFeePriceModel;
 using TBSLogistics.Model.TempModel;
 using TBSLogistics.Model.Wrappers;
 using TBSLogistics.Service.Services.Common;
@@ -68,11 +66,11 @@ namespace TBSLogistics.Service.Services.ContractManage
 						return new BoolActionResult { isSuccess = false, Message = "Không được bỏ trống ngày công nợ" };
 					}
 
-					var checkContractCustommer = await _TMSContext.HopDongVaPhuLuc.Where(x => x.MaKh == request.MaKh && x.MaHopDongCha == null).FirstOrDefaultAsync();
-					if (checkContractCustommer != null)
-					{
-						return new BoolActionResult { isSuccess = false, Message = "Một khách hàng chỉ có một hợp đồng chính" };
-					}
+					//var checkContractCustommer = await _TMSContext.HopDongVaPhuLuc.Where(x => x.MaKh == request.MaKh && x.MaHopDongCha == null).FirstOrDefaultAsync();
+					//if (checkContractCustommer != null)
+					//{
+					//	return new BoolActionResult { isSuccess = false, Message = "Một khách hàng chỉ có một hợp đồng chính" };
+					//}
 				}
 				else
 				{
@@ -106,7 +104,7 @@ namespace TBSLogistics.Service.Services.ContractManage
 					NgayThanhToan = request.NgayThanhToan,
 					MaKh = request.MaKh,
 					GhiChu = request.GhiChu,
-					TrangThai = 49,
+					TrangThai = 50,
 					UpdatedTime = DateTime.Now,
 					CreatedTime = DateTime.Now,
 					Creator = tempData.UserName,
@@ -156,7 +154,6 @@ namespace TBSLogistics.Service.Services.ContractManage
 		public async Task<BoolActionResult> EditContract(string id, EditContract request)
 		{
 			var transaction = await _TMSContext.Database.BeginTransactionAsync();
-
 			try
 			{
 				var checkExists = await _TMSContext.HopDongVaPhuLuc.Where(x => x.MaHopDong == id).FirstOrDefaultAsync();
@@ -189,6 +186,33 @@ namespace TBSLogistics.Service.Services.ContractManage
 					request.HinhThucThue = null;
 				}
 
+				if (checkExists.TrangThai == 50 && request.TrangThai != 50)
+				{
+					if (request.TrangThai != 49)
+					{
+						return new BoolActionResult { isSuccess = false, Message = "Vui lòng chọn trạng thái Chờ Duyệt" };
+					}
+
+					checkExists.TrangThai = 49;
+				}
+				else
+				{
+					if (checkExists.TrangThai == 49 && request.TrangThai == 50)
+					{
+						checkExists.TrangThai = request.TrangThai;
+					}
+
+					if (checkExists.TrangThai == 24 && request.TrangThai == 26)
+					{
+						checkExists.TrangThai = request.TrangThai;
+					}
+
+					if (checkExists.TrangThai == 26)
+					{
+						return new BoolActionResult { isSuccess = false, Message = "Không thể cập nhật" };
+					}
+				}
+
 				checkExists.NgayCongNo = request.NgayCongNo;
 				checkExists.LoaiHinhHopTac = request.LoaiHinhHopTac;
 				checkExists.MaLoaiSpdv = request.MaLoaiSPDV;
@@ -199,7 +223,7 @@ namespace TBSLogistics.Service.Services.ContractManage
 				checkExists.ThoiGianBatDau = request.ThoiGianBatDau;
 				checkExists.ThoiGianKetThuc = request.ThoiGianKetThuc;
 				checkExists.GhiChu = request.GhiChu;
-				checkExists.TrangThai = request.TrangThai;
+
 				checkExists.UpdatedTime = DateTime.Now;
 				checkExists.Updater = tempData.UserName;
 
@@ -438,31 +462,58 @@ namespace TBSLogistics.Service.Services.ContractManage
 								   tt
 							   };
 
-				var listAddendums = listData;
+				var listContract = listData.Where(x => x.contract.MaHopDongCha == null);
+				var listAddendumst = listData.Where(x => x.contract.MaHopDongCha != null);
 
 				if (!string.IsNullOrEmpty(filter.Keyword))
 				{
-					listData = listData.Where(x => x.cus.TenKh.Contains(filter.Keyword) || x.contract.MaHopDong.Contains(filter.Keyword));
+					listContract = listContract.Where(x => x.cus.TenKh.Contains(filter.Keyword) || x.contract.MaHopDong.Contains(filter.Keyword));
+					listAddendumst = listAddendumst.Where(x => x.cus.TenKh.Contains(filter.Keyword) || x.contract.MaHopDong.Contains(filter.Keyword));
 				}
 
 				if (!string.IsNullOrEmpty(filter.contractType))
 				{
-					listData = listData.Where(x => x.contract.MaLoaiHopDong == filter.contractType);
+					listContract = listContract.Where(x => x.contract.MaLoaiHopDong == filter.contractType);
+					listAddendumst = listAddendumst.Where(x => x.contract.MaLoaiHopDong == filter.contractType);
 				}
 
 				if (!string.IsNullOrEmpty(filter.customerType))
 				{
-					listData = listData.Where(x => x.cus.MaLoaiKh == filter.customerType);
+					listContract = listContract.Where(x => x.cus.MaLoaiKh == filter.customerType);
+					listAddendumst = listAddendumst.Where(x => x.cus.MaLoaiKh == filter.customerType);
 				}
 
 				if (!string.IsNullOrEmpty(filter.fromDate.ToString().Trim()) && !string.IsNullOrEmpty(filter.toDate.ToString().Trim()))
 				{
-					listData = listData.Where(x => x.contract.UpdatedTime >= filter.fromDate && x.contract.UpdatedTime <= filter.toDate);
+					listContract = listContract.Where(x => x.contract.UpdatedTime >= filter.fromDate && x.contract.UpdatedTime <= filter.toDate);
+					listAddendumst = listAddendumst.Where(x => x.contract.UpdatedTime >= filter.fromDate && x.contract.UpdatedTime <= filter.toDate);
 				}
 
-				var totalCount = await listData.Where(x => x.contract.MaHopDongCha == null).CountAsync();
+				if (!string.IsNullOrEmpty(filter.customerId))
+				{
+					listContract = listContract.Where(x => x.cus.MaKh == filter.customerId);
+					listAddendumst = listAddendumst.Where(x => x.cus.MaKh == filter.customerId);
+				}
 
-				var pagedData = await listData.Where(x => x.contract.MaHopDongCha == null).Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new ListContract()
+				if (!string.IsNullOrEmpty(filter.statusId))
+				{
+					listContract = listContract.Where(x => x.contract.TrangThai == int.Parse(filter.statusId));
+					listAddendumst = listAddendumst.Where(x => x.contract.TrangThai == int.Parse(filter.statusId));
+				}
+				var totalCount = await listContract.CountAsync();
+
+				if (totalCount == 0)
+				{
+					var listChild = await listAddendumst.ToListAsync();
+
+					if (listChild.Count > 0)
+					{
+						listContract = listData.Where(x => listChild.Select(y => y.contract.MaHopDongCha).Contains(x.contract.MaHopDong));
+						totalCount = listContract.Count();
+					}
+				}
+
+				var pagedData = await listContract.Skip((validFilter.PageNumber - 1) * validFilter.PageSize).Take(validFilter.PageSize).Select(x => new ListContract()
 				{
 					ChuoiKhachHang = _TMSContext.ChuoiKhachHang.Where(y => y.MaChuoi == x.cus.Chuoi).Select(y => y.TenChuoi).FirstOrDefault(),
 					NgayThanhToan = x.contract.NgayThanhToan,
@@ -481,7 +532,7 @@ namespace TBSLogistics.Service.Services.ContractManage
 					ThoiGianKetThuc = x.contract.ThoiGianKetThuc,
 					FileCosing = _TMSContext.Attachment.Where(y => y.MaHopDong == x.contract.MaHopDong + "_Costing").OrderByDescending(x => x.Id).Select(y => y.Id).FirstOrDefault().ToString(),
 					FileContract = _TMSContext.Attachment.Where(y => y.MaHopDong == x.contract.MaHopDong).OrderByDescending(x => x.Id).Select(y => y.Id).FirstOrDefault().ToString(),
-					listAddendums = listAddendums.Where(y => y.contract.MaHopDongCha == x.contract.MaHopDong).Select(z => new ListContract()
+					listAddendums = listAddendumst.Where(y => y.contract.MaHopDongCha == x.contract.MaHopDong).Select(z => new ListContract()
 					{
 						MaHopDong = z.contract.MaHopDong,
 						TenHienThi = z.contract.TenHienThi,
@@ -537,7 +588,7 @@ namespace TBSLogistics.Service.Services.ContractManage
 
 			if (listApprove == true)
 			{
-				getList = getList.Where(x => x.ct.TrangThai == 49);
+				getList = getList.Where(x => x.ct.TrangThai == 50);
 			}
 
 			var list = await getList.Select(x => new GetContractById()

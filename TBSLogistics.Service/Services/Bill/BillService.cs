@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Org.BouncyCastle.Asn1.Ocsp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,8 +39,18 @@ namespace TBSLogistics.Service.Services.Bill
 			{
 				await StoreDataBill(customerId, datePay, dateTime, bank);
 
-				var getListContractOfCus = await _context.HopDongVaPhuLuc.Where(x => x.MaKh == customerId && x.MaHopDongCha == null).FirstOrDefaultAsync();
-				var dateBegin = new DateTime(datePay.Year, datePay.Month, getListContractOfCus.NgayThanhToan.Value).AddMonths(-1).AddDays(1);
+				var getListContractOfCus = await _context.HopDongVaPhuLuc.Where(x => x.MaKh == customerId && x.MaHopDongCha == null).OrderByDescending(x => x.ThoiGianBatDau).FirstOrDefaultAsync();
+
+				int lastDateOfMonth = DateTime.DaysInMonth(datePay.Year, datePay.Month);
+				int dayInContract = getListContractOfCus.NgayThanhToan.Value;
+				if (dayInContract > lastDateOfMonth)
+				{
+					dayInContract = lastDateOfMonth;
+				}
+
+				var dateBegin = new DateTime(datePay.Year, datePay.Month, dayInContract).AddMonths(-1).AddDays(1);
+
+
 
 				var getlistHandling = from dp in _context.DieuPhoi
 									  join vd in _context.VanDon
@@ -161,10 +172,18 @@ namespace TBSLogistics.Service.Services.Bill
 					getlistHandling = getlistHandling.Where(x => x.dp.DonViVanTai == customerId);
 				}
 
-				var getListContractOfCus = await _context.HopDongVaPhuLuc.Where(x => x.MaKh == customerId && x.MaHopDongCha == null).FirstOrDefaultAsync();
-				var dateBegin = new DateTime(datePay.Year, datePay.Month, getListContractOfCus.NgayThanhToan.Value).AddMonths(-1).AddDays(1);
+				var getListContractOfCus = await _context.HopDongVaPhuLuc.Where(x => x.MaKh == customerId && x.MaHopDongCha == null).OrderByDescending(x => x.ThoiGianBatDau).FirstOrDefaultAsync();
 
-				var dateEnd = new DateTime(datePay.Year, datePay.Month, getListContractOfCus.NgayThanhToan.Value);
+				int lastDateOfMonth = DateTime.DaysInMonth(datePay.Year, datePay.Month);
+				int dayInContract = getListContractOfCus.NgayThanhToan.Value;
+				if (dayInContract > lastDateOfMonth)
+				{
+					dayInContract = lastDateOfMonth;
+				}
+
+				var dateBegin = new DateTime(datePay.Year, datePay.Month, dayInContract).AddMonths(-1).AddDays(1);
+
+				var dateEnd = new DateTime(datePay.Year, datePay.Month, dayInContract);
 				if (dateEnd.DayOfWeek == DayOfWeek.Sunday)
 				{
 					dateEnd = dateEnd.AddDays(1);
@@ -302,11 +321,18 @@ namespace TBSLogistics.Service.Services.Bill
 					getlistHandling = getlistHandling.Where(x => x.dp.DonViVanTai == request.cusId);
 				}
 
-				var getListContractOfCus = await _context.HopDongVaPhuLuc.Where(x => x.MaKh == request.cusId && x.MaHopDongCha == null).FirstOrDefaultAsync();
+				var getListContractOfCus = await _context.HopDongVaPhuLuc.Where(x => x.MaKh == request.cusId && x.MaHopDongCha == null).OrderByDescending(x => x.ThoiGianBatDau).FirstOrDefaultAsync();
 
-				var dateBegin = new DateTime(request.dateBlock.Year, request.dateBlock.Month, getListContractOfCus.NgayThanhToan.Value).AddMonths(-1).AddDays(1);
+				int lastDateOfMonth = DateTime.DaysInMonth(request.dateBlock.Year, request.dateBlock.Month);
+				int dayInContract = getListContractOfCus.NgayThanhToan.Value;
+				if (dayInContract > lastDateOfMonth)
+				{
+					dayInContract = lastDateOfMonth;
+				}
 
-				var dateEnd = new DateTime(request.dateBlock.Year, request.dateBlock.Month, getListContractOfCus.NgayThanhToan.Value);
+				var dateBegin = new DateTime(request.dateBlock.Year, request.dateBlock.Month, dayInContract).AddMonths(-1).AddDays(1);
+
+				var dateEnd = new DateTime(request.dateBlock.Year, request.dateBlock.Month, dayInContract);
 				if (dateEnd.DayOfWeek == DayOfWeek.Sunday)
 				{
 					dateEnd = dateEnd.AddDays(1);
@@ -525,10 +551,18 @@ namespace TBSLogistics.Service.Services.Bill
 			var transaction = await _context.Database.BeginTransactionAsync();
 			try
 			{
-				var getListContractOfCus = await _context.HopDongVaPhuLuc.Where(x => x.MaKh == customerId && x.MaHopDongCha == null).FirstOrDefaultAsync();
-				var dateBegin = new DateTime(datePay.Year, datePay.Month, getListContractOfCus.NgayThanhToan.Value).AddMonths(-1).AddDays(1);
+				var getListContractOfCus = await _context.HopDongVaPhuLuc.Where(x => x.MaKh == customerId && x.MaHopDongCha == null).OrderByDescending(x => x.ThoiGianBatDau).FirstOrDefaultAsync();
 
-				var dateEnd = new DateTime(datePay.Year, datePay.Month, getListContractOfCus.NgayThanhToan.Value);
+				int lastDateOfMonth = DateTime.DaysInMonth(datePay.Year, datePay.Year);
+				int dayInContract = getListContractOfCus.NgayThanhToan.Value;
+				if (dayInContract > lastDateOfMonth)
+				{
+					dayInContract = lastDateOfMonth;
+				}
+
+				var dateBegin = new DateTime(datePay.Year, datePay.Month, dayInContract).AddMonths(-1).AddDays(1);
+
+				var dateEnd = new DateTime(datePay.Year, datePay.Month, dayInContract);
 				if (dateEnd.Date.DayOfWeek == DayOfWeek.Saturday)
 				{
 					dateEnd = dateEnd.AddDays(1);
@@ -671,10 +705,17 @@ namespace TBSLogistics.Service.Services.Bill
 
 			if (!string.IsNullOrEmpty(filter.customerId))
 			{
-				var getListContractOfCus = await _context.HopDongVaPhuLuc.Where(x => x.MaKh == filter.customerId && x.MaHopDongCha == null).FirstOrDefaultAsync();
+				var getListContractOfCus = await _context.HopDongVaPhuLuc.Where(x => x.MaKh == filter.customerId && x.MaHopDongCha == null).OrderByDescending(x => x.ThoiGianBatDau).FirstOrDefaultAsync();
 
-				var dateBegin = new DateTime(filter.date.Year, filter.date.Month, getListContractOfCus.NgayThanhToan.Value).AddMonths(-1).AddDays(1);
-				var dateEnd = new DateTime(filter.date.Year, filter.date.Month, getListContractOfCus.NgayThanhToan.Value);
+				int lastDateOfMonth = DateTime.DaysInMonth(filter.date.Year, filter.date.Month);
+				int dayInContract = getListContractOfCus.NgayThanhToan.Value;
+				if (dayInContract > lastDateOfMonth)
+				{
+					dayInContract = lastDateOfMonth;
+				}
+
+				var dateBegin = new DateTime(filter.date.Year, filter.date.Month, dayInContract).AddMonths(-1).AddDays(1);
+				var dateEnd = new DateTime(filter.date.Year, filter.date.Month, dayInContract);
 				if (dateEnd.DayOfWeek == DayOfWeek.Sunday)
 				{
 					dateEnd = dateEnd.AddDays(1);
@@ -720,12 +761,30 @@ namespace TBSLogistics.Service.Services.Bill
 			}
 			else
 			{
-				var getListContractOfCus = await _context.HopDongVaPhuLuc.Where(x => x.MaHopDongCha == null && x.MaLoaiHopDong == "SELL").ToListAsync();
+				var getListContractOfCus = await _context.HopDongVaPhuLuc.Where(x => x.MaHopDongCha == null && x.MaLoaiHopDong == "SELL").OrderByDescending(x => x.ThoiGianBatDau).ToListAsync();
+
+				var listCheckContact = new List<string>();
 
 				foreach (var item in getListContractOfCus)
 				{
-					var dateBegin = new DateTime(filter.date.Year, filter.date.Month, item.NgayThanhToan.Value).AddMonths(-1).AddDays(1);
-					var dateEnd = new DateTime(filter.date.Year, filter.date.Month, item.NgayThanhToan.Value);
+					if (!listCheckContact.Contains(item.MaHopDong))
+					{
+						listCheckContact.Add(item.MaHopDong);
+					}
+					else
+					{
+						continue;
+					}
+
+					int lastDateOfMonth = DateTime.DaysInMonth(filter.date.Year, filter.date.Month);
+					int dayInContract = item.NgayThanhToan.Value;
+					if (dayInContract > lastDateOfMonth)
+					{
+						dayInContract = lastDateOfMonth;
+					}
+
+					var dateBegin = new DateTime(filter.date.Year, filter.date.Month, dayInContract).AddMonths(-1).AddDays(1);
+					var dateEnd = new DateTime(filter.date.Year, filter.date.Month, dayInContract);
 
 					if (dateEnd.DayOfWeek == DayOfWeek.Sunday)
 					{
@@ -852,7 +911,7 @@ namespace TBSLogistics.Service.Services.Bill
 
 			if (!string.IsNullOrEmpty(filter.supplierId))
 			{
-				var getListContractOfCus = await _context.HopDongVaPhuLuc.Where(x => x.MaKh == filter.supplierId && x.MaHopDongCha == null && x.TrangThai == 24).FirstOrDefaultAsync();
+				var getListContractOfCus = await _context.HopDongVaPhuLuc.Where(x => x.MaKh == filter.supplierId && x.MaHopDongCha == null && x.TrangThai == 24).OrderByDescending(x => x.ThoiGianBatDau).FirstOrDefaultAsync();
 				if (getListContractOfCus == null)
 				{
 					return new PagedResponseCustom<ListBillHandling>()
@@ -863,8 +922,15 @@ namespace TBSLogistics.Service.Services.Bill
 					};
 				}
 
-				var dateBegin = new DateTime(filter.date.Year, filter.date.Month, getListContractOfCus.NgayThanhToan.Value).AddMonths(-1).AddDays(1);
-				var dateEnd = new DateTime(filter.date.Year, filter.date.Month, getListContractOfCus.NgayThanhToan.Value);
+				int lastDateOfMonth = DateTime.DaysInMonth(filter.date.Year, filter.date.Month);
+				int dayInContract = getListContractOfCus.NgayThanhToan.Value;
+				if (dayInContract > lastDateOfMonth)
+				{
+					dayInContract = lastDateOfMonth;
+				}
+
+				var dateBegin = new DateTime(filter.date.Year, filter.date.Month, dayInContract).AddMonths(-1).AddDays(1);
+				var dateEnd = new DateTime(filter.date.Year, filter.date.Month, dayInContract);
 				if (dateEnd.DayOfWeek == DayOfWeek.Sunday)
 				{
 					dateEnd = dateEnd.AddDays(1);
@@ -921,7 +987,7 @@ namespace TBSLogistics.Service.Services.Bill
 
 			if (!string.IsNullOrEmpty(filter.customerId))
 			{
-				var getListContractOfCus = await _context.HopDongVaPhuLuc.Where(x => x.MaKh == filter.customerId && x.MaHopDongCha == null && x.TrangThai == 24).FirstOrDefaultAsync();
+				var getListContractOfCus = await _context.HopDongVaPhuLuc.Where(x => x.MaKh == filter.customerId && x.MaHopDongCha == null && x.TrangThai == 24).OrderByDescending(x => x.ThoiGianBatDau).FirstOrDefaultAsync();
 				if (getListContractOfCus == null)
 				{
 					return new PagedResponseCustom<ListBillHandling>()
@@ -932,8 +998,15 @@ namespace TBSLogistics.Service.Services.Bill
 					};
 				}
 
-				var dateBegin = new DateTime(filter.date.Year, filter.date.Month, getListContractOfCus.NgayThanhToan.Value).AddMonths(-1).AddDays(1);
-				var dateEnd = new DateTime(filter.date.Year, filter.date.Month, getListContractOfCus.NgayThanhToan.Value);
+				int lastDateOfMonth = DateTime.DaysInMonth(filter.date.Year, filter.date.Month);
+				int dayInContract = getListContractOfCus.NgayThanhToan.Value;
+				if (dayInContract > lastDateOfMonth)
+				{
+					dayInContract = lastDateOfMonth;
+				}
+
+				var dateBegin = new DateTime(filter.date.Year, filter.date.Month, dayInContract).AddMonths(-1).AddDays(1);
+				var dateEnd = new DateTime(filter.date.Year, filter.date.Month, dayInContract);
 				if (dateEnd.DayOfWeek == DayOfWeek.Sunday)
 				{
 					dateEnd = dateEnd.AddDays(1);
@@ -1000,17 +1073,32 @@ namespace TBSLogistics.Service.Services.Bill
 					};
 				}
 
-				var getListContractOfCus = await _context.HopDongVaPhuLuc.Where(x =>
-				x.MaHopDongCha == null
-				&& x.TrangThai == 24
-				&& x.MaLoaiHopDong == (filter.customerType == "KH" ? "SELL" : "BUY")).ToListAsync();
+				var getListContractOfCus = await _context.HopDongVaPhuLuc.Where(x => x.MaHopDongCha == null && x.TrangThai == 24 && x.MaLoaiHopDong == (filter.customerType == "KH" ? "SELL" : "BUY")).OrderByDescending(x => x.ThoiGianBatDau).ToListAsync();
+
+				var listCheckContract = new List<string>();
 
 				foreach (var item in getListContractOfCus)
 				{
+					if (!listCheckContract.Contains(item.MaHopDong))
+					{
+						listCheckContract.Add(item.MaHopDong);
+					}
+					else
+					{
+						continue;
+					}
+
+					int lastDateOfMonth = DateTime.DaysInMonth(filter.date.Year, filter.date.Month);
+					int dayInContract = item.NgayThanhToan.Value;
+					if (dayInContract > lastDateOfMonth)
+					{
+						dayInContract = lastDateOfMonth;
+					}
+
 					var getDataFilter = await getlistHandling.Where(x =>
 					((filter.customerType == "KH" ? x.vd.MaKh : x.dp.DonViVanTai) == item.MaKh)
-					&& x.dp.CreatedTime >= new DateTime(filter.date.Year, filter.date.Month, item.NgayThanhToan.Value).AddMonths(-1).AddDays(1)
-					&& x.dp.CreatedTime <= new DateTime(filter.date.Year, filter.date.Month, item.NgayThanhToan.Value)).ToListAsync();
+					&& x.dp.CreatedTime >= new DateTime(filter.date.Year, filter.date.Month, dayInContract).AddMonths(-1).AddDays(1)
+					&& x.dp.CreatedTime <= new DateTime(filter.date.Year, filter.date.Month, dayInContract)).ToListAsync();
 
 					if (getDataFilter.Count() > 0)
 					{

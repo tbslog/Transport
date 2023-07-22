@@ -12,6 +12,7 @@ namespace TBSLogistics.Data.TMS
             LogGpsDiemDauNavigation = new HashSet<LogGps>();
             LogGpsDiemLayRongNavigation = new HashSet<LogGps>();
             LogGpsDiemTraRongNavigation = new HashSet<LogGps>();
+            PhuPhiNangHa = new HashSet<PhuPhiNangHa>();
         }
 
         public int MaDiaDiem { get; set; }
@@ -42,5 +43,6 @@ namespace TBSLogistics.Data.TMS
         public virtual ICollection<LogGps> LogGpsDiemDauNavigation { get; set; }
         public virtual ICollection<LogGps> LogGpsDiemLayRongNavigation { get; set; }
         public virtual ICollection<LogGps> LogGpsDiemTraRongNavigation { get; set; }
+        public virtual ICollection<PhuPhiNangHa> PhuPhiNangHa { get; set; }
     }
 }

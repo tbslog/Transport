@@ -35,12 +35,18 @@ namespace TBSLogistics.Service.Services.PriceTableManage
 			tempData = _common.DecodeToken(_httpContextAccessor.HttpContext.Request.Headers["Authorization"][0].ToString().Replace("Bearer ", ""));
 		}
 
-		public async Task<BoolActionResult> CreatePriceTable(List<CreatePriceListRequest> request, bool noContract = false)
+		public async Task<BoolActionResult> CreatePriceTable(List<CreatePriceListRequest> request, bool noContract = false, bool createByExcel = false)
 		{
 			try
 			{
 				string ErrorValidate = "";
 				int row = 0;
+
+				if (createByExcel)
+				{
+					row = 3;
+				}
+
 				foreach (var item in request)
 				{
 					row++;
@@ -120,10 +126,10 @@ namespace TBSLogistics.Service.Services.PriceTableManage
 
 					if (noContract == false)
 					{
-						var checkContract = await _context.HopDongVaPhuLuc.Where(x => x.MaHopDong == item.MaHopDong && x.MaKh == item.MaKH && x.TrangThai == 49).FirstOrDefaultAsync();
+						var checkContract = await _context.HopDongVaPhuLuc.Where(x => x.MaHopDong == item.MaHopDong && x.MaKh == item.MaKH && x.TrangThai == 50).FirstOrDefaultAsync();
 						if (checkContract == null)
 						{
-							ErrorValidate += "Hợp đồng không thể thêm bảng giá: " + string.Join(",", item.MaHopDong);
+							ErrorValidate += "Hợp đồng chưa trình duyệt không thể thêm bảng giá: " + string.Join(",", item.MaHopDong);
 						}
 					}
 					else
@@ -822,7 +828,7 @@ namespace TBSLogistics.Service.Services.PriceTableManage
 			return ErrorValidate;
 		}
 
-		public async Task<BoolActionResult> CreatePriceByExcel(IFormFile formFile, CancellationToken cancellationToken)
+		public async Task<BoolActionResult> CreatePriceByExcel(IFormFile formFile,bool noContract, CancellationToken cancellationToken)
 		{
 			try
 			{
@@ -982,7 +988,7 @@ namespace TBSLogistics.Service.Services.PriceTableManage
 					});
 				}
 
-				var addPriceTable = await CreatePriceTable(list);
+				var addPriceTable = await CreatePriceTable(list, noContract, true);
 
 				if (addPriceTable.isSuccess == true)
 				{

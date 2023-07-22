@@ -15,7 +15,7 @@ namespace TBSLogistics.Service.Services.PricelistManage
 {
     public interface IPriceTable
     {
-        Task<BoolActionResult> CreatePriceTable(List<CreatePriceListRequest> request, bool noContract);
+        Task<BoolActionResult> CreatePriceTable(List<CreatePriceListRequest> request, bool noContract, bool createByExcel = false);
 		Task<PagedResponseCustom<ListCustomerOfPriceTable>> GetListPriceTable(PaginationFilter filter);
         Task<PagedResponseCustom<GetPriceListRequest>> GetListPriceTableByContractId(string contractId, string onlyContractId, ListFilter listFilter, PaginationFilter filter);
         Task<List<GetPriceListRequest>> GetListPriceTableByCustommerId(string MaKH);
@@ -24,7 +24,7 @@ namespace TBSLogistics.Service.Services.PricelistManage
         Task<BoolActionResult> UpdatePriceTable(int id, GetPriceListById request);
         Task<GetPriceListById> GetPriceTableById(int id);
         Task<List<GetPriceListRequest>> GetListPriceTableExportExcel(string cusType);
-        Task<BoolActionResult> CreatePriceByExcel(IFormFile formFile, CancellationToken cancellationToken);
+        Task<BoolActionResult> CreatePriceByExcel(IFormFile formFile, bool noContract, CancellationToken cancellationToken);
       
         Task<BoolActionResult> RevertPriceTableOfHandling(string contractId, string cusId);
 		Task<GetPriceListRequest> GetPriceTable(string MaKH, string accountId, int firstPlace, int secondPlace, int? emptyPlace, string MaDVT, string LoaiHangHoa, string LoaiPhuongTien, string MaPTVC);

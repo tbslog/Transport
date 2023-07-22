@@ -249,15 +249,36 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 		[Route("[action]")]
 		public async Task<IActionResult> ReadFileExcelPricetable(IFormFile formFile, CancellationToken cancellationToken)
 		{
-			var ImportExcel = await _priceTable.CreatePriceByExcel(formFile, cancellationToken);
-
-			if (ImportExcel.isSuccess == true)
+			var checkPermissiCreate = await _common.CheckPermission("C0002");
+			var checkPermission = await _common.CheckPermission("C0003");
+			if (checkPermissiCreate.isSuccess == true && checkPermission.isSuccess == true)
 			{
-				return Ok(ImportExcel.Message);
+				var ImportExcel = await _priceTable.CreatePriceByExcel(formFile, true, cancellationToken);
+
+				if (ImportExcel.isSuccess)
+				{
+					return Ok(ImportExcel.Message);
+				}
+				else
+				{
+					return Ok(ImportExcel.Message);
+				}
+			}
+
+			if (checkPermission.isSuccess == false)
+			{
+				return BadRequest(checkPermission.Message);
+			}
+
+			var create = await _priceTable.CreatePriceByExcel(formFile, false, cancellationToken);
+
+			if (create.isSuccess == true)
+			{
+				return Ok(create.Message);
 			}
 			else
 			{
-				return BadRequest(ImportExcel.Message);
+				return BadRequest(create.Message);
 			}
 		}
 
@@ -421,7 +442,7 @@ namespace TBSLogistics.ApplicationAPI.Controllers
 			worksheet1.Cell(currRow, 3).Value = "Mã Địa Điểm";
 			worksheet1.Cell(currRow, 2).Value = "Tên Địa Điểm";
 			worksheet1.Cell(currRow, 1).Value = "Thuộc Khu Vực";
-	
+
 
 			foreach (var row in getData.dataResponse)
 			{

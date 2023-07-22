@@ -23,6 +23,7 @@ using TBSLogistics.Service.Services.ContractManage;
 using TBSLogistics.Service.Services.CurrencyExchange;
 using TBSLogistics.Service.Services.CustommerManage;
 using TBSLogistics.Service.Services.DriverManage;
+using TBSLogistics.Service.Services.LoloSubfeeManager;
 using TBSLogistics.Service.Services.MobileManager;
 using TBSLogistics.Service.Services.NotificationManage;
 using TBSLogistics.Service.Services.PricelistManage;
@@ -56,7 +57,7 @@ namespace TBSLogistics.ApplicationAPI
 			{
 				option.AddPolicy(name: apiCorsPolicy, policy =>
 				 {
-					 policy.WithOrigins("http://localhost:3000", "https://tms.tbslogistics.com.vn", "https://localhost:8888").AllowAnyMethod().AllowAnyHeader();
+					 policy.WithOrigins("http://localhost:3000", "https://tms.tbslogistics.com.vn", "https://localhost:8888", "http://erp.tbslogistics.com.vn:81").AllowAnyMethod().AllowAnyHeader();
 					 //policy.WithOrigins("*").AllowAnyMethod().AllowAnyHeader();
 				 });
 			});
@@ -125,6 +126,7 @@ namespace TBSLogistics.ApplicationAPI
 			services.AddTransient<IMobile, MobileServices>();
 			services.AddTransient<IAccount, AccountService>();
 			services.AddTransient<ICurrencyExchange, CurrencyExchangeService>();
+			services.AddTransient<ILoloSubfee, LoloSubfeeService>();
 
 			services.AddSwaggerGen(option =>
 			{
