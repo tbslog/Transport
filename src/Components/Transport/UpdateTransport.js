@@ -1217,25 +1217,6 @@ const UpdateTransport = (props) => {
                                             )}
                                           </div>
                                         </div>
-                                        <div className="col-sm-1">
-                                          <div class="form-check">
-                                            <input
-                                              {...register(
-                                                `optionHandling.${index}.ReuseCont`
-                                              )}
-                                              class="form-check-input"
-                                              type="checkbox"
-                                              value=""
-                                              id={("ReuseCont", index)}
-                                            />
-                                            <label
-                                              class="form-check-label"
-                                              for={("ReuseCont", index)}
-                                            >
-                                              Reuse CONT
-                                            </label>
-                                          </div>
-                                        </div>
                                       </>
                                     ) : (
                                       <>
@@ -1278,6 +1259,25 @@ const UpdateTransport = (props) => {
                                     )}
                                   </>
                                 )}
+                              <div className="col-sm-1">
+                                <div class="form-check">
+                                  <input
+                                    {...register(
+                                      `optionHandling.${index}.ReuseCont`
+                                    )}
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    value=""
+                                    id={("ReuseCont", index)}
+                                  />
+                                  <label
+                                    class="form-check-label"
+                                    for={("ReuseCont", index)}
+                                  >
+                                    Reuse CONT
+                                  </label>
+                                </div>
+                              </div>
                               <div className="col-sm-1">
                                 <div className="form-group">
                                   <input

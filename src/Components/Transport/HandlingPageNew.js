@@ -648,8 +648,8 @@ const HandlingPageNew = () => {
     showModalForm();
   };
 
-  const refeshData = () => {
-    fetchData(
+  const refeshData = async () => {
+    await fetchData(
       page,
       keySearch,
       fromDate,

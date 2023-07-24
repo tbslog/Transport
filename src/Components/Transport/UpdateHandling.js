@@ -1292,23 +1292,20 @@ const UpdateHandling = (props) => {
                       </div>
                     </div>
 
-                    {accountType &&
-                      accountType === "NV" &&
-                      transportType &&
-                      transportType === "xuat" && (
-                        <div className="col col-sm">
-                          <div className="form-group">
-                            <label htmlFor="ReuseCont">Reuse CONT</label>
-                            <select
-                              className="form-control"
-                              {...register(`ReuseCont`)}
-                            >
-                              <option value={true}>Có</option>
-                              <option value={false}>Không</option>
-                            </select>
-                          </div>
+                    {accountType && accountType === "NV" && (
+                      <div className="col col-sm">
+                        <div className="form-group">
+                          <label htmlFor="ReuseCont">Reuse CONT</label>
+                          <select
+                            className="form-control"
+                            {...register(`ReuseCont`)}
+                          >
+                            <option value={true}>Có</option>
+                            <option value={false}>Không</option>
+                          </select>
                         </div>
-                      )}
+                      </div>
+                    )}
 
                     <div className="col col-sm">
                       <div className="form-group">
